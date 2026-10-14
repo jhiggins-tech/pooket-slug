@@ -5,8 +5,9 @@ on:
     branches:
       - main
       - 'claude/**'
-    paths-ignore:
+    paths-ignore: # docs never change the game, and a redeploy changes the build version co-op players must share
       - '**.md'
+      - 'docs/**'
   workflow_dispatch:
 
 permissions:
