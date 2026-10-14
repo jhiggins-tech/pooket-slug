@@ -29,7 +29,11 @@
         margin-top: 10px; background: #6ca8e0; border-radius: 6px; overflow: hidden;
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
       }
-      #unity-canvas { width: 100%; height: 100%; display: block; outline: none; image-rendering: pixelated; }
+      #unity-canvas {
+        width: 100%; height: 100%; display: block; outline: none; image-rendering: pixelated;
+        /* the game's touch pad owns every touch: no scrolling, zooming, text selection or long-press menus */
+        touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+      }
       #loader {
         position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
         gap: 12px; background: var(--panel);
@@ -49,6 +53,15 @@
       footer { margin-top: auto; padding-top: 16px; color: var(--muted); font-size: 12px; text-align: center; }
       footer a { color: var(--muted); }
       @media (max-width: 640px) { body { padding: 8px; } h1 { font-size: 18px; } }
+      #rotate { display: none; margin: 10px 0 0; color: var(--muted); text-align: center; }
+      /* phones: the game fills a sideways screen, with just the fullscreen button below it */
+      @media (pointer: coarse) and (orientation: landscape) {
+        body { padding: 4px 8px; }
+        header, footer, .keys { display: none; }
+        #stage { margin-top: 0; width: min(100%, calc((100vh - 52px) * 16 / 9)); width: min(100%, calc((100dvh - 52px) * 16 / 9)); }
+        .toolbar { justify-content: center; margin-top: 6px; }
+      }
+      @media (pointer: coarse) and (orientation: portrait) { #rotate { display: block; } }
     </style>
   </head>
   <body>
@@ -66,6 +79,8 @@
       </div>
     </div>
 
+    <p id="rotate">Turn your phone sideways to play.</p>
+
     <div class="toolbar">
       <span class="keys">
         <kbd>←</kbd><kbd>→</kbd> move · <kbd>Z</kbd> jump · <kbd>X</kbd> fire · <kbd>C</kbd> grenade · <kbd>↑</kbd> aim up · <kbd>P</kbd> pause · <kbd>M</kbd> mute
@@ -74,7 +89,7 @@
     </div>
 
     <footer>
-      Keyboard or gamepad · procedural pixel art &amp; sound · <a href="https://game.ci">game.ci</a>
+      Keyboard, gamepad or touch · procedural pixel art &amp; sound · <a href="https://game.ci">game.ci</a>
     </footer>
 
     <script src="Build/{{{ LOADER_FILENAME }}}"></script>

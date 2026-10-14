@@ -64,6 +64,7 @@ namespace PooketSlug
 
             m_World = new World(m_Camera);
             SetState(GameState.Title);
+            GameInput.TouchActive = Application.isMobilePlatform; // until the player shows otherwise
 
             if (NetSessions.Factory != null && NetConfig.Configured) m_Net = NetSessions.Factory(gameObject);
             // invite link (?room=ABCD-EU): open the join box with the code filled in
@@ -93,6 +94,12 @@ namespace PooketSlug
             m_Code = code ?? "";
             m_CodeOpenedFrame = Time.frameCount; // don't type the J that opened the box
             SetState(GameState.CodeEntry);
+        }
+
+        void JoinWithCode()
+        {
+            string code = m_Code.Trim('-', ' ');
+            if (code.Length > 0) GoOnline(() => m_Net.Join(code));
         }
 
         void GoOnline(Action connect)
@@ -147,7 +154,10 @@ namespace PooketSlug
 
         void Update()
         {
+            UpdatePad();
             GameInput.Poll();
+            MenuInput menu = GameInput.Menu;
+            SoldierInput soldier = GameInput.Soldier;
             float dt = Mathf.Min(Time.unscaledDeltaTime, 1f / 30f);
             m_StateTime += dt;
 
@@ -160,7 +170,7 @@ namespace PooketSlug
                 m_FpsTimer = 0f;
             }
 
-            if (GameInput.MutePressed && m_State != GameState.CodeEntry) Sfx.Muted = !Sfx.Muted;
+            if (menu.Mute && m_State != GameState.CodeEntry) Sfx.Muted = !Sfx.Muted;
 
             switch (m_State)
             {
@@ -168,11 +178,11 @@ namespace PooketSlug
                     if (m_Net != null)
                     {
                         // J doubles as fire, so the online keys are checked first
-                        if (GameInput.HostPressed) { GoOnline(m_Net.Host); break; }
-                        if (GameInput.QuickPressed) { GoOnline(m_Net.QuickMatch); break; }
-                        if (GameInput.JoinPressed) { OpenCodeEntry(""); break; }
+                        if (menu.Host) { GoOnline(m_Net.Host); break; }
+                        if (menu.Quick) { GoOnline(m_Net.QuickMatch); break; }
+                        if (menu.Join) { OpenCodeEntry(""); break; }
                     }
-                    if (GameInput.StartPressed || GameInput.FirePressed || GameInput.JumpPressed)
+                    if (menu.Start || menu.Tap || soldier.FirePressed || soldier.JumpPressed)
                     {
                         SetState(GameState.Playing);
                         Sfx.Play(Sfx.Start);
@@ -180,10 +190,11 @@ namespace PooketSlug
                     break;
 
                 case GameState.CodeEntry:
+                    if (menu.Tap) JoinWithCode(); // on a phone, an invite link fills in the code and a tap joins
                     break; // the IMGUI text field handles typing, Enter and Esc (see OnGUI)
 
                 case GameState.Lobby:
-                    if (GameInput.BackPressed)
+                    if (menu.Back)
                     {
                         m_Net.Leave();
                         SetState(GameState.Title);
@@ -205,7 +216,7 @@ namespace PooketSlug
                         if (!CoopAlive()) break;
                         if (m_Net.Link.Round != m_World.Round) { BeginCoop(); break; } // partner restarted the mission
                         m_LeaveArmed -= dt;
-                        if (GameInput.BackPressed)
+                        if (menu.Back || menu.PadPause)
                         {
                             if (m_LeaveArmed > 0f)
                             {
@@ -216,15 +227,15 @@ namespace PooketSlug
                             m_LeaveArmed = 2f;
                         }
                         // no pausing a shared game, and no game over: fallen soldiers come back
-                        m_World.Tick(dt);
+                        m_World.Tick(dt, soldier);
                         if (m_World.Victory && m_World.VictoryTime > 1f) EndRun(GameState.Victory);
                         break;
                     }
-                    if (GameInput.RestartPressed) { Restart(); break; }
-                    if (GameInput.PausePressed || (GameInput.StartPressed && m_StateTime > 0.2f)) m_Paused = !m_Paused;
+                    if (menu.Restart) { Restart(); break; }
+                    if (menu.Pause || menu.PadPause || (menu.Start && m_StateTime > 0.2f)) m_Paused = !m_Paused;
                     if (m_Paused) break;
 
-                    m_World.Tick(dt);
+                    m_World.Tick(dt, soldier);
                     if (m_World.Player.Dead && m_World.Player.DeadTime > 1.6f) EndRun(GameState.GameOver);
                     else if (m_World.Victory && m_World.VictoryTime > 1f) EndRun(GameState.Victory);
                     break;
@@ -235,15 +246,15 @@ namespace PooketSlug
                     {
                         if (!CoopAlive()) break;
                         if (m_Net.Link.Round != m_World.Round) { BeginCoop(); break; }
-                        if (GameInput.BackPressed)
+                        if (menu.Back || menu.PadPause)
                         {
                             m_Net.Leave();
                             EndCoop(null);
                             break;
                         }
                     }
-                    m_World.Tick(dt);
-                    if (m_StateTime > 1.2f && (GameInput.StartPressed || GameInput.RestartPressed || GameInput.FirePressed))
+                    m_World.Tick(dt, soldier);
+                    if (m_StateTime > 1.2f && (menu.Start || menu.Restart || menu.Tap || soldier.FirePressed))
                     {
                         if (m_Coop) m_Net.Link.RequestRestart(); // the authority bumps the round; everyone rebuilds
                         else Restart();
@@ -252,6 +263,18 @@ namespace PooketSlug
             }
 
             m_World.Render();
+        }
+
+        /// <summary>Shows the touch pad while playing with a touch screen, and fits it to the screen.</summary>
+        void UpdatePad()
+        {
+            ArcadePad pad = GameInput.Pad;
+            pad.Layout(Screen.width * Tuning.Hud.Height / Mathf.Max(1, Screen.height));
+            bool touch = GameInput.TouchActive;
+            bool playing = m_State == GameState.Playing;
+            pad.Visible = touch && playing && !m_Paused;
+            // solo: pause; co-op: leave (twice), which is also how a finished shared game is left
+            pad.PauseVisible = touch && (playing || (m_Coop && m_State == GameState.Victory));
         }
 
         void EndRun(GameState state)
@@ -327,17 +350,31 @@ namespace PooketSlug
             Text(vw - 6, 360 - 14, Mathf.RoundToInt(m_Fps) + " FPS" + (Sfx.Muted ? " · MUTED" : ""), 8, new Color(1f, 1f, 1f, 0.75f), TextAnchor.UpperRight);
 
             bool blink = (int)(Time.unscaledTime * 2.5f) % 2 == 0;
+            bool touch = GameInput.TouchActive;
             switch (m_State)
             {
                 case GameState.Title:
                     Box(0, 0, vw, 360, new Color(0f, 0f, 0f, 0.35f));
                     Text(vw * 0.5f, 70, "POOKET SLUG", 44, new Color(1f, 0.62f, 0.2f), TextAnchor.MiddleCenter);
                     Text(vw * 0.5f, 106, "built by GameCI · hosted on GitHub Pages", 12, Color.white, TextAnchor.MiddleCenter);
-                    Text(vw * 0.5f, 150, "MOVE  Arrows / WASD      JUMP  Z / Space      FIRE  X / J", 10, new Color(1f, 0.95f, 0.8f), TextAnchor.MiddleCenter);
-                    Text(vw * 0.5f, 166, "GRENADE  C / L      AIM  Up / Down (in air)      DROP  Down + Jump", 10, new Color(1f, 0.95f, 0.8f), TextAnchor.MiddleCenter);
-                    Text(vw * 0.5f, 182, "PAUSE  P / Enter      RESTART  R      MUTE  M      Gamepad supported", 10, new Color(1f, 0.95f, 0.8f), TextAnchor.MiddleCenter);
-                    if (blink) Text(vw * 0.5f, 222, m_Net != null ? "PRESS ENTER OR X TO PLAY SOLO" : "PRESS ENTER OR X TO START", 16, Color.white, TextAnchor.MiddleCenter);
-                    if (m_Net != null)
+                    Color keys = new Color(1f, 0.95f, 0.8f);
+                    if (touch)
+                    {
+                        Text(vw * 0.5f, 150, "LEFT THUMB  RUN, AIM UP, CROUCH (AIM DOWN IN THE AIR)", 10, keys, TextAnchor.MiddleCenter);
+                        Text(vw * 0.5f, 166, "RIGHT THUMB  FIRE (HOLD IT), JUMP, SP      DROP  DOWN + JUMP", 10, keys, TextAnchor.MiddleCenter);
+                        Text(vw * 0.5f, 182, "II  PAUSE", 10, keys, TextAnchor.MiddleCenter);
+                    }
+                    else
+                    {
+                        Text(vw * 0.5f, 150, "MOVE  Arrows / WASD      JUMP  Z / Space      FIRE  X / J", 10, keys, TextAnchor.MiddleCenter);
+                        Text(vw * 0.5f, 166, "GRENADE  C / L      AIM  Up / Down (in air)      DROP  Down + Jump", 10, keys, TextAnchor.MiddleCenter);
+                        Text(vw * 0.5f, 182, "PAUSE  P / Enter      RESTART  R      MUTE  M      Gamepad supported", 10, keys, TextAnchor.MiddleCenter);
+                    }
+                    string go = touch ? "TAP" : "PRESS ENTER OR X";
+                    if (blink) Text(vw * 0.5f, 222, go + (m_Net != null ? " TO PLAY SOLO" : " TO START"), 16, Color.white, TextAnchor.MiddleCenter);
+                    if (m_Net != null && touch)
+                        Text(vw * 0.5f, 252, "ONLINE CO-OP: OPEN A FRIEND'S INVITE LINK", 11, CoopBlue, TextAnchor.MiddleCenter);
+                    else if (m_Net != null)
                         Text(vw * 0.5f, 252, "ONLINE CO-OP      H  HOST A GAME      J  JOIN WITH A CODE      Q  QUICK MATCH", 11, CoopBlue, TextAnchor.MiddleCenter);
                     else if (NetSessions.Factory != null)
                         Text(vw * 0.5f, 252, "ONLINE CO-OP IS OFF IN THIS BUILD (NO PHOTON APP ID)", 9, new Color(1f, 1f, 1f, 0.6f), TextAnchor.MiddleCenter);
@@ -350,7 +387,7 @@ namespace PooketSlug
                     Text(vw * 0.5f, 110, "JOIN A FRIEND'S GAME", 22, new Color(1f, 0.62f, 0.2f), TextAnchor.MiddleCenter);
                     Text(vw * 0.5f, 138, "TYPE THE ROOM CODE FROM THEIR SCREEN, E.G. ABCD-EU", 10, Color.white, TextAnchor.MiddleCenter);
                     CodeField(vw * 0.5f - 90f, 156f, 180f, 30f);
-                    Text(vw * 0.5f, 206, "ENTER  JOIN       ESC  BACK", 11, new Color(1f, 0.95f, 0.8f), TextAnchor.MiddleCenter);
+                    Text(vw * 0.5f, 206, touch ? "TAP TO JOIN" : "ENTER  JOIN       ESC  BACK", 11, new Color(1f, 0.95f, 0.8f), TextAnchor.MiddleCenter);
                     break;
 
                 case GameState.Lobby:
@@ -368,6 +405,7 @@ namespace PooketSlug
                     {
                         Box(0, 0, vw, 360, new Color(0f, 0f, 0f, 0.4f));
                         Text(vw * 0.5f, 160, "PAUSED", 28, Color.white, TextAnchor.MiddleCenter);
+                        if (touch) Text(vw * 0.5f, 190, "TAP II TO GO ON", 11, Color.white, TextAnchor.MiddleCenter);
                     }
                     break;
 
@@ -375,7 +413,7 @@ namespace PooketSlug
                     Box(0, 0, vw, 360, new Color(0.2f, 0f, 0f, Mathf.Min(0.45f, m_StateTime)));
                     Text(vw * 0.5f, 130, "GAME OVER", 36, new Color(1f, 0.35f, 0.3f), TextAnchor.MiddleCenter);
                     Text(vw * 0.5f, 168, "SCORE " + w.Scoring.Points, 14, Color.white, TextAnchor.MiddleCenter);
-                    if (blink && m_StateTime > 1.2f) Text(vw * 0.5f, 210, "PRESS ENTER TO RETRY", 14, Color.white, TextAnchor.MiddleCenter);
+                    if (blink && m_StateTime > 1.2f) Text(vw * 0.5f, 210, touch ? "TAP TO RETRY" : "PRESS ENTER TO RETRY", 14, Color.white, TextAnchor.MiddleCenter);
                     break;
 
                 case GameState.Victory:
@@ -383,10 +421,44 @@ namespace PooketSlug
                     Text(vw * 0.5f, 120, "MISSION COMPLETE!", 32, new Color(1f, 0.85f, 0.3f), TextAnchor.MiddleCenter);
                     int t = Mathf.FloorToInt(w.Elapsed);
                     Text(vw * 0.5f, 160, string.Format("SCORE {0}     TIME {1}:{2:00}", w.Scoring.Points, t / 60, t % 60), 14, Color.white, TextAnchor.MiddleCenter);
-                    if (blink && m_StateTime > 1.2f) Text(vw * 0.5f, 204, "PRESS ENTER TO PLAY AGAIN", 14, Color.white, TextAnchor.MiddleCenter);
-                    if (m_Coop) Text(vw * 0.5f, 228, "ESC  LEAVE THE GAME", 10, new Color(1f, 0.95f, 0.8f), TextAnchor.MiddleCenter);
+                    if (blink && m_StateTime > 1.2f) Text(vw * 0.5f, 204, touch ? "TAP TO PLAY AGAIN" : "PRESS ENTER TO PLAY AGAIN", 14, Color.white, TextAnchor.MiddleCenter);
+                    if (m_Coop) Text(vw * 0.5f, 228, touch ? "EXIT  LEAVE THE GAME" : "ESC  LEAVE THE GAME", 10, new Color(1f, 0.95f, 0.8f), TextAnchor.MiddleCenter);
                     break;
             }
+
+            DrawPad();
+        }
+
+        static readonly Color PadFill = new Color(0.08f, 0.06f, 0.1f, 0.35f), PadHeld = new Color(1f, 0.62f, 0.2f, 0.6f);
+
+        /// <summary>The touch pad (<see cref="ArcadePad"/>), over everything else.</summary>
+        void DrawPad()
+        {
+            ArcadePad pad = GameInput.Pad;
+            if (pad.Visible)
+            {
+                Disc(pad.StickOrigin, ArcadePad.StickRadius + 12f, PadFill);
+                Disc(pad.StickKnob, 18f, new Color(1f, 1f, 1f, pad.StickActive ? 0.7f : 0.35f));
+                PadButton(pad, ArcadePad.Button.Fire, "FIRE");
+                PadButton(pad, ArcadePad.Button.Jump, "JUMP");
+                PadButton(pad, ArcadePad.Button.Special, "SP " + m_World.Player.Specials);
+            }
+            if (pad.PauseVisible) PadButton(pad, ArcadePad.Button.Pause, m_Coop ? "EXIT" : "II");
+        }
+
+        void PadButton(ArcadePad pad, ArcadePad.Button button, string label)
+        {
+            bool held = pad.Held(button);
+            Vector2 c = pad.Center(button);
+            Disc(c, pad.Radius(button), held ? PadHeld : PadFill);
+            Text(c.x, c.y, label, button == ArcadePad.Button.Pause ? 8 : 10, held ? Color.white : new Color(1f, 1f, 1f, 0.85f), TextAnchor.MiddleCenter);
+        }
+
+        void Disc(Vector2 center, float radius, Color color)
+        {
+            GUI.color = color;
+            GUI.DrawTexture(R(center.x - radius, center.y - radius, radius * 2f, radius * 2f), Art.DiscTex);
+            GUI.color = Color.white;
         }
 
         static readonly Color CoopBlue = new Color(0.6f, 0.9f, 1f);
@@ -423,13 +495,14 @@ namespace PooketSlug
                 if (room != null && url.Length > 0) Text(vw * 0.5f, 76, "OR SEND THIS LINK:  " + url + "?room=" + room, 8, new Color(1f, 1f, 1f, 0.8f), TextAnchor.UpperCenter);
             }
 
-            string line = (room != null ? "ROOM " + room : "QUICK MATCH") + "  ·  " + m_Net.PlayerCount + "/2  ·  " + m_Net.PingMs + " MS  ·  ESC ESC TO LEAVE";
+            string leave = GameInput.TouchActive ? "EXIT TWICE TO LEAVE" : "ESC ESC TO LEAVE";
+            string line = (room != null ? "ROOM " + room : "QUICK MATCH") + "  ·  " + m_Net.PlayerCount + "/2  ·  " + m_Net.PingMs + " MS  ·  " + leave;
             Text(vw * 0.5f, 360 - 28, line, 8, new Color(1f, 1f, 1f, 0.75f), TextAnchor.UpperCenter);
 
             if (p.Dead)
                 Text(vw * 0.5f, 150, "DOWN!  BACK IN " + Mathf.Max(1, Mathf.CeilToInt(Tuning.Coop.RespawnDelay - p.DeadTime)), 18, new Color(1f, 0.5f, 0.4f), TextAnchor.MiddleCenter);
             if (m_LeaveArmed > 0f)
-                Text(vw * 0.5f, 196, "PRESS ESC AGAIN TO LEAVE THE GAME", 12, Color.white, TextAnchor.MiddleCenter);
+                Text(vw * 0.5f, 196, GameInput.TouchActive ? "TAP EXIT AGAIN TO LEAVE THE GAME" : "PRESS ESC AGAIN TO LEAVE THE GAME", 12, Color.white, TextAnchor.MiddleCenter);
         }
 
         /// <summary>IMGUI text box for the room code; Enter joins, Esc goes back.</summary>
@@ -439,8 +512,7 @@ namespace PooketSlug
             if (e.type == EventType.KeyDown && (e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter))
             {
                 e.Use();
-                string code = m_Code.Trim('-', ' ');
-                if (code.Length > 0) GoOnline(() => m_Net.Join(code));
+                JoinWithCode();
                 return;
             }
             if (e.type == EventType.KeyDown && e.keyCode == KeyCode.Escape)

@@ -56,7 +56,7 @@ The cost:
 
 | Package | Needed by |
 |---|---|
-| `com.unity.inputsystem` 1.20.0 | `GameInput.cs` (keyboard and gamepad). Pinned to the version **bundled in the editor image** (`Editor/Data/Resources/PackageManager/Editor/`), so resolving packages needs no registry fetch |
+| `com.unity.inputsystem` 1.20.0 | The input sources in `Assets/Scripts/Input/` (keyboard, gamepad and touch). Pinned to the version **bundled in the editor image** (`Editor/Data/Resources/PackageManager/Editor/`), so resolving packages needs no registry fetch |
 | `com.unity.modules.audio`, `imgui`, `jsonserialize` | The game: procedural audio, the IMGUI HUD, and `JsonUtility` for `pooket-net.json` |
 | `com.unity.modules.physics`, `physics2d` | Fusion.Unity (`RunnerSimulatePhysics`, `Rigidbody2D` helpers). The game itself uses its own tile physics |
 | `com.unity.modules.ai` | Fusion.Unity and its editor (NavMesh helpers) |
@@ -68,8 +68,17 @@ The cost:
 
 ## Input
 
-- **Active Input Handling is unknown.** It isn't set until Unity generates ProjectSettings, so [`GameInput.cs`](../../../Assets/Scripts/GameInput.cs) supports both backends: `#if ENABLE_INPUT_SYSTEM` (keyboard and gamepad) and the legacy Input Manager (keyboard only).
-- **Input is polled once per frame into a snapshot** (`MoveX`, `JumpPressed`, `HostPressed` and so on), which gameplay reads.
+- **Active Input Handling is unknown.** It isn't set until Unity generates ProjectSettings, so the [input sources](../../../Assets/Scripts/Input/InputSources.cs) support both backends: `#if ENABLE_INPUT_SYSTEM` (keyboard, gamepad and touch) and the legacy Input Manager (keyboard and touch).
+- **Each source adds to one frame.** [`GameInput`](../../../Assets/Scripts/Input/GameInput.cs) polls the keyboard, a gamepad and the touch screen once per frame into a `SoldierInput` (in Core) and a `MenuInput`, so they can be mixed. The world hands `SoldierInput` to the local soldier, so gameplay never reads a device.
+- **The touch arcade pad** follows the [design](../../design/player.md#controls). [`ArcadePad`](../../../Assets/Scripts/Core/ArcadePad.cs), in Core and [tested](../verification/edit-mode-tests.md), turns fingers into soldier input:
+  - The stick appears where the left thumb lands and follows it past its rim, so turning round is a short move. Its thresholds are the gamepad stick's.
+  - FIRE (held), JUMP and SP sit under the right thumb. They answer near misses, and a thumb can slide from one to another.
+  - **II** pauses a solo game. In co-op it reads **EXIT**, and two presses leave, like Esc.
+  - It shows while playing once the screen has been touched, and hides when a key or gamepad button is pressed. A phone starts with touch hints (`Application.isMobilePlatform`).
+  - While it's hidden, a tap is the menus' Enter: start, retry, play again, and join from an invite link. Hosting, quick match and typing a code still need a keyboard, until the menus move to uGUI (refactor plan step 14).
+  - It reads touches itself rather than using the Input System's on-screen controls. Those need uGUI's event system, and they give neither a stick that follows the thumb nor sliding between buttons.
+  - It's drawn on the IMGUI HUD for now, and moves to uGUI with the rest of the HUD.
+- **The page gives the canvas every touch:** `touch-action: none`, with no text selection or long-press menu. On a phone held sideways, the header and footer hide and the game fits the screen; held upright, the page asks to turn it.
 - **The Input System's "enable the new backends and restart?" dialog can't hang CI.** It's skipped in batch mode: `!Application.isBatchMode` in `InputSystemEditorInitializer.cs`.
 
 ## The build script

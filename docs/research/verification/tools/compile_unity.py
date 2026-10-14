@@ -22,7 +22,7 @@ UnityEditor.TestRunner) are left out, so tests can only use plain NUnit. run_tes
 
 usage: python3 -I compile_unity.py --editor-data <.../Editor/Data> --project <repo> --out <dir>
                                    [--cecil-dir <dir>] [--inputsystem <Unity.InputSystem.dll>]
-                                   [--nunit <nunit.framework.dll>] [sdk|game|all]
+                                   [--input both|new|legacy] [--nunit <nunit.framework.dll>] [sdk|game|all]
 """
 import argparse, glob, json, os, subprocess, sys
 
@@ -32,6 +32,8 @@ ap.add_argument("--project", required=True, help="Unity project root (Assets/Pho
 ap.add_argument("--out", required=True, help="output folder")
 ap.add_argument("--cecil-dir", help="folder with Mono.Cecil*.dll (com.unity.nuget.mono-cecil package), for the editor SDK assemblies")
 ap.add_argument("--inputsystem", help="a compiled Unity.InputSystem.dll, if the game uses the Input System")
+ap.add_argument("--input", default="both", choices=["both", "new", "legacy"],
+                help="Active Input Handling to compile for: both backends (default), the Input System, or the legacy Input Manager")
 ap.add_argument("--nunit", help="Unity's nunit.framework.dll (com.unity.ext.nunit), for the test assemblies")
 ap.add_argument("stage", nargs="?", default="all", choices=["sdk", "game", "all"])
 a = ap.parse_args()
@@ -42,7 +44,7 @@ CSC = [os.path.join(D, "NetCoreRuntime/dotnet"), os.path.join(D, "DotNetSdkRosly
 BUILTIN = os.path.join(D, "Resources/PackageManager/BuiltInPackages")
 PH = os.path.join(PROJ, "Assets/Photon")
 CECIL = glob.glob(os.path.join(a.cecil_dir, "Mono.Cecil*.dll")) if a.cecil_dir else []
-EXTRA = [a.inputsystem] if a.inputsystem else []
+EXTRA = [a.inputsystem] if a.inputsystem and a.input != "legacy" else []
 NETSTD = os.path.join(D, "NetStandard/ref/2.1.0/netstandard.dll")
 # Facades the editor also passes, so DLLs built for .NET Framework (Unity's NUnit, say) resolve mscorlib.
 NETFX = sorted(glob.glob(os.path.join(D, "NetStandard/compat/2.1.0/shims/netfx/*.dll")))
@@ -73,7 +75,8 @@ version = ["UNITY_%d_%d_OR_NEWER" % (y, m) for y in range(2017, 2024) for m in r
 fusion = ["FUSION_WEAVER", "FUSION2", "FUSION_2", "FUSION_2_1", "FUSION_2_1_3", "FUSION_LOGLEVEL_INFO",
           "FUSION_HAS_MONO_CECIL", "FUSION_CECIL_1_11_OR_NEWER"]  # what Fusion's installer and asmdefs add
 common = version + ["UNITY_6000_3", "UNITY_6000", "NET_STANDARD_2_1", "NET_STANDARD", "CSHARP_7_3_OR_NEWER",
-                    "ENABLE_INPUT_SYSTEM", "ENABLE_LEGACY_INPUT_MANAGER"] + fusion
+                    ] + {"both": ["ENABLE_INPUT_SYSTEM", "ENABLE_LEGACY_INPUT_MANAGER"], "new": ["ENABLE_INPUT_SYSTEM"],
+                         "legacy": ["ENABLE_LEGACY_INPUT_MANAGER"]}[a.input] + fusion
 player = common + ["UNITY_WEBGL", "PLATFORM_WEBGL", "ENABLE_IL2CPP"]
 editdefs = common + ["UNITY_EDITOR", "UNITY_EDITOR_64", "UNITY_EDITOR_LINUX", "ENABLE_MONO", "UNITY_WEBGL"]
 

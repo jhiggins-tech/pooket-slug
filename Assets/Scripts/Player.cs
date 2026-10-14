@@ -15,6 +15,8 @@ namespace PooketSlug
         public float DeadTime;
         public bool Crouching;
         public bool InputEnabled = true;
+        /// <summary>This frame's orders, from <see cref="GameInput"/>; the world sets them before <see cref="Tick"/>.</summary>
+        public SoldierInput Input;
 
         float m_Coyote, m_JumpBuffer, m_FireCooldown, m_Anim, m_Muzzle, m_Invuln, m_DropThrough;
         Vector2 m_Aim = Vector2.right;
@@ -60,8 +62,9 @@ namespace PooketSlug
                 return;
             }
 
-            float moveX = InputEnabled ? GameInput.MoveX : 0f;
-            bool up = InputEnabled && GameInput.Up, down = InputEnabled && GameInput.Down;
+            SoldierInput input = InputEnabled ? Input : default;
+            float moveX = input.MoveX;
+            bool up = input.Up, down = input.Down;
 
             // --- horizontal ---
             Crouching = Grounded && down;
@@ -71,7 +74,7 @@ namespace PooketSlug
 
             // --- jumping (with coyote time + input buffering) ---
             m_Coyote = Grounded ? Tuning.Soldier.CoyoteTime : m_Coyote - dt;
-            m_JumpBuffer = InputEnabled && GameInput.JumpPressed ? Tuning.Soldier.JumpBuffer : m_JumpBuffer - dt;
+            m_JumpBuffer = input.JumpPressed ? Tuning.Soldier.JumpBuffer : m_JumpBuffer - dt;
             m_DropThrough -= dt;
             if (m_JumpBuffer > 0f && m_Coyote > 0f)
             {
@@ -89,7 +92,7 @@ namespace PooketSlug
             }
 
             float gravity = Tuning.Physics.Gravity;
-            if (Vel.y > 0f && !(InputEnabled && GameInput.JumpHeld)) gravity *= Tuning.Soldier.ShortHopGravity; // short hop when released
+            if (Vel.y > 0f && !input.Jump) gravity *= Tuning.Soldier.ShortHopGravity; // short hop when released
             Vel.y = Mathf.Max(Vel.y - gravity * dt, -Tuning.Physics.MaxFall);
             MoveWithTiles(dt, m_DropThrough > 0f);
 
@@ -105,10 +108,10 @@ namespace PooketSlug
 
             m_FireCooldown -= dt;
             bool gun = GunAmmo > 0;
-            bool wantsFire = InputEnabled && (gun ? GameInput.FireHeld : (GameInput.FirePressed || GameInput.FireHeld));
+            bool wantsFire = gun ? input.Fire : (input.FirePressed || input.Fire);
             if (wantsFire && m_FireCooldown <= 0f) Fire(gun ? Gun : Def.Primary);
 
-            if (InputEnabled && GameInput.GrenadePressed && Specials > 0)
+            if (input.SpecialPressed && Specials > 0)
             {
                 Specials--;
                 WeaponDef special = Def.Special;

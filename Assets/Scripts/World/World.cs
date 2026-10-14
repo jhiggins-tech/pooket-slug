@@ -78,13 +78,15 @@ namespace PooketSlug
 
         public void Dispose() => Object.Destroy(Root.gameObject);
 
-        public void Tick(float dt)
+        /// <summary>Runs one frame, with the local soldier following <paramref name="input"/>.</summary>
+        public void Tick(float dt, in SoldierInput input)
         {
             Elapsed += dt;
             if (Victory) VictoryTime += dt;
 
             Sync?.Pull();
 
+            Player.Input = input;
             Player.Tick(dt);
             for (int i = 0; i < Remotes.Count; i++) Remotes[i].Tick(dt);
             Spawner.SpawnAhead();

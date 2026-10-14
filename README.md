@@ -9,12 +9,13 @@ A spike to test **[GameCI](https://game.ci)** on GitHub Actions. It builds a sma
 - Run, jump, crouch and shoot forward, up, or down while airborne. There are grenades, one-way bridges to drop through, and coyote-time and buffered jumps.
 - Three enemy types: riflemen (crouch under their shots), knife runners, and bomb-dropping drones. A **tank boss** at the end lobs shells and fires low bursts you have to jump.
 - Pickups: Heavy Machine Gun crate, bomb crate and medkit. There's also health, score, a persisted hi-score, pause, mute and restart.
+- **Plays on phones** with a touch arcade pad: a stick under the left thumb, and FIRE, JUMP and SP under the right.
 - **Online two-player co-op** with [Photon Fusion 2](https://doc.photonengine.com/fusion/current/fusion-intro) in Shared Mode. Host a game and share its room code or invite link, join with a code, or quick-match. A partner can drop in mid-mission. The screen scrolls for both players, and a fallen soldier comes back after a couple of seconds.
 - **No imported assets.** All pixel art (ASCII sprites in `ArtData.cs`), level tiles, parallax backgrounds and sound effects are generated from code at startup. The only scene is an empty one created by the build script, and `Bootstrap` spawns the game into it.
 
-Controls: arrows/WASD move · Z/Space jump · X fire · C grenade · Up aim up · Down crouch (or aim down in the air) · Down+Jump drops through bridges · P pause · M mute · R restart. Gamepads work too.
+Controls: arrows/WASD move · Z/Space jump · X fire · C grenade · Up aim up · Down crouch (or aim down in the air) · Down+Jump drops through bridges · P pause · M mute · R restart. Gamepads work too. On a touch screen, the pad appears once you tap to start: the stick appears where your left thumb lands, FIRE fires while held, and **II** pauses.
 
-Co-op, from the title screen: **H** hosts a game and shows its room code (for example `ABCD-EU`, which is the session name plus the Photon region), **J** joins with a code, and **Q** quick-matches. Opening the page with `?room=ABCD-EU` fills in the code. In co-op, press **Esc** twice to leave. Keep the game's tab visible: browsers pause hidden tabs, which freezes that player and eventually drops them. To try it alone, use two side-by-side windows, not two tabs.
+Co-op, from the title screen: **H** hosts a game and shows its room code (for example `ABCD-EU`, which is the session name plus the Photon region), **J** joins with a code, and **Q** quick-matches. Opening the page with `?room=ABCD-EU` fills in the code; on a phone, tap to join. Hosting and quick match need a keyboard until the menus are rebuilt. In co-op, press **Esc** (or **EXIT** on the pad) twice to leave. Keep the game's tab visible: browsers pause hidden tabs, which freezes that player and eventually drops them. To try it alone, use two side-by-side windows, not two tabs.
 
 ### How co-op works
 
@@ -76,7 +77,7 @@ Project layout:
 | `Assets/Scripts/Core/NetContracts.cs` | The boundary with the netcode: what gameplay needs from an online session (`INetLink`, `INetSession`), what the session tells the world (`INetEvents`), and the typed event payloads |
 | `Assets/Scripts/Net/` | Photon Fusion implementation, in its own assembly (`PooketSlug.Net`): `NetSession` (runner, rooms), `NetReplication` (what the session shares), `NetPrefabs`, `PlayerNet`, `WorldNet` |
 | `Assets/Scripts/Art.cs`, `ArtData.cs`, `Sfx.cs` | Procedural sprites, backgrounds and audio |
-| `Assets/Scripts/GameInput.cs` | Input that works with either the Input System package or the legacy Input Manager |
+| `Assets/Scripts/Input/` | Input sources (keyboard, gamepad and the touch pad) that add up into one frame. They work with either the Input System package or the legacy Input Manager. The pad's logic (`ArcadePad`) and the frame (`SoldierInput`) are in Core |
 | `Assets/Editor/WebGLBuild.cs` | Build entry point for GameCI and the editor menu |
 | `Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion` | Our Fusion config (weaver settings); the rest of `Assets/Photon/` is the SDK and is ignored |
 | `tools/unpack_unitypackage.py` | Unpacks a `.unitypackage` into the project without Unity (used by CI) |

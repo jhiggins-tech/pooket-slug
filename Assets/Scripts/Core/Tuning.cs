@@ -56,6 +56,8 @@ namespace PooketSlug
 
         public static class Hud
         {
+            /// <summary>The HUD is laid out in units of a screen this tall, whatever its pixels.</summary>
+            public const float Height = 360f;
             public const float PopupRise = 0.8f, PopupLife = 1.4f;
         }
     }

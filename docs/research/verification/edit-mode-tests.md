@@ -19,12 +19,15 @@ Core is also what the game and the netcode assembly (`PooketSlug.Net`) share: th
 | `TilePhysics` | Moves a box through the tile grid, with one-way bridges | Landing, falling, walls on both sides, the level's edges, ceilings, and bridges from above, below and inside. Also dropping through, and standing on a bridge |
 | `AvatarPose` | A soldier's pose, packed into the int the network sends | Every pose survives packing, and the packed form fits in 10 bits |
 | `InviteCode` | Room codes such as `ABCD-EU` | New names (no I or O), parsing, formatting, the round trip |
+| `NetIds` | Network ids: a level spawn keeps its index, and things spawned mid-game count up from a shared counter | Level spawns, counting up, a new authority carrying on, never going backwards, running out, the 16-bit limit |
+| `SoldierInput` | What the local soldier is told to do in a frame. Every input source adds to it | The stick thresholds (shared by gamepads and the touch pad), diagonals, sources adding up |
+| `ArcadePad` | The touch arcade pad: fingers in, soldier input out | The stick starting under the thumb, running, aiming, crouching, ignoring a wobble, following a thumb past its rim, letting go. FIRE pressed once then held, near misses, sliding from FIRE to JUMP, both thumbs at once, the special, pause, taps while hidden, and the tap that starts a game not firing |
 | `Rng` | Seeded xorshift32 | The exact sequence (replays will depend on it), ranges, a zero seed |
 | `PageQuery` | Reads the page address | Parameters, case, escapes, `+`, fragments, missing names |
 | `Log` | Log channels and the `?log=` spec | Parsing, configuring channels, levels |
 | `Tuning` | The feel every soldier shares, the physics, the camera and co-op timings, as constants | Nothing directly. The physics tests use the real soldier's size from `Content` |
 
-The tests are in [`Assets/Tests/EditMode`](../../../Assets/Tests/EditMode): 8 fixtures, 133 test cases, under a tenth of a second.
+The tests are in [`Assets/Tests/EditMode`](../../../Assets/Tests/EditMode): 11 fixtures, 161 test cases, under a tenth of a second.
 
 ## In CI
 

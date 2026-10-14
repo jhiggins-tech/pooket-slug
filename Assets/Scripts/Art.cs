@@ -96,7 +96,7 @@ namespace PooketSlug
         public static Sprite Tank, Bullet, HeavyBullet, EnemyBullet, Shell, Grenade, Bomb, MuzzleFlash;
         static Sprite[] s_Projectiles, s_Pickups;
         public static Sprite CrateHeavy, CrateBombs, Medkit, Flag, Pixel, Sky, Mountains, Ruins;
-        public static Texture2D HeartTex, WhiteTex;
+        public static Texture2D HeartTex, WhiteTex, DiscTex;
 
         static Dictionary<char, Color32> s_Pal;
         static readonly Dictionary<Sprite, Sprite> s_Flash = new Dictionary<Sprite, Sprite>();
@@ -189,6 +189,10 @@ namespace PooketSlug
             heart.Ascii(ArtData.Heart, s_Pal, 1, 1);
             heart.Outline(OutlineColor);
             HeartTex = ToTexture(heart);
+
+            var disc = new PixelCanvas(32, 32); // the touch pad's stick and buttons
+            disc.Circle(16f, 16f, 16f, new Color32(255, 255, 255, 255));
+            DiscTex = ToTexture(disc);
 
             BuildExplosion();
             BuildSpark();
