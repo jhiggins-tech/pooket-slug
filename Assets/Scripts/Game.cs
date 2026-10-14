@@ -165,7 +165,7 @@ namespace PooketSlug
                     GUI.DrawTexture(R(8 + i * 13, 24, 12, 12), Art.HeartTex);
                 }
                 GUI.color = Color.white;
-                string arms = p.HeavyAmmo > 0 ? "H " + p.HeavyAmmo : "∞";
+                string arms = p.HeavyAmmo > 0 ? "HMG " + p.HeavyAmmo : "PISTOL"; // IMGUI's default font has no infinity glyph
                 Text(8, 40, "ARMS " + arms + "   BOMB " + p.Grenades, 11, new Color(1f, 0.9f, 0.5f), TextAnchor.UpperLeft);
 
                 Text(vw - 8, 5, "HI " + Mathf.Max(m_HiScore, w.Score).ToString("000000"), 14, Color.white, TextAnchor.UpperRight);
@@ -192,7 +192,7 @@ namespace PooketSlug
                 case GameState.Title:
                     Box(0, 0, vw, 360, new Color(0f, 0f, 0f, 0.35f));
                     Text(vw * 0.5f, 70, "POOKET SLUG", 44, new Color(1f, 0.62f, 0.2f), TextAnchor.MiddleCenter);
-                    Text(vw * 0.5f, 106, "a GameCI → GitHub Pages tech demo", 12, Color.white, TextAnchor.MiddleCenter);
+                    Text(vw * 0.5f, 106, "built by GameCI · hosted on GitHub Pages", 12, Color.white, TextAnchor.MiddleCenter);
                     Text(vw * 0.5f, 150, "MOVE  Arrows / WASD      JUMP  Z / Space      FIRE  X / J", 10, new Color(1f, 0.95f, 0.8f), TextAnchor.MiddleCenter);
                     Text(vw * 0.5f, 166, "GRENADE  C / L      AIM  Up / Down (in air)      DROP  Down + Jump", 10, new Color(1f, 0.95f, 0.8f), TextAnchor.MiddleCenter);
                     Text(vw * 0.5f, 182, "PAUSE  P / Enter      RESTART  R      MUTE  M      Gamepad supported", 10, new Color(1f, 0.95f, 0.8f), TextAnchor.MiddleCenter);
