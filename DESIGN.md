@@ -22,7 +22,8 @@ kie's Trollogram holograms went rogue and stole the crew's tanks. The goons are 
 - A new character means a new mission, the way Coming soon works in Tabks: shotdownboyz, lankcity, odsey and doctorfox each arrive at the end of their own.
 
 ### Roguelite
-- A separate mode of seeded runs, with crates along the way ([Crates](#crates)). Whatever a run picks up is gone when it ends.
+- A separate mode of seeded runs. **A run is five stages**, with a crew tank at the end of each, **then it loops** round at a higher alert, as in Risk of Rain. Depth keeps counting through the loops.
+- **Coins**: goons drop them, and **between stages there's a shop**, where you spend them on the [crates](#crates) you want. Whatever a run picks up, coins included, is gone when it ends.
 - Any crew tank can be a boss, the starters' included, and every tank you beat is yours to ride for the rest of the run.
 - **The alert level climbs as you go**, as in Risk of Rain: it goes up at each boss and every few minutes, so playing fast keeps it low.
 
@@ -37,7 +38,7 @@ kie's Trollogram holograms went rogue and stole the crew's tanks. The goons are 
 ```text
 +--------------------------------------+
 | x3   12,400            SUPER [###--] |
-|                                      |
+|                          (AB)        |
 |    ^                     (SP)  (SU)  |
 |  < o >                (JUMP) (FIRE)  |
 |    v                                 |
@@ -45,7 +46,7 @@ kie's Trollogram holograms went rogue and stole the crew's tanks. The goons are 
 ```
 
 - **Left thumb**: a stick to run; up aims up, down crouches (or aims down in the air).
-- **Right thumb**: FIRE (hold to keep firing), JUMP, special and super.
+- **Right thumb**: FIRE (hold to keep firing), JUMP, special (SP) and super (SU), plus the ability (AB) above the special for the soldiers who have one.
 - **In a tank**, the stick swings the turret and FIRE is held to build power, as in Tabks.
 
 ### The kit
@@ -72,6 +73,7 @@ Tabks' statuses, with turns turned into seconds:
 
 ## Tanks
 - **Beat a crew tank and its pilot, then climb in.** Inside, Tabks rules apply: the tank's health bar, its Tabks kit with 5 / 3 / 1 rounds, the turret swinging round on the stick, and FIRE held to build power. It's slow, heavy artillery in a fast game. Eject before it blows.
+- **Calling one in**: in Missions, a tank you've won is a button once a mission, and it drops in beside you.
 - **Soldiers and tanks mix**: tones2 can ride kcaj's tank, Double Park, Unmedicated and all.
 
 ## Bosses
@@ -172,8 +174,10 @@ The spike is Unity 6.3 WebGL, built by GameCI and published to https://jhiggins-
   | The crew's kits | CHR-02 roster, CHR-03 character select, CHR-05 special moves, TEC-02 data-driven content |
   | Lives and 1-ups | SCR-03 lives and continues |
   | Crates | WPN-11 weapon stock and swapping, WPN-12 weapon level-ups |
+  | Coins and the shop | WPN-13 random item drops (there's no shop row yet) |
   | Statuses | TRN-01 status effects framework |
   | Riding tanks | VEH-01 tank vehicle, VEH-02 enter, exit, eject and ram |
+  | Calling in a tank | POW-05 supply drops (the closest row) |
   | Crew tank bosses | BOS-02 multi-phase bosses (the tank, then the pilot round) |
   | Missions and the Roguelite | LVL-02 multiple missions, LVL-14 endless or procedural mode |
   | Boss-arena terrain | LVL-10 destructible scenery, in arenas only |
@@ -193,14 +197,18 @@ The spike is Unity 6.3 WebGL, built by GameCI and published to https://jhiggins-
 - **Lasting growth**: a career shared with Tabks, and per-soldier mastery levels. Growth is crates within a run, and cosmetics across runs.
 - **Chosen alert levels**: DEFCON 5 → 1 picked before a run, or Hades-style twists. The alert climbs as you go instead.
 - **More pixel terrain**: everywhere, or soft ground in levels. It's only in boss arenas.
+- **Other run lengths**: three stages, or endless. It's five, then loop.
+- **Between stages**: picking 1 of 3, a rest stop, or choosing the next boss. It's a shop.
+- **Tanks in Missions**: parked in the level, or chosen at the start. You call yours in.
+- **The ability button**: holding the special, tapping your portrait, or swiping up. It has its own button.
 
 ## Open questions
-- **Roguelite**: how long a run is, what's between stages, whether it has co-op, and what each alert level adds.
-- **Rank milestones**: the table itself. The alert only climbs, so depth and alert rise together, and stalling to raise it needs thought. And do Missions count?
+- **Roguelite**: whether it has co-op, what each alert level adds, and what the shop sells and for how much.
+- **Rank milestones**: the table itself. Depth keeps counting through the loops and the alert only climbs, so the two rise together, and stalling to raise the alert needs thought. And do Missions count?
+- **Tanks**: where the call-in button goes, which tank it brings once you've won several, and how the Roguelite does it.
 - **Missions**: how many, the order the crew are freed in, and how you get a tank you've won in later missions (call it in, or find it parked).
 - **Bosses**: how each crew tank fights before the pilot round.
 - **Career XP**: what earns how much, and what's on the cosmetic track.
-- **Controls**: where the ability button goes.
 - **The rank by your name**: Slug's, Tabks', or both.
 - **The 25 feats** for the hidden rungs.
 - **Kits still to design**: the coming-soon crew's, and garyoldmancorp's real moves (designed in Tabks first).
