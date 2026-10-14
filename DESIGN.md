@@ -22,6 +22,17 @@ kie's Trollogram holograms went rogue and stole the crew's tanks. The goons are 
 - **Mission one frees kie**: his holograms got loose, so freeing him starts the story. **You have to beat it solo before co-op opens.**
 - **There's one mission to start**: make it great, then add a crewmate at a time. Every crewmate after tones2 arrives with their own mission, the coming-soon crew (shotdownboyz, lankcity, odsey and doctorfox) included, the way Coming soon works in Tabks.
 
+### Mission one
+- **A military base**, Metal Slug played straight: sandbags and watchtowers, ending at the motor pool where the stolen tanks are parked.
+- **About 5 minutes**: a run through, then kie's tank.
+- **You play tones2**, and you have to beat it solo before co-op opens.
+- **Goons**: the spike's three, as flickering holograms: riflemen (crouch under their shots), knife runners and bomb-dropping drones.
+- **The boss, kie's tank**, cycles through its Tabks kit, faster as it gets hurt:
+  - **Weasel Pop**: waves of weasels that scurry at you and pop. Jump them, or hose them down with ten-1.
+  - **Trollogram**: it splits into hologram copies that shuffle round, and you have to hit the real one. A shot fake blows up, as in Tabks.
+  - **Steal**: its roulette spins over your kit and takes one thing (a crate's upgrade, or your special) until you hit it hard enough to drop it.
+- **The pilot round**: a hologram kie on foot, with Weasel Pop, Trollogram decoys and Steal. Beat him and the real kie is freed.
+
 ### Roguelite (on ice)
 **On ice for now** (owner, 14 Oct): Missions come first. What was decided is kept here for when it's back.
 - A separate mode of seeded runs. **A run is five stages**, with a crew tank at the end of each, **then it loops** round at a higher alert, as in Risk of Rain. Depth keeps counting through the loops.
@@ -81,7 +92,7 @@ Tabks' statuses, with turns turned into seconds:
 - **Soldiers and tanks mix**: tones2 can ride kcaj's tank, Double Park, Unmedicated and all.
 
 ## Bosses
-- **Each mission ends with a crew tank, fighting with its own Tabks kit**: kcaj's tank sweeps a Hyperfixate beam, then ends in Unmedicated. The spike's tank boss (lobbed shells, and low bursts you jump) is where the code starts.
+- **Each mission ends with a crew tank, fighting with its own Tabks kit**: kcaj's tank sweeps a Hyperfixate beam, then ends in Unmedicated. kie's is first ([Mission one](#mission-one)). The spike's tank boss (lobbed shells, and low bursts you jump) is where the code starts.
 - **The pilot round**: wreck the tank and its hologram pilot jumps out to fight you on foot with that crewmate's own kit. It's a mirror match, and a taste of who you're about to free. Then it glitches out (Tabks has the hologram blast) and the real crewmate is freed.
 - **Boss arenas are the only places with Tabks' pixel terrain**: blasts dig craters there, as they do in Tabks. Everywhere else, the ground is solid.
 
@@ -166,6 +177,7 @@ Tabks' tally, per soldier and weapon: shots, hits, accuracy, damage dealt and ta
 The spike is Unity 6.3 WebGL, built by GameCI and published to https://jhiggins-tech.github.io/pooket-slug/, with online co-op on Photon Fusion 2.
 
 - **What it already has**: running, jumping, crouching and aiming up (or down in the air), which is the arcade pad's stick; health; heavy machine gun, bomb and medkit crates; a tank boss; online co-op with drop-in; and art and sound made in code.
+- **Mission one reworks what the spike has**: its first mission (LVL-01), its three goons (ENM-01) and its tank boss (BOS-01).
 - **What changes**:
   - Health becomes hearts.
   - The respawn after a couple of seconds becomes lives.
@@ -216,12 +228,16 @@ The spike is Unity 6.3 WebGL, built by GameCI and published to https://jhiggins-
 - **Other boss tanks**: the spike's boss restyled for each, or fighting in Tabks turns. Each fights with its own Tabks kit.
 - **Which tank comes**: always the newest, or a wheel. You choose before.
 - **Mission one freeing** kcaj, ciarra or kiwicore. It frees kie.
+- **Mission one elsewhere**: the servo car park, the hologram lab, or the suburbs. It's a military base.
+- **A longer Mission one**: about 10 minutes, or 15+ with checkpoints. It's about 5.
+- **Other goons**: ones that all blow up, hologram copies of the crew, or hologram mini-tanks. It's the spike's three, glitched.
+- **kie's tank with one move**: only the shell game, the weasel waves or the pickpocket. It cycles through all three.
 
 ## Open questions
 - **Ranks while the Roguelite is on ice**: the milestones were depth and alert, so do Missions count meanwhile, or do ranks wait for it? Then the table itself: depth keeps counting through the loops and the alert only climbs, so the two rise together, and stalling to raise the alert needs thought.
 - **Tanks**: where the call-in button goes.
-- **Missions**: Mission one itself (where it's set, how long it is, its goons), and the order after kie.
-- **Bosses**: each tank's attacks, worked out from its Tabks kit, starting with kie's for Mission one.
+- **Missions**: the order after kie.
+- **Bosses**: each tank's attacks after kie's, worked out from its Tabks kit.
 - **Career XP**: what earns how much, and how it pays out (not decided yet): tokens you spend as in Tabks, a fixed track, a track per soldier, or mystery crates.
 - **The 25 feats** for the hidden rungs.
 - **Kits still to design**: the coming-soon crew's, and garyoldmancorp's real moves (designed in Tabks first).
