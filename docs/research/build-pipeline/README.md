@@ -15,7 +15,7 @@ GitHub Actions: .github/workflows/webgl-pages.yml   (two jobs on ubuntu-latest)
    2. Checkout
    3. Fetch Photon Fusion SDK        private release → SHA-256 check → unpack into Assets/Photon/
    4. Restore the Library cache
-   5. game-ci/unity-test-runner@v4   EditMode tests; a failure stops here
+   5. game-ci/unity-test-runner      v4.3.2: EditMode tests; a failure stops here
    6. game-ci/unity-builder@v4       Docker image unityci/editor:ubuntu-6000.3.26f1-webgl-3
         └─ Unity -executeMethod PooketSlug.EditorTools.WebGLBuild.Build
              bake the Photon AppId, create the scene, set PlayerSettings, BuildPlayer(WebGL)

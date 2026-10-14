@@ -56,6 +56,7 @@ The [refactor plan](../roadmap/refactor-plan.md)'s steps, as they land.
 | ~14:03 | Step 2: the `PooketSlug.Core` assembly and its tests | `compile_unity.py` with assembly definitions, with and without the SDK, then the weave harness | ✅ Core 8 files, tests 7, game 18, editor 1: no errors or warnings. The weaver's output is unchanged: `PlayerNet` 8 words, `WorldNet` 151 |
 | ~14:03 | The EditMode tests, locally | [`run_tests.py`](tools/run_tests.py): NUnitLite 3.14 on the editor's .NET 6 runtime | ✅ 101 of 101 in 0.1 s |
 | ~14:05–14:12 | Do the tests catch bugs? | Core broken 11 ways, one at a time ([list](edit-mode-tests.md#do-the-tests-catch-bugs)) | ✅ 11 of 11 caught, each by the tests you'd expect |
+| 14:10–14:12 | Step 2 in CI (`367a378`) | Run 38578138923 | ❌ The test step stopped before Unity started. `unity-test-runner@v4` (now v4.4.0, a wrapper around `game-ci/cli`) passed `--no-coverageEnabled`, and CLI v0.1.72 rejected it. Fixed by pinning v4.3.2 ([why](../build-pipeline/workflow.md#action-versions)) |
 
 ## Not yet verified
 

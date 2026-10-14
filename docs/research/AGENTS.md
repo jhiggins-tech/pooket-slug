@@ -62,7 +62,7 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
 | Unity | 6000.3.26f1 (6.3 LTS), WebGL, C# 9 |
 | CI image | `unityci/editor:ubuntu-6000.3.26f1-webgl-3` |
 | Builder | `game-ci/unity-builder@v4`, `buildMethod: PooketSlug.EditorTools.WebGLBuild.Build` |
-| Tests | EditMode (NUnit) with `game-ci/unity-test-runner@v4` before each build; the two-player co-op test after each deploy |
+| Tests | EditMode (NUnit) with `game-ci/unity-test-runner@v4.3.2` before each build; the two-player co-op test after each deploy |
 | Netcode | Photon Fusion 2.1.3 Stable (build 2390), Shared Mode, 2 players |
 | Repository secrets | `UNITY_LICENSE`, `UNITY_EMAIL`, `UNITY_PASSWORD`, `VENDOR_PAT`, `PHOTON_APP_ID` |
 | Private SDK storage | Release `fusion-2.1.3` in `jhiggins-tech/pooket-slug-vendor` |

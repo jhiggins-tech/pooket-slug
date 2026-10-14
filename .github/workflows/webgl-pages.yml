@@ -73,10 +73,12 @@ jobs:
           echo "image=unityci/editor:ubuntu-$version-webgl-3" >> "$GITHUB_OUTPUT"
 
       # EditMode tests for the pure game logic (Assets/Scripts/Core, tests in Assets/Tests/EditMode).
-      # A failing test stops the job here, so a broken build never deploys.
+      # A failing test stops the job here, so a broken build never deploys. Pinned to v4.3.2, the last
+      # release that runs Unity itself: v4.4.0 (the v4 tag) wraps game-ci/cli, which rejected the flag the
+      # action passed for coverageEnabled: false. No githubToken, so no check run: the summary lists results.
       - name: Run EditMode tests (GameCI)
         id: tests
-        uses: game-ci/unity-test-runner@v4
+        uses: game-ci/unity-test-runner@v4.3.2
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -85,8 +87,6 @@ jobs:
           customImage: ${{ steps.editor.outputs.image }}
           testMode: editmode
           artifactsPath: test-results
-          coverageEnabled: false
-          githubToken: '' # no check run: the job summary below lists the results
 
       - name: Test summary
         if: always() && steps.tests.outcome != 'skipped'

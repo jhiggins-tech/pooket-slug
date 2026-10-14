@@ -66,17 +66,18 @@ It takes 1 to 2 s. Why it works this way, and how to upgrade the SDK: [SDK in CI
 
 Four steps run the [EditMode tests](../verification/edit-mode-tests.md) before the build:
 1. **Pick the editor image:** `unityci/editor:ubuntu-<version>-webgl-3`, with the version read from `ProjectVersion.txt`. The builder picks the same image, so it's pulled once.
-2. **Run the tests** with `game-ci/unity-test-runner@v4`:
+2. **Run the tests** with `game-ci/unity-test-runner@v4.3.2` ([why that version](#action-versions)):
 
    | Input | Value | Why |
    |---|---|---|
    | `customImage` | The image from step 1 | One pull for both Unity runs |
    | `testMode` | `editmode` | The only tests so far |
-   | `artifactsPath` | `test-results` | Where the NUnit XML goes |
-   | `coverageEnabled` | `false` | No coverage package, and the action's docs say coverage crashes some Unity versions |
-   | `githubToken` | `''` | No check run, which would need `checks: write`. The summary covers it |
+   | `artifactsPath` | `test-results` | Where the NUnit XML and Unity's log go |
 
-   It activates Unity with the same three secrets as the build. A failing test fails the step, so the build and deploy don't run.
+   - It activates Unity with the same three secrets as the build.
+   - There's no `githubToken`, so it creates no check run, which would need `checks: write`. The summary covers it.
+   - It always passes `-enableCodeCoverage`. Without the coverage package, Unity writes no coverage report.
+   - A failing test fails the step, so the build and deploy don't run.
 3. **Summarise the results:** the counts, and the first line of each failure.
 4. **Upload the NUnit XML** as the `editmode-tests` artifact.
 
@@ -125,7 +126,10 @@ A second job, `coop-test`, runs after the build on every push. It tests co-op on
   - v4.8.x is the long-standing implementation on Node 20, and still gets backports.
   - We use v4. It logs a harmless "Node.js 20 is deprecated … forced to run on Node.js 24" warning.
   - Revisit v6 after a few point releases.
-- **`unity-test-runner` v4:** its current release drives the `game-ci/cli` binary on Node 24 (input `cliVersion`, default `latest`).
+- **`unity-test-runner` is pinned to v4.3.2.**
+  - That's the last release that runs Unity itself.
+  - v4.4.0, which the `v4` tag now points to, is a thin wrapper around the `game-ci/cli` binary, fetched at `latest`.
+  - Our first test run used `v4` with `coverageEnabled: false`. The action passed `--no-coverageEnabled`, CLI v0.1.72 rejected it as an unknown argument, and the step failed before Unity started (run 38578138923).
 - **Node 24 majors:** `actions/cache@v5`, `actions/upload-artifact@v6`, `actions/download-artifact@v8` and `actions/setup-node@v7` are already on Node 24.
 - **Third-party actions are pinned by tag, not SHA.** See [next steps](../next-steps.md).
 
