@@ -48,7 +48,7 @@ The build script (`Assets/Editor/WebGLBuild.cs`) does the following:
 
 - Repository secrets:
   - `UNITY_LICENSE` (contents of the `.ulf` file), `UNITY_EMAIL`, `UNITY_PASSWORD`. See [GameCI activation](https://game.ci/docs/github/activation).
-  - `VENDOR_TOKEN`: a fine-grained token with **Contents: Read-only** on `pooket-slug-vendor`, used to download the Photon SDK.
+  - `VENDOR_PAT`: a fine-grained token with **Contents: Read-only** on `pooket-slug-vendor`, used to download the Photon SDK.
   - `PHOTON_APP_ID`: the **Fusion 2** AppId from the [Photon dashboard](https://dashboard.photonengine.com). Without it the build still works, but co-op is off.
 - **Settings → Pages → Build and deployment → Source: Deploy from a branch → `gh-pages` / `(root)`.**
 
