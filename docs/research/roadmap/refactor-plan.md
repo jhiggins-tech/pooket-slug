@@ -188,3 +188,4 @@ The sign-in work extends its [drafted record](../accounts/database-rules.md) bef
 - **`clears` replace the draft's `runs` and `wins`.**
 - **`seen`** lists the reveals already shown, such as the first tank or the first drive. Each reveal then plays once, and the menus know what to show ([progressive disclosure](../../design/README.md#progressive-disclosure-the-thread-through-all-four)).
 - **The friends leaderboard** is a separate list per mission: each player's display name and best score, readable by any signed-in player and written only by its owner.
+- **Committed 2026-10-14** to a Cardmaster branch, with one addition: a save number (`rev`) that every save raises by one, so a device that's behind can't overwrite newer progress ([database rules](../accounts/database-rules.md)).

@@ -1,12 +1,12 @@
 # Accounts: "Sign in with Google" spike
 
-Plan for identifying players with their Google account and keeping their stats and progression across devices and browsers. The drafted record holds best score, runs and wins. The [game design](../../../DESIGN.md) needs more (freed crew, the co-op unlock, career XP, cosmetics, rank progress and the tally), which the record gets before its first pull request ([database rules](database-rules.md#the-record)). It reuses the Firebase project of the owner's game Cardmaster ([setup](gcloud-setup.md)). Roadmap rows SOC-01 and SOC-02, which then unlock SCR-07…09.
+Plan for identifying players with their Google account and keeping their stats and progression across devices and browsers. The record holds what the [game design](../../../DESIGN.md) keeps per player: best scores and clears, freed crew, the co-op unlock, career XP, cosmetics, rank progress and the tally ([database rules](database-rules.md#the-record)), and there's a friends board per mission. It reuses the Firebase project of the owner's game Cardmaster ([setup](gcloud-setup.md)). Roadmap rows SOC-01 and SOC-02, which then unlock SCR-07…09.
 
 **Status, 2026-10-14:**
-- **Database rules:** drafted and tested ([database rules](database-rules.md)), but not yet committed to Cardmaster.
+- **Database rules:** committed to a Cardmaster branch with the owner's go-ahead, tested, and green in its CI ([database rules](database-rules.md)). They go live when merged into Cardmaster's `main`.
 - **Page, bridge and game code:** not started.
 - **Waiting on the owner** ([to-do](../todo.md)):
-  - permission for this session to commit to Cardmaster
+  - merging the rules into Cardmaster's `main`
   - the console steps in the Cardmaster project
   - the repository variables
 
@@ -64,14 +64,15 @@ Options considered:
 ## Database rules
 
 - **Where they live:** the shared project's rules are deployed from Cardmaster's repository by its CI, so this game's section, a top-level `pooketSlug` key, goes into that file through a pull request, with tests in its rules test suite.
-- **The draft:** the section, its tests and the record it describes are in [database rules](database-rules.md).
+- **The section:** the record, the board, the tests and how the game writes them are in [database rules](database-rules.md).
 - **Rules can enforce:**
   - only the player reads and writes their own `pooketSlug/players/{uid}`
   - the record's shape and value ranges
-  - a best score that only goes up (`newData.val() >= data.val()`)
+  - progress that only goes up (`newData.val() >= data.val()`)
+  - a save number that goes up by exactly one, so a device that's behind can't overwrite newer progress
   - server-time stamps (`ts === now`)
-  - no deletes
-- **Rules can't stop a player writing a fake score with their own token.** That's fine for personal progression. **Don't build a public leaderboard on it.** That needs server-side validation (roadmap NET-08, SCR-10).
+  - no deleting the record
+- **Rules can't stop a player writing a fake score with their own token.** That's fine for personal progression, and for the friends board, which runs on trust (the owner's call). **Don't build a public leaderboard on it.** That needs server-side validation (roadmap NET-08, SCR-10).
 - **Test the rules** against the Firebase emulators, with a fake Google sign-in, before publishing. In the cloud sandbox, start the database emulator directly, because the Firebase CLI's own calls to it go through the proxy ([how](database-rules.md#running-the-tests-in-the-cloud-sandbox)).
 
 ## Photon

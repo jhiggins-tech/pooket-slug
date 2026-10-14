@@ -1,8 +1,8 @@
-# Database rules for player stats
+# Database rules for player progress
 
-This game's section of the shared Realtime Database rules. It covers the record each player gets, what the rules enforce, how the game should write to the record, and how the rules are tested.
+This game's section of the shared Realtime Database rules: each player's record, a friends leaderboard, how the game should write them, and how the rules are tested.
 
-**Status, 2026-10-14:** drafted as a change to Cardmaster's repository and tested against the database emulator in the cloud sandbox. **It isn't committed there yet:** this session's permission guard blocked the commit to Cardmaster, so it waits for the owner ([to-do](../todo.md)). **It also needs extending first:** the game design asks for more per-player data ([below](#the-record)). Once merged, Cardmaster's `firebase/database.rules.json` is the source of truth, and the copy below is the draft.
+**Status, 2026-10-14:** committed to Cardmaster with the owner's go-ahead, on its branch [`claude/gallant-keller-3qzp97`](https://github.com/jhiggins-tech/cardmaster/tree/claude/gallant-keller-3qzp97) (`121c939`). Cardmaster's CI passed on it: its build, and its rules, hosting and sign-in tests. It deploys only from `main`, so **the rules go live when that branch is merged into Cardmaster's `main`.** From then on, Cardmaster's `firebase/database.rules.json` is the source of truth.
 
 **Read this when** you're writing the game's save code, changing what it stores, or reviewing the rules pull request.
 
@@ -10,86 +10,86 @@ Up: [Accounts](README.md)
 
 ## The record
 
-Each player has one record at `pooketSlug/players/{uid}`. It must have all five fields, and nothing else:
+Each player has one record at `pooketSlug/players/{uid}`. Only they read and write it, and nobody can list the players. It holds what the refactor plan [scoped from the design](../roadmap/refactor-plan.md#the-player-record-scoped-by-the-moscow-pass), plus a save number:
 
 | Field | Meaning | Rules |
 |---|---|---|
-| `best` | Best score | A whole number from 0 to 1,000,000,000; never lower than the stored value |
-| `runs` | Runs finished while signed in | A whole number from 0 to 1,000,000,000; never lower than stored |
-| `wins` | Runs that reached the victory screen | A whole number, never more than `runs`; never lower than stored |
-| `first` | When the record was made | The server time when the record is created; never changes |
-| `ts` | When it was last saved | The server time, whenever it's written |
+| `version` | The record's format: 1 for now | Required. A whole number from 1 to 1,000; never lower |
+| `rev` | The save number | Required. 1 on the first save, then exactly one more than the stored number on every save |
+| `coop` | Co-op is open (Mission one beaten solo) | Required. True or false; once true, it stays true |
+| `xp` | Career XP | Required. A whole number up to 1,000,000,000; never lower |
+| `tokens` | Tokens from XP levels, spent on looks | Required. A whole number up to 1,000,000; it can go down |
+| `rank` | Stages beaten | Required. A whole number up to 1,000; never lower |
+| `name` | The player's display name | 1 to 24 characters |
+| `crew/{id}` | Freed crewmates | Each one `true` |
+| `seen/{id}` | Reveals already shown | Each one `true` |
+| `cosmetics/owned/{item}` | Looks the player owns | Each one `true` |
+| `cosmetics/worn/{slot}` | What's worn in each slot | The id of an item the player owns |
+| `missions/{mission}/{setting}` | `best` and `clears`, per mission at `normal` or `hard` | Both required, whole numbers up to 1,000,000,000; never lower |
+| `tally/{soldier}/{weapon}` | `shots`, `hits`, `dealt`, `taken` and `kills` | All five required, whole numbers up to 1,000,000,000; never lower |
+| `first` | When the record was made | Required. The server time on the first save; it never changes |
+| `ts` | When it was last saved | Required. The server time, on every save |
 
-- **Only the player** can read or write their record, and nobody can list the players.
-- **Nothing can be deleted,** neither the record nor any field in it.
-- **The first write must be the whole record.** Later writes can change some fields.
-- **The game design needs more.** Its [Building on the spike](../../../DESIGN.md#building-on-the-spike) section adds, per player: freed crew, whether co-op is open (Mission one beaten solo), career XP, cosmetics owned and worn, rank progress, and the tally per soldier and weapon. Each is a rules change in Cardmaster, so the plan is to extend or reshape this record before the first pull request, as scoped in the [refactor plan](../roadmap/refactor-plan.md#the-player-record-scoped-by-the-moscow-pass). Anything added later means another small rules change, with tests.
-- **The rules can't make a score honest.** With their own token, a player can write any numbers that pass these checks. That's fine for a personal record, but don't build a leaderboard on it ([why](README.md#database-rules)).
+- **Ids are short:** crewmates, reveals, items, slots, missions, soldiers and weapons are at most 32 characters. Nothing else is allowed, at any level.
+- **The save number stops a device that's behind from overwriting newer progress.** Every save must carry `rev` one above the stored number, so when two devices save from the same copy, the second is refused. It then reads the record again and merges ([below](#writing-it-from-the-game)). Numbers that only go up wouldn't be enough on their own: a device that's behind can still have more XP than the cloud, and its save would drop the other device's freed crew.
+- **The record and its required fields can't be deleted.** Entries in its lists (crew, reveals, items owned) can be dropped, but only by the player's own up-to-date save; the game never does.
+- **The rules can't make it honest.** With their own token, a player can write anything that passes these checks. That's fine for personal progress.
+
+## The friends board
+
+`pooketSlug/leaderboard/{mission}/{uid}` holds each player's `name`, `best` and `ts` for a mission. It's the owner's [friends board](../roadmap/refactor-plan.md#decisions-2026-10-14), which runs on trust.
+- **Any signed-in player** of the shared Firebase project can read a mission's board. Nobody can list the boards, or read one signed out.
+- **Only the player** writes their entry. Their best never goes down, the name is 1 to 24 characters, `ts` is the server time, and nothing else is allowed.
+- **A player can take their own entry down;** nobody else can.
+- **Its scores come from players' own devices,** like the record, so it's for friends, not the public.
 
 ## Writing it from the game
 
-This is the plan for the save code. The local half is written: the [`Profile`](../../../Assets/Scripts/Core/Profile.cs) record, its merge, and a local store behind `IProfileStore` (refactor plan step 15). Its fields follow the [extended record](../roadmap/refactor-plan.md#the-player-record-scoped-by-the-moscow-pass), not this draft's `runs` and `wins`.
-
-- **On sign-in:** `GET pooketSlug/players/{uid}.json?auth=<Firebase ID token>`. It returns `null` until the first save.
-- **Merging:**
-  - Take whichever is higher of the cloud's `best` and the local high score.
-  - Count runs and wins only while signed in. Then offline play on two devices is never counted twice.
-- **First save:** `PUT` the whole record, with `first` and `ts` both set to `{".sv": "timestamp"}`.
-- **Later saves:** `PATCH` `best`, `runs`, `wins` and `ts`.
-- **If a save is refused** (HTTP 401), another device has probably saved since. Read the record again, re-apply this run's changes, and retry once.
+This is the plan for the save code. The local half is written: the [`Profile`](../../../Assets/Scripts/Core/Profile.cs) record, its merge, and a local store behind `IProfileStore` (refactor plan step 15).
+- **On sign-in:** `GET pooketSlug/players/{uid}.json?auth=<Firebase ID token>`. It returns `null` until the first save. Keep its `rev`.
+- **Merging:** take the better of each, as `Profile.Merge` does: the higher numbers, both copies' list entries, co-op if either has it, and the earlier `first`. Clears take the higher count, not the sum, since the same clears may be on both copies.
+- **First save:** `PUT` the whole record, with `rev` 1 and with `first` and `ts` both set to `{".sv": "timestamp"}`.
+- **Later saves:** `PATCH` the record with what changed, plus `rev` one above the last one read or written and `ts` as the server time. A write below the record, such as to one mission, is refused: it can't carry the save number.
+- **If a save is refused** (HTTP 401), another device has probably saved since. Read the record again, merge, and retry once with the new save number.
+- **The board:** after a run that beats a mission's best, `PUT pooketSlug/leaderboard/{mission}/{uid}` with the name, the best and `ts`.
+- **The ids already exist:** missions (`mission-1`) and reveals (`coop`) come from `Missions` and `Reveals`, and the settings are `Setting`'s names in lower case.
 
 ## The rules section
 
-Added after Cardmaster's `lobby` section, as a new top-level key:
+The section is in [Cardmaster's rules file](https://github.com/jhiggins-tech/cardmaster/blob/claude/gallant-keller-3qzp97/firebase/database.rules.json), as a new top-level `pooketSlug` key after `lobby`. Nothing else in the file changes. How it works:
+- **Write access is granted in two places:** on a player's record, to that player, never to delete it; and on a board entry, to its player. Everything else is `.validate`.
+- **Deletes:** the record's `.write` needs `newData.exists()`. A required field can't be deleted either: validation runs on the record that holds it, and `hasChildren` then fails.
+- **The save number:** the record's own `.validate` compares `newData.child('rev')` with `data.child('rev')`. It runs on every write that changes the record, a `PATCH` of one field included.
+- **Maps** must be objects (`hasChildren()`), so a plain value can't skip the checks on their entries.
+- **A worn item** must be under `owned` in the new data: `newData.parent().parent().child('owned').child(newData.val()).exists()`.
 
-```json
-"pooketSlug": {
-  "players": {
-    "$uid": {
-      ".read": "auth != null && auth.uid === $uid",
-      ".write": "auth != null && auth.uid === $uid && newData.exists()",
-      ".validate": "newData.hasChildren(['best', 'runs', 'wins', 'first', 'ts'])",
-      "best": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000000 && newData.val() % 1 === 0 && (!data.exists() || newData.val() >= data.val())" },
-      "runs": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 1000000000 && newData.val() % 1 === 0 && (!data.exists() || newData.val() >= data.val())" },
-      "wins": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= newData.parent().child('runs').val() && newData.val() % 1 === 0 && (!data.exists() || newData.val() >= data.val())" },
-      "first": { ".validate": "(!data.exists() && newData.val() === now) || (data.exists() && newData.val() === data.val())" },
-      "ts": { ".validate": "newData.val() === now" },
-      "$other": { ".validate": false }
-    }
-  }
-}
-```
-
-How the deletes are blocked:
-- **Deleting the whole record:** the `.write` rule requires `newData.exists()`.
-- **Deleting a single field:** validation doesn't run on a deleted value, but it does run on the record that contains it, which `hasChildren` then rejects.
-
-The same change also adds a note to Cardmaster's README: the `pooketSlug` section and the extra sign-in origin belong to this game, so later rules changes keep them.
+The same commit updates Cardmaster's README: the `pooketSlug` section and the extra sign-in origin belong to this game, so later rules changes keep them.
 
 ## Tests
 
-The change adds seven tests to Cardmaster's `firebase/tests/rules.test.mjs`, plus a signed-out case. Each one talks to the emulator over the REST API, as the game will. They check that:
+The commit adds 13 tests to Cardmaster's `firebase/tests/rules.test.mjs`, and signed-out cases for both paths. Each talks to the emulator over the REST API, as the game will. They check that:
 - the player creates their record, reads it, and saves over it with `PATCH` and `PUT`
 - nobody else reads or writes it, and nobody lists the players
-- the stats never go down, so an older save from another device is refused
-- wins never outnumber runs
+- each save goes one up: a save from a device that's behind, one that skips ahead, and a write below the record are all refused
+- progress never goes down, but tokens can be spent
 - the times are the server time, and `first` never changes
-- every field is required, nothing else is allowed, and numbers must be whole and in range
-- nothing can be deleted, by the player or anyone else
+- every required field is there and nothing unknown is, with whole numbers in range
+- lists hold ids marked `true`, and maps keep their shapes
+- a worn cosmetic is one the player owns
+- the record and its required fields can't be deleted
+- on the board, a player posts their best and any signed-in player reads it
+- only the player writes their entry, and their best never goes down
+- an entry is a name, a whole best and the server time
+- a player can take their own entry down, and nobody else can
 
-**Mutation check:** the rules were weakened 12 ways, one at a time. Every time, the run failed and a named test reported it. The 12 ways:
-- allowing deletes
-- a lower `best`
-- a lower `runs`
-- more wins than runs
-- a changed `first`
-- a client-chosen `ts`
-- extra fields
-- partial records
-- fractions
-- no upper bound
-- other players reading
-- other players writing
+All 30 of Cardmaster's rules tests pass, its own 17 included.
+
+**Mutation check:** the new rules were weakened 32 ways, one at a time. Every time, the run failed and a named test reported it:
+- **Saves:** deleting the record; no save number check; a save number that skips ahead; a first save at any number.
+- **Progress:** a lower XP, rank, version, mission best, clear count or kill count; co-op closing again.
+- **Shape:** a worn item that isn't owned; unknown fields; XP not required; fractional XP; no upper bound on XP; unbounded tokens; unknown settings; a tally entry without its counters; a list or a mission as a plain value; list entries other than `true`.
+- **Times and access:** a client-chosen save time; a `first` that changes; others reading or writing the record.
+- **The board:** others writing; a lower best; signed-out readers; a client-chosen time; extra fields; overlong mission ids.
 
 Results are in the [test log](../verification/test-log.md#part-3-sign-in).
 
@@ -98,7 +98,7 @@ Results are in the [test log](../verification/test-log.md#part-3-sign-in).
 - **The usual way doesn't work here.** Cardmaster's `npm run test:firebase` starts the emulators with the Firebase CLI, which sends every request through `HTTPS_PROXY` and ignores `NO_PROXY` (firebase-tools 15.33.0, `lib/apiv2.js`). So even its call that loads the rules into the local emulator goes to the sandbox proxy, which refuses it. The emulators then shut down with `Failed to load initial Database Emulator rules`.
 - **Don't unset `HTTPS_PROXY`;** the sandbox's rules forbid it. Use [`rules-test.sh`](../verification/tools/rules-test.sh) instead. It starts the database emulator's JAR directly, loads the rules with curl (which honours `NO_PROXY`), then runs the rules tests with Node.
 - **What it needs:**
-  - Node 24 (`nvm install 24`; the sandbox ships Node 22)
+  - Node 24 for `npm ci` (Cardmaster requires it; `nvm install 24`). The tests themselves also ran on the sandbox's Node 22.
   - Java 21 or newer
   - `npm ci --prefix firebase`, run once in the Cardmaster checkout
 - **It only covers the rules tests.** Cardmaster's CI runs the hosting and sign-in tests on every push, on GitHub's runners, which have no such proxy.

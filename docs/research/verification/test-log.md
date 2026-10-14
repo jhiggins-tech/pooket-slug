@@ -44,7 +44,10 @@ All tests ran against Cardmaster's repository at `762ca94`, in the cloud sandbox
 | ~10:42 | With the drafted `pooketSlug` section and its tests | The same | ✅ 24 of 24 |
 | ~10:43, rerun ~10:48 | Do the new tests catch weakened rules? | The rules weakened 12 ways, one at a time ([list](../accounts/database-rules.md#tests)) | ✅ 12 of 12 caught: each run failed, with a named test. The first pass's exit codes were unreliable (the script's cleanup masked them), so it was rerun with the fixed script, checking both the exit code and the named failure |
 | ~10:44 | Cardmaster's typecheck and unit tests, with the change | `npm run typecheck`, `npm run test:unit` | ✅ no type errors; 57 of 57 |
-| — | Cardmaster's hosting and sign-in tests, with the change | Its CI, once the branch is pushed | Not run yet: the commit is waiting on [owner 2c](../todo.md) |
+| — | Cardmaster's hosting and sign-in tests, with the change | Its CI, once the branch is pushed | Not run then: the commit waited on [owner 2c](../todo.md) |
+| ~21:53 | The draft, extended to the planned record and the friends board, with a save number | The same, on Node 22.22. 13 tests for `pooketSlug` in place of the draft's 7 | ✅ 30 of 30: Cardmaster's 17, and 9 for the record and 4 for the board. One new test was wrong at first (it expected an overlong player id to be refused; the rules bound mission ids) and was fixed |
+| 21:54–21:59 | Do the new tests catch weakened rules? | The new rules weakened 32 ways, one at a time ([list](../accounts/database-rules.md#tests)) | ✅ 32 of 32 caught, each by a named test. Three needed a second pass, after their search patterns had also matched Cardmaster's own rules |
+| 21:59–22:01 | Cardmaster's CI on the committed rules (`121c939`, branch `claude/gallant-keller-3qzp97`), with the owner's go-ahead | Run 38644449649 | ✅ Build, and the rules, hosting and sign-in tests passed; the deploy job was skipped, as it only runs on `main` |
 
 ## Part 4: Refactor
 
