@@ -26,7 +26,7 @@ _Last updated: 2026-10-14._
 - [ ] **4. Sign in for real** once the sign-in build is live, to confirm it end to end. *Needs C1.*
 - [ ] **5. Optional: play the untested co-op paths** in two visible windows: the host leaving mid-game, quick match, a mistyped code, a third player joining ([steps](netcode/sessions.md#testing-by-hand)). C3c would automate this instead.
 - [x] **6. Answer the refactor plan's open points.** Done 2026-10-14 ([decisions](roadmap/refactor-plan.md#decisions-2026-10-14)): a friends leaderboard, branches keep deploying, two-player tests automated in CI, classic guns covered by the kits, uGUI and assembly definitions accepted.
-- [ ] **7. Sign off the four design documents** in [docs/design](../design/README.md): story, tanks, player mechanics, and maps and progression. Their open questions are at the bottom of each.
+- [ ] **7. Sign off the four design documents** in [docs/design](../design/README.md): story, tanks, player mechanics, and maps and progression. Their questions were answered on 2026-10-14; what's still open is at the bottom of each.
 - [ ] **8. Give the go-ahead for the refactor** ([plan](roadmap/refactor-plan.md)). *Unblocks C2.*
 
 ## Claude

@@ -2,7 +2,7 @@
 
 How a soldier plays: the crew, the controls, the kit, health and lives, crates, status effects and co-op, plus what the player keeps between missions.
 
-**Status:** draft for sign-off, 2026-10-14.
+**Status:** draft for sign-off. The owner answered its questions on 2026-10-14.
 
 **Read this when** you're working on anything the player controls or earns.
 
@@ -10,7 +10,7 @@ Up: [Design](README.md)
 
 ## The crew
 
-- **There are eight soldiers,** all from Pooket Tabks. You start with tones2 alone and free one more at the end of each mission, kie first.
+- **There are eight soldiers,** all from Pooket Tabks. You start with tones2 alone and free one more at the end of each mission: kie first, then kcaj.
 - **Each one plays differently,** in how they move as well as how they fight:
 
 | Soldier | Plays like |
@@ -32,6 +32,7 @@ Up: [Design](README.md)
 - **Phones come first,** with an arcade pad:
   - **Left thumb:** a stick to run, aim up, and crouch (or aim down while in the air).
   - **Right thumb:** FIRE (hold to keep firing), JUMP, special (SP), super (SU), and an ability (AB) for the soldiers who have one.
+  - **Once you've won a tank,** holding the stick down and holding SP calls it in ([tanks](tanks.md#calling-in-a-tank)).
 - **A keyboard works too.** Gamepads are a Could.
 - **Moving:** run, jump (hold for higher), crouch, and drop through thin floors. Getting hit knocks you back a little.
 - **Aiming:** up, down while in the air, and diagonals.
@@ -44,6 +45,8 @@ Each soldier has:
 - a **special**, with 3 charges that refill over time
 - a **super**, charged by kills
 - sometimes an **ability**, on a cooldown (larinovsky, garyoldmancorp and kiwicore)
+
+**Some soldiers have a melee attack.** For them, FIRE becomes a melee hit when a goon is right next to them. It's part of their kit, not every soldier's.
 
 **The classic Metal Slug weapon styles live in the kits.** The crew's own weapons cover them (beams, cones, lobbed shots, homing shots and more), so there are no separate classic guns.
 
@@ -79,22 +82,22 @@ Statuses come from the kits, and tank bosses use them on you too:
 - **Two phones, online.** Co-op opens once Mission one has been beaten solo ([progression](levels.md#the-order-things-open-up)), and a partner can drop in mid-mission.
 - **Lives and scores:** each player has their own, and their stats are kept separately.
 - **Some kits help a partner:** kiwicore's drum solo heals them, ciarra's marks make their shots hit harder, and kcaj's pills never hurt them.
+- **The team super:** when both players' supers are charged, they can fire them together for a screen-clearing team super.
 - **Friendly fire is off.**
 - **Your partner is always easy to find:** an arrow when they're off-screen, and a warning when their health is low or they've switched away from the game.
-- **Two players can pick the same soldier,** in different colours *(proposed)*.
 
 ## What the player keeps
 
 - **The crew they've freed,** and whether co-op is open.
-- **Career XP,** from clearing missions, kills and freeing crewmates. It only ever unlocks looks: hats, skins, tank paint, death animations, kill effects and victory poses.
-- **Rank:** the ladder from Pooket Tabks. You climb it slowly by beating stages, and never drop down it. Eight ranks are known and the rest are hidden, and some hidden rungs need a secret feat.
+- **Career XP,** from clearing missions, kills and freeing crewmates. Each level gives tokens to spend on looks, as in Tabks: hats, skins, tank paint, death animations, kill effects and victory poses. XP never unlocks anything else.
+- **Rank:** the ladder from Pooket Tabks. Each stretch of a mission you beat moves you a little way up it, replays included, and you never drop down. Eight ranks are known and the rest are hidden, and some hidden rungs need a secret feat.
 - **Stats** for each soldier and weapon: shots, hits, accuracy, damage dealt and taken, and kills.
 - **Best scores,** which also go on a friends leaderboard ([leaderboards](levels.md#leaderboards)).
-- **Signing in with Google** keeps all of this across phones and computers, under a display name the player picks.
+- **Signing in with Google** keeps all of this across phones and computers, under a display name the player picks ([when it's offered](levels.md#the-order-things-open-up)).
 
 ## Discovering the kit
 
-The game shows only what the player has already met *(proposed details)*:
+The game shows only what the player has already met:
 - **Mission one starts with move, jump, fire and the special.** Each button is labelled, and an ⓘ screen covers the kit, as in Tabks. There's no tutorial.
 - **The super button lights up the first time it's charged,** with a one-off prompt.
 - **The ability button only appears for soldiers who have one.**
@@ -111,10 +114,11 @@ These are all Won't:
 
 ## Open questions
 
-- **Team moves** (a Must): combined attacks, or a shared super bomb? The brainstorm only has kits that help a partner.
-- **A point-blank knife** (a Should): does every soldier get one, or only some?
-- **Career XP:** how much does each thing earn? And how does it pay out: tokens to spend, a fixed track, a track per soldier, or mystery crates?
-- **Rank:** what counts as a stage, how many stages make a rung, and do replays count?
+- **The same soldier twice:** can both players in co-op pick the same soldier?
+- **Melee:** which soldiers get it.
+- **The team super:** what it does, and whether it changes with the pair of soldiers.
+- **Career XP:** how much each thing earns, and what looks cost in tokens.
+- **Rank:** where each mission splits into stages, and how many stages make a rung.
 - **The secret feats:** all 25 still need designing.
 - **Kits still to design:** the coming-soon crew's, and garyoldmancorp's real moves.
 - **Timings** for the weapons that charge or build up, to be tuned in play.

@@ -4,7 +4,7 @@ The game design for Pooket Slug, the second Pooket game: a Metal Slug-style run-
 
 **Read this when** you're deciding what Pooket Slug is, or building any part of it.
 
-**For sign-off**, the design is also written up as four readable documents in [docs/design](docs/design/README.md): story and cutscenes, tanks, player mechanics, and maps and progression. They add progressive disclosure: the game reveals tanks, driving and co-op only as the player reaches them.
+**For sign-off**, the design is also written up as four readable documents in [docs/design](docs/design/README.md): story and cutscenes, tanks, player mechanics, and maps and progression. They add progressive disclosure: the game reveals tanks, driving and co-op only as the player reaches them. They also hold the owner's later answers, and where they differ from this file, they win.
 
 The tech spike (Unity 6.3 WebGL built by GameCI, with Photon Fusion co-op) is on the [`claude/gallant-keller-3qzp97`](https://github.com/jhiggins-tech/pooket-slug/tree/claude/gallant-keller-3qzp97) branch, with research notes in `docs/research/` (start at `AGENTS.md`). [Building on the spike](#building-on-the-spike) says how this design lands on it.
 

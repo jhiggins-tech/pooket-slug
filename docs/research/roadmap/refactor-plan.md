@@ -117,13 +117,13 @@ The work comes in four phases, each done in small commits. Each phase ends with 
 | Row | My reading of DESIGN.md | In scope |
 |---|---|---|
 | VEH-01 Tank vehicle | Ride the crew tanks you've won | Yes |
-| VEH-02 Enter, exit, eject, ram | Climb in; eject before it blows | Yes, without ramming |
+| VEH-02 Enter, exit, eject, ram | Climb in; eject, and the empty tank rolls on into the goons | Yes |
 | VEH-06 Hijack enemy vehicles | Beat a crew tank and its pilot, then climb in | Crew tanks only |
 | ENM-01 Starter enemy set | The spike's three goons, as holograms | Yes |
 | ENM-02 Bazooka and mortar soldiers | Not in Mission one | Later missions |
 | ENM-10 Alien faction | The goons are holograms; there's no second faction | No |
 | ENM-12 Waves and arena locks | Boss arenas only | Arenas |
-| ENM-13 Scaling by player count | Not decided | Open |
+| ENM-13 Scaling by player count | Missions don't scale; the late missions and the hard setting are tuned for two | No scaling |
 | BOS-01 Tank boss | Each mission ends with a crew tank, kie's first | Yes |
 | BOS-02 Multi-phase bosses | Faster as it's hurt, then the pilot round | Yes |
 | BOS-03, BOS-04 Multi-part, screen-filling | Not in the design | No |
@@ -136,7 +136,7 @@ The work comes in four phases, each done in small commits. Each phase ends with 
 | SCR-01 Score and high score | The score on the HUD | Yes (exists) |
 | SCR-02 Mission tally and rank | The tally and the rank ladder | Yes, as the design has them |
 | SCR-03 Lives and continues | Each player has their own | Yes |
-| SCR-04 Difficulty levels | Not picked | No |
+| SCR-04 Difficulty levels | A hard setting for every cleared mission, tuned for two players | Yes |
 | SCR-05 Combo multiplier | Not in the design | No |
 | CHR-05 Special moves | Special, super and ability | Yes |
 | COP-02 Revive a downed partner | A 1-up goes first to a partner who's out | Yes, by 1-up |
@@ -147,6 +147,11 @@ Other entries, as I read them:
 - **WPN-01** ("part of base kit") is covered by each soldier's primary and special.
 - **LVL-14 and CHR-01's customisation** are phase 2.
 - **TEC-07** (Won't) is covered anyway by cloud saves (SOC-02, Must), which need the same interface.
+
+The owner's answers on the [design documents](../../design/README.md) (2026-10-14) also settle:
+- **LVL-04** (Could): in after all, as a checkpoint at each boss door.
+- **AIM-04** (Should): melee is a kit trait for some soldiers, not everyone's.
+- **COP-08** (Must): team moves are the kits that help a partner, plus a team super when both supers are charged.
 
 ## Decisions (2026-10-14)
 
@@ -170,10 +175,11 @@ The sign-in work extends its [drafted record](../accounts/database-rules.md) bef
 | `crew` | Freed crewmates | SCR-09 |
 | `coop` | Whether co-op is open (Mission one beaten solo) | SCR-09 |
 | `xp` | Career XP; it never goes down | CHR-04 |
+| `tokens` | Tokens from XP levels, spent on looks | CHR-04 |
 | `cosmetics` | Items owned, and what's worn in each slot | CHR-04 |
 | `rank`, `feats` | Stages beaten (never goes down), and the feats done, stored by number | Ranks |
 | `tally` | Per soldier and weapon: shots, hits, damage dealt and taken, kills | SCR-07 |
-| `best`, `clears` | Best score, and clears per mission | SCR-01, LVL-02 |
+| `best`, `clears` | Best score, and clears per mission and setting (normal or hard) | SCR-01, SCR-04, LVL-02 |
 | `seen` | Reveals already shown | Progressive disclosure |
 | `first`, `ts` | First played, and last saved (server time) | Tracking |
 
