@@ -20,9 +20,9 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
 | Verification without a Unity license | ✅ Working toolkit, re-tested 2026-10-14 | [verification](verification/README.md) |
 | Feature roadmap | ⏳ Waiting for the owner's MoSCoW pass | [roadmap](roadmap/README.md) |
 | Refactor pass | ⏳ After the roadmap | [refactor candidates](roadmap/refactor-candidates.md) |
-| "Sign in with Google" spike | ⏳ Reusing the Cardmaster Firebase project. Database rules drafted and tested, not yet committed. Waiting on the owner: permission to commit to Cardmaster, the console steps, the repository variables | [accounts](accounts/README.md), [todo](todo.md) |
+| "Sign in with Google" spike | ⏳ Reusing the Cardmaster Firebase project. Database rules drafted and tested, not yet committed; to be extended for the game design first. Waiting on the owner: permission to commit to Cardmaster, the console steps, the repository variables | [accounts](accounts/README.md), [todo](todo.md) |
 
-**Live build:** https://jhiggins-tech.github.io/pooket-slug/ · **What's next:** [todo.md](todo.md)
+**Live build:** https://jhiggins-tech.github.io/pooket-slug/ · **What's next:** [todo.md](todo.md) · **Game design:** [DESIGN.md](https://github.com/jhiggins-tech/pooket-slug/blob/claude/inspiring-wozniak-5db5aq/DESIGN.md), written with the owner on its own branch
 
 ## Contents
 
@@ -73,3 +73,4 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
 - **When you add a document,** add it to its topic `README.md` and to the contents above.
 - **Record test results** in [test-log.md](verification/test-log.md).
 - **Never paste Photon SDK code, secret values, or private-repo code here.** This repository is public, and the SDK is licensed.
+- **Never name the hidden ranks.** Of the rank ladder's 33 ranks, only Bronze, Silver, Gold, Platinum, Diamond, Master, Grandmaster and Champion may be named. Don't name or describe the other 25 in docs, tests or commit messages ([the owner's rule](https://github.com/jhiggins-tech/pooket-slug/blob/claude/inspiring-wozniak-5db5aq/DESIGN.md#ranks)).

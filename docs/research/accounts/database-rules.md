@@ -2,7 +2,7 @@
 
 This game's section of the shared Realtime Database rules. It covers the record each player gets, what the rules enforce, how the game should write to the record, and how the rules are tested.
 
-**Status, 2026-10-14:** drafted as a change to Cardmaster's repository and tested against the database emulator in the cloud sandbox. **It isn't committed there yet:** this session's permission guard blocked the commit to Cardmaster, so it waits for the owner ([to-do](../todo.md)). Once merged, Cardmaster's `firebase/database.rules.json` is the source of truth, and the copy below is the draft.
+**Status, 2026-10-14:** drafted as a change to Cardmaster's repository and tested against the database emulator in the cloud sandbox. **It isn't committed there yet:** this session's permission guard blocked the commit to Cardmaster, so it waits for the owner ([to-do](../todo.md)). **It also needs extending first:** the game design asks for more per-player data ([below](#the-record)). Once merged, Cardmaster's `firebase/database.rules.json` is the source of truth, and the copy below is the draft.
 
 **Read this when** you're writing the game's save code, changing what it stores, or reviewing the rules pull request.
 
@@ -23,7 +23,7 @@ Each player has one record at `pooketSlug/players/{uid}`. It must have all five 
 - **Only the player** can read or write their record, and nobody can list the players.
 - **Nothing can be deleted,** neither the record nor any field in it.
 - **The first write must be the whole record.** Later writes can change some fields.
-- **Missions and unlocks aren't in it yet.** They arrive with roadmap rows SCR-08 and SCR-09 ([roadmap](../roadmap/feature-candidates.csv)). Each new field means a small rules change, with tests, made through a Cardmaster pull request.
+- **The game design needs more.** Its [Building on the spike](https://github.com/jhiggins-tech/pooket-slug/blob/claude/inspiring-wozniak-5db5aq/DESIGN.md#building-on-the-spike) section adds, per player: freed crew, whether co-op is open (Mission one beaten solo), career XP, cosmetics owned and worn, rank rung and feats, and the tally per soldier and weapon. Each is a rules change in Cardmaster, so the plan is to extend or reshape this record before the first pull request, scoped by the owner's MoSCoW pass. Anything added later means another small rules change, with tests.
 - **The rules can't make a score honest.** With their own token, a player can write any numbers that pass these checks. That's fine for a personal record, but don't build a leaderboard on it ([why](README.md#database-rules)).
 
 ## Writing it from the game
