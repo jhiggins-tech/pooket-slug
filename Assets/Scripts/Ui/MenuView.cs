@@ -31,6 +31,8 @@ namespace PooketSlug
         public bool InCoop;
         public string Notice, Status;
         public int Score, Seconds;
+        /// <summary>The title screen's line about sign-in; null hides it.</summary>
+        public string Account;
     }
 
     /// <summary>
@@ -47,7 +49,7 @@ namespace PooketSlug
         readonly RectTransform m_Root;
         readonly Image m_Dim;
         readonly RectTransform m_Title, m_Online, m_Join, m_Connecting, m_Paused, m_GameOver, m_Victory;
-        readonly Text m_Controls1, m_Controls2, m_Controls3, m_OnlineOff, m_Notice, m_NewBadge, m_Status, m_Score, m_Result, m_Opened;
+        readonly Text m_Controls1, m_Controls2, m_Controls3, m_OnlineOff, m_Account, m_Notice, m_NewBadge, m_Status, m_Score, m_Result, m_Opened;
         readonly Button m_Play, m_Coop, m_Retry, m_GameOverMenu, m_Again, m_SecondVictory;
         readonly Text m_PlayKey, m_CoopKey, m_HostKey, m_JoinKey, m_QuickKey, m_OnlineBackKey, m_SubmitKey, m_JoinBackKey, m_CancelKey;
         readonly Text m_ResumeKey, m_RestartKey, m_MenuKey, m_RetryKey, m_GameOverMenuKey, m_AgainKey, m_SecondKey, m_SecondLabel;
@@ -86,6 +88,7 @@ namespace PooketSlug
             m_NewBadge.text = "NEW!";
             m_OnlineOff = Line(m_Title, -84f, 9, new Color(1f, 1f, 1f, 0.6f));
             m_OnlineOff.text = "ONLINE CO-OP IS OFF IN THIS BUILD (NO PHOTON APP ID)";
+            m_Account = Line(m_Title, -125f, 9, new Color(1f, 1f, 1f, 0.75f));
             m_Notice = Line(m_Root, -100f, 12, new Color(1f, 0.5f, 0.4f));
 
             // online co-op
@@ -180,6 +183,8 @@ namespace PooketSlug
                     Key(m_PlayKey, keys, "ENTER");
                     Key(m_CoopKey, keys, "H HOST · J JOIN · Q QUICK");
                     Ui.Show(m_OnlineOff, info.OnlineOff && info.CoopOpen);
+                    Ui.Show(m_Account, info.Account != null);
+                    if (info.Account != null && m_Account.text != info.Account) m_Account.text = info.Account;
                     break;
                 case MenuScreen.Online:
                     Dim(new Color(0f, 0f, 0f, 0.6f));

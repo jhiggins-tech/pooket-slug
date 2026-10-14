@@ -19,7 +19,8 @@ namespace PooketSlug.EditorTools
         const string NetConfigPath = "Assets/Resources/" + NetConfig.ResourceName + ".json";
         const string BaseVersion = "0.2.0";
 
-        // GameCI passes -customBuildPath; our workflow adds -buildSha and -photonAppId [-photonRegion].
+        // GameCI passes -customBuildPath; our workflow adds -buildSha, -photonAppId [-photonRegion], and
+        // -googleClientId, -firebaseApiKey and -firebaseDbUrl for sign-in.
         public static void Build()
         {
             string[] args = Environment.GetCommandLineArgs();
@@ -29,6 +30,8 @@ namespace PooketSlug.EditorTools
 
             BuildReport report = Run(outputPath, sha);
             BuildSummary summary = report.summary;
+            if (summary.result == BuildResult.Succeeded)
+                WritePageConfig(outputPath, GetArg(args, "-googleClientId"), GetArg(args, "-firebaseApiKey"), GetArg(args, "-firebaseDbUrl"));
 
             Console.WriteLine(
                 "\n###########################\n" +
@@ -44,6 +47,7 @@ namespace PooketSlug.EditorTools
         public static void BuildFromMenu()
         {
             BuildReport report = Run("Builds/WebGL", null);
+            if (report.summary.result == BuildResult.Succeeded) WritePageConfig("Builds/WebGL", null, null, null);
             Debug.Log($"WebGL build {report.summary.result}: {report.summary.outputPath}");
         }
 
@@ -113,6 +117,27 @@ namespace PooketSlug.EditorTools
             File.WriteAllText(NetConfigPath, JsonUtility.ToJson(new NetConfig.Data { appId = appId.Trim(), region = (region ?? "").Trim() }));
             AssetDatabase.Refresh(); // imports the new Resources folder and file
             Console.WriteLine("[PooketSlug] Photon AppId baked in; region: " + (string.IsNullOrEmpty(region) ? NetConfig.DefaultRegion + " (the default)" : region));
+        }
+
+        /// <summary>The page's settings for sign-in (pooket-auth.js), all public identifiers.</summary>
+        [Serializable]
+        sealed class PageConfig
+        {
+            public string googleClientId, firebaseApiKey, firebaseDbUrl;
+        }
+
+        /// <summary>
+        /// Writes <c>pooket-config.js</c> next to the page, which loads it before <c>pooket-auth.js</c>. Without all
+        /// three values, sign-in is off and progress stays in the browser.
+        /// </summary>
+        static void WritePageConfig(string outputPath, string clientId, string apiKey, string dbUrl)
+        {
+            var config = new PageConfig { googleClientId = (clientId ?? "").Trim(), firebaseApiKey = (apiKey ?? "").Trim(), firebaseDbUrl = (dbUrl ?? "").Trim() };
+            bool on = config.googleClientId.Length > 0 && config.firebaseApiKey.Length > 0 && config.firebaseDbUrl.Length > 0;
+            File.WriteAllText(Path.Combine(outputPath, "pooket-config.js"),
+                "// Written by WebGLBuild.cs from the repository variables. Public identifiers only.\n" +
+                "window.POOKET_CONFIG = " + (on ? JsonUtility.ToJson(config) : "{}") + ";\n");
+            Console.WriteLine("[PooketSlug] Sign-in: " + (on ? "on (" + config.firebaseDbUrl + ")" : "off (no -googleClientId, -firebaseApiKey and -firebaseDbUrl)"));
         }
 
         /// <summary>Build-log diagnostics: is the Fusion SDK present, are its defines set, did its IL weaver compile?</summary>

@@ -23,9 +23,14 @@
         display: flex; flex-direction: column; align-items: center;
         padding: 16px;
       }
-      header { width: 100%; max-width: var(--stage-w); display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+      header { width: 100%; max-width: var(--stage-w); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
       h1 { margin: 0; font-size: 22px; letter-spacing: 0.04em; color: var(--accent); }
       .sub { color: var(--muted); font-size: 13px; }
+      /* sign-in (pooket-auth.js): Google's button, or who's signed in */
+      #account { display: flex; align-items: center; gap: 8px; min-height: 32px; font-size: 13px; color: var(--muted); margin-left: auto; }
+      #account[hidden] { display: none; }
+      #account .account-name { color: var(--ink); }
+      #account .account-status:empty { display: none; }
       #stage {
         position: relative; width: min(100%, var(--stage-w)); aspect-ratio: 16 / 9; flex-shrink: 0;
         margin-top: 10px; background: #6ca8e0; border-radius: 6px; overflow: hidden;
@@ -70,6 +75,7 @@
     <header>
       <h1>{{{ PRODUCT_NAME }}}</h1>
       <span class="sub">Unity WebGL build by GameCI on GitHub Actions · {{{ PRODUCT_VERSION }}}</span>
+      <div id="account" hidden></div>
     </header>
 
     <div id="stage">
@@ -94,6 +100,9 @@
       Keyboard, gamepad or touch · procedural pixel art &amp; sound · <a href="https://game.ci">game.ci</a>
     </footer>
 
+    <!-- pooket-config.js is written by the build (WebGLBuild.cs) from the repository variables -->
+    <script src="pooket-config.js"></script>
+    <script src="pooket-auth.js"></script>
     <script src="Build/{{{ LOADER_FILENAME }}}"></script>
     <script>
       var canvas = document.querySelector("#unity-canvas");
@@ -123,6 +132,7 @@
         status.textContent = "Loading… " + Math.round(progress * 100) + "%";
       }).then(function (unityInstance) {
         loader.style.display = "none";
+        if (window.PooketAuth) window.PooketAuth.attach(unityInstance);
         canvas.focus();
         document.querySelector("#fullscreen").onclick = function () { unityInstance.SetFullscreen(1); };
         canvas.addEventListener("pointerdown", function () { canvas.focus(); });

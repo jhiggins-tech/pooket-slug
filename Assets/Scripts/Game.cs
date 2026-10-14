@@ -43,7 +43,8 @@ namespace PooketSlug
 
         HudView m_Hud;
         MenuView m_Menu;
-        readonly IProfileStore m_Store = new LocalProfileStore();
+        IProfileStore m_Store; // this browser, and the cloud while signed in
+        CloudAccount m_Account;
         Profile m_Profile;
         bool m_CoopJustOpened; // this run's win opened co-op
         MissionDef m_Mission = Missions.One; // the mission a solo game plays; a shared game plays the host's
@@ -71,6 +72,9 @@ namespace PooketSlug
             m_Camera.farClipPlane = 50f;
             camGo.AddComponent<AudioListener>();
 
+            m_Account = CloudAccount.Create();
+            m_Account.CloudProfile += OnCloudProfile;
+            m_Store = new CloudProfileStore(new LocalProfileStore(), m_Account);
             m_Profile = m_Store.Load();
             m_Unlocked = Array.IndexOf((PageQuery.Get(url, "unlock") ?? "").ToLowerInvariant().Split(','), Reveals.Coop) >= 0;
             m_TestCrate = Array.IndexOf((PageQuery.Get(url, "test") ?? "").ToLowerInvariant().Split(','), "crate") >= 0;
@@ -142,6 +146,22 @@ namespace PooketSlug
             m_Paused = false;
             m_StartNote = null;
             SetState(GameState.Title);
+        }
+
+        /// <summary>The cloud's copy, after signing in: take the better of each field and save to both.</summary>
+        void OnCloudProfile(Profile cloud)
+        {
+            m_Profile.Merge(cloud);
+            m_Store.Save(m_Profile);
+        }
+
+        /// <summary>The title screen's line about the account, or null when the build has no sign-in.</summary>
+        string AccountLine()
+        {
+            if (!m_Account.Available) return null;
+            if (m_Account.SignedIn)
+                return string.IsNullOrEmpty(m_Account.Name) ? "SIGNED IN · PROGRESS SAVES ONLINE" : "SIGNED IN AS " + m_Account.Name.ToUpperInvariant() + " · PROGRESS SAVES ONLINE";
+            return GameInput.TouchActive ? "HOLD YOUR PHONE UPRIGHT TO SIGN IN AND SAVE ONLINE" : "SIGN IN ABOVE THE GAME TO SAVE YOUR PROGRESS ONLINE";
         }
 
         // ------------------------------------------------------------------ online co-op
@@ -373,6 +393,7 @@ namespace PooketSlug
                 Status = m_Net?.Status,
                 Score = m_World.Scoring.Points,
                 Seconds = Mathf.FloorToInt(m_World.Elapsed),
+                Account = AccountLine(),
             });
         }
 
