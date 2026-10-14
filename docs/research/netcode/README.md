@@ -42,7 +42,7 @@ Up: [Research index](../AGENTS.md)
 | The SDK lives in a private release, fetched by CI | Photon's license forbids redistributing it | [SDK in CI](sdk-in-ci.md) |
 | Network objects built in code, not prefabs | Keeps the project code-only | [Architecture](architecture.md#network-objects-without-prefabs) |
 | Room code = session name + region | Photon sessions exist per region | [Sessions](sessions.md#room-codes) |
-| Gameplay talks to interfaces, and Fusion code is behind `#if FUSION2` | The game builds without the private SDK | [Architecture](architecture.md#the-boundary-between-game-and-netcode) |
+| Gameplay talks to interfaces, and the Fusion code is its own assembly that only compiles with the SDK | The game builds without the private SDK, and the compiler keeps game code off Fusion | [Architecture](architecture.md#the-boundary-between-game-and-netcode) |
 
 ## Documents
 
@@ -53,7 +53,8 @@ Up: [Research index](../AGENTS.md)
 
 Source files:
 - [`Assets/Scripts/Core/NetContracts.cs`](../../../Assets/Scripts/Core/NetContracts.cs): the interfaces and event payloads between game and netcode
-- [`Assets/Scripts/Net/`](../../../Assets/Scripts/Net/): `NetSession.cs`, `PlayerNet.cs`, `WorldNet.cs`, `NetConfig.cs`
+- [`Assets/Scripts/Net/`](../../../Assets/Scripts/Net/): `NetSession.cs`, `PlayerNet.cs`, `WorldNet.cs`, in the `PooketSlug.Net` assembly
+- [`Assets/Scripts/Core/NetConfig.cs`](../../../Assets/Scripts/Core/NetConfig.cs): the AppId and region the build bakes in
 - [`Assets/Scripts/World/NetSync.cs`](../../../Assets/Scripts/World/NetSync.cs), the world's side of the session: the per-frame pull and push, and the session's events
 - [`Assets/Scripts/RemotePlayer.cs`](../../../Assets/Scripts/RemotePlayer.cs)
 - [`Assets/Scripts/PlayerVisual.cs`](../../../Assets/Scripts/PlayerVisual.cs)

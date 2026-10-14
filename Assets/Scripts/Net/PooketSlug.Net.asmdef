@@ -1,0 +1,20 @@
+{
+    "name": "PooketSlug.Net",
+    "rootNamespace": "PooketSlug",
+    "references": [
+        "PooketSlug.Core",
+        "Fusion.Unity",
+        "Photon.Realtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "FUSION2"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

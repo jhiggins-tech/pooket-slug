@@ -35,7 +35,7 @@ Known trade-off: clients trust each other. A modified client could claim hits or
   - `INetSession` is used by `Game`: the lobby, state, room code, ping.
   - `IAvatarLink` is a remote soldier, and `NetEnemyState` is one snapshot entry.
 - **The netcode never sees `World` either:** it talks to `INetEvents`. That keeps the boundary in one place, so the Fusion code can become its own assembly ([refactor plan](../roadmap/refactor-plan.md), step 8).
-- **The Fusion implementation lives in [`Assets/Scripts/Net/`](../../../Assets/Scripts/Net/),** inside `#if FUSION2`. It registers itself through `NetSessions.Factory`; without the SDK, the factory stays `null` and the title screen offers solo only.
+- **The Fusion implementation lives in [`Assets/Scripts/Net/`](../../../Assets/Scripts/Net/),** in its own assembly, `PooketSlug.Net`. It references Core and the SDK, and only compiles when `FUSION2` is defined (a define constraint). Nothing references it, so the compiler keeps game code from touching Fusion. It registers itself through `NetSessions.Factory`; without the SDK, the factory stays `null` and the title screen offers solo only.
 - **`World` takes an optional `INetLink`.** `null` means solo, and solo behaviour is unchanged.
 
 ## Replicated state

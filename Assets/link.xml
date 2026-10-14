@@ -2,4 +2,6 @@
   <!-- Everything is created from code at runtime, so keep the game assembly intact under managed stripping. -->
   <assembly fullname="Assembly-CSharp" preserve="all" />
   <assembly fullname="PooketSlug.Core" preserve="all" />
+  <!-- Nothing references the netcode assembly: it registers itself at startup, and Fusion finds its types by reflection. -->
+  <assembly fullname="PooketSlug.Net" preserve="all" />
 </linker>

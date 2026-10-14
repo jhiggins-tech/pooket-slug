@@ -34,6 +34,7 @@ Up: [Verification](README.md)
 - **Check both input backends.** The active one isn't known until Unity generates ProjectSettings ([why](../build-pipeline/unity-project.md#input)). Compile once with `ENABLE_LEGACY_INPUT_MANAGER`, once with `ENABLE_INPUT_SYSTEM` (referencing `Unity.InputSystem.dll`), and once with both.
 - **Then the editor assembly:** compile `Assets/Editor/**` against the game assembly plus `UnityEditor*.dll`, with `UNITY_EDITOR` defined.
 - **Assembly definitions first.** Each `.asmdef` outside `Assets/Photon` compiles the scripts under its folder, after the ones it references. `Assembly-CSharp` gets everything else and references the auto-referenced ones, such as `PooketSlug.Core`.
+  - The netcode's `PooketSlug.Net` references the SDK's `Fusion.Unity` and `Photon.Realtime`, plus its auto-referenced DLLs, as in Unity. Without the SDK it's skipped, because `FUSION2` isn't defined.
   - A test assembly compiles only when its define constraint, `UNITY_INCLUDE_TESTS`, holds. The Test Framework defines it in the editor.
   - It also needs `--nunit` ([EditMode tests](edit-mode-tests.md)).
 - [`compile_unity.py`](tools/compile_unity.py) does all of this: the `game` stage, or `all` for the SDK and the game.

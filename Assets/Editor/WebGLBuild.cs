@@ -121,7 +121,7 @@ namespace PooketSlug.EditorTools
             bool sdk = Directory.Exists("Assets/Photon/Fusion");
             string defines = PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.WebGL);
             bool weaver = File.Exists("Library/ScriptAssemblies/Unity.Fusion.CodeGen.dll");
-            bool coop = Type.GetType("PooketSlug.NetSession, Assembly-CSharp") != null;
+            bool coop = Type.GetType("PooketSlug.NetSession, PooketSlug.Net") != null;
             Console.WriteLine($"[PooketSlug] Fusion SDK present: {sdk}; IL weaver compiled: {weaver}; co-op code compiled: {coop}; WebGL defines: '{defines}'");
         }
 

@@ -23,7 +23,7 @@ Fusion's Shared Mode is the topology Fusion supports for WebGL. There is no host
 - **Your own soldier** is simulated by your client and replicated by a `PlayerNet` object you own.
 - **The shared world** is simulated by the room's master client: enemies, pickups, score, the scrolling camera and the spawn cursor. It's published through `WorldNet`, a *master-client object*, so if the host leaves, the next master client inherits it and its game becomes the authority. The other clients mirror the snapshot.
 - **Hits on enemies** are reported to the authority. **Damage to a soldier** is applied by that soldier's own client. **Crates** go to whoever the authority hears from first.
-- Gameplay code only talks to `INetLink` / `INetSession`, and the netcode to `INetEvents` (`Core/NetContracts.cs`). The Fusion code in `Assets/Scripts/Net/` compiles only when the SDK is present (`#if FUSION2`), so the game still builds as a solo game without it.
+- Gameplay code only talks to `INetLink` / `INetSession`, and the netcode to `INetEvents` (`Core/NetContracts.cs`). The Fusion code in `Assets/Scripts/Net/` is its own assembly, `PooketSlug.Net`, which compiles only when the SDK is present, so the game still builds as a solo game without it.
 - The project has no prefabs, so the two network objects are built in code too: templates are baked with `NetworkObjectBaker` and registered in Fusion's prefab table under fixed GUIDs.
 
 ## Pipeline
@@ -74,7 +74,7 @@ Project layout:
 | `Assets/Scripts/EntityPool.cs` | Reuses bullets, explosions and debris instead of creating and destroying a GameObject for each |
 | `Assets/Scripts/RemotePlayer.cs`, `PlayerVisual.cs` | The partner's soldier (a smoothed puppet) and the soldier rendering both share |
 | `Assets/Scripts/Core/NetContracts.cs` | The boundary with the netcode: what gameplay needs from an online session (`INetLink`, `INetSession`), what the session tells the world (`INetEvents`), and the typed event payloads |
-| `Assets/Scripts/Net/` | Photon Fusion implementation: `NetSession` (runner, rooms, prefabs), `PlayerNet`, `WorldNet`, `NetConfig` |
+| `Assets/Scripts/Net/` | Photon Fusion implementation, in its own assembly (`PooketSlug.Net`): `NetSession` (runner, rooms, prefabs), `PlayerNet`, `WorldNet` |
 | `Assets/Scripts/Art.cs`, `ArtData.cs`, `Sfx.cs` | Procedural sprites, backgrounds and audio |
 | `Assets/Scripts/GameInput.cs` | Input that works with either the Input System package or the legacy Input Manager |
 | `Assets/Editor/WebGLBuild.cs` | Build entry point for GameCI and the editor menu |

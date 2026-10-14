@@ -23,7 +23,7 @@ Up: [Verification](README.md)
 [`WeaveHarness.cs`](tools/WeaveHarness.cs) is about 70 lines. It:
 1. Loads `Unity.Fusion.CodeGen.dll` (built by [`compile_unity.py`](tools/compile_unity.py)'s `sdk` stage).
 2. Finds the `ILPostProcessor` subclass and creates it by reflection.
-3. Hands it a minimal `ICompiledAssembly` built from our `Assembly-CSharp.dll` + `.pdb`, the reference list and the defines.
+3. Hands it a minimal `ICompiledAssembly` built from the assembly to weave (`.dll` + `.pdb`), its reference list and its defines. That's the netcode's own assembly, `PooketSlug.Net`, by default; `ASSEMBLY=Assembly-CSharp weave.sh …` picks another.
 4. Prints every diagnostic, writes the woven assembly, and exits non-zero on errors.
 
 It runs on the **.NET 6 runtime bundled in the editor image** (`Editor/Data/NetCoreRuntime`). An `AssemblyLoadContext` resolver finds the Fusion, Cecil and Unity DLLs.
@@ -35,11 +35,11 @@ python3 -I compile_unity.py --editor-data $D --project . --out $OUT --cecil-dir 
 DUMP="PlayerNet WorldNet" weave.sh $D "$PWD" $OUT $CECIL $WORK
 ```
 
-Output on 2026-10-14:
+Output on 2026-10-14, once the netcode had its own assembly (before that, the same types were woven inside `Assembly-CSharp`):
 
 ```text
-Fusion.CodeGen.ILWeaverBindings.WillProcess(Assembly-CSharp) = True
-woven assembly -> …/Assembly-CSharp.woven.dll (113664 bytes)
+Fusion.CodeGen.ILWeaverBindings.WillProcess(PooketSlug.Net) = True
+woven assembly -> …/PooketSlug.Net.woven.dll (32768 bytes)
 == PooketSlug.PlayerNet : NetworkBehaviour
    [NetworkBehaviourWeavedAttribute(8)]
    method RPC_Hurt@Invoker1732266735 (27 IL) [NetworkRpcWeavedInvokerAttribute] [PreserveAttribute] [WeaverGeneratedAttribute]

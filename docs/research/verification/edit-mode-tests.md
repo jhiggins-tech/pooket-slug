@@ -8,7 +8,9 @@ Up: [Verification](README.md)
 
 ## What's in Core
 
-[`Assets/Scripts/Core`](../../../Assets/Scripts/Core) holds the code that has no `MonoBehaviour`, no scene objects and no netcode, and calls nothing in the engine's native side except logging. It's an assembly definition with `autoReferenced`, so the rest of the game (`Assembly-CSharp`) sees it as before. Refactor plan step 2 moved into it the logic that later steps will move around.
+[`Assets/Scripts/Core`](../../../Assets/Scripts/Core) holds the code that has no `MonoBehaviour`, no scene objects and no Fusion types, and calls nothing in the engine's native side except logging and reading the build's net config. It's an assembly definition with `autoReferenced`, so the rest of the game (`Assembly-CSharp`) sees it as before. Refactor plan step 2 moved into it the logic that later steps will move around.
+
+Core is also what the game and the netcode assembly (`PooketSlug.Net`) share: the contract between them (`NetContracts`, `INetEvents` and the event payloads) and `NetConfig`. Those aren't tested here.
 
 | Class | What it does | What the tests pin down |
 |---|---|---|

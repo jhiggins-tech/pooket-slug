@@ -1,5 +1,6 @@
 {
   "AssembliesToWeave": [
+    "PooketSlug.Net",
     "Assembly-CSharp",
     "Assembly-CSharp-firstpass"
   ]

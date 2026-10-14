@@ -68,11 +68,11 @@ The package also contains nested `.unitypackage` files (`FusionDemos/`, `FusionM
 [`NetworkProjectConfig.fusion`](../../../Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion) contains only:
 
 ```json
-{ "AssembliesToWeave": ["Assembly-CSharp", "Assembly-CSharp-firstpass"] }
+{ "AssembliesToWeave": ["PooketSlug.Net", "Assembly-CSharp", "Assembly-CSharp-firstpass"] }
 ```
 
 - **The IL weaver reads this file at compile time** to decide which assemblies to weave. It's JSON, read with `EditorJsonUtility.FromJsonOverwrite`, so every other setting takes Fusion's default.
-- **If the networking code moves into its own assembly definition** ([roadmap](../roadmap/refactor-candidates.md)), add that assembly's name here.
+- **The netcode is its own assembly, `PooketSlug.Net`,** so it's listed first (refactor plan step 8). `Assembly-CSharp` has no network code left, and stays listed in case some arrives there.
 - **We don't commit `PhotonAppSettings.asset`.** The AppId reaches the game through our own `Resources/pooket-net.json` instead (below).
 
 ## Fusion's defines and the IL weaver
@@ -131,4 +131,4 @@ What else the installer does:
 
 1. Get the package, either from Photon or with `gh release download fusion-2.1.3 -R jhiggins-tech/pooket-slug-vendor`. Then either import it in the editor, or run `python3 -I tools/unpack_unitypackage.py <package> .`.
 2. To play co-op from the editor, create `Assets/Resources/pooket-net.json` containing `{"appId": "<your Fusion AppId>", "region": ""}`. Git ignores it.
-3. Without the SDK, the project compiles and plays solo. The Fusion code is behind `#if FUSION2`.
+3. Without the SDK, the project compiles and plays solo. The Fusion code is its own assembly, `PooketSlug.Net`, which only compiles when `FUSION2` is defined.

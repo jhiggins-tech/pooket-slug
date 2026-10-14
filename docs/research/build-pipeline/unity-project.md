@@ -32,8 +32,8 @@ The committed Unity project is small:
 | `Assets/Scripts/Core/` | The pure logic, in its own assembly, `PooketSlug.Core` (an `.asmdef` with `autoReferenced`, so the rest of the game sees it) |
 | `Assets/Tests/EditMode/` | NUnit tests for Core, in an editor-only test assembly ([EditMode tests](../verification/edit-mode-tests.md)) |
 | `Assets/WebGLTemplates/PooketSlug/index.html` | The page around the canvas ([GitHub Pages](github-pages.md#the-webgl-template)) |
-| `Assets/link.xml` | Keeps `Assembly-CSharp` and `PooketSlug.Core` whole under managed code stripping. Everything is created from code at runtime, so no scene or prefab references keep types alive |
-| `Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion` | Fusion's config: only `AssembliesToWeave` ([SDK in CI](../netcode/sdk-in-ci.md)) |
+| `Assets/link.xml` | Keeps `Assembly-CSharp`, `PooketSlug.Core` and `PooketSlug.Net` whole under managed code stripping. Everything is created from code at runtime, so no scene or prefab references keep types alive |
+| `Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion` | Fusion's config: only `AssembliesToWeave`, which lists the netcode's assembly ([SDK in CI](../netcode/sdk-in-ci.md)) |
 
 Everything else is generated:
 - **The scene:** `Assets/Scenes/Main.unity` is created empty by the build script and git-ignored.
@@ -93,4 +93,4 @@ The cost:
 
 - **IMGUI's built-in font is missing glyphs.** `∞` and `→` rendered as blanks in the HUD, while `·` was fine. Only the real build showed this, so use ASCII or ship a font.
 - **Fusion's installer changes settings on editor load.** It sets `PlayerSettings.runInBackground = true` and adds scripting defines for every build target. Both are expected ([SDK in CI](../netcode/sdk-in-ci.md#fusions-defines-and-the-il-weaver)).
-- **Keep code that must build without the SDK free of Fusion types.** The networking files are wrapped in `#if FUSION2`. Everything else talks to [`NetContracts.cs`](../../../Assets/Scripts/Core/NetContracts.cs).
+- **Keep code that must build without the SDK free of Fusion types.** The networking files are their own assembly, `PooketSlug.Net`, with the define constraint `FUSION2`. Everything else talks to [`NetContracts.cs`](../../../Assets/Scripts/Core/NetContracts.cs).

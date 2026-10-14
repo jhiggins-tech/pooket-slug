@@ -13,10 +13,12 @@ Stages:
   all   both (default)
 
 Each .asmdef outside Assets/Photon compiles the scripts under its folder; Assembly-CSharp gets the rest and
-references the auto-referenced ones, as in the editor. Test assemblies need --nunit: Unity's own NUnit
-build, net40/unity-custom/nunit.framework.dll from the com.unity.ext.nunit package. References to package
-assemblies we don't have here (UnityEngine.TestRunner, UnityEditor.TestRunner) are left out, so tests can
-only use plain NUnit. run_tests.py runs them.
+references the auto-referenced ones, as in the editor. An asmdef can reference the SDK's Fusion.Unity and
+Photon.Realtime, and without overrideReferences it also gets the SDK's auto-referenced DLLs, as in Unity.
+Each assembly's reference and define lists are written next to it for the weaver (weave.sh). Test
+assemblies need --nunit: Unity's own NUnit build, net40/unity-custom/nunit.framework.dll from the
+com.unity.ext.nunit package. References to package assemblies we don't have here (UnityEngine.TestRunner,
+UnityEditor.TestRunner) are left out, so tests can only use plain NUnit. run_tests.py runs them.
 
 usage: python3 -I compile_unity.py --editor-data <.../Editor/Data> --project <repo> --out <dir>
                                    [--cecil-dir <dir>] [--inputsystem <Unity.InputSystem.dll>]
@@ -131,6 +133,8 @@ if a.stage in ("game", "all") and ok:
         ed_defs = ed_defs + ["UNITY_INCLUDE_TESTS"]  # the Test Framework defines it in the editor
 
     # Assembly definitions, each after the ones it references.
+    sdk_asm = {"Photon.Realtime": sdk_player[0], "Fusion.Unity": sdk_player[1]} if has_sdk else {}
+    sdk_auto = FUSION_DLLS + [PHOTONCLIENT] if has_sdk else []  # the SDK's auto-referenced precompiled DLLs
     built, pending = {}, sorted(ASMDEFS)
     while pending:
         ready = [n for n in pending if not any(r in pending for r in ASMDEFS[n].get("references", []))]
@@ -149,13 +153,19 @@ if a.stage in ("game", "all") and ok:
             if why:
                 print(f"[game] {n}: skipped ({', '.join(why)})")
                 continue
-            absent = [r for r in d.get("references", []) if r not in ASMDEFS]
+            absent = [r for r in d.get("references", []) if r not in ASMDEFS and r not in sdk_asm]
             if absent: print(f"[game] {n}: without {', '.join(absent)} (package assemblies, not extracted)")
+            refs_n = engine + (editor if editor_only(d) else []) + EXTRA + [built[r] for r in own] + [a.nunit for r in pre]
+            refs_n += [sdk_asm[r] for r in d.get("references", []) if r in sdk_asm]
+            if not d.get("overrideReferences"): refs_n += sdk_auto
             dll = csc(n, sources(d["folder"], lambda f: asmdef_of(f) == n),
-                      engine + (editor if editor_only(d) else []) + EXTRA + [built[r] for r in own] + [a.nunit for r in pre],
-                      defs, "game", unsafe=d.get("allowUnsafeCode", False), nowarn="1701,1702", debug=True, show_warnings=True)
-            if dll: built[n] = dll
-            else: ok = False
+                      refs_n, defs, "game", unsafe=d.get("allowUnsafeCode", False), nowarn="1701,1702", debug=True, show_warnings=True)
+            if dll:
+                built[n] = dll
+                with open(os.path.join(OUT, "game", n + ".refs.txt"), "w") as f: f.write("\n".join([NETSTD] + NETFX + refs_n) + "\n")
+                with open(os.path.join(OUT, "game", n + ".defines.txt"), "w") as f: f.write(";".join(defs))
+            else:
+                ok = False
     auto = [built[n] for n, d in ASMDEFS.items() if n in built and d.get("autoReferenced", True) and not editor_only(d)]
     auto_ed = [built[n] for n, d in ASMDEFS.items() if n in built and d.get("autoReferenced", True) and editor_only(d)]
 

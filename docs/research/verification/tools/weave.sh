@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# Run Photon Fusion's IL weaver over the game's compiled Assembly-CSharp.dll outside Unity, the way Unity's
+# Run Photon Fusion's IL weaver over one of the game's compiled assemblies outside Unity, the way Unity's
 # compilation pipeline runs ILPostProcessors. Run compile_unity.py first (it writes the DLL, PDB, reference
 # list and defines this needs). See ../fusion-weaver.md.
 #
 # usage: weave.sh <editor-data-dir> <project> <compile-out-dir> <cecil-dir> <work-dir>
 #        DUMP="PlayerNet WorldNet" weave.sh …   also prints what the weaver generated for those types
+#        ASSEMBLY=Assembly-CSharp weave.sh …     weaves another assembly (default: PooketSlug.Net, the netcode)
 set -euo pipefail
 D=${1:?Editor/Data directory}; P=${2:?project root}; C=${3:?compile_unity.py --out directory}
 CECIL=${4:?directory with Mono.Cecil*.dll}; W=${5:?work directory}
@@ -28,10 +29,11 @@ cp "$D/Managed/Unity.CompilationPipeline.Common.dll" "$W/"
 
 # 2. Weave. The working directory must be the project root: the weaver finds Assets/**/*.fusion from there.
 G=$C/game
+A=${ASSEMBLY:-PooketSlug.Net}
 PROBE="$C/editor;$P/Assets/Photon/Fusion/Assemblies;$CECIL;$D/Managed;$D/Managed/UnityEngine;$P/Assets/Photon/PhotonLibs/netstandard2.0/release"
 (cd "$P" && "$DOTNET" "$W/WeaveHarness.dll" "$P" "$C/editor/Unity.Fusion.CodeGen.dll" \
-  "$G/Assembly-CSharp.dll" "$G/Assembly-CSharp.pdb" "$W/Assembly-CSharp.woven.dll" \
-  "$G/Assembly-CSharp.refs.txt" "$(cat "$G/Assembly-CSharp.defines.txt")" "$PROBE")
+  "$G/$A.dll" "$G/$A.pdb" "$W/$A.woven.dll" \
+  "$G/$A.refs.txt" "$(cat "$G/$A.defines.txt")" "$PROBE")
 
 # 3. Optional: show what the weaver generated.
 if [ -n "${DUMP:-}" ]; then
@@ -40,5 +42,5 @@ if [ -n "${DUMP:-}" ]; then
   runtimeconfig "$W/WeaveDump.runtimeconfig.json"
   cp "$CECIL/Mono.Cecil.dll" "$W/"
   # shellcheck disable=SC2086
-  "$DOTNET" "$W/WeaveDump.dll" "$W/Assembly-CSharp.woven.dll" $DUMP
+  "$DOTNET" "$W/WeaveDump.dll" "$W/$A.woven.dll" $DUMP
 fi
