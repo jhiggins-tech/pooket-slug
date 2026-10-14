@@ -52,7 +52,7 @@ C2, the refactor, is done. C1's code is written and checked locally; it goes liv
     - All four phases landed on 2026-10-14, each step checked locally and in CI ([progress](roadmap/refactor-plan.md#the-plan), [test log](verification/test-log.md#part-4-refactor)). What waits for its feature is listed with each step: boss and tank network objects, the rest of per-player state, the lobby features, character select, settings, and the cloud profile.
   - [x] Update [architecture](netcode/architecture.md) and the refactor candidates as items land.
 - [ ] **C3. Loose ends** (small; any time):
-  - [ ] C3a. Make connection failures say *Couldn't reach Photon* instead of `DISCONNECTED (ERROR)` ([sessions](netcode/sessions.md#when-things-fail)).
+  - [x] C3a. Make connection failures say *Couldn't reach Photon* instead of `DISCONNECTED (ERROR)`. Done 2026-10-14 ([sessions](netcode/sessions.md#when-things-fail)).
   - [x] C3b. Fix the Photon region to **AU** (NET-05, from the MoSCoW pass), with four-letter room codes. Done 2026-10-14 in `NetSession` and `InviteCode` ([regions and room codes](netcode/sessions.md#regions-and-room-codes)). Older `ABCD-EU` codes still parse, and the CI co-op test reads either form.
   - [x] C3c. Run the two-browser co-op test in CI after each deploy. Done 2026-10-14 as step 4 of the [refactor plan](roadmap/refactor-plan.md): it passed on its first run, host migration included ([test log](verification/test-log.md#part-2-photon-fusion-co-op)). Of owner 5's paths, it covers the host leaving.
 
