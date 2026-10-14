@@ -20,7 +20,7 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
 | Verification without a Unity license | ✅ Working toolkit, re-tested 2026-10-14 | [verification](verification/README.md) |
 | Feature roadmap | ⏳ Waiting for the owner's MoSCoW pass | [roadmap](roadmap/README.md) |
 | Refactor pass | ⏳ After the roadmap | [refactor candidates](roadmap/refactor-candidates.md) |
-| "Sign in with Google" spike | ⏳ Reusing the Cardmaster Firebase project. Database rules drafted and tested, not yet committed. Waiting on the owner: permission to commit to Cardmaster, 3 console changes, the repository variables | [accounts](accounts/README.md), [todo](todo.md) |
+| "Sign in with Google" spike | ⏳ Reusing the Cardmaster Firebase project. Database rules drafted and tested, not yet committed. Waiting on the owner: permission to commit to Cardmaster, the console steps, the repository variables | [accounts](accounts/README.md), [todo](todo.md) |
 
 **Live build:** https://jhiggins-tech.github.io/pooket-slug/ · **What's next:** [todo.md](todo.md)
 

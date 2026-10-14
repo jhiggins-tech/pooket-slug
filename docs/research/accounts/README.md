@@ -7,7 +7,7 @@ Plan for identifying players with their Google account and keeping their stats a
 - **Page, bridge and game code:** not started.
 - **Waiting on the owner** ([to-do](../todo.md)):
   - permission for this session to commit to Cardmaster
-  - three console changes
+  - the console steps in the Cardmaster project
   - the repository variables
 
 **Read this when** you're implementing sign-in or cloud saves, or touching the page template's account area.

@@ -8,11 +8,12 @@ Up: [Accounts](README.md)
 
 ## Plan: reuse the Cardmaster project
 
-All three changes are in the **Cardmaster** Firebase and Google Cloud project. Each one *adds* this game's origin, and none of them affects Cardmaster itself.
+All four steps are in the **Cardmaster** Firebase and Google Cloud project. Steps 1–3 each *add* this game's origin, and don't affect Cardmaster itself. Step 4 is a check: the publishing status and test users apply to both games.
 
 1. **Firebase console → Authentication → Settings → Authorized domains:** add `jhiggins-tech.github.io`.
 2. **Google Cloud console → Google Auth Platform → Clients →** the web client whose ID Cardmaster uses (its `GOOGLE_CLIENT_ID`) **→ Authorized JavaScript origins:** add `https://jhiggins-tech.github.io`. No redirect URIs are needed.
 3. **Google Cloud console → APIs & Services → Credentials →** Cardmaster's browser API key (its `apiKey`): if it has **website restrictions**, add `https://jhiggins-tech.github.io/*`. If it's unrestricted, leave it.
+4. **Google Cloud console → Google Auth Platform → Audience:** check the publishing status. If it's **Testing**, only the test users listed there can sign in, to either game; anyone else sees "Access blocked". Either add each friend as a test user (Google allows up to 100) or publish the app.
 
 **No database console step.**
 - Cardmaster's CI deploys the database rules from Cardmaster's own repository on every push to its `main`, so rules typed into the console would be overwritten.
@@ -50,7 +51,7 @@ If this game ever needs its own name on the consent screen or its own quotas:
 5. **Realtime Database → Create database**, in **Locked mode** and a region near players. Copy the URL.
 6. **Realtime Database → Rules:** publish this game's rules. Or deploy them from CI with a `FIREBASE_SERVICE_ACCOUNT` secret.
 7. **Google Auth Platform → Clients → "Web client (auto created by Google Service)" → Authorized JavaScript origins:** add `https://jhiggins-tech.github.io`.
-8. **Google Auth Platform:** set Branding to the app name. Audience: External, left in Testing. Add no scopes.
+8. **Google Auth Platform:** set Branding to the app name. Audience: External, left in Testing, with each player added as a test user. Add no scopes.
 9. **Credentials → "Browser key (auto created by Firebase)":** restrict it to `https://jhiggins-tech.github.io/*`, and to the Identity Toolkit and Token Service APIs.
 
 Then hand back the same three variables, from the new project.

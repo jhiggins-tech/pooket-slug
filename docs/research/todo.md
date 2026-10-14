@@ -14,6 +14,7 @@ _Last updated: 2026-10-14._
   - [ ] Firebase → Authentication → Settings → Authorized domains: add `jhiggins-tech.github.io`.
   - [ ] Google Cloud → Google Auth Platform → Clients → Cardmaster's web client → Authorized JavaScript origins: add `https://jhiggins-tech.github.io`.
   - [ ] Google Cloud → Credentials → Cardmaster's browser API key: if it has website restrictions, add `https://jhiggins-tech.github.io/*`.
+  - [ ] Google Cloud → Google Auth Platform → Audience: if the publishing status is Testing, add friends as test users or publish the app. Otherwise only listed test users can sign in.
 - [ ] **2. Add the repository variables** on `pooket-slug` (Settings → Secrets and variables → Actions → **Variables**): `GOOGLE_CLIENT_ID`, `FIREBASE_API_KEY` and `FIREBASE_DB_URL`. Copy Cardmaster's values from its `src/net/config.ts`. *Unblocks C1.*
 - [x] **2b. Add the `cardmaster` repository to this session.** Done 2026-10-14.
 - [ ] **2c. Let this session commit and push to `cardmaster`.** The [rules change](accounts/database-rules.md) is drafted and tested in this session's copy, but the session's permission guard blocked the commit: the change is to another repository, and its rules deploy to the live Firebase project. Either:
