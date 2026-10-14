@@ -107,6 +107,7 @@ namespace PooketSlug
             World w = m_World;
             Net.SendAvatar(w.Player.Def, w.Player.Pos, w.Player.Vel, w.Player.Pose.Pack(), w.Player.Hp);
             if (!w.IsAuthority) return;
+            Net.Mission = w.Mission.NetId;
             Net.CamX = w.View.X;
             Net.Score = w.Scoring.Points;
             Net.Victory = w.Victory;

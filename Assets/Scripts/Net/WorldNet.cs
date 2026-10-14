@@ -29,6 +29,7 @@ namespace PooketSlug
     public sealed class WorldNet : NetworkBehaviour
     {
         [Networked] public int Round { get; set; }
+        [Networked] public byte Mission { get; set; } // MissionDef net id
         [Networked] public float CamX { get; set; }
         [Networked] public int Score { get; set; }
         [Networked] public NetworkBool Victory { get; set; }

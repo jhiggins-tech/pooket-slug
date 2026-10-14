@@ -55,11 +55,12 @@ Sizes come from the woven assembly, where Fusion's weaver records them in words 
 | `NetSoldier` (`byte`) | Which soldier they play, as a `SoldierDef` id. Their partner's game uses it for the soldier's size and health |
 | `NetRound` (`int`) | `World.Round + 1` once playing; 0 = still in the lobby. Lets clients ignore a soldier that hasn't reached the current round |
 
-**`WorldNet`**: one per session, a master-client object, 214 words.
+**`WorldNet`**: one per session, a master-client object, 215 words.
 
 | Property | Meaning |
 |---|---|
 | `Round` (`int`) | Bumped on restart; every client rebuilds its `World` when it changes |
+| `Mission` (`byte`) | The mission being played, as a `MissionDef` net id, so every client builds the same map. A client reads it when it builds its world |
 | `CamX` (`float`) | Shared scroll position |
 | `Score` (`int`), `Victory` (`NetworkBool`) | Team score, mission won |
 | `NextSpawn` (`int`) | Spawn cursor into `Level.Spawns`, so followers place props and a new master continues from it |
@@ -118,8 +119,8 @@ Combat.Collide()  our shots vs enemies (authority applies, followers report), en
                   crates → Claim RPC in co-op
 Scoring.Tick()    popups rise and fade
 View.Tick()       the camera
-Sync.Push()       our soldier → PlayerNet; master only: CamX, Score, Victory, NextSpawn, NextNetId, Enemies,
-                  Pickups → WorldNet
+Sync.Push()       our soldier → PlayerNet; master only: Mission, CamX, Score, Victory, NextSpawn, NextNetId,
+                  Enemies, Pickups → WorldNet
 ```
 
 The session delivers its events (shots, hits, pickups, damage) to `NetSync` too.

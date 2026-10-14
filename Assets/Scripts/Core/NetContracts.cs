@@ -138,6 +138,8 @@ namespace PooketSlug
     /// <summary>The shared world: written by the authority, read by everyone else, plus the events about it.</summary>
     public interface IWorldChannel
     {
+        /// <summary>The mission being played (<see cref="MissionDef.NetId"/>), so everyone loads the same map.</summary>
+        int Mission { get; set; }
         float CamX { get; set; }
         int Score { get; set; }
         bool Victory { get; set; }

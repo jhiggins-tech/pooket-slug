@@ -15,7 +15,8 @@ Core is also what the game and the netcode assembly (`PooketSlug.Net`) share: th
 | Class | What it does | What the tests pin down |
 |---|---|---|
 | `Content`, with `ProjectileDef`, `WeaponDef`, `EnemyDef`, `PickupDef` and `SoldierDef` | The game's projectiles, weapons, enemies, pickups and soldier as data, each with a stable id. Shots are replicated by weapon id, and enemies by enemy id | The ids never change, each table holds its definitions at their ids, unknown ids find nothing, each level marker places the right enemy or pickup, every projectile can hurt something, lobs keep the old throws, and every soldier's kit follows the design (an unlimited primary, a special with charges) |
-| `Level` | Parses a map into tiles, spawns and the player's start. (`LevelView`, outside Core, draws it) | Row order, markers, short rows, the walls and floor outside the map, solidity, top surfaces. Also that the mission starts on the ground, ends at the flag, and that all its pickups fit the shared world's pickup table at once (they never despawn) |
+| `Level` | Parses a map into tiles, spawns and the player's start. (`LevelView`, outside Core, draws it) | Row order, markers, short rows, the walls and floor outside the map, solidity, top surfaces |
+| `Missions`, with `MissionDef` | The mission list: each mission's id (in saves), net id (on the wire), name and map | Mission one's ids never change, ids are unique, lookups. Every mission starts on the ground, ends at the flag, has one boss, and has few enough pickups to fit the shared world's table at once (they never despawn) |
 | `TilePhysics` | Moves a box through the tile grid, with one-way bridges | Landing, falling, walls on both sides, the level's edges, ceilings, and bridges from above, below and inside. Also dropping through, and standing on a bridge |
 | `AvatarPose` | A soldier's pose, packed into the int the network sends | Every pose survives packing, and the packed form fits in 10 bits |
 | `InviteCode` | Room codes such as `ABCD-EU` | New names (no I or O), parsing, formatting, the round trip |
@@ -28,7 +29,7 @@ Core is also what the game and the netcode assembly (`PooketSlug.Net`) share: th
 | `Log` | Log channels and the `?log=` spec | Parsing, configuring channels, levels |
 | `Tuning` | The feel every soldier shares, the physics, the camera and co-op timings, as constants | Nothing directly. The physics tests use the real soldier's size from `Content` |
 
-The tests are in [`Assets/Tests/EditMode`](../../../Assets/Tests/EditMode): 12 fixtures, 171 test cases, under a tenth of a second.
+The tests are in [`Assets/Tests/EditMode`](../../../Assets/Tests/EditMode): 13 fixtures, 175 test cases, under a tenth of a second.
 
 ## In CI
 

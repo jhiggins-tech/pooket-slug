@@ -143,7 +143,7 @@ namespace PooketSlug
             Ui.Show(m_Banner, banner);
             if (banner)
             {
-                m_Banner.text = w.Victory ? "MISSION COMPLETE!" : "MISSION 1  START!";
+                m_Banner.text = w.Victory ? "MISSION COMPLETE!" : w.Mission.Name + "  START!";
                 m_Banner.fontSize = w.Victory ? 28 : 26;
             }
             bool note = banner && !w.Victory && info.Note != null;

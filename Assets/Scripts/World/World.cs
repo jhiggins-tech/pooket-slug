@@ -40,20 +40,23 @@ namespace PooketSlug
         readonly EntityPool<Effect> m_EffectPool;
         readonly EntityPool<Particle> m_ParticlePool;
 
+        /// <summary>The mission being played; its map is <see cref="Level"/>.</summary>
+        public readonly MissionDef Mission;
         public float Elapsed;
         public bool Victory, BossDefeatedPending;
         public float VictoryTime;
 
-        public World(Camera camera, INetLink net = null)
+        public World(Camera camera, MissionDef mission, INetLink net = null)
         {
             Camera = camera;
+            Mission = mission;
             Net = net;
             Round = net?.Round ?? 0;
             Root = new GameObject("World").transform;
             m_ProjectilePool = new EntityPool<Projectile>(() => new Projectile(this), 128);
             m_EffectPool = new EntityPool<Effect>(() => new Effect(this), 64);
             m_ParticlePool = new EntityPool<Particle>(() => new Particle(this), 256);
-            Level = new Level();
+            Level = mission.Load();
             LevelView.Create(Level, Root);
             View = new ScrollCamera(this);
             Spawner = new Spawner(this);

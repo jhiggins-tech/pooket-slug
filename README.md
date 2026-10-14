@@ -69,7 +69,7 @@ Project layout:
 | `Assets/Scripts/Save/`, `Core/Profile.cs` | The player's profile (`Profile`, in Core and tested) and where it's kept (`IProfileStore`): this browser for now (`LocalProfileStore`), the cloud once sign-in arrives |
 | `Assets/Scripts/Ui/` | uGUI built in code: the HUD (`HudView`) with the touch pad, the menus (`MenuView`), and the helpers that build them (`Ui`) |
 | `Assets/Scripts/World/` | `World` (the entities, their pools and the order things run in) and its systems: `ScrollCamera` (scrolling, shake, parallax), `Spawner`, `Combat` (hits, damage, explosions), `Scoring` and `NetSync` (the co-op session's side) |
-| `Assets/Scripts/Core/` | Pure logic in its own assembly (`PooketSlug.Core`): the ASCII tile map, tile physics (AABB vs grid, one-way bridges), pose packing, room codes, seeded randomness, log channels and tuning |
+| `Assets/Scripts/Core/` | Pure logic in its own assembly (`PooketSlug.Core`): the missions and their ASCII maps (`Missions`), map parsing, tile physics (AABB vs grid, one-way bridges), content definitions, pose packing, room codes, the touch pad's logic, the profile, seeded randomness, log channels and tuning |
 | `Assets/Tests/EditMode/` | NUnit tests for `Core`. CI runs them before each build |
 | `Assets/Scripts/LevelView.cs` | Draws the level as chunked textures |
 | `Assets/Scripts/Entity.cs` | Entity/Actor base classes |

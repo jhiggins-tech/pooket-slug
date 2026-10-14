@@ -6,12 +6,6 @@ namespace PooketSlug
     /// <summary>How hard a mission is played. Hard opens once a mission is beaten (SCR-04).</summary>
     public enum Setting { Normal, Hard }
 
-    /// <summary>The missions, by the ids that saves use.</summary>
-    public static class Missions
-    {
-        public const string One = "mission-1";
-    }
-
     /// <summary>The ids of reveals: things the game shows once, when the player first meets them.</summary>
     public static class Reveals
     {
@@ -23,6 +17,7 @@ namespace PooketSlug
     [Serializable]
     public struct MissionRecord
     {
+        /// <summary>The mission's id (<see cref="MissionDef.Id"/>).</summary>
         public string mission;
         public Setting setting;
         /// <summary>Best score.</summary>
@@ -51,25 +46,25 @@ namespace PooketSlug
         /// <summary>First played and last saved, in Unix milliseconds; 0 until the first save.</summary>
         public long first, ts;
 
-        public int Best(string mission, Setting setting = Setting.Normal)
+        public int Best(MissionDef mission, Setting setting = Setting.Normal)
         {
-            int i = Find(mission, setting);
+            int i = Find(mission.Id, setting);
             return i < 0 ? 0 : missions[i].best;
         }
 
-        public int Clears(string mission, Setting setting = Setting.Normal)
+        public int Clears(MissionDef mission, Setting setting = Setting.Normal)
         {
-            int i = Find(mission, setting);
+            int i = Find(mission.Id, setting);
             return i < 0 ? 0 : missions[i].clears;
         }
 
         /// <summary>Records a finished run, won or lost. Beating Mission one solo opens co-op.</summary>
-        public void RecordRun(string mission, Setting setting, int score, bool won, bool solo)
+        public void RecordRun(MissionDef mission, Setting setting, int score, bool won, bool solo)
         {
-            int i = Find(mission, setting);
+            int i = Find(mission.Id, setting);
             if (i < 0)
             {
-                missions.Add(new MissionRecord { mission = mission, setting = setting });
+                missions.Add(new MissionRecord { mission = mission.Id, setting = setting });
                 i = missions.Count - 1;
             }
             MissionRecord r = missions[i];

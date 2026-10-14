@@ -45,6 +45,7 @@ namespace PooketSlug
         readonly IProfileStore m_Store = new LocalProfileStore();
         Profile m_Profile;
         bool m_CoopJustOpened; // this run's win opened co-op
+        MissionDef m_Mission = Missions.One; // the mission a solo game plays; a shared game plays the host's
         string m_PageUrl;      // the page's address without its query, for invite links
 
         /// <summary>Co-op shows only once Mission one has been beaten solo (progressive disclosure).</summary>
@@ -72,7 +73,7 @@ namespace PooketSlug
             m_Profile = m_Store.Load();
             m_Unlocked = Array.IndexOf((PageQuery.Get(url, "unlock") ?? "").ToLowerInvariant().Split(','), Reveals.Coop) >= 0;
 
-            m_World = new World(m_Camera);
+            m_World = new World(m_Camera, m_Mission);
             m_Hud = new HudView(transform);
             m_Menu = new MenuView(transform);
             m_PageUrl = PageUrl();
@@ -112,7 +113,7 @@ namespace PooketSlug
         void Restart()
         {
             m_World.Dispose();
-            m_World = new World(m_Camera);
+            m_World = new World(m_Camera, m_Mission);
             m_StartNote = null;
             StartSolo();
         }
@@ -121,7 +122,7 @@ namespace PooketSlug
         void ToTitle()
         {
             m_World.Dispose();
-            m_World = new World(m_Camera);
+            m_World = new World(m_Camera, m_Mission);
             m_Paused = false;
             m_StartNote = null;
             SetState(GameState.Title);
@@ -158,7 +159,7 @@ namespace PooketSlug
         void BeginCoop()
         {
             m_World.Dispose();
-            m_World = new World(m_Camera, m_Net.Link);
+            m_World = new World(m_Camera, Missions.ByNetId(m_Net.Link.Mission) ?? m_Mission, m_Net.Link);
             m_Net.Events = m_World.Sync;
             m_Coop = true;
             m_Paused = false;
@@ -173,7 +174,7 @@ namespace PooketSlug
             m_Net.Events = null;
             m_Coop = false;
             m_World.Dispose();
-            m_World = new World(m_Camera);
+            m_World = new World(m_Camera, m_Mission);
             Notice(notice);
             SetState(GameState.Title);
         }
@@ -334,7 +335,7 @@ namespace PooketSlug
                 Paused = m_Paused,
                 StateTime = m_StateTime,
                 Note = m_StartNote,
-                HiScore = m_Profile.Best(Missions.One),
+                HiScore = m_Profile.Best(m_World.Mission),
                 Fps = Mathf.RoundToInt(m_Fps),
                 Muted = Sfx.Muted,
                 Net = m_Coop ? m_Net : null,
@@ -389,7 +390,7 @@ namespace PooketSlug
         {
             SetState(state);
             bool wasOpen = m_Profile.coop;
-            m_Profile.RecordRun(Missions.One, Setting.Normal, m_World.Scoring.Points, won: state == GameState.Victory, solo: !m_Coop);
+            m_Profile.RecordRun(m_World.Mission, Setting.Normal, m_World.Scoring.Points, won: state == GameState.Victory, solo: !m_Coop);
             m_CoopJustOpened = !wasOpen && m_Profile.coop;
             m_Store.Save(m_Profile);
         }

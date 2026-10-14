@@ -106,6 +106,12 @@ namespace PooketSlug
             }
         }
 
+        public int Mission
+        {
+            get => SharedValid ? m_Shared.Mission : 0;
+            set { if (IsAuthority) m_Shared.Mission = (byte)value; }
+        }
+
         public float CamX
         {
             get => SharedValid ? m_Shared.CamX : 0f;

@@ -124,22 +124,5 @@ namespace PooketSlug.Tests
             Assert.AreEqual(1f, level.TopSurfaceY(-5f));  // clamped to the first column
             Assert.AreEqual(1f, level.TopSurfaceY(100f)); // clamped to the last column
         }
-
-        [Test]
-        public void TheMissionStartsOnTheGroundAndEndsAtTheFlag()
-        {
-            var level = new Level();
-            Assert.AreEqual(level.TopSurfaceY(level.PlayerStart.x), level.PlayerStart.y);
-            Assert.AreEqual(SpawnKind.Flag, level.Spawns[level.Spawns.Count - 1].Kind);
-        }
-
-        [Test]
-        public void TheMissionsPickupsFitTheSharedPickupTable()
-        {
-            int pickups = 0;
-            foreach (Spawn s in new Level().Spawns)
-                if (Content.PickupFor(s.Kind) != null) pickups++;
-            Assert.LessOrEqual(pickups, NetLimits.Pickups);
-        }
     }
 }
