@@ -40,7 +40,7 @@ The sorted CSV arrived on 2026-10-14, so C2's plan is out for approval. The vari
     - *Commit, push and pull request need owner 2c.*
   - [ ] Page: `pooket-auth.js` (Google button, token exchange and refresh, database calls), an `#account` slot in the header, and results queued until the game has loaded. Storage keys prefixed `pooket-slug.`.
   - [ ] Bridge: a `PooketAuth.jslib` plugin (`PS_AuthInit`, `PS_Save`, `PS_SignOut`) plus a `SendMessage` receiver in C#.
-  - [ ] Game: an `ISaveStore` with local and cloud implementations; a `Progress` model (best score, runs, wins) merged with the local high score ([how](accounts/database-rules.md#writing-it-from-the-game)); "signed in as …" in the HUD; save at the end of a run.
+  - [ ] Game: a cloud `IProfileStore` that loads, merges and saves the `Profile` ([how](accounts/database-rules.md#writing-it-from-the-game)); "signed in as …" in the HUD. The profile, its merge, the local store and saving at the end of a run are done (refactor plan step 15).
   - [ ] Build: pass `-googleClientId` / `-firebaseApiKey` / `-firebaseDbUrl` from the repository variables, and stop `WriteNetConfig` depending on the Photon AppId.
   - [ ] Verify:
     - compile and weave locally

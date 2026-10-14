@@ -27,7 +27,7 @@ page header (outside the Unity canvas)
   Realtime Database, with security rules keyed on auth.uid
         │
         ▼  jslib bridge + SendMessage(json)
-  Unity: Progress { best, runs, wins }, merged with the local high score
+  Unity: Profile, merged with this browser's copy (Profile.Merge)
 ```
 
 Why this design:
@@ -54,8 +54,8 @@ Options considered:
 - **Bridge:** a `PooketAuth.jslib` plugin exposes `PS_AuthInit(config)`, `PS_Save(json)` and `PS_SignOut()` to C#. JavaScript replies with `SendMessage(gameObject, method, json)`, which takes one string argument.
 - **Game:**
   - **Account state in the HUD:** signed in or not, and the display name.
-  - **Progress:** a `Progress` model (best score, runs, wins) saved at `pooketSlug/players/{uid}` at the end of a run, merged with the existing local high score ([how](database-rules.md#writing-it-from-the-game)).
-  - **The seam:** a save interface (`ISaveStore`) with local and cloud implementations ([refactor candidate 13](../roadmap/refactor-candidates.md)).
+  - **The profile:** [`Profile`](../../../Assets/Scripts/Core/Profile.cs), in Core and tested, is written. It holds the best score and clears for each mission and setting, whether co-op is open, the reveals already seen, and the first and last save. It's saved at the end of every run. Two copies merge by taking the better of each field, never adding clears up, which is the rule the cloud copy needs ([how](database-rules.md#writing-it-from-the-game)).
+  - **The seam:** [`IProfileStore`](../../../Assets/Scripts/Core/Profile.cs) is written, with [`LocalProfileStore`](../../../Assets/Scripts/Save/LocalProfileStore.cs) (PlayerPrefs, which also took over the old high-score key). The cloud store is still to come: on sign-in it loads the cloud's copy, merges, and saves both. Refactor plan step 15.
 - **Config:**
   - The public identifiers reach the game through the build: `-googleClientId`, `-firebaseApiKey`, `-firebaseDbUrl`, and so on, as `customParameters`. `WebGLBuild` writes them into `Resources/pooket-net.json`, and `NetConfig` reads them.
   - `WriteNetConfig` currently returns early when there's no `-photonAppId`, so it has to be decoupled.

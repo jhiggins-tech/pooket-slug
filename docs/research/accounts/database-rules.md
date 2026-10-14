@@ -28,7 +28,7 @@ Each player has one record at `pooketSlug/players/{uid}`. It must have all five 
 
 ## Writing it from the game
 
-This is the plan for the save code. None of it is written yet.
+This is the plan for the save code. The local half is written: the [`Profile`](../../../Assets/Scripts/Core/Profile.cs) record, its merge, and a local store behind `IProfileStore` (refactor plan step 15). Its fields follow the [extended record](../roadmap/refactor-plan.md#the-player-record-scoped-by-the-moscow-pass), not this draft's `runs` and `wins`.
 
 - **On sign-in:** `GET pooketSlug/players/{uid}.json?auth=<Firebase ID token>`. It returns `null` until the first save.
 - **Merging:**

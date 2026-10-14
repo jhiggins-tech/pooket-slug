@@ -8,7 +8,7 @@ A spike to test **[GameCI](https://game.ci)** on GitHub Actions. It builds a sma
 
 - Run, jump, crouch and shoot forward, up, or down while airborne. There are grenades, one-way bridges to drop through, and coyote-time and buffered jumps.
 - Three enemy types: riflemen (crouch under their shots), knife runners, and bomb-dropping drones. A **tank boss** at the end lobs shells and fires low bursts you have to jump.
-- Pickups: Heavy Machine Gun crate, bomb crate and medkit. There's also health, score, a persisted hi-score, pause, mute and restart.
+- Pickups: Heavy Machine Gun crate, bomb crate and medkit. There's also health, score, a saved profile (high score, clears and the co-op unlock), pause, mute and restart.
 - **Plays on phones** with a touch arcade pad: a stick under the left thumb, and FIRE, JUMP and SP under the right.
 - **Online two-player co-op** with [Photon Fusion 2](https://doc.photonengine.com/fusion/current/fusion-intro) in Shared Mode. Host a game and share its room code or invite link, join with a code, or quick-match. A partner can drop in mid-mission. The screen scrolls for both players, and a fallen soldier comes back after a couple of seconds.
 - **No imported assets.** All pixel art (ASCII sprites in `ArtData.cs`), level tiles, parallax backgrounds and sound effects are generated from code at startup. The only scene is an empty one created by the build script, and `Bootstrap` spawns the game into it.
@@ -66,6 +66,7 @@ Project layout:
 | Path | What |
 | --- | --- |
 | `Assets/Scripts/Game.cs` | Bootstrap, camera, state machine (title / playing / game over / victory), and the menus (IMGUI, for now) |
+| `Assets/Scripts/Save/`, `Core/Profile.cs` | The player's profile (`Profile`, in Core and tested) and where it's kept (`IProfileStore`): this browser for now (`LocalProfileStore`), the cloud once sign-in arrives |
 | `Assets/Scripts/Ui/` | uGUI built in code: the HUD (`HudView`), including the touch pad, and the helpers that build it (`Ui`) |
 | `Assets/Scripts/World/` | `World` (the entities, their pools and the order things run in) and its systems: `ScrollCamera` (scrolling, shake, parallax), `Spawner`, `Combat` (hits, damage, explosions), `Scoring` and `NetSync` (the co-op session's side) |
 | `Assets/Scripts/Core/` | Pure logic in its own assembly (`PooketSlug.Core`): the ASCII tile map, tile physics (AABB vs grid, one-way bridges), pose packing, room codes, seeded randomness, log channels and tuning |

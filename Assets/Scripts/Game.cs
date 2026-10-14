@@ -22,13 +22,11 @@ namespace PooketSlug
     /// <summary>Owns the camera, the current <see cref="World"/>, the state machine and the IMGUI HUD.</summary>
     public sealed class Game : MonoBehaviour
     {
-        const string HiScoreKey = "pooket-slug.hiscore";
-
         Camera m_Camera;
         World m_World;
         GameState m_State;
         float m_StateTime, m_Fps, m_FpsTimer;
-        int m_Frames, m_HiScore;
+        int m_Frames;
         bool m_Paused;
 
         // online co-op
@@ -40,6 +38,8 @@ namespace PooketSlug
         float m_NoticeTime, m_LeaveArmed;
 
         HudView m_Hud;
+        readonly IProfileStore m_Store = new LocalProfileStore();
+        Profile m_Profile;
         string m_PageUrl; // the page's address without its query, for invite links
         GUIStyle m_Style, m_FieldStyle; // the menus, still IMGUI
         float m_Scale;
@@ -61,8 +61,7 @@ namespace PooketSlug
             m_Camera.farClipPlane = 50f;
             camGo.AddComponent<AudioListener>();
 
-            try { m_HiScore = PlayerPrefs.GetInt(HiScoreKey, 0); }
-            catch { m_HiScore = 0; }
+            m_Profile = m_Store.Load();
 
             m_World = new World(m_Camera);
             m_Hud = new HudView(transform);
@@ -273,7 +272,7 @@ namespace PooketSlug
                 Playing = m_State == GameState.Playing,
                 Paused = m_Paused,
                 StateTime = m_StateTime,
-                HiScore = m_HiScore,
+                HiScore = m_Profile.Best(Missions.One),
                 Fps = Mathf.RoundToInt(m_Fps),
                 Muted = Sfx.Muted,
                 Net = m_Coop ? m_Net : null,
@@ -297,16 +296,8 @@ namespace PooketSlug
         void EndRun(GameState state)
         {
             SetState(state);
-            if (m_World.Scoring.Points > m_HiScore)
-            {
-                m_HiScore = m_World.Scoring.Points;
-                try
-                {
-                    PlayerPrefs.SetInt(HiScoreKey, m_HiScore);
-                    PlayerPrefs.Save();
-                }
-                catch { /* storage may be unavailable in private browsing */ }
-            }
+            m_Profile.RecordRun(Missions.One, Setting.Normal, m_World.Scoring.Points, won: state == GameState.Victory, solo: !m_Coop);
+            m_Store.Save(m_Profile);
         }
 
         // ------------------------------------------------------------------ HUD (IMGUI)

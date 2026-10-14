@@ -20,6 +20,7 @@ Core is also what the game and the netcode assembly (`PooketSlug.Net`) share: th
 | `AvatarPose` | A soldier's pose, packed into the int the network sends | Every pose survives packing, and the packed form fits in 10 bits |
 | `InviteCode` | Room codes such as `ABCD-EU` | New names (no I or O), parsing, formatting, the round trip |
 | `NetIds` | Network ids: a level spawn keeps its index, and things spawned mid-game count up from a shared counter | Level spawns, counting up, a new authority carrying on, never going backwards, running out, the 16-bit limit |
+| `Profile` | The player's saved record: best score and clears per mission and setting, the co-op unlock, reveals seen | Best scores only rise, clears count wins, settings stay apart, only a solo win of Mission one opens co-op, reveals play once, merging takes the better of each without adding clears up, the first visit is stamped once, damaged saves are repaired |
 | `SoldierInput` | What the local soldier is told to do in a frame. Every input source adds to it | The stick thresholds (shared by gamepads and the touch pad), diagonals, sources adding up |
 | `ArcadePad` | The touch arcade pad: fingers in, soldier input out | The stick starting under the thumb, running, aiming, crouching, ignoring a wobble, following a thumb past its rim, letting go. FIRE pressed once then held, near misses, sliding from FIRE to JUMP, both thumbs at once, the special, pause, taps while hidden, and the tap that starts a game not firing |
 | `Rng` | Seeded xorshift32 | The exact sequence (replays will depend on it), ranges, a zero seed |
@@ -27,7 +28,7 @@ Core is also what the game and the netcode assembly (`PooketSlug.Net`) share: th
 | `Log` | Log channels and the `?log=` spec | Parsing, configuring channels, levels |
 | `Tuning` | The feel every soldier shares, the physics, the camera and co-op timings, as constants | Nothing directly. The physics tests use the real soldier's size from `Content` |
 
-The tests are in [`Assets/Tests/EditMode`](../../../Assets/Tests/EditMode): 11 fixtures, 161 test cases, under a tenth of a second.
+The tests are in [`Assets/Tests/EditMode`](../../../Assets/Tests/EditMode): 12 fixtures, 171 test cases, under a tenth of a second.
 
 ## In CI
 
