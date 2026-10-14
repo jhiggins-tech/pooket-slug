@@ -18,13 +18,13 @@ kie's Trollogram holograms went rogue and stole the crew's tanks. The goons are 
 
 ### Missions
 - Handmade levels, the story, and live online co-op.
-- You start with tones2, kie and kcaj. Each mission ends with one of the other crew's tanks (torikloud, ciarra, larinovsky, garyoldmancorp, kiwicore), and beating it frees its pilot to play from then on.
-- A new character means a new mission, the way Coming soon works in Tabks: shotdownboyz, lankcity, odsey and doctorfox each arrive at the end of their own.
+- **You start with tones2 alone.** Each mission ends with another crewmate's tank, and beating it frees its pilot to play from then on.
+- **There's one mission to start**: make it great, then add a crewmate at a time. Every crewmate after tones2 arrives with their own mission, the coming-soon crew (shotdownboyz, lankcity, odsey and doctorfox) included, the way Coming soon works in Tabks.
 
 ### Roguelite
 - A separate mode of seeded runs. **A run is five stages**, with a crew tank at the end of each, **then it loops** round at a higher alert, as in Risk of Rain. Depth keeps counting through the loops.
-- **Coins**: goons drop them, and **between stages there's a shop**, where you spend them on the [crates](#crates) you want. Whatever a run picks up, coins included, is gone when it ends.
-- Any crew tank can be a boss, the starters' included, and every tank you beat is yours to ride for the rest of the run.
+- **Coins**: goons drop them, and **between stages there's a shop** selling [upgrade crates and gun crates](#crates), hearts and 1-ups. Whatever a run picks up, coins included, is gone when it ends.
+- Any crew tank can be a boss, tones2's included, and every tank you beat is yours to ride for the rest of the run.
 - **The alert level climbs as you go**, as in Risk of Rain: it goes up at each boss and every few minutes, so playing fast keeps it low. Each level brings more goons, faster bullets (fired more often, flying faster) and tougher tanks (more health, and an extra attack).
 - **Co-op too, with one purse**: both players' coins go into it, and you agree at the shop.
 
@@ -74,11 +74,11 @@ Tabks' statuses, with turns turned into seconds:
 
 ## Tanks
 - **Beat a crew tank and its pilot, then climb in.** Inside, Tabks rules apply: the tank's health bar, its Tabks kit with 5 / 3 / 1 rounds, the turret swinging round on the stick, and FIRE held to build power. It's slow, heavy artillery in a fast game. Eject before it blows.
-- **Calling one in**: in Missions, a tank you've won is a button once a mission, and it drops in beside you.
+- **Calling one in**: in Missions, a tank you've won is a button once a mission, and it drops in beside you. You choose which tank on the mission screen (in the Roguelite, at the start of each stage).
 - **Soldiers and tanks mix**: tones2 can ride kcaj's tank, Double Park, Unmedicated and all.
 
 ## Bosses
-- **Each mission ends with a crew tank.** How the tank fights is still open; the spike's tank boss (lobbed shells, and low bursts you jump) is a first version.
+- **Each mission ends with a crew tank, fighting with its own Tabks kit**: kcaj's tank sweeps a Hyperfixate beam, then ends in Unmedicated. The spike's tank boss (lobbed shells, and low bursts you jump) is where the code starts.
 - **The pilot round**: wreck the tank and its hologram pilot jumps out to fight you on foot with that crewmate's own kit. It's a mirror match, and a taste of who you're about to free. Then it glitches out (Tabks has the hologram blast) and the real crewmate is freed.
 - **Boss arenas are the only places with Tabks' pixel terrain**: blasts dig craters there, as they do in Tabks. Everywhere else, the ground is solid.
 
@@ -181,7 +181,7 @@ The spike is Unity 6.3 WebGL, built by GameCI and published to https://jhiggins-
   | Riding tanks | VEH-01 tank vehicle, VEH-02 enter, exit, eject and ram |
   | Calling in a tank | POW-05 supply drops (the closest row) |
   | Crew tank bosses | BOS-02 multi-phase bosses (the tank, then the pilot round) |
-  | Missions and the Roguelite | LVL-02 multiple missions, LVL-14 endless or procedural mode |
+  | Missions and the Roguelite | LVL-14 endless or procedural mode, and LVL-02 multiple missions as the crew grows (one to start) |
   | Boss-arena terrain | LVL-10 destructible scenery, in arenas only |
   | Freeing the crew, and feats | SCR-09 unlockables, SCR-08 achievements |
   | Stats | SCR-07 per-player stats |
@@ -206,13 +206,18 @@ The spike is Unity 6.3 WebGL, built by GameCI and published to https://jhiggins-
 - **Roguelite co-op**: own coins each, or solo only. It's co-op with one purse.
 - **A dearer shop** as the alert rises.
 - **Tabks' rank in Slug**: on its own, beside Slug's, or whichever is higher. It's Slug's.
+- **Tabks' three starters** (tones2, kie and kcaj). It's tones2 alone.
+- **More missions to start**: five, four then garyoldmancorp's, or five and a finale. It's one.
+- **Other boss tanks**: the spike's boss restyled for each, or fighting in Tabks turns. Each fights with its own Tabks kit.
+- **Which tank comes**: always the newest, or a wheel. You choose before.
 
 ## Open questions
-- **Roguelite**: what the shop sells and for how much, and how two players agree at it.
+- **Roguelite**: the shop's prices, and how two players agree at it.
+- **Freeing in the Roguelite**: whether beating a crew tank there frees its pilot too. With one mission and tones2 alone at first, it decides how fast the crew grows.
 - **Rank milestones**: the table itself. Depth keeps counting through the loops and the alert only climbs, so the two rise together, and stalling to raise the alert needs thought. And do Missions count?
-- **Tanks**: where the call-in button goes, which tank it brings once you've won several, and how the Roguelite does it.
-- **Missions**: how many, the order the crew are freed in, and how you get a tank you've won in later missions (call it in, or find it parked).
-- **Bosses**: how each crew tank fights before the pilot round.
+- **Tanks**: where the call-in button goes, and how often the Roguelite allows one.
+- **Missions**: which crewmate the first one frees, and the order after that.
+- **Bosses**: each tank's attacks, worked out from its Tabks kit.
 - **Career XP**: what earns how much, and how it pays out (not decided yet): tokens you spend as in Tabks, a fixed track, a track per soldier, or mystery crates.
 - **The 25 feats** for the hidden rungs.
 - **Kits still to design**: the coming-soon crew's, and garyoldmancorp's real moves (designed in Tabks first).
