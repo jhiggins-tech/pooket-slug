@@ -45,7 +45,7 @@ namespace PooketSlug
         protected virtual void Die()
         {
             Dying = true;
-            World.AddScore(Score, Center + Vector2.up * 0.6f, true);
+            World.Scoring.Add(Score, Center + Vector2.up * 0.6f, true);
         }
 
         public override void Tick(float dt)
@@ -63,9 +63,9 @@ namespace PooketSlug
                 TickPuppet(dt);
                 return;
             }
-            Target = World.NearestAvatar(Pos);
+            Target = World.Combat.NearestAvatar(Pos);
             TickAlive(dt);
-            if (Pos.x < World.CameraLeft - 4f) Remove(); // left behind
+            if (Pos.x < World.View.Left - 4f) Remove(); // left behind
         }
 
         protected abstract void TickAlive(float dt);
@@ -106,7 +106,7 @@ namespace PooketSlug
             {
                 Dying = true;
                 DyingTime = 0f;
-                World.Popup(Score.ToString(), Center + Vector2.up * 0.6f, Color.white);
+                World.Scoring.Popup(Score.ToString(), Center + Vector2.up * 0.6f, Color.white);
             }
         }
 
@@ -157,7 +157,7 @@ namespace PooketSlug
         {
             FaceTarget();
             float dist = Mathf.Abs(Target.Pos.x - Pos.x);
-            bool onScreen = Pos.x < World.CameraRight - 0.5f;
+            bool onScreen = Pos.x < World.View.Right - 0.5f;
 
             Vel.x = 0f;
             if (dist > 7f && !Target.IsDown) Vel.x = Facing * 1.8f;
@@ -171,7 +171,7 @@ namespace PooketSlug
             if (onScreen && dist < 9f && m_Cooldown <= 0f && !Target.IsDown)
             {
                 var origin = Pos + new Vector2(Facing * 0.8f, 0.95f);
-                World.FireEnemyProjectile(ProjectileKind.EnemyBullet, origin, new Vector2(Facing * 6.5f, 0f));
+                World.Combat.FireEnemyProjectile(ProjectileKind.EnemyBullet, origin, new Vector2(Facing * 6.5f, 0f));
                 m_Muzzle = 0.06f;
                 m_Cooldown = World.Rng.Range(1.5f, 2.6f);
             }
@@ -201,7 +201,7 @@ namespace PooketSlug
 
         protected override void TickAlive(float dt)
         {
-            bool active = Pos.x < World.CameraRight + 0.5f;
+            bool active = Pos.x < World.View.Right + 0.5f;
             m_AttackCooldown -= dt;
 
             Vel.x = 0f;
@@ -218,7 +218,7 @@ namespace PooketSlug
 
             if (!Target.IsDown && m_AttackCooldown <= 0f && Bounds.Overlaps(Target.Bounds))
             {
-                World.DamageAvatar(Target, 1);
+                World.Combat.DamageAvatar(Target, 1);
                 m_AttackCooldown = 1.0f;
                 Sfx.Play(Sfx.Throw, 0.8f);
             }
@@ -251,7 +251,7 @@ namespace PooketSlug
 
         protected override void TickAlive(float dt)
         {
-            if (Pos.x > World.CameraRight + 1f) return; // wait off-screen until the camera arrives
+            if (Pos.x > World.View.Right + 1f) return; // wait off-screen until the camera arrives
             float tx = Target.Pos.x + Mathf.Sin(Anim * 1.3f + m_Phase) * 2.5f;
             float ty = Mathf.Clamp(Target.Pos.y + 5.2f, 6f, 9.5f) + Mathf.Sin(Anim * 3f) * 0.3f;
             Vector2 desired = new Vector2(tx - Pos.x, ty - Pos.y) * 1.5f;
@@ -262,7 +262,7 @@ namespace PooketSlug
             m_BombCooldown -= dt;
             if (m_BombCooldown <= 0f && Mathf.Abs(Target.Pos.x - Pos.x) < 1f && !Target.IsDown)
             {
-                World.FireEnemyProjectile(ProjectileKind.Bomb, Pos + new Vector2(0f, -0.1f), new Vector2(Vel.x * 0.5f, 0f));
+                World.Combat.FireEnemyProjectile(ProjectileKind.Bomb, Pos + new Vector2(0f, -0.1f), new Vector2(Vel.x * 0.5f, 0f));
                 m_BombCooldown = 1.8f;
             }
         }
@@ -273,7 +273,7 @@ namespace PooketSlug
             Pos += Vel * dt;
             if (World.Level.IsSolidAt(Pos) || DyingTime > 2f)
             {
-                World.Explode(Pos + Vector2.up * 0.3f, 0.8f, 0, false, 0.6f);
+                World.Combat.Explode(Pos + Vector2.up * 0.3f, 0.8f, 0, false, 0.6f);
                 Remove();
             }
         }
@@ -320,7 +320,7 @@ namespace PooketSlug
         {
             if (!Engaged)
             {
-                if (World.CameraRight >= Pos.x + HalfW + 0.5f) Engaged = true;
+                if (World.View.Right >= Pos.x + HalfW + 0.5f) Engaged = true;
                 else return;
             }
 
@@ -330,7 +330,7 @@ namespace PooketSlug
             Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
             MoveWithTiles(dt);
 
-            World.DamageAvatarsTouching(Bounds, 1);
+            World.Combat.DamageAvatarsTouching(Bounds, 1);
             if (Target.IsDown) return;
 
             if (m_BurstLeft > 0)
@@ -341,7 +341,7 @@ namespace PooketSlug
                     m_BurstLeft--;
                     m_BurstTimer = 0.14f;
                     var origin = Pos + new Vector2(-1.6f, 0.45f);
-                    World.FireEnemyProjectile(ProjectileKind.EnemyBullet, origin, new Vector2(-7.5f, 0f));
+                    World.Combat.FireEnemyProjectile(ProjectileKind.EnemyBullet, origin, new Vector2(-7.5f, 0f));
                 }
                 return;
             }
@@ -362,7 +362,7 @@ namespace PooketSlug
                 float vy = 7.5f, g = 18f;
                 float flight = (vy + Mathf.Sqrt(vy * vy + 2f * g * Mathf.Max(0f, muzzle.y - Target.Pos.y))) / g;
                 float vx = Mathf.Clamp((Target.Pos.x - muzzle.x) / flight, -11f, -1.5f);
-                World.FireEnemyProjectile(ProjectileKind.Shell, muzzle, new Vector2(vx, vy));
+                World.Combat.FireEnemyProjectile(ProjectileKind.Shell, muzzle, new Vector2(vx, vy));
                 m_AttackTimer = 1.4f;
             }
             m_Attack++;
@@ -384,11 +384,11 @@ namespace PooketSlug
             {
                 m_ExplodeTimer = 0.18f;
                 var p = Pos + new Vector2(Rng.Fx.Range(-1.4f, 1.4f), Rng.Fx.Range(0.2f, 1.6f));
-                World.Explode(p, 0.5f, 0, false, 0.7f);
+                World.Combat.Explode(p, 0.5f, 0, false, 0.7f);
             }
             if (DyingTime >= 1.6f)
             {
-                World.Explode(Center, 1.5f, 0, false, 1.8f);
+                World.Combat.Explode(Center, 1.5f, 0, false, 1.8f);
                 World.Burst(Center, 30, new Color(0.35f, 0.4f, 0.2f));
                 Sfx.Play(Sfx.BigExplosion);
                 World.OnBossDestroyed();

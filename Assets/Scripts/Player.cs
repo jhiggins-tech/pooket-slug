@@ -90,9 +90,9 @@ namespace PooketSlug
             MoveWithTiles(dt, m_DropThrough > 0f);
 
             // Metal Slug style: the camera never scrolls back, and you can't leave it (co-op: either side).
-            float minX = World.CameraLeft + HalfW;
+            float minX = World.View.Left + HalfW;
             if (Pos.x < minX) Pos.x = minX;
-            if (World.Coop) Pos.x = Mathf.Min(Pos.x, World.CameraRight - HalfW);
+            if (World.Coop) Pos.x = Mathf.Min(Pos.x, World.View.Right - HalfW);
 
             // --- aiming & shooting ---
             if (up) m_Aim = Vector2.up;
@@ -108,7 +108,7 @@ namespace PooketSlug
             {
                 Grenades--;
                 var throwVel = new Vector2(Facing * 6.5f + Vel.x * 0.3f, 9f);
-                World.FirePlayerProjectile(ProjectileKind.Grenade, Pos + new Vector2(Facing * 0.3f, Height * 0.8f), throwVel);
+                World.Combat.FirePlayerProjectile(ProjectileKind.Grenade, Pos + new Vector2(Facing * 0.3f, Height * 0.8f), throwVel);
                 Sfx.Play(Sfx.Throw);
             }
 
@@ -131,9 +131,9 @@ namespace PooketSlug
                 float spread = World.Rng.Range(-4f, 4f) * Mathf.Deg2Rad;
                 dir = new Vector2(dir.x * Mathf.Cos(spread) - dir.y * Mathf.Sin(spread), dir.x * Mathf.Sin(spread) + dir.y * Mathf.Cos(spread));
                 HeavyAmmo--;
-                if (HeavyAmmo == 0) World.Popup("OUT OF AMMO", Pos + Vector2.up * 2f, new Color(1f, 0.6f, 0.4f));
+                if (HeavyAmmo == 0) World.Scoring.Popup("OUT OF AMMO", Pos + Vector2.up * 2f, new Color(1f, 0.6f, 0.4f));
             }
-            World.FirePlayerProjectile(heavy ? ProjectileKind.Heavy : ProjectileKind.Bullet, origin, dir * speed);
+            World.Combat.FirePlayerProjectile(heavy ? ProjectileKind.Heavy : ProjectileKind.Bullet, origin, dir * speed);
             m_FireCooldown = heavy ? HeavyCooldown : PistolCooldown;
             m_Muzzle = 0.05f;
             Sfx.Play(heavy ? Sfx.Heavy : Sfx.Shot, heavy ? 0.5f : 0.6f);
@@ -144,7 +144,7 @@ namespace PooketSlug
             if (Invulnerable) return;
             Hp -= damage;
             FlashTimer = 0.08f;
-            World.Shake(0.15f);
+            World.View.Shake(0.15f);
             if (Hp <= 0)
             {
                 Hp = 0;
@@ -172,9 +172,9 @@ namespace PooketSlug
             Grenades = Mathf.Max(Grenades, Tuning.Coop.RespawnMinGrenades);
             Vel = Vector2.zero;
             m_Invuln = Tuning.Coop.RespawnInvulnerability;
-            float x = World.CameraLeft + 2f;
+            float x = World.View.Left + 2f;
             Pos = new Vector2(x, World.Level.TopSurfaceY(x));
-            World.Popup("BACK IN!", Pos + Vector2.up * 2f, new Color(0.6f, 0.9f, 1f));
+            World.Scoring.Popup("BACK IN!", Pos + Vector2.up * 2f, new Color(0.6f, 0.9f, 1f));
         }
 
         public override void Render()

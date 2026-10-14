@@ -75,7 +75,7 @@ namespace PooketSlug
 
             if (m_Life <= 0f) { Detonate(); return; }
 
-            Rect view = World.ViewRect;
+            Rect view = World.View.Rect;
             if (Pos.x < view.xMin - 2f || Pos.x > view.xMax + 2f || Pos.y < -2f || Pos.y > view.yMax + 4f) Remove();
         }
 
@@ -87,7 +87,7 @@ namespace PooketSlug
             if (Explosive)
             {
                 float radius = Kind == ProjectileKind.Grenade ? 1.7f : 1.0f;
-                World.Explode(Pos, radius, Cosmetic ? 0 : Damage, Hostile, Kind == ProjectileKind.Grenade ? 1f : 0.7f);
+                World.Combat.Explode(Pos, radius, Cosmetic ? 0 : Damage, Hostile, Kind == ProjectileKind.Grenade ? 1f : 0.7f);
             }
             else
             {
@@ -238,8 +238,8 @@ namespace PooketSlug
         {
             string text = Kind == PickupKind.HeavyMachineGun ? "HEAVY MACHINE GUN!" : Kind == PickupKind.Bombs ? "BOMBS +10" : "+2 HP";
             Color color = Kind == PickupKind.HeavyMachineGun ? new Color(1f, 0.85f, 0.3f) : Kind == PickupKind.Bombs ? new Color(0.6f, 1f, 0.5f) : new Color(1f, 0.5f, 0.5f);
-            World.Popup(text, Pos + Vector2.up * 1.6f, color);
-            if (World.IsAuthority) World.AddScore(500, Pos + Vector2.up, false);
+            World.Scoring.Popup(text, Pos + Vector2.up * 1.6f, color);
+            if (World.IsAuthority) World.Scoring.Add(500, Pos + Vector2.up, false);
             Sfx.Play(Sfx.Pickup);
             Remove();
         }

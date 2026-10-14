@@ -97,17 +97,20 @@ Scene-object registration isn't affected. Fusion's scene manager only collects `
 
 ## The per-frame sync
 
-`World.Tick` runs from `Game.Update` at the game's own frame rate. It doesn't use Fusion's tick.
+`World.Tick` runs from `Game.Update` at the game's own frame rate. It doesn't use Fusion's tick. The world's systems are in [`Assets/Scripts/World/`](../../../Assets/Scripts/World/), and `NetSync` is the co-op side:
 
 ```text
-PullNet()   remote soldiers ← RemoteAvatars (add/remove RemotePlayer puppets), local skin
-            followers only: Score, Victory, taken crates, enemy snapshot → create/update/remove puppets
-Player.Tick, RemotePlayer.Tick, SpawnAhead, Enemies/Projectiles/Pickups/Effects.Tick
-Collide()   our shots vs enemies (authority applies, followers report), enemy shots vs *our* soldier only,
-            crates → Claim RPC in co-op
-UpdateCamera()
-PushNet()   our soldier → PlayerNet; master only: CamX, Score, Victory, NextSpawn, Enemies → WorldNet
+Sync.Pull()       remote soldiers ← RemoteAvatars (add/remove RemotePlayer puppets), local skin
+                  followers only: Score, Victory, taken crates, enemy snapshot → create/update/remove puppets
+Player.Tick, RemotePlayer.Tick, Spawner.SpawnAhead, Enemies/Projectiles/Pickups/Effects.Tick
+Combat.Collide()  our shots vs enemies (authority applies, followers report), enemy shots vs *our* soldier only,
+                  crates → Claim RPC in co-op
+Scoring.Tick()    popups rise and fade
+View.Tick()       the camera
+Sync.Push()       our soldier → PlayerNet; master only: CamX, Score, Victory, NextSpawn, Enemies → WorldNet
 ```
+
+The session delivers its events (shots, hits, pickups, damage) to `NetSync` too.
 
 - **Remote soldiers** (`RemotePlayer`) aim for the replicated position plus `vel × 0.05 s`, with exponential smoothing (`1 − e^(−18·dt)`). They snap if more than 3 units off.
 - **Enemy puppets** on followers glide toward the snapshot position (`1 − e^(−15·dt)`, snapping beyond 4 units), take facing, moving and grounded state from the flags, and run their own death animation when they see `Dying`. Only the master's enemies think.
@@ -115,7 +118,7 @@ PushNet()   our soldier → PlayerNet; master only: CamX, Score, Victory, NextSp
 
 ## Camera
 
-- **Co-op uses a fixed shared width:** `World.CoopHalfWidth = 10`, i.e. 20 units. That's the 16:9 stage. Solo uses the window's aspect.
+- **Co-op uses a fixed shared width:** `Tuning.Coop.HalfWidth = 10`, i.e. 20 units. That's the 16:9 stage. Solo uses the window's aspect.
 - **The master scrolls toward the leading live soldier** (`lead + 2`), but never past the point where the trailing live soldier would leave the left edge (`trail − 0.5 + halfWidth`). Speed is capped at 12 units/s, forward only. A downed soldier doesn't hold the camera back.
 - **Followers move toward `CamX`,** forward only, at up to 24 units/s.
 - **Each player is kept inside the shared screen.** A narrower local view (an odd fullscreen aspect) follows the local soldier within it.
@@ -123,8 +126,8 @@ PushNet()   our soldier → PlayerNet; master only: CamX, Score, Victory, NextSp
 ## Damage, death and respawn
 
 - **Hostile projectiles and explosions only hurt the local soldier.** On a remote soldier they just detonate visually.
-- **The master's runner slashes and tank contact go through `DamageAvatar`:** local soldier → `Hurt`; remote soldier → `RPC_Hurt`, throttled to once per 0.5 s per soldier.
-- **No game over in co-op.** A dead soldier respawns after `Player.RespawnDelay` (2.5 s) at the left edge of the shared screen, with full health, at least 5 grenades and 2.5 s of invulnerability.
+- **The master's runner slashes and tank contact go through `Combat.DamageAvatar`:** local soldier → `Hurt`; remote soldier → `RPC_Hurt`, throttled to once per 0.5 s per soldier.
+- **No game over in co-op.** A dead soldier respawns after `Tuning.Coop.RespawnDelay` (2.5 s) at the left edge of the shared screen, with full health, at least 5 grenades and 2.5 s of invulnerability.
 
 ## Restart and rounds
 

@@ -36,10 +36,10 @@ namespace PooketSlug
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.Proxies, InvokeLocal = false)]
         public void RPC_EnemyShot(byte kind, Vector2 origin, Vector2 vel) =>
-            NetSession.Instance?.World?.OnEnemyShot((ProjectileKind)kind, origin, vel);
+            NetSession.Instance?.World?.Sync?.OnEnemyShot((ProjectileKind)kind, origin, vel);
 
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-        public void RPC_Hit(short enemyId, byte damage) => NetSession.Instance?.World?.OnHitReported(enemyId, damage);
+        public void RPC_Hit(short enemyId, byte damage) => NetSession.Instance?.World?.Sync?.OnHitReported(enemyId, damage);
 
         /// <summary>Both soldiers may touch a crate in the same moment: the authority gives it to the first claim.</summary>
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -54,7 +54,7 @@ namespace PooketSlug
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
         public void RPC_Granted(short spawnIndex, PlayerRef player) =>
-            NetSession.Instance?.World?.OnPickupGranted(spawnIndex, player == Runner.LocalPlayer);
+            NetSession.Instance?.World?.Sync?.OnPickupGranted(spawnIndex, player == Runner.LocalPlayer);
 
         /// <summary>Starts a won mission again for everyone (each client rebuilds its world when Round changes).</summary>
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]

@@ -54,7 +54,7 @@ Up: [Research index](../AGENTS.md)
 Source files:
 - [`Assets/Scripts/NetContracts.cs`](../../../Assets/Scripts/NetContracts.cs)
 - [`Assets/Scripts/Net/`](../../../Assets/Scripts/Net/): `NetSession.cs`, `PlayerNet.cs`, `WorldNet.cs`, `NetConfig.cs`
-- [`Assets/Scripts/World.cs`](../../../Assets/Scripts/World.cs), the co-op sync in `PullNet` / `PushNet`
+- [`Assets/Scripts/World/NetSync.cs`](../../../Assets/Scripts/World/NetSync.cs), the world's side of the session: the per-frame pull and push, and the session's events
 - [`Assets/Scripts/RemotePlayer.cs`](../../../Assets/Scripts/RemotePlayer.cs)
 - [`Assets/Scripts/PlayerVisual.cs`](../../../Assets/Scripts/PlayerVisual.cs)
 - [`Assets/Scripts/Core/AvatarPose.cs`](../../../Assets/Scripts/Core/AvatarPose.cs) and [`InviteCode.cs`](../../../Assets/Scripts/Core/InviteCode.cs), with [tests](../verification/edit-mode-tests.md)

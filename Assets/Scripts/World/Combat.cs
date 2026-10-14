@@ -1,0 +1,175 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace PooketSlug
+{
+    /// <summary>
+    /// Shots, hits and damage. Projectiles meet their targets here, and damage goes to whoever owns it: the
+    /// authority hurts enemies (the others report their hits), and each client hurts its own soldier.
+    /// </summary>
+    public sealed class Combat
+    {
+        readonly World m_World;
+        readonly Dictionary<IAvatarLink, float> m_HurtCooldown = new Dictionary<IAvatarLink, float>();
+
+        public Combat(World world) => m_World = world;
+
+        public void FirePlayerProjectile(ProjectileKind kind, Vector2 origin, Vector2 vel)
+        {
+            m_World.SpawnProjectile(kind, origin, vel, false);
+            m_World.Net?.SendShot(kind, origin, vel);
+        }
+
+        /// <summary>Authority side: an enemy fires (replayed on the other clients).</summary>
+        public void FireEnemyProjectile(ProjectileKind kind, Vector2 origin, Vector2 vel)
+        {
+            SpawnEnemyProjectile(kind, origin, vel);
+            if (m_World.Coop) m_World.Net.SendEnemyShot(kind, origin, vel);
+        }
+
+        /// <summary>An enemy's shot, fired here or replayed from the authority.</summary>
+        public void SpawnEnemyProjectile(ProjectileKind kind, Vector2 origin, Vector2 vel)
+        {
+            m_World.SpawnProjectile(kind, origin, vel, true);
+            if (kind == ProjectileKind.EnemyBullet) Sfx.Play(Sfx.EnemyShot, 0.35f);
+            if (kind == ProjectileKind.Shell)
+            {
+                m_World.SpawnEffect(Art.Explosion, 30f, origin, 0.4f);
+                Sfx.Play(Sfx.Cannon, 0.8f);
+                m_World.View.Shake(0.08f);
+            }
+        }
+
+        /// <summary>Our soldier hit an enemy: apply it (authority) or report it to the authority.</summary>
+        public void DamageEnemy(Enemy e, int damage)
+        {
+            if (m_World.IsAuthority)
+            {
+                e.Hurt(damage);
+                return;
+            }
+            e.FlashHit();
+            m_World.Net.ReportHit(e.NetId, damage);
+        }
+
+        /// <summary>Nearest soldier still in the fight (the local one if everybody is down).</summary>
+        public Actor NearestAvatar(Vector2 from)
+        {
+            Player player = m_World.Player;
+            Actor best = player;
+            float bestDist = player.IsDown ? float.MaxValue : (player.Pos - from).sqrMagnitude;
+            foreach (RemotePlayer r in m_World.Remotes)
+            {
+                if (r.IsDown) continue;
+                float d = (r.Pos - from).sqrMagnitude;
+                if (d < bestDist)
+                {
+                    best = r;
+                    bestDist = d;
+                }
+            }
+            return best;
+        }
+
+        /// <summary>Authority side: melee/contact damage. A partner's soldier is hurt by its own client.</summary>
+        public void DamageAvatar(Actor target, int damage)
+        {
+            if (target == m_World.Player)
+            {
+                m_World.Player.Hurt(damage);
+                return;
+            }
+            if (target is RemotePlayer rp && !rp.Invulnerable)
+            {
+                if (m_HurtCooldown.TryGetValue(rp.Link, out float until) && m_World.Elapsed < until) return;
+                m_HurtCooldown[rp.Link] = m_World.Elapsed + Tuning.Coop.RemoteHurtCooldown;
+                rp.Link.Hurt(damage);
+            }
+        }
+
+        public void DamageAvatarsTouching(Rect area, int damage)
+        {
+            if (area.Overlaps(m_World.Player.Bounds)) m_World.Player.Hurt(damage);
+            foreach (RemotePlayer r in m_World.Remotes)
+                if (!r.IsDown && area.Overlaps(r.Bounds)) DamageAvatar(r, damage);
+        }
+
+        /// <summary>Projectiles against soldiers and enemies, then our soldier against pickups.</summary>
+        public void Collide()
+        {
+            World w = m_World;
+            Player player = w.Player;
+            foreach (Projectile p in w.Projectiles)
+            {
+                if (p.Removed) continue;
+                if (p.Hostile)
+                {
+                    if (!player.Invulnerable && Overlaps(player.Bounds, p.Pos, p.Radius))
+                    {
+                        if (p.Kind == ProjectileKind.EnemyBullet) player.Hurt(p.Damage);
+                        p.Detonate();
+                        continue;
+                    }
+                    // the partner's client applies the damage; here the shot just stops on them
+                    foreach (RemotePlayer r in w.Remotes)
+                    {
+                        if (r.IsDown || r.Invulnerable || !Overlaps(r.Bounds, p.Pos, p.Radius)) continue;
+                        p.Detonate();
+                        break;
+                    }
+                    continue;
+                }
+                foreach (Enemy e in w.Enemies)
+                {
+                    if (!e.Shootable || !Overlaps(e.Bounds, p.Pos, p.Radius)) continue;
+                    if (!p.Cosmetic && (p.Kind == ProjectileKind.Bullet || p.Kind == ProjectileKind.Heavy)) DamageEnemy(e, p.Damage);
+                    p.Detonate();
+                    break;
+                }
+            }
+
+            if (!player.Dead)
+            {
+                foreach (Pickup pk in w.Pickups)
+                {
+                    if (pk.Removed || pk.ClaimPending || !pk.Bounds.Overlaps(player.Bounds)) continue;
+                    if (w.Coop)
+                    {
+                        pk.ClaimPending = true; // the authority decides who got it
+                        w.Net.ClaimPickup(pk.NetId);
+                    }
+                    else
+                    {
+                        pk.ApplyTo(player);
+                        pk.Collect();
+                    }
+                }
+            }
+        }
+
+        static bool Overlaps(Rect r, Vector2 c, float radius)
+        {
+            float cx = Mathf.Clamp(c.x, r.xMin, r.xMax), cy = Mathf.Clamp(c.y, r.yMin, r.yMax);
+            float dx = c.x - cx, dy = c.y - cy;
+            return dx * dx + dy * dy <= radius * radius;
+        }
+
+        public void Explode(Vector2 at, float radius, int damage, bool hostile, float size)
+        {
+            World w = m_World;
+            w.SpawnEffect(Art.Explosion, 18f, at, size);
+            w.Burst(at, Mathf.RoundToInt(6 * size), new Color(0.35f, 0.3f, 0.28f));
+            Sfx.Play(Sfx.Explosion, Mathf.Clamp01(0.4f + size * 0.4f));
+            w.View.Shake(0.1f * size);
+            if (damage <= 0) return;
+
+            if (hostile)
+            {
+                if (!w.Player.Invulnerable && Overlaps(w.Player.Bounds, at, radius)) w.Player.Hurt(damage);
+                return;
+            }
+            foreach (Enemy e in w.Enemies)
+                if (e.Shootable && Overlaps(e.Bounds, at, radius)) DamageEnemy(e, damage);
+        }
+    }
+}

@@ -257,9 +257,9 @@ namespace PooketSlug
         void EndRun(GameState state)
         {
             SetState(state);
-            if (m_World.Score > m_HiScore)
+            if (m_World.Scoring.Points > m_HiScore)
             {
-                m_HiScore = m_World.Score;
+                m_HiScore = m_World.Scoring.Points;
                 try
                 {
                     PlayerPrefs.SetInt(HiScoreKey, m_HiScore);
@@ -285,7 +285,7 @@ namespace PooketSlug
             Player p = w.Player;
 
             // world-space popups (score, pickups)
-            foreach (PopupText pop in w.Popups)
+            foreach (PopupText pop in w.Scoring.Popups)
             {
                 Vector3 sp = m_Camera.WorldToScreenPoint(new Vector3(pop.Pos.x, pop.Pos.y, 0f));
                 Color c = pop.Color;
@@ -296,7 +296,7 @@ namespace PooketSlug
             bool inGame = m_State == GameState.Playing || m_State == GameState.GameOver || m_State == GameState.Victory;
             if (inGame)
             {
-                Text(8, 5, "SCORE " + w.Score.ToString("000000"), 14, Color.white, TextAnchor.UpperLeft);
+                Text(8, 5, "SCORE " + w.Scoring.Points.ToString("000000"), 14, Color.white, TextAnchor.UpperLeft);
                 for (int i = 0; i < p.MaxHp; i++)
                 {
                     GUI.color = i < p.Hp ? Color.white : new Color(0.2f, 0.15f, 0.2f, 0.7f);
@@ -306,7 +306,7 @@ namespace PooketSlug
                 string arms = p.HeavyAmmo > 0 ? "HMG " + p.HeavyAmmo : "PISTOL"; // IMGUI's default font has no infinity glyph
                 Text(8, 40, "ARMS " + arms + "   BOMB " + p.Grenades, 11, new Color(1f, 0.9f, 0.5f), TextAnchor.UpperLeft);
 
-                Text(vw - 8, 5, "HI " + Mathf.Max(m_HiScore, w.Score).ToString("000000"), 14, Color.white, TextAnchor.UpperRight);
+                Text(vw - 8, 5, "HI " + Mathf.Max(m_HiScore, w.Scoring.Points).ToString("000000"), 14, Color.white, TextAnchor.UpperRight);
                 int secs = Mathf.FloorToInt(w.Elapsed);
                 Text(vw - 8, 24, string.Format("TIME {0}:{1:00}", secs / 60, secs % 60), 11, Color.white, TextAnchor.UpperRight);
 
@@ -374,7 +374,7 @@ namespace PooketSlug
                 case GameState.GameOver:
                     Box(0, 0, vw, 360, new Color(0.2f, 0f, 0f, Mathf.Min(0.45f, m_StateTime)));
                     Text(vw * 0.5f, 130, "GAME OVER", 36, new Color(1f, 0.35f, 0.3f), TextAnchor.MiddleCenter);
-                    Text(vw * 0.5f, 168, "SCORE " + w.Score, 14, Color.white, TextAnchor.MiddleCenter);
+                    Text(vw * 0.5f, 168, "SCORE " + w.Scoring.Points, 14, Color.white, TextAnchor.MiddleCenter);
                     if (blink && m_StateTime > 1.2f) Text(vw * 0.5f, 210, "PRESS ENTER TO RETRY", 14, Color.white, TextAnchor.MiddleCenter);
                     break;
 
@@ -382,7 +382,7 @@ namespace PooketSlug
                     Box(0, 0, vw, 360, new Color(0f, 0f, 0f, Mathf.Min(0.35f, m_StateTime)));
                     Text(vw * 0.5f, 120, "MISSION COMPLETE!", 32, new Color(1f, 0.85f, 0.3f), TextAnchor.MiddleCenter);
                     int t = Mathf.FloorToInt(w.Elapsed);
-                    Text(vw * 0.5f, 160, string.Format("SCORE {0}     TIME {1}:{2:00}", w.Score, t / 60, t % 60), 14, Color.white, TextAnchor.MiddleCenter);
+                    Text(vw * 0.5f, 160, string.Format("SCORE {0}     TIME {1}:{2:00}", w.Scoring.Points, t / 60, t % 60), 14, Color.white, TextAnchor.MiddleCenter);
                     if (blink && m_StateTime > 1.2f) Text(vw * 0.5f, 204, "PRESS ENTER TO PLAY AGAIN", 14, Color.white, TextAnchor.MiddleCenter);
                     if (m_Coop) Text(vw * 0.5f, 228, "ESC  LEAVE THE GAME", 10, new Color(1f, 0.95f, 0.8f), TextAnchor.MiddleCenter);
                     break;

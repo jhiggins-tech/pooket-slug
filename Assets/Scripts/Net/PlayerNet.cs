@@ -38,12 +38,12 @@ namespace PooketSlug
         }
 
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-        public void RPC_Hurt(byte damage) => NetSession.Instance?.World?.OnLocalHurt(damage);
+        public void RPC_Hurt(byte damage) => NetSession.Instance?.World?.Sync?.OnLocalHurt(damage);
 
         /// <summary>Replays one of our shots on the other clients (as a harmless copy).</summary>
         [Rpc(RpcSources.StateAuthority, RpcTargets.Proxies, InvokeLocal = false)]
         public void RPC_Shot(byte kind, Vector2 origin, Vector2 vel) =>
-            NetSession.Instance?.World?.OnRemoteShot((ProjectileKind)kind, origin, vel);
+            NetSession.Instance?.World?.Sync?.OnRemoteShot((ProjectileKind)kind, origin, vel);
     }
 }
 #endif
