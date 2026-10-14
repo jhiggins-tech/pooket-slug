@@ -18,6 +18,7 @@ namespace PooketSlug.EditorTools
         const string ScenePath = "Assets/Scenes/Main.unity";
         const string NetConfigPath = "Assets/Resources/" + NetConfig.ResourceName + ".json";
         const string BaseVersion = "0.2.0";
+        const string PhotonLinkXml = "Assets/Photon/link.xml";
 
         // GameCI passes -customBuildPath; our workflow adds -buildSha and -photonAppId [-photonRegion].
         public static void Build()
@@ -51,6 +52,7 @@ namespace PooketSlug.EditorTools
         {
             EnsureScene();
             ConfigurePlayer(sha);
+            KeepPhotonSdk();
             AssetDatabase.SaveAssets(); // persist settings changes (incl. Fusion's installer defines) to ProjectSettings/
             LogNetworkingSetup();
 
@@ -87,6 +89,11 @@ namespace PooketSlug.EditorTools
                 ? BaseVersion + "-local"
                 : BaseVersion + "+" + sha.Substring(0, Math.Min(7, sha.Length));
 
+            // Strip unused code from every assembly, not only Unity's own: at the default level, Minimal, package
+            // assemblies such as uGUI and the Input System ship whole. Our assemblies (Assets/link.xml) and
+            // Photon's SDK (KeepPhotonSdk) are kept whole, as before.
+            PlayerSettings.SetManagedStrippingLevel(NamedBuildTarget.WebGL, ManagedStrippingLevel.Low);
+
             PlayerSettings.defaultWebScreenWidth = 960;
             PlayerSettings.defaultWebScreenHeight = 540;
             PlayerSettings.runInBackground = true;
@@ -99,6 +106,25 @@ namespace PooketSlug.EditorTools
             PlayerSettings.WebGL.nameFilesAsHashes = false;
             PlayerSettings.WebGL.dataCaching = true;
             PlayerSettings.WebGL.template = "PROJECT:PooketSlug";
+        }
+
+        /// <summary>
+        /// Keeps Photon's SDK whole under managed stripping, as it was at the Minimal level: Fusion finds things by
+        /// reflection. The SDK is unpacked into Assets/Photon (git-ignored), so the file is written only when it's there.
+        /// </summary>
+        static void KeepPhotonSdk()
+        {
+            if (!Directory.Exists("Assets/Photon/Fusion")) return;
+            string[] sdk =
+            {
+                "Fusion.Runtime", "Fusion.Common", "Fusion.Sockets", "Fusion.Realtime", "Fusion.Log", "Fusion.Unity",
+                "Photon.Realtime", "PhotonClient", "PhotonWebSocket", "websocket-sharp",
+            };
+            var xml = new System.Text.StringBuilder("<linker>\n  <!-- Written by WebGLBuild.KeepPhotonSdk -->\n");
+            foreach (string assembly in sdk) xml.Append("  <assembly fullname=\"").Append(assembly).Append("\" preserve=\"all\" />\n");
+            xml.Append("</linker>\n");
+            File.WriteAllText(PhotonLinkXml, xml.ToString());
+            AssetDatabase.ImportAsset(PhotonLinkXml);
         }
 
         /// <summary>Bakes the Photon AppId into the build (Resources/pooket-net.json, git-ignored).</summary>
@@ -123,6 +149,7 @@ namespace PooketSlug.EditorTools
             bool weaver = File.Exists("Library/ScriptAssemblies/Unity.Fusion.CodeGen.dll");
             bool coop = Type.GetType("PooketSlug.NetSession, PooketSlug.Net") != null;
             Console.WriteLine($"[PooketSlug] Fusion SDK present: {sdk}; IL weaver compiled: {weaver}; co-op code compiled: {coop}; WebGL defines: '{defines}'");
+            Console.WriteLine($"[PooketSlug] Managed stripping: {PlayerSettings.GetManagedStrippingLevel(NamedBuildTarget.WebGL)}; Photon SDK kept whole: {File.Exists(PhotonLinkXml)}");
         }
 
         static string GetArg(string[] args, string name)

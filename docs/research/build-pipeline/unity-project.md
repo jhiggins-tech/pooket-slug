@@ -96,8 +96,10 @@ The cost:
    - `bundleVersion` = `0.2.0+<short sha>`, or `0.2.0-local`. This is the version shown in-game, and it's also Photon's `AppVersion` ([sessions](../netcode/sessions.md#build-versions)).
    - A 960×540 default canvas, `runInBackground`, no splash screen.
    - **WebGL:** compression `Disabled`, `decompressionFallback` off, `nameFilesAsHashes` off, `dataCaching` on, template `PROJECT:PooketSlug`.
-5. **Runs `AssetDatabase.SaveAssets()`,** then **logs one `[PooketSlug]` diagnostics line:** SDK present, weaver compiled, co-op code compiled, WebGL defines.
-6. **Builds** with `BuildPipeline.BuildPlayer`, prints a result summary and exits `0` or `101`.
+   - **Managed stripping `Low`.** At Unity's default, `Minimal`, package assemblies such as uGUI and the Input System ship whole. Our own assemblies stay whole through [`Assets/link.xml`](../../../Assets/link.xml).
+5. **Keeps Photon's SDK whole** under stripping, as it was at `Minimal`: when the SDK is unpacked, it writes `Assets/Photon/link.xml` (git-ignored, like the SDK) listing its ten assemblies. Fusion finds things by reflection.
+6. **Runs `AssetDatabase.SaveAssets()`,** then **logs two `[PooketSlug]` diagnostics lines:** SDK present, weaver compiled, co-op code compiled, WebGL defines; then the stripping level and whether the SDK is kept whole.
+7. **Builds** with `BuildPipeline.BuildPlayer`, prints a result summary and exits `0` or `101`.
 
 ## Gotchas
 
