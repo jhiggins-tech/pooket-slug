@@ -8,9 +8,10 @@ Up: [Verification](../README.md)
 
 | File | What it does | Tested |
 |---|---|---|
-| [`extract-unity.sh`](extract-unity.sh) | Streams the GameCI editor image's editor layer from Docker Hub and extracts Unity's Roslyn compiler, the .NET runtime, the reference DLLs, module metadata, and the bundled Input System and Cecil packages (~300 MB written; ~7 GB streamed) | Manifest resolution against the image's saved manifests; the same extraction ran in the first session |
-| [`build-inputsystem.sh`](build-inputsystem.sh) | Compiles the Input System package's runtime sources into `Unity.InputSystem.dll` | 2026-10-14: 281 files, warnings only |
-| [`compile_unity.py`](compile_unity.py) | Compiles the Photon SDK (player and editor), the project's assembly definitions (Core and its tests) and the game's assemblies, as Unity would for WebGL, against only the enabled engine modules. Also writes the PDB, reference list and defines for the weaver. `--input legacy\|new\|both` picks the Active Input Handling to compile for | 2026-10-14: SDK OK; Core, tests and game OK, with and without the SDK, for each input backend |
+| [`extract-unity.sh`](extract-unity.sh) | Streams the GameCI editor image's editor layer from Docker Hub and extracts Unity's Roslyn compiler, the .NET runtime, the reference DLLs, module metadata, and the bundled Input System, Cecil and uGUI packages (~300 MB written; ~7 GB streamed) | 2026-10-14: re-run for uGUI, about 20 minutes through the sandbox's proxy |
+| [`build-ugui.sh`](build-ugui.sh) | Compiles uGUI's runtime sources (not its TextMeshPro half) into `UnityEngine.UI.dll` | 2026-10-14: 88 files, no errors |
+| [`build-inputsystem.sh`](build-inputsystem.sh) | Compiles the Input System package's runtime sources into `Unity.InputSystem.dll`. With `UGUI=<UnityEngine.UI.dll>`, it also builds the UI support, as Unity does once uGUI is in the project | 2026-10-14: 281 files, warnings only, with and without the UI support |
+| [`compile_unity.py`](compile_unity.py) | Compiles the Photon SDK (player and editor), the project's assembly definitions (Core and its tests) and the game's assemblies, as Unity would for WebGL, against only the enabled engine modules. Also writes the PDB, reference list and defines for the weaver. `--input legacy\|new\|both` picks the Active Input Handling to compile for, and `--ugui` adds uGUI | 2026-10-14: SDK OK; Core, tests and game OK, with and without the SDK, for each input backend |
 | [`run_tests.py`](run_tests.py) | Runs the [EditMode tests](../edit-mode-tests.md) outside Unity: builds them against NuGet's NUnit 3.14 with an NUnitLite entry point, and runs them on the editor's .NET runtime | 2026-10-14: 161 of 161; 21 of 21 deliberate bugs caught (11 in the first tests, 10 in the touch pad) |
 | [`weave.sh`](weave.sh) + [`WeaveHarness.cs`](WeaveHarness.cs) | Runs Fusion's `ILPostProcessor` (the IL weaver) over the game assembly outside Unity, on the editor's own .NET runtime | 2026-10-14: woven, no diagnostics |
 | [`WeaveDump.cs`](WeaveDump.cs) | Prints what the weaver generated for named types: word counts, generated RPC invokers, getter IL. Run via `DUMP="PlayerNet WorldNet" weave.sh …` | 2026-10-14 |
@@ -26,10 +27,11 @@ T=docs/research/verification/tools
 $T/extract-unity.sh ubuntu-6000.3.26f1-webgl-3 $W/unity            # once; ~7 GB streamed
 D=$W/unity/opt/unity/Editor/Data
 tar -xzf $D/Resources/PackageManager/Editor/com.unity.nuget.mono-cecil-*.tgz -C $W   # → $W/package/Mono.Cecil*.dll
-$T/build-inputsystem.sh $D $W/is
+$T/build-ugui.sh $D $W/ugui
+UGUI=$W/ugui/UnityEngine.UI.dll $T/build-inputsystem.sh $D $W/is
 python3 -I tools/unpack_unitypackage.py <Photon-Fusion-….unitypackage> .   # the SDK, if not already unpacked
 python3 -I $T/compile_unity.py --editor-data $D --project . --out $W/out \
-        --cecil-dir $W/package --inputsystem $W/is/Unity.InputSystem.dll \
+        --cecil-dir $W/package --inputsystem $W/is/Unity.InputSystem.dll --ugui $W/ugui/UnityEngine.UI.dll \
         --nunit $W/ext-nunit/package/net40/unity-custom/nunit.framework.dll all
 DUMP="PlayerNet WorldNet" $T/weave.sh $D "$PWD" $W/out $W/package $W/weave
 python3 -I $T/run_tests.py --editor-data $D --project . --core $W/out/game/PooketSlug.Core.dll \

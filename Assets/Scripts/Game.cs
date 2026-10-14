@@ -39,7 +39,9 @@ namespace PooketSlug
         string m_Notice;
         float m_NoticeTime, m_LeaveArmed;
 
-        GUIStyle m_Style, m_FieldStyle;
+        HudView m_Hud;
+        string m_PageUrl; // the page's address without its query, for invite links
+        GUIStyle m_Style, m_FieldStyle; // the menus, still IMGUI
         float m_Scale;
 
         void Awake()
@@ -63,6 +65,8 @@ namespace PooketSlug
             catch { m_HiScore = 0; }
 
             m_World = new World(m_Camera);
+            m_Hud = new HudView(transform);
+            m_PageUrl = PageUrl();
             SetState(GameState.Title);
             GameInput.TouchActive = Application.isMobilePlatform; // until the player shows otherwise
 
@@ -263,6 +267,19 @@ namespace PooketSlug
             }
 
             m_World.Render();
+            m_Hud.Refresh(m_World, m_Camera, new HudInfo
+            {
+                InGame = m_State == GameState.Playing || m_State == GameState.GameOver || m_State == GameState.Victory,
+                Playing = m_State == GameState.Playing,
+                Paused = m_Paused,
+                StateTime = m_StateTime,
+                HiScore = m_HiScore,
+                Fps = Mathf.RoundToInt(m_Fps),
+                Muted = Sfx.Muted,
+                Net = m_Coop ? m_Net : null,
+                PageUrl = m_PageUrl,
+                LeaveArmed = m_LeaveArmed > 0f,
+            });
         }
 
         /// <summary>Shows the touch pad while playing with a touch screen, and fits it to the screen.</summary>
@@ -305,49 +322,6 @@ namespace PooketSlug
             float vw = Screen.width / m_Scale;
 
             World w = m_World;
-            Player p = w.Player;
-
-            // world-space popups (score, pickups)
-            foreach (PopupText pop in w.Scoring.Popups)
-            {
-                Vector3 sp = m_Camera.WorldToScreenPoint(new Vector3(pop.Pos.x, pop.Pos.y, 0f));
-                Color c = pop.Color;
-                c.a = Mathf.Clamp01(Tuning.Hud.PopupLife - pop.Age);
-                Text(sp.x / m_Scale, (Screen.height - sp.y) / m_Scale, pop.Text, 9, c, TextAnchor.MiddleCenter);
-            }
-
-            bool inGame = m_State == GameState.Playing || m_State == GameState.GameOver || m_State == GameState.Victory;
-            if (inGame)
-            {
-                Text(8, 5, "SCORE " + w.Scoring.Points.ToString("000000"), 14, Color.white, TextAnchor.UpperLeft);
-                for (int i = 0; i < p.MaxHp; i++)
-                {
-                    GUI.color = i < p.Hp ? Color.white : new Color(0.2f, 0.15f, 0.2f, 0.7f);
-                    GUI.DrawTexture(R(8 + i * 13, 24, 12, 12), Art.HeartTex);
-                }
-                GUI.color = Color.white;
-                string arms = p.GunAmmo > 0 ? p.Gun.Hud + " " + p.GunAmmo : p.Def.Primary.Hud; // IMGUI's default font has no infinity glyph
-                Text(8, 40, "ARMS " + arms + "   " + p.Def.Special.Hud + " " + p.Specials, 11, new Color(1f, 0.9f, 0.5f), TextAnchor.UpperLeft);
-
-                Text(vw - 8, 5, "HI " + Mathf.Max(m_HiScore, w.Scoring.Points).ToString("000000"), 14, Color.white, TextAnchor.UpperRight);
-                int secs = Mathf.FloorToInt(w.Elapsed);
-                Text(vw - 8, 24, string.Format("TIME {0}:{1:00}", secs / 60, secs % 60), 11, Color.white, TextAnchor.UpperRight);
-
-                TankBoss boss = w.Boss;
-                if (boss != null && boss.Engaged && !boss.Removed)
-                {
-                    float bw = 180f, bx = vw * 0.5f - bw * 0.5f;
-                    Text(vw * 0.5f, 6, "REBEL TANK", 10, new Color(1f, 0.6f, 0.4f), TextAnchor.UpperCenter);
-                    Box(bx - 1, 21, bw + 2, 8, new Color(0.1f, 0.05f, 0.08f, 0.85f));
-                    Box(bx, 22, bw * Mathf.Clamp01(boss.Hp / (float)boss.MaxHp), 6, new Color(0.9f, 0.25f, 0.2f));
-                }
-
-                if (m_Coop) CoopHud(w, vw);
-            }
-
-            string build = "v" + Application.version + " · Unity " + Application.unityVersion + " · built with GameCI";
-            Text(6, 360 - 14, build, 8, new Color(1f, 1f, 1f, 0.75f), TextAnchor.UpperLeft);
-            Text(vw - 6, 360 - 14, Mathf.RoundToInt(m_Fps) + " FPS" + (Sfx.Muted ? " · MUTED" : ""), 8, new Color(1f, 1f, 1f, 0.75f), TextAnchor.UpperRight);
 
             bool blink = (int)(Time.unscaledTime * 2.5f) % 2 == 0;
             bool touch = GameInput.TouchActive;
@@ -399,8 +373,6 @@ namespace PooketSlug
                     break;
 
                 case GameState.Playing:
-                    if (m_StateTime < 2.2f && !m_Paused) Text(vw * 0.5f, 120, "MISSION 1  START!", 26, new Color(1f, 0.85f, 0.3f), TextAnchor.MiddleCenter);
-                    if (w.Victory) Text(vw * 0.5f, 120, "MISSION COMPLETE!", 28, new Color(1f, 0.85f, 0.3f), TextAnchor.MiddleCenter);
                     if (m_Paused)
                     {
                         Box(0, 0, vw, 360, new Color(0f, 0f, 0f, 0.4f));
@@ -426,84 +398,9 @@ namespace PooketSlug
                     break;
             }
 
-            DrawPad();
-        }
-
-        static readonly Color PadFill = new Color(0.08f, 0.06f, 0.1f, 0.35f), PadHeld = new Color(1f, 0.62f, 0.2f, 0.6f);
-
-        /// <summary>The touch pad (<see cref="ArcadePad"/>), over everything else.</summary>
-        void DrawPad()
-        {
-            ArcadePad pad = GameInput.Pad;
-            if (pad.Visible)
-            {
-                Disc(pad.StickOrigin, ArcadePad.StickRadius + 12f, PadFill);
-                Disc(pad.StickKnob, 18f, new Color(1f, 1f, 1f, pad.StickActive ? 0.7f : 0.35f));
-                PadButton(pad, ArcadePad.Button.Fire, "FIRE");
-                PadButton(pad, ArcadePad.Button.Jump, "JUMP");
-                PadButton(pad, ArcadePad.Button.Special, "SP " + m_World.Player.Specials);
-            }
-            if (pad.PauseVisible) PadButton(pad, ArcadePad.Button.Pause, m_Coop ? "EXIT" : "II");
-        }
-
-        void PadButton(ArcadePad pad, ArcadePad.Button button, string label)
-        {
-            bool held = pad.Held(button);
-            Vector2 c = pad.Center(button);
-            Disc(c, pad.Radius(button), held ? PadHeld : PadFill);
-            Text(c.x, c.y, label, button == ArcadePad.Button.Pause ? 8 : 10, held ? Color.white : new Color(1f, 1f, 1f, 0.85f), TextAnchor.MiddleCenter);
-        }
-
-        void Disc(Vector2 center, float radius, Color color)
-        {
-            GUI.color = color;
-            GUI.DrawTexture(R(center.x - radius, center.y - radius, radius * 2f, radius * 2f), Art.DiscTex);
-            GUI.color = Color.white;
         }
 
         static readonly Color CoopBlue = new Color(0.6f, 0.9f, 1f);
-        static readonly Color[] SkinColors = { new Color(1f, 0.5f, 0.4f), new Color(0.45f, 0.72f, 1f) };
-
-        /// <summary>Partner health, name tags, invite code, respawn countdown.</summary>
-        void CoopHud(World w, float vw)
-        {
-            Player p = w.Player;
-            float y = 56f;
-            foreach (RemotePlayer r in w.Remotes)
-            {
-                int skin = Mathf.Clamp(r.Link.Skin, 0, 1);
-                Text(8, y, "P" + (skin + 1), 10, SkinColors[skin], TextAnchor.UpperLeft);
-                for (int i = 0; i < p.MaxHp; i++)
-                {
-                    GUI.color = i < r.Hp ? SkinColors[skin] : new Color(0.2f, 0.15f, 0.2f, 0.7f);
-                    GUI.DrawTexture(R(28 + i * 10, y + 2, 9, 9), Art.HeartTex);
-                }
-                GUI.color = Color.white;
-                y += 14f;
-
-                Vector3 sp = m_Camera.WorldToScreenPoint(new Vector3(r.Pos.x, r.Pos.y + 1.9f, 0f));
-                Text(sp.x / m_Scale, (Screen.height - sp.y) / m_Scale, "P" + (skin + 1), 8, SkinColors[skin], TextAnchor.MiddleCenter);
-            }
-
-            string room = m_Net.RoomCode;
-            bool blink = (int)(Time.unscaledTime * 2f) % 2 == 0;
-            if (w.Remotes.Count == 0 && !w.Victory)
-            {
-                if (blink) Text(vw * 0.5f, 40, "WAITING FOR A PARTNER", 12, CoopBlue, TextAnchor.UpperCenter);
-                Text(vw * 0.5f, 56, room != null ? "ROOM CODE  " + room : "QUICK MATCH: THE NEXT PLAYER TO PRESS Q JOINS YOU", room != null ? 16 : 10, Color.white, TextAnchor.UpperCenter);
-                string url = PageUrl();
-                if (room != null && url.Length > 0) Text(vw * 0.5f, 76, "OR SEND THIS LINK:  " + url + "?room=" + room, 8, new Color(1f, 1f, 1f, 0.8f), TextAnchor.UpperCenter);
-            }
-
-            string leave = GameInput.TouchActive ? "EXIT TWICE TO LEAVE" : "ESC ESC TO LEAVE";
-            string line = (room != null ? "ROOM " + room : "QUICK MATCH") + "  ·  " + m_Net.PlayerCount + "/2  ·  " + m_Net.PingMs + " MS  ·  " + leave;
-            Text(vw * 0.5f, 360 - 28, line, 8, new Color(1f, 1f, 1f, 0.75f), TextAnchor.UpperCenter);
-
-            if (p.Dead)
-                Text(vw * 0.5f, 150, "DOWN!  BACK IN " + Mathf.Max(1, Mathf.CeilToInt(Tuning.Coop.RespawnDelay - p.DeadTime)), 18, new Color(1f, 0.5f, 0.4f), TextAnchor.MiddleCenter);
-            if (m_LeaveArmed > 0f)
-                Text(vw * 0.5f, 196, GameInput.TouchActive ? "TAP EXIT AGAIN TO LEAVE THE GAME" : "PRESS ESC AGAIN TO LEAVE THE GAME", 12, Color.white, TextAnchor.MiddleCenter);
-        }
 
         /// <summary>IMGUI text box for the room code; Enter joins, Esc goes back.</summary>
         void CodeField(float x, float y, float w, float h)

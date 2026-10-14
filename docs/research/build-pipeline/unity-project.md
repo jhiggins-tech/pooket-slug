@@ -57,7 +57,8 @@ The cost:
 | Package | Needed by |
 |---|---|
 | `com.unity.inputsystem` 1.20.0 | The input sources in `Assets/Scripts/Input/` (keyboard, gamepad and touch). Pinned to the version **bundled in the editor image** (`Editor/Data/Resources/PackageManager/Editor/`), so resolving packages needs no registry fetch |
-| `com.unity.modules.audio`, `imgui`, `jsonserialize` | The game: procedural audio, the IMGUI HUD, and `JsonUtility` for `pooket-net.json` |
+| `com.unity.ugui` 2.0.0 | The HUD, built in code ([`Assets/Scripts/Ui/`](../../../Assets/Scripts/Ui/)). It's a core package built into the editor, so it needs no registry fetch. It also turns on the Input System's UI support |
+| `com.unity.modules.audio`, `imgui`, `jsonserialize` | The game: procedural audio, the menus (still IMGUI), and `JsonUtility` for `pooket-net.json` |
 | `com.unity.modules.physics`, `physics2d` | Fusion.Unity (`RunnerSimulatePhysics`, `Rigidbody2D` helpers). The game itself uses its own tile physics |
 | `com.unity.modules.ai` | Fusion.Unity and its editor (NavMesh helpers) |
 | `com.unity.modules.animation` | Fusion's editor scripts (`Animator` tooling) |
@@ -77,7 +78,7 @@ The cost:
   - It shows while playing once the screen has been touched, and hides when a key or gamepad button is pressed. A phone starts with touch hints (`Application.isMobilePlatform`).
   - While it's hidden, a tap is the menus' Enter: start, retry, play again, and join from an invite link. Hosting, quick match and typing a code still need a keyboard, until the menus move to uGUI (refactor plan step 14).
   - It reads touches itself rather than using the Input System's on-screen controls. Those need uGUI's event system, and they give neither a stick that follows the thumb nor sliding between buttons.
-  - It's drawn on the IMGUI HUD for now, and moves to uGUI with the rest of the HUD.
+  - It's drawn by the uGUI HUD (`HudView`).
 - **The page gives the canvas every touch:** `touch-action: none`, with no text selection or long-press menu. On a phone held sideways, the header and footer hide and the game fits the screen; held upright, the page asks to turn it.
 - **The Input System's "enable the new backends and restart?" dialog can't hang CI.** It's skipped in batch mode: `!Application.isBatchMode` in `InputSystemEditorInitializer.cs`.
 

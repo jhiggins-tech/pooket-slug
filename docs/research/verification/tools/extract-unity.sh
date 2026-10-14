@@ -50,6 +50,7 @@ curl -fsSL -H "Authorization: Bearer $(token)" "$REG/blobs/$layer" |
     '*Editor/Data/DotNetSdkRoslyn/*' \
     '*Editor/Data/NetCoreRuntime/*' \
     '*Editor/Data/Resources/PackageManager/BuiltInPackages/*/package.json' \
+    '*Editor/Data/Resources/PackageManager/BuiltInPackages/com.unity.ugui/*' \
     '*Editor/Data/Resources/PackageManager/Editor/com.unity.inputsystem-*.tgz' \
     '*Editor/Data/Resources/PackageManager/Editor/com.unity.nuget.mono-cecil-*.tgz' \
     '*WebGLSupport/BuildTools/WebGLTemplates/*'

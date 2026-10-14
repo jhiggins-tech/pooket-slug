@@ -31,6 +31,7 @@ Up: [Verification](README.md)
 
 - **Compiler flags:** `csc.dll` run on the bundled `dotnet`, with `-langversion:9.0 -nostdlib -noconfig -target:library`, `netstandard.dll`, and the engine module DLLs as references.
 - **Defines:** `UNITY_6000_3_OR_NEWER` and friends, `UNITY_WEBGL`, plus the input defines.
+- **uGUI and the Input System's UI support** come from source too: `build-ugui.sh` builds `UnityEngine.UI.dll`, and `build-inputsystem.sh` with `UGUI=` builds the Input System against it, as Unity does once uGUI is in the project. Pass `--ugui` to `compile_unity.py`.
 - **Check both input backends.** The active one isn't known until Unity generates ProjectSettings ([why](../build-pipeline/unity-project.md#input)). Compile once with `ENABLE_LEGACY_INPUT_MANAGER`, once with `ENABLE_INPUT_SYSTEM` (referencing `Unity.InputSystem.dll`), and once with both: `compile_unity.py --input legacy`, `--input new`, and the default, `--input both`.
 - **Then the editor assembly:** compile `Assets/Editor/**` against the game assembly plus `UnityEditor*.dll`, with `UNITY_EDITOR` defined.
 - **Assembly definitions first.** Each `.asmdef` outside `Assets/Photon` compiles the scripts under its folder, after the ones it references. `Assembly-CSharp` gets everything else and references the auto-referenced ones, such as `PooketSlug.Core`.

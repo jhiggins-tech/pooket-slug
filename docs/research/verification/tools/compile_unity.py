@@ -22,7 +22,8 @@ UnityEditor.TestRunner) are left out, so tests can only use plain NUnit. run_tes
 
 usage: python3 -I compile_unity.py --editor-data <.../Editor/Data> --project <repo> --out <dir>
                                    [--cecil-dir <dir>] [--inputsystem <Unity.InputSystem.dll>]
-                                   [--input both|new|legacy] [--nunit <nunit.framework.dll>] [sdk|game|all]
+                                   [--ugui <UnityEngine.UI.dll>] [--input both|new|legacy]
+                                   [--nunit <nunit.framework.dll>] [sdk|game|all]
 """
 import argparse, glob, json, os, subprocess, sys
 
@@ -32,6 +33,7 @@ ap.add_argument("--project", required=True, help="Unity project root (Assets/Pho
 ap.add_argument("--out", required=True, help="output folder")
 ap.add_argument("--cecil-dir", help="folder with Mono.Cecil*.dll (com.unity.nuget.mono-cecil package), for the editor SDK assemblies")
 ap.add_argument("--inputsystem", help="a compiled Unity.InputSystem.dll, if the game uses the Input System")
+ap.add_argument("--ugui", help="a compiled UnityEngine.UI.dll (build-ugui.sh), if the game uses uGUI")
 ap.add_argument("--input", default="both", choices=["both", "new", "legacy"],
                 help="Active Input Handling to compile for: both backends (default), the Input System, or the legacy Input Manager")
 ap.add_argument("--nunit", help="Unity's nunit.framework.dll (com.unity.ext.nunit), for the test assemblies")
@@ -44,7 +46,7 @@ CSC = [os.path.join(D, "NetCoreRuntime/dotnet"), os.path.join(D, "DotNetSdkRosly
 BUILTIN = os.path.join(D, "Resources/PackageManager/BuiltInPackages")
 PH = os.path.join(PROJ, "Assets/Photon")
 CECIL = glob.glob(os.path.join(a.cecil_dir, "Mono.Cecil*.dll")) if a.cecil_dir else []
-EXTRA = [a.inputsystem] if a.inputsystem and a.input != "legacy" else []
+EXTRA = ([a.inputsystem] if a.inputsystem and a.input != "legacy" else []) + ([a.ugui] if a.ugui else [])
 NETSTD = os.path.join(D, "NetStandard/ref/2.1.0/netstandard.dll")
 # Facades the editor also passes, so DLLs built for .NET Framework (Unity's NUnit, say) resolve mscorlib.
 NETFX = sorted(glob.glob(os.path.join(D, "NetStandard/compat/2.1.0/shims/netfx/*.dll")))
