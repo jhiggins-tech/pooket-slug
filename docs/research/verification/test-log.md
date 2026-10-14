@@ -95,6 +95,7 @@ The owner's next picks, from 2026-10-14: the page in short windows, a crate in t
 |---|---|---|---|
 | ~21:47 | The page in short desktop windows, before and after the fix | The live page, then the new template rendered locally around the live build, each measured at ten window sizes, desktop and phone; then the game started in a 1280×600 window | ✅ Before: squashed when short, 960×448 in a 1280×600 window and 960×268 at 1366×420. After: 16:9 at all ten sizes, 782×440 at 1280×600 with nothing scrolling. Only a 420-px-tall window scrolls, by 59 px, with the game fully in view |
 | 21:49–22:01 | The page keeps 16:9 in short windows (`298a8d1`) | Run 38643150666, then the live page measured again, and `touch.mjs` once | ✅ Built, deployed, co-op test passed; the live page matches the local measurements; FIRE lit on the emulated phone |
+| 22:02–22:15 | The co-op test needs a crate handed out (`9cf50f0`): `?test=crate` puts one just ahead of the start | Run 38644817688, then `?test=crate` in a solo game on the live page | ✅ All six checks, the new one included: `Pickup 33 (Heavy machine gun crate) goes to player 1` on A, 9 s after B joined. It's the first time the shared pickup table (refactor step 10) handed out a pickup between two browsers. Solo, running right picks the crate up: *Heavy machine gun!*, HMG 200 |
 
 ## Not yet verified
 
