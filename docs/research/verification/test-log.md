@@ -60,6 +60,26 @@ The [refactor plan](../roadmap/refactor-plan.md)'s steps, as they land.
 | 14:16–14:27 | Step 2 in CI, with the runner pinned (`74d5b7b`) | Run 38579082894 | ✅ 101 of 101 EditMode tests in Unity 6000.3.26f1 (Test Framework 1.6.0, NUnit 3.5): 36 s inside Unity, 3 min 5 s for the step with the image pull the build used to do. Then the build, the deploy, and the co-op test, all passed. The build is still 33.8 MB |
 | 14:27–14:39 | Step 3: pooling (`6eae099`) | Run 38580730821 | ✅ Built, deployed, and passed the co-op test |
 | ~14:37 | Does the deployed build reuse its objects? | A headless browser played the live page with `?log=game:debug`, holding fire and throwing grenades | ✅ `Projectile pool: 64 used, 6 made` and `Effect pool: 64 used, 3 made`, no errors. Software rendering ran at 19 FPS, so only 17 s of game time passed |
+| 14:39–14:49 | Step 5: `World` split into systems (`5555b2e`) | Run 38582424832 | ✅ Built, deployed, co-op test passed |
+| 14:50–15:01 | Step 6: content as data (`240cfe9`, `095077d`) | Run 38584035942 | ✅ Built, deployed, co-op test passed. Shots now carry weapon ids, and the snapshot enemy ids |
+| 15:07–15:17 | Step 7: typed network events (`0a3832f`) | Run 38586628482 | ✅ Built, deployed, co-op test passed |
+| 15:18–15:36 | Step 8: the netcode assembly (`0607a04`) | Run 38588224449 | ✅ The build log says `co-op code compiled: True`, and Unity's weaver ran over `PooketSlug.Net`. The first build with the new assembly took 16 minutes, against about 8 |
+| 15:36–15:46 | Step 9: dynamic network ids (`ea92974`) | Run 38590865323 | ✅ Built, deployed, co-op test passed |
+| 15:47–15:56 | Step 12: `NetSession` split in two (`c78c601`) | Run 38592395346 | ✅ Built, deployed, co-op test passed |
+| 15:57–16:07 | Step 11: each player's soldier replicated (`f8c154e`) | Run 38593864316 | ✅ Built, deployed, co-op test passed |
+| 16:07–16:24 | Step 10: the replicated pickup table (`8988cea`) | Run 38595398658 | ❌ Built and deployed (140 of 140 tests), but the co-op test failed twice: Photon refused A's connection with `InvalidAuthentication`, before any of the step's code runs |
+| 16:24–16:38 | Was it step 10? | The AppId baked into both builds compared by hash; step 11 rebuilt and run again; then step 10's co-op test once more | ✅ The same AppId; step 11 passed at 16:35, and step 10's own build passed at 16:38. A brief rejection on Photon's side, about 16:18–16:24. No pickups were given out: the soldiers reach the first crate's bridge in 13 s but don't climb onto it |
+| 16:39–16:52 | Step 13: input sources and the touch pad (`e96b9ab`) | Run 38599941742 | ✅ Built, deployed, co-op test passed |
+| ~16:53 | Does the pad work on a phone? | [`touch.mjs`](tools/touch.mjs): the live page on an emulated Pixel 7 held sideways, two thumbs through Chromium's DevTools protocol | ✅ Touch hints on the title; a tap starts; with the stick pushed right and FIRE held, the soldier runs and fires; II pauses. The page now gives the game a 16:9 canvas (548×308); the old page squeezed it to 831×208 |
+| 16:53–17:11 | Step 14a: the HUD in uGUI (`7264c9c`) | Run 38601925207, then `touch.mjs` on the live page | ✅ Built, deployed, co-op test passed; the pad, now drawn by uGUI, passed the touch test. The first build with uGUI took 16 minutes |
+| ~17:12 | What did uGUI cost? | The files of step 10's build artifact, against the live build's, raw and as Pages serves them (gzip) | ⚠️ The wasm grew from 28.56 MB to 42.12 MB, and the data from 6.51 MB to 8.74 MB: about 10.2 MB to 13.95 MB on the wire. At Unity's default stripping level, package assemblies ship whole. Followed up in `25d4276`, below |
+| 17:12–17:28 | Step 15: the profile and its store (`f79bf88`) | Run 38604613150 | ✅ Built, deployed, co-op test passed; 171 of 171 EditMode tests |
+| 17:28–17:39 | Step 14b: the menus in uGUI, and co-op shown once it's earned (`8a748f9`) | Run 38607000229. The co-op test now opens the page with `?unlock=coop`, since a fresh browser hasn't beaten Mission one | ✅ Built, deployed, co-op test passed |
+| 17:39–17:51 | Step 16: missions as data (`6baac2b`) | Run 38608549578 | ✅ Built, deployed, co-op test passed; 175 of 175 EditMode tests |
+| 17:40–17:46 | The touch test on step 14b | `touch.mjs` nine times on the live page, checking FIRE's pixels in each screenshot | ⚠️ In one of the nine, FIRE never lit while the stick worked; the other eight were fine. Two causes were possible, a missed touch-down or a thumb landing left of the middle, and `74fc4e0` (below) handles both |
+| ~17:52 | Co-op stays hidden until it's earned, on the live build | A headless browser with fresh storage: an invite link, then `?unlock=coop` | ✅ The invite link starts Mission 1 with *Co-op opens once you've beaten this mission*. With `?unlock=coop` the title shows CO-OP, with a NEW! tag |
+| 17:52– | The follow-ups: managed stripping at `Low` (`25d4276`) and the pad fix (`74fc4e0`) | Run 38610328624, then the sizes and `touch.mjs` on the live page | ⏳ Running |
+| 17:58–18:01 | Do the tests catch bugs in the refactor's later code? | Core at `74fc4e0` broken 21 ways, one at a time: the touch pad, input, the profile and the missions ([list](edit-mode-tests.md#do-the-tests-catch-bugs)) | ✅ 21 of 21 caught |
 
 ## Not yet verified
 

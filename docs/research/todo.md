@@ -31,7 +31,7 @@ _Last updated: 2026-10-14._
 
 ## Claude
 
-The sorted CSV arrived on 2026-10-14, so C2's plan is out for approval. The variables start the rest of C1.
+C2, the refactor, is done. The repository variables (owner 2) start the rest of C1.
 
 - [ ] **C1. "Sign in with Google" spike** ([plan](accounts/README.md)). *Waits for owner 2.*
   - [ ] Database rules, as a pull request to Cardmaster: a `pooketSlug/players/{uid}` section in its rules file, where only the player reads and writes, the shape is validated, the stats only go up, and there are no deletes. Add tests to its rules test suite.
@@ -49,14 +49,14 @@ The sorted CSV arrived on 2026-10-14, so C2's plan is out for approval. The vari
     - get the CI build green
     - the rules go live when you merge the Cardmaster pull request
   - [ ] Docs: [accounts](accounts/README.md) and the [test log](verification/test-log.md).
-- [ ] **C2. Refactor pass** to prepare the build and netcode for the chosen features. *In progress since 2026-10-14.*
+- [x] **C2. Refactor pass** to prepare the build and netcode for the chosen features. *Done 2026-10-14.*
   - [x] Map the Must and Should rows to the [refactor candidates](roadmap/refactor-candidates.md), and send you a short plan before changing code. Sent 2026-10-14: [refactor plan](roadmap/refactor-plan.md).
-  - [ ] Refactor in small commits. Each one is type-checked, weave-checked and smoke-tested. Anything that touches netcode gets a two-player test.
-    - Phase 1 done 2026-10-14: logging, tuning and seeded randomness; the tested Core assembly with EditMode tests in CI; pooling; the CI co-op test. Phase 2 has started ([progress](roadmap/refactor-plan.md#the-plan)).
-  - [ ] Update [architecture](netcode/architecture.md) and the refactor candidates as items land.
+  - [x] Refactor in small commits. Each one is type-checked, weave-checked and smoke-tested. Anything that touches netcode gets a two-player test.
+    - All four phases landed on 2026-10-14, each step checked locally and in CI ([progress](roadmap/refactor-plan.md#the-plan), [test log](verification/test-log.md#part-4-refactor)). What waits for its feature is listed with each step: boss and tank network objects, the rest of per-player state, the lobby features, character select, settings, and the cloud profile.
+  - [x] Update [architecture](netcode/architecture.md) and the refactor candidates as items land.
 - [ ] **C3. Loose ends** (small; any time):
   - [ ] C3a. Make connection failures say *Couldn't reach Photon* instead of `DISCONNECTED (ERROR)` ([sessions](netcode/sessions.md#when-things-fail)).
-  - [ ] C3b. Fix the Photon region to **AU** (NET-05, from the MoSCoW pass), with four-letter room codes. Folded into the refactor plan, step 11 ([quick match](netcode/sessions.md#quick-match)).
+  - [ ] C3b. Fix the Photon region to **AU** (NET-05, from the MoSCoW pass), with four-letter room codes. It goes in `NetSession`, which the refactor's step 12 split out ([quick match](netcode/sessions.md#quick-match)). The CI co-op test reads the code from the log, so its pattern changes too.
   - [x] C3c. Run the two-browser co-op test in CI after each deploy. Done 2026-10-14 as step 4 of the [refactor plan](roadmap/refactor-plan.md): it passed on its first run, host migration included ([test log](verification/test-log.md#part-2-photon-fusion-co-op)). Of owner 5's paths, it covers the host leaving.
 
 ## Done recently

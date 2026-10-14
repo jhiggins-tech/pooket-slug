@@ -19,7 +19,7 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
 | Online co-op (Fusion 2.1.3, Shared Mode) | ✅ Live; played by the owner on 2026-10-14 | [netcode](netcode/README.md), [test log](verification/test-log.md) |
 | Verification without a Unity license | ✅ Working toolkit, re-tested 2026-10-14 | [verification](verification/README.md) |
 | Feature roadmap | ✅ Sorted by the owner on 2026-10-14 (MoSCoW) | [roadmap](roadmap/README.md) |
-| Refactor pass | 🔧 In progress (go-ahead 2026-10-14). Phase 1 is done; phase 2 has started | [refactor plan](roadmap/refactor-plan.md) |
+| Refactor pass | ✅ All 16 steps landed 2026-10-14, each verified in CI; some parts wait for their features | [refactor plan](roadmap/refactor-plan.md) |
 | Automated tests | ✅ EditMode tests before each build, and the two-player co-op test after each deploy | [EditMode tests](verification/edit-mode-tests.md), [browser tests](verification/browser-tests.md) |
 | "Sign in with Google" spike | ⏳ Reusing the Cardmaster Firebase project. Database rules drafted and tested, not yet committed; to be extended for the game design first. Waiting on the owner: permission to commit to Cardmaster, the console steps, the repository variables | [accounts](accounts/README.md), [todo](todo.md) |
 

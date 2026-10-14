@@ -2,7 +2,7 @@
 
 What the code, build and netcode need before the owner's chosen features can be built, and in what order. It's based on the owner's MoSCoW pass over [feature-candidates.csv](feature-candidates.csv) and on the game design in [DESIGN.md](../../../DESIGN.md).
 
-**Status, 2026-10-14:** approved and in progress. Phase 1 is done, each step verified in CI ([test log](../verification/test-log.md#part-4-refactor)); phase 2 has started. The owner answered its [decisions](#decisions-2026-10-14), and the game design it serves is signed off in [docs/design](../../design/README.md).
+**Status, 2026-10-14:** done. All 16 steps landed in small commits, each checked locally and in CI ([test log](../verification/test-log.md#part-4-refactor)). Parts that need a feature first wait for it; each step says which. The owner answered its [decisions](#decisions-2026-10-14), and the game design it serves is signed off in [docs/design](../../design/README.md).
 
 **Read this when** you're approving the refactor, or about to start one of its steps.
 
@@ -36,28 +36,30 @@ The work comes in four phases, each done in small commits. Each phase ends with 
 
 **Phase 2: structure** (each step is medium)
 
-5. **Split `World` into systems:** spawning, combat and damage (with statuses, TRN-01), camera, network sync, and scoring with the tally (#1, TEC-03).
-6. **Content as data.** Soldiers and their kits, weapons built from behaviours (bullet, lob, beam, cone, homing, spray; levels I–III with a fork at II), statuses, enemies, crates and tanks. Each gets a stable ID that network messages use (#2, #12, TEC-02). The classic Metal Slug gun styles are kit behaviours, not separate guns (the owner's call).
-7. **Typed network events,** with smaller interfaces in place of the single `INetLink` (#6).
-8. **Assembly definitions** (#5, TEC-04; agreed): core and netcode assemblies, done while the files move.
+5. **Split `World` into systems:** spawning, combat and damage (with statuses, TRN-01), camera, network sync, and scoring with the tally (#1, TEC-03). **Done** 2026-10-14: `ScrollCamera`, `Spawner`, `Combat`, `Scoring` and `NetSync` in [`World/`](../../../Assets/Scripts/World/). Statuses and the tally come with their features.
+6. **Content as data.** Soldiers and their kits, weapons built from behaviours (bullet, lob, beam, cone, homing, spray; levels I–III with a fork at II), statuses, enemies, crates and tanks. Each gets a stable ID that network messages use (#2, #12, TEC-02). The classic Metal Slug gun styles are kit behaviours, not separate guns (the owner's call). **Done** 2026-10-14 for today's content: projectiles, weapons, enemies, pickups and the soldier are definitions in [`Content`](../../../Assets/Scripts/Core/Content.cs), with byte ids that shots and snapshots send. New behaviours, levels, statuses and tanks are added as definitions when they're built.
+7. **Typed network events,** with smaller interfaces in place of the single `INetLink` (#6). **Done** 2026-10-14: `INetEvents` with typed payloads, and `INetLink` made of `ISessionView`, `ISoldierChannel` and `IWorldChannel` ([architecture](../netcode/architecture.md#the-boundary-between-game-and-netcode)).
+8. **Assembly definitions** (#5, TEC-04; agreed): core and netcode assemblies, done while the files move. **Done** 2026-10-14: `PooketSlug.Net` joins `PooketSlug.Core`. Nothing references it, so the compiler keeps gameplay away from Fusion.
 
 **Phase 3: netcode scale** (each step is medium, with a two-player test after each)
 
-9. **Dynamic network IDs** (#3, TEC-05).
-10. **Bigger replicated tables** for many small things, and a network object each for bosses and tanks (#4, TEC-06).
-11. **Per-player state:** soldier, kit levels, hearts, lives and statuses (#7, for two players only, since COP-04 is Won't).
+9. **Dynamic network IDs** (#3, TEC-05). **Done** 2026-10-14: [`NetIds`](../../../Assets/Scripts/Core/NetIds.cs). Level spawns keep their index, and anything spawned mid-game counts up from a counter in the shared world, which a new authority continues.
+10. **Bigger replicated tables** for many small things, and a network object each for bosses and tanks (#4, TEC-06). **Done** 2026-10-14 for pickups: they're a table of live ones, like enemies, so a mission can have any number, and drops work. The enemy table stays at 24 live. Bosses and rideable tanks get their network objects when those features arrive.
+11. **Per-player state:** soldier, kit levels, hearts, lives and statuses (#7, for two players only, since COP-04 is Won't). **Done** 2026-10-14 for the soldier: each player's `SoldierDef` is replicated, and a partner is drawn and counted with their own soldier's size and health. Kit levels, lives and statuses join `PlayerNet` with their features.
 12. **Split `NetSession`** in two:
     - connecting and sessions: the fixed AU region, the room browser, the lobby with ready-up, spectators, and reconnecting (NET-02…05, NET-09)
     - replication.
 
     With the region fixed, room codes can drop their region suffix and be just four letters.
 
+    **Done** 2026-10-14 as a split: `NetSession` connects and `NetReplication` shares. The lobby features (the AU region, room browser, ready-up, spectators, reconnecting) build on it later; the region is [C3b](../todo.md).
+
 **Phase 4: front end and platform** (each step is medium)
 
-13. **Input sources,** including the touch arcade pad (#8, ACC-02).
-14. **Game flow and uGUI, built in code** (#9; UIX-01, now a Must): the mission screen, character select, lobby, room browser, settings and HUD. Menus and HUD grow with the player's unlocks and reveals ([progressive disclosure](../../design/README.md#progressive-disclosure-the-thread-through-all-four)), and an invite link opened before co-op is unlocked starts Mission one instead.
-15. **A profile and save interface,** local and cloud (#13, SOC-02, TEC-07). This joins the [sign-in work](../accounts/README.md).
-16. **Levels as data,** with a mission list (#11, LVL-01/02).
+13. **Input sources,** including the touch arcade pad (#8, ACC-02). **Done** 2026-10-14: keyboard, gamepad and touch sources add up into one `SoldierInput`, and the [arcade pad](../build-pipeline/unity-project.md#input) follows the design. Input System actions weren't needed: rebinding (UIX-03) and couch co-op (COP-05) are Won't.
+14. **Game flow and uGUI, built in code** (#9; UIX-01, now a Must): the mission screen, character select, lobby, room browser, settings and HUD. Menus and HUD grow with the player's unlocks and reveals ([progressive disclosure](../../design/README.md#progressive-disclosure-the-thread-through-all-four)), and an invite link opened before co-op is unlocked starts Mission one instead. **Done** 2026-10-14 in two parts: the HUD (14a), then the menus and the flow (14b), with IMGUI gone. Co-op appears once Mission one is beaten solo, and invite links respect that. Character select waits for a second soldier, as the design asks; the room browser and lobby wait for step 12's features; settings (UIX-02) aren't started.
+15. **A profile and save interface,** local and cloud (#13, SOC-02, TEC-07). This joins the [sign-in work](../accounts/README.md). **Done** 2026-10-14 for local: [`Profile`](../../../Assets/Scripts/Core/Profile.cs) behind `IProfileStore`, with a merge for the cloud copy. It came before 14b, which needs it. The cloud store waits for sign-in ([C1](../todo.md)).
+16. **Levels as data,** with a mission list (#11, LVL-01/02). **Done** 2026-10-14: [`Missions`](../../../Assets/Scripts/Core/Missions.cs) lists each mission's id, net id, name and map, and the shared world says which mission it is. The maps stay ASCII in code; LDtk or JSON can come with real level work (LVL-03).
 
 **Build and CI, alongside the phases**
 - **Releases:** branch pushes keep deploying the live game, as now (the owner's call). Tagged versions and a changelog (OPS-04) can come later without changing that.

@@ -38,6 +38,14 @@ Up: [Verification](README.md)
 6. It writes each check to `result.json`, and exits non-zero if any check fails.
 7. It also records how many pickups the shared world gave out (`Pickup … goes to player …` lines). That's not a check, since the soldiers may not reach a crate in 13 s.
 
+## Touch test
+
+[`touch.mjs`](tools/touch.mjs) `<url> <outdir>` plays the game on an emulated phone: Playwright's *Pixel 7 landscape* profile, which has touch and a mobile browser's user agent.
+- **Two thumbs need the DevTools protocol.** Playwright's `touchscreen` has one finger, so the script sends `Input.dispatchTouchEvent` with two touch points: one on the stick, one on FIRE.
+- **It aims in HUD units.** The HUD is 360 units tall, so the script turns a pad position into page coordinates with the canvas's bounding box.
+- **It checks by screenshots:** the touch hints on the title, the stick pushed and FIRE lit while the soldier runs and fires, and the pause screen after II.
+- **It runs from the sandbox.** It needs no WebSockets, only the page.
+
 ## The sandbox's limits
 
 - **The cloud sandbox can't run the co-op test.** Its egress proxy refuses WebSocket upgrades. The README in `/root/.ccr/` lists "WebSocket upgrades" under *Not supported through the proxy*. Photon in a browser only speaks secure WebSockets.

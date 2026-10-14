@@ -74,6 +74,7 @@ The cost:
 - **The touch arcade pad** follows the [design](../../design/player.md#controls). [`ArcadePad`](../../../Assets/Scripts/Core/ArcadePad.cs), in Core and [tested](../verification/edit-mode-tests.md), turns fingers into soldier input:
   - The stick appears where the left thumb lands and follows it past its rim, so turning round is a short move. Its thresholds are the gamepad stick's.
   - FIRE (held), JUMP and SP sit under the right thumb. They answer near misses, and a thumb can slide from one to another.
+  - Any finger but the stick's presses buttons, so a thumb that lands near the middle can slide onto one. A finger counts from the frame it's first seen, even if its touch-down was missed.
   - **II** pauses a solo game. In co-op it reads **EXIT**, and two presses leave, like Esc.
   - It shows while playing once the screen has been touched, and hides when a key or gamepad button is pressed. A phone starts with touch hints (`Application.isMobilePlatform`).
   - The menus are uGUI buttons, so taps work them directly. A finger that's still down when the pad appears (from the PLAY button, say) does nothing until it lifts.

@@ -23,13 +23,13 @@ Core is also what the game and the netcode assembly (`PooketSlug.Net`) share: th
 | `NetIds` | Network ids: a level spawn keeps its index, and things spawned mid-game count up from a shared counter | Level spawns, counting up, a new authority carrying on, never going backwards, running out, the 16-bit limit |
 | `Profile` | The player's saved record: best score and clears per mission and setting, the co-op unlock, reveals seen | Best scores only rise, clears count wins, settings stay apart, only a solo win of Mission one opens co-op, reveals play once, merging takes the better of each without adding clears up, the first visit is stamped once, damaged saves are repaired |
 | `SoldierInput` | What the local soldier is told to do in a frame. Every input source adds to it | The stick thresholds (shared by gamepads and the touch pad), diagonals, sources adding up |
-| `ArcadePad` | The touch arcade pad: fingers in, soldier input out | The stick starting under the thumb, running, aiming, crouching, ignoring a wobble, following a thumb past its rim, letting go. FIRE pressed once then held, near misses, sliding from FIRE to JUMP, both thumbs at once, the special, pause, touches doing nothing while it's hidden, and the touch that starts a game not firing |
+| `ArcadePad` | The touch arcade pad: fingers in, soldier input out | The stick starting under the thumb, running, aiming, crouching, ignoring a wobble, following a thumb past its rim, letting go. FIRE pressed once then held, near misses, sliding from FIRE to JUMP, both thumbs at once, the special, pause, touches doing nothing while it's hidden, and the touch that starts a game not firing. A touch-down the pad missed still counts, and a finger that lands left of the middle can slide onto a button |
 | `Rng` | Seeded xorshift32 | The exact sequence (replays will depend on it), ranges, a zero seed |
 | `PageQuery` | Reads the page address | Parameters, case, escapes, `+`, fragments, missing names |
 | `Log` | Log channels and the `?log=` spec | Parsing, configuring channels, levels |
 | `Tuning` | The feel every soldier shares, the physics, the camera and co-op timings, as constants | Nothing directly. The physics tests use the real soldier's size from `Content` |
 
-The tests are in [`Assets/Tests/EditMode`](../../../Assets/Tests/EditMode): 13 fixtures, 175 test cases, under a tenth of a second.
+The tests are in [`Assets/Tests/EditMode`](../../../Assets/Tests/EditMode): 13 fixtures, 177 test cases, under a tenth of a second.
 
 ## In CI
 
@@ -75,6 +75,32 @@ On 2026-10-14, Core was broken in eleven ways, one at a time. Each time it was r
 | A different xorshift constant | `RngTests.ItIsXorshift32`, `ASeedOfZeroStillRuns`, and two `InviteCodeTests` |
 | `+` in the address not read as a space | `PageQueryTests.GetReadsAParameter` |
 | A log channel's level off by one | `LogTests.AChannelReportsItsLevelAndAbove` |
+
+The refactor's later steps added the touch pad, the profile and the mission list. Once they had all landed (`74fc4e0`), Core was broken 21 more ways, the same way. All 21 were caught:
+
+| Deliberate bug | Caught by |
+|---|---|
+| The stick never follows the thumb | `ArcadePadTests.TheStickFollowsAThumbThatGoesTooFar` |
+| The stick's y not flipped | `ArcadePadTests.PushingRunsAimsAndCrouches`, `BothThumbsWorkAtOnce` |
+| A finger already down when the pad appears presses buttons | `ArcadePadTests.TheTouchThatStartsTheGameDoesntFire` |
+| A touch on the hidden pad gets a role | `ArcadePadTests.TheTouchThatStartsTheGameDoesntFire` |
+| FIRE pressed again every frame | `ArcadePadTests.FireIsPressedOnceThenHeld` |
+| No reach for near misses | `ArcadePadTests.ANearMissStillCounts` |
+| A second thumb takes the stick | `ArcadePadTests.ASecondThumbOnTheLeftDoesntTakeTheStick`, `AFingerThatLandsLeftCanSlideOntoAButton` |
+| A lifted stick stays | `ArcadePadTests.LiftingTheThumbLetsGo` |
+| Roles only on touch-down | `ArcadePadTests.AMissedTouchDownStillCounts` |
+| A finger landing left of the middle can't press buttons | `ArcadePadTests.AFingerThatLandsLeftCanSlideOntoAButton` |
+| The run threshold too low | `SoldierInputTests.ASmallLeanDoesNothing`, `ArcadePadTests.AWobbleIsIgnored` |
+| Left and right don't cancel | `SoldierInputTests.SourcesAddUp` |
+| The best score is the latest | `ProfileTests.TheBestScoreOnlyGoesUp` |
+| A co-op win opens co-op | `ProfileTests.BeatingMissionOneSoloOpensCoop` |
+| Merging adds clears up | `ProfileTests.MergingTheSameRecordTwiceChangesNothing` |
+| The first visit overwritten | `ProfileTests.TheFirstVisitIsStampedOnce`, `MergingTakesTheBetterOfEach` |
+| Merging drops co-op | `ProfileTests.MergingTakesTheBetterOfEach` |
+| Settings mixed up | `ProfileTests.SettingsAreKeptApart`, `MergingTakesTheBetterOfEach` |
+| Mission one's net id changed | `MissionsTests.MissionOnesIdsNeverChange` |
+| An unknown net id finds mission one | `MissionsTests.LookupsFindEachMissionAndNothingElse` |
+| A pickup table too small for mission one | `MissionsTests.EveryMissionsPickupsFitTheSharedPickupTable` |
 
 ## Writing a test
 
