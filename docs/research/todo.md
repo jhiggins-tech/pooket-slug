@@ -10,7 +10,7 @@ _Last updated: 2026-10-14._
 
 ## Owner (jhiggins-tech)
 
-- [x] **1. Open the Cardmaster Firebase project to this game's origin** (domain added 2026-10-14; confirm the OAuth origin, key and audience items below if sign-in fails) ([gcloud-setup.md](accounts/gcloud-setup.md#plan-reuse-the-cardmaster-project)). Players will see "Cardmaster" on Google's consent screen, which is accepted.
+- [x] **1. Open the Cardmaster Firebase project to this game's origin.** Done 2026-10-14: the authorized domain and the OAuth client's JavaScript origin. ([gcloud-setup.md](accounts/gcloud-setup.md#plan-reuse-the-cardmaster-project)). Players will see "Cardmaster" on Google's consent screen, which is accepted.
   - [ ] Firebase → Authentication → Settings → Authorized domains: add `jhiggins-tech.github.io`.
   - [ ] Google Cloud → Google Auth Platform → Clients → Cardmaster's web client → Authorized JavaScript origins: add `https://jhiggins-tech.github.io`.
   - [ ] Google Cloud → Credentials → Cardmaster's browser API key: if it has website restrictions, add `https://jhiggins-tech.github.io/*`.
@@ -20,7 +20,7 @@ _Last updated: 2026-10-14._
 - [x] **2c. Let this session commit and push to `cardmaster`.** Given 2026-10-14. The [rules](accounts/database-rules.md) are on Cardmaster's branch `claude/gallant-keller-3qzp97`, and its CI passed.
 - [x] **2d. Merge [jhiggins-tech/cardmaster#11](https://github.com/jhiggins-tech/cardmaster/pull/11),** the rules pull request. Merged 2026-10-14, and Cardmaster's CI deployed the rules.
 - [x] **3. Sort the feature list.** Done 2026-10-14: the `moscow` column is filled in [feature-candidates.csv](roadmap/feature-candidates.csv).
-- [ ] **4. Sign in for real** once the sign-in build is live, to confirm it end to end. *Needs C1.*
+- [x] **4. Sign in for real.** Done 2026-10-14 on the live page, after adding the JavaScript origin to Cardmaster's OAuth client.
 - [ ] **5. Optional: play the untested co-op paths** in two visible windows: the host leaving mid-game, quick match, a mistyped code, a third player joining ([steps](netcode/sessions.md#testing-by-hand)). CI now checks the host leaving on every build (C3c), so three paths are left.
 - [x] **6. Answer the refactor plan's open points.** Done 2026-10-14 ([decisions](roadmap/refactor-plan.md#decisions-2026-10-14)): a friends leaderboard, branches keep deploying, two-player tests automated in CI, classic guns covered by the kits, uGUI and assembly definitions accepted.
 - [x] **7. Sign off the four design documents** in [docs/design](../design/README.md). All four signed off on 2026-10-14; player mechanics after one revision.
@@ -30,7 +30,7 @@ _Last updated: 2026-10-14._
 
 C2, the refactor, is done. C1's code is written and checked locally; it goes live with its first CI build.
 
-- [ ] **C1. "Sign in with Google" spike** ([plan](accounts/README.md)). *Code written 2026-10-14; waits for CI and owner 4.*
+- [x] **C1. "Sign in with Google" spike** ([plan](accounts/README.md)). *Live 2026-10-14, and the owner signed in.*
   - [x] Database rules for Cardmaster: a `pooketSlug` section in its rules file, with tests in its rules test suite ([database rules](accounts/database-rules.md)).
     - The player's record, as the [refactor plan](roadmap/refactor-plan.md#the-player-record-scoped-by-the-moscow-pass) scoped it, and the friends board. Only the player reads and writes their record; the shape is validated, progress only goes up, a save number refuses saves from a device that's behind, and nothing required can be deleted.
     - 30 of 30 rules tests pass, and all 32 deliberate weakenings were caught. Cardmaster's CI passed on the branch.
