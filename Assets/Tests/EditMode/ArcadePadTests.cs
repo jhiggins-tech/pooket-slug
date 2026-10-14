@@ -11,7 +11,7 @@ namespace PooketSlug.Tests
 
         ArcadePad m_Pad;
         readonly List<ArcadePad.Finger> m_Fingers = new List<ArcadePad.Finger>();
-        bool m_Pause, m_Tap;
+        bool m_Pause;
 
         [SetUp]
         public void SetUp()
@@ -26,7 +26,7 @@ namespace PooketSlug.Tests
             m_Fingers.Clear();
             m_Fingers.AddRange(fingers);
             var input = new SoldierInput();
-            m_Pad.Read(m_Fingers, ref input, out m_Pause, out m_Tap);
+            m_Pad.Read(m_Fingers, ref input, out m_Pause);
             return input;
         }
 
@@ -149,17 +149,18 @@ namespace PooketSlug.Tests
         }
 
         [Test]
-        public void WhileHiddenATouchIsATap()
+        public void WhileHiddenTouchesDoNothing()
         {
             m_Pad.Visible = false;
             m_Pad.PauseVisible = false;
-            SoldierInput input = Frame(Down(2, On(ArcadePad.Button.Fire)));
-            Assert.IsTrue(m_Tap);
+            SoldierInput input = Frame(Down(1, Thumb), Down(2, On(ArcadePad.Button.Fire)), Down(4, On(ArcadePad.Button.Pause)));
             Assert.IsFalse(input.Fire);
+            Assert.AreEqual(0f, input.MoveX);
+            Assert.IsFalse(m_Pause);
         }
 
         [Test]
-        public void TheTapThatStartsTheGameDoesntFire()
+        public void TheTouchThatStartsTheGameDoesntFire()
         {
             m_Pad.Visible = false;
             Frame(Down(2, On(ArcadePad.Button.Fire)));

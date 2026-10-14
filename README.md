@@ -15,7 +15,7 @@ A spike to test **[GameCI](https://game.ci)** on GitHub Actions. It builds a sma
 
 Controls: arrows/WASD move · Z/Space jump · X fire · C grenade · Up aim up · Down crouch (or aim down in the air) · Down+Jump drops through bridges · P pause · M mute · R restart. Gamepads work too. On a touch screen, the pad appears once you tap to start: the stick appears where your left thumb lands, FIRE fires while held, and **II** pauses.
 
-Co-op, from the title screen: **H** hosts a game and shows its room code (for example `ABCD-EU`, which is the session name plus the Photon region), **J** joins with a code, and **Q** quick-matches. Opening the page with `?room=ABCD-EU` fills in the code; on a phone, tap to join. Hosting and quick match need a keyboard until the menus are rebuilt. In co-op, press **Esc** (or **EXIT** on the pad) twice to leave. Keep the game's tab visible: browsers pause hidden tabs, which freezes that player and eventually drops them. To try it alone, use two side-by-side windows, not two tabs.
+Co-op opens once you've beaten Mission one solo, as the [design](docs/design/levels.md#what-the-player-sees-and-when) asks; until then the menus don't mention it. To test it sooner, add `?unlock=coop` to the address (for that visit only). Then, from the title screen: **CO-OP** (or **H**) hosts a game and shows its room code (for example `ABCD-EU`, which is the session name plus the Photon region), **J** joins with a code, and **Q** quick-matches. Opening the page with `?room=ABCD-EU` fills in the code: press **Enter** or **JOIN**. A friend who hasn't beaten Mission one is told co-op opens after it, and the mission starts. In co-op, press **Esc** (or **EXIT** on the pad) twice to leave. Keep the game's tab visible: browsers pause hidden tabs, which freezes that player and eventually drops them. To try it alone, use two side-by-side windows, not two tabs.
 
 ### How co-op works
 
@@ -65,9 +65,9 @@ Project layout:
 
 | Path | What |
 | --- | --- |
-| `Assets/Scripts/Game.cs` | Bootstrap, camera, state machine (title / playing / game over / victory), and the menus (IMGUI, for now) |
+| `Assets/Scripts/Game.cs` | Bootstrap, camera, and the game's flow (title, online menus, play, pause, game over, victory), which hands the views what to show |
 | `Assets/Scripts/Save/`, `Core/Profile.cs` | The player's profile (`Profile`, in Core and tested) and where it's kept (`IProfileStore`): this browser for now (`LocalProfileStore`), the cloud once sign-in arrives |
-| `Assets/Scripts/Ui/` | uGUI built in code: the HUD (`HudView`), including the touch pad, and the helpers that build it (`Ui`) |
+| `Assets/Scripts/Ui/` | uGUI built in code: the HUD (`HudView`) with the touch pad, the menus (`MenuView`), and the helpers that build them (`Ui`) |
 | `Assets/Scripts/World/` | `World` (the entities, their pools and the order things run in) and its systems: `ScrollCamera` (scrolling, shake, parallax), `Spawner`, `Combat` (hits, damage, explosions), `Scoring` and `NetSync` (the co-op session's side) |
 | `Assets/Scripts/Core/` | Pure logic in its own assembly (`PooketSlug.Core`): the ASCII tile map, tile physics (AABB vs grid, one-way bridges), pose packing, room codes, seeded randomness, log channels and tuning |
 | `Assets/Tests/EditMode/` | NUnit tests for `Core`. CI runs them before each build |

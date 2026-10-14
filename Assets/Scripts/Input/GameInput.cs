@@ -7,8 +7,6 @@ namespace PooketSlug
         public bool Host, Join, Quick, Back; // online co-op menu
         /// <summary>The touch pad's pause button. The game decides what it means (pause, or leave a shared game).</summary>
         public bool PadPause;
-        /// <summary>A touch while the pad is hidden: the menus take it as Enter.</summary>
-        public bool Tap;
 
         public void Add(in MenuInput other)
         {
@@ -21,7 +19,6 @@ namespace PooketSlug
             Quick |= other.Quick;
             Back |= other.Back;
             PadPause |= other.PadPause;
-            Tap |= other.Tap;
         }
     }
 

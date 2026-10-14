@@ -95,7 +95,7 @@ namespace PooketSlug
         }
     }
 
-    /// <summary>Touch screens: the arcade pad while playing, and taps for the menus.</summary>
+    /// <summary>Touch screens: the arcade pad while playing. The menus' buttons take taps themselves (uGUI).</summary>
     public sealed class TouchSource : IInputSource
     {
         readonly ArcadePad m_Pad;
@@ -128,9 +128,8 @@ namespace PooketSlug
                 m_Fingers.Add(new ArcadePad.Finger(t.fingerId, new Vector2(t.position.x, Screen.height - t.position.y) / scale, t.phase == TouchPhase.Began));
             }
 #endif
-            bool began = m_Pad.Read(m_Fingers, ref soldier, out bool pause, out bool tap);
+            bool began = m_Pad.Read(m_Fingers, ref soldier, out bool pause);
             menu.PadPause |= pause;
-            menu.Tap |= tap;
             return began;
         }
     }

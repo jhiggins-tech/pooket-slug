@@ -11,6 +11,8 @@ namespace PooketSlug
         public bool InGame;
         public bool Playing, Paused;
         public float StateTime;
+        /// <summary>A line under the start banner, or null.</summary>
+        public string Note;
         public int HiScore, Fps;
         public bool Muted;
         /// <summary>Co-op: the session, or null in a solo game.</summary>
@@ -33,7 +35,7 @@ namespace PooketSlug
         static readonly Color PadFill = new Color(0.08f, 0.06f, 0.1f, 0.35f), PadHeld = new Color(1f, 0.62f, 0.2f, 0.6f);
 
         readonly RectTransform m_Root, m_Top;
-        readonly Text m_Score, m_Arms, m_Hi, m_Time, m_BossName, m_Build, m_Fps, m_Banner;
+        readonly Text m_Score, m_Arms, m_Hi, m_Time, m_BossName, m_Build, m_Fps, m_Banner, m_Note;
         readonly Image m_BossBack, m_BossFill;
         readonly List<Image> m_Hearts = new List<Image>();
         readonly List<Text> m_Popups = new List<Text>();
@@ -76,6 +78,7 @@ namespace PooketSlug
             m_BossBack = Ui.Picture(m_Top, "Boss bar", null, Ui.TopCenter, Ui.TopCenter, new Vector2(0f, -21f), new Vector2(182f, 8f), new Color(0.1f, 0.05f, 0.08f, 0.85f));
             m_BossFill = Ui.Picture(m_BossBack.rectTransform, "Health", null, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(1f, 0f), new Vector2(180f, 6f), new Color(0.9f, 0.25f, 0.2f));
             m_Banner = Ui.Label(m_Root, "Banner", Ui.Middle, new Vector2(0f, 60f), 26, TextAnchor.MiddleCenter, Gold);
+            m_Note = Ui.Label(m_Root, "Note", Ui.Middle, new Vector2(0f, 32f), 12, TextAnchor.MiddleCenter, CoopBlue);
 
             m_Coop = Ui.Fill(m_Top, "Co-op");
             m_Waiting = Ui.Label(m_Coop, "Waiting", Ui.TopCenter, new Vector2(0f, -40f), 12, TextAnchor.UpperCenter, CoopBlue);
@@ -135,13 +138,17 @@ namespace PooketSlug
                 if (info.Net != null) Coop(w, cam, info);
             }
 
-            bool banner = info.Playing && (w.Victory || (info.StateTime < 2.2f && !info.Paused));
+            bool starting = info.StateTime < (info.Note != null ? 4f : 2.2f) && !info.Paused;
+            bool banner = info.Playing && (w.Victory || starting);
             Ui.Show(m_Banner, banner);
             if (banner)
             {
                 m_Banner.text = w.Victory ? "MISSION COMPLETE!" : "MISSION 1  START!";
                 m_Banner.fontSize = w.Victory ? 28 : 26;
             }
+            bool note = banner && !w.Victory && info.Note != null;
+            Ui.Show(m_Note, note);
+            if (note) m_Note.text = info.Note;
 
             Popups(w, cam);
             if (info.Fps != m_FpsShown || info.Muted != m_MutedShown)

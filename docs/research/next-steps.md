@@ -35,6 +35,6 @@ Later, and not blockers:
 
 ## Gameplay gaps
 
-- On a phone, the arcade pad plays and an invite link joins, but hosting and quick match need a keyboard until the menus move to uGUI (refactor plan step 14).
+- Typing a room code on a phone relies on Unity's WebGL keyboard support for uGUI's text box; an invite link avoids typing.
 - The automated play test covers the first seconds only. The later level and the tank boss have only had human playthroughs.
 - Co-op has no reconnect after a drop, and no message when a partner's tab is hidden ([hidden tabs](netcode/sessions.md#hidden-tabs)).

@@ -85,12 +85,11 @@ namespace PooketSlug
 
         /// <summary>
         /// Reads this frame's fingers and adds the pad's input. <paramref name="pausePressed"/>: the pause button
-        /// was touched. <paramref name="tapped"/>: a finger touched down while the pad was hidden, which the menus
-        /// treat like Enter. Returns true if any finger touched down.
+        /// was touched. Returns true if any finger touched down.
         /// </summary>
-        public bool Read(IReadOnlyList<Finger> fingers, ref SoldierInput input, out bool pausePressed, out bool tapped)
+        public bool Read(IReadOnlyList<Finger> fingers, ref SoldierInput input, out bool pausePressed)
         {
-            pausePressed = tapped = false;
+            pausePressed = false;
             bool began = false;
             for (int i = 0; i < ButtonCount; i++)
             {
@@ -110,7 +109,7 @@ namespace PooketSlug
                 if (f.Began)
                 {
                     began = true;
-                    m_Roles[f.Id] = Assign(f, ref pausePressed, ref tapped);
+                    m_Roles[f.Id] = Assign(f, ref pausePressed);
                 }
                 // A finger that was already down when the pad appeared has no role: it does nothing until it lifts.
                 if (!Visible || !m_Roles.TryGetValue(f.Id, out Role role)) continue;
@@ -131,18 +130,14 @@ namespace PooketSlug
             return began;
         }
 
-        Role Assign(in Finger f, ref bool pausePressed, ref bool tapped)
+        Role Assign(in Finger f, ref bool pausePressed)
         {
             if (PauseVisible && Within(Button.Pause, f.Pos))
             {
                 pausePressed = true;
                 return Role.Pause;
             }
-            if (!Visible)
-            {
-                tapped = true;
-                return Role.Ignore;
-            }
+            if (!Visible) return Role.Ignore; // a menu's button, say: the finger does nothing here until it lifts
             if (f.Pos.x >= Width * 0.5f) return Role.Buttons;
             if (StickActive) return Role.Ignore; // one thumb runs the stick
             m_StickFinger = f.Id;

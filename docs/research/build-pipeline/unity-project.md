@@ -57,8 +57,8 @@ The cost:
 | Package | Needed by |
 |---|---|
 | `com.unity.inputsystem` 1.20.0 | The input sources in `Assets/Scripts/Input/` (keyboard, gamepad and touch). Pinned to the version **bundled in the editor image** (`Editor/Data/Resources/PackageManager/Editor/`), so resolving packages needs no registry fetch |
-| `com.unity.ugui` 2.0.0 | The HUD, built in code ([`Assets/Scripts/Ui/`](../../../Assets/Scripts/Ui/)). It's a core package built into the editor, so it needs no registry fetch. It also turns on the Input System's UI support |
-| `com.unity.modules.audio`, `imgui`, `jsonserialize` | The game: procedural audio, the menus (still IMGUI), and `JsonUtility` for `pooket-net.json` |
+| `com.unity.ugui` 2.0.0 | The HUD and menus, built in code ([`Assets/Scripts/Ui/`](../../../Assets/Scripts/Ui/)). It's a core package built into the editor, so it needs no registry fetch. It also turns on the Input System's UI support, whose input module the menus' event system uses |
+| `com.unity.modules.audio`, `imgui`, `jsonserialize` | The game: procedural audio, uGUI's text input (it reads IMGUI's key events), and `JsonUtility` for `pooket-net.json` and the profile |
 | `com.unity.modules.physics`, `physics2d` | Fusion.Unity (`RunnerSimulatePhysics`, `Rigidbody2D` helpers). The game itself uses its own tile physics |
 | `com.unity.modules.ai` | Fusion.Unity and its editor (NavMesh helpers) |
 | `com.unity.modules.animation` | Fusion's editor scripts (`Animator` tooling) |
@@ -76,7 +76,7 @@ The cost:
   - FIRE (held), JUMP and SP sit under the right thumb. They answer near misses, and a thumb can slide from one to another.
   - **II** pauses a solo game. In co-op it reads **EXIT**, and two presses leave, like Esc.
   - It shows while playing once the screen has been touched, and hides when a key or gamepad button is pressed. A phone starts with touch hints (`Application.isMobilePlatform`).
-  - While it's hidden, a tap is the menus' Enter: start, retry, play again, and join from an invite link. Hosting, quick match and typing a code still need a keyboard, until the menus move to uGUI (refactor plan step 14).
+  - The menus are uGUI buttons, so taps work them directly. A finger that's still down when the pad appears (from the PLAY button, say) does nothing until it lifts.
   - It reads touches itself rather than using the Input System's on-screen controls. Those need uGUI's event system, and they give neither a stick that follows the thumb nor sliding between buttons.
   - It's drawn by the uGUI HUD (`HudView`).
 - **The page gives the canvas every touch:** `touch-action: none`, with no text selection or long-press menu. On a phone held sideways, the header and footer hide and the game fits the screen; held upright, the page asks to turn it.
@@ -101,6 +101,7 @@ The cost:
 
 ## Gotchas
 
-- **IMGUI's built-in font is missing glyphs.** `∞` and `→` rendered as blanks in the HUD, while `·` was fine. Only the real build showed this, so use ASCII or ship a font.
+- **Unity's built-in font is missing glyphs.** `∞` and `→` rendered as blanks in the old IMGUI HUD, while `·` was fine. The uGUI HUD uses the same built-in font (`LegacyRuntime.ttf`). Only the real build shows this, so use ASCII or ship a font.
+- **Keys belong to the game, not to uGUI.** The event system's navigation is off (`sendNavigationEvents = false`), so Enter never presses a button and its shortcut at once. Buttons answer clicks and taps; their keys, shown under them, go through `GameInput`.
 - **Fusion's installer changes settings on editor load.** It sets `PlayerSettings.runInBackground = true` and adds scripting defines for every build target. Both are expected ([SDK in CI](../netcode/sdk-in-ci.md#fusions-defines-and-the-il-weaver)).
 - **Keep code that must build without the SDK free of Fusion types.** The networking files are their own assembly, `PooketSlug.Net`, with the define constraint `FUSION2`. Everything else talks to [`NetContracts.cs`](../../../Assets/Scripts/Core/NetContracts.cs).

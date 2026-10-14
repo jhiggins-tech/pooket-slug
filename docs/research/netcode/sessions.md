@@ -113,9 +113,9 @@ Fusion and Photon log with their own prefixes, for example `[Fusion] StartGame F
 
 ## Testing by hand
 
-1. Open https://jhiggins-tech.github.io/pooket-slug/ in two windows side by side, or on two devices.
-2. Window A: press **H**. Note the room code at the top, for example `ABCD-EU`.
-3. Window B: press **J**, type the code, then **Enter**. Or open `…/pooket-slug/?room=ABCD-EU` and press **Enter**.
+1. Open https://jhiggins-tech.github.io/pooket-slug/?unlock=coop in two windows side by side, or on two devices. Co-op stays hidden until Mission one is beaten solo ([design](../../design/levels.md#what-the-player-sees-and-when)); `?unlock=coop` opens it for that visit without saving.
+2. Window A: press **H**, or **CO-OP** then **HOST A GAME**. Note the room code at the top, for example `ABCD-EU`.
+3. Window B: press **J**, type the code, then **Enter**. Or open `…/pooket-slug/?unlock=coop&room=ABCD-EU` and press **Enter** or **JOIN**. Without `unlock`, a player who hasn't beaten Mission one is told co-op opens after it, and the mission starts.
 4. Check:
    - red P1 and blue P2 soldiers
    - the same enemies on both screens

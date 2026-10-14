@@ -12,6 +12,13 @@ namespace PooketSlug
         public const string One = "mission-1";
     }
 
+    /// <summary>The ids of reveals: things the game shows once, when the player first meets them.</summary>
+    public static class Reveals
+    {
+        /// <summary>Co-op has opened (Mission one beaten solo).</summary>
+        public const string Coop = "coop";
+    }
+
     /// <summary>A mission's record at one setting.</summary>
     [Serializable]
     public struct MissionRecord

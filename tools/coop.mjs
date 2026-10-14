@@ -2,6 +2,7 @@
 //   code mode (default): A hosts (H), B opens the invite link ?room=CODE and presses Enter.
 //   quick mode:          both press Q (quick match).
 // Then both play for a while, A leaves (Esc Esc), and B should take over the shared world.
+// Both open the game with ?unlock=coop: a new browser hides co-op until Mission one is beaten solo.
 // It also counts the pickups the shared world gave out; that isn't a check, since the soldiers may not reach a crate.
 // Writes screenshots, console.log and result.json to <outdir>, and exits non-zero if any check fails.
 // CI runs it against each build (.github/workflows/webgl-pages.yml).
@@ -11,7 +12,8 @@ import fs from 'fs';
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PW_PATH || 'playwright');
 
-const [url, out, mode = 'code'] = process.argv.slice(2);
+const [base, out, mode = 'code'] = process.argv.slice(2);
+const url = base + (base.includes('?') ? '&' : '?') + 'unlock=coop';
 fs.mkdirSync(out, { recursive: true });
 const T0 = Date.now();
 const t = () => ((Date.now() - T0) / 1000).toFixed(1).padStart(6);
