@@ -112,7 +112,7 @@ namespace PooketSlug.EditorTools
             Directory.CreateDirectory(Path.GetDirectoryName(NetConfigPath));
             File.WriteAllText(NetConfigPath, JsonUtility.ToJson(new NetConfig.Data { appId = appId.Trim(), region = (region ?? "").Trim() }));
             AssetDatabase.Refresh(); // imports the new Resources folder and file
-            Console.WriteLine("[PooketSlug] Photon AppId baked in; quick match region: " + (string.IsNullOrEmpty(region) ? "best by ping" : region));
+            Console.WriteLine("[PooketSlug] Photon AppId baked in; region: " + (string.IsNullOrEmpty(region) ? NetConfig.DefaultRegion + " (the default)" : region));
         }
 
         /// <summary>Build-log diagnostics: is the Fusion SDK present, are its defines set, did its IL weaver compile?</summary>

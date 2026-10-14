@@ -53,7 +53,7 @@ C2, the refactor, is done. The repository variables (owner 2) start the rest of 
   - [x] Update [architecture](netcode/architecture.md) and the refactor candidates as items land.
 - [ ] **C3. Loose ends** (small; any time):
   - [ ] C3a. Make connection failures say *Couldn't reach Photon* instead of `DISCONNECTED (ERROR)` ([sessions](netcode/sessions.md#when-things-fail)).
-  - [ ] C3b. Fix the Photon region to **AU** (NET-05, from the MoSCoW pass), with four-letter room codes. It goes in `NetSession`, which the refactor's step 12 split out ([quick match](netcode/sessions.md#quick-match)). The CI co-op test reads the code from the log, so its pattern changes too.
+  - [x] C3b. Fix the Photon region to **AU** (NET-05, from the MoSCoW pass), with four-letter room codes. Done 2026-10-14 in `NetSession` and `InviteCode` ([regions and room codes](netcode/sessions.md#regions-and-room-codes)). Older `ABCD-EU` codes still parse, and the CI co-op test reads either form.
   - [x] C3c. Run the two-browser co-op test in CI after each deploy. Done 2026-10-14 as step 4 of the [refactor plan](roadmap/refactor-plan.md): it passed on its first run, host migration included ([test log](verification/test-log.md#part-2-photon-fusion-co-op)). Of owner 5's paths, it covers the host leaving.
 
 ## Done recently

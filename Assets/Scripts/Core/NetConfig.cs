@@ -15,13 +15,24 @@ namespace PooketSlug
         public sealed class Data
         {
             public string appId;
-            public string region; // fixed Photon region for quick match; empty = best region by ping
+            public string region; // the Photon region every game is in; empty = DefaultRegion
         }
 
         static Data s_Data;
 
+        /// <summary>The region every game is in unless the build names another: Australia (NET-05, the owner's call).</summary>
+        public const string DefaultRegion = "au";
+
         public static string AppId => Load().appId;
-        public static string Region => Load().region;
+        /// <summary>The Photon region every game is in: hosting, joining and quick match alike.</summary>
+        public static string Region
+        {
+            get
+            {
+                string region = Load().region?.Trim().ToLowerInvariant();
+                return string.IsNullOrEmpty(region) ? DefaultRegion : region;
+            }
+        }
         public static bool Configured => !string.IsNullOrEmpty(AppId);
 
         static Data Load()

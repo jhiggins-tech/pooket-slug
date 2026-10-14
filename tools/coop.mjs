@@ -79,10 +79,10 @@ try {
     checks.hostOnline = !!(await waitLog(A, new RegExp(TAG + ' Online '), 90000));
   } else {
     await A.page.keyboard.press('h');
-    const line = await waitLog(A, new RegExp(TAG + ' Online .*room ([A-Z0-9]+-[A-Z]+)'), 90000);
+    const line = await waitLog(A, new RegExp(TAG + ' Online .*room ([A-Z0-9]+(?:-[A-Z]+)?)'), 90000); // ABCD (older builds: ABCD-EU)
     if (!line) throw new Error('A never got a room code');
     checks.hostOnline = true;
-    const code = line.match(/room ([A-Z0-9]+-[A-Z]+)/)[1];
+    const code = line.match(/room ([A-Z0-9]+(?:-[A-Z]+)?)/)[1];
     console.log(`${t()} A hosts ${code}`);
     joinUrl = url + (url.includes('?') ? '&' : '?') + 'room=' + code;
   }

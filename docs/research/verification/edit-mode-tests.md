@@ -19,7 +19,7 @@ Core is also what the game and the netcode assembly (`PooketSlug.Net`) share: th
 | `Missions`, with `MissionDef` | The mission list: each mission's id (in saves), net id (on the wire), name and map | Mission one's ids never change, ids are unique, lookups. Every mission starts on the ground, ends at the flag, has one boss, and has few enough pickups to fit the shared world's table at once (they never despawn) |
 | `TilePhysics` | Moves a box through the tile grid, with one-way bridges | Landing, falling, walls on both sides, the level's edges, ceilings, and bridges from above, below and inside. Also dropping through, and standing on a bridge |
 | `AvatarPose` | A soldier's pose, packed into the int the network sends | Every pose survives packing, and the packed form fits in 10 bits |
-| `InviteCode` | Room codes such as `ABCD-EU` | New names (no I or O), parsing, formatting, the round trip |
+| `InviteCode` | Four-letter room codes such as `ABCD` | New names (no I or O), parsing (an older code's region is ignored), a new name being its own code |
 | `NetIds` | Network ids: a level spawn keeps its index, and things spawned mid-game count up from a shared counter | Level spawns, counting up, a new authority carrying on, never going backwards, running out, the 16-bit limit |
 | `Profile` | The player's saved record: best score and clears per mission and setting, the co-op unlock, reveals seen | Best scores only rise, clears count wins, settings stay apart, only a solo win of Mission one opens co-op, reveals play once, merging takes the better of each without adding clears up, the first visit is stamped once, damaged saves are repaired |
 | `SoldierInput` | What the local soldier is told to do in a frame. Every input source adds to it | The stick thresholds (shared by gamepads and the touch pad), diagonals, sources adding up |
@@ -29,7 +29,7 @@ Core is also what the game and the netcode assembly (`PooketSlug.Net`) share: th
 | `Log` | Log channels and the `?log=` spec | Parsing, configuring channels, levels |
 | `Tuning` | The feel every soldier shares, the physics, the camera and co-op timings, as constants | Nothing directly. The physics tests use the real soldier's size from `Content` |
 
-The tests are in [`Assets/Tests/EditMode`](../../../Assets/Tests/EditMode): 13 fixtures, 177 test cases, under a tenth of a second.
+The tests are in [`Assets/Tests/EditMode`](../../../Assets/Tests/EditMode): 13 fixtures, 174 test cases, under a tenth of a second.
 
 ## In CI
 

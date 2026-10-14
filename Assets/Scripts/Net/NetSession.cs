@@ -51,22 +51,22 @@ namespace PooketSlug
 
         // ------------------------------------------------------------------ lobby
 
-        public void Host() => Connect(InviteCode.NewName(s_CodeRng), null, false, false);
+        public void Host() => Connect(InviteCode.NewName(s_CodeRng), false, false);
 
-        /// <summary>Joins by invite code: "ABCD-EU" is session "ABCD" in Photon region "eu".</summary>
+        /// <summary>Joins by invite code: "ABCD" is session "ABCD".</summary>
         public void Join(string code)
         {
             if (State == NetState.Connecting || State == NetState.Online) return;
-            if (!InviteCode.TryParse(code, out string name, out string region))
+            if (!InviteCode.TryParse(code, out string name))
             {
-                Fail("TYPE A ROOM CODE LIKE ABCD-EU");
+                Fail("TYPE A ROOM CODE LIKE ABCD");
                 return;
             }
-            Connect(name, region, false, true);
+            Connect(name, false, true);
         }
 
-        /// <summary>Joins any open public game (or opens one) in the configured region, or the best by ping.</summary>
-        public void QuickMatch() => Connect(null, string.IsNullOrEmpty(NetConfig.Region) ? null : NetConfig.Region, true, false);
+        /// <summary>Joins any open public game, or opens one.</summary>
+        public void QuickMatch() => Connect(null, true, false);
 
         public void Leave()
         {
@@ -82,7 +82,7 @@ namespace PooketSlug
             else Destroy(runner.gameObject);
         }
 
-        async void Connect(string sessionName, string region, bool visible, bool joining)
+        async void Connect(string sessionName, bool visible, bool joining)
         {
             if (State == NetState.Connecting || State == NetState.Online) return;
             if (!NetConfig.Configured)
@@ -108,7 +108,7 @@ namespace PooketSlug
                 : new FusionAppSettings();
             settings.AppIdFusion = NetConfig.AppId;
             settings.AppVersion = Application.version; // only identical builds meet
-            settings.FixedRegion = region ?? "";       // empty = best region by ping
+            settings.FixedRegion = NetConfig.Region;   // every game is in one region, so a code is just a name
             settings.UseNameServer = true;
 #if UNITY_WEBGL && !UNITY_EDITOR
             settings.Protocol = Photon.Client.ConnectionProtocol.WebSocketSecure; // browsers only have secure WebSockets
@@ -149,12 +149,12 @@ namespace PooketSlug
                 // Shared Mode creates a session that doesn't exist yet: being first in means nobody is hosting that code.
                 Log.Net.Warn($"No game called {sessionName} in region {runner.SessionInfo.Region}; leaving");
                 Leave();
-                Fail("NOBODY IS HOSTING " + InviteCode.Format(sessionName, region));
+                Fail("NOBODY IS HOSTING " + sessionName);
                 return;
             }
 
             string sessionRegion = runner.SessionInfo.Region;
-            RoomCode = visible ? null : InviteCode.Format(runner.SessionInfo.Name, sessionRegion);
+            RoomCode = visible ? null : runner.SessionInfo.Name;
             State = NetState.Online;
             Status = "";
             Log.Net.Info($"Online in region {sessionRegion}: {(RoomCode != null ? "room " + RoomCode : "quick match " + runner.SessionInfo.Name)}, " +
@@ -193,7 +193,7 @@ namespace PooketSlug
                 case ShutdownReason.GameIsFull: return "THAT GAME IS FULL";
                 case ShutdownReason.GameClosed: return "THAT GAME IS CLOSED";
                 case ShutdownReason.MaxCcuReached: return "PHOTON IS FULL RIGHT NOW, TRY LATER";
-                case ShutdownReason.InvalidRegion: return "UNKNOWN REGION IN THAT CODE";
+                case ShutdownReason.InvalidRegion: return "UNKNOWN PHOTON REGION IN THIS BUILD";
                 case ShutdownReason.InvalidAuthentication:
                 case ShutdownReason.CustomAuthenticationFailed: return "PHOTON REJECTED THIS BUILD'S APP ID";
                 case ShutdownReason.PhotonCloudTimeout:

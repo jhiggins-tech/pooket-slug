@@ -29,17 +29,16 @@ namespace PooketSlug.Tests
             Assert.AreEqual("RHVX", InviteCode.NewName(new Rng(7)));
         }
 
-        [TestCase("ABCD-EU", "ABCD", "eu")]
-        [TestCase("abcd-eu", "ABCD", "eu")]
-        [TestCase("  WXYZ-AU  ", "WXYZ", "au")]
-        [TestCase("ABCD - US", "ABCD", "us")]
-        [TestCase("ABCD", "ABCD", null)]
-        [TestCase("ABCD-", "ABCD", null)]
-        public void TryParseSplitsTheNameAndRegion(string code, string name, string region)
+        [TestCase("ABCD", "ABCD")]
+        [TestCase("abcd", "ABCD")]
+        [TestCase("  WXYZ  ", "WXYZ")]
+        [TestCase("ABCD-EU", "ABCD")]
+        [TestCase("abcd - us", "ABCD")]
+        [TestCase("ABCD-", "ABCD")]
+        public void TryParseReadsTheNameAndIgnoresAnOldRegion(string code, string name)
         {
-            Assert.IsTrue(InviteCode.TryParse(code, out string parsedName, out string parsedRegion));
-            Assert.AreEqual(name, parsedName);
-            Assert.AreEqual(region, parsedRegion);
+            Assert.IsTrue(InviteCode.TryParse(code, out string parsed));
+            Assert.AreEqual(name, parsed);
         }
 
         [TestCase((string)null)]
@@ -48,24 +47,16 @@ namespace PooketSlug.Tests
         [TestCase("-EU")]
         public void TryParseNeedsAName(string code)
         {
-            Assert.IsFalse(InviteCode.TryParse(code, out _, out _));
-        }
-
-        [TestCase("ABCD", "eu", "ABCD-EU")]
-        [TestCase("ABCD", null, "ABCD")]
-        [TestCase("ABCD", "", "ABCD")]
-        public void FormatJoinsTheNameAndRegion(string name, string region, string expected)
-        {
-            Assert.AreEqual(expected, InviteCode.Format(name, region));
+            Assert.IsFalse(InviteCode.TryParse(code, out _));
         }
 
         [Test]
-        public void AFormattedCodeParsesBack()
+        public void ANewNameIsItsOwnCode()
         {
-            string code = InviteCode.Format(InviteCode.NewName(new Rng(42)), "au");
-            Assert.AreEqual("AEDJ-AU", code);
-            Assert.IsTrue(InviteCode.TryParse(code, out string name, out string region));
-            Assert.AreEqual(code, InviteCode.Format(name, region));
+            string name = InviteCode.NewName(new Rng(42));
+            Assert.AreEqual("AEDJ", name);
+            Assert.IsTrue(InviteCode.TryParse(name, out string parsed));
+            Assert.AreEqual(name, parsed);
         }
     }
 }

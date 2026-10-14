@@ -100,8 +100,8 @@ namespace PooketSlug
             // join with a code
             m_Join = Ui.Fill(m_Root, "Join");
             Line(m_Join, 70f, 22, Orange).text = "JOIN A FRIEND'S GAME";
-            Line(m_Join, 42f, 10, Color.white).text = "TYPE THE ROOM CODE FROM THEIR SCREEN, E.G. ABCD-EU";
-            m_Code = Ui.TextBox(m_Join, new Vector2(0f, 9f), new Vector2(180f, 30f), 12, CodeChar, "ABCD-EU");
+            Line(m_Join, 42f, 10, Color.white).text = "TYPE THE ROOM CODE FROM THEIR SCREEN, E.G. ABCD";
+            m_Code = Ui.TextBox(m_Join, new Vector2(0f, 9f), new Vector2(180f, 30f), 12, CodeChar, "ABCD");
             Ui.Button(m_Join, "JOIN", new Vector2(-62f, -38f), Narrow, () => Click(MenuAction.Submit), out m_SubmitKey);
             Ui.Button(m_Join, "BACK", new Vector2(62f, -38f), Narrow, () => Click(MenuAction.Back), out m_JoinBackKey);
 

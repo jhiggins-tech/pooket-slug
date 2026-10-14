@@ -8,7 +8,7 @@ Up: [Research index](../AGENTS.md)
 
 ## What exists
 
-- **Joining a game:** host a private game with a room code like `ABCD-EU`, join by code or by invite link `?room=ABCD-EU`, or quick-match into any open game.
+- **Joining a game:** host a private game with a four-letter room code like `ABCD`, join by code or by invite link `?room=ABCD`, or quick-match into any open game. Every game is in Photon's Australian region.
 - **Two soldiers, red P1 and blue P2,** on one shared, forward-only scrolling screen. The camera can't leave the trailing soldier behind.
 - **A shared world:** the same enemies, boss, crates and score for both players. Hits, damage and crate pickups are arbitrated.
 - **Players coming and going:** a partner can drop in mid-mission, and a fallen soldier respawns after 2.5 s (there's no game over). If the host leaves, the other player inherits the world. Restarting after victory restarts both players.
@@ -41,7 +41,7 @@ Up: [Research index](../AGENTS.md)
 | Each client simulates its own soldier; the master client runs the world | No input lag for your own soldier; one authority for enemies and score; survives the host leaving | [Architecture](architecture.md#authority-model) |
 | The SDK lives in a private release, fetched by CI | Photon's license forbids redistributing it | [SDK in CI](sdk-in-ci.md) |
 | Network objects built in code, not prefabs | Keeps the project code-only | [Architecture](architecture.md#network-objects-without-prefabs) |
-| Room code = session name + region | Photon sessions exist per region | [Sessions](sessions.md#room-codes) |
+| One region (Australia); a room code is the four-letter session name | Photon sessions exist per region, and the owner chose AU (NET-05) | [Sessions](sessions.md#regions-and-room-codes) |
 | Gameplay talks to interfaces, and the Fusion code is its own assembly that only compiles with the SDK | The game builds without the private SDK, and the compiler keeps game code off Fusion | [Architecture](architecture.md#the-boundary-between-game-and-netcode) |
 
 ## Documents

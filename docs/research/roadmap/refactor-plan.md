@@ -52,7 +52,7 @@ The work comes in four phases, each done in small commits. Each phase ends with 
 
     With the region fixed, room codes can drop their region suffix and be just four letters.
 
-    **Done** 2026-10-14 as a split: `NetSession` connects and `NetReplication` shares. The lobby features (the AU region, room browser, ready-up, spectators, reconnecting) build on it later; the region is [C3b](../todo.md).
+    **Done** 2026-10-14 as a split: `NetSession` connects and `NetReplication` shares. The lobby features (room browser, ready-up, spectators, reconnecting) build on it later. The AU region and four-letter codes followed as [C3b](../todo.md), on 2026-10-14.
 
 **Phase 4: front end and platform** (each step is medium)
 

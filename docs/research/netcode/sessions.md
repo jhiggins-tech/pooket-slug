@@ -11,7 +11,7 @@ Up: [Netcode](README.md)
 | Screen | Keys | What happens |
 |---|---|---|
 | Title | **Enter / X** play solo · **H** host · **J** join with a code · **Q** quick match | The online line only appears when the build has the SDK *and* an AppId. Otherwise it reads *Online co-op is off in this build* |
-| Join box | Type the code · **Enter** join · **Esc** back | Opens prefilled when the page URL has `?room=ABCD-EU` |
+| Join box | Type the code · **Enter** join · **Esc** back | Opens prefilled when the page URL has `?room=ABCD` |
 | Connecting | **Esc** cancel | Shows the session's status text. On failure, back to the title with a red notice for 8 s |
 | Playing (co-op) | **Esc** twice within 2 s to leave | The bottom line shows the room code, players (n/2) and ping. While alone it shows *Waiting for a partner*, the code and an invite link |
 | Mission complete | **Enter** play again · **Esc** leave | Either player's Enter restarts both |
@@ -37,25 +37,25 @@ runner.StartGame(new StartGameArgs {
 - **On success,** the client spawns its `PlayerNet`. The master client spawns `WorldNet` once.
 - **The game starts playing when `INetSession.Ready` is true:** online, `WorldNet` present, and our own `PlayerNet` spawned.
 
-## Room codes
+## Regions and room codes
 
-- **Hosting picks a 4-letter session name** from `ABCDEFGHJKLMNPQRSTUVWXYZ` (no I or O) and connects to the best region by ping. [`InviteCode`](../../../Assets/Scripts/Core/InviteCode.cs) makes, parses and formats the codes, and has [tests](../verification/edit-mode-tests.md).
-- **The displayed code is `NAME-REGION`,** for example `ABCD-EU`, using `runner.SessionInfo.Region` after connecting.
-- **Joining splits the code.** `ABCD-EU` → session `ABCD` with `FixedRegion = "eu"`. A code without a region falls back to the best region.
-- **Why the region is in the code:** Photon sessions exist per region. A friend whose best region differs would otherwise never find the room.
+- **Every game is in one Photon region: Australia (`au`),** the owner's choice (NET-05). Hosting, joining and quick match all set `FixedRegion` to `NetConfig.Region`. A build can name another region with `-photonRegion` (`pooket-net.json`); the workflow doesn't pass one.
+- **Photon sessions exist per region,** so a fixed region is what lets a code be just a name: everyone looks in the same place.
+- **Hosting picks a 4-letter session name** from `ABCDEFGHJKLMNPQRSTUVWXYZ` (no I or O), and that name is the code, for example `ABCD`. [`InviteCode`](../../../Assets/Scripts/Core/InviteCode.cs) makes and parses the codes, and has [tests](../verification/edit-mode-tests.md).
+- **Older codes still parse.** Until 2026-10-14 each code carried its region, as in `ABCD-EU`; the suffix is now ignored.
+- **Players far from Australia get more lag.** That's the cost of one region.
 - **The invite link is the page URL plus `?room=CODE`.** The game reads it from `Application.absoluteURL`, so opening the link prefills the join box.
 
 ## The create-or-join trap
 
 - **Shared Mode treats a session name as create-or-join.** A mistyped code doesn't fail: it creates a new, empty room, and you sit in it alone.
-- **The fix is a check after joining by code.** If this client came in as the session's master client, nobody was hosting that code. It leaves and shows *Nobody is hosting ABCD-EU*.
+- **The fix is a check after joining by code.** If this client came in as the session's master client, nobody was hosting that code. It leaves and shows *Nobody is hosting ABCD*.
 - The same check would misfire if the host left in the instant before you joined. That's acceptable.
 
 ## Quick match
 
 - `SessionName = null`, `IsVisible = true`: Photon joins a random open visible session or creates one.
-- **The region comes from the build's config** (`-photonRegion` → `pooket-net.json`), or the best region by ping if that's empty.
-- **Two quick-matchers in different best regions won't meet.** Setting `PHOTON_REGION`, fed into `-photonRegion`, would fix that for a launch audience. The workflow doesn't pass it today.
+- **Everyone quick-matches in the same region,** so any two players can meet.
 
 ## Build versions
 
@@ -76,7 +76,7 @@ runner.StartGame(new StartGameArgs {
 | `GameNotFound` | ROOM NOT FOUND |
 | `GameIsFull` / `GameClosed` | THAT GAME IS FULL / CLOSED |
 | `MaxCcuReached` | PHOTON IS FULL RIGHT NOW, TRY LATER (the free plan's 20 CCU cap) |
-| `InvalidRegion` | UNKNOWN REGION IN THAT CODE |
+| `InvalidRegion` | UNKNOWN PHOTON REGION IN THIS BUILD |
 | `InvalidAuthentication`, `CustomAuthenticationFailed` | PHOTON REJECTED THIS BUILD'S APP ID |
 | timeouts | CONNECTION TIMED OUT |
 | anything else | DISCONNECTED (REASON) |
@@ -89,11 +89,11 @@ runner.StartGame(new StartGameArgs {
 Open the browser's developer console. Lines starting with `[PooketSlug/Net]` trace the session:
 
 ```text
-[PooketSlug/Net] Online in region eu: room ABCD-EU, 1/2 players, we are [Player:1] (master client)
+[PooketSlug/Net] Online in region au: room ABCD, 1/2 players, we are [Player:1] (master client)
 [PooketSlug/Net] This client now runs the shared world
 [PooketSlug/Net] [Player:2] joined
 [PooketSlug/Net] [Player:2] left
-[PooketSlug/Net] No game called ABCD in region eu; leaving
+[PooketSlug/Net] No game called ABCD in region au; leaving
 [PooketSlug/Net] Couldn't go online: <ShutdownReason>
 [PooketSlug/Net] Session ended: <ShutdownReason>
 [PooketSlug/Net] Disconnected from Photon: <NetDisconnectReason>
@@ -114,8 +114,8 @@ Fusion and Photon log with their own prefixes, for example `[Fusion] StartGame F
 ## Testing by hand
 
 1. Open https://jhiggins-tech.github.io/pooket-slug/?unlock=coop in two windows side by side, or on two devices. Co-op stays hidden until Mission one is beaten solo ([design](../../design/levels.md#what-the-player-sees-and-when)); `?unlock=coop` opens it for that visit without saving.
-2. Window A: press **H**, or **CO-OP** then **HOST A GAME**. Note the room code at the top, for example `ABCD-EU`.
-3. Window B: press **J**, type the code, then **Enter**. Or open `…/pooket-slug/?unlock=coop&room=ABCD-EU` and press **Enter** or **JOIN**. Without `unlock`, a player who hasn't beaten Mission one is told co-op opens after it, and the mission starts.
+2. Window A: press **H**, or **CO-OP** then **HOST A GAME**. Note the room code at the top, for example `ABCD`.
+3. Window B: press **J**, type the code, then **Enter**. Or open `…/pooket-slug/?unlock=coop&room=ABCD` and press **Enter** or **JOIN**. Without `unlock`, a player who hasn't beaten Mission one is told co-op opens after it, and the mission starts.
 4. Check:
    - red P1 and blue P2 soldiers
    - the same enemies on both screens
@@ -123,6 +123,6 @@ Fusion and Photon log with their own prefixes, for example `[Fusion] StartGame F
    - the screen scrolls for both, and won't leave the trailing soldier behind
    - a death respawns after about 2.5 s
 5. In A, press **Esc** twice. B should continue alone with *Waiting for a partner*, and log `This client now runs the shared world`.
-6. Quick match: press **Q** in both windows. Both must have the same best region.
+6. Quick match: press **Q** in both windows.
 
 The automated version is the [two-browser test](../verification/browser-tests.md#two-browser-co-op-test). It needs a network that allows WebSockets.

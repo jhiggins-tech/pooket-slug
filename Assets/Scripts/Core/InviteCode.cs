@@ -1,8 +1,9 @@
 namespace PooketSlug
 {
     /// <summary>
-    /// Room invite codes. "ABCD-EU" is session "ABCD" in Photon region "eu". A host gets a random name, and
-    /// players type the code or open an invite link with <c>?room=ABCD-EU</c>.
+    /// Room invite codes: four letters, such as "ABCD", the session's name. Every game is in one Photon region
+    /// (<see cref="NetConfig.Region"/>), so the code needs nothing else. A host gets a random name, and players type
+    /// the code or open an invite link with <c>?room=ABCD</c>.
     /// </summary>
     public static class InviteCode
     {
@@ -19,20 +20,13 @@ namespace PooketSlug
         }
 
         /// <summary>
-        /// Splits a typed code into its session name (upper case) and region (lower case, or null when the
-        /// code has none, which means the best region by ping). False when there's no name.
+        /// The session name in a typed code, in upper case. False when there's none. Older builds' codes carried a
+        /// region ("ABCD-EU"); it's ignored, since every game is now in one region.
         /// </summary>
-        public static bool TryParse(string code, out string name, out string region)
+        public static bool TryParse(string code, out string name)
         {
-            string[] parts = (code ?? "").Trim().ToUpperInvariant().Split('-');
-            name = parts[0].Trim();
-            region = parts.Length > 1 ? parts[1].Trim().ToLowerInvariant() : null;
-            if (region == "") region = null;
+            name = (code ?? "").Trim().ToUpperInvariant().Split('-')[0].Trim();
             return name.Length > 0;
         }
-
-        /// <summary>The code players share: the name, then the region in capitals if there is one.</summary>
-        public static string Format(string name, string region) =>
-            string.IsNullOrEmpty(region) ? name : name + "-" + region.ToUpperInvariant();
     }
 }

@@ -38,7 +38,7 @@ Up: [Research index](AGENTS.md)
 
   → [authority model](netcode/architecture.md#authority-model)
 - **Keep gameplay SDK-agnostic.** Interfaces, plus the Fusion code in its own assembly that only compiles with the SDK, mean the game builds without the private SDK. → [boundary](netcode/architecture.md#the-boundary-between-game-and-netcode)
-- **Room codes must carry the region,** because sessions are per region. **A mistyped code silently creates an empty room** in Shared Mode, so check for it. → [sessions](netcode/sessions.md#room-codes)
+- **Sessions are per region, so either fix the region or put it in the room code.** We first put it in the code (`ABCD-EU`), then fixed every game to Australia, which made codes four letters. **A mistyped code silently creates an empty room** in Shared Mode, so check for it. → [sessions](netcode/sessions.md#regions-and-room-codes)
 - **Set `AppVersion` to the build version.** Mismatched builds never meet, which is also why doc-only pushes shouldn't redeploy. → [build versions](netcode/sessions.md#build-versions)
 - **Browsers pause hidden tabs,** which freezes a co-op player. Test in two visible windows. → [hidden tabs](netcode/sessions.md#hidden-tabs)
 - **Fusion costs about 3.2 MB of download and about a minute of build time.** → [numbers](build-pipeline/numbers.md)

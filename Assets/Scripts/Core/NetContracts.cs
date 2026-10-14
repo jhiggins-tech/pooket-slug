@@ -25,7 +25,7 @@ namespace PooketSlug
         NetState State { get; }
         /// <summary>What is happening, or why it failed, in HUD-ready words.</summary>
         string Status { get; }
-        /// <summary>Invite code ("ABCD-EU"), or null for quick match.</summary>
+        /// <summary>Invite code ("ABCD"), or null for quick match.</summary>
         string RoomCode { get; }
         /// <summary>Connected, our soldier and the shared world exist: a co-op world can be built.</summary>
         bool Ready { get; }
