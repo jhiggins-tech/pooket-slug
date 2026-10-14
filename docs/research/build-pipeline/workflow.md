@@ -89,6 +89,17 @@ It takes 1 to 2 s. Why it works this way, and how to upgrade the SDK: [SDK in CI
 
 Writes the commit, Unity version, build size and live URL to the job summary.
 
+## The two-player co-op test job
+
+A second job, `coop-test`, runs after the build on every push. It tests co-op on the exact build just made:
+1. **It downloads the build artifact** and serves it on the runner with `python3 -m http.server`, so it doesn't wait for GitHub Pages to update.
+2. **It installs Playwright 1.56.1 and Chromium.**
+3. **It runs [`tools/coop.mjs`](../../../tools/coop.mjs)** in two separate headless Chromium instances. A hosts, B joins with the invite link, both play, then A leaves and B must take over the shared world ([details](../verification/browser-tests.md#two-browser-co-op-test)). GitHub's runners can open the WebSockets Photon needs; the cloud sandbox can't.
+4. **The job summary lists each check.** The `coop-test` artifact keeps both players' screenshots and console logs, even when the test fails.
+
+- **It runs after the deploy, not before,** so a failure doesn't hold back the live build. It marks the push red instead.
+- **Each run briefly uses two of the free Photon plan's 20 concurrent users.**
+
 ## Action versions
 
 - **`unity-builder` v4 or v6:**
@@ -96,7 +107,7 @@ Writes the commit, Unity version, build size and live URL to the job summary.
   - v4.8.x is the long-standing implementation on Node 20, and still gets backports.
   - We use v4. It logs a harmless "Node.js 20 is deprecated … forced to run on Node.js 24" warning.
   - Revisit v6 after a few point releases.
-- **Node 24 majors:** `actions/cache@v5` and `actions/upload-artifact@v6` are already on Node 24.
+- **Node 24 majors:** `actions/cache@v5`, `actions/upload-artifact@v6`, `actions/download-artifact@v8` and `actions/setup-node@v7` are already on Node 24.
 - **Third-party actions are pinned by tag, not SHA.** See [next steps](../next-steps.md).
 
 ## Reading CI logs

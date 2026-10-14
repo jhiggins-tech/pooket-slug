@@ -29,7 +29,7 @@ Up: [Verification](README.md)
 | 08:08 | Deployed build still plays solo | smoke.mjs | ✅ The title shows *Online co-op is off (no Photon AppId)* as designed |
 | 08:08–08:17 | Workflow without the warm-up step | Run 38533066347, attempt 1 | ✅ (`-photonAppId` empty, so co-op off) |
 | 08:23–08:30 | Build with `PHOTON_APP_ID` | Run 38533066347, attempt 2 | ✅ `Photon AppId baked in` |
-| 08:31 | Two-browser co-op test | [coop.mjs](tools/coop.mjs) from the cloud sandbox | ⚠️ Blocked by the sandbox proxy (WebSocket upgrade → 502). The online menu, template registration, runner start-up and graceful failure were all verified ([detail](browser-tests.md#the-sandboxs-limits)) |
+| 08:31 | Two-browser co-op test | [coop.mjs](../../../tools/coop.mjs) from the cloud sandbox | ⚠️ Blocked by the sandbox proxy (WebSocket upgrade → 502). The online menu, template registration, runner start-up and graceful failure were all verified ([detail](browser-tests.md#the-sandboxs-limits)) |
 | ~08:45 | **Live two-player session** on build `0.2.0+791a155` | The repo owner, on a normal network | ✅ "tested online, v happy with that!" |
 
 ## Part 3: Sign-in

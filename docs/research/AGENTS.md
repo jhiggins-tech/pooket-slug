@@ -45,7 +45,7 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
   - [fusion-weaver.md](verification/fusion-weaver.md): running Fusion's IL weaver outside Unity.
   - [browser-tests.md](verification/browser-tests.md): Playwright smoke and two-browser co-op tests, and the sandbox's network limits.
   - [test-log.md](verification/test-log.md): what was tested, when, how, and the result.
-  - [tools/](verification/tools/README.md): the scripts (`extract-unity.sh`, `compile_unity.py`, `weave.sh`, `smoke.mjs`, `coop.mjs`, …).
+  - [tools/](verification/tools/README.md): the scripts (`extract-unity.sh`, `compile_unity.py`, `weave.sh`, `smoke.mjs`, …). The two-player test, `tools/coop.mjs`, runs in CI.
 - [accounts/](accounts/README.md): the "Sign in with Google" spike: Google's button plus Firebase over REST (in the shared Cardmaster project) to keep stats and progression per player, with no server.
   - [gcloud-setup.md](accounts/gcloud-setup.md): the console changes, the values to hand back, the trade-offs of sharing, and the separate-project alternative.
   - [database-rules.md](accounts/database-rules.md): this game's section of the shared database rules: the player record, how the game writes it, the tests, and running them in the sandbox.
