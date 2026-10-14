@@ -2,7 +2,7 @@
 
 This game's section of the shared Realtime Database rules: each player's record, a friends leaderboard, how the game should write them, and how the rules are tested.
 
-**Status, 2026-10-14:** committed to Cardmaster with the owner's go-ahead, on its branch [`claude/gallant-keller-3qzp97`](https://github.com/jhiggins-tech/cardmaster/tree/claude/gallant-keller-3qzp97) (`121c939`). Cardmaster's CI passed on it: its build, and its rules, hosting and sign-in tests. It deploys only from `main`, so **the rules go live when that branch is merged into Cardmaster's `main`.** From then on, Cardmaster's `firebase/database.rules.json` is the source of truth.
+**Status, 2026-10-14:** committed to Cardmaster with the owner's go-ahead, on its branch [`claude/gallant-keller-3qzp97`](https://github.com/jhiggins-tech/cardmaster/tree/claude/gallant-keller-3qzp97) (`121c939`). Cardmaster's CI passed on it: its build, and its rules, hosting and sign-in tests. It deploys only from `main`, so **the rules go live when [jhiggins-tech/cardmaster#11](https://github.com/jhiggins-tech/cardmaster/pull/11), opened at the owner's request, is merged.** From then on, Cardmaster's `firebase/database.rules.json` is the source of truth.
 
 **Read this when** you're writing the game's save code, changing what it stores, or reviewing the rules pull request.
 
