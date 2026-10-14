@@ -101,6 +101,7 @@ Open the browser's developer console. Lines starting with `[PooketSlug/Net]` tra
 
 - **Channels:** `Net` for the session, `Game` and `Audio` for the rest ([`Log.cs`](../../../Assets/Scripts/Core/Log.cs)). Builds before 2026-10-14 printed a plain `[PooketSlug]` prefix.
 - **Turning them up or down:** add `?log=net:debug` to the page address, or `?log=all:warn` for quiet. The levels are `debug`, `info` (the default), `warn`, `error` and `off`.
+- **`?log=game:debug` also reports the entity pools** each time one's use doubles, from 64: `[PooketSlug/Game] Projectile pool: 128 used, 11 made` ([`EntityPool.cs`](../../../Assets/Scripts/EntityPool.cs)).
 
 Fusion and Photon log with their own prefixes, for example `[Fusion] StartGame Failed: …`, and WebSocket errors come from the browser.
 

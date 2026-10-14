@@ -32,6 +32,11 @@ namespace PooketSlug
         public readonly List<PopupText> Popups = new List<PopupText>();
         readonly List<Entity> m_Props = new List<Entity>();
 
+        // Bullets, explosions and debris are reused rather than made and destroyed each time (see EntityPool).
+        readonly EntityPool<Projectile> m_ProjectilePool;
+        readonly EntityPool<Effect> m_EffectPool;
+        readonly EntityPool<Particle> m_ParticlePool;
+
         // co-op bookkeeping
         readonly List<NetEnemyState> m_Snapshot = new List<NetEnemyState>();
         readonly HashSet<int> m_SeenIds = new HashSet<int>();
@@ -54,6 +59,9 @@ namespace PooketSlug
             Net = net;
             Round = net?.Round ?? 0;
             Root = new GameObject("World").transform;
+            m_ProjectilePool = new EntityPool<Projectile>(() => new Projectile(this), 128);
+            m_EffectPool = new EntityPool<Effect>(() => new Effect(this), 64);
+            m_ParticlePool = new EntityPool<Particle>(() => new Particle(this), 256);
             Level = new Level();
             LevelView.Create(Level, Root);
             BuildBackground();
@@ -208,7 +216,7 @@ namespace PooketSlug
 
         public void OnRemoteShot(ProjectileKind kind, Vector2 origin, Vector2 vel)
         {
-            Projectiles.Add(new Projectile(this, kind, origin, vel, false, cosmetic: true));
+            SpawnProjectile(kind, origin, vel, false, cosmetic: true);
             Sfx.Play(kind == ProjectileKind.Heavy ? Sfx.Heavy : kind == ProjectileKind.Grenade ? Sfx.Throw : Sfx.Shot, 0.35f);
         }
 
@@ -240,7 +248,7 @@ namespace PooketSlug
 
         public void FirePlayerProjectile(ProjectileKind kind, Vector2 origin, Vector2 vel)
         {
-            Projectiles.Add(new Projectile(this, kind, origin, vel, false));
+            SpawnProjectile(kind, origin, vel, false);
             Net?.SendShot(kind, origin, vel);
         }
 
@@ -253,11 +261,11 @@ namespace PooketSlug
 
         void SpawnEnemyProjectile(ProjectileKind kind, Vector2 origin, Vector2 vel)
         {
-            Projectiles.Add(new Projectile(this, kind, origin, vel, true));
+            SpawnProjectile(kind, origin, vel, true);
             if (kind == ProjectileKind.EnemyBullet) Sfx.Play(Sfx.EnemyShot, 0.35f);
             if (kind == ProjectileKind.Shell)
             {
-                Effects.Add(new Effect(this, Art.Explosion, 30f, origin, 0.4f));
+                SpawnEffect(Art.Explosion, 30f, origin, 0.4f);
                 Sfx.Play(Sfx.Cannon, 0.8f);
                 Shake(0.08f);
             }
@@ -375,7 +383,7 @@ namespace PooketSlug
 
         public void Explode(Vector2 at, float radius, int damage, bool hostile, float size)
         {
-            Effects.Add(new Effect(this, Art.Explosion, 18f, at, size));
+            SpawnEffect(Art.Explosion, 18f, at, size);
             Burst(at, Mathf.RoundToInt(6 * size), new Color(0.35f, 0.3f, 0.28f));
             Sfx.Play(Sfx.Explosion, Mathf.Clamp01(0.4f + size * 0.4f));
             Shake(0.1f * size);
@@ -395,11 +403,40 @@ namespace PooketSlug
             for (int i = 0; i < count; i++)
             {
                 var vel = new Vector2(Rng.Fx.Range(-5f, 5f), Rng.Fx.Range(2f, 10f));
-                Effects.Add(new Particle(this, at, vel, color, Rng.Fx.Range(1.5f, 3f), Rng.Fx.Range(0.5f, 1f)));
+                SpawnParticle(at, vel, color, Rng.Fx.Range(1.5f, 3f), Rng.Fx.Range(0.5f, 1f));
             }
         }
 
         public void Shake(float amount) => m_Shake = Mathf.Max(m_Shake, amount);
+
+        // ------------------------------------------------------------------ pooled spawning
+
+        public Projectile SpawnProjectile(ProjectileKind kind, Vector2 pos, Vector2 vel, bool hostile, bool cosmetic = false)
+        {
+            Projectile p = m_ProjectilePool.Get();
+            p.Launch(kind, pos, vel, hostile, cosmetic);
+            Projectiles.Add(p);
+            return p;
+        }
+
+        public void SpawnEffect(Sprite[] frames, float fps, Vector2 pos, float scale = 1f, Vector2 vel = default)
+        {
+            Effect e = m_EffectPool.Get();
+            e.Play(frames, fps, pos, scale, vel);
+            Effects.Add(e);
+        }
+
+        public void SpawnParticle(Vector2 pos, Vector2 vel, Color color, float size, float life)
+        {
+            Particle p = m_ParticlePool.Get();
+            p.Emit(pos, vel, color, size, life);
+            Effects.Add(p);
+        }
+
+        // Called from Destroy() once the sweep has dropped them from their list.
+        public void Release(Projectile p) => m_ProjectilePool.Release(p);
+        public void Release(Effect e) => m_EffectPool.Release(e);
+        public void Release(Particle p) => m_ParticlePool.Release(p);
 
         public void AddScore(int points, Vector2 at, bool popup)
         {

@@ -289,7 +289,7 @@ namespace PooketSlug
             {
                 Vector3 sp = m_Camera.WorldToScreenPoint(new Vector3(pop.Pos.x, pop.Pos.y, 0f));
                 Color c = pop.Color;
-                c.a = Mathf.Clamp01(1.4f - pop.Age);
+                c.a = Mathf.Clamp01(Tuning.Hud.PopupLife - pop.Age);
                 Text(sp.x / m_Scale, (Screen.height - sp.y) / m_Scale, pop.Text, 9, c, TextAnchor.MiddleCenter);
             }
 

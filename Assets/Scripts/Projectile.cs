@@ -4,26 +4,33 @@ namespace PooketSlug
 {
     public enum ProjectileKind { Bullet, Heavy, EnemyBullet, Shell, Grenade, Bomb }
 
+    /// <summary>A bullet, shell, grenade or bomb. Pooled: <see cref="World.SpawnProjectile"/> launches one.</summary>
     public sealed class Projectile : Entity
     {
-        public readonly ProjectileKind Kind;
-        public readonly bool Hostile;  // true = hurts the player
-        public readonly bool Cosmetic; // replay of another player's shot: looks the same, deals no damage
+        public ProjectileKind Kind { get; private set; }
+        public bool Hostile { get; private set; }  // true = hurts the player
+        public bool Cosmetic { get; private set; } // replay of another player's shot: looks the same, deals no damage
         public Vector2 Vel;
-        public readonly float Radius;
-        public readonly int Damage;
+        public float Radius { get; private set; }
+        public int Damage { get; private set; }
 
         readonly SpriteRenderer m_Sr;
-        readonly float m_Gravity;
-        float m_Life, m_Spin;
+        float m_Gravity, m_Life, m_Spin;
         int m_Bounces;
 
-        public Projectile(World world, ProjectileKind kind, Vector2 pos, Vector2 vel, bool hostile, bool cosmetic = false) : base(world, kind.ToString(), pos)
+        public Projectile(World world) : base(world, "Projectile", Vector2.zero)
+        {
+            m_Sr = AddRenderer(Go.transform, "Sprite", null, SortOrder.Projectiles);
+        }
+
+        public void Launch(ProjectileKind kind, Vector2 pos, Vector2 vel, bool hostile, bool cosmetic)
         {
             Kind = kind;
+            Pos = pos;
+            Vel = vel;
             Hostile = hostile;
             Cosmetic = cosmetic;
-            Vel = vel;
+            m_Gravity = 0f;
             Sprite sprite;
             switch (kind)
             {
@@ -34,9 +41,13 @@ namespace PooketSlug
                 case ProjectileKind.Bomb: sprite = Art.Bomb; Radius = 0.18f; Damage = 1; m_Gravity = 22f; break;
                 default: sprite = Art.Bullet; Radius = 0.12f; Damage = 1; break;
             }
-            m_Sr = AddRenderer(Go.transform, "Sprite", sprite, SortOrder.Projectiles);
+            m_Sr.sprite = sprite;
             m_Life = kind == ProjectileKind.Grenade ? 1.8f : 4f;
+            m_Spin = 0f;
+            m_Bounces = 0;
         }
+
+        public override void Destroy() => World.Release(this);
 
         bool Explosive => Kind == ProjectileKind.Shell || Kind == ProjectileKind.Grenade || Kind == ProjectileKind.Bomb;
 
@@ -80,7 +91,7 @@ namespace PooketSlug
             }
             else
             {
-                World.Effects.Add(new Effect(World, Art.Spark, 30f, Pos));
+                World.SpawnEffect(Art.Spark, 30f, Pos);
             }
         }
 
@@ -95,23 +106,31 @@ namespace PooketSlug
         }
     }
 
-    /// <summary>Frame-animated sprite that removes itself when the animation ends.</summary>
+    /// <summary>Frame-animated sprite that removes itself when the animation ends. Pooled: see <see cref="World.SpawnEffect"/>.</summary>
     public sealed class Effect : Entity
     {
-        readonly Sprite[] m_Frames;
-        readonly float m_Fps;
         readonly SpriteRenderer m_Sr;
-        readonly Vector2 m_Vel;
-        float m_Time;
+        Sprite[] m_Frames;
+        float m_Fps, m_Time;
+        Vector2 m_Vel;
 
-        public Effect(World world, Sprite[] frames, float fps, Vector2 pos, float scale = 1f, Vector2 vel = default) : base(world, "Effect", pos)
+        public Effect(World world) : base(world, "Effect", Vector2.zero)
+        {
+            m_Sr = AddRenderer(Go.transform, "Sprite", null, SortOrder.Effects);
+        }
+
+        public void Play(Sprite[] frames, float fps, Vector2 pos, float scale, Vector2 vel)
         {
             m_Frames = frames;
             m_Fps = fps;
+            Pos = pos;
             m_Vel = vel;
-            m_Sr = AddRenderer(Go.transform, "Sprite", frames[0], SortOrder.Effects);
+            m_Time = 0f;
+            m_Sr.sprite = frames[0];
             Go.transform.localScale = new Vector3(scale, scale, 1f);
         }
+
+        public override void Destroy() => World.Release(this);
 
         public override void Tick(float dt)
         {
@@ -127,22 +146,28 @@ namespace PooketSlug
         }
     }
 
-    /// <summary>Single tinted pixel-square particle with gravity (debris, blood, sparks).</summary>
+    /// <summary>Single tinted pixel-square particle with gravity (debris, blood, sparks). Pooled: see <see cref="World.SpawnParticle"/>.</summary>
     public sealed class Particle : Entity
     {
         readonly SpriteRenderer m_Sr;
         Vector2 m_Vel;
-        float m_Life;
-        readonly float m_MaxLife;
+        float m_Life, m_MaxLife;
 
-        public Particle(World world, Vector2 pos, Vector2 vel, Color color, float size, float life) : base(world, "Particle", pos)
+        public Particle(World world) : base(world, "Particle", Vector2.zero)
         {
+            m_Sr = AddRenderer(Go.transform, "Sprite", Art.Pixel, SortOrder.Effects - 1);
+        }
+
+        public void Emit(Vector2 pos, Vector2 vel, Color color, float size, float life)
+        {
+            Pos = pos;
             m_Vel = vel;
             m_Life = m_MaxLife = life;
-            m_Sr = AddRenderer(Go.transform, "Sprite", Art.Pixel, SortOrder.Effects - 1);
             m_Sr.color = color;
             Go.transform.localScale = new Vector3(size, size, 1f);
         }
+
+        public override void Destroy() => World.Release(this);
 
         public override void Tick(float dt)
         {

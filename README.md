@@ -71,6 +71,7 @@ Project layout:
 | `Assets/Scripts/LevelView.cs` | Draws the level as chunked textures |
 | `Assets/Scripts/Entity.cs` | Entity/Actor base classes |
 | `Assets/Scripts/Player.cs`, `Enemies.cs`, `Projectile.cs` | Gameplay |
+| `Assets/Scripts/EntityPool.cs` | Reuses bullets, explosions and debris instead of creating and destroying a GameObject for each |
 | `Assets/Scripts/RemotePlayer.cs`, `PlayerVisual.cs` | The partner's soldier (a smoothed puppet) and the soldier rendering both share |
 | `Assets/Scripts/NetContracts.cs` | What gameplay needs from an online session (`INetLink`, `INetSession`) |
 | `Assets/Scripts/Net/` | Photon Fusion implementation: `NetSession` (runner, rooms, prefabs), `PlayerNet`, `WorldNet`, `NetConfig` |
