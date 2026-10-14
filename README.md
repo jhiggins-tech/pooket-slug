@@ -14,7 +14,7 @@ A spike to test **[GameCI](https://game.ci)** on GitHub Actions. It builds a sma
 
 Controls: arrows/WASD move · Z/Space jump · X fire · C grenade · Up aim up · Down crouch (or aim down in the air) · Down+Jump drops through bridges · P pause · M mute · R restart. Gamepads work too.
 
-Co-op, from the title screen: **H** hosts a game and shows its room code (for example `ABCD-EU`, which is the session name plus the Photon region), **J** joins with a code, and **Q** quick-matches. Opening the page with `?room=ABCD-EU` fills in the code. In co-op, press **Esc** twice to leave.
+Co-op, from the title screen: **H** hosts a game and shows its room code (for example `ABCD-EU`, which is the session name plus the Photon region), **J** joins with a code, and **Q** quick-matches. Opening the page with `?room=ABCD-EU` fills in the code. In co-op, press **Esc** twice to leave. Keep the game's tab visible: browsers pause hidden tabs, which freezes that player and eventually drops them. To try it alone, use two side-by-side windows, not two tabs.
 
 ### How co-op works
 

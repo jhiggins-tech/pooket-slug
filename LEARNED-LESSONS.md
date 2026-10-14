@@ -84,6 +84,46 @@ There was no Unity install or license outside CI. Two techniques still let us ch
 
 For the procedural art, a tiny Python script rendered the ASCII sprite arrays to a PNG sheet. That made it possible to iterate on art without the editor.
 
+## Part 2: online co-op with Photon Fusion 2
+
+**Question:** can the same pipeline ship real-time two-player co-op, using Photon's free tier, without committing Photon's SDK?
+
+**Answer: the pipeline part, yes.** CI fetches the private SDK, weaves and builds it, and deploys with no manual steps. The build is green (run 38533066347) and the live page shows the online menu. Not yet verified: a live two-player session. The cloud sandbox used for this spike can't open WebSockets through its egress proxy, so the first real session has to happen on a normal network.
+
+### Choices
+
+- **Fusion 2 Shared Mode** (Fusion 2.1.3), because Fusion's Client/Server modes aren't available for WebGL builds.
+  - There's no host process: Photon's cloud relays the traffic.
+  - Each client simulates its own soldier.
+  - The room's master client runs the shared world (enemies, pickups, score, camera scroll) through a *master-client object*, so the world survives the host leaving.
+- **Gameplay code is SDK-agnostic.** It only sees `INetLink` / `INetSession`. The Fusion code is wrapped in `#if FUSION2`, so a clone without the SDK still builds and plays solo.
+- **Network objects are built in code, like the rest of the project.** Template GameObjects are baked with `NetworkObjectBaker` and registered with `NetworkPrefabSourceStatic` under fixed GUIDs. There are no prefab assets.
+
+### What we learned
+
+- **Photon's license forbids redistributing the SDK,** so it lives as a release asset in the private repo `pooket-slug-vendor`.
+  - The workflow downloads it with a fine-grained read-only token (`VENDOR_PAT`) and checks its SHA-256.
+  - `tools/unpack_unitypackage.py`, about 50 lines using Python's `tarfile`, then unpacks it before Unity starts.
+  - `Assets/Photon/` is git-ignored except for our `NetworkProjectConfig.fusion`.
+- **The weaver works in a single CI pass.** We expected the first build to miss Fusion's IL weaver: its `Unity.Fusion.CodeGen` assembly only compiles when `FUSION_WEAVER` is defined, and Fusion's installer only adds that define once the editor has loaded. We planned a warm-up run and a ProjectSettings commit. Neither was needed:
+  - When the installer changes the defines during the initial import, batch-mode Unity logs "Define symbols changed" and does a *forced synchronous recompile* before `-executeMethod` runs.
+  - The WebGL player compile is then IL-post-processed by the weaver.
+  - The build script logs `IL weaver compiled: True` on every build, so a regression would be visible.
+- **You can run Fusion's weaver without Unity.**
+  - Compile the game against the SDK DLLs, using only the engine modules the manifest enables, with Unity's `csc` and C# 9.
+  - Then drive Fusion's `ILPostProcessor` from a small console harness on the editor's bundled .NET 6 runtime. The harness implements Unity's `ICompiledAssembly` and loads `Unity.Fusion.CodeGen.dll`.
+  - It reports the weaver's diagnostics and writes the woven assembly, which Cecil can inspect. Weaver errors are therefore caught locally instead of in a CI run.
+- **Room codes must carry the Photon region.** Sessions are per region, and a host picks the best region by ping, so the invite code is `NAME-REGION` (e.g. `ABCD-EU`) and the joiner connects to that fixed region.
+- **Shared Mode treats a session name as create-or-join.** A mistyped code silently creates a new empty room. The joiner checks whether it came in as master client and, if so, leaves with "nobody is hosting that code".
+- **`AppVersion` is the build version.** Two different builds can never end up in one room with mismatched network code.
+- **The download grew from 7.2 MB to 10.3 MB.** The wasm went from 18.9 to 28.4 MB uncompressed (8.3 MB gzipped), the data from 1.3 to 2.0 MB gzipped. The job takes about 7.5 minutes; the WebGL build step took 1 min 50 s with a warm Library cache.
+- **Secret names are easy to get wrong.** The workflow read `VENDOR_TOKEN` while the secret was created as `VENDOR_PAT`. An explicit "secret X is not set" guard in the fetch step made that a one-minute diagnosis instead of a confusing `gh` 401.
+- **Browsers pause hidden tabs.** Unity WebGL's loop runs on `requestAnimationFrame`, so a hidden tab stops simulating and stops servicing its socket. Test co-op in two visible windows or on two devices.
+- **The free 20 CCU plan is for development, not commercial use.** That's fine for a spike; a product would need a paid or 100 CCU plan.
+- **Verification in the cloud sandbox stops at the socket.**
+  - Headless Chromium got as far as Photon's name server, then the proxy refused the WebSocket upgrade with a 502. The game showed the error and returned to the title screen.
+  - Everything up to that point ran in the deployed build: the online menu, the network templates registering, and Fusion's runner starting.
+
 ## If we take this further
 
 - **Deploys:** publish `main` to the Pages root and branches to `/<branch>/` previews. Use `destination_dir` + `keep_files`, or switch to `actions/deploy-pages` with environment rules.
@@ -100,6 +140,11 @@ For the procedural art, a tiny Python script rendered the ASCII sprite arrays to
   - the later level and the tank boss still need a human playthrough
 - **Performance:** measure on real devices and GPUs; the headless numbers aren't meaningful.
 - **More platforms:** the same workflow becomes a `targetPlatform` matrix for desktop and Android builds.
+- **Co-op:**
+  - play a real session on a normal network: join by code and by link, quick match, host leaving mid-mission
+  - add a small connection-quality readout
+  - consider Fusion's Area of Interest if levels grow
+  - add a "keep this tab visible" hint for players.
 
 ## Minimal recipe
 
