@@ -94,6 +94,7 @@ namespace PooketSlug
         public static Sprite SoldierTorso, RunnerTorso;
         public static Sprite[] Drone, Explosion, Spark;
         public static Sprite Tank, Bullet, HeavyBullet, EnemyBullet, Shell, Grenade, Bomb, MuzzleFlash;
+        static Sprite[] s_Projectiles;
         public static Sprite CrateHeavy, CrateBombs, Medkit, Flag, Pixel, Sky, Mountains, Ruins;
         public static Texture2D HeartTex, WhiteTex;
 
@@ -162,6 +163,13 @@ namespace PooketSlug
             Shell = Simple(ArtData.Shell, Center);
             Grenade = Simple(ArtData.Grenade, Center);
             Bomb = Simple(ArtData.Bomb, Center);
+            s_Projectiles = new Sprite[Content.Projectiles.Count];
+            s_Projectiles[Content.Bullet.Id] = Bullet;
+            s_Projectiles[Content.HeavyBullet.Id] = HeavyBullet;
+            s_Projectiles[Content.EnemyBullet.Id] = EnemyBullet;
+            s_Projectiles[Content.Shell.Id] = Shell;
+            s_Projectiles[Content.Grenade.Id] = Grenade;
+            s_Projectiles[Content.Bomb.Id] = Bomb;
             MuzzleFlash = Simple(ArtData.MuzzleFlash, Center, outline: false);
             CrateHeavy = Simple(ArtData.CrateHeavy, feet);
             CrateBombs = Simple(ArtData.CrateBombs, feet);
@@ -203,6 +211,9 @@ namespace PooketSlug
         }
 
         /// <summary>White silhouette of a sprite, used for the hit flash.</summary>
+        /// <summary>A projectile's sprite (the content is data in Core; how it looks lives here).</summary>
+        public static Sprite ProjectileSprite(ProjectileDef def) => s_Projectiles[def.Id];
+
         public static Sprite Flash(Sprite s) => s != null && s_Flash.TryGetValue(s, out Sprite f) ? f : s;
 
         static Dictionary<char, Color32> Swap(Dictionary<char, uint> changes)

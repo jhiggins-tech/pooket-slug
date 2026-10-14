@@ -68,13 +68,15 @@ Sizes come from the woven assembly, where Fusion's weaver records them in words 
 
 | RPC | On | Sources → targets | Purpose |
 |---|---|---|---|
-| `RPC_Shot(kind, origin, vel)` | `PlayerNet` | StateAuthority → Proxies, `InvokeLocal = false` | Replay a soldier's shot elsewhere as a harmless copy (`Cosmetic = true`) |
+| `RPC_Shot(weapon, origin, vel)` | `PlayerNet` | StateAuthority → Proxies, `InvokeLocal = false` | Replay a soldier's shot elsewhere as a harmless copy (`Cosmetic = true`) |
 | `RPC_Hurt(damage)` | `PlayerNet` | All → StateAuthority | The master's melee or contact damage, applied by the owner |
-| `RPC_EnemyShot(kind, origin, vel)` | `WorldNet` | StateAuthority → Proxies, `InvokeLocal = false` | Replay enemy fire; each client damages only its own soldier |
+| `RPC_EnemyShot(weapon, origin, vel)` | `WorldNet` | StateAuthority → Proxies, `InvokeLocal = false` | Replay enemy fire; each client damages only its own soldier |
 | `RPC_Hit(enemyId, damage)` | `WorldNet` | All → StateAuthority | A follower's bullet or grenade hit an enemy |
 | `RPC_Claim(spawnIndex)` | `WorldNet` | All → StateAuthority | "I touched this crate". The first claim sets the `Taken` bit |
 | `RPC_Granted(spawnIndex, player)` | `WorldNet` | StateAuthority → All | Everyone shows the pickup; the winner applies its effect |
 | `RPC_RequestRestart()` | `WorldNet` | All → StateAuthority | Restart a won mission (ignored unless `Victory`, so a double press restarts once) |
+
+- **Shots carry a weapon id,** a byte from [`Content`](../../../Assets/Scripts/Core/Content.cs). The receiver makes the weapon's projectile and plays its sound. The ids are pinned by [tests](../verification/edit-mode-tests.md), and an id the receiver doesn't know is ignored.
 
 Fusion rules worth knowing (2.1.3):
 - **Naming:** RPC method names must start or end with `Rpc`, in any case.

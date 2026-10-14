@@ -146,10 +146,10 @@ namespace PooketSlug
 
         // ------------------------------------------------------------------ pooled spawning
 
-        public Projectile SpawnProjectile(ProjectileKind kind, Vector2 pos, Vector2 vel, bool hostile, bool cosmetic = false)
+        public Projectile SpawnProjectile(ProjectileDef def, Vector2 pos, Vector2 vel, bool hostile, bool cosmetic = false)
         {
             Projectile p = m_ProjectilePool.Get();
-            p.Launch(kind, pos, vel, hostile, cosmetic);
+            p.Launch(def, pos, vel, hostile, cosmetic);
             Projectiles.Add(p);
             return p;
         }

@@ -2,20 +2,16 @@ using UnityEngine;
 
 namespace PooketSlug
 {
-    public enum ProjectileKind { Bullet, Heavy, EnemyBullet, Shell, Grenade, Bomb }
-
     /// <summary>A bullet, shell, grenade or bomb. Pooled: <see cref="World.SpawnProjectile"/> launches one.</summary>
     public sealed class Projectile : Entity
     {
-        public ProjectileKind Kind { get; private set; }
+        public ProjectileDef Def { get; private set; }
         public bool Hostile { get; private set; }  // true = hurts the player
         public bool Cosmetic { get; private set; } // replay of another player's shot: looks the same, deals no damage
         public Vector2 Vel;
-        public float Radius { get; private set; }
-        public int Damage { get; private set; }
 
         readonly SpriteRenderer m_Sr;
-        float m_Gravity, m_Life, m_Spin;
+        float m_Life, m_Spin;
         int m_Bounces;
 
         public Projectile(World world) : base(world, "Projectile", Vector2.zero)
@@ -23,45 +19,35 @@ namespace PooketSlug
             m_Sr = AddRenderer(Go.transform, "Sprite", null, SortOrder.Projectiles);
         }
 
-        public void Launch(ProjectileKind kind, Vector2 pos, Vector2 vel, bool hostile, bool cosmetic)
+        public void Launch(ProjectileDef def, Vector2 pos, Vector2 vel, bool hostile, bool cosmetic)
         {
-            Kind = kind;
+            Def = def;
             Pos = pos;
             Vel = vel;
             Hostile = hostile;
             Cosmetic = cosmetic;
-            m_Gravity = 0f;
-            Sprite sprite;
-            switch (kind)
-            {
-                case ProjectileKind.Heavy: sprite = Art.HeavyBullet; Radius = 0.12f; Damage = 1; break;
-                case ProjectileKind.EnemyBullet: sprite = Art.EnemyBullet; Radius = 0.14f; Damage = 1; break;
-                case ProjectileKind.Shell: sprite = Art.Shell; Radius = 0.2f; Damage = 1; m_Gravity = 18f; break;
-                case ProjectileKind.Grenade: sprite = Art.Grenade; Radius = 0.18f; Damage = 6; m_Gravity = 30f; break;
-                case ProjectileKind.Bomb: sprite = Art.Bomb; Radius = 0.18f; Damage = 1; m_Gravity = 22f; break;
-                default: sprite = Art.Bullet; Radius = 0.12f; Damage = 1; break;
-            }
-            m_Sr.sprite = sprite;
-            m_Life = kind == ProjectileKind.Grenade ? 1.8f : 4f;
+            m_Sr.sprite = Art.ProjectileSprite(def);
+            m_Life = def.Life;
             m_Spin = 0f;
             m_Bounces = 0;
         }
 
-        public override void Destroy() => World.Release(this);
+        public float Radius => Def.Radius;
+        public int Damage => Def.Damage;
 
-        bool Explosive => Kind == ProjectileKind.Shell || Kind == ProjectileKind.Grenade || Kind == ProjectileKind.Bomb;
+        public override void Destroy() => World.Release(this);
 
         public override void Tick(float dt)
         {
             m_Life -= dt;
-            Vel.y -= m_Gravity * dt;
+            Vel.y -= Def.Gravity * dt;
             Vector2 next = Pos + Vel * dt;
 
             if (World.Level.IsSolidAt(next))
             {
-                if (Kind == ProjectileKind.Grenade && m_Bounces < 1 && Vel.y < 0f && World.Level.IsSolidAt(new Vector2(Pos.x, next.y)))
+                if (m_Bounces < Def.Bounces && Vel.y < 0f && World.Level.IsSolidAt(new Vector2(Pos.x, next.y)))
                 {
-                    // bounce once off the floor
+                    // bounce off the floor
                     m_Bounces++;
                     Vel = new Vector2(Vel.x * 0.55f, -Vel.y * 0.45f);
                     return;
@@ -84,24 +70,20 @@ namespace PooketSlug
         {
             if (Removed) return;
             Remove();
-            if (Explosive)
-            {
-                float radius = Kind == ProjectileKind.Grenade ? 1.7f : 1.0f;
-                World.Combat.Explode(Pos, radius, Cosmetic ? 0 : Damage, Hostile, Kind == ProjectileKind.Grenade ? 1f : 0.7f);
-            }
-            else
-            {
-                World.SpawnEffect(Art.Spark, 30f, Pos);
-            }
+            if (Def.Explodes) World.Combat.Explode(Pos, Def.BlastRadius, Cosmetic ? 0 : Def.Damage, Hostile, Def.BlastSize);
+            else World.SpawnEffect(Art.Spark, 30f, Pos);
         }
 
         public override void Render()
         {
             base.Render();
             float angle;
-            if (Kind == ProjectileKind.Grenade) angle = -m_Spin * 720f * Mathf.Sign(Vel.x == 0f ? 1f : Vel.x);
-            else if (Kind == ProjectileKind.Bomb || Kind == ProjectileKind.EnemyBullet) angle = 0f;
-            else angle = Mathf.Atan2(Vel.y, Vel.x) * Mathf.Rad2Deg;
+            switch (Def.Spin)
+            {
+                case ProjectileSpin.Tumble: angle = -m_Spin * 720f * Mathf.Sign(Vel.x == 0f ? 1f : Vel.x); break;
+                case ProjectileSpin.None: angle = 0f; break;
+                default: angle = Mathf.Atan2(Vel.y, Vel.x) * Mathf.Rad2Deg; break;
+            }
             m_Sr.transform.localRotation = Quaternion.Euler(0f, 0f, angle);
         }
     }

@@ -171,7 +171,7 @@ namespace PooketSlug
             if (onScreen && dist < 9f && m_Cooldown <= 0f && !Target.IsDown)
             {
                 var origin = Pos + new Vector2(Facing * 0.8f, 0.95f);
-                World.Combat.FireEnemyProjectile(ProjectileKind.EnemyBullet, origin, new Vector2(Facing * 6.5f, 0f));
+                World.Combat.FireEnemyShot(Content.Rifle, origin, new Vector2(Facing * Content.Rifle.Speed, 0f));
                 m_Muzzle = 0.06f;
                 m_Cooldown = World.Rng.Range(1.5f, 2.6f);
             }
@@ -262,7 +262,7 @@ namespace PooketSlug
             m_BombCooldown -= dt;
             if (m_BombCooldown <= 0f && Mathf.Abs(Target.Pos.x - Pos.x) < 1f && !Target.IsDown)
             {
-                World.Combat.FireEnemyProjectile(ProjectileKind.Bomb, Pos + new Vector2(0f, -0.1f), new Vector2(Vel.x * 0.5f, 0f));
+                World.Combat.FireEnemyShot(Content.DroneBomb, Pos + new Vector2(0f, -0.1f), Content.DroneBomb.LobVelocity(Facing, Vel));
                 m_BombCooldown = 1.8f;
             }
         }
@@ -341,7 +341,7 @@ namespace PooketSlug
                     m_BurstLeft--;
                     m_BurstTimer = 0.14f;
                     var origin = Pos + new Vector2(-1.6f, 0.45f);
-                    World.Combat.FireEnemyProjectile(ProjectileKind.EnemyBullet, origin, new Vector2(-7.5f, 0f));
+                    World.Combat.FireEnemyShot(Content.TankGun, origin, new Vector2(-Content.TankGun.Speed, 0f));
                 }
                 return;
             }
@@ -359,10 +359,10 @@ namespace PooketSlug
             {
                 // lob a shell that lands near the player
                 var muzzle = Pos + new Vector2(-1.5f, 1.15f);
-                float vy = 7.5f, g = 18f;
+                float vy = 7.5f, g = Content.Cannon.Projectile.Gravity;
                 float flight = (vy + Mathf.Sqrt(vy * vy + 2f * g * Mathf.Max(0f, muzzle.y - Target.Pos.y))) / g;
                 float vx = Mathf.Clamp((Target.Pos.x - muzzle.x) / flight, -11f, -1.5f);
-                World.Combat.FireEnemyProjectile(ProjectileKind.Shell, muzzle, new Vector2(vx, vy));
+                World.Combat.FireEnemyShot(Content.Cannon, muzzle, new Vector2(vx, vy));
                 m_AttackTimer = 1.4f;
             }
             m_Attack++;

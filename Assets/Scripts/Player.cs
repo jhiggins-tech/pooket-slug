@@ -5,8 +5,6 @@ namespace PooketSlug
     /// <summary>The locally controlled soldier.</summary>
     public sealed class Player : Actor
     {
-        const float PistolCooldown = 0.18f, HeavyCooldown = 0.075f;
-
         public int Grenades = Tuning.Soldier.StartGrenades;
         public int HeavyAmmo;
         public bool Dead;
@@ -102,14 +100,14 @@ namespace PooketSlug
             m_FireCooldown -= dt;
             bool heavy = HeavyAmmo > 0;
             bool wantsFire = InputEnabled && (heavy ? GameInput.FireHeld : (GameInput.FirePressed || GameInput.FireHeld));
-            if (wantsFire && m_FireCooldown <= 0f) Fire(heavy);
+            if (wantsFire && m_FireCooldown <= 0f) Fire(heavy ? Content.HeavyMachineGun : Content.Pistol);
 
             if (InputEnabled && GameInput.GrenadePressed && Grenades > 0)
             {
                 Grenades--;
-                var throwVel = new Vector2(Facing * 6.5f + Vel.x * 0.3f, 9f);
-                World.Combat.FirePlayerProjectile(ProjectileKind.Grenade, Pos + new Vector2(Facing * 0.3f, Height * 0.8f), throwVel);
-                Sfx.Play(Sfx.Throw);
+                WeaponDef special = Content.GrenadeThrow;
+                World.Combat.FirePlayerShot(special, Pos + new Vector2(Facing * 0.3f, Height * 0.8f), special.LobVelocity(Facing, Vel));
+                Sfx.PlayShot(special);
             }
 
             m_Invuln -= dt;
@@ -118,25 +116,27 @@ namespace PooketSlug
             m_Anim += dt;
         }
 
-        void Fire(bool heavy)
+        void Fire(WeaponDef weapon)
         {
             int aimY = m_Aim.y > 0f ? 1 : m_Aim.y < 0f ? -1 : 0;
             Vector2 local = PlayerVisual.MuzzleLocal(aimY, Crouching);
             Vector2 origin = Pos + new Vector2(local.x * Facing, local.y);
             Vector2 dir = m_Aim;
-            float speed = heavy ? 20f : 16f;
-            if (heavy)
+            if (weapon.Spread > 0f)
             {
-                // heavy machine gun: slight spread
-                float spread = World.Rng.Range(-4f, 4f) * Mathf.Deg2Rad;
+                float spread = World.Rng.Range(-weapon.Spread, weapon.Spread) * Mathf.Deg2Rad;
                 dir = new Vector2(dir.x * Mathf.Cos(spread) - dir.y * Mathf.Sin(spread), dir.x * Mathf.Sin(spread) + dir.y * Mathf.Cos(spread));
+            }
+            if (weapon.Ammo > 0)
+            {
+                // a crate's gun, until it runs dry
                 HeavyAmmo--;
                 if (HeavyAmmo == 0) World.Scoring.Popup("OUT OF AMMO", Pos + Vector2.up * 2f, new Color(1f, 0.6f, 0.4f));
             }
-            World.Combat.FirePlayerProjectile(heavy ? ProjectileKind.Heavy : ProjectileKind.Bullet, origin, dir * speed);
-            m_FireCooldown = heavy ? HeavyCooldown : PistolCooldown;
+            World.Combat.FirePlayerShot(weapon, origin, dir * weapon.Speed);
+            m_FireCooldown = weapon.Cooldown;
             m_Muzzle = 0.05f;
-            Sfx.Play(heavy ? Sfx.Heavy : Sfx.Shot, heavy ? 0.5f : 0.6f);
+            Sfx.PlayShot(weapon);
         }
 
         public void Hurt(int damage)

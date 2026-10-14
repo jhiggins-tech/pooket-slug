@@ -35,8 +35,8 @@ namespace PooketSlug
         public override void Despawned(NetworkRunner runner, bool hasState) => NetSession.Instance?.OnWorldDespawned(this);
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.Proxies, InvokeLocal = false)]
-        public void RPC_EnemyShot(byte kind, Vector2 origin, Vector2 vel) =>
-            NetSession.Instance?.World?.Sync?.OnEnemyShot((ProjectileKind)kind, origin, vel);
+        public void RPC_EnemyShot(byte weapon, Vector2 origin, Vector2 vel) =>
+            NetSession.Instance?.World?.Sync?.OnEnemyShot(weapon, origin, vel);
 
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
         public void RPC_Hit(short enemyId, byte damage) => NetSession.Instance?.World?.Sync?.OnHitReported(enemyId, damage);

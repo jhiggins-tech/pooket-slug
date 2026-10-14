@@ -64,10 +64,10 @@ namespace PooketSlug
 
         // Local soldier -> network.
         void SendAvatar(Vector2 pos, Vector2 vel, int poseFlags, int hp);
-        void SendShot(ProjectileKind kind, Vector2 origin, Vector2 vel);
+        void SendShot(WeaponDef weapon, Vector2 origin, Vector2 vel);
 
         // Events.
-        void SendEnemyShot(ProjectileKind kind, Vector2 origin, Vector2 vel); // authority only
+        void SendEnemyShot(WeaponDef weapon, Vector2 origin, Vector2 vel); // authority only
         void ReportHit(int enemyId, int damage);
         void ClaimPickup(int spawnIndex);
         void RequestRestart();

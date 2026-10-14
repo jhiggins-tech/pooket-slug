@@ -14,30 +14,27 @@ namespace PooketSlug
 
         public Combat(World world) => m_World = world;
 
-        public void FirePlayerProjectile(ProjectileKind kind, Vector2 origin, Vector2 vel)
+        /// <summary>Our soldier fires. A harmless copy of the shot plays on the other clients.</summary>
+        public void FirePlayerShot(WeaponDef weapon, Vector2 origin, Vector2 vel)
         {
-            m_World.SpawnProjectile(kind, origin, vel, false);
-            m_World.Net?.SendShot(kind, origin, vel);
+            m_World.SpawnProjectile(weapon.Projectile, origin, vel, false);
+            m_World.Net?.SendShot(weapon, origin, vel);
         }
 
         /// <summary>Authority side: an enemy fires (replayed on the other clients).</summary>
-        public void FireEnemyProjectile(ProjectileKind kind, Vector2 origin, Vector2 vel)
+        public void FireEnemyShot(WeaponDef weapon, Vector2 origin, Vector2 vel)
         {
-            SpawnEnemyProjectile(kind, origin, vel);
-            if (m_World.Coop) m_World.Net.SendEnemyShot(kind, origin, vel);
+            SpawnEnemyShot(weapon, origin, vel);
+            if (m_World.Coop) m_World.Net.SendEnemyShot(weapon, origin, vel);
         }
 
         /// <summary>An enemy's shot, fired here or replayed from the authority.</summary>
-        public void SpawnEnemyProjectile(ProjectileKind kind, Vector2 origin, Vector2 vel)
+        public void SpawnEnemyShot(WeaponDef weapon, Vector2 origin, Vector2 vel)
         {
-            m_World.SpawnProjectile(kind, origin, vel, true);
-            if (kind == ProjectileKind.EnemyBullet) Sfx.Play(Sfx.EnemyShot, 0.35f);
-            if (kind == ProjectileKind.Shell)
-            {
-                m_World.SpawnEffect(Art.Explosion, 30f, origin, 0.4f);
-                Sfx.Play(Sfx.Cannon, 0.8f);
-                m_World.View.Shake(0.08f);
-            }
+            m_World.SpawnProjectile(weapon.Projectile, origin, vel, true);
+            if (weapon.MuzzleBlast > 0f) m_World.SpawnEffect(Art.Explosion, 30f, origin, weapon.MuzzleBlast);
+            Sfx.PlayShot(weapon);
+            if (weapon.Kick > 0f) m_World.View.Shake(weapon.Kick);
         }
 
         /// <summary>Our soldier hit an enemy: apply it (authority) or report it to the authority.</summary>
@@ -106,7 +103,7 @@ namespace PooketSlug
                 {
                     if (!player.Invulnerable && Overlaps(player.Bounds, p.Pos, p.Radius))
                     {
-                        if (p.Kind == ProjectileKind.EnemyBullet) player.Hurt(p.Damage);
+                        if (p.Def.ContactDamage) player.Hurt(p.Damage);
                         p.Detonate();
                         continue;
                     }
@@ -122,7 +119,7 @@ namespace PooketSlug
                 foreach (Enemy e in w.Enemies)
                 {
                     if (!e.Shootable || !Overlaps(e.Bounds, p.Pos, p.Radius)) continue;
-                    if (!p.Cosmetic && (p.Kind == ProjectileKind.Bullet || p.Kind == ProjectileKind.Heavy)) DamageEnemy(e, p.Damage);
+                    if (!p.Cosmetic && p.Def.ContactDamage) DamageEnemy(e, p.Damage);
                     p.Detonate();
                     break;
                 }

@@ -42,8 +42,8 @@ namespace PooketSlug
 
         /// <summary>Replays one of our shots on the other clients (as a harmless copy).</summary>
         [Rpc(RpcSources.StateAuthority, RpcTargets.Proxies, InvokeLocal = false)]
-        public void RPC_Shot(byte kind, Vector2 origin, Vector2 vel) =>
-            NetSession.Instance?.World?.Sync?.OnRemoteShot((ProjectileKind)kind, origin, vel);
+        public void RPC_Shot(byte weapon, Vector2 origin, Vector2 vel) =>
+            NetSession.Instance?.World?.Sync?.OnRemoteShot(weapon, origin, vel);
     }
 }
 #endif

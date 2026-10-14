@@ -346,14 +346,14 @@ namespace PooketSlug
             m_Local.NetRound = (World != null ? World.Round : Round) + 1;
         }
 
-        public void SendShot(ProjectileKind kind, Vector2 origin, Vector2 vel)
+        public void SendShot(WeaponDef weapon, Vector2 origin, Vector2 vel)
         {
-            if (m_Local != null && m_Local.Object.IsValid) m_Local.RPC_Shot((byte)kind, origin, vel);
+            if (m_Local != null && m_Local.Object.IsValid) m_Local.RPC_Shot(weapon.Id, origin, vel);
         }
 
-        public void SendEnemyShot(ProjectileKind kind, Vector2 origin, Vector2 vel)
+        public void SendEnemyShot(WeaponDef weapon, Vector2 origin, Vector2 vel)
         {
-            if (IsAuthority) m_Shared.RPC_EnemyShot((byte)kind, origin, vel);
+            if (IsAuthority) m_Shared.RPC_EnemyShot(weapon.Id, origin, vel);
         }
 
         public void ReportHit(int enemyId, int damage)

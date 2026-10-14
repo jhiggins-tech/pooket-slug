@@ -84,13 +84,19 @@ namespace PooketSlug
 
         // network events (delivered by the session)
 
-        public void OnRemoteShot(ProjectileKind kind, Vector2 origin, Vector2 vel)
+        public void OnRemoteShot(int weaponId, Vector2 origin, Vector2 vel)
         {
-            m_World.SpawnProjectile(kind, origin, vel, false, cosmetic: true);
-            Sfx.Play(kind == ProjectileKind.Heavy ? Sfx.Heavy : kind == ProjectileKind.Grenade ? Sfx.Throw : Sfx.Shot, 0.35f);
+            WeaponDef weapon = Content.Weapon(weaponId);
+            if (weapon == null) return; // a weapon this build doesn't have
+            m_World.SpawnProjectile(weapon.Projectile, origin, vel, false, cosmetic: true);
+            Sfx.PlayShot(weapon, 0.35f);
         }
 
-        public void OnEnemyShot(ProjectileKind kind, Vector2 origin, Vector2 vel) => m_World.Combat.SpawnEnemyProjectile(kind, origin, vel);
+        public void OnEnemyShot(int weaponId, Vector2 origin, Vector2 vel)
+        {
+            WeaponDef weapon = Content.Weapon(weaponId);
+            if (weapon != null) m_World.Combat.SpawnEnemyShot(weapon, origin, vel);
+        }
 
         public void OnHitReported(int enemyId, int damage)
         {

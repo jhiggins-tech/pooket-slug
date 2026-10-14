@@ -44,6 +44,23 @@ namespace PooketSlug
             }
         }
 
+        /// <summary>
+        /// Plays a weapon's shot, at the volume for whoever fired it, or at <paramref name="volume"/> (a partner's
+        /// shots are quieter). The content is data in Core; how it sounds lives here.
+        /// </summary>
+        public static void PlayShot(WeaponDef weapon, float volume = -1f)
+        {
+            AudioClip clip;
+            float own;
+            if (weapon == Content.Pistol) { clip = Shot; own = 0.6f; }
+            else if (weapon == Content.HeavyMachineGun) { clip = Heavy; own = 0.5f; }
+            else if (weapon == Content.GrenadeThrow) { clip = Throw; own = 1f; }
+            else if (weapon == Content.Cannon) { clip = Cannon; own = 0.8f; }
+            else if (weapon == Content.Rifle || weapon == Content.TankGun) { clip = EnemyShot; own = 0.35f; }
+            else return; // dropped bombs are silent
+            Play(clip, volume >= 0f ? volume : own);
+        }
+
         public static void Play(AudioClip clip, float volume = 1f)
         {
             if (Muted || s_Source == null || clip == null) return;
