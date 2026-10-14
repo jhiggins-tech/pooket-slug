@@ -7,7 +7,7 @@ namespace PooketSlug
     /// <summary>One enemy in the authority's snapshot (see <see cref="NetEnemyState"/>).</summary>
     public struct NetEnemy : INetworkStruct
     {
-        public short Ref; // Level.Spawns index + 1; 0 marks an empty slot
+        public short Ref; // the enemy's NetIds id + 1; 0 marks an empty slot
         public byte Kind;  // EnemyDef id
         public byte Flags;
         public short Hp;
@@ -27,6 +27,7 @@ namespace PooketSlug
         [Networked] public int Score { get; set; }
         [Networked] public NetworkBool Victory { get; set; }
         [Networked] public int NextSpawn { get; set; }
+        [Networked] public int NextNetId { get; set; } // the next id for something spawned mid-game (NetIds)
         [Networked] public long Taken { get; set; } // one bit per Level.Spawns index: pickups already collected
         [Networked, Capacity(MaxEnemies)] public NetworkArray<NetEnemy> Enemies => default;
 
@@ -69,6 +70,7 @@ namespace PooketSlug
             Score = 0;
             Victory = false;
             NextSpawn = 0;
+            NextNetId = 0;
             Taken = 0;
             for (int i = 0; i < Enemies.Length; i++) Enemies.Set(i, default);
         }

@@ -300,6 +300,12 @@ namespace PooketSlug
             set { if (IsAuthority) m_Shared.NextSpawn = value; }
         }
 
+        public int NextNetId
+        {
+            get => SharedValid ? m_Shared.NextNetId : 0;
+            set { if (IsAuthority) m_Shared.NextNetId = value; }
+        }
+
         public bool IsTaken(int spawnIndex) =>
             SharedValid && spawnIndex >= 0 && spawnIndex < 64 && (m_Shared.Taken & (1L << spawnIndex)) != 0;
 

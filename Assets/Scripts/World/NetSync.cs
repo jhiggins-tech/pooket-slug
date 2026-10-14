@@ -80,6 +80,7 @@ namespace PooketSlug
             Net.Score = w.Scoring.Points;
             Net.Victory = w.Victory;
             Net.NextSpawn = w.Spawner.Next;
+            Net.NextNetId = w.Spawner.Ids.Next;
             m_Outgoing.Clear();
             foreach (Enemy e in w.Enemies)
                 if (!e.Removed && e.NetId >= 0)

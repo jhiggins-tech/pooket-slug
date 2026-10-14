@@ -52,7 +52,7 @@ Sizes come from the woven assembly, where Fusion's weaver records them in words 
 | `NetSkin` (`int`) | 0 = red P1, 1 = blue P2 |
 | `NetRound` (`int`) | `World.Round + 1` once playing; 0 = still in the lobby. Lets clients ignore a soldier that hasn't reached the current round |
 
-**`WorldNet`**: one per session, a master-client object, 151 words.
+**`WorldNet`**: one per session, a master-client object, 152 words.
 
 | Property | Meaning |
 |---|---|
@@ -60,10 +60,11 @@ Sizes come from the woven assembly, where Fusion's weaver records them in words 
 | `CamX` (`float`) | Shared scroll position |
 | `Score` (`int`), `Victory` (`NetworkBool`) | Team score, mission won |
 | `NextSpawn` (`int`) | Spawn cursor into `Level.Spawns`, so followers place crates and props and a new master continues from it |
+| `NextNetId` (`int`) | The next id for something spawned mid-game, so a new master doesn't reuse one |
 | `Taken` (`long`) | One bit per spawn index for collected crates. The level has 33 spawns; the limit is 64 |
-| `Enemies` (`NetworkArray<NetEnemy>`, capacity 24) | `NetEnemy`: `Ref` (spawn index + 1, 0 = empty), `Kind` (the `EnemyDef` id), `Flags` (dying, facing, moving, engaged, grounded), `Hp`, `Pos`. 6 words each |
+| `Enemies` (`NetworkArray<NetEnemy>`, capacity 24) | `NetEnemy`: `Ref` (the enemy's id + 1, 0 = empty), `Kind` (the `EnemyDef` id), `Flags` (dying, facing, moving, engaged, grounded), `Hp`, `Pos`. 6 words each |
 
-- **An enemy's identity is its index in `Level.Spawns`.** Every client loads the same level, so no ID needs allocating. This is also a limit: dynamically spawned entities need real network IDs ([refactor candidates](../roadmap/refactor-candidates.md)).
+- **An enemy's identity comes from [`NetIds`](../../../Assets/Scripts/Core/NetIds.cs).** A level spawn's id is its index in `Level.Spawns`, which every client knows without a message. Anything spawned mid-game gets the ids after those (`Spawner.SpawnEnemy`), from `NextNetId`, which a new master continues from. The snapshot carries the id, so followers make the enemy on first sight. Pickups are still level spawns only: dropped crates need a replicated table ([refactor plan](../roadmap/refactor-plan.md), step 10).
 - **Writes happen from Unity's `Update`, not `FixedUpdateNetwork`.** Shared Mode lets the state authority set networked properties at any time. Fusion's own Shared-Mode sample does the same (`PlayerInteract.Update()` → `[Networked]` writes).
 
 ## RPCs
@@ -111,7 +112,7 @@ Combat.Collide()  our shots vs enemies (authority applies, followers report), en
                   crates → Claim RPC in co-op
 Scoring.Tick()    popups rise and fade
 View.Tick()       the camera
-Sync.Push()       our soldier → PlayerNet; master only: CamX, Score, Victory, NextSpawn, Enemies → WorldNet
+Sync.Push()       our soldier → PlayerNet; master only: CamX, Score, Victory, NextSpawn, NextNetId, Enemies → WorldNet
 ```
 
 The session delivers its events (shots, hits, pickups, damage) to `NetSync` too.
@@ -141,7 +142,7 @@ The session delivers its events (shots, hits, pickups, damage) to `NetSync` too.
 ## Host migration
 
 - **When the master client leaves,** its `PlayerNet` despawns (`DestroyWhenStateAuthorityLeaves`), and Photon makes the other client master. `WorldNet` (`MasterClientObject`) moves to the new master.
-- **Fusion handles the transfer; the game only checks a flag.** `NetSession.IsAuthority` (`WorldNet.HasStateAuthority`) flips, and the console logs `[PooketSlug] This client now runs the shared world`.
+- **Fusion handles the transfer; the game only checks a flag.** `NetSession.IsAuthority` (`WorldNet.HasStateAuthority`) flips, and the console logs `[PooketSlug/Net] This client now runs the shared world`.
 - **The new authority's puppets become real enemies.** Their AI timers start fresh.
-- **Spawning resumes** from `max(own cursor, NextSpawn)`.
-- **Test status:** this path was written for and covered by the [two-browser test script](../verification/browser-tests.md#two-browser-co-op-test). The cloud sandbox couldn't run that script, and the live test on 2026-10-14 wasn't reported in that detail. Treat it as **implemented, not yet confirmed**.
+- **Spawning resumes** from `max(own cursor, NextSpawn)`, and mid-game ids from `NextNetId`.
+- **Tested on every build:** the [CI co-op test](../build-pipeline/workflow.md#the-two-player-co-op-test-job) makes the master leave and checks that the other client takes over. First confirmed on 2026-10-14 (run 38573051144).

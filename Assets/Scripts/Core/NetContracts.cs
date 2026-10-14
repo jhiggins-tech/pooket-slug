@@ -128,6 +128,8 @@ namespace PooketSlug
         int Score { get; set; }
         bool Victory { get; set; }
         int NextSpawn { get; set; }
+        /// <summary>The next id for something spawned mid-game (see <see cref="NetIds"/>).</summary>
+        int NextNetId { get; set; }
         bool IsTaken(int spawnIndex);
         void WriteEnemies(List<NetEnemyState> enemies);
         void ReadEnemies(List<NetEnemyState> into);
