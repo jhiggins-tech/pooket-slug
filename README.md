@@ -74,7 +74,7 @@ Project layout:
 | `Assets/Scripts/EntityPool.cs` | Reuses bullets, explosions and debris instead of creating and destroying a GameObject for each |
 | `Assets/Scripts/RemotePlayer.cs`, `PlayerVisual.cs` | The partner's soldier (a smoothed puppet) and the soldier rendering both share |
 | `Assets/Scripts/Core/NetContracts.cs` | The boundary with the netcode: what gameplay needs from an online session (`INetLink`, `INetSession`), what the session tells the world (`INetEvents`), and the typed event payloads |
-| `Assets/Scripts/Net/` | Photon Fusion implementation, in its own assembly (`PooketSlug.Net`): `NetSession` (runner, rooms, prefabs), `PlayerNet`, `WorldNet` |
+| `Assets/Scripts/Net/` | Photon Fusion implementation, in its own assembly (`PooketSlug.Net`): `NetSession` (runner, rooms), `NetReplication` (what the session shares), `NetPrefabs`, `PlayerNet`, `WorldNet` |
 | `Assets/Scripts/Art.cs`, `ArtData.cs`, `Sfx.cs` | Procedural sprites, backgrounds and audio |
 | `Assets/Scripts/GameInput.cs` | Input that works with either the Input System package or the legacy Input Manager |
 | `Assets/Editor/WebGLBuild.cs` | Build entry point for GameCI and the editor menu |

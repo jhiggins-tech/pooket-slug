@@ -27,9 +27,9 @@ namespace PooketSlug
         public int PlayingRound => Live ? NetRound - 1 : -1;
         public int PlayerId => Live ? Object.StateAuthority.PlayerId : -1;
 
-        public override void Spawned() => NetSession.Instance?.OnPlayerSpawned(this);
+        public override void Spawned() => NetSession.Instance?.Replication.OnPlayerSpawned(this);
 
-        public override void Despawned(NetworkRunner runner, bool hasState) => NetSession.Instance?.OnPlayerDespawned(this);
+        public override void Despawned(NetworkRunner runner, bool hasState) => NetSession.Instance?.Replication.OnPlayerDespawned(this);
 
         /// <summary>The authority's melee/contact damage, applied by the client that owns this soldier.</summary>
         public void Hurt(int damage)
@@ -38,14 +38,14 @@ namespace PooketSlug
         }
 
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-        public void RPC_Hurt(byte damage) => NetSession.Instance?.Events?.OnHurt(damage);
+        public void RPC_Hurt(byte damage) => NetSession.Instance?.Replication.Events?.OnHurt(damage);
 
         /// <summary>Replays one of our shots on the other clients (as a harmless copy).</summary>
         [Rpc(RpcSources.StateAuthority, RpcTargets.Proxies, InvokeLocal = false)]
         public void RPC_Shot(byte weapon, Vector2 origin, Vector2 vel)
         {
             WeaponDef def = Content.Weapon(weapon);
-            if (def != null) NetSession.Instance?.Events?.OnShot(new ShotEvent(def, origin, vel)); // else a weapon this build doesn't have
+            if (def != null) NetSession.Instance?.Replication.Events?.OnShot(new ShotEvent(def, origin, vel)); // else a weapon this build doesn't have
         }
     }
 }

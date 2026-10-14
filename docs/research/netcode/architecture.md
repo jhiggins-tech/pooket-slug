@@ -36,6 +36,7 @@ Known trade-off: clients trust each other. A modified client could claim hits or
   - `IAvatarLink` is a remote soldier, and `NetEnemyState` is one snapshot entry.
 - **The netcode never sees `World` either:** it talks to `INetEvents`. That keeps the boundary in one place, so the Fusion code can become its own assembly ([refactor plan](../roadmap/refactor-plan.md), step 8).
 - **The Fusion implementation lives in [`Assets/Scripts/Net/`](../../../Assets/Scripts/Net/),** in its own assembly, `PooketSlug.Net`. It references Core and the SDK, and only compiles when `FUSION2` is defined (a define constraint). Nothing references it, so the compiler keeps game code from touching Fusion. It registers itself through `NetSessions.Factory`; without the SDK, the factory stays `null` and the title screen offers solo only.
+- **Inside it, `NetSession` connects and `NetReplication` shares.** `NetSession` hosts, joins, finds a quick match, reports failures and owns the runner. `NetReplication` holds the `PlayerNet` and `WorldNet` objects, is the game's `INetLink`, and passes the RPCs' events to `INetEvents`. The lobby, room browser and reconnects will grow in `NetSession`.
 - **`World` takes an optional `INetLink`.** `null` means solo, and solo behaviour is unchanged.
 
 ## Replicated state
@@ -90,7 +91,7 @@ Fusion rules worth knowing (2.1.3):
 
 ## Network objects without prefabs
 
-The project has no prefab assets, so `NetPrefabs.Register()` in [`NetSession.cs`](../../../Assets/Scripts/Net/NetSession.cs) builds each network "prefab" in code the first time a session starts:
+The project has no prefab assets, so `NetPrefabs.Register()` in [`NetPrefabs.cs`](../../../Assets/Scripts/Net/NetPrefabs.cs) builds each network "prefab" in code the first time a session starts:
 
 1. Create a `GameObject` under an **inactive** root (`[Network Templates]`, `DontDestroyOnLoad`), so the template itself never runs.
 2. Add a `NetworkObject` and the behaviour (`PlayerNet` or `WorldNet`), and set the object flags: `DestroyWhenStateAuthorityLeaves` for players, `MasterClientObject` for the world.
@@ -142,7 +143,7 @@ The session delivers its events (shots, hits, pickups, damage) to `NetSync` too.
 ## Host migration
 
 - **When the master client leaves,** its `PlayerNet` despawns (`DestroyWhenStateAuthorityLeaves`), and Photon makes the other client master. `WorldNet` (`MasterClientObject`) moves to the new master.
-- **Fusion handles the transfer; the game only checks a flag.** `NetSession.IsAuthority` (`WorldNet.HasStateAuthority`) flips, and the console logs `[PooketSlug/Net] This client now runs the shared world`.
+- **Fusion handles the transfer; the game only checks a flag.** `NetReplication.IsAuthority` (`WorldNet.HasStateAuthority`) flips, and the console logs `[PooketSlug/Net] This client now runs the shared world`.
 - **The new authority's puppets become real enemies.** Their AI timers start fresh.
 - **Spawning resumes** from `max(own cursor, NextSpawn)`, and mid-game ids from `NextNetId`.
 - **Tested on every build:** the [CI co-op test](../build-pipeline/workflow.md#the-two-player-co-op-test-job) makes the master leave and checks that the other client takes over. First confirmed on 2026-10-14 (run 38573051144).

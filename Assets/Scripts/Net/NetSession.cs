@@ -11,10 +11,10 @@ namespace PooketSlug
     /// <summary>
     /// Online co-op with Photon Fusion 2 in Shared Mode (the topology Fusion supports for WebGL): no host
     /// process, every client simulates its own soldier, and the room's master client runs the shared world.
-    /// Bridges the replicated <see cref="PlayerNet"/> / <see cref="WorldNet"/> objects to the game's
-    /// <see cref="INetLink"/>, and owns the <see cref="NetworkRunner"/> lifecycle.
+    /// This side connects: hosting, joining, quick match, failures and the <see cref="NetworkRunner"/>'s life.
+    /// What the session shares while it's up is <see cref="NetReplication"/>.
     /// </summary>
-    public sealed class NetSession : MonoBehaviour, INetSession, INetLink, INetworkRunnerCallbacks
+    public sealed class NetSession : MonoBehaviour, INetSession, INetworkRunnerCallbacks
     {
         const int MaxPlayers = Tuning.Coop.MaxPlayers;
 
@@ -26,24 +26,20 @@ namespace PooketSlug
         static void Register() => NetSessions.Factory = host => host.AddComponent<NetSession>();
 
         NetworkRunner m_Runner;
-        WorldNet m_Shared;
-        PlayerNet m_Local;
-        readonly List<PlayerNet> m_Players = new List<PlayerNet>();
-        readonly List<IAvatarLink> m_Remotes = new List<IAvatarLink>();
-        bool m_SpawnedWorld, m_WasAuthority;
+        readonly NetReplication m_Replication = new NetReplication();
 
         public NetState State { get; private set; }
         public string Status { get; private set; } = "";
         public string RoomCode { get; private set; }
-        public INetEvents Events { get; set; }
-        public INetLink Link => this;
-        public bool Ready => State == NetState.Online && SharedValid && m_Local != null;
-        public int PlayerCount => m_Players.Count;
+        public INetEvents Events { set => m_Replication.Events = value; }
+        public INetLink Link => m_Replication;
+        public bool Ready => State == NetState.Online && m_Replication.Ready;
+        public int PlayerCount => m_Replication.PlayerCount;
+        /// <summary>The replicated objects' way in: their spawns, and the RPCs' events.</summary>
+        internal NetReplication Replication => m_Replication;
 
         public int PingMs =>
             m_Runner != null && m_Runner.IsRunning ? Mathf.RoundToInt((float)(m_Runner.GetPlayerRtt(m_Runner.LocalPlayer) * 1000.0)) : 0;
-
-        bool SharedValid => m_Shared != null && m_Shared.Object != null && m_Shared.Object.IsValid;
 
         void Awake() => Instance = this;
 
@@ -99,7 +95,7 @@ namespace PooketSlug
             State = NetState.Connecting;
             Status = sessionName == null ? "LOOKING FOR A GAME..." : joining ? "JOINING " + sessionName + "..." : "OPENING A ROOM...";
             RoomCode = null;
-            m_SpawnedWorld = false;
+            m_Replication.Reset(); // before StartGame: a joiner meets the others' objects while it's still starting
 
             var go = new GameObject("Network Runner");
             var runner = go.AddComponent<NetworkRunner>();
@@ -161,7 +157,6 @@ namespace PooketSlug
             RoomCode = visible ? null : InviteCode.Format(runner.SessionInfo.Name, sessionRegion);
             State = NetState.Online;
             Status = "";
-            m_WasAuthority = false;
             Log.Net.Info($"Online in region {sessionRegion}: {(RoomCode != null ? "room " + RoomCode : "quick match " + runner.SessionInfo.Name)}, " +
                       $"{runner.SessionInfo.PlayerCount}/{MaxPlayers} players, we are {runner.LocalPlayer}{(runner.IsSharedModeMasterClient ? " (master client)" : "")}");
             runner.Spawn(NetPrefabs.Player, inputAuthority: runner.LocalPlayer);
@@ -176,26 +171,7 @@ namespace PooketSlug
                 return;
             }
             if (!m_Runner.IsRunning) return;
-
-            // The master client opens the shared world (once; if it leaves, the object migrates to the next master).
-            if (m_Shared == null && !m_SpawnedWorld && m_Runner.IsSharedModeMasterClient)
-            {
-                m_SpawnedWorld = true;
-                m_Runner.Spawn(NetPrefabs.World);
-            }
-
-            if (IsAuthority != m_WasAuthority)
-            {
-                m_WasAuthority = IsAuthority;
-                Log.Net.Info(m_WasAuthority ? "This client now runs the shared world" : "Another client runs the shared world");
-            }
-
-            // Two soldiers in the same colours (both picked "red" while joining together): the higher id switches.
-            if (m_Local != null)
-            {
-                foreach (PlayerNet p in m_Players)
-                    if (p != m_Local && p.Skin == m_Local.NetSkin && m_Local.PlayerId > p.PlayerId) m_Local.NetSkin = 1 - p.Skin;
-            }
+            m_Replication.Tick(m_Runner);
         }
 
         void Fail(string why) => Clear(NetState.Failed, why);
@@ -203,10 +179,7 @@ namespace PooketSlug
         void Clear(NetState state, string status)
         {
             m_Runner = null;
-            m_Shared = null;
-            m_Local = null;
-            m_Players.Clear();
-            m_Remotes.Clear();
+            m_Replication.Reset();
             State = state;
             Status = status;
             RoomCode = null;
@@ -230,150 +203,6 @@ namespace PooketSlug
                 case ShutdownReason.DisconnectedByPluginLogic: return "DISCONNECTED BY THE SERVER";
                 default: return "DISCONNECTED (" + reason.ToString().ToUpperInvariant() + ")";
             }
-        }
-
-        // ------------------------------------------------------------------ replicated objects
-
-        internal void OnPlayerSpawned(PlayerNet p)
-        {
-            if (!m_Players.Contains(p)) m_Players.Add(p);
-            if (!p.HasStateAuthority) return;
-            m_Local = p;
-            bool redTaken = false;
-            foreach (PlayerNet other in m_Players) redTaken |= other != p && other.Skin == 0;
-            p.NetSkin = redTaken ? 1 : 0;
-        }
-
-        internal void OnPlayerDespawned(PlayerNet p)
-        {
-            m_Players.Remove(p);
-            if (m_Local == p) m_Local = null;
-        }
-
-        internal void OnWorldSpawned(WorldNet w) => m_Shared = w;
-
-        internal void OnWorldDespawned(WorldNet w)
-        {
-            if (m_Shared == w) m_Shared = null;
-        }
-
-        // ------------------------------------------------------------------ INetLink
-
-        public bool IsAuthority => SharedValid && m_Shared.HasStateAuthority;
-        public int LocalSkin => m_Local != null ? m_Local.Skin : 0;
-        public int Round => SharedValid ? m_Shared.Round : 0;
-
-        /// <summary>The other soldiers already playing the same round as us.</summary>
-        public IReadOnlyList<IAvatarLink> RemoteAvatars
-        {
-            get
-            {
-                m_Remotes.Clear();
-                int round = Events != null ? Events.Round : Round;
-                foreach (PlayerNet p in m_Players)
-                    if (p != m_Local && p.PlayingRound == round) m_Remotes.Add(p);
-                return m_Remotes;
-            }
-        }
-
-        public float CamX
-        {
-            get => SharedValid ? m_Shared.CamX : 0f;
-            set { if (IsAuthority) m_Shared.CamX = value; }
-        }
-
-        public int Score
-        {
-            get => SharedValid ? m_Shared.Score : 0;
-            set { if (IsAuthority) m_Shared.Score = value; }
-        }
-
-        public bool Victory
-        {
-            get => SharedValid && m_Shared.Victory;
-            set { if (IsAuthority) m_Shared.Victory = value; }
-        }
-
-        public int NextSpawn
-        {
-            get => SharedValid ? m_Shared.NextSpawn : 0;
-            set { if (IsAuthority) m_Shared.NextSpawn = value; }
-        }
-
-        public int NextNetId
-        {
-            get => SharedValid ? m_Shared.NextNetId : 0;
-            set { if (IsAuthority) m_Shared.NextNetId = value; }
-        }
-
-        public bool IsTaken(int spawnIndex) =>
-            SharedValid && spawnIndex >= 0 && spawnIndex < 64 && (m_Shared.Taken & (1L << spawnIndex)) != 0;
-
-        public void WriteEnemies(List<NetEnemyState> enemies)
-        {
-            if (!IsAuthority) return;
-            NetworkArray<NetEnemy> slots = m_Shared.Enemies;
-            int n = 0;
-            foreach (NetEnemyState e in enemies)
-            {
-                if (n == slots.Length) break; // more than fit: the rest show up once earlier ones are gone
-                slots.Set(n++, new NetEnemy
-                {
-                    Ref = (short)(e.Id + 1),
-                    Kind = e.Def.Id,
-                    Flags = (byte)e.Flags,
-                    Hp = (short)e.Hp,
-                    Pos = e.Pos,
-                });
-            }
-            for (; n < slots.Length; n++) slots.Set(n, default);
-        }
-
-        public void ReadEnemies(List<NetEnemyState> into)
-        {
-            into.Clear();
-            if (!SharedValid) return;
-            NetworkArray<NetEnemy> slots = m_Shared.Enemies;
-            for (int i = 0; i < slots.Length; i++)
-            {
-                NetEnemy e = slots.Get(i);
-                if (e.Ref > 0) into.Add(new NetEnemyState { Id = e.Ref - 1, Def = Content.Enemy(e.Kind), Flags = e.Flags, Hp = e.Hp, Pos = e.Pos });
-            }
-        }
-
-        public void SendAvatar(Vector2 pos, Vector2 vel, int poseFlags, int hp)
-        {
-            if (m_Local == null || !m_Local.Object.IsValid) return;
-            m_Local.NetPos = pos;
-            m_Local.NetVel = vel;
-            m_Local.NetPose = poseFlags;
-            m_Local.NetHp = hp;
-            m_Local.NetRound = (Events != null ? Events.Round : Round) + 1;
-        }
-
-        public void SendShot(in ShotEvent shot)
-        {
-            if (m_Local != null && m_Local.Object.IsValid) m_Local.RPC_Shot(shot.Weapon.Id, shot.Origin, shot.Velocity);
-        }
-
-        public void SendEnemyShot(in ShotEvent shot)
-        {
-            if (IsAuthority) m_Shared.RPC_EnemyShot(shot.Weapon.Id, shot.Origin, shot.Velocity);
-        }
-
-        public void ReportHit(in HitReport hit)
-        {
-            if (SharedValid) m_Shared.RPC_Hit((short)hit.EnemyId, (byte)Mathf.Clamp(hit.Damage, 0, 255));
-        }
-
-        public void ClaimPickup(int spawnIndex)
-        {
-            if (SharedValid) m_Shared.RPC_Claim((short)spawnIndex);
-        }
-
-        public void RequestRestart()
-        {
-            if (SharedValid) m_Shared.RPC_RequestRestart();
         }
 
         // ------------------------------------------------------------------ INetworkRunnerCallbacks
@@ -414,52 +243,6 @@ namespace PooketSlug
         public void OnHostMigration(NetworkRunner runner, HostMigrationToken hostMigrationToken) { }
         public void OnSceneLoadDone(NetworkRunner runner) { }
         public void OnSceneLoadStart(NetworkRunner runner) { }
-    }
-
-    /// <summary>
-    /// The project has no prefab assets, so the two network prefabs are built in code too: a template is
-    /// assembled under an inactive root (so it never runs itself), baked, and registered in Fusion's prefab
-    /// table under a fixed GUID. Every client registers them in the same order, so the ids line up.
-    /// </summary>
-    static class NetPrefabs
-    {
-        public static NetworkPrefabId Player, World;
-        static GameObject s_Root;
-
-        public static void Register()
-        {
-            if (s_Root != null) return;
-            s_Root = new GameObject("[Network Templates]");
-            s_Root.SetActive(false);
-            UnityEngine.Object.DontDestroyOnLoad(s_Root);
-            Player = Add<PlayerNet>("PlayerNet", new Guid("7c0f3d1e-52a8-4f0b-9a61-3b1e6d2c0a01"), NetworkObjectFlags.DestroyWhenStateAuthorityLeaves);
-            World = Add<WorldNet>("WorldNet", new Guid("7c0f3d1e-52a8-4f0b-9a61-3b1e6d2c0a02"), NetworkObjectFlags.MasterClientObject);
-        }
-
-        static NetworkPrefabId Add<T>(string name, Guid guid, NetworkObjectFlags flags) where T : NetworkBehaviour
-        {
-            var go = new GameObject(name);
-            go.transform.SetParent(s_Root.transform, false);
-            NetworkObject obj = go.AddComponent<NetworkObject>();
-            go.AddComponent<T>();
-            obj.Flags |= flags;
-            new TemplateBaker().Bake(go);
-
-            NetworkObjectGuid id = guid;
-            NetworkPrefabTable table = NetworkProjectConfig.Global.PrefabTable;
-            var source = new NetworkPrefabSourceStatic { Object = obj, AssetGuid = id, AssetPath = name };
-            return table.TryAddSource(source, out NetworkPrefabId prefabId) ? prefabId : table.GetId(id);
-        }
-
-        sealed class TemplateBaker : NetworkObjectBaker
-        {
-            // The baker wants an execution order for objects that start inactive; ours never run as templates.
-            protected override bool TryGetExecutionOrder(MonoBehaviour obj, out int order)
-            {
-                order = obj is NetworkObject ? 1 : 0;
-                return true;
-            }
-        }
     }
 }
 #endif

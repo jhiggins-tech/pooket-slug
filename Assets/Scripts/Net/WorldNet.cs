@@ -31,19 +31,19 @@ namespace PooketSlug
         [Networked] public long Taken { get; set; } // one bit per Level.Spawns index: pickups already collected
         [Networked, Capacity(MaxEnemies)] public NetworkArray<NetEnemy> Enemies => default;
 
-        public override void Spawned() => NetSession.Instance?.OnWorldSpawned(this);
+        public override void Spawned() => NetSession.Instance?.Replication.OnWorldSpawned(this);
 
-        public override void Despawned(NetworkRunner runner, bool hasState) => NetSession.Instance?.OnWorldDespawned(this);
+        public override void Despawned(NetworkRunner runner, bool hasState) => NetSession.Instance?.Replication.OnWorldDespawned(this);
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.Proxies, InvokeLocal = false)]
         public void RPC_EnemyShot(byte weapon, Vector2 origin, Vector2 vel)
         {
             WeaponDef def = Content.Weapon(weapon);
-            if (def != null) NetSession.Instance?.Events?.OnEnemyShot(new ShotEvent(def, origin, vel));
+            if (def != null) NetSession.Instance?.Replication.Events?.OnEnemyShot(new ShotEvent(def, origin, vel));
         }
 
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-        public void RPC_Hit(short enemyId, byte damage) => NetSession.Instance?.Events?.OnHit(new HitReport(enemyId, damage));
+        public void RPC_Hit(short enemyId, byte damage) => NetSession.Instance?.Replication.Events?.OnHit(new HitReport(enemyId, damage));
 
         /// <summary>Both soldiers may touch a crate in the same moment: the authority gives it to the first claim.</summary>
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -58,7 +58,7 @@ namespace PooketSlug
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
         public void RPC_Granted(short spawnIndex, PlayerRef player) =>
-            NetSession.Instance?.Events?.OnPickupGranted(new PickupGrant(spawnIndex, player == Runner.LocalPlayer));
+            NetSession.Instance?.Replication.Events?.OnPickupGranted(new PickupGrant(spawnIndex, player == Runner.LocalPlayer));
 
         /// <summary>Starts a won mission again for everyone (each client rebuilds its world when Round changes).</summary>
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
