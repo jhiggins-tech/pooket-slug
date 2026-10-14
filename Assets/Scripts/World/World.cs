@@ -67,7 +67,7 @@ namespace PooketSlug
                 float x = Mathf.Max(start.x + net.LocalSkin * 1.25f, View.Left + 2f);
                 start = new Vector2(x, Level.TopSurfaceY(x));
             }
-            Player = new Player(this, start, Coop ? net.LocalSkin : 0);
+            Player = new Player(this, Content.Trooper, start, Coop ? net.LocalSkin : 0);
             View.Tick(0f);
             Spawner.SpawnAhead();
         }

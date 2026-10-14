@@ -28,13 +28,13 @@ namespace PooketSlug
 
         public static readonly WeaponDef Pistol = new WeaponDef(0, "Pistol", WeaponBehaviour.Bullet, Bullet, speed: 16f, cooldown: 0.18f);
         public static readonly WeaponDef HeavyMachineGun = new WeaponDef(1, "Heavy machine gun", WeaponBehaviour.Bullet, HeavyBullet,
-            speed: 20f, cooldown: 0.075f, spread: 4f, ammo: 200);
+            speed: 20f, cooldown: 0.075f, spread: 4f, ammo: 200, hud: "HMG");
         /// <summary>The goon soldiers' rifle.</summary>
         public static readonly WeaponDef Rifle = new WeaponDef(2, "Rifle", WeaponBehaviour.Bullet, EnemyBullet, speed: 6.5f);
         /// <summary>The tank's cannon. It aims each shell to land near its target.</summary>
         public static readonly WeaponDef Cannon = new WeaponDef(3, "Cannon", WeaponBehaviour.Lob, Shell, muzzleBlast: 0.4f, kick: 0.08f);
         public static readonly WeaponDef GrenadeThrow = new WeaponDef(4, "Grenade", WeaponBehaviour.Lob, Grenade,
-            throwVelocity: new Vector2(6.5f, 9f), carry: 0.3f);
+            throwVelocity: new Vector2(6.5f, 9f), carry: 0.3f, hud: "BOMB");
         /// <summary>The drone's bombs, dropped with half its speed.</summary>
         public static readonly WeaponDef DroneBomb = new WeaponDef(5, "Bomb drop", WeaponBehaviour.Lob, Bomb, carry: 0.5f);
         /// <summary>The tank's machine gun.</summary>
@@ -48,17 +48,49 @@ namespace PooketSlug
         public static readonly EnemyDef Drone = new EnemyDef(2, "Drone", EnemyBrain.Drone, halfWidth: 0.5f, height: 0.7f, hp: 3, score: 200);
         public static readonly EnemyDef Tank = new EnemyDef(3, "Tank", EnemyBrain.Tank, halfWidth: 1.5f, height: 1.3f, hp: 45, score: 3000);
 
+        // ------------------------------------------------------------------ pickups
+
+        public static readonly PickupDef HeavyMachineGunCrate = new PickupDef(0, "Heavy machine gun crate", PickupEffect.Gun,
+            "HEAVY MACHINE GUN!", new Color(1f, 0.85f, 0.3f), score: 500, gun: HeavyMachineGun);
+        public static readonly PickupDef BombCrate = new PickupDef(1, "Bomb crate", PickupEffect.Specials,
+            "BOMBS +10", new Color(0.6f, 1f, 0.5f), score: 500, amount: 10);
+        public static readonly PickupDef Medkit = new PickupDef(2, "Medkit", PickupEffect.Heal,
+            "+2 HP", new Color(1f, 0.5f, 0.5f), score: 500, amount: 2);
+
+        // ------------------------------------------------------------------ soldiers
+
+        /// <summary>
+        /// Today's soldier, until the crew's own kits are built (<c>docs/design/player.md</c>): a pistol and grenades.
+        /// Each crew member will be a definition like this one.
+        /// </summary>
+        public static readonly SoldierDef Trooper = new SoldierDef(0, "Trooper", runSpeed: 5.5f, crawlSpeed: 2f, jumpVelocity: 17f,
+            halfWidth: 0.3f, standHeight: 1.35f, crouchHeight: 0.8f, maxHp: 5, primary: Pistol, special: GrenadeThrow, startSpecials: 10);
+
         // ------------------------------------------------------------------ lookups (after the definitions: statics initialise in order)
 
         public static readonly IReadOnlyList<ProjectileDef> Projectiles = ById(p => p.Id, Bullet, HeavyBullet, EnemyBullet, Shell, Grenade, Bomb);
         public static readonly IReadOnlyList<WeaponDef> Weapons = ById(w => w.Id, Pistol, HeavyMachineGun, Rifle, Cannon, GrenadeThrow, DroneBomb, TankGun);
         public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank);
+        public static readonly IReadOnlyList<PickupDef> Pickups = ById(p => p.Id, HeavyMachineGunCrate, BombCrate, Medkit);
+        public static readonly IReadOnlyList<SoldierDef> Soldiers = ById(s => s.Id, Trooper);
 
         /// <summary>The weapon with this id, or null for an id no weapon has (say, from a different build).</summary>
         public static WeaponDef Weapon(int id) => id >= 0 && id < Weapons.Count ? Weapons[id] : null;
 
         /// <summary>The enemy with this id, or null for an id no enemy has.</summary>
         public static EnemyDef Enemy(int id) => id >= 0 && id < Enemies.Count ? Enemies[id] : null;
+
+        /// <summary>The pickup a level marker places, or null if it places something else.</summary>
+        public static PickupDef PickupFor(SpawnKind kind)
+        {
+            switch (kind)
+            {
+                case SpawnKind.CrateHeavy: return HeavyMachineGunCrate;
+                case SpawnKind.CrateBombs: return BombCrate;
+                case SpawnKind.Medkit: return Medkit;
+                default: return null;
+            }
+        }
 
         /// <summary>The enemy a level marker places, or null if it places something else.</summary>
         public static EnemyDef EnemyFor(SpawnKind kind)

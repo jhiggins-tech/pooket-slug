@@ -5,7 +5,8 @@ namespace PooketSlug.Tests
 {
     public class TilePhysicsTests
     {
-        const float HalfWidth = Tuning.Soldier.HalfWidth, Height = Tuning.Soldier.StandHeight, Dt = 0.1f;
+        static readonly float HalfWidth = Content.Trooper.HalfWidth, Height = Content.Trooper.StandHeight;
+        const float Dt = 0.1f;
 
         static readonly string[] Flat =
         {

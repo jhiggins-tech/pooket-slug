@@ -17,9 +17,6 @@ namespace PooketSlug
         /// <summary>How far through the level's spawns the authority has got; the next index to place.</summary>
         public int Next => m_Next;
 
-        public static PickupKind ToPickup(SpawnKind kind) =>
-            kind == SpawnKind.CrateHeavy ? PickupKind.HeavyMachineGun : kind == SpawnKind.CrateBombs ? PickupKind.Bombs : PickupKind.Medkit;
-
         /// <summary>Makes an enemy (not yet in the world's list), driven by its definition's brain.</summary>
         public Enemy CreateEnemy(EnemyDef def, Vector2 pos, int id)
         {
@@ -40,17 +37,15 @@ namespace PooketSlug
         void SpawnStatic(Spawn s, int index)
         {
             World w = m_World;
-            switch (s.Kind)
+            PickupDef pickup = Content.PickupFor(s.Kind);
+            if (pickup != null)
             {
-                case SpawnKind.CrateHeavy:
-                case SpawnKind.CrateBombs:
-                case SpawnKind.Medkit:
-                    if (w.Coop && w.Net.IsTaken(index)) return;
-                    w.Pickups.Add(new Pickup(w, ToPickup(s.Kind), s.Pos) { NetId = index });
-                    break;
-                case SpawnKind.Flag:
-                    w.Props.Add(new Prop(w, Art.Flag, s.Pos, SortOrder.Pickups));
-                    break;
+                if (w.Coop && w.Net.IsTaken(index)) return;
+                w.Pickups.Add(new Pickup(w, pickup, s.Pos) { NetId = index });
+            }
+            else if (s.Kind == SpawnKind.Flag)
+            {
+                w.Props.Add(new Prop(w, Art.Flag, s.Pos, SortOrder.Pickups));
             }
         }
 

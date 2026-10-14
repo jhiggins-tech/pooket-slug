@@ -12,7 +12,7 @@ Up: [Verification](README.md)
 
 | Class | What it does | What the tests pin down |
 |---|---|---|
-| `Content`, with `ProjectileDef`, `WeaponDef` and `EnemyDef` | The game's projectiles, weapons and enemies as data, each with a stable id. Shots are replicated by weapon id, and enemies by enemy id | The ids never change, each table holds its definitions at their ids, unknown ids find nothing, each level marker places the right enemy, every projectile can hurt something, and lobs keep the old throws |
+| `Content`, with `ProjectileDef`, `WeaponDef`, `EnemyDef`, `PickupDef` and `SoldierDef` | The game's projectiles, weapons, enemies, pickups and soldier as data, each with a stable id. Shots are replicated by weapon id, and enemies by enemy id | The ids never change, each table holds its definitions at their ids, unknown ids find nothing, each level marker places the right enemy or pickup, every projectile can hurt something, lobs keep the old throws, and every soldier's kit follows the design (an unlimited primary, a special with charges) |
 | `Level` | Parses a map into tiles, spawns and the player's start. (`LevelView`, outside Core, draws it) | Row order, markers, short rows, the walls and floor outside the map, solidity, top surfaces. Also that the mission starts on the ground, ends at the flag, and has at most 64 spawns, since the shared world's pickup mask has one bit per spawn |
 | `TilePhysics` | Moves a box through the tile grid, with one-way bridges | Landing, falling, walls on both sides, the level's edges, ceilings, and bridges from above, below and inside. Also dropping through, and standing on a bridge |
 | `AvatarPose` | A soldier's pose, packed into the int the network sends | Every pose survives packing, and the packed form fits in 10 bits |
@@ -20,9 +20,9 @@ Up: [Verification](README.md)
 | `Rng` | Seeded xorshift32 | The exact sequence (replays will depend on it), ranges, a zero seed |
 | `PageQuery` | Reads the page address | Parameters, case, escapes, `+`, fragments, missing names |
 | `Log` | Log channels and the `?log=` spec | Parsing, configuring channels, levels |
-| `Tuning` | The game's feel, as constants | Used by the physics tests, so they test the real soldier's size |
+| `Tuning` | The feel every soldier shares, the physics, the camera and co-op timings, as constants | Nothing directly. The physics tests use the real soldier's size from `Content` |
 
-The tests are in [`Assets/Tests/EditMode`](../../../Assets/Tests/EditMode): 8 fixtures, 125 test cases, under a tenth of a second.
+The tests are in [`Assets/Tests/EditMode`](../../../Assets/Tests/EditMode): 8 fixtures, 133 test cases, under a tenth of a second.
 
 ## In CI
 

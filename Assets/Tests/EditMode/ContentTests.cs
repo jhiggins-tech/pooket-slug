@@ -34,6 +34,53 @@ namespace PooketSlug.Tests
             for (int i = 0; i < Content.Projectiles.Count; i++) Assert.AreEqual(i, Content.Projectiles[i].Id, Content.Projectiles[i].Name);
             for (int i = 0; i < Content.Weapons.Count; i++) Assert.AreEqual(i, Content.Weapons[i].Id, Content.Weapons[i].Name);
             for (int i = 0; i < Content.Enemies.Count; i++) Assert.AreEqual(i, Content.Enemies[i].Id, Content.Enemies[i].Name);
+            for (int i = 0; i < Content.Pickups.Count; i++) Assert.AreEqual(i, Content.Pickups[i].Id, Content.Pickups[i].Name);
+            for (int i = 0; i < Content.Soldiers.Count; i++) Assert.AreEqual(i, Content.Soldiers[i].Id, Content.Soldiers[i].Name);
+        }
+
+        [TestCase(SpawnKind.CrateHeavy, PickupEffect.Gun)]
+        [TestCase(SpawnKind.CrateBombs, PickupEffect.Specials)]
+        [TestCase(SpawnKind.Medkit, PickupEffect.Heal)]
+        public void EachCrateMarkerPlacesItsPickup(SpawnKind marker, PickupEffect effect)
+        {
+            Assert.AreEqual(effect, Content.PickupFor(marker).Effect);
+        }
+
+        [TestCase(SpawnKind.Soldier)]
+        [TestCase(SpawnKind.Tank)]
+        [TestCase(SpawnKind.Flag)]
+        public void OtherMarkersPlaceNoPickup(SpawnKind marker)
+        {
+            Assert.IsNull(Content.PickupFor(marker));
+        }
+
+        [Test]
+        public void EveryPickupDoesSomething()
+        {
+            foreach (PickupDef p in Content.Pickups)
+            {
+                if (p.Effect == PickupEffect.Gun)
+                {
+                    Assert.IsNotNull(p.Gun, p.Name);
+                    Assert.Greater(p.Gun.Ammo, 0, p.Name + ": a crate's gun replaces the primary until it runs dry");
+                }
+                else Assert.Greater(p.Amount, 0, p.Name);
+                Assert.IsNotEmpty(p.Announce, p.Name);
+            }
+        }
+
+        [Test]
+        public void EverySoldiersKitFollowsTheDesign()
+        {
+            foreach (SoldierDef s in Content.Soldiers)
+            {
+                Assert.AreEqual(0, s.Primary.Ammo, s.Name + ": tier 1 has unlimited ammo");
+                Assert.IsNotNull(s.Special, s.Name);
+                Assert.Greater(s.StartSpecials, 0, s.Name + ": the special is fired with charges");
+                Assert.Less(s.CrouchHeight, s.StandHeight, s.Name);
+                Assert.Greater(s.MaxHp, 0, s.Name);
+                Assert.Greater(s.RunSpeed, s.CrawlSpeed, s.Name);
+            }
         }
 
         [TestCase(SpawnKind.Soldier, EnemyBrain.Rifleman)]

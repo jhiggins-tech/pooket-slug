@@ -1,9 +1,8 @@
 namespace PooketSlug
 {
     /// <summary>
-    /// The game's feel in one place: physics, the soldier's movement, the camera, and co-op timings.
-    /// Numbers that belong to one weapon, enemy or pickup stay with it until content moves into data
-    /// (refactor plan, phase 2).
+    /// The game's feel in one place: physics, what every soldier shares, the camera, and co-op timings.
+    /// Numbers that belong to one soldier, weapon, enemy or pickup are in its definition (<see cref="Content"/>).
     /// </summary>
     public static class Tuning
     {
@@ -14,14 +13,12 @@ namespace PooketSlug
             public const float MaxFall = 18f;
         }
 
+        /// <summary>What every soldier shares. Each one's speed, jump, size and health are in its <see cref="SoldierDef"/>.</summary>
         public static class Soldier
         {
-            public const float RunSpeed = 5.5f, CrawlSpeed = 2f, JumpVelocity = 17f;
             /// <summary>Gravity multiplier while rising with jump released, for a short hop.</summary>
             public const float ShortHopGravity = 2.2f;
             public const float CoyoteTime = 0.1f, JumpBuffer = 0.12f, DropThroughTime = 0.25f;
-            public const float HalfWidth = 0.3f, StandHeight = 1.35f, CrouchHeight = 0.8f;
-            public const int MaxHp = 5, StartGrenades = 10;
             public const float HurtInvulnerability = 1.4f;
         }
 
@@ -41,7 +38,8 @@ namespace PooketSlug
             public const float HalfWidth = 10f;
             public const int MaxPlayers = 2;
             public const float RespawnDelay = 2.5f, RespawnInvulnerability = 2.5f;
-            public const int RespawnMinGrenades = 5;
+            /// <summary>Charges of the special a soldier comes back with, at least.</summary>
+            public const int RespawnMinSpecials = 5;
             /// <summary>The camera never scrolls the trailing soldier closer than this to the left edge.</summary>
             public const float TrailMargin = 0.5f;
             /// <summary>Followers scroll this many times faster to catch up with the authority's camera.</summary>

@@ -64,6 +64,8 @@ namespace PooketSlug
     {
         public readonly byte Id;
         public readonly string Name;
+        /// <summary>Its short name on the HUD.</summary>
+        public readonly string Hud;
         public readonly WeaponBehaviour Behaviour;
         public readonly ProjectileDef Projectile;
         /// <summary>Muzzle speed of a <see cref="WeaponBehaviour.Bullet"/> weapon.</summary>
@@ -84,10 +86,12 @@ namespace PooketSlug
         public readonly float Kick;
 
         public WeaponDef(byte id, string name, WeaponBehaviour behaviour, ProjectileDef projectile, float speed = 0f, float cooldown = 0f,
-            float spread = 0f, Vector2 throwVelocity = default, float carry = 0f, int ammo = 0, float muzzleBlast = 0f, float kick = 0f)
+            float spread = 0f, Vector2 throwVelocity = default, float carry = 0f, int ammo = 0, float muzzleBlast = 0f, float kick = 0f,
+            string hud = null)
         {
             Id = id;
             Name = name;
+            Hud = hud ?? name.ToUpperInvariant();
             Behaviour = behaviour;
             Projectile = projectile;
             Speed = speed;
@@ -139,6 +143,85 @@ namespace PooketSlug
             Height = height;
             Hp = hp;
             Score = score;
+        }
+
+        public override string ToString() => Name;
+    }
+
+    /// <summary>What a pickup does for the soldier who collects it.</summary>
+    public enum PickupEffect
+    {
+        /// <summary>Gives <see cref="PickupDef.Gun"/>, which replaces the primary until its ammo runs out.</summary>
+        Gun,
+        /// <summary>Adds <see cref="PickupDef.Amount"/> charges to the special.</summary>
+        Specials,
+        /// <summary>Heals <see cref="PickupDef.Amount"/> health.</summary>
+        Heal,
+    }
+
+    /// <summary>One kind of pickup. A pickup in the world is known by its level spawn, so this id stays local.</summary>
+    public sealed class PickupDef
+    {
+        public readonly byte Id;
+        public readonly string Name;
+        public readonly PickupEffect Effect;
+        public readonly WeaponDef Gun;
+        public readonly int Amount;
+        /// <summary>The popup when it's collected, and its colour.</summary>
+        public readonly string Announce;
+        public readonly Color AnnounceColor;
+        /// <summary>Points for collecting it.</summary>
+        public readonly int Score;
+
+        public PickupDef(byte id, string name, PickupEffect effect, string announce, Color announceColor, int score,
+            WeaponDef gun = null, int amount = 0)
+        {
+            Id = id;
+            Name = name;
+            Effect = effect;
+            Announce = announce;
+            AnnounceColor = announceColor;
+            Score = score;
+            Gun = gun;
+            Amount = amount;
+        }
+
+        public override string ToString() => Name;
+    }
+
+    /// <summary>
+    /// A playable soldier: how they move, their health, and their kit. The crew in <c>docs/design/player.md</c>
+    /// each play differently, in how they move as well as how they fight.
+    /// </summary>
+    public sealed class SoldierDef
+    {
+        public readonly byte Id;
+        public readonly string Name;
+        public readonly float RunSpeed, CrawlSpeed, JumpVelocity;
+        public readonly float HalfWidth, StandHeight, CrouchHeight;
+        public readonly int MaxHp;
+        /// <summary>Tier 1 of the kit: unlimited ammo.</summary>
+        public readonly WeaponDef Primary;
+        /// <summary>Tier 2 of the kit: fired with charges.</summary>
+        public readonly WeaponDef Special;
+        /// <summary>Charges of the special at the start of a mission.</summary>
+        public readonly int StartSpecials;
+
+        public SoldierDef(byte id, string name, float runSpeed, float crawlSpeed, float jumpVelocity, float halfWidth, float standHeight,
+            float crouchHeight, int maxHp, WeaponDef primary, WeaponDef special, int startSpecials)
+        {
+            Id = id;
+            Name = name;
+            RunSpeed = runSpeed;
+            CrawlSpeed = crawlSpeed;
+            JumpVelocity = jumpVelocity;
+            HalfWidth = halfWidth;
+            StandHeight = standHeight;
+            CrouchHeight = crouchHeight;
+            MaxHp = maxHp;
+            Primary = primary;
+            Special = special;
+            StartSpecials = startSpecials;
         }
 
         public override string ToString() => Name;

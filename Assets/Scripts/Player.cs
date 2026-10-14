@@ -2,11 +2,15 @@ using UnityEngine;
 
 namespace PooketSlug
 {
-    /// <summary>The locally controlled soldier.</summary>
+    /// <summary>The locally controlled soldier. How they move and their kit come from their <see cref="SoldierDef"/>.</summary>
     public sealed class Player : Actor
     {
-        public int Grenades = Tuning.Soldier.StartGrenades;
-        public int HeavyAmmo;
+        public readonly SoldierDef Def;
+        /// <summary>Charges left for the special (<see cref="SoldierDef.Special"/>).</summary>
+        public int Specials;
+        /// <summary>A crate's gun, which replaces the primary while <see cref="GunAmmo"/> lasts.</summary>
+        public WeaponDef Gun;
+        public int GunAmmo;
         public bool Dead;
         public float DeadTime;
         public bool Crouching;
@@ -16,9 +20,11 @@ namespace PooketSlug
         Vector2 m_Aim = Vector2.right;
         readonly PlayerVisual m_Visual;
 
-        public Player(World world, Vector2 feet, int skin)
-            : base(world, "Player", feet, Tuning.Soldier.HalfWidth, Tuning.Soldier.StandHeight, Tuning.Soldier.MaxHp)
+        public Player(World world, SoldierDef def, Vector2 feet, int skin)
+            : base(world, "Player", feet, def.HalfWidth, def.StandHeight, def.MaxHp)
         {
+            Def = def;
+            Specials = def.StartSpecials;
             m_Visual = new PlayerVisual(Visual, Art.PlayerSkins[skin], SortOrder.Player);
             Grounded = true; // spawned standing on the ground (matters for the title-screen pose)
         }
@@ -59,8 +65,8 @@ namespace PooketSlug
 
             // --- horizontal ---
             Crouching = Grounded && down;
-            Height = Crouching ? Tuning.Soldier.CrouchHeight : Tuning.Soldier.StandHeight;
-            Vel.x = moveX * (Crouching ? Tuning.Soldier.CrawlSpeed : Tuning.Soldier.RunSpeed);
+            Height = Crouching ? Def.CrouchHeight : Def.StandHeight;
+            Vel.x = moveX * (Crouching ? Def.CrawlSpeed : Def.RunSpeed);
             if (moveX != 0f) Facing = moveX > 0f ? 1 : -1;
 
             // --- jumping (with coyote time + input buffering) ---
@@ -75,7 +81,7 @@ namespace PooketSlug
                 }
                 else
                 {
-                    Vel.y = Tuning.Soldier.JumpVelocity;
+                    Vel.y = Def.JumpVelocity;
                     Sfx.Play(Sfx.Jump, 0.6f);
                 }
                 m_JumpBuffer = 0f;
@@ -98,14 +104,14 @@ namespace PooketSlug
             else m_Aim = new Vector2(Facing, 0f);
 
             m_FireCooldown -= dt;
-            bool heavy = HeavyAmmo > 0;
-            bool wantsFire = InputEnabled && (heavy ? GameInput.FireHeld : (GameInput.FirePressed || GameInput.FireHeld));
-            if (wantsFire && m_FireCooldown <= 0f) Fire(heavy ? Content.HeavyMachineGun : Content.Pistol);
+            bool gun = GunAmmo > 0;
+            bool wantsFire = InputEnabled && (gun ? GameInput.FireHeld : (GameInput.FirePressed || GameInput.FireHeld));
+            if (wantsFire && m_FireCooldown <= 0f) Fire(gun ? Gun : Def.Primary);
 
-            if (InputEnabled && GameInput.GrenadePressed && Grenades > 0)
+            if (InputEnabled && GameInput.GrenadePressed && Specials > 0)
             {
-                Grenades--;
-                WeaponDef special = Content.GrenadeThrow;
+                Specials--;
+                WeaponDef special = Def.Special;
                 World.Combat.FirePlayerShot(special, Pos + new Vector2(Facing * 0.3f, Height * 0.8f), special.LobVelocity(Facing, Vel));
                 Sfx.PlayShot(special);
             }
@@ -127,11 +133,10 @@ namespace PooketSlug
                 float spread = World.Rng.Range(-weapon.Spread, weapon.Spread) * Mathf.Deg2Rad;
                 dir = new Vector2(dir.x * Mathf.Cos(spread) - dir.y * Mathf.Sin(spread), dir.x * Mathf.Sin(spread) + dir.y * Mathf.Cos(spread));
             }
-            if (weapon.Ammo > 0)
+            if (weapon == Gun)
             {
-                // a crate's gun, until it runs dry
-                HeavyAmmo--;
-                if (HeavyAmmo == 0) World.Scoring.Popup("OUT OF AMMO", Pos + Vector2.up * 2f, new Color(1f, 0.6f, 0.4f));
+                GunAmmo--;
+                if (GunAmmo == 0) World.Scoring.Popup("OUT OF AMMO", Pos + Vector2.up * 2f, new Color(1f, 0.6f, 0.4f));
             }
             World.Combat.FirePlayerShot(weapon, origin, dir * weapon.Speed);
             m_FireCooldown = weapon.Cooldown;
@@ -163,13 +168,21 @@ namespace PooketSlug
 
         public void Heal(int amount) => Hp = Mathf.Min(MaxHp, Hp + amount);
 
+        /// <summary>A crate's gun: it replaces the primary until its ammo runs out. The same gun again adds its ammo.</summary>
+        public void GiveGun(WeaponDef gun)
+        {
+            if (gun != Gun) GunAmmo = 0;
+            Gun = gun;
+            GunAmmo += gun.Ammo;
+        }
+
         /// <summary>Co-op only: come back at the left edge of the shared screen.</summary>
         void Respawn()
         {
             Dead = false;
             DeadTime = 0f;
             Hp = MaxHp;
-            Grenades = Mathf.Max(Grenades, Tuning.Coop.RespawnMinGrenades);
+            Specials = Mathf.Max(Specials, Tuning.Coop.RespawnMinSpecials);
             Vel = Vector2.zero;
             m_Invuln = Tuning.Coop.RespawnInvulnerability;
             float x = World.View.Left + 2f;

@@ -129,7 +129,7 @@ The session delivers its events (shots, hits, pickups, damage) to `NetSync` too.
 
 - **Hostile projectiles and explosions only hurt the local soldier.** On a remote soldier they just detonate visually.
 - **The master's runner slashes and tank contact go through `Combat.DamageAvatar`:** local soldier → `Hurt`; remote soldier → `RPC_Hurt`, throttled to once per 0.5 s per soldier.
-- **No game over in co-op.** A dead soldier respawns after `Tuning.Coop.RespawnDelay` (2.5 s) at the left edge of the shared screen, with full health, at least 5 grenades and 2.5 s of invulnerability.
+- **No game over in co-op.** A dead soldier respawns after `Tuning.Coop.RespawnDelay` (2.5 s) at the left edge of the shared screen, with full health, at least 5 charges of the special (grenades, for today's soldier) and 2.5 s of invulnerability.
 
 ## Restart and rounds
 

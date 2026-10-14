@@ -94,7 +94,7 @@ namespace PooketSlug
         public static Sprite SoldierTorso, RunnerTorso;
         public static Sprite[] Drone, Explosion, Spark;
         public static Sprite Tank, Bullet, HeavyBullet, EnemyBullet, Shell, Grenade, Bomb, MuzzleFlash;
-        static Sprite[] s_Projectiles;
+        static Sprite[] s_Projectiles, s_Pickups;
         public static Sprite CrateHeavy, CrateBombs, Medkit, Flag, Pixel, Sky, Mountains, Ruins;
         public static Texture2D HeartTex, WhiteTex;
 
@@ -174,6 +174,10 @@ namespace PooketSlug
             CrateHeavy = Simple(ArtData.CrateHeavy, feet);
             CrateBombs = Simple(ArtData.CrateBombs, feet);
             Medkit = Simple(ArtData.Medkit, feet);
+            s_Pickups = new Sprite[Content.Pickups.Count];
+            s_Pickups[Content.HeavyMachineGunCrate.Id] = CrateHeavy;
+            s_Pickups[Content.BombCrate.Id] = CrateBombs;
+            s_Pickups[Content.Medkit.Id] = Medkit;
             Flag = Simple(ArtData.Flag, feet);
 
             var px = new PixelCanvas(1, 1);
@@ -211,6 +215,9 @@ namespace PooketSlug
         }
 
         /// <summary>White silhouette of a sprite, used for the hit flash.</summary>
+        /// <summary>A pickup's sprite.</summary>
+        public static Sprite PickupSprite(PickupDef def) => s_Pickups[def.Id];
+
         /// <summary>A projectile's sprite (the content is data in Core; how it looks lives here).</summary>
         public static Sprite ProjectileSprite(ProjectileDef def) => s_Projectiles[def.Id];
 

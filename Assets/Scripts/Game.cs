@@ -303,8 +303,8 @@ namespace PooketSlug
                     GUI.DrawTexture(R(8 + i * 13, 24, 12, 12), Art.HeartTex);
                 }
                 GUI.color = Color.white;
-                string arms = p.HeavyAmmo > 0 ? "HMG " + p.HeavyAmmo : "PISTOL"; // IMGUI's default font has no infinity glyph
-                Text(8, 40, "ARMS " + arms + "   BOMB " + p.Grenades, 11, new Color(1f, 0.9f, 0.5f), TextAnchor.UpperLeft);
+                string arms = p.GunAmmo > 0 ? p.Gun.Hud + " " + p.GunAmmo : p.Def.Primary.Hud; // IMGUI's default font has no infinity glyph
+                Text(8, 40, "ARMS " + arms + "   " + p.Def.Special.Hud + " " + p.Specials, 11, new Color(1f, 0.9f, 0.5f), TextAnchor.UpperLeft);
 
                 Text(vw - 8, 5, "HI " + Mathf.Max(m_HiScore, w.Scoring.Points).ToString("000000"), 14, Color.white, TextAnchor.UpperRight);
                 int secs = Mathf.FloorToInt(w.Elapsed);

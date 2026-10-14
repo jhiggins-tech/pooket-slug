@@ -173,21 +173,19 @@ namespace PooketSlug
         }
     }
 
-    public enum PickupKind { HeavyMachineGun, Bombs, Medkit }
-
+    /// <summary>A crate or medkit in the world. What it does comes from its <see cref="PickupDef"/>.</summary>
     public sealed class Pickup : Entity
     {
-        public readonly PickupKind Kind;
+        public readonly PickupDef Def;
         public int NetId = -1;      // index in Level.Spawns
         public bool ClaimPending;   // co-op: asked the authority for it, waiting for the answer
         readonly SpriteRenderer m_Sr;
         float m_Time;
 
-        public Pickup(World world, PickupKind kind, Vector2 feet) : base(world, "Pickup", feet)
+        public Pickup(World world, PickupDef def, Vector2 feet) : base(world, "Pickup", feet)
         {
-            Kind = kind;
-            Sprite sprite = kind == PickupKind.HeavyMachineGun ? Art.CrateHeavy : kind == PickupKind.Bombs ? Art.CrateBombs : Art.Medkit;
-            m_Sr = AddRenderer(Go.transform, "Sprite", sprite, SortOrder.Pickups);
+            Def = def;
+            m_Sr = AddRenderer(Go.transform, "Sprite", Art.PickupSprite(def), SortOrder.Pickups);
         }
 
         public Rect Bounds => new Rect(Pos.x - 0.45f, Pos.y, 0.9f, 0.8f);
@@ -203,25 +201,23 @@ namespace PooketSlug
         }
 
         /// <summary>Gives the pickup's effect to the local soldier.</summary>
-        public void ApplyTo(Player player) => Give(Kind, player);
+        public void ApplyTo(Player player) => Give(Def, player);
 
-        public static void Give(PickupKind kind, Player player)
+        public static void Give(PickupDef def, Player player)
         {
-            switch (kind)
+            switch (def.Effect)
             {
-                case PickupKind.HeavyMachineGun: player.HeavyAmmo += 200; break;
-                case PickupKind.Bombs: player.Grenades += 10; break;
-                case PickupKind.Medkit: player.Heal(2); break;
+                case PickupEffect.Gun: player.GiveGun(def.Gun); break;
+                case PickupEffect.Specials: player.Specials += def.Amount; break;
+                case PickupEffect.Heal: player.Heal(def.Amount); break;
             }
         }
 
         /// <summary>Removes the pickup with its popup and sound (on every client).</summary>
         public void Collect()
         {
-            string text = Kind == PickupKind.HeavyMachineGun ? "HEAVY MACHINE GUN!" : Kind == PickupKind.Bombs ? "BOMBS +10" : "+2 HP";
-            Color color = Kind == PickupKind.HeavyMachineGun ? new Color(1f, 0.85f, 0.3f) : Kind == PickupKind.Bombs ? new Color(0.6f, 1f, 0.5f) : new Color(1f, 0.5f, 0.5f);
-            World.Scoring.Popup(text, Pos + Vector2.up * 1.6f, color);
-            if (World.IsAuthority) World.Scoring.Add(500, Pos + Vector2.up, false);
+            World.Scoring.Popup(Def.Announce, Pos + Vector2.up * 1.6f, Def.AnnounceColor);
+            if (World.IsAuthority) World.Scoring.Add(Def.Score, Pos + Vector2.up, false);
             Sfx.Play(Sfx.Pickup);
             Remove();
         }

@@ -114,7 +114,11 @@ namespace PooketSlug
             if (mine)
             {
                 if (pk != null) pk.ApplyTo(w.Player);
-                else if (spawnIndex >= 0 && spawnIndex < w.Level.Spawns.Count) Pickup.Give(Spawner.ToPickup(w.Level.Spawns[spawnIndex].Kind), w.Player);
+                else if (spawnIndex >= 0 && spawnIndex < w.Level.Spawns.Count)
+                {
+                    PickupDef def = Content.PickupFor(w.Level.Spawns[spawnIndex].Kind);
+                    if (def != null) Pickup.Give(def, w.Player);
+                }
             }
             pk?.Collect();
         }
