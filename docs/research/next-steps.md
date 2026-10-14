@@ -10,7 +10,7 @@ Up: [Research index](AGENTS.md)
 
 1. **The MoSCoW feature roadmap.** The owner is sorting the [candidate list](roadmap/feature-candidates.csv) into Must, Should, Could and Won't.
 2. **A refactor pass** that prepares the build and netcode for the chosen features. It's guided by the [refactor candidates](roadmap/refactor-candidates.md) and waits on step 1.
-3. **A "Sign in with Google" spike:** identify players and keep their stats and progression across devices. Research has started, reusing the sign-in frontend flow from another of the owner's projects. Implementation comes after the roadmap.
+3. **A "Sign in with Google" spike:** identify players and keep their stats and progression across devices. The plan is Google's button plus Firebase over REST, with no server ([accounts](accounts/README.md)). It's waiting for the owner's [Firebase setup](accounts/gcloud-setup.md), and implementation comes after the roadmap.
 
 ## Loose ends
 
