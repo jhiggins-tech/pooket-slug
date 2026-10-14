@@ -87,6 +87,15 @@ The [refactor plan](../roadmap/refactor-plan.md)'s steps, as they land.
 | 18:14–18:17 | The pad fix on the live build (`74fc4e0`) | `touch.mjs` six times, checking FIRE's pixels in each | ✅ FIRE lit in six runs of six, with no errors; the stick ran the soldier, and II paused |
 | 18:17–18:37 | The revert to `Minimal` (`4a8a12b`) | Run 38613952856, then the live page's sizes and `touch.mjs` twice | ✅ 177 of 177 tests; built, deployed, and the co-op test passed all five checks in 57 s (no pickups given out). The wasm is 42,145,618 bytes and the page 14.05 MB over the wire, as before `Low`. FIRE lit in both touch runs |
 
+## Part 5: After the refactor
+
+The owner's next picks, from 2026-10-14: the page in short windows, a crate in the co-op test, and the AU region.
+
+| When | What | How | Result |
+|---|---|---|---|
+| ~21:47 | The page in short desktop windows, before and after the fix | The live page, then the new template rendered locally around the live build, each measured at ten window sizes, desktop and phone; then the game started in a 1280×600 window | ✅ Before: squashed when short, 960×448 in a 1280×600 window and 960×268 at 1366×420. After: 16:9 at all ten sizes, 782×440 at 1280×600 with nothing scrolling. Only a 420-px-tall window scrolls, by 59 px, with the game fully in view |
+| 21:49–22:01 | The page keeps 16:9 in short windows (`298a8d1`) | Run 38643150666, then the live page measured again, and `touch.mjs` once | ✅ Built, deployed, co-op test passed; the live page matches the local measurements; FIRE lit on the emulated phone |
+
 ## Not yet verified
 
 These were implemented, but none has been confirmed yet. Host migration was on this list until the CI co-op test confirmed it, and it's now checked on every build ([architecture](../netcode/architecture.md#host-migration)).
