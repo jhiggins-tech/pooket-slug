@@ -2,7 +2,7 @@
 
 The story of Pooket Slug, how it unfolds across the missions, and how cutscenes and reveals are shown.
 
-**Status:** draft for sign-off. The owner answered its questions on 2026-10-14.
+**Status:** signed off by the owner, 2026-10-14.
 
 **Read this when** you're writing a mission's story, a cutscene, or anything that reveals something new to the player.
 

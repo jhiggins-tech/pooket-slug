@@ -2,7 +2,7 @@
 
 How a soldier plays: the crew, the controls, the kit, health and lives, crates, status effects and co-op, plus what the player keeps between missions.
 
-**Status:** draft for sign-off. The owner answered its questions on 2026-10-14.
+**Status:** revised after the owner's review on 2026-10-14, and waiting for sign-off. The secret feats and status mods are gone, and the kit's tiers are spelled out.
 
 **Read this when** you're working on anything the player controls or earns.
 
@@ -40,11 +40,11 @@ Up: [Design](README.md)
 
 ## The kit
 
-Each soldier has:
-- a **primary**, with unlimited ammo
-- a **special**, with 3 charges that refill over time
-- a **super**, charged by kills
-- sometimes an **ability**, on a cooldown (larinovsky, garyoldmancorp and kiwicore)
+Each soldier's kit comes from their Pooket Tabks tiers:
+- **Tier 1 is the primary,** with unlimited ammo.
+- **Tier 2 is the special,** with 3 charges that refill over time.
+- **Tier 3 is the super,** charged by kills.
+- **The bonus move is the ability,** on a cooldown. Only larinovsky, garyoldmancorp and kiwicore have one.
 
 **Some soldiers have a melee attack.** For them, FIRE becomes a melee hit when a goon is right next to them. It's part of their kit, not every soldier's.
 
@@ -60,14 +60,13 @@ Each soldier has:
 
 Pickups last for the mission, so every mission starts level.
 - **Upgrade crates** raise your primary, special or super a level (I → II → III). At level II you choose one of two forks.
-- **Status mods** make your shots put a status effect on what they hit.
 - **Gun crates** give you a crewmate's gun. It replaces your primary until it runs dry.
 - **Medkits** heal hearts. **Bomb crates** refill specials.
 - **Drops:** goons and containers can drop crates.
 
 ## Status effects
 
-Statuses come from the kits, and tank bosses use them on you too:
+Statuses come only from the soldiers' kits: each one belongs to a particular soldier's weapons, and no crate adds them. Tank bosses use their crewmate's statuses on you too:
 
 | Status | Effect |
 |---|---|
@@ -90,7 +89,7 @@ Statuses come from the kits, and tank bosses use them on you too:
 
 - **The crew they've freed,** and whether co-op is open.
 - **Career XP,** from clearing missions, kills and freeing crewmates. Each level gives tokens to spend on looks, as in Tabks: hats, skins, tank paint, death animations, kill effects and victory poses. XP never unlocks anything else.
-- **Rank:** the ladder from Pooket Tabks. Each stretch of a mission you beat moves you a little way up it, replays included, and you never drop down. Eight ranks are known and the rest are hidden, and some hidden rungs need a secret feat.
+- **Rank:** the ladder from Pooket Tabks. Each stretch of a mission you beat moves you a little way up it, replays included, and you never drop down. Eight ranks are known, and the other 25 stay hidden until you reach them.
 - **Stats** for each soldier and weapon: shots, hits, accuracy, damage dealt and taken, and kills.
 - **Best scores,** which also go on a friends leaderboard ([leaderboards](levels.md#leaderboards)).
 - **Signing in with Google** keeps all of this across phones and computers, under a display name the player picks ([when it's offered](levels.md#the-order-things-open-up)).
@@ -102,7 +101,7 @@ The game shows only what the player has already met:
 - **The super button lights up the first time it's charged,** with a one-off prompt.
 - **The ability button only appears for soldiers who have one.**
 - **The crew screen appears once there's a second soldier to pick.**
-- **Weapon forks appear at level II.** Status mods appear when you first find one.
+- **Weapon forks appear at level II.**
 - **XP, rank and looks appear at the first debrief.**
 
 ## Not planned
@@ -119,6 +118,5 @@ These are all Won't:
 - **The team super:** what it does, and whether it changes with the pair of soldiers.
 - **Career XP:** how much each thing earns, and what looks cost in tokens.
 - **Rank:** where each mission splits into stages, and how many stages make a rung.
-- **The secret feats:** all 25 still need designing.
 - **Kits still to design:** the coming-soon crew's, and garyoldmancorp's real moves.
 - **Timings** for the weapons that charge or build up, to be tuned in play.

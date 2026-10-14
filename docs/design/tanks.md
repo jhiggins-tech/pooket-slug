@@ -2,7 +2,7 @@
 
 How the player discovers tanks, fights them as bosses, wins them, drives them and calls them in.
 
-**Status:** draft for sign-off. The owner answered its questions on 2026-10-14.
+**Status:** signed off by the owner, 2026-10-14.
 
 **Read this when** you're designing a tank boss, a tank's controls, or anything tanks touch.
 

@@ -26,7 +26,7 @@ _Last updated: 2026-10-14._
 - [ ] **4. Sign in for real** once the sign-in build is live, to confirm it end to end. *Needs C1.*
 - [ ] **5. Optional: play the untested co-op paths** in two visible windows: the host leaving mid-game, quick match, a mistyped code, a third player joining ([steps](netcode/sessions.md#testing-by-hand)). C3c would automate this instead.
 - [x] **6. Answer the refactor plan's open points.** Done 2026-10-14 ([decisions](roadmap/refactor-plan.md#decisions-2026-10-14)): a friends leaderboard, branches keep deploying, two-player tests automated in CI, classic guns covered by the kits, uGUI and assembly definitions accepted.
-- [ ] **7. Sign off the four design documents** in [docs/design](../design/README.md): story, tanks, player mechanics, and maps and progression. Their questions were answered on 2026-10-14; what's still open is at the bottom of each.
+- [ ] **7. Sign off the four design documents** in [docs/design](../design/README.md), on the [sign-off page](https://claude.ai/artifact/SuFxdReB83W6eM4T3VvYwv). Story, tanks, and maps and progression were signed off on 2026-10-14. Player mechanics was revised after your notes and needs a second look.
 - [ ] **8. Give the go-ahead for the refactor** ([plan](roadmap/refactor-plan.md)). *Unblocks C2.*
 
 ## Claude
@@ -36,7 +36,7 @@ The sorted CSV arrived on 2026-10-14, so C2's plan is out for approval. The vari
 - [ ] **C1. "Sign in with Google" spike** ([plan](accounts/README.md)). *Waits for owner 2.*
   - [ ] Database rules, as a pull request to Cardmaster: a `pooketSlug/players/{uid}` section in its rules file, where only the player reads and writes, the shape is validated, the stats only go up, and there are no deletes. Add tests to its rules test suite.
     - Drafted 2026-10-14 ([database rules](accounts/database-rules.md)). It passes 24 of 24 rules tests, and all 12 deliberate weakenings were caught.
-    - **Extend it before committing.** The [game design](../../DESIGN.md#building-on-the-spike) also needs, per player: freed crew, whether co-op is open (Mission one beaten solo), career XP, cosmetics owned and worn, rank rung and feats, and the tally per soldier and weapon. Scoped from the MoSCoW pass in the [refactor plan](roadmap/refactor-plan.md#the-player-record-scoped-by-the-moscow-pass). Extend it once you approve that.
+    - **Extend it before committing.** The [game design](../../DESIGN.md#building-on-the-spike) also needs, per player: freed crew, whether co-op is open (Mission one beaten solo), career XP, cosmetics owned and worn, rank progress, and the tally per soldier and weapon. Scoped from the MoSCoW pass in the [refactor plan](roadmap/refactor-plan.md#the-player-record-scoped-by-the-moscow-pass). Extend it once you approve that.
     - *Commit, push and pull request need owner 2c.*
   - [ ] Page: `pooket-auth.js` (Google button, token exchange and refresh, database calls), an `#account` slot in the header, and results queued until the game has loaded. Storage keys prefixed `pooket-slug.`.
   - [ ] Bridge: a `PooketAuth.jslib` plugin (`PS_AuthInit`, `PS_Save`, `PS_SignOut`) plus a `SendMessage` receiver in C#.

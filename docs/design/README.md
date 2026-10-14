@@ -13,10 +13,10 @@ Up: [Repository README](../../README.md)
 
 | Document | What it covers | Status |
 |---|---|---|
-| [Story, plot and cutscenes](story.md) | The premise, the plot mission by mission, and how cutscenes and reveals play | Draft for sign-off |
-| [Tanks](tanks.md) | Tank bosses, winning a tank, driving one and calling it in | Draft for sign-off |
-| [Player mechanics](player.md) | The crew, controls, kits, health and lives, crates, co-op, and what the player keeps | Draft for sign-off |
-| [Maps, missions and progression](levels.md) | What a mission is, difficulty, how maps are built, and the order things open up in, menus included | Draft for sign-off |
+| [Story, plot and cutscenes](story.md) | The premise, the plot mission by mission, and how cutscenes and reveals play | Signed off, 2026-10-14 |
+| [Tanks](tanks.md) | Tank bosses, winning a tank, driving one and calling it in | Signed off, 2026-10-14 |
+| [Player mechanics](player.md) | The crew, controls, kits, health and lives, crates, co-op, and what the player keeps | Revised after review; waiting for sign-off |
+| [Maps, missions and progression](levels.md) | What a mission is, difficulty, how maps are built, and the order things open up in, menus included | Signed off, 2026-10-14 |
 
 ## Progressive disclosure, the thread through all four
 

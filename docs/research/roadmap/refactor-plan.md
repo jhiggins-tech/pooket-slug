@@ -177,13 +177,12 @@ The sign-in work extends its [drafted record](../accounts/database-rules.md) bef
 | `xp` | Career XP; it never goes down | CHR-04 |
 | `tokens` | Tokens from XP levels, spent on looks | CHR-04 |
 | `cosmetics` | Items owned, and what's worn in each slot | CHR-04 |
-| `rank`, `feats` | Stages beaten (never goes down), and the feats done, stored by number | Ranks |
+| `rank` | Stages beaten; it never goes down | Ranks |
 | `tally` | Per soldier and weapon: shots, hits, damage dealt and taken, kills | SCR-07 |
 | `best`, `clears` | Best score, and clears per mission and setting (normal or hard) | SCR-01, SCR-04, LVL-02 |
 | `seen` | Reveals already shown | Progressive disclosure |
 | `first`, `ts` | First played, and last saved (server time) | Tracking |
 
-- **Feats are stored by number, never by name,** so the database doesn't give away the hidden rungs.
 - **`clears` replace the draft's `runs` and `wins`.**
 - **`seen`** lists the reveals already shown, such as the first tank or the first drive. Each reveal then plays once, and the menus know what to show ([progressive disclosure](../../design/README.md#progressive-disclosure-the-thread-through-all-four)).
 - **The friends leaderboard** is a separate list per mission: each player's display name and best score, readable by any signed-in player and written only by its owner.

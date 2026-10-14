@@ -2,7 +2,7 @@
 
 What a mission is, how its map is built and what's in it, and the order in which the game opens up: missions, crew, co-op and menus.
 
-**Status:** draft for sign-off. The owner answered its questions on 2026-10-14.
+**Status:** signed off by the owner, 2026-10-14.
 
 **Read this when** you're designing a mission or a map, or changing what unlocks when.
 
@@ -69,7 +69,7 @@ The game shows only what the player has already met. Nothing on the title screen
 | Crew | tones2, with no crew screen | The crew screen: tones2 and kie | One more per mission |
 | Tanks | Never mentioned | kie's tank, and the call-in | One more per mission |
 | Missions | Mission one | Replays, hard settings, the next mission | One more per crewmate |
-| Progress | High score | XP, rank, looks, leaderboard | Feats open hidden rungs |
+| Progress | High score | XP, rank, looks, leaderboard | Hidden ranks appear as you reach them |
 
 **Invite links respect the order.** Suppose a friend who hasn't beaten Mission one opens your invite link. The game tells them co-op opens after Mission one, and starts it for them, so nothing ahead of them is spoiled.
 
