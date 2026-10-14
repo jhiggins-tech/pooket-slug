@@ -10,12 +10,12 @@ _Last updated: 2026-10-14._
 
 ## Owner (jhiggins-tech)
 
-- [ ] **1. Open the Cardmaster Firebase project to this game's origin** ([gcloud-setup.md](accounts/gcloud-setup.md#plan-reuse-the-cardmaster-project)). Players will see "Cardmaster" on Google's consent screen, which is accepted.
+- [x] **1. Open the Cardmaster Firebase project to this game's origin** (domain added 2026-10-14; confirm the OAuth origin, key and audience items below if sign-in fails) ([gcloud-setup.md](accounts/gcloud-setup.md#plan-reuse-the-cardmaster-project)). Players will see "Cardmaster" on Google's consent screen, which is accepted.
   - [ ] Firebase → Authentication → Settings → Authorized domains: add `jhiggins-tech.github.io`.
   - [ ] Google Cloud → Google Auth Platform → Clients → Cardmaster's web client → Authorized JavaScript origins: add `https://jhiggins-tech.github.io`.
   - [ ] Google Cloud → Credentials → Cardmaster's browser API key: if it has website restrictions, add `https://jhiggins-tech.github.io/*`.
   - [ ] Google Cloud → Google Auth Platform → Audience: if the publishing status is Testing, add friends as test users or publish the app. Otherwise only listed test users can sign in.
-- [ ] **2. Add the repository variables** on `pooket-slug` (Settings → Secrets and variables → Actions → **Variables**): `GOOGLE_CLIENT_ID`, `FIREBASE_API_KEY` and `FIREBASE_DB_URL`. Copy Cardmaster's values from its `src/net/config.ts`. *Unblocks C1.*
+- [x] **2. Add the repository variables** on `pooket-slug`. Done 2026-10-14. (Settings → Secrets and variables → Actions → **Variables**): `GOOGLE_CLIENT_ID`, `FIREBASE_API_KEY` and `FIREBASE_DB_URL`. Copy Cardmaster's values from its `src/net/config.ts`. *Unblocks C1.*
 - [x] **2b. Add the `cardmaster` repository to this session.** Done 2026-10-14.
 - [x] **2c. Let this session commit and push to `cardmaster`.** Given 2026-10-14. The [rules](accounts/database-rules.md) are on Cardmaster's branch `claude/gallant-keller-3qzp97`, and its CI passed.
 - [x] **2d. Merge [jhiggins-tech/cardmaster#11](https://github.com/jhiggins-tech/cardmaster/pull/11),** the rules pull request. Merged 2026-10-14, and Cardmaster's CI deployed the rules.
@@ -28,22 +28,22 @@ _Last updated: 2026-10-14._
 
 ## Claude
 
-C2, the refactor, is done. The repository variables (owner 2) start the rest of C1.
+C2, the refactor, is done. C1's code is written and checked locally; it goes live with its first CI build.
 
-- [ ] **C1. "Sign in with Google" spike** ([plan](accounts/README.md)). *Waits for owner 2.*
+- [ ] **C1. "Sign in with Google" spike** ([plan](accounts/README.md)). *Code written 2026-10-14; waits for CI and owner 4.*
   - [x] Database rules for Cardmaster: a `pooketSlug` section in its rules file, with tests in its rules test suite ([database rules](accounts/database-rules.md)).
     - The player's record, as the [refactor plan](roadmap/refactor-plan.md#the-player-record-scoped-by-the-moscow-pass) scoped it, and the friends board. Only the player reads and writes their record; the shape is validated, progress only goes up, a save number refuses saves from a device that's behind, and nothing required can be deleted.
     - 30 of 30 rules tests pass, and all 32 deliberate weakenings were caught. Cardmaster's CI passed on the branch.
     - Live since 2026-10-14: merged as [jhiggins-tech/cardmaster#11](https://github.com/jhiggins-tech/cardmaster/pull/11) and deployed by Cardmaster's CI.
-  - [ ] Page: `pooket-auth.js` (Google button, token exchange and refresh, database calls), an `#account` slot in the header, and results queued until the game has loaded. Storage keys prefixed `pooket-slug.`.
-  - [ ] Bridge: a `PooketAuth.jslib` plugin (`PS_AuthInit`, `PS_Save`, `PS_SignOut`) plus a `SendMessage` receiver in C#.
-  - [ ] Game: a cloud `IProfileStore` that loads, merges and saves the `Profile` ([how](accounts/database-rules.md#writing-it-from-the-game)); "signed in as …" in the HUD. The profile, its merge, the local store and saving at the end of a run are done (refactor plan step 15).
-  - [ ] Build: pass `-googleClientId` / `-firebaseApiKey` / `-firebaseDbUrl` from the repository variables, and stop `WriteNetConfig` depending on the Photon AppId.
+  - [x] Page: `pooket-auth.js` (Google button, token exchange and refresh, database calls, and turning the game's profile into the record and back), an `#account` slot in the header, and messages queued until the game has loaded. Storage key `pooket-slug.auth`.
+  - [x] Bridge: `PooketAuth.jslib` (`PS_AuthInit`, `PS_Save`, `PS_SignOut`) and the `PooketAuth` receiver, `CloudAccount`.
+  - [x] Game: `CloudProfileStore` saves to this browser and, when signed in, the cloud; the cloud's copy is merged in on sign-in and after a refused save. The title screen says who's signed in.
+  - [x] Build: `-googleClientId` / `-firebaseApiKey` / `-firebaseDbUrl` from the repository variables. `WebGLBuild` writes them to `pooket-config.js` next to the page, so `WriteNetConfig` is untouched.
+  - [ ] Not yet: the friends board, and XP, rank, crew, cosmetics and the tally (the game doesn't have them yet; the first save writes zeros, and later saves leave them alone).
   - [ ] Verify:
-    - compile and weave locally
-    - run the emulator tests ([`rules-test.sh`](verification/tools/rules-test.sh) in the sandbox)
-    - drive the page bridge in a headless browser
-    - get the CI build green
+    - [x] compile locally (no errors or warnings, each input backend)
+    - [x] drive the page against the database emulator with the live rules ([`auth-page.mjs`](verification/tools/auth-page.mjs): 22 of 22)
+    - [ ] get the CI build green
     - the rules are live (merged and deployed 2026-10-14)
   - [ ] Docs: [accounts](accounts/README.md) and the [test log](verification/test-log.md).
 - [x] **C2. Refactor pass** to prepare the build and netcode for the chosen features. *Done 2026-10-14.*

@@ -4,10 +4,13 @@ Plan for identifying players with their Google account and keeping their stats a
 
 **Status, 2026-10-14:**
 - **Database rules:** live since 2026-10-14, merged into Cardmaster and deployed by its CI ([database rules](database-rules.md)).
-- **Page, bridge and game code:** not started.
-- **Waiting on the owner** ([to-do](../todo.md)):
-  - the console steps in the Cardmaster project
-  - the repository variables
+- **Page, bridge and game code:** written 2026-10-14 and tested against the database emulator ([test log](../verification/test-log.md#part-3-sign-in)). Not yet built by CI or tried with a real Google account ([to-do](../todo.md)).
+
+How it's wired:
+- **Config:** CI passes the repository variables to `WebGLBuild`, which writes `pooket-config.js` beside the page. Missing values mean no sign-in, and progress stays in the browser.
+- **The page** ([`pooket-auth.js`](../../../Assets/WebGLTemplates/PooketSlug/pooket-auth.js)) owns the button, the session (`pooket-slug.auth` in localStorage), and the database calls. It turns the game's profile into the record and back, and keeps the save number.
+- **The game** ([`CloudAccount.cs`](../../../Assets/Scripts/Save/CloudAccount.cs)) hears `OnAccount` and `OnCloudProfile` on the `PooketAuth` object. `CloudProfileStore` saves locally and, while signed in, through `PS_Save`. `Game` merges a cloud copy into the profile and saves the result.
+- **Phones held sideways** hide the page header, so the sign-in button shows only when the phone is upright.
 
 **Read this when** you're implementing sign-in or cloud saves, or touching the page template's account area.
 

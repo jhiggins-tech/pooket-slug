@@ -49,6 +49,9 @@ All tests ran against Cardmaster's repository at `762ca94`, in the cloud sandbox
 | 21:54–21:59 | Do the new tests catch weakened rules? | The new rules weakened 32 ways, one at a time ([list](../accounts/database-rules.md#tests)) | ✅ 32 of 32 caught, each by a named test. Three needed a second pass, after their search patterns had also matched Cardmaster's own rules |
 | 21:59–22:01 | Cardmaster's CI on the committed rules (`121c939`, branch `claude/gallant-keller-3qzp97`), with the owner's go-ahead | Run 38644449649 | ✅ Build, and the rules, hosting and sign-in tests passed; the deploy job was skipped, as it only runs on `main` |
 | 22:29–22:31 | The pull request, [jhiggins-tech/cardmaster#11](https://github.com/jhiggins-tech/cardmaster/pull/11), and its merge by the owner | Run 38647981617 on the pull request, then run 38648058033 on `main` | ✅ Both passed. On `main`, *Deploy the database rules and the PWA* succeeded: the rules are live |
+| ~23:06 | The sign-in code: page script, bridge, cloud store, build config | `compile_unity.py game` for each input backend (no SDK; the netcode is unchanged) | ✅ Core 17 files, game 25, editor 1: no errors or warnings |
+| ~23:10 | The page's sign-in and cloud saves, against Cardmaster's live rules file in the database emulator | [`auth-page.mjs`](tools/auth-page.mjs): headless Chromium, a stand-in for the game, and fake Google and Auth servers | ✅ 22 of 22: first save, a second device merging, a device that was behind merging after a refusal, a reload, signing out, a second tab, storage keys, and another player refused |
+| ~23:12 | Does it catch broken page code? | Three breakages, one at a time: no retry after a refusal, the account state sent after the profile, an unprefixed storage key | ✅ 3 of 3 caught (4, 3 and 1 checks failed) |
 
 ## Part 4: Refactor
 
