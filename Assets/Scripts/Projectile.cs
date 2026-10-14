@@ -7,7 +7,8 @@ namespace PooketSlug
     public sealed class Projectile : Entity
     {
         public readonly ProjectileKind Kind;
-        public readonly bool Hostile; // true = hurts the player
+        public readonly bool Hostile;  // true = hurts the player
+        public readonly bool Cosmetic; // replay of another player's shot: looks the same, deals no damage
         public Vector2 Vel;
         public readonly float Radius;
         public readonly int Damage;
@@ -17,10 +18,11 @@ namespace PooketSlug
         float m_Life, m_Spin;
         int m_Bounces;
 
-        public Projectile(World world, ProjectileKind kind, Vector2 pos, Vector2 vel, bool hostile) : base(world, kind.ToString(), pos)
+        public Projectile(World world, ProjectileKind kind, Vector2 pos, Vector2 vel, bool hostile, bool cosmetic = false) : base(world, kind.ToString(), pos)
         {
             Kind = kind;
             Hostile = hostile;
+            Cosmetic = cosmetic;
             Vel = vel;
             Sprite sprite;
             switch (kind)
@@ -74,7 +76,7 @@ namespace PooketSlug
             if (Explosive)
             {
                 float radius = Kind == ProjectileKind.Grenade ? 1.7f : 1.0f;
-                World.Explode(Pos, radius, Damage, Hostile, Kind == ProjectileKind.Grenade ? 1f : 0.7f);
+                World.Explode(Pos, radius, Cosmetic ? 0 : Damage, Hostile, Kind == ProjectileKind.Grenade ? 1f : 0.7f);
             }
             else
             {
@@ -169,6 +171,8 @@ namespace PooketSlug
     public sealed class Pickup : Entity
     {
         public readonly PickupKind Kind;
+        public int NetId = -1;      // index in Level.Spawns
+        public bool ClaimPending;   // co-op: asked the authority for it, waiting for the answer
         readonly SpriteRenderer m_Sr;
         float m_Time;
 
@@ -191,24 +195,26 @@ namespace PooketSlug
             m_Sr.transform.localPosition = new Vector3(0f, Mathf.Round(hop) / Art.PPU, 0f);
         }
 
-        public void Apply(Player player)
+        /// <summary>Gives the pickup's effect to the local soldier.</summary>
+        public void ApplyTo(Player player) => Give(Kind, player);
+
+        public static void Give(PickupKind kind, Player player)
         {
-            switch (Kind)
+            switch (kind)
             {
-                case PickupKind.HeavyMachineGun:
-                    player.HeavyAmmo += 200;
-                    World.Popup("HEAVY MACHINE GUN!", Pos + Vector2.up * 1.6f, new Color(1f, 0.85f, 0.3f));
-                    break;
-                case PickupKind.Bombs:
-                    player.Grenades += 10;
-                    World.Popup("BOMBS +10", Pos + Vector2.up * 1.6f, new Color(0.6f, 1f, 0.5f));
-                    break;
-                case PickupKind.Medkit:
-                    player.Heal(2);
-                    World.Popup("+2 HP", Pos + Vector2.up * 1.6f, new Color(1f, 0.5f, 0.5f));
-                    break;
+                case PickupKind.HeavyMachineGun: player.HeavyAmmo += 200; break;
+                case PickupKind.Bombs: player.Grenades += 10; break;
+                case PickupKind.Medkit: player.Heal(2); break;
             }
-            World.AddScore(500, Pos + Vector2.up, false);
+        }
+
+        /// <summary>Removes the pickup with its popup and sound (on every client).</summary>
+        public void Collect()
+        {
+            string text = Kind == PickupKind.HeavyMachineGun ? "HEAVY MACHINE GUN!" : Kind == PickupKind.Bombs ? "BOMBS +10" : "+2 HP";
+            Color color = Kind == PickupKind.HeavyMachineGun ? new Color(1f, 0.85f, 0.3f) : Kind == PickupKind.Bombs ? new Color(0.6f, 1f, 0.5f) : new Color(1f, 0.5f, 0.5f);
+            World.Popup(text, Pos + Vector2.up * 1.6f, color);
+            if (World.IsAuthority) World.AddScore(500, Pos + Vector2.up, false);
             Sfx.Play(Sfx.Pickup);
             Remove();
         }

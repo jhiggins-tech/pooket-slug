@@ -74,16 +74,24 @@ namespace PooketSlug
         }
     }
 
+    /// <summary>The sprite set for one playable soldier (palette-swapped per player).</summary>
+    public sealed class PlayerSkin
+    {
+        public Sprite TorsoForward, TorsoUp, TorsoDown, LegsIdle, LegsJump, LegsCrouch;
+        public Sprite[] LegsRun;
+    }
+
     /// <summary>Builds every sprite in the game procedurally at startup (no imported assets).</summary>
     public static class Art
     {
         public const float PPU = 16f;
         public static readonly Color32 OutlineColor = Hex(0x1c1420);
 
-        public static Sprite[] PlayerLegsRun, SoldierLegsRun, RunnerLegsRun;
-        public static Sprite PlayerLegsIdle, PlayerLegsJump, PlayerLegsCrouch;
+        /// <summary>[0] = player 1 (red bandana), [1] = player 2 (blue bandana).</summary>
+        public static PlayerSkin[] PlayerSkins;
+        public static Sprite[] SoldierLegsRun, RunnerLegsRun;
         public static Sprite SoldierLegsIdle, RunnerLegsJump;
-        public static Sprite PlayerTorsoForward, PlayerTorsoUp, PlayerTorsoDown, SoldierTorso, RunnerTorso;
+        public static Sprite SoldierTorso, RunnerTorso;
         public static Sprite[] Drone, Explosion, Spark;
         public static Sprite Tank, Bullet, HeavyBullet, EnemyBullet, Shell, Grenade, Bomb, MuzzleFlash;
         public static Sprite CrateHeavy, CrateBombs, Medkit, Flag, Pixel, Sky, Mountains, Ruins;
@@ -125,26 +133,24 @@ namespace PooketSlug
                 { 'p', 0x5a4a6a }, { 'P', 0x3a2e48 }, { 'm', 0xe8ecf4 }, { 'M', 0x9098a8 },
             });
 
+            var player2 = Swap(new Dictionary<char, uint>
+            {
+                { 'r', 0x3a7ad8 }, { 'R', 0x22508c }, { 'g', 0x3c7c8c }, { 'G', 0x285a68 },
+            });
+
             Vector2 feet = new Vector2(0.5f, 0f);
-            PlayerTorsoForward = Part(ArtData.TorsoForward, ArtData.TorsoForwardTop, s_Pal);
-            PlayerTorsoUp = Part(ArtData.TorsoUp, ArtData.TorsoUpTop, s_Pal);
-            PlayerTorsoDown = Part(ArtData.TorsoDown, ArtData.TorsoDownTop, s_Pal);
+            PlayerSkins = new[] { BuildSkin(s_Pal), BuildSkin(player2) };
             SoldierTorso = Part(ArtData.TorsoForward, ArtData.TorsoForwardTop, soldier);
             RunnerTorso = Part(ArtData.TorsoForward, ArtData.TorsoForwardTop, runner);
 
             string[][] run = { ArtData.LegsRun1, ArtData.LegsRun2, ArtData.LegsRun3, ArtData.LegsRun4 };
-            PlayerLegsRun = new Sprite[4];
             SoldierLegsRun = new Sprite[4];
             RunnerLegsRun = new Sprite[4];
             for (int i = 0; i < 4; i++)
             {
-                PlayerLegsRun[i] = Part(run[i], ArtData.LegsTop, s_Pal);
                 SoldierLegsRun[i] = Part(run[i], ArtData.LegsTop, soldier);
                 RunnerLegsRun[i] = Part(run[i], ArtData.LegsTop, runner);
             }
-            PlayerLegsIdle = Part(ArtData.LegsIdle, ArtData.LegsTop, s_Pal);
-            PlayerLegsJump = Part(ArtData.LegsJump, ArtData.LegsTop, s_Pal);
-            PlayerLegsCrouch = Part(ArtData.LegsCrouch, ArtData.LegsCrouchTop, s_Pal);
             SoldierLegsIdle = Part(ArtData.LegsIdle, ArtData.LegsTop, soldier);
             RunnerLegsJump = Part(ArtData.LegsJump, ArtData.LegsTop, runner);
 
@@ -178,6 +184,23 @@ namespace PooketSlug
         }
 
         static Vector2 Center => new Vector2(0.5f, 0.5f);
+
+        static PlayerSkin BuildSkin(Dictionary<char, Color32> pal)
+        {
+            string[][] run = { ArtData.LegsRun1, ArtData.LegsRun2, ArtData.LegsRun3, ArtData.LegsRun4 };
+            var skin = new PlayerSkin
+            {
+                TorsoForward = Part(ArtData.TorsoForward, ArtData.TorsoForwardTop, pal),
+                TorsoUp = Part(ArtData.TorsoUp, ArtData.TorsoUpTop, pal),
+                TorsoDown = Part(ArtData.TorsoDown, ArtData.TorsoDownTop, pal),
+                LegsIdle = Part(ArtData.LegsIdle, ArtData.LegsTop, pal),
+                LegsJump = Part(ArtData.LegsJump, ArtData.LegsTop, pal),
+                LegsCrouch = Part(ArtData.LegsCrouch, ArtData.LegsCrouchTop, pal),
+                LegsRun = new Sprite[4],
+            };
+            for (int i = 0; i < 4; i++) skin.LegsRun[i] = Part(run[i], ArtData.LegsTop, pal);
+            return skin;
+        }
 
         /// <summary>White silhouette of a sprite, used for the hit flash.</summary>
         public static Sprite Flash(Sprite s) => s != null && s_Flash.TryGetValue(s, out Sprite f) ? f : s;

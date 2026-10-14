@@ -15,12 +15,14 @@ namespace PooketSlug
         public static bool Up, Down;
         public static bool JumpHeld, JumpPressed, FireHeld, FirePressed, GrenadePressed;
         public static bool StartPressed, RestartPressed, PausePressed, MutePressed;
+        public static bool HostPressed, JoinPressed, QuickPressed, BackPressed; // online co-op menu
 
         public static void Poll()
         {
             bool left = false, right = false, up = false, down = false;
             bool jump = false, jumpDown = false, fire = false, fireDown = false, grenadeDown = false;
             bool start = false, restart = false, pause = false, mute = false;
+            bool host = false, join = false, quick = false, back = false;
 
 #if ENABLE_INPUT_SYSTEM
             Keyboard kb = Keyboard.current;
@@ -39,6 +41,10 @@ namespace PooketSlug
                 restart = kb.rKey.wasPressedThisFrame;
                 pause = kb.pKey.wasPressedThisFrame;
                 mute = kb.mKey.wasPressedThisFrame;
+                host = kb.hKey.wasPressedThisFrame;
+                join = kb.jKey.wasPressedThisFrame;
+                quick = kb.qKey.wasPressedThisFrame;
+                back = kb.escapeKey.wasPressedThisFrame;
             }
 
             Gamepad pad = Gamepad.current;
@@ -71,6 +77,10 @@ namespace PooketSlug
             restart = Input.GetKeyDown(KeyCode.R);
             pause = Input.GetKeyDown(KeyCode.P);
             mute = Input.GetKeyDown(KeyCode.M);
+            host = Input.GetKeyDown(KeyCode.H);
+            join = Input.GetKeyDown(KeyCode.J);
+            quick = Input.GetKeyDown(KeyCode.Q);
+            back = Input.GetKeyDown(KeyCode.Escape);
 #endif
 
             MoveX = (right ? 1f : 0f) - (left ? 1f : 0f);
@@ -85,6 +95,10 @@ namespace PooketSlug
             RestartPressed = restart;
             PausePressed = pause;
             MutePressed = mute;
+            HostPressed = host;
+            JoinPressed = join;
+            QuickPressed = quick;
+            BackPressed = back;
         }
     }
 }

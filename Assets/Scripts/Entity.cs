@@ -71,6 +71,9 @@ namespace PooketSlug
         public Rect Bounds => new Rect(Pos.x - HalfW, Pos.y, HalfW * 2f, Height);
         public Vector2 Center => new Vector2(Pos.x, Pos.y + Height * 0.5f);
 
+        /// <summary>True for a soldier that is dead (or respawning), so enemies ignore it.</summary>
+        public virtual bool IsDown => false;
+
         public override void Render()
         {
             base.Render();

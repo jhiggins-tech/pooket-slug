@@ -1,4 +1,6 @@
+using System;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace PooketSlug
 {
@@ -15,7 +17,7 @@ namespace PooketSlug
         }
     }
 
-    public enum GameState { Title, Playing, GameOver, Victory }
+    public enum GameState { Title, CodeEntry, Lobby, Playing, GameOver, Victory }
 
     /// <summary>Owns the camera, the current <see cref="World"/>, the state machine and the IMGUI HUD.</summary>
     public sealed class Game : MonoBehaviour
@@ -29,7 +31,15 @@ namespace PooketSlug
         int m_Frames, m_HiScore;
         bool m_Paused;
 
-        GUIStyle m_Style;
+        // online co-op
+        INetSession m_Net;      // null when the build has no Photon SDK or AppId
+        bool m_Coop;            // m_World is the shared co-op world
+        string m_Code = "";     // join box contents
+        int m_CodeOpenedFrame;
+        string m_Notice;
+        float m_NoticeTime, m_LeaveArmed;
+
+        GUIStyle m_Style, m_FieldStyle;
         float m_Scale;
 
         void Awake()
@@ -53,6 +63,11 @@ namespace PooketSlug
 
             m_World = new World(m_Camera);
             SetState(GameState.Title);
+
+            if (NetSessions.Factory != null && NetConfig.Configured) m_Net = NetSessions.Factory(gameObject);
+            // invite link (?room=ABCD-EU): open the join box with the code filled in
+            string invite = RoomFromUrl(Application.absoluteURL);
+            if (m_Net != null && !string.IsNullOrEmpty(invite)) OpenCodeEntry(invite);
         }
 
         void SetState(GameState state)
@@ -70,6 +85,81 @@ namespace PooketSlug
             Sfx.Play(Sfx.Start);
         }
 
+        // ------------------------------------------------------------------ online co-op
+
+        void OpenCodeEntry(string code)
+        {
+            m_Code = code ?? "";
+            m_CodeOpenedFrame = Time.frameCount; // don't type the J that opened the box
+            SetState(GameState.CodeEntry);
+        }
+
+        void GoOnline(Action connect)
+        {
+            m_Notice = null;
+            connect();
+            SetState(GameState.Lobby);
+        }
+
+        /// <summary>Connected: swap the title/solo world for the shared one (also after a co-op restart).</summary>
+        void BeginCoop()
+        {
+            m_World.Dispose();
+            m_World = new World(m_Camera, m_Net.Link);
+            m_Net.World = m_World;
+            m_Coop = true;
+            m_Paused = false;
+            m_LeaveArmed = 0f;
+            SetState(GameState.Playing);
+            Sfx.Play(Sfx.Start);
+        }
+
+        void EndCoop(string notice)
+        {
+            m_Net.World = null;
+            m_Coop = false;
+            m_World.Dispose();
+            m_World = new World(m_Camera);
+            Notice(notice);
+            SetState(GameState.Title);
+        }
+
+        /// <summary>Drops back to the title screen if the session is gone. True while co-op can go on.</summary>
+        bool CoopAlive()
+        {
+            if (m_Net.Ready) return true;
+            string why = m_Net.State == NetState.Failed && !string.IsNullOrEmpty(m_Net.Status) ? m_Net.Status : "DISCONNECTED";
+            m_Net.Leave();
+            EndCoop(why);
+            return false;
+        }
+
+        void Notice(string text)
+        {
+            m_Notice = text;
+            m_NoticeTime = Time.unscaledTime;
+        }
+
+        static string RoomFromUrl(string url)
+        {
+            if (string.IsNullOrEmpty(url)) return null;
+            int q = url.IndexOf('?');
+            if (q < 0) return null;
+            int hash = url.IndexOf('#', q);
+            string query = hash < 0 ? url.Substring(q + 1) : url.Substring(q + 1, hash - q - 1);
+            foreach (string part in query.Split('&'))
+                if (part.StartsWith("room=", StringComparison.OrdinalIgnoreCase))
+                    return Uri.UnescapeDataString(part.Substring(5)).Trim().ToUpperInvariant();
+            return null;
+        }
+
+        static string PageUrl()
+        {
+            string url = Application.absoluteURL ?? "";
+            int cut = url.IndexOfAny(new[] { '?', '#' });
+            return cut < 0 ? url : url.Substring(0, cut);
+        }
+
         void Update()
         {
             GameInput.Poll();
@@ -85,11 +175,18 @@ namespace PooketSlug
                 m_FpsTimer = 0f;
             }
 
-            if (GameInput.MutePressed) Sfx.Muted = !Sfx.Muted;
+            if (GameInput.MutePressed && m_State != GameState.CodeEntry) Sfx.Muted = !Sfx.Muted;
 
             switch (m_State)
             {
                 case GameState.Title:
+                    if (m_Net != null)
+                    {
+                        // J doubles as fire, so the online keys are checked first
+                        if (GameInput.HostPressed) { GoOnline(m_Net.Host); break; }
+                        if (GameInput.QuickPressed) { GoOnline(m_Net.QuickMatch); break; }
+                        if (GameInput.JoinPressed) { OpenCodeEntry(""); break; }
+                    }
                     if (GameInput.StartPressed || GameInput.FirePressed || GameInput.JumpPressed)
                     {
                         SetState(GameState.Playing);
@@ -97,7 +194,47 @@ namespace PooketSlug
                     }
                     break;
 
+                case GameState.CodeEntry:
+                    break; // the IMGUI text field handles typing, Enter and Esc (see OnGUI)
+
+                case GameState.Lobby:
+                    if (GameInput.BackPressed)
+                    {
+                        m_Net.Leave();
+                        SetState(GameState.Title);
+                    }
+                    else if (m_Net.State == NetState.Failed || m_Net.State == NetState.Offline)
+                    {
+                        Notice(string.IsNullOrEmpty(m_Net.Status) ? "COULDN'T CONNECT" : m_Net.Status);
+                        SetState(GameState.Title);
+                    }
+                    else if (m_Net.Ready)
+                    {
+                        BeginCoop();
+                    }
+                    break;
+
                 case GameState.Playing:
+                    if (m_Coop)
+                    {
+                        if (!CoopAlive()) break;
+                        if (m_Net.Link.Round != m_World.Round) { BeginCoop(); break; } // partner restarted the mission
+                        m_LeaveArmed -= dt;
+                        if (GameInput.BackPressed)
+                        {
+                            if (m_LeaveArmed > 0f)
+                            {
+                                m_Net.Leave();
+                                EndCoop(null);
+                                break;
+                            }
+                            m_LeaveArmed = 2f;
+                        }
+                        // no pausing a shared game, and no game over: fallen soldiers come back
+                        m_World.Tick(dt);
+                        if (m_World.Victory && m_World.VictoryTime > 1f) EndRun(GameState.Victory);
+                        break;
+                    }
                     if (GameInput.RestartPressed) { Restart(); break; }
                     if (GameInput.PausePressed || (GameInput.StartPressed && m_StateTime > 0.2f)) m_Paused = !m_Paused;
                     if (m_Paused) break;
@@ -109,8 +246,23 @@ namespace PooketSlug
 
                 case GameState.GameOver:
                 case GameState.Victory:
+                    if (m_Coop)
+                    {
+                        if (!CoopAlive()) break;
+                        if (m_Net.Link.Round != m_World.Round) { BeginCoop(); break; }
+                        if (GameInput.BackPressed)
+                        {
+                            m_Net.Leave();
+                            EndCoop(null);
+                            break;
+                        }
+                    }
                     m_World.Tick(dt);
-                    if (m_StateTime > 1.2f && (GameInput.StartPressed || GameInput.RestartPressed || GameInput.FirePressed)) Restart();
+                    if (m_StateTime > 1.2f && (GameInput.StartPressed || GameInput.RestartPressed || GameInput.FirePressed))
+                    {
+                        if (m_Coop) m_Net.Link.RequestRestart(); // the authority bumps the round; everyone rebuilds
+                        else Restart();
+                    }
                     break;
             }
 
@@ -156,7 +308,8 @@ namespace PooketSlug
                 Text(sp.x / m_Scale, (Screen.height - sp.y) / m_Scale, pop.Text, 9, c, TextAnchor.MiddleCenter);
             }
 
-            if (m_State != GameState.Title)
+            bool inGame = m_State == GameState.Playing || m_State == GameState.GameOver || m_State == GameState.Victory;
+            if (inGame)
             {
                 Text(8, 5, "SCORE " + w.Score.ToString("000000"), 14, Color.white, TextAnchor.UpperLeft);
                 for (int i = 0; i < p.MaxHp; i++)
@@ -180,6 +333,8 @@ namespace PooketSlug
                     Box(bx - 1, 21, bw + 2, 8, new Color(0.1f, 0.05f, 0.08f, 0.85f));
                     Box(bx, 22, bw * Mathf.Clamp01(boss.Hp / (float)boss.MaxHp), 6, new Color(0.9f, 0.25f, 0.2f));
                 }
+
+                if (m_Coop) CoopHud(w, vw);
             }
 
             string build = "v" + Application.version + " · Unity " + Application.unityVersion + " · built with GameCI";
@@ -196,7 +351,29 @@ namespace PooketSlug
                     Text(vw * 0.5f, 150, "MOVE  Arrows / WASD      JUMP  Z / Space      FIRE  X / J", 10, new Color(1f, 0.95f, 0.8f), TextAnchor.MiddleCenter);
                     Text(vw * 0.5f, 166, "GRENADE  C / L      AIM  Up / Down (in air)      DROP  Down + Jump", 10, new Color(1f, 0.95f, 0.8f), TextAnchor.MiddleCenter);
                     Text(vw * 0.5f, 182, "PAUSE  P / Enter      RESTART  R      MUTE  M      Gamepad supported", 10, new Color(1f, 0.95f, 0.8f), TextAnchor.MiddleCenter);
-                    if (blink) Text(vw * 0.5f, 226, "PRESS ENTER OR X TO START", 16, Color.white, TextAnchor.MiddleCenter);
+                    if (blink) Text(vw * 0.5f, 222, m_Net != null ? "PRESS ENTER OR X TO PLAY SOLO" : "PRESS ENTER OR X TO START", 16, Color.white, TextAnchor.MiddleCenter);
+                    if (m_Net != null)
+                        Text(vw * 0.5f, 252, "ONLINE CO-OP      H  HOST A GAME      J  JOIN WITH A CODE      Q  QUICK MATCH", 11, CoopBlue, TextAnchor.MiddleCenter);
+                    else if (NetSessions.Factory != null)
+                        Text(vw * 0.5f, 252, "ONLINE CO-OP IS OFF IN THIS BUILD (NO PHOTON APP ID)", 9, new Color(1f, 1f, 1f, 0.6f), TextAnchor.MiddleCenter);
+                    if (!string.IsNullOrEmpty(m_Notice) && Time.unscaledTime - m_NoticeTime < 8f)
+                        Text(vw * 0.5f, 276, m_Notice, 12, new Color(1f, 0.5f, 0.4f), TextAnchor.MiddleCenter);
+                    break;
+
+                case GameState.CodeEntry:
+                    Box(0, 0, vw, 360, new Color(0f, 0f, 0f, 0.6f));
+                    Text(vw * 0.5f, 110, "JOIN A FRIEND'S GAME", 22, new Color(1f, 0.62f, 0.2f), TextAnchor.MiddleCenter);
+                    Text(vw * 0.5f, 138, "TYPE THE ROOM CODE FROM THEIR SCREEN, E.G. ABCD-EU", 10, Color.white, TextAnchor.MiddleCenter);
+                    CodeField(vw * 0.5f - 90f, 156f, 180f, 30f);
+                    Text(vw * 0.5f, 206, "ENTER  JOIN       ESC  BACK", 11, new Color(1f, 0.95f, 0.8f), TextAnchor.MiddleCenter);
+                    break;
+
+                case GameState.Lobby:
+                    Box(0, 0, vw, 360, new Color(0f, 0f, 0f, 0.6f));
+                    Text(vw * 0.5f, 130, "ONLINE CO-OP", 22, new Color(1f, 0.62f, 0.2f), TextAnchor.MiddleCenter);
+                    string dots = new string('.', 1 + (int)(Time.unscaledTime * 3f) % 3);
+                    Text(vw * 0.5f, 166, (string.IsNullOrEmpty(m_Net.Status) ? "CONNECTING" : m_Net.Status.TrimEnd('.')) + dots, 13, Color.white, TextAnchor.MiddleCenter);
+                    Text(vw * 0.5f, 204, "ESC  CANCEL", 11, new Color(1f, 0.95f, 0.8f), TextAnchor.MiddleCenter);
                     break;
 
                 case GameState.Playing:
@@ -222,8 +399,89 @@ namespace PooketSlug
                     int t = Mathf.FloorToInt(w.Elapsed);
                     Text(vw * 0.5f, 160, string.Format("SCORE {0}     TIME {1}:{2:00}", w.Score, t / 60, t % 60), 14, Color.white, TextAnchor.MiddleCenter);
                     if (blink && m_StateTime > 1.2f) Text(vw * 0.5f, 204, "PRESS ENTER TO PLAY AGAIN", 14, Color.white, TextAnchor.MiddleCenter);
+                    if (m_Coop) Text(vw * 0.5f, 228, "ESC  LEAVE THE GAME", 10, new Color(1f, 0.95f, 0.8f), TextAnchor.MiddleCenter);
                     break;
             }
+        }
+
+        static readonly Color CoopBlue = new Color(0.6f, 0.9f, 1f);
+        static readonly Color[] SkinColors = { new Color(1f, 0.5f, 0.4f), new Color(0.45f, 0.72f, 1f) };
+
+        /// <summary>Partner health, name tags, invite code, respawn countdown.</summary>
+        void CoopHud(World w, float vw)
+        {
+            Player p = w.Player;
+            float y = 56f;
+            foreach (RemotePlayer r in w.Remotes)
+            {
+                int skin = Mathf.Clamp(r.Link.Skin, 0, 1);
+                Text(8, y, "P" + (skin + 1), 10, SkinColors[skin], TextAnchor.UpperLeft);
+                for (int i = 0; i < p.MaxHp; i++)
+                {
+                    GUI.color = i < r.Hp ? SkinColors[skin] : new Color(0.2f, 0.15f, 0.2f, 0.7f);
+                    GUI.DrawTexture(R(28 + i * 10, y + 2, 9, 9), Art.HeartTex);
+                }
+                GUI.color = Color.white;
+                y += 14f;
+
+                Vector3 sp = m_Camera.WorldToScreenPoint(new Vector3(r.Pos.x, r.Pos.y + 1.9f, 0f));
+                Text(sp.x / m_Scale, (Screen.height - sp.y) / m_Scale, "P" + (skin + 1), 8, SkinColors[skin], TextAnchor.MiddleCenter);
+            }
+
+            string room = m_Net.RoomCode;
+            bool blink = (int)(Time.unscaledTime * 2f) % 2 == 0;
+            if (w.Remotes.Count == 0 && !w.Victory)
+            {
+                if (blink) Text(vw * 0.5f, 40, "WAITING FOR A PARTNER", 12, CoopBlue, TextAnchor.UpperCenter);
+                Text(vw * 0.5f, 56, room != null ? "ROOM CODE  " + room : "QUICK MATCH: THE NEXT PLAYER TO PRESS Q JOINS YOU", room != null ? 16 : 10, Color.white, TextAnchor.UpperCenter);
+                string url = PageUrl();
+                if (room != null && url.Length > 0) Text(vw * 0.5f, 76, "OR SEND THIS LINK:  " + url + "?room=" + room, 8, new Color(1f, 1f, 1f, 0.8f), TextAnchor.UpperCenter);
+            }
+
+            string line = (room != null ? "ROOM " + room : "QUICK MATCH") + "  ·  " + m_Net.PlayerCount + "/2  ·  " + m_Net.PingMs + " MS  ·  ESC ESC TO LEAVE";
+            Text(vw * 0.5f, 360 - 28, line, 8, new Color(1f, 1f, 1f, 0.75f), TextAnchor.UpperCenter);
+
+            if (p.Dead)
+                Text(vw * 0.5f, 150, "DOWN!  BACK IN " + Mathf.Max(1, Mathf.CeilToInt(Player.RespawnDelay - p.DeadTime)), 18, new Color(1f, 0.5f, 0.4f), TextAnchor.MiddleCenter);
+            if (m_LeaveArmed > 0f)
+                Text(vw * 0.5f, 196, "PRESS ESC AGAIN TO LEAVE THE GAME", 12, Color.white, TextAnchor.MiddleCenter);
+        }
+
+        /// <summary>IMGUI text box for the room code; Enter joins, Esc goes back.</summary>
+        void CodeField(float x, float y, float w, float h)
+        {
+            Event e = Event.current;
+            if (e.type == EventType.KeyDown && (e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter))
+            {
+                e.Use();
+                string code = m_Code.Trim('-', ' ');
+                if (code.Length > 0) GoOnline(() => m_Net.Join(code));
+                return;
+            }
+            if (e.type == EventType.KeyDown && e.keyCode == KeyCode.Escape)
+            {
+                e.Use();
+                SetState(GameState.Title);
+                return;
+            }
+
+            Box(x - 1, y - 1, w + 2, h + 2, new Color(1f, 0.62f, 0.2f));
+            Box(x, y, w, h, new Color(0.13f, 0.1f, 0.15f));
+            if (Time.frameCount == m_CodeOpenedFrame) return; // the J that opened the box is still in this frame's events
+            if (m_FieldStyle == null)
+            {
+                m_FieldStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleCenter, fontStyle = FontStyle.Bold };
+                m_FieldStyle.normal.textColor = Color.white;
+            }
+            m_FieldStyle.fontSize = Mathf.RoundToInt(18 * m_Scale);
+            GUI.SetNextControlName("room-code");
+            string typed = GUI.TextField(R(x, y, w, h), m_Code, 12, m_FieldStyle);
+            GUI.FocusControl("room-code");
+
+            var clean = new System.Text.StringBuilder(typed.Length);
+            foreach (char c in typed.ToUpperInvariant())
+                if ((c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-') clean.Append(c);
+            m_Code = clean.ToString();
         }
 
         Rect R(float x, float y, float w, float h) => new Rect(x * m_Scale, y * m_Scale, w * m_Scale, h * m_Scale);

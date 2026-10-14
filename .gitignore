@@ -48,3 +48,8 @@ crashlytics-build.properties
 !/Assets/Photon/Fusion/Resources/
 /Assets/Photon/Fusion/Resources/*
 !/Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion
+
+# Photon AppId baked in by the build (from the PHOTON_APP_ID secret)
+/Assets/Resources.meta
+/Assets/Resources/pooket-net.json
+/Assets/Resources/pooket-net.json.meta

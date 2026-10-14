@@ -5,9 +5,13 @@ namespace PooketSlug
     public abstract class Enemy : Actor
     {
         public readonly int Score;
+        public int NetId = -1;   // index in Level.Spawns: the enemy's identity in co-op
+        public SpawnKind Kind;
         public bool Dying;
         protected float DyingTime, Anim;
         protected const float Gravity = 40f;
+        Vector2 m_NetPos;
+        bool m_NetPlaced;
 
         protected Enemy(World world, string name, Vector2 feet, float halfW, float height, int hp, int score)
             : base(world, name, feet, halfW, height, hp)
@@ -16,15 +20,26 @@ namespace PooketSlug
         }
 
         public bool Shootable => !Dying && !Removed;
-        protected Player Target => World.Player;
+        /// <summary>Nearest soldier (local or remote), refreshed every authoritative tick.</summary>
+        protected Actor Target { get; private set; }
 
         public virtual void Hurt(int damage)
         {
             if (!Shootable) return;
+            if (!World.IsAuthority)
+            {
+                FlashHit(); // co-op follower: the authority applies the damage
+                return;
+            }
             Hp -= damage;
+            FlashHit();
+            if (Hp <= 0) Die();
+        }
+
+        public void FlashHit()
+        {
             FlashTimer = 0.07f;
             Sfx.Play(Sfx.Hit, 0.5f);
-            if (Hp <= 0) Die();
         }
 
         protected virtual void Die()
@@ -43,11 +58,56 @@ namespace PooketSlug
                 TickDying(dt);
                 return;
             }
+            if (!World.IsAuthority)
+            {
+                TickPuppet(dt);
+                return;
+            }
+            Target = World.NearestAvatar(Pos);
             TickAlive(dt);
             if (Pos.x < World.CameraLeft - 4f) Remove(); // left behind
         }
 
         protected abstract void TickAlive(float dt);
+
+        /// <summary>Co-op follower: glide toward the authority's latest snapshot.</summary>
+        void TickPuppet(float dt)
+        {
+            if (!m_NetPlaced) return;
+            if ((m_NetPos - Pos).sqrMagnitude > 16f) Pos = m_NetPos;
+            else Pos = Vector2.Lerp(Pos, m_NetPos, 1f - Mathf.Exp(-15f * dt));
+        }
+
+        /// <summary>State the authority replicates for this enemy.</summary>
+        public int SnapshotFlags =>
+            (Dying ? NetEnemyState.Dying : 0) | (Facing > 0 ? NetEnemyState.FacingRight : 0) |
+            (Mathf.Abs(Vel.x) > 0.05f ? NetEnemyState.Moving : 0) | (Grounded ? NetEnemyState.Grounded : 0) | ExtraFlags;
+
+        protected virtual int ExtraFlags => 0;
+        protected virtual void OnSnapshot(int flags) { }
+
+        /// <summary>Co-op follower: adopt the authority's view of this enemy.</summary>
+        public void ApplySnapshot(in NetEnemyState s)
+        {
+            m_NetPos = s.Pos;
+            if (!m_NetPlaced)
+            {
+                Pos = s.Pos;
+                m_NetPlaced = true;
+            }
+            if (Dying) return;
+            Facing = (s.Flags & NetEnemyState.FacingRight) != 0 ? 1 : -1;
+            Vel = new Vector2((s.Flags & NetEnemyState.Moving) != 0 ? Facing : 0f, 0f);
+            Grounded = (s.Flags & NetEnemyState.Grounded) != 0;
+            Hp = s.Hp;
+            OnSnapshot(s.Flags);
+            if ((s.Flags & NetEnemyState.Dying) != 0)
+            {
+                Dying = true;
+                DyingTime = 0f;
+                World.Popup(Score.ToString(), Center + Vector2.up * 0.6f, Color.white);
+            }
+        }
 
         /// <summary>Default death: knocked back, topples over, blinks out.</summary>
         protected virtual void TickDying(float dt)
@@ -99,7 +159,7 @@ namespace PooketSlug
             bool onScreen = Pos.x < World.CameraRight - 0.5f;
 
             Vel.x = 0f;
-            if (dist > 7f && !Target.Dead) Vel.x = Facing * 1.8f;
+            if (dist > 7f && !Target.IsDown) Vel.x = Facing * 1.8f;
 
             Vel.y = Mathf.Max(Vel.y - Gravity * dt, -18f);
             MoveResult r = MoveWithTiles(dt);
@@ -107,11 +167,10 @@ namespace PooketSlug
 
             m_Cooldown -= dt;
             m_Muzzle -= dt;
-            if (onScreen && dist < 9f && m_Cooldown <= 0f && !Target.Dead)
+            if (onScreen && dist < 9f && m_Cooldown <= 0f && !Target.IsDown)
             {
                 var origin = Pos + new Vector2(Facing * 0.8f, 0.95f);
-                World.Projectiles.Add(new Projectile(World, ProjectileKind.EnemyBullet, origin, new Vector2(Facing * 6.5f, 0f), true));
-                Sfx.Play(Sfx.EnemyShot, 0.35f);
+                World.FireEnemyProjectile(ProjectileKind.EnemyBullet, origin, new Vector2(Facing * 6.5f, 0f));
                 m_Muzzle = 0.06f;
                 m_Cooldown = Random.Range(1.5f, 2.6f);
             }
@@ -145,7 +204,7 @@ namespace PooketSlug
             m_AttackCooldown -= dt;
 
             Vel.x = 0f;
-            if (active && !Target.Dead)
+            if (active && !Target.IsDown)
             {
                 FaceTarget();
                 float dx = Target.Pos.x - Pos.x;
@@ -156,9 +215,9 @@ namespace PooketSlug
             MoveResult r = MoveWithTiles(dt);
             if (r.HitWall && Grounded) Vel.y = 13f;
 
-            if (!Target.Dead && m_AttackCooldown <= 0f && Bounds.Overlaps(Target.Bounds))
+            if (!Target.IsDown && m_AttackCooldown <= 0f && Bounds.Overlaps(Target.Bounds))
             {
-                Target.Hurt(1);
+                World.DamageAvatar(Target, 1);
                 m_AttackCooldown = 1.0f;
                 Sfx.Play(Sfx.Throw, 0.8f);
             }
@@ -200,9 +259,9 @@ namespace PooketSlug
             Facing = Vel.x >= 0f ? 1 : -1;
 
             m_BombCooldown -= dt;
-            if (m_BombCooldown <= 0f && Mathf.Abs(Target.Pos.x - Pos.x) < 1f && !Target.Dead)
+            if (m_BombCooldown <= 0f && Mathf.Abs(Target.Pos.x - Pos.x) < 1f && !Target.IsDown)
             {
-                World.Projectiles.Add(new Projectile(World, ProjectileKind.Bomb, Pos + new Vector2(0f, -0.1f), new Vector2(Vel.x * 0.5f, 0f), true));
+                World.FireEnemyProjectile(ProjectileKind.Bomb, Pos + new Vector2(0f, -0.1f), new Vector2(Vel.x * 0.5f, 0f));
                 m_BombCooldown = 1.8f;
             }
         }
@@ -270,9 +329,8 @@ namespace PooketSlug
             Vel.y = Mathf.Max(Vel.y - Gravity * dt, -18f);
             MoveWithTiles(dt);
 
-            if (Target.Dead) return;
-
-            if (Bounds.Overlaps(Target.Bounds)) Target.Hurt(1);
+            World.DamageAvatarsTouching(Bounds, 1);
+            if (Target.IsDown) return;
 
             if (m_BurstLeft > 0)
             {
@@ -282,8 +340,7 @@ namespace PooketSlug
                     m_BurstLeft--;
                     m_BurstTimer = 0.14f;
                     var origin = Pos + new Vector2(-1.6f, 0.45f);
-                    World.Projectiles.Add(new Projectile(World, ProjectileKind.EnemyBullet, origin, new Vector2(-7.5f, 0f), true));
-                    Sfx.Play(Sfx.EnemyShot, 0.4f);
+                    World.FireEnemyProjectile(ProjectileKind.EnemyBullet, origin, new Vector2(-7.5f, 0f));
                 }
                 return;
             }
@@ -304,14 +361,14 @@ namespace PooketSlug
                 float vy = 7.5f, g = 18f;
                 float flight = (vy + Mathf.Sqrt(vy * vy + 2f * g * Mathf.Max(0f, muzzle.y - Target.Pos.y))) / g;
                 float vx = Mathf.Clamp((Target.Pos.x - muzzle.x) / flight, -11f, -1.5f);
-                World.Projectiles.Add(new Projectile(World, ProjectileKind.Shell, muzzle, new Vector2(vx, vy), true));
-                World.Effects.Add(new Effect(World, Art.Explosion, 30f, muzzle, 0.4f));
-                Sfx.Play(Sfx.Cannon, 0.8f);
-                World.Shake(0.08f);
+                World.FireEnemyProjectile(ProjectileKind.Shell, muzzle, new Vector2(vx, vy));
                 m_AttackTimer = 1.4f;
             }
             m_Attack++;
         }
+
+        protected override int ExtraFlags => Engaged ? NetEnemyState.Engaged : 0;
+        protected override void OnSnapshot(int flags) => Engaged = (flags & NetEnemyState.Engaged) != 0;
 
         protected override void Die()
         {

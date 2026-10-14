@@ -87,6 +87,15 @@ namespace PooketSlug
 
         public bool IsSolidAt(Vector2 p) => IsSolid(Mathf.FloorToInt(p.x), Mathf.FloorToInt(p.y));
 
+        /// <summary>Top of the highest standable tile (ground, sandbags or bridge) in the column at x.</summary>
+        public float TopSurfaceY(float x)
+        {
+            int c = Mathf.Clamp(Mathf.FloorToInt(x), 0, Width - 1);
+            for (int y = Height - 1; y >= 0; y--)
+                if (m_Tiles[c, y] != Empty) return y + 1;
+            return 0f;
+        }
+
         /// <summary>Builds the visuals: the tile map is baked into a few wide chunk textures.</summary>
         public GameObject CreateView(Transform parent)
         {

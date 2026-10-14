@@ -16,14 +16,16 @@ namespace PooketSlug.EditorTools
     public static class WebGLBuild
     {
         const string ScenePath = "Assets/Scenes/Main.unity";
-        const string BaseVersion = "0.1.0";
+        const string NetConfigPath = "Assets/Resources/" + NetConfig.ResourceName + ".json";
+        const string BaseVersion = "0.2.0";
 
-        // GameCI passes -customBuildPath (and our workflow adds -buildSha) on the command line.
+        // GameCI passes -customBuildPath; our workflow adds -buildSha and -photonAppId [-photonRegion].
         public static void Build()
         {
             string[] args = Environment.GetCommandLineArgs();
             string outputPath = GetArg(args, "-customBuildPath") ?? "build/WebGL/WebGL";
             string sha = GetArg(args, "-buildSha");
+            WriteNetConfig(GetArg(args, "-photonAppId"), GetArg(args, "-photonRegion"));
 
             BuildReport report = Run(outputPath, sha);
             BuildSummary summary = report.summary;
@@ -99,13 +101,28 @@ namespace PooketSlug.EditorTools
             PlayerSettings.WebGL.template = "PROJECT:PooketSlug";
         }
 
+        /// <summary>Bakes the Photon AppId into the build (Resources/pooket-net.json, git-ignored).</summary>
+        static void WriteNetConfig(string appId, string region)
+        {
+            if (string.IsNullOrEmpty(appId))
+            {
+                Console.WriteLine("[PooketSlug] No -photonAppId: online co-op " + (File.Exists(NetConfigPath) ? "uses the existing " + NetConfigPath : "is off in this build"));
+                return;
+            }
+            Directory.CreateDirectory(Path.GetDirectoryName(NetConfigPath));
+            File.WriteAllText(NetConfigPath, JsonUtility.ToJson(new NetConfig.Data { appId = appId.Trim(), region = (region ?? "").Trim() }));
+            AssetDatabase.Refresh(); // imports the new Resources folder and file
+            Console.WriteLine("[PooketSlug] Photon AppId baked in; quick match region: " + (string.IsNullOrEmpty(region) ? "best by ping" : region));
+        }
+
         /// <summary>Build-log diagnostics: is the Fusion SDK present, are its defines set, did its IL weaver compile?</summary>
         static void LogNetworkingSetup()
         {
             bool sdk = Directory.Exists("Assets/Photon/Fusion");
             string defines = PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.WebGL);
             bool weaver = File.Exists("Library/ScriptAssemblies/Unity.Fusion.CodeGen.dll");
-            Console.WriteLine($"[PooketSlug] Fusion SDK present: {sdk}; IL weaver compiled: {weaver}; WebGL defines: '{defines}'");
+            bool coop = Type.GetType("PooketSlug.NetSession, Assembly-CSharp") != null;
+            Console.WriteLine($"[PooketSlug] Fusion SDK present: {sdk}; IL weaver compiled: {weaver}; co-op code compiled: {coop}; WebGL defines: '{defines}'");
         }
 
         static string GetArg(string[] args, string name)
