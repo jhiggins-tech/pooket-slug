@@ -117,7 +117,7 @@ namespace PooketSlug
     public interface ISoldierChannel
     {
         IReadOnlyList<IAvatarLink> RemoteAvatars { get; }
-        void SendAvatar(Vector2 pos, Vector2 vel, int poseFlags, int hp);
+        void SendAvatar(SoldierDef soldier, Vector2 pos, Vector2 vel, int poseFlags, int hp);
         void SendShot(in ShotEvent shot);
     }
 
@@ -155,6 +155,8 @@ namespace PooketSlug
     /// <summary>A remote player's replicated soldier.</summary>
     public interface IAvatarLink
     {
+        /// <summary>Which soldier they play (the Trooper for one this build doesn't know).</summary>
+        SoldierDef Soldier { get; }
         Vector2 Pos { get; }
         Vector2 Vel { get; }
         int PoseFlags { get; }

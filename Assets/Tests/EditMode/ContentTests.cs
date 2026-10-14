@@ -101,6 +101,16 @@ namespace PooketSlug.Tests
             Assert.IsNull(Content.EnemyFor(marker));
         }
 
+        [Test]
+        public void SoldierIdsNeverChange()
+        {
+            // Each player's soldier is replicated by id.
+            Assert.AreEqual(0, Content.Trooper.Id);
+            Assert.AreSame(Content.Trooper, Content.Soldier(0));
+            Assert.IsNull(Content.Soldier(-1));
+            Assert.IsNull(Content.Soldier(Content.Soldiers.Count));
+        }
+
         [TestCase(-1)]
         [TestCase(4)]
         public void AnUnknownEnemyIdFindsNothing(int id)

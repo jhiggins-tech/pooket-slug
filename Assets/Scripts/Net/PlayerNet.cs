@@ -16,9 +16,11 @@ namespace PooketSlug
         [Networked] public int NetHp { get; set; }
         [Networked] public int NetSkin { get; set; }
         [Networked] public int NetRound { get; set; } // World.Round + 1 once the soldier is in play; 0 = still in the lobby
+        [Networked] public byte NetSoldier { get; set; } // SoldierDef id
 
         bool Live => Object != null && Object.IsValid;
 
+        public SoldierDef Soldier => (Live ? Content.Soldier(NetSoldier) : null) ?? Content.Trooper;
         public Vector2 Pos => Live ? NetPos : default;
         public Vector2 Vel => Live ? NetVel : default;
         public int PoseFlags => Live ? NetPose : 0;

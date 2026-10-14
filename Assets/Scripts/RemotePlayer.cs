@@ -12,7 +12,7 @@ namespace PooketSlug
         bool m_Placed;
 
         public RemotePlayer(World world, IAvatarLink link)
-            : base(world, "RemotePlayer", link.Pos, Content.Trooper.HalfWidth, Content.Trooper.StandHeight, Content.Trooper.MaxHp)
+            : base(world, "RemotePlayer", link.Pos, link.Soldier.HalfWidth, link.Soldier.StandHeight, link.Soldier.MaxHp)
         {
             Link = link;
             m_Visual = new PlayerVisual(Visual, Art.PlayerSkins[Mathf.Clamp(link.Skin, 0, 1)], SortOrder.Player - 5);
@@ -27,7 +27,7 @@ namespace PooketSlug
             m_Anim += dt;
             m_DeadTime = m_Pose.Dead ? m_DeadTime + dt : 0f;
             Facing = m_Pose.Facing;
-            Height = m_Pose.Crouching ? Content.Trooper.CrouchHeight : Content.Trooper.StandHeight;
+            Height = m_Pose.Crouching ? Link.Soldier.CrouchHeight : Link.Soldier.StandHeight;
             Hp = Link.Hp;
 
             // Smooth toward the replicated position, extrapolating a little with its velocity.

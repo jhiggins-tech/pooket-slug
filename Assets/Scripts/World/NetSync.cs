@@ -74,7 +74,7 @@ namespace PooketSlug
         public void Push()
         {
             World w = m_World;
-            Net.SendAvatar(w.Player.Pos, w.Player.Vel, w.Player.Pose.Pack(), w.Player.Hp);
+            Net.SendAvatar(w.Player.Def, w.Player.Pos, w.Player.Vel, w.Player.Pose.Pack(), w.Player.Hp);
             if (!w.IsAuthority) return;
             Net.CamX = w.View.X;
             Net.Score = w.Scoring.Points;

@@ -171,9 +171,10 @@ namespace PooketSlug
             }
         }
 
-        public void SendAvatar(Vector2 pos, Vector2 vel, int poseFlags, int hp)
+        public void SendAvatar(SoldierDef soldier, Vector2 pos, Vector2 vel, int poseFlags, int hp)
         {
             if (m_Local == null || !m_Local.Object.IsValid) return;
+            m_Local.NetSoldier = soldier.Id;
             m_Local.NetPos = pos;
             m_Local.NetVel = vel;
             m_Local.NetPose = poseFlags;

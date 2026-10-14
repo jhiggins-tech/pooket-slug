@@ -43,7 +43,7 @@ Known trade-off: clients trust each other. A modified client could claim hits or
 
 Sizes come from the woven assembly, where Fusion's weaver records them in words of 4 bytes.
 
-**`PlayerNet`**: one per player, state authority = its owner, 8 words.
+**`PlayerNet`**: one per player, state authority = its owner, 9 words.
 
 | Property | Meaning |
 |---|---|
@@ -51,6 +51,7 @@ Sizes come from the woven assembly, where Fusion's weaver records them in words 
 | `NetPose` (`int`) | `AvatarPose.Pack()` bits: facing, aim up/down, grounded, crouch, running, dead, muzzle flash, blink, hit flash |
 | `NetHp` (`int`) | Health |
 | `NetSkin` (`int`) | 0 = red P1, 1 = blue P2 |
+| `NetSoldier` (`byte`) | Which soldier they play, as a `SoldierDef` id. Their partner's game uses it for the soldier's size and health |
 | `NetRound` (`int`) | `World.Round + 1` once playing; 0 = still in the lobby. Lets clients ignore a soldier that hasn't reached the current round |
 
 **`WorldNet`**: one per session, a master-client object, 152 words.
