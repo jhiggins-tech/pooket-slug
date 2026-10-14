@@ -76,15 +76,6 @@ jobs:
           customParameters: -buildSha ${{ github.sha }} -photonAppId ${{ secrets.PHOTON_APP_ID }}
           versioning: None
 
-      # Temporary: capture the ProjectSettings Unity generates once Fusion's installer has added its
-      # scripting defines, so they can be committed (the IL weaver needs FUSION_WEAVER at first compile).
-      - name: Upload generated ProjectSettings
-        if: always()
-        uses: actions/upload-artifact@v6
-        with:
-          name: ProjectSettings
-          path: ProjectSettings/
-
       - name: Upload build artifact
         uses: actions/upload-artifact@v6
         with:
