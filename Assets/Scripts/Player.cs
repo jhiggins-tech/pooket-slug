@@ -5,12 +5,9 @@ namespace PooketSlug
     /// <summary>The locally controlled soldier.</summary>
     public sealed class Player : Actor
     {
-        const float RunSpeed = 5.5f, CrawlSpeed = 2f, JumpVelocity = 17f, Gravity = 40f, MaxFall = 18f;
-        const float StandHeight = 1.35f, CrouchHeight = 0.8f;
-        const float PistolCooldown = 0.18f, HeavyCooldown = 0.075f, InvulnTime = 1.4f;
-        public const float RespawnDelay = 2.5f; // co-op
+        const float PistolCooldown = 0.18f, HeavyCooldown = 0.075f;
 
-        public int Grenades = 10;
+        public int Grenades = Tuning.Soldier.StartGrenades;
         public int HeavyAmmo;
         public bool Dead;
         public float DeadTime;
@@ -21,7 +18,8 @@ namespace PooketSlug
         Vector2 m_Aim = Vector2.right;
         readonly PlayerVisual m_Visual;
 
-        public Player(World world, Vector2 feet, int skin) : base(world, "Player", feet, 0.3f, StandHeight, 5)
+        public Player(World world, Vector2 feet, int skin)
+            : base(world, "Player", feet, Tuning.Soldier.HalfWidth, Tuning.Soldier.StandHeight, Tuning.Soldier.MaxHp)
         {
             m_Visual = new PlayerVisual(Visual, Art.PlayerSkins[skin], SortOrder.Player);
             Grounded = true; // spawned standing on the ground (matters for the title-screen pose)
@@ -51,10 +49,10 @@ namespace PooketSlug
             if (Dead)
             {
                 DeadTime += dt;
-                Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
+                Vel.y = Mathf.Max(Vel.y - Tuning.Physics.Gravity * dt, -Tuning.Physics.MaxFall);
                 Vel.x = Mathf.MoveTowards(Vel.x, 0f, 6f * dt);
                 MoveWithTiles(dt);
-                if (World.Coop && DeadTime > RespawnDelay) Respawn();
+                if (World.Coop && DeadTime > Tuning.Coop.RespawnDelay) Respawn();
                 return;
             }
 
@@ -63,32 +61,32 @@ namespace PooketSlug
 
             // --- horizontal ---
             Crouching = Grounded && down;
-            Height = Crouching ? CrouchHeight : StandHeight;
-            Vel.x = moveX * (Crouching ? CrawlSpeed : RunSpeed);
+            Height = Crouching ? Tuning.Soldier.CrouchHeight : Tuning.Soldier.StandHeight;
+            Vel.x = moveX * (Crouching ? Tuning.Soldier.CrawlSpeed : Tuning.Soldier.RunSpeed);
             if (moveX != 0f) Facing = moveX > 0f ? 1 : -1;
 
             // --- jumping (with coyote time + input buffering) ---
-            m_Coyote = Grounded ? 0.1f : m_Coyote - dt;
-            m_JumpBuffer = InputEnabled && GameInput.JumpPressed ? 0.12f : m_JumpBuffer - dt;
+            m_Coyote = Grounded ? Tuning.Soldier.CoyoteTime : m_Coyote - dt;
+            m_JumpBuffer = InputEnabled && GameInput.JumpPressed ? Tuning.Soldier.JumpBuffer : m_JumpBuffer - dt;
             m_DropThrough -= dt;
             if (m_JumpBuffer > 0f && m_Coyote > 0f)
             {
                 if (down && TilePhysics.OnBridge(World.Level, Pos, HalfW))
                 {
-                    m_DropThrough = 0.25f;
+                    m_DropThrough = Tuning.Soldier.DropThroughTime;
                 }
                 else
                 {
-                    Vel.y = JumpVelocity;
+                    Vel.y = Tuning.Soldier.JumpVelocity;
                     Sfx.Play(Sfx.Jump, 0.6f);
                 }
                 m_JumpBuffer = 0f;
                 m_Coyote = 0f;
             }
 
-            float gravity = Gravity;
-            if (Vel.y > 0f && !(InputEnabled && GameInput.JumpHeld)) gravity *= 2.2f; // short hop when released
-            Vel.y = Mathf.Max(Vel.y - gravity * dt, -MaxFall);
+            float gravity = Tuning.Physics.Gravity;
+            if (Vel.y > 0f && !(InputEnabled && GameInput.JumpHeld)) gravity *= Tuning.Soldier.ShortHopGravity; // short hop when released
+            Vel.y = Mathf.Max(Vel.y - gravity * dt, -Tuning.Physics.MaxFall);
             MoveWithTiles(dt, m_DropThrough > 0f);
 
             // Metal Slug style: the camera never scrolls back, and you can't leave it (co-op: either side).
@@ -130,7 +128,7 @@ namespace PooketSlug
             if (heavy)
             {
                 // heavy machine gun: slight spread
-                float spread = Random.Range(-4f, 4f) * Mathf.Deg2Rad;
+                float spread = World.Rng.Range(-4f, 4f) * Mathf.Deg2Rad;
                 dir = new Vector2(dir.x * Mathf.Cos(spread) - dir.y * Mathf.Sin(spread), dir.x * Mathf.Sin(spread) + dir.y * Mathf.Cos(spread));
                 HeavyAmmo--;
                 if (HeavyAmmo == 0) World.Popup("OUT OF AMMO", Pos + Vector2.up * 2f, new Color(1f, 0.6f, 0.4f));
@@ -158,7 +156,7 @@ namespace PooketSlug
             }
             else
             {
-                m_Invuln = InvulnTime;
+                m_Invuln = Tuning.Soldier.HurtInvulnerability;
                 Sfx.Play(Sfx.Hurt);
             }
         }
@@ -171,9 +169,9 @@ namespace PooketSlug
             Dead = false;
             DeadTime = 0f;
             Hp = MaxHp;
-            Grenades = Mathf.Max(Grenades, 5);
+            Grenades = Mathf.Max(Grenades, Tuning.Coop.RespawnMinGrenades);
             Vel = Vector2.zero;
-            m_Invuln = 2.5f;
+            m_Invuln = Tuning.Coop.RespawnInvulnerability;
             float x = World.CameraLeft + 2f;
             Pos = new Vector2(x, World.Level.TopSurfaceY(x));
             World.Popup("BACK IN!", Pos + Vector2.up * 2f, new Color(0.6f, 0.9f, 1f));

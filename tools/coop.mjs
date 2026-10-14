@@ -14,6 +14,7 @@ const [url, out, mode = 'code'] = process.argv.slice(2);
 fs.mkdirSync(out, { recursive: true });
 const T0 = Date.now();
 const t = () => ((Date.now() - T0) / 1000).toFixed(1).padStart(6);
+const TAG = String.raw`\[PooketSlug(?:/\w+)?\]`; // "[PooketSlug/Net] …" (older builds: "[PooketSlug] …")
 const ARGS = ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--autoplay-policy=no-user-gesture-required'];
 
 // Each check is false until it passes; result.json records them all.
@@ -71,10 +72,10 @@ try {
   let joinUrl = url;
   if (mode === 'quick') {
     await A.page.keyboard.press('q');
-    checks.hostOnline = !!(await waitLog(A, /\[PooketSlug\] Online /, 90000));
+    checks.hostOnline = !!(await waitLog(A, new RegExp(TAG + ' Online '), 90000));
   } else {
     await A.page.keyboard.press('h');
-    const line = await waitLog(A, /\[PooketSlug\] Online .*room ([A-Z0-9]+-[A-Z]+)/, 90000);
+    const line = await waitLog(A, new RegExp(TAG + ' Online .*room ([A-Z0-9]+-[A-Z]+)'), 90000);
     if (!line) throw new Error('A never got a room code');
     checks.hostOnline = true;
     const code = line.match(/room ([A-Z0-9]+-[A-Z]+)/)[1];
@@ -88,9 +89,9 @@ try {
   await load(B, joinUrl);
   await shot(B, '0-title');
   await B.page.keyboard.press(mode === 'quick' ? 'q' : 'Enter');
-  if (!(await waitLog(B, /\[PooketSlug\] Online /, 90000))) throw new Error('B never got online');
+  if (!(await waitLog(B, new RegExp(TAG + ' Online '), 90000))) throw new Error('B never got online');
   checks.guestOnline = true;
-  if (!(await waitLog(A, /\[PooketSlug\] .* joined/, 30000))) throw new Error("A never saw B join");
+  if (!(await waitLog(A, new RegExp(TAG + ' .* joined'), 30000))) throw new Error('A never saw B join');
   checks.joined = true;
   await B.page.waitForTimeout(4000);
   await Promise.all([shot(A, '2-together'), shot(B, '2-together')]);

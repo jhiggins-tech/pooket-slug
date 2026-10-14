@@ -86,18 +86,21 @@ runner.StartGame(new StartGameArgs {
 
 ## Console logs
 
-Open the browser's developer console. Lines starting with `[PooketSlug]` trace the session:
+Open the browser's developer console. Lines starting with `[PooketSlug/Net]` trace the session:
 
 ```text
-[PooketSlug] Online in region eu: room ABCD-EU, 1/2 players, we are [Player:1] (master client)
-[PooketSlug] This client now runs the shared world
-[PooketSlug] [Player:2] joined
-[PooketSlug] [Player:2] left
-[PooketSlug] No game called ABCD in region eu; leaving
-[PooketSlug] Couldn't go online: <ShutdownReason>
-[PooketSlug] Session ended: <ShutdownReason>
-[PooketSlug] Disconnected from Photon: <NetDisconnectReason>
+[PooketSlug/Net] Online in region eu: room ABCD-EU, 1/2 players, we are [Player:1] (master client)
+[PooketSlug/Net] This client now runs the shared world
+[PooketSlug/Net] [Player:2] joined
+[PooketSlug/Net] [Player:2] left
+[PooketSlug/Net] No game called ABCD in region eu; leaving
+[PooketSlug/Net] Couldn't go online: <ShutdownReason>
+[PooketSlug/Net] Session ended: <ShutdownReason>
+[PooketSlug/Net] Disconnected from Photon: <NetDisconnectReason>
 ```
+
+- **Channels:** `Net` for the session, `Game` and `Audio` for the rest ([`Log.cs`](../../../Assets/Scripts/Core/Log.cs)). Builds before 2026-10-14 printed a plain `[PooketSlug]` prefix.
+- **Turning them up or down:** add `?log=net:debug` to the page address, or `?log=all:warn` for quiet. The levels are `debug`, `info` (the default), `warn`, `error` and `off`.
 
 Fusion and Photon log with their own prefixes, for example `[Fusion] StartGame Failed: …`, and WebSocket errors come from the browser.
 

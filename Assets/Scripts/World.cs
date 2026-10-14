@@ -14,15 +14,13 @@ namespace PooketSlug
     /// <summary>One play-through: level, entities, camera and scoring. Destroyed and rebuilt on restart.</summary>
     public sealed class World
     {
-        public const float ViewHeight = 11.25f; // 180 px at 16 px per unit
-        /// <summary>In co-op both clients scroll and spawn by the same screen width, whatever their aspect ratio.</summary>
-        public const float CoopHalfWidth = 10f;
-
         public readonly Transform Root;
         public readonly Level Level;
         public readonly Camera Camera;
         public readonly INetLink Net; // null when playing solo
         public readonly int Round;
+        /// <summary>Gameplay randomness for this play-through; cosmetic effects use <see cref="Rng.Fx"/>.</summary>
+        public readonly Rng Rng = new Rng(Rng.NewSeed());
         public Player Player;
         public TankBoss Boss;
 
@@ -77,11 +75,11 @@ namespace PooketSlug
         public bool Coop => Net != null;
         /// <summary>Runs enemies, pickups and score: always offline, the master client in co-op.</summary>
         public bool IsAuthority => Net == null || Net.IsAuthority;
-        public float HalfWidth => ViewHeight * 0.5f * Camera.aspect;
-        float GameHalfWidth => Coop ? CoopHalfWidth : HalfWidth;
+        public float HalfWidth => Tuning.Camera.ViewHeight * 0.5f * Camera.aspect;
+        float GameHalfWidth => Coop ? Tuning.Coop.HalfWidth : HalfWidth;
         public float CameraLeft => m_CamX - GameHalfWidth;
         public float CameraRight => m_CamX + GameHalfWidth;
-        public Rect ViewRect => new Rect(m_CamX - Mathf.Max(HalfWidth, GameHalfWidth), 0f, 2f * Mathf.Max(HalfWidth, GameHalfWidth), ViewHeight);
+        public Rect ViewRect => new Rect(m_CamX - Mathf.Max(HalfWidth, GameHalfWidth), 0f, 2f * Mathf.Max(HalfWidth, GameHalfWidth), Tuning.Camera.ViewHeight);
 
         public void Dispose() => Object.Destroy(Root.gameObject);
 
@@ -107,10 +105,10 @@ namespace PooketSlug
             {
                 PopupText p = Popups[i];
                 p.Age += dt;
-                p.Pos.y += dt * 0.8f;
+                p.Pos.y += dt * Tuning.Hud.PopupRise;
                 Popups[i] = p;
             }
-            Popups.RemoveAll(p => p.Age > 1.4f);
+            Popups.RemoveAll(p => p.Age > Tuning.Hud.PopupLife);
 
             Sweep(Enemies);
             Sweep(Projectiles);
@@ -306,7 +304,7 @@ namespace PooketSlug
             if (target is RemotePlayer rp && !rp.Invulnerable)
             {
                 if (m_HurtCooldown.TryGetValue(rp.Link, out float until) && Elapsed < until) return;
-                m_HurtCooldown[rp.Link] = Elapsed + 0.5f;
+                m_HurtCooldown[rp.Link] = Elapsed + Tuning.Coop.RemoteHurtCooldown;
                 rp.Link.Hurt(damage);
             }
         }
@@ -396,8 +394,8 @@ namespace PooketSlug
         {
             for (int i = 0; i < count; i++)
             {
-                var vel = new Vector2(Random.Range(-5f, 5f), Random.Range(2f, 10f));
-                Effects.Add(new Particle(this, at, vel, color, Random.Range(1.5f, 3f), Random.Range(0.5f, 1f)));
+                var vel = new Vector2(Rng.Fx.Range(-5f, 5f), Rng.Fx.Range(2f, 10f));
+                Effects.Add(new Particle(this, at, vel, color, Rng.Fx.Range(1.5f, 3f), Rng.Fx.Range(0.5f, 1f)));
             }
         }
 
@@ -482,7 +480,7 @@ namespace PooketSlug
             }
 
             if (Coop) m_NextSpawn = Mathf.Max(m_NextSpawn, Mathf.Max(m_NextStatic, Net.NextSpawn)); // took over from another authority
-            while (m_NextSpawn < Level.Spawns.Count && Level.Spawns[m_NextSpawn].Pos.x < CameraRight + 1.5f)
+            while (m_NextSpawn < Level.Spawns.Count && Level.Spawns[m_NextSpawn].Pos.x < CameraRight + Tuning.Camera.SpawnAhead)
             {
                 int index = m_NextSpawn++;
                 Spawn s = Level.Spawns[index];
@@ -497,11 +495,11 @@ namespace PooketSlug
         void UpdateCamera(float dt)
         {
             float h = GameHalfWidth;
-            float step = 12f * Mathf.Max(dt, 0.0001f);
+            float step = Tuning.Camera.ScrollSpeed * Mathf.Max(dt, 0.0001f);
             if (!Coop)
             {
                 // Scroll forward only (Metal Slug style), with a little look-ahead.
-                float desired = Player.Pos.x + 2f;
+                float desired = Player.Pos.x + Tuning.Camera.LookAhead;
                 if (desired > m_CamX) m_CamX = Mathf.Min(desired, m_CamX + step);
             }
             else if (IsAuthority)
@@ -520,32 +518,32 @@ namespace PooketSlug
                 }
                 if (lead > float.MinValue)
                 {
-                    float desired = Mathf.Min(lead + 2f, trail - 0.5f + h);
+                    float desired = Mathf.Min(lead + Tuning.Camera.LookAhead, trail - Tuning.Coop.TrailMargin + h);
                     if (desired > m_CamX) m_CamX = Mathf.Min(desired, m_CamX + step);
                 }
             }
             else if (Net.CamX > m_CamX)
             {
-                m_CamX = Mathf.Min(Net.CamX, m_CamX + 2f * step);
+                m_CamX = Mathf.Min(Net.CamX, m_CamX + Tuning.Coop.FollowerCatchUp * step);
             }
             m_CamX = Mathf.Clamp(m_CamX, h, Mathf.Max(h, Level.Width - h));
 
             Vector2 shake = Vector2.zero;
             if (m_Shake > 0f)
             {
-                shake = Random.insideUnitCircle * m_Shake;
-                m_Shake = Mathf.Max(0f, m_Shake - dt * 0.6f);
+                shake = Rng.Fx.InsideUnitCircle() * m_Shake;
+                m_Shake = Mathf.Max(0f, m_Shake - dt * Tuning.Camera.ShakeDecay);
             }
             // A view narrower than the shared co-op width (odd fullscreen aspect) keeps our own soldier in frame.
             float view = m_CamX;
             if (HalfWidth < h) view = Mathf.Clamp(Player.Pos.x, m_CamX - (h - HalfWidth), m_CamX + (h - HalfWidth));
             view = Mathf.Clamp(view, HalfWidth, Mathf.Max(HalfWidth, Level.Width - HalfWidth));
-            float cx = Entity.Snap(view + shake.x), cy = Entity.Snap(ViewHeight * 0.5f + shake.y);
+            float cx = Entity.Snap(view + shake.x), cy = Entity.Snap(Tuning.Camera.ViewHeight * 0.5f + shake.y);
             Camera.transform.position = new Vector3(cx, cy, -10f);
 
             // Parallax: layer origin moves with the camera by `factor` (1 = infinitely far away).
             m_Sky.position = new Vector3(cx, cy, 0f);
-            m_Sky.localScale = new Vector3((HalfWidth * 2f + 2f) * Art.PPU, (ViewHeight + 2f) / 2f, 1f);
+            m_Sky.localScale = new Vector3((HalfWidth * 2f + 2f) * Art.PPU, (Tuning.Camera.ViewHeight + 2f) / 2f, 1f);
             PlaceLayer(m_Mountains, Art.Mountains, 0.85f, 1.2f, cx);
             PlaceLayer(m_Ruins, Art.Ruins, 0.6f, 1.0f, cx);
         }

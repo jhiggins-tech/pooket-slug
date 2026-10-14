@@ -11,7 +11,8 @@ namespace PooketSlug
         float m_Anim, m_DeadTime;
         bool m_Placed;
 
-        public RemotePlayer(World world, IAvatarLink link) : base(world, "RemotePlayer", link.Pos, 0.3f, 1.35f, 5)
+        public RemotePlayer(World world, IAvatarLink link)
+            : base(world, "RemotePlayer", link.Pos, Tuning.Soldier.HalfWidth, Tuning.Soldier.StandHeight, Tuning.Soldier.MaxHp)
         {
             Link = link;
             m_Visual = new PlayerVisual(Visual, Art.PlayerSkins[Mathf.Clamp(link.Skin, 0, 1)], SortOrder.Player - 5);
@@ -26,19 +27,20 @@ namespace PooketSlug
             m_Anim += dt;
             m_DeadTime = m_Pose.Dead ? m_DeadTime + dt : 0f;
             Facing = m_Pose.Facing;
-            Height = m_Pose.Crouching ? 0.8f : 1.35f;
+            Height = m_Pose.Crouching ? Tuning.Soldier.CrouchHeight : Tuning.Soldier.StandHeight;
             Hp = Link.Hp;
 
             // Smooth toward the replicated position, extrapolating a little with its velocity.
-            Vector2 target = Link.Pos + Link.Vel * 0.05f;
-            if (!m_Placed || (target - Pos).sqrMagnitude > 9f)
+            Vector2 target = Link.Pos + Link.Vel * Tuning.Coop.RemoteSoldierLead;
+            const float snap = Tuning.Coop.RemoteSoldierSnap;
+            if (!m_Placed || (target - Pos).sqrMagnitude > snap * snap)
             {
                 Pos = target;
                 m_Placed = true;
             }
             else
             {
-                Pos = Vector2.Lerp(Pos, target, 1f - Mathf.Exp(-18f * dt));
+                Pos = Vector2.Lerp(Pos, target, 1f - Mathf.Exp(-Tuning.Coop.RemoteSoldierSmoothing * dt));
             }
         }
 

@@ -9,7 +9,7 @@ namespace PooketSlug
         public SpawnKind Kind;
         public bool Dying;
         protected float DyingTime, Anim;
-        protected const float Gravity = 40f;
+        protected const float Gravity = Tuning.Physics.Gravity, MaxFall = Tuning.Physics.MaxFall;
         Vector2 m_NetPos;
         bool m_NetPlaced;
 
@@ -74,8 +74,9 @@ namespace PooketSlug
         void TickPuppet(float dt)
         {
             if (!m_NetPlaced) return;
-            if ((m_NetPos - Pos).sqrMagnitude > 16f) Pos = m_NetPos;
-            else Pos = Vector2.Lerp(Pos, m_NetPos, 1f - Mathf.Exp(-15f * dt));
+            const float snap = Tuning.Coop.RemoteEnemySnap;
+            if ((m_NetPos - Pos).sqrMagnitude > snap * snap) Pos = m_NetPos;
+            else Pos = Vector2.Lerp(Pos, m_NetPos, 1f - Mathf.Exp(-Tuning.Coop.RemoteEnemySmoothing * dt));
         }
 
         /// <summary>State the authority replicates for this enemy.</summary>
@@ -113,7 +114,7 @@ namespace PooketSlug
         protected virtual void TickDying(float dt)
         {
             if (DyingTime < dt * 1.5f) Vel = new Vector2(-Facing * 2.5f, 6f);
-            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -18f);
+            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
             Vel.x = Mathf.MoveTowards(Vel.x, 0f, 4f * dt);
             MoveWithTiles(dt);
             if (DyingTime > 1.1f) Remove();
@@ -149,7 +150,7 @@ namespace PooketSlug
             m_Flash = AddRenderer(Visual, "Muzzle", Art.MuzzleFlash, SortOrder.Enemies + 2);
             m_Flash.transform.localPosition = new Vector3(14f / Art.PPU, 14.5f / Art.PPU, 0f);
             m_Flash.enabled = false;
-            m_Cooldown = Random.Range(0.6f, 1.4f);
+            m_Cooldown = World.Rng.Range(0.6f, 1.4f);
         }
 
         protected override void TickAlive(float dt)
@@ -161,7 +162,7 @@ namespace PooketSlug
             Vel.x = 0f;
             if (dist > 7f && !Target.IsDown) Vel.x = Facing * 1.8f;
 
-            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -18f);
+            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
             MoveResult r = MoveWithTiles(dt);
             if (r.HitWall && Grounded) Vel.y = 11f; // hop small obstacles
 
@@ -172,7 +173,7 @@ namespace PooketSlug
                 var origin = Pos + new Vector2(Facing * 0.8f, 0.95f);
                 World.FireEnemyProjectile(ProjectileKind.EnemyBullet, origin, new Vector2(Facing * 6.5f, 0f));
                 m_Muzzle = 0.06f;
-                m_Cooldown = Random.Range(1.5f, 2.6f);
+                m_Cooldown = World.Rng.Range(1.5f, 2.6f);
             }
         }
 
@@ -211,7 +212,7 @@ namespace PooketSlug
                 if (Mathf.Abs(dx) > 0.6f && m_AttackCooldown < 0.5f) Vel.x = Facing * 4.2f;
             }
 
-            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -18f);
+            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
             MoveResult r = MoveWithTiles(dt);
             if (r.HitWall && Grounded) Vel.y = 13f;
 
@@ -245,7 +246,7 @@ namespace PooketSlug
         {
             m_Sr = AddRenderer(Visual, "Body", Art.Drone[0], SortOrder.Enemies + 2);
             m_Sr.transform.localPosition = new Vector3(0f, 0.35f, 0f);
-            m_Phase = Random.Range(0f, 6f);
+            m_Phase = World.Rng.Range(0f, 6f);
         }
 
         protected override void TickAlive(float dt)
@@ -326,7 +327,7 @@ namespace PooketSlug
             // patrol a short track in the arena
             float targetX = m_HomeX + Mathf.Sin(Anim * 0.5f) * 2.5f;
             Vel.x = Mathf.Clamp((targetX - Pos.x) * 2f, -1.6f, 1.6f);
-            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -18f);
+            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
             MoveWithTiles(dt);
 
             World.DamageAvatarsTouching(Bounds, 1);
@@ -382,7 +383,7 @@ namespace PooketSlug
             if (m_ExplodeTimer <= 0f && DyingTime < 1.6f)
             {
                 m_ExplodeTimer = 0.18f;
-                var p = Pos + new Vector2(Random.Range(-1.4f, 1.4f), Random.Range(0.2f, 1.6f));
+                var p = Pos + new Vector2(Rng.Fx.Range(-1.4f, 1.4f), Rng.Fx.Range(0.2f, 1.6f));
                 World.Explode(p, 0.5f, 0, false, 0.7f);
             }
             if (DyingTime >= 1.6f)

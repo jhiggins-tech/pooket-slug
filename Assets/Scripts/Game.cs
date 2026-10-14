@@ -44,6 +44,7 @@ namespace PooketSlug
 
         void Awake()
         {
+            Log.Configure(PageQuery.Get(Application.absoluteURL, "log")); // ?log=net:debug,game:warn for this visit
             Art.Init();
             Sfx.Init(gameObject);
 
@@ -51,7 +52,7 @@ namespace PooketSlug
             camGo.transform.SetParent(transform, false);
             m_Camera = camGo.AddComponent<Camera>();
             m_Camera.orthographic = true;
-            m_Camera.orthographicSize = World.ViewHeight * 0.5f;
+            m_Camera.orthographicSize = Tuning.Camera.ViewHeight * 0.5f;
             m_Camera.clearFlags = CameraClearFlags.SolidColor;
             m_Camera.backgroundColor = new Color32(0x6c, 0xa8, 0xe0, 255);
             m_Camera.nearClipPlane = 0.1f;
@@ -140,25 +141,9 @@ namespace PooketSlug
             m_NoticeTime = Time.unscaledTime;
         }
 
-        static string RoomFromUrl(string url)
-        {
-            if (string.IsNullOrEmpty(url)) return null;
-            int q = url.IndexOf('?');
-            if (q < 0) return null;
-            int hash = url.IndexOf('#', q);
-            string query = hash < 0 ? url.Substring(q + 1) : url.Substring(q + 1, hash - q - 1);
-            foreach (string part in query.Split('&'))
-                if (part.StartsWith("room=", StringComparison.OrdinalIgnoreCase))
-                    return Uri.UnescapeDataString(part.Substring(5)).Trim().ToUpperInvariant();
-            return null;
-        }
+        static string RoomFromUrl(string url) => PageQuery.Get(url, "room")?.Trim().ToUpperInvariant();
 
-        static string PageUrl()
-        {
-            string url = Application.absoluteURL ?? "";
-            int cut = url.IndexOfAny(new[] { '?', '#' });
-            return cut < 0 ? url : url.Substring(0, cut);
-        }
+        static string PageUrl() => PageQuery.Base(Application.absoluteURL);
 
         void Update()
         {
@@ -442,7 +427,7 @@ namespace PooketSlug
             Text(vw * 0.5f, 360 - 28, line, 8, new Color(1f, 1f, 1f, 0.75f), TextAnchor.UpperCenter);
 
             if (p.Dead)
-                Text(vw * 0.5f, 150, "DOWN!  BACK IN " + Mathf.Max(1, Mathf.CeilToInt(Player.RespawnDelay - p.DeadTime)), 18, new Color(1f, 0.5f, 0.4f), TextAnchor.MiddleCenter);
+                Text(vw * 0.5f, 150, "DOWN!  BACK IN " + Mathf.Max(1, Mathf.CeilToInt(Tuning.Coop.RespawnDelay - p.DeadTime)), 18, new Color(1f, 0.5f, 0.4f), TextAnchor.MiddleCenter);
             if (m_LeaveArmed > 0f)
                 Text(vw * 0.5f, 196, "PRESS ESC AGAIN TO LEAVE THE GAME", 12, Color.white, TextAnchor.MiddleCenter);
         }

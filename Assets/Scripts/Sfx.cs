@@ -39,7 +39,7 @@ namespace PooketSlug
             }
             catch (Exception e)
             {
-                Debug.LogWarning("Sfx disabled: " + e.Message);
+                Log.Audio.Warn("Sound disabled: " + e.Message);
                 s_Source = null;
             }
         }

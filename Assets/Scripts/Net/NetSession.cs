@@ -16,8 +16,10 @@ namespace PooketSlug
     /// </summary>
     public sealed class NetSession : MonoBehaviour, INetSession, INetLink, INetworkRunnerCallbacks
     {
-        const int MaxPlayers = 2;
+        const int MaxPlayers = Tuning.Coop.MaxPlayers;
         const string CodeLetters = "ABCDEFGHJKLMNPQRSTUVWXYZ"; // no I or O
+
+        static readonly Rng s_CodeRng = new Rng(Rng.NewSeed());
 
         public static NetSession Instance { get; private set; }
 
@@ -57,7 +59,7 @@ namespace PooketSlug
         public void Host()
         {
             var name = new char[4];
-            for (int i = 0; i < name.Length; i++) name[i] = CodeLetters[UnityEngine.Random.Range(0, CodeLetters.Length)];
+            for (int i = 0; i < name.Length; i++) name[i] = CodeLetters[s_CodeRng.Range(0, CodeLetters.Length)];
             Connect(new string(name), null, false, false);
         }
 
@@ -144,13 +146,13 @@ namespace PooketSlug
             }
             catch (Exception e)
             {
-                Debug.LogException(e);
+                Log.Net.Exception(e);
             }
 
             if (runner != m_Runner) return; // cancelled while connecting
             if (!ok)
             {
-                Debug.LogWarning($"[PooketSlug] Couldn't go online: {reason}");
+                Log.Net.Warn($"Couldn't go online: {reason}");
                 Fail(Describe(reason));
                 Dispose(runner);
                 return;
@@ -158,7 +160,7 @@ namespace PooketSlug
             if (joining && runner.IsSharedModeMasterClient)
             {
                 // Shared Mode creates a session that doesn't exist yet: being first in means nobody is hosting that code.
-                Debug.LogWarning($"[PooketSlug] No game called {sessionName} in region {runner.SessionInfo.Region}; leaving");
+                Log.Net.Warn($"No game called {sessionName} in region {runner.SessionInfo.Region}; leaving");
                 Leave();
                 Fail("NOBODY IS HOSTING " + sessionName + (region != null ? "-" + region.ToUpperInvariant() : ""));
                 return;
@@ -169,7 +171,7 @@ namespace PooketSlug
             State = NetState.Online;
             Status = "";
             m_WasAuthority = false;
-            Debug.Log($"[PooketSlug] Online in region {sessionRegion}: {(RoomCode != null ? "room " + RoomCode : "quick match " + runner.SessionInfo.Name)}, " +
+            Log.Net.Info($"Online in region {sessionRegion}: {(RoomCode != null ? "room " + RoomCode : "quick match " + runner.SessionInfo.Name)}, " +
                       $"{runner.SessionInfo.PlayerCount}/{MaxPlayers} players, we are {runner.LocalPlayer}{(runner.IsSharedModeMasterClient ? " (master client)" : "")}");
             runner.Spawn(NetPrefabs.Player, inputAuthority: runner.LocalPlayer);
         }
@@ -194,7 +196,7 @@ namespace PooketSlug
             if (IsAuthority != m_WasAuthority)
             {
                 m_WasAuthority = IsAuthority;
-                Debug.Log(m_WasAuthority ? "[PooketSlug] This client now runs the shared world" : "[PooketSlug] Another client runs the shared world");
+                Log.Net.Info(m_WasAuthority ? "This client now runs the shared world" : "Another client runs the shared world");
             }
 
             // Two soldiers in the same colours (both picked "red" while joining together): the higher id switches.
@@ -383,21 +385,21 @@ namespace PooketSlug
         public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
         {
             if (runner != m_Runner) return; // we left on purpose
-            Debug.LogWarning($"[PooketSlug] Session ended: {shutdownReason}");
+            Log.Net.Warn($"Session ended: {shutdownReason}");
             Fail(Describe(shutdownReason));
         }
 
         public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
         {
-            if (runner == m_Runner) Debug.LogWarning($"[PooketSlug] Disconnected from Photon: {reason}");
+            if (runner == m_Runner) Log.Net.Warn($"Disconnected from Photon: {reason}");
         }
 
         public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
         {
-            if (player != runner.LocalPlayer) Debug.Log($"[PooketSlug] {player} joined");
+            if (player != runner.LocalPlayer) Log.Net.Info($"{player} joined");
         }
 
-        public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) => Debug.Log($"[PooketSlug] {player} left");
+        public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) => Log.Net.Info($"{player} left");
 
         public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
         public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
