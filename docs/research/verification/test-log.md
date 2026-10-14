@@ -32,6 +32,19 @@ Up: [Verification](README.md)
 | 08:31 | Two-browser co-op test | [coop.mjs](tools/coop.mjs) from the cloud sandbox | ⚠️ Blocked by the sandbox proxy (WebSocket upgrade → 502). The online menu, template registration, runner start-up and graceful failure were all verified ([detail](browser-tests.md#the-sandboxs-limits)) |
 | ~08:45 | **Live two-player session** on build `0.2.0+791a155` | The repo owner, on a normal network | ✅ "tested online, v happy with that!" |
 
+## Part 3: Sign-in
+
+All tests ran against Cardmaster's repository at `762ca94`, in the cloud sandbox, with Node 24.21 and Java 21.
+
+| When | What | How | Result |
+|---|---|---|---|
+| ~10:39 | Cardmaster's full Firebase suite, unchanged | `npm run test:firebase`, which starts the emulators through the Firebase CLI | ❌ `Failed to load initial Database Emulator rules`: the CLI sent its call to the local emulator through the sandbox proxy ([why](../accounts/database-rules.md#running-the-tests-in-the-cloud-sandbox)) |
+| ~10:40 | Cardmaster's rules tests, unchanged | Database emulator 4.11.2 started directly, as in [rules-test.sh](tools/rules-test.sh) | ✅ 17 of 17 |
+| ~10:42 | With the drafted `pooketSlug` section and its tests | The same | ✅ 24 of 24 |
+| ~10:43, rerun ~10:48 | Do the new tests catch weakened rules? | The rules weakened 12 ways, one at a time ([list](../accounts/database-rules.md#tests)) | ✅ 12 of 12 caught: each run failed, with a named test. The first pass's exit codes were unreliable (the script's cleanup masked them), so it was rerun with the fixed script, checking both the exit code and the named failure |
+| ~10:44 | Cardmaster's typecheck and unit tests, with the change | `npm run typecheck`, `npm run test:unit` | ✅ no type errors; 57 of 57 |
+| — | Cardmaster's hosting and sign-in tests, with the change | Its CI, once the branch is pushed | Not run yet: the commit is waiting on [owner 2c](../todo.md) |
+
 ## Not yet verified
 
 These were implemented, and some are covered by `coop.mjs`, but none has been explicitly confirmed:

@@ -16,7 +16,7 @@ All three changes are in the **Cardmaster** Firebase and Google Cloud project. E
 
 **No database console step.**
 - Cardmaster's CI deploys the database rules from Cardmaster's own repository on every push to its `main`, so rules typed into the console would be overwritten.
-- This game's rules go into that rules file instead, under their own top-level key (`pooketSlug`), with tests in its rules test suite. They arrive as a pull request for the owner to merge, and Cardmaster's CI deploys them.
+- This game's rules go into that rules file instead, under their own top-level key (`pooketSlug`), with tests in its rules test suite ([draft](database-rules.md)). They arrive as a pull request for the owner to merge, and Cardmaster's CI deploys them.
 - The database root stays locked, so until the rules are deployed, this game's saves are simply denied.
 
 ## Values to hand back

@@ -15,7 +15,12 @@ _Last updated: 2026-10-14._
   - [ ] Google Cloud → Google Auth Platform → Clients → Cardmaster's web client → Authorized JavaScript origins: add `https://jhiggins-tech.github.io`.
   - [ ] Google Cloud → Credentials → Cardmaster's browser API key: if it has website restrictions, add `https://jhiggins-tech.github.io/*`.
 - [ ] **2. Add the repository variables** on `pooket-slug` (Settings → Secrets and variables → Actions → **Variables**): `GOOGLE_CLIENT_ID`, `FIREBASE_API_KEY` and `FIREBASE_DB_URL`. Copy Cardmaster's values from its `src/net/config.ts`. *Unblocks C1.*
-- [ ] **2b. Give this session push access to the `cardmaster` repository** when C1 starts, so the rules pull request can be opened. Or apply the rules change yourself. You merge it; Cardmaster's CI deploys it.
+- [x] **2b. Add the `cardmaster` repository to this session.** Done 2026-10-14.
+- [ ] **2c. Let this session commit and push to `cardmaster`.** The [rules change](accounts/database-rules.md) is drafted and tested in this session's copy, but the session's permission guard blocked the commit: the change is to another repository, and its rules deploy to the live Firebase project. Either:
+  - tell Claude to commit and push it, and whether to open the pull request (*unblocks the rules part of C1*), or
+  - apply the change yourself.
+
+  You merge the pull request, and Cardmaster's CI deploys the rules.
 - [ ] **3. Sort the feature list.** Fill the `moscow` column (Must / Should / Could / Won't) in [feature-candidates.csv](roadmap/feature-candidates.csv) and send it back. *Unblocks C2.*
 - [ ] **4. Sign in for real** once the sign-in build is live, to confirm it end to end. *Needs C1.*
 - [ ] **5. Optional: play the untested co-op paths** in two visible windows: the host leaving mid-game, quick match, a mistyped code, a third player joining ([steps](netcode/sessions.md#testing-by-hand)). C3c would automate this instead.
@@ -25,14 +30,16 @@ _Last updated: 2026-10-14._
 Whichever input arrives first starts: the variables start C1, the sorted CSV starts C2.
 
 - [ ] **C1. "Sign in with Google" spike** ([plan](accounts/README.md)). *Waits for owner 2.*
-  - [ ] Database rules, as a pull request to Cardmaster: a `pooketSlug/players/{uid}` section in its rules file, where only the owner reads and writes, the shape is validated, the best score only goes up, and there are no deletes. Add tests to its rules test suite (emulators, fake Google sign-in). *Needs owner 2b.*
+  - [ ] Database rules, as a pull request to Cardmaster: a `pooketSlug/players/{uid}` section in its rules file, where only the player reads and writes, the shape is validated, the stats only go up, and there are no deletes. Add tests to its rules test suite.
+    - Drafted 2026-10-14 ([database rules](accounts/database-rules.md)). It passes 24 of 24 rules tests, and all 12 deliberate weakenings were caught.
+    - *Commit, push and pull request need owner 2c.*
   - [ ] Page: `pooket-auth.js` (Google button, token exchange and refresh, database calls), an `#account` slot in the header, and results queued until the game has loaded. Storage keys prefixed `pooket-slug.`.
   - [ ] Bridge: a `PooketAuth.jslib` plugin (`PS_AuthInit`, `PS_Save`, `PS_SignOut`) plus a `SendMessage` receiver in C#.
-  - [ ] Game: an `ISaveStore` with local and cloud implementations; a `Progress` model (best, missions, unlocks) merged with the local high score; "signed in as …" in the HUD; save at the end of a run.
+  - [ ] Game: an `ISaveStore` with local and cloud implementations; a `Progress` model (best score, runs, wins) merged with the local high score ([how](accounts/database-rules.md#writing-it-from-the-game)); "signed in as …" in the HUD; save at the end of a run.
   - [ ] Build: pass `-googleClientId` / `-firebaseApiKey` / `-firebaseDbUrl` from the repository variables, and stop `WriteNetConfig` depending on the Photon AppId.
   - [ ] Verify:
     - compile and weave locally
-    - run the emulator tests
+    - run the emulator tests ([`rules-test.sh`](verification/tools/rules-test.sh) in the sandbox)
     - drive the page bridge in a headless browser
     - get the CI build green
     - the rules go live when you merge the Cardmaster pull request

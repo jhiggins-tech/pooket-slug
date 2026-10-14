@@ -1,6 +1,14 @@
 # Accounts: "Sign in with Google" spike
 
-Plan for identifying players with their Google account and keeping their stats and progression (best score, missions, unlocks) across devices and browsers. **Status, 2026-10-14:** researched. The plan is to reuse the Firebase project of the owner's game Cardmaster ([setup](gcloud-setup.md)). It's waiting for three console changes and the repository variables. Nothing is implemented yet. Roadmap rows SOC-01 and SOC-02, which then unlock SCR-07…09.
+Plan for identifying players with their Google account and keeping their stats and progression across devices and browsers. It starts with best score, runs and wins; missions and unlocks come later. It reuses the Firebase project of the owner's game Cardmaster ([setup](gcloud-setup.md)). Roadmap rows SOC-01 and SOC-02, which then unlock SCR-07…09.
+
+**Status, 2026-10-14:**
+- **Database rules:** drafted and tested ([database rules](database-rules.md)), but not yet committed to Cardmaster.
+- **Page, bridge and game code:** not started.
+- **Waiting on the owner** ([to-do](../todo.md)):
+  - permission for this session to commit to Cardmaster
+  - three console changes
+  - the repository variables
 
 **Read this when** you're implementing sign-in or cloud saves, or touching the page template's account area.
 
@@ -15,11 +23,11 @@ page header (outside the Unity canvas)
         ▼  POST identitytoolkit.googleapis.com/v1/accounts:signInWithIdp?key=<web API key>
   Firebase Auth: uid + 1-hour Firebase ID token + refresh token   (refresh: securetoken.googleapis.com)
         │
-        ▼  REST  https://<db>.firebasedatabase.app/players/<uid>.json?auth=<Firebase ID token>
+        ▼  REST  https://<db>.firebasedatabase.app/pooketSlug/players/<uid>.json?auth=<Firebase ID token>
   Realtime Database, with security rules keyed on auth.uid
         │
         ▼  jslib bridge + SendMessage(json)
-  Unity: Progress { best, missions, unlocks }, merged with the local high score
+  Unity: Progress { best, runs, wins }, merged with the local high score
 ```
 
 Why this design:
@@ -46,7 +54,7 @@ Options considered:
 - **Bridge:** a `PooketAuth.jslib` plugin exposes `PS_AuthInit(config)`, `PS_Save(json)` and `PS_SignOut()` to C#. JavaScript replies with `SendMessage(gameObject, method, json)`, which takes one string argument.
 - **Game:**
   - **Account state in the HUD:** signed in or not, and the display name.
-  - **Progress:** a `Progress` model saved at `pooketSlug/players/{uid}` at the end of a run, merged with the existing local high score.
+  - **Progress:** a `Progress` model (best score, runs, wins) saved at `pooketSlug/players/{uid}` at the end of a run, merged with the existing local high score ([how](database-rules.md#writing-it-from-the-game)).
   - **The seam:** a save interface (`ISaveStore`) with local and cloud implementations ([refactor candidate 13](../roadmap/refactor-candidates.md)).
 - **Config:**
   - The public identifiers reach the game through the build: `-googleClientId`, `-firebaseApiKey`, `-firebaseDbUrl`, and so on, as `customParameters`. `WebGLBuild` writes them into `Resources/pooket-net.json`, and `NetConfig` reads them.
@@ -56,14 +64,15 @@ Options considered:
 ## Database rules
 
 - **Where they live:** the shared project's rules are deployed from Cardmaster's repository by its CI, so this game's section, a top-level `pooketSlug` key, goes into that file through a pull request, with tests in its rules test suite.
+- **The draft:** the section, its tests and the record it describes are in [database rules](database-rules.md).
 - **Rules can enforce:**
-  - only the owner reads and writes `pooketSlug/players/{uid}`
+  - only the player reads and writes their own `pooketSlug/players/{uid}`
   - the record's shape and value ranges
   - a best score that only goes up (`newData.val() >= data.val()`)
   - server-time stamps (`ts === now`)
   - no deletes
 - **Rules can't stop a player writing a fake score with their own token.** That's fine for personal progression. **Don't build a public leaderboard on it.** That needs server-side validation (roadmap NET-08, SCR-10).
-- **Test the rules** against the Firebase emulators, with a fake Google sign-in, before publishing. That runs fine in the cloud sandbox: Java and npm are available.
+- **Test the rules** against the Firebase emulators, with a fake Google sign-in, before publishing. In the cloud sandbox, start the database emulator directly, because the Firebase CLI's own calls to it go through the proxy ([how](database-rules.md#running-the-tests-in-the-cloud-sandbox)).
 
 ## Photon
 

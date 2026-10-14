@@ -20,7 +20,7 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
 | Verification without a Unity license | ✅ Working toolkit, re-tested 2026-10-14 | [verification](verification/README.md) |
 | Feature roadmap | ⏳ Waiting for the owner's MoSCoW pass | [roadmap](roadmap/README.md) |
 | Refactor pass | ⏳ After the roadmap | [refactor candidates](roadmap/refactor-candidates.md) |
-| "Sign in with Google" spike | ⏳ Researched; reusing the Cardmaster Firebase project; waiting for 3 console changes and the repository variables | [accounts](accounts/README.md), [todo](todo.md) |
+| "Sign in with Google" spike | ⏳ Reusing the Cardmaster Firebase project. Database rules drafted and tested, not yet committed. Waiting on the owner: permission to commit to Cardmaster, 3 console changes, the repository variables | [accounts](accounts/README.md), [todo](todo.md) |
 
 **Live build:** https://jhiggins-tech.github.io/pooket-slug/ · **What's next:** [todo.md](todo.md)
 
@@ -48,6 +48,7 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
   - [tools/](verification/tools/README.md): the scripts (`extract-unity.sh`, `compile_unity.py`, `weave.sh`, `smoke.mjs`, `coop.mjs`, …).
 - [accounts/](accounts/README.md): the "Sign in with Google" spike: Google's button plus Firebase over REST (in the shared Cardmaster project) to keep stats and progression per player, with no server.
   - [gcloud-setup.md](accounts/gcloud-setup.md): the console changes, the values to hand back, the trade-offs of sharing, and the separate-project alternative.
+  - [database-rules.md](accounts/database-rules.md): this game's section of the shared database rules: the player record, how the game writes it, the tests, and running them in the sandbox.
 - [roadmap/](roadmap/README.md): what to build next.
   - [feature-candidates.csv](roadmap/feature-candidates.csv): 176 candidate mechanics and engineering items, with a MoSCoW column for the owner.
   - [refactor-candidates.md](roadmap/refactor-candidates.md): maintainability work, mapped to the features it unlocks.

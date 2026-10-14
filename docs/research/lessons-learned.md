@@ -51,6 +51,8 @@ Up: [Research index](AGENTS.md)
 - **Headless Chromium with SwiftShader runs the real build** well enough for smoke tests and found the glyph bug. → [browser tests](verification/browser-tests.md)
 - **The cloud sandbox can't open WebSockets,** so live co-op needs a normal network. → [limits](verification/browser-tests.md#the-sandboxs-limits)
 - **Docker Hub limits anonymous manifest requests** to 100 per hour per IP, and shared IPs run out. → [type-check](verification/type-check.md#1-get-unitys-compiler-and-dlls-from-the-editor-image)
+- **The Firebase CLI ignores `NO_PROXY`.** Behind the sandbox's proxy, even its calls to local emulators go through `HTTPS_PROXY` and fail. Start the database emulator's JAR directly instead. → [database rules](accounts/database-rules.md#running-the-tests-in-the-cloud-sandbox)
+- **Mutation-test security rules.** Weaken each rule and check that a named test fails. Also check the test script's exit code: a cleanup trap under `set -e` had masked it. → [database rules](accounts/database-rules.md#tests)
 
 ## Working practices
 

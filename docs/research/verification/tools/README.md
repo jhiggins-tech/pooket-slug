@@ -16,6 +16,7 @@ Up: [Verification](../README.md)
 | [`smoke.mjs`](smoke.mjs) | Playwright: loads a deployed build, plays a few seconds with scripted input, saves screenshots and console logs | Used against every deploy |
 | [`coop.mjs`](coop.mjs) | Playwright: two separate Chromium instances, where A hosts, B joins by invite link, both play, then A leaves and B should take over | Reached Photon's name server; needs a network that allows WebSockets ([why](../browser-tests.md#the-sandboxs-limits)) |
 | [`fetch-docs.mjs`](fetch-docs.mjs) | Playwright: renders documentation pages behind a JavaScript bot challenge (Photon's docs site) and saves their text and links | Used for the Photon research |
+| [`rules-test.sh`](rules-test.sh) | Runs Cardmaster's database rules tests, including this game's `pooketSlug` section, against the database emulator's JAR started directly. That works around the Firebase CLI ignoring `NO_PROXY` ([why](../../accounts/database-rules.md#running-the-tests-in-the-cloud-sandbox)) | 2026-10-14: 24 of 24, and 12 of 12 rule weakenings caught |
 
 A full local check, assuming a scratch directory `W`:
 
