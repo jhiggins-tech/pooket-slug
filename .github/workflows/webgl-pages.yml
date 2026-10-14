@@ -215,6 +215,7 @@ jobs:
               ("guestOnline", "B joins with the invite link"),
               ("joined", "A sees B join"),
               ("played", "Both play with no errors or disconnects"),
+              ("pickup", "A's world hands out the test crate (?test=crate)"),
               ("takeover", "B takes over the world when A leaves"),
           ]
           print("### Two-player co-op test: " + ("passed" if r["ok"] else "failed"))
@@ -228,7 +229,7 @@ jobs:
               print("Stopped: " + r["failure"])
           print()
           if "pickups" in r:
-              print(f"Pickups given out while playing: {r['pickups']} (not a check: the soldiers may not reach a crate).")
+              print(f"Pickups given out while playing: {r['pickups']}.")
               print()
           print(f"Took {r['seconds']} s. Screenshots and console logs are in the coop-test artifact.")
           EOF

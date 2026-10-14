@@ -37,6 +37,7 @@ namespace PooketSlug
         INetSession m_Net;      // null when the build has no Photon SDK or AppId
         bool m_Coop;            // m_World is the shared co-op world
         bool m_Unlocked;        // ?unlock=coop: co-op is open for this visit, for testing
+        bool m_TestCrate;       // ?test=crate: a crate just ahead of the start, so the co-op test sees one handed out
         string m_Notice, m_StartNote;
         float m_NoticeTime, m_LeaveArmed;
 
@@ -72,8 +73,9 @@ namespace PooketSlug
 
             m_Profile = m_Store.Load();
             m_Unlocked = Array.IndexOf((PageQuery.Get(url, "unlock") ?? "").ToLowerInvariant().Split(','), Reveals.Coop) >= 0;
+            m_TestCrate = Array.IndexOf((PageQuery.Get(url, "test") ?? "").ToLowerInvariant().Split(','), "crate") >= 0;
 
-            m_World = new World(m_Camera, m_Mission);
+            m_World = NewWorld(m_Mission);
             m_Hud = new HudView(transform);
             m_Menu = new MenuView(transform);
             m_PageUrl = PageUrl();
@@ -97,6 +99,20 @@ namespace PooketSlug
             }
         }
 
+        /// <summary>A world for <paramref name="mission"/>, shared when <paramref name="net"/> is given.</summary>
+        World NewWorld(MissionDef mission, INetLink net = null)
+        {
+            var world = new World(m_Camera, mission, net);
+            if (m_TestCrate)
+            {
+                // Just past where a joining partner appears (1.25 ahead of the start), so whoever runs first takes
+                // it before any jump. Only the authority places it; a follower gets it from the snapshot.
+                float x = world.Level.PlayerStart.x + 2.75f;
+                world.Spawner.SpawnPickup(Content.HeavyMachineGunCrate, new Vector2(x, world.Level.TopSurfaceY(x)));
+            }
+            return world;
+        }
+
         void SetState(GameState state)
         {
             m_State = state;
@@ -113,7 +129,7 @@ namespace PooketSlug
         void Restart()
         {
             m_World.Dispose();
-            m_World = new World(m_Camera, m_Mission);
+            m_World = NewWorld(m_Mission);
             m_StartNote = null;
             StartSolo();
         }
@@ -122,7 +138,7 @@ namespace PooketSlug
         void ToTitle()
         {
             m_World.Dispose();
-            m_World = new World(m_Camera, m_Mission);
+            m_World = NewWorld(m_Mission);
             m_Paused = false;
             m_StartNote = null;
             SetState(GameState.Title);
@@ -159,7 +175,7 @@ namespace PooketSlug
         void BeginCoop()
         {
             m_World.Dispose();
-            m_World = new World(m_Camera, Missions.ByNetId(m_Net.Link.Mission) ?? m_Mission, m_Net.Link);
+            m_World = NewWorld(Missions.ByNetId(m_Net.Link.Mission) ?? m_Mission, m_Net.Link);
             m_Net.Events = m_World.Sync;
             m_Coop = true;
             m_Paused = false;
@@ -174,7 +190,7 @@ namespace PooketSlug
             m_Net.Events = null;
             m_Coop = false;
             m_World.Dispose();
-            m_World = new World(m_Camera, m_Mission);
+            m_World = NewWorld(m_Mission);
             Notice(notice);
             SetState(GameState.Title);
         }

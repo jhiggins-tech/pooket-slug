@@ -30,13 +30,13 @@ Up: [Verification](README.md)
 
 [`coop.mjs`](../../../tools/coop.mjs) `<url> <outdir> [code|quick]` runs **two separate Chromium instances**, not two tabs. **CI runs it on every build** ([the job](../build-pipeline/workflow.md#the-two-player-co-op-test-job)). Tabs could be throttled ([hidden tabs](../netcode/sessions.md#hidden-tabs)).
 
-1. A loads the page with `?unlock=coop`, since a new browser hides co-op until Mission one is beaten solo. It presses **H**, then reads the room code from its console (`[PooketSlug/Net] Online … room ABCD-EU`). The code is only drawn on the canvas, so the log is how a script gets it.
-2. B opens `?unlock=coop&room=ABCD-EU` and presses **Enter**. In `quick` mode, both press **Q** instead.
+1. A loads the page with `?unlock=coop&test=crate`. `unlock` is needed because a new browser hides co-op until Mission one is beaten solo; `test=crate` makes the world's authority put a heavy machine gun crate 2.75 tiles ahead of the start, just past where B appears. It presses **H**, then reads the room code from its console (`[PooketSlug/Net] Online … room ABCD-EU`). The code is only drawn on the canvas, so the log is how a script gets it.
+2. B opens `?unlock=coop&test=crate&room=ABCD-EU` and presses **Enter**. In `quick` mode, both press **Q** instead.
 3. It waits for `[PooketSlug/Net] … joined` on A, and both play for about 13 s.
-4. A presses **Esc** twice, and B must log `This client now runs the shared world`, which covers host migration.
-5. It saves screenshots of both windows at each step and writes the merged, time-stamped console log to `console.log`.
-6. It writes each check to `result.json`, and exits non-zero if any check fails.
-7. It also records how many pickups the shared world gave out (`Pickup … goes to player …` lines). That's not a check, since the soldiers may not reach a crate in 13 s.
+4. **A must hand out the crate:** `Pickup … goes to player …` in A's log. Whoever touches it first claims it from A, so this covers the pickup table reaching B, a claim, and the grant back.
+5. A presses **Esc** twice, and B must log `This client now runs the shared world`, which covers host migration.
+6. It saves screenshots of both windows at each step and writes the merged, time-stamped console log to `console.log`.
+7. It writes each check to `result.json`, with how many pickups were handed out, and exits non-zero if any check fails.
 
 ## Touch test
 

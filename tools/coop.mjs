@@ -2,8 +2,8 @@
 //   code mode (default): A hosts (H), B opens the invite link ?room=CODE and presses Enter.
 //   quick mode:          both press Q (quick match).
 // Then both play for a while, A leaves (Esc Esc), and B should take over the shared world.
-// Both open the game with ?unlock=coop: a new browser hides co-op until Mission one is beaten solo.
-// It also counts the pickups the shared world gave out; that isn't a check, since the soldiers may not reach a crate.
+// Both open the game with ?unlock=coop, since a new browser hides co-op until Mission one is beaten solo, and with
+// ?test=crate, which puts a crate just ahead of the start: one of them must be handed it by A's world.
 // Writes screenshots, console.log and result.json to <outdir>, and exits non-zero if any check fails.
 // CI runs it against each build (.github/workflows/webgl-pages.yml).
 // usage: PW_PATH=... node coop.mjs <url> <outdir> [code|quick]
@@ -13,7 +13,7 @@ const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PW_PATH || 'playwright');
 
 const [base, out, mode = 'code'] = process.argv.slice(2);
-const url = base + (base.includes('?') ? '&' : '?') + 'unlock=coop';
+const url = base + (base.includes('?') ? '&' : '?') + 'unlock=coop&test=crate';
 fs.mkdirSync(out, { recursive: true });
 const T0 = Date.now();
 const t = () => ((Date.now() - T0) / 1000).toFixed(1).padStart(6);
@@ -21,7 +21,8 @@ const TAG = String.raw`\[PooketSlug(?:/\w+)?\]`; // "[PooketSlug/Net] …" (olde
 const ARGS = ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--autoplay-policy=no-user-gesture-required'];
 
 // Each check is false until it passes; result.json records them all.
-const checks = { hostOnline: false, guestOnline: false, joined: false, played: false, takeover: false };
+const checks = { hostOnline: false, guestOnline: false, joined: false, played: false, pickup: false, takeover: false };
+const GRANT = new RegExp(TAG + String.raw` Pickup \d+ .* goes to player`); // the master handing out a pickup
 let failure = null;
 
 async function player(name) {
@@ -105,6 +106,7 @@ try {
   await Promise.all([play(A, 'ArrowRight', 6000), play(B, 'ArrowRight', 6000)]);
   await Promise.all([shot(A, '4-further'), shot(B, '4-further')]);
   checks.played = ![...A.logs, ...B.logs].some(l => /\[pageerror\]|Disconnected from Photon|Session ended/.test(l));
+  checks.pickup = !!(await waitLog(A, GRANT, 5000));
 
   // the master client leaves: B should inherit the shared world and carry on alone
   await A.page.keyboard.press('Escape');
@@ -125,7 +127,7 @@ try {
   fs.writeFileSync(`${out}/console.log`, all.join('\n') + '\n');
   console.log(all.filter(l => /PooketSlug|error|exception|warn|Fusion|Photon/i.test(l)).slice(-120).join('\n'));
   const ok = !failure && Object.values(checks).every(Boolean);
-  const pickups = all.filter(l => new RegExp(TAG + ' Pickup \\d+ .* goes to player').test(l)).length;
+  const pickups = all.filter(l => GRANT.test(l)).length;
   fs.writeFileSync(`${out}/result.json`, JSON.stringify({ mode, ok, failure, checks, pickups, seconds: Math.round((Date.now() - T0) / 1000) }, null, 2) + '\n');
   console.log(`${t()} result: ${ok ? 'PASS' : 'FAIL'} ${JSON.stringify(checks)}, ${pickups} pickup(s) given out`);
   await A.browser.close();
