@@ -34,5 +34,4 @@ Later, and not blockers:
 - Typing a room code on a phone relies on Unity's WebGL keyboard support for uGUI's text box; an invite link avoids typing.
 - The automated play test covers the first seconds only. The later level and the tank boss have only had human playthroughs.
 - The co-op test's soldiers don't reach a crate, so the shared pickup table (refactor step 10) hasn't given out a pickup between two browsers yet.
-- On a desktop window shorter than about 700 px, the page squeezes the game into a wider strip (960×448 in a 1280×600 window) rather than shrinking it. The stage is a flex item that shrinks; sizing it by the window's height, as phones held sideways already get, would keep 16:9.
 - Co-op has no reconnect after a drop, and no message when a partner's tab is hidden ([hidden tabs](netcode/sessions.md#hidden-tabs)).

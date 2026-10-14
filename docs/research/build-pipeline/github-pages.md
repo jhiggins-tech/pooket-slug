@@ -27,7 +27,7 @@ Up: [Build pipeline](README.md)
 ## The WebGL template
 
 [`Assets/WebGLTemplates/PooketSlug/index.html`](../../../Assets/WebGLTemplates/PooketSlug/index.html) wraps the canvas:
-- a 16:9 stage, max 960 px wide
+- a 16:9 stage, max 960 px wide. In a window too short for it, it narrows rather than being squashed: its width comes from the window's height, less 160 px for the header, toolbar and footer
 - a loading bar and an error message
 - a key legend and a fullscreen button
 - `devicePixelRatio` capped at 2
