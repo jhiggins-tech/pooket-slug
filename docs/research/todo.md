@@ -15,7 +15,7 @@ _Last updated: 2026-10-14._
   - [ ] Google Cloud → Google Auth Platform → Clients → Cardmaster's web client → Authorized JavaScript origins: add `https://jhiggins-tech.github.io`.
   - [ ] Google Cloud → Credentials → Cardmaster's browser API key: if it has website restrictions, add `https://jhiggins-tech.github.io/*`.
   - [ ] Google Cloud → Google Auth Platform → Audience: if the publishing status is Testing, add friends as test users or publish the app. Otherwise only listed test users can sign in.
-- [x] **2. Add the repository variables** on `pooket-slug`. Done 2026-10-14. (Settings → Secrets and variables → Actions → **Variables**): `GOOGLE_CLIENT_ID`, `FIREBASE_API_KEY` and `FIREBASE_DB_URL`. Copy Cardmaster's values from its `src/net/config.ts`. *Unblocks C1.*
+- [x] **2. Add the repository variables** on `pooket-slug`. Done 2026-10-14, as secrets; CI reads either. (Settings → Secrets and variables → Actions → **Variables**): `GOOGLE_CLIENT_ID`, `FIREBASE_API_KEY` and `FIREBASE_DB_URL`. Copy Cardmaster's values from its `src/net/config.ts`. *Unblocks C1.*
 - [x] **2b. Add the `cardmaster` repository to this session.** Done 2026-10-14.
 - [x] **2c. Let this session commit and push to `cardmaster`.** Given 2026-10-14. The [rules](accounts/database-rules.md) are on Cardmaster's branch `claude/gallant-keller-3qzp97`, and its CI passed.
 - [x] **2d. Merge [jhiggins-tech/cardmaster#11](https://github.com/jhiggins-tech/cardmaster/pull/11),** the rules pull request. Merged 2026-10-14, and Cardmaster's CI deployed the rules.
@@ -43,7 +43,7 @@ C2, the refactor, is done. C1's code is written and checked locally; it goes liv
   - [ ] Verify:
     - [x] compile locally (no errors or warnings, each input backend)
     - [x] drive the page against the database emulator with the live rules ([`auth-page.mjs`](verification/tools/auth-page.mjs): 22 of 22)
-    - [ ] get the CI build green
+    - [x] get the CI build green (2026-10-14: run 38654218370; sign-in is live)
     - the rules are live (merged and deployed 2026-10-14)
   - [ ] Docs: [accounts](accounts/README.md) and the [test log](verification/test-log.md).
 - [x] **C2. Refactor pass** to prepare the build and netcode for the chosen features. *Done 2026-10-14.*
