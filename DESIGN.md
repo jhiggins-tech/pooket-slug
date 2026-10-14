@@ -25,7 +25,8 @@ kie's Trollogram holograms went rogue and stole the crew's tanks. The goons are 
 - A separate mode of seeded runs. **A run is five stages**, with a crew tank at the end of each, **then it loops** round at a higher alert, as in Risk of Rain. Depth keeps counting through the loops.
 - **Coins**: goons drop them, and **between stages there's a shop**, where you spend them on the [crates](#crates) you want. Whatever a run picks up, coins included, is gone when it ends.
 - Any crew tank can be a boss, the starters' included, and every tank you beat is yours to ride for the rest of the run.
-- **The alert level climbs as you go**, as in Risk of Rain: it goes up at each boss and every few minutes, so playing fast keeps it low.
+- **The alert level climbs as you go**, as in Risk of Rain: it goes up at each boss and every few minutes, so playing fast keeps it low. Each level brings more goons, faster bullets (fired more often, flying faster) and tougher tanks (more health, and an extra attack).
+- **Co-op too, with one purse**: both players' coins go into it, and you agree at the shop.
 
 ## On foot
 
@@ -82,7 +83,7 @@ Tabks' statuses, with turns turned into seconds:
 - **Boss arenas are the only places with Tabks' pixel terrain**: blasts dig craters there, as they do in Tabks. Everywhere else, the ground is solid.
 
 ## Co-op
-- **Live online**: two phones, both on screen. The spike does this with Photon Fusion 2 in Shared Mode, and a partner can drop in. There's no hotseat.
+- **Live online, in both modes**: two phones, both on screen. The spike does this with Photon Fusion 2 in Shared Mode, and a partner can drop in. There's no hotseat. In the Roguelite, the two of you share one purse ([Roguelite](#roguelite)).
 - **Each player has their own lives** ([Health and lives](#health-and-lives)).
 - **Some kits help a partner**: Band Aid's pulses heal them, Tattoo Gun's marks boost their shots too, and Unmedicated never hurts them.
 
@@ -152,6 +153,7 @@ shotdownboyz, lankcity, odsey and doctorfox each arrive as a new mission, with t
 - **The ladder is Tabks'**: 33 ranks, with their insignia and jingles. 8 are known (Bronze, Silver, Gold, Platinum, Diamond, Master, Grandmaster, Champion) and 25 are hidden. As in Tabks, don't name the hidden ones (or describe their looks) in docs, changelogs, tests or commit messages.
 - **Rungs are milestones**, not a rating: how far you get, and the alert level you reach.
 - **Feats unlock rungs**: each hidden rank's rung also needs its secret feat (clearing a mission without firing, say, or beating a tank with its own stolen weapon), so some steps can't be climbed until someone works out how.
+- **By your name in Slug**: your Slug rank. Your Tabks rank stays in Tabks.
 
 ## Stats
 Tabks' tally, per soldier and weapon: shots, hits, accuracy, damage dealt and taken, and kills.
@@ -201,15 +203,17 @@ The spike is Unity 6.3 WebGL, built by GameCI and published to https://jhiggins-
 - **Between stages**: picking 1 of 3, a rest stop, or choosing the next boss. It's a shop.
 - **Tanks in Missions**: parked in the level, or chosen at the start. You call yours in.
 - **The ability button**: holding the special, tapping your portrait, or swiping up. It has its own button.
+- **Roguelite co-op**: own coins each, or solo only. It's co-op with one purse.
+- **A dearer shop** as the alert rises.
+- **Tabks' rank in Slug**: on its own, beside Slug's, or whichever is higher. It's Slug's.
 
 ## Open questions
-- **Roguelite**: whether it has co-op, what each alert level adds, and what the shop sells and for how much.
+- **Roguelite**: what the shop sells and for how much, and how two players agree at it.
 - **Rank milestones**: the table itself. Depth keeps counting through the loops and the alert only climbs, so the two rise together, and stalling to raise the alert needs thought. And do Missions count?
 - **Tanks**: where the call-in button goes, which tank it brings once you've won several, and how the Roguelite does it.
 - **Missions**: how many, the order the crew are freed in, and how you get a tank you've won in later missions (call it in, or find it parked).
 - **Bosses**: how each crew tank fights before the pilot round.
-- **Career XP**: what earns how much, and what's on the cosmetic track.
-- **The rank by your name**: Slug's, Tabks', or both.
+- **Career XP**: what earns how much, and how it pays out (not decided yet): tokens you spend as in Tabks, a fixed track, a track per soldier, or mystery crates.
 - **The 25 feats** for the hidden rungs.
 - **Kits still to design**: the coming-soon crew's, and garyoldmancorp's real moves (designed in Tabks first).
 - **The *proposed* details above**, and the timings (ten-1's build-up, ten-3's spew, Sew's pin, the scam window).
