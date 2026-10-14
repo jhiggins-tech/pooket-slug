@@ -1,6 +1,6 @@
 # Accounts: "Sign in with Google" spike
 
-Plan for identifying players with their Google account and keeping their stats and progression (best score, missions, unlocks) across devices and browsers. **Status, 2026-10-14:** researched, waiting for the owner's Firebase setup ([checklist](gcloud-setup.md)). Nothing is implemented yet. Roadmap rows SOC-01 and SOC-02, which then unlock SCR-07…09.
+Plan for identifying players with their Google account and keeping their stats and progression (best score, missions, unlocks) across devices and browsers. **Status, 2026-10-14:** researched. The plan is to reuse the Firebase project of the owner's game Cardmaster ([setup](gcloud-setup.md)). It's waiting for three console changes and the repository variables. Nothing is implemented yet. Roadmap rows SOC-01 and SOC-02, which then unlock SCR-07…09.
 
 **Read this when** you're implementing sign-in or cloud saves, or touching the page template's account area.
 
@@ -27,6 +27,7 @@ Why this design:
 - **Firebase does the verification.** It checks Google's token, and the database rules check Firebase's token, so there's no token-checking code of our own.
 - **No popup blocking.** Google's button is a real page element that handles its own click, so browsers don't block it. A sign-in popup started from inside the Unity canvas arrives a frame late through Unity's input queue, and browsers (Safari especially) may block it.
 - **It's a proven pattern.** The owner's other web games already use it, and Pooket Tabks runs it live on this same origin (`jhiggins-tech.github.io`).
+- **It reuses existing infrastructure.** Cardmaster's Firebase project already has Google sign-in and a Realtime Database, so this game only adds its origin there and keeps its data under its own key, `pooketSlug/`. The cost is that players see "Cardmaster" on Google's consent screen, which the owner accepted ([trade-offs](gcloud-setup.md#trade-offs-of-sharing)).
 
 Options considered:
 
@@ -45,7 +46,7 @@ Options considered:
 - **Bridge:** a `PooketAuth.jslib` plugin exposes `PS_AuthInit(config)`, `PS_Save(json)` and `PS_SignOut()` to C#. JavaScript replies with `SendMessage(gameObject, method, json)`, which takes one string argument.
 - **Game:**
   - **Account state in the HUD:** signed in or not, and the display name.
-  - **Progress:** a `Progress` model saved at `players/{uid}` at the end of a run, merged with the existing local high score.
+  - **Progress:** a `Progress` model saved at `pooketSlug/players/{uid}` at the end of a run, merged with the existing local high score.
   - **The seam:** a save interface (`ISaveStore`) with local and cloud implementations ([refactor candidate 13](../roadmap/refactor-candidates.md)).
 - **Config:**
   - The public identifiers reach the game through the build: `-googleClientId`, `-firebaseApiKey`, `-firebaseDbUrl`, and so on, as `customParameters`. `WebGLBuild` writes them into `Resources/pooket-net.json`, and `NetConfig` reads them.
@@ -54,8 +55,9 @@ Options considered:
 
 ## Database rules
 
+- **Where they live:** the shared project's rules are deployed from Cardmaster's repository by its CI, so this game's section, a top-level `pooketSlug` key, goes into that file through a pull request, with tests in its rules test suite.
 - **Rules can enforce:**
-  - only the owner reads and writes `players/{uid}`
+  - only the owner reads and writes `pooketSlug/players/{uid}`
   - the record's shape and value ranges
   - a best score that only goes up (`newData.val() >= data.val()`)
   - server-time stamps (`ts === now`)
@@ -77,6 +79,7 @@ Options considered:
   - A cross-site scripting bug in either game would also expose both.
 - **The button lives in the page, not the game.** It's hidden in fullscreen, and clicking it moves keyboard focus off the canvas (refocus afterwards).
 - **Every `claude/**` build deploys live** and uses the same Firebase project. That's fine for a spike.
+- **The project is shared with Cardmaster:** one account across both games, shared free-plan limits, and rules changes go through Cardmaster's repository ([trade-offs](gcloud-setup.md#trade-offs-of-sharing)).
 - **Privacy:** request only the default `openid email profile`, and store no email.
 - **Third-party cookies and FedCM:** opt into FedCM for the button (`use_fedcm_for_button: true`); other browsers fall back to Google's popup. The page sends no restrictive security headers (CSP or COOP), so nothing needs changing.
 

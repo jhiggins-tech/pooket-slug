@@ -20,15 +20,16 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
 | Verification without a Unity license | ✅ Working toolkit, re-tested 2026-10-14 | [verification](verification/README.md) |
 | Feature roadmap | ⏳ Waiting for the owner's MoSCoW pass | [roadmap](roadmap/README.md) |
 | Refactor pass | ⏳ After the roadmap | [refactor candidates](roadmap/refactor-candidates.md) |
-| "Sign in with Google" spike | ⏳ Researched; waiting for the owner's Firebase setup | [accounts](accounts/README.md) |
+| "Sign in with Google" spike | ⏳ Researched; reusing the Cardmaster Firebase project; waiting for 3 console changes and the repository variables | [accounts](accounts/README.md), [todo](todo.md) |
 
-**Live build:** https://jhiggins-tech.github.io/pooket-slug/
+**Live build:** https://jhiggins-tech.github.io/pooket-slug/ · **What's next:** [todo.md](todo.md)
 
 ## Contents
 
 - [lessons-learned.md](lessons-learned.md): the findings in one page, each linked to its evidence. It replaces the old root-level `LEARNED-LESSONS.md`.
 - [recipe.md](recipe.md): the minimum steps to reproduce the pipeline, then add Fusion co-op.
-- [next-steps.md](next-steps.md): what's queued, loose ends, and what we'd do next.
+- [todo.md](todo.md): **the working checklist**: the owner's and Claude's items, in order, with what each one waits on.
+- [next-steps.md](next-steps.md): longer-term ideas for the pipeline, code and gameplay.
 - [build-pipeline/](build-pipeline/README.md): how a push becomes a playable page.
   - [workflow.md](build-pipeline/workflow.md): every workflow step, secrets, caching, concurrency, reading CI logs.
   - [unity-project.md](build-pipeline/unity-project.md): the Unity version and image, the code-only project, packages and modules, input, `WebGLBuild.cs`.
@@ -45,8 +46,8 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
   - [browser-tests.md](verification/browser-tests.md): Playwright smoke and two-browser co-op tests, and the sandbox's network limits.
   - [test-log.md](verification/test-log.md): what was tested, when, how, and the result.
   - [tools/](verification/tools/README.md): the scripts (`extract-unity.sh`, `compile_unity.py`, `weave.sh`, `smoke.mjs`, `coop.mjs`, …).
-- [accounts/](accounts/README.md): the "Sign in with Google" spike: Google's button plus Firebase over REST to keep stats and progression per player, with no server.
-  - [gcloud-setup.md](accounts/gcloud-setup.md): the one-time Firebase and Google Cloud console steps, and the values to hand back.
+- [accounts/](accounts/README.md): the "Sign in with Google" spike: Google's button plus Firebase over REST (in the shared Cardmaster project) to keep stats and progression per player, with no server.
+  - [gcloud-setup.md](accounts/gcloud-setup.md): the console changes, the values to hand back, the trade-offs of sharing, and the separate-project alternative.
 - [roadmap/](roadmap/README.md): what to build next.
   - [feature-candidates.csv](roadmap/feature-candidates.csv): 176 candidate mechanics and engineering items, with a MoSCoW column for the owner.
   - [refactor-candidates.md](roadmap/refactor-candidates.md): maintainability work, mapped to the features it unlocks.

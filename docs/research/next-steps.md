@@ -1,23 +1,14 @@
 # Next steps
 
-What's queued, what's open, and what we'd do if this went further. Feature choices live in the [roadmap](roadmap/README.md); this page covers process, infrastructure and loose ends.
+What we'd do if this went further. The active checklist is [todo.md](todo.md), and feature choices live in the [roadmap](roadmap/README.md); this page covers process, infrastructure and gaps.
 
 **Read this when** you're picking up work after a pause.
 
 Up: [Research index](AGENTS.md)
 
-## Queued (as of 2026-10-14)
+## Queued and open items
 
-1. **The MoSCoW feature roadmap.** The owner is sorting the [candidate list](roadmap/feature-candidates.csv) into Must, Should, Could and Won't.
-2. **A refactor pass** that prepares the build and netcode for the chosen features. It's guided by the [refactor candidates](roadmap/refactor-candidates.md) and waits on step 1.
-3. **A "Sign in with Google" spike:** identify players and keep their stats and progression across devices. The plan is Google's button plus Firebase over REST, with no server ([accounts](accounts/README.md)). It's waiting for the owner's [Firebase setup](accounts/gcloud-setup.md), and implementation comes after the roadmap.
-
-## Loose ends
-
-- **Clearer connection failures.** A failure while connecting reads `DISCONNECTED (ERROR)`; *Couldn't reach Photon* would say what happened. → [sessions](netcode/sessions.md#when-things-fail)
-- **Confirm the untested co-op paths:** host migration, quick match, a mistyped code, a third player. → [test log](verification/test-log.md#not-yet-verified)
-- **Pin a quick-match region** with a `PHOTON_REGION` secret or variable fed into `-photonRegion`, so quick-matchers in different best regions still meet. → [quick match](netcode/sessions.md#quick-match)
-- **Measure real bandwidth and CCU** during a co-op session.
+The working checklist, including who does what and what's blocking what, is in [todo.md](todo.md). This page keeps the longer-term ideas.
 
 ## Pipeline
 
