@@ -2,7 +2,7 @@
 
 A spike to test **[GameCI](https://game.ci)** on GitHub Actions. It builds a small Metal Slug–style side-scrolling shooter in **Unity 6.3 LTS** for **WebGL**, then publishes it to **GitHub Pages**.
 
-▶ **Play:** https://jhiggins-tech.github.io/pooket-slug/
+▶ **Play:** https://jhiggins-tech.github.io/pooket-slug/ · 📝 **Spike write-up:** [LEARNED-LESSONS.md](LEARNED-LESSONS.md)
 
 ## What's in the demo
 
