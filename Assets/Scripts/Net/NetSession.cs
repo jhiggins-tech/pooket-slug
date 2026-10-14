@@ -29,7 +29,7 @@ namespace PooketSlug
         PlayerNet m_Local;
         readonly List<PlayerNet> m_Players = new List<PlayerNet>();
         readonly List<IAvatarLink> m_Remotes = new List<IAvatarLink>();
-        bool m_SpawnedWorld;
+        bool m_SpawnedWorld, m_WasAuthority;
 
         public NetState State { get; private set; }
         public string Status { get; private set; } = "";
@@ -150,6 +150,7 @@ namespace PooketSlug
             if (runner != m_Runner) return; // cancelled while connecting
             if (!ok)
             {
+                Debug.LogWarning($"[PooketSlug] Couldn't go online: {reason}");
                 Fail(Describe(reason));
                 Dispose(runner);
                 return;
@@ -157,6 +158,7 @@ namespace PooketSlug
             if (joining && runner.IsSharedModeMasterClient)
             {
                 // Shared Mode creates a session that doesn't exist yet: being first in means nobody is hosting that code.
+                Debug.LogWarning($"[PooketSlug] No game called {sessionName} in region {runner.SessionInfo.Region}; leaving");
                 Leave();
                 Fail("NOBODY IS HOSTING " + sessionName + (region != null ? "-" + region.ToUpperInvariant() : ""));
                 return;
@@ -166,6 +168,9 @@ namespace PooketSlug
             RoomCode = visible ? null : runner.SessionInfo.Name + (string.IsNullOrEmpty(sessionRegion) ? "" : "-" + sessionRegion.ToUpperInvariant());
             State = NetState.Online;
             Status = "";
+            m_WasAuthority = false;
+            Debug.Log($"[PooketSlug] Online in region {sessionRegion}: {(RoomCode != null ? "room " + RoomCode : "quick match " + runner.SessionInfo.Name)}, " +
+                      $"{runner.SessionInfo.PlayerCount}/{MaxPlayers} players, we are {runner.LocalPlayer}{(runner.IsSharedModeMasterClient ? " (master client)" : "")}");
             runner.Spawn(NetPrefabs.Player, inputAuthority: runner.LocalPlayer);
         }
 
@@ -184,6 +189,12 @@ namespace PooketSlug
             {
                 m_SpawnedWorld = true;
                 m_Runner.Spawn(NetPrefabs.World);
+            }
+
+            if (IsAuthority != m_WasAuthority)
+            {
+                m_WasAuthority = IsAuthority;
+                Debug.Log(m_WasAuthority ? "[PooketSlug] This client now runs the shared world" : "[PooketSlug] Another client runs the shared world");
             }
 
             // Two soldiers in the same colours (both picked "red" while joining together): the higher id switches.
@@ -371,12 +382,23 @@ namespace PooketSlug
 
         public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
         {
-            if (runner == m_Runner) Fail(Describe(shutdownReason)); // not asked for: connection lost
+            if (runner != m_Runner) return; // we left on purpose
+            Debug.LogWarning($"[PooketSlug] Session ended: {shutdownReason}");
+            Fail(Describe(shutdownReason));
         }
 
-        public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason) { }
-        public void OnPlayerJoined(NetworkRunner runner, PlayerRef player) { }
-        public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) { }
+        public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
+        {
+            if (runner == m_Runner) Debug.LogWarning($"[PooketSlug] Disconnected from Photon: {reason}");
+        }
+
+        public void OnPlayerJoined(NetworkRunner runner, PlayerRef player)
+        {
+            if (player != runner.LocalPlayer) Debug.Log($"[PooketSlug] {player} joined");
+        }
+
+        public void OnPlayerLeft(NetworkRunner runner, PlayerRef player) => Debug.Log($"[PooketSlug] {player} left");
+
         public void OnObjectExitAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
         public void OnObjectEnterAOI(NetworkRunner runner, NetworkObject obj, PlayerRef player) { }
         public void OnConnectedToServer(NetworkRunner runner) { }
