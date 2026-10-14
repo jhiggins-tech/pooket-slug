@@ -2,7 +2,7 @@
 
 What the code, build and netcode need before the owner's chosen features can be built, and in what order. It's based on the owner's MoSCoW pass over [feature-candidates.csv](feature-candidates.csv) and on the game design in [DESIGN.md](../../../DESIGN.md).
 
-**Status, 2026-10-14:** approved, and in progress from phase 1. The owner answered its [decisions](#decisions-2026-10-14), and the game design it serves is signed off in [docs/design](../../design/README.md).
+**Status, 2026-10-14:** approved and in progress. Phase 1 is done, each step verified in CI ([test log](../verification/test-log.md#part-4-refactor)); phase 2 has started. The owner answered its [decisions](#decisions-2026-10-14), and the game design it serves is signed off in [docs/design](../../design/README.md).
 
 **Read this when** you're approving the refactor, or about to start one of its steps.
 
@@ -29,9 +29,9 @@ The Must and Should rows, plus the design, fall into a few groups. Each one pres
 The work comes in four phases, each done in small commits. Each phase ends with a playable build that plays no worse than before. Numbers in brackets are [refactor candidates](refactor-candidates.md).
 
 **Phase 1: safety net and cheap wins** (each step is small)
-1. **Housekeeping:** logging with categories (#16), tuning values in one place (#12), and seeded randomness (#17, which TEC-09 replays need).
-2. **Tests:** pure classes, with EditMode tests, for what's about to move: tile physics, level parsing, snapshot packing and room codes (#15, TEC-08). Add a test step to CI, which adds a few minutes to each build.
-3. **Pooling** for projectiles, particles and popups (#10, TEC-01). kcaj's Unmedicated alone is 120 pills.
+1. **Housekeeping:** logging with categories (#16), tuning values in one place (#12), and seeded randomness (#17, which TEC-09 replays need). **Done** 2026-10-14.
+2. **Tests:** pure classes, with EditMode tests, for what's about to move: tile physics, level parsing, snapshot packing and room codes (#15, TEC-08). Add a test step to CI, which adds a few minutes to each build. **Done** 2026-10-14: the `PooketSlug.Core` assembly, with [EditMode tests](../verification/edit-mode-tests.md) that run before every build. The step adds about a minute.
+3. **Pooling** for projectiles, particles and popups (#10, TEC-01). kcaj's Unmedicated alone is 120 pills. **Done** 2026-10-14 for projectiles, explosions and debris. Popups were already plain structs, so they need no pool.
 4. **A two-player test in CI** (OPS-02, promoted by the owner): after each deploy, run the two-browser co-op test against it. That's needed before phase 3. **Done** 2026-10-14: it passed on its first run ([test log](../verification/test-log.md#part-2-photon-fusion-co-op)).
 
 **Phase 2: structure** (each step is medium)
@@ -62,7 +62,7 @@ The work comes in four phases, each done in small commits. Each phase ends with 
 **Build and CI, alongside the phases**
 - **Releases:** branch pushes keep deploying the live game, as now (the owner's call). Tagged versions and a changelog (OPS-04) can come later without changing that.
 - **The rest:**
-  - the test step (TEC-08)
+  - the test step (TEC-08), done with step 2
   - the sign-in settings ([C1](../todo.md))
   - the region fixed to AU (NET-05)
   - a web app manifest in the page template (ACC-07)

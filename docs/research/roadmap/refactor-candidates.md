@@ -8,7 +8,7 @@ Up: [Roadmap](README.md)
 
 ## Where the code is today
 
-- **Size:** about 4,100 lines of C# in `Assets/Scripts`, one assembly (`Assembly-CSharp`), plus a 140-line build script.
+- **Size (before the refactor):** about 4,100 lines of C# in `Assets/Scripts`, one assembly (`Assembly-CSharp`), plus a 140-line build script. Since then the pure logic has its own tested assembly, `PooketSlug.Core`.
 - **The big files:** `World.cs` (583 lines), `Game.cs` (518), `NetSession.cs` (467), `Art.cs` + `ArtData.cs` (775, procedural art), `Enemies.cs` (398).
 - **The design held up well for a spike:**
   - plain C# entities driven by one `World`
@@ -18,6 +18,8 @@ Up: [Roadmap](README.md)
   The pressure points below are where new features will hurt.
 
 ## Candidates
+
+**Done so far** (the [refactor plan](refactor-plan.md) tracks each step): 10 pooling, 15 a testable core, 16 logging and 17 seeded randomness. 5 is partly done: `PooketSlug.Core` exists, and the netcode assembly comes with plan step 8. 12 is partly done: the shared feel is in `Tuning.cs`, and the rest moves into the content definitions (plan step 6).
 
 | # | Refactor | Why, with hindsight | Unlocks | Size |
 |---|---|---|---|---|

@@ -52,6 +52,7 @@ The sorted CSV arrived on 2026-10-14, so C2's plan is out for approval. The vari
 - [ ] **C2. Refactor pass** to prepare the build and netcode for the chosen features. *In progress since 2026-10-14.*
   - [x] Map the Must and Should rows to the [refactor candidates](roadmap/refactor-candidates.md), and send you a short plan before changing code. Sent 2026-10-14: [refactor plan](roadmap/refactor-plan.md).
   - [ ] Refactor in small commits. Each one is type-checked, weave-checked and smoke-tested. Anything that touches netcode gets a two-player test.
+    - Phase 1 done 2026-10-14: logging, tuning and seeded randomness; the tested Core assembly with EditMode tests in CI; pooling; the CI co-op test. Phase 2 has started ([progress](roadmap/refactor-plan.md#the-plan)).
   - [ ] Update [architecture](netcode/architecture.md) and the refactor candidates as items land.
 - [ ] **C3. Loose ends** (small; any time):
   - [ ] C3a. Make connection failures say *Couldn't reach Photon* instead of `DISCONNECTED (ERROR)` ([sessions](netcode/sessions.md#when-things-fail)).

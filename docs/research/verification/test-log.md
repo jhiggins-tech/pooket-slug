@@ -57,6 +57,9 @@ The [refactor plan](../roadmap/refactor-plan.md)'s steps, as they land.
 | ~14:03 | The EditMode tests, locally | [`run_tests.py`](tools/run_tests.py): NUnitLite 3.14 on the editor's .NET 6 runtime | ✅ 101 of 101 in 0.1 s |
 | ~14:05–14:12 | Do the tests catch bugs? | Core broken 11 ways, one at a time ([list](edit-mode-tests.md#do-the-tests-catch-bugs)) | ✅ 11 of 11 caught, each by the tests you'd expect |
 | 14:10–14:12 | Step 2 in CI (`367a378`) | Run 38578138923 | ❌ The test step stopped before Unity started. `unity-test-runner@v4` (now v4.4.0, a wrapper around `game-ci/cli`) passed `--no-coverageEnabled`, and CLI v0.1.72 rejected it. Fixed by pinning v4.3.2 ([why](../build-pipeline/workflow.md#action-versions)) |
+| 14:16–14:27 | Step 2 in CI, with the runner pinned (`74d5b7b`) | Run 38579082894 | ✅ 101 of 101 EditMode tests in Unity 6000.3.26f1 (Test Framework 1.6.0, NUnit 3.5): 36 s inside Unity, 3 min 5 s for the step with the image pull the build used to do. Then the build, the deploy, and the co-op test, all passed. The build is still 33.8 MB |
+| 14:27–14:39 | Step 3: pooling (`6eae099`) | Run 38580730821 | ✅ Built, deployed, and passed the co-op test |
+| ~14:37 | Does the deployed build reuse its objects? | A headless browser played the live page with `?log=game:debug`, holding fire and throwing grenades | ✅ `Projectile pool: 64 used, 6 made` and `Effect pool: 64 used, 3 made`, no errors. Software rendering ran at 19 FPS, so only 17 s of game time passed |
 
 ## Not yet verified
 
