@@ -6,6 +6,15 @@ namespace PooketSlug
 {
     public enum NetState { Offline, Connecting, Online, Failed }
 
+    /// <summary>How many of each thing the shared world replicates at once.</summary>
+    public static class NetLimits
+    {
+        /// <summary>Enemies in the snapshot. Past this, the newest wait until older ones are gone.</summary>
+        public const int Enemies = 24;
+        /// <summary>Pickups in the snapshot. Past this, the newest wait the same way.</summary>
+        public const int Pickups = 16;
+    }
+
     /// <summary>
     /// Lobby-side control of an online co-op session. The Photon Fusion implementation lives in
     /// <c>Net/NetSession.cs</c> and only compiles when the (privately fetched) SDK is in the project, so
@@ -57,7 +66,7 @@ namespace PooketSlug
     /// <summary>A follower's shot hit an enemy; the authority applies the damage.</summary>
     public readonly struct HitReport
     {
-        /// <summary>The enemy's network id: its index in <see cref="Level.Spawns"/>.</summary>
+        /// <summary>The enemy's network id (<see cref="NetIds"/>).</summary>
         public readonly int EnemyId;
         public readonly int Damage;
 
@@ -71,14 +80,17 @@ namespace PooketSlug
     /// <summary>The authority decided who gets a pickup. Everyone removes it; only the winner applies it.</summary>
     public readonly struct PickupGrant
     {
-        /// <summary>The pickup's index in <see cref="Level.Spawns"/>.</summary>
-        public readonly int SpawnIndex;
+        /// <summary>The pickup's network id (<see cref="NetIds"/>).</summary>
+        public readonly int Id;
+        /// <summary>What it was, so the winner can apply it even if it never saw the pickup itself.</summary>
+        public readonly PickupDef Def;
         /// <summary>True on the winner's client.</summary>
         public readonly bool Mine;
 
-        public PickupGrant(int spawnIndex, bool mine)
+        public PickupGrant(int id, PickupDef def, bool mine)
         {
-            SpawnIndex = spawnIndex;
+            Id = id;
+            Def = def;
             Mine = mine;
         }
     }
@@ -97,6 +109,8 @@ namespace PooketSlug
         void OnEnemyShot(in ShotEvent shot);
         /// <summary>Authority only: a follower hit an enemy.</summary>
         void OnHit(in HitReport hit);
+        /// <summary>Authority only: a player touched a pickup. The first claim wins.</summary>
+        void OnPickupClaimed(int id, int playerId);
         void OnPickupGranted(in PickupGrant grant);
         /// <summary>The authority's melee or contact damage on our soldier.</summary>
         void OnHurt(int damage);
@@ -130,13 +144,17 @@ namespace PooketSlug
         int NextSpawn { get; set; }
         /// <summary>The next id for something spawned mid-game (see <see cref="NetIds"/>).</summary>
         int NextNetId { get; set; }
-        bool IsTaken(int spawnIndex);
         void WriteEnemies(List<NetEnemyState> enemies);
         void ReadEnemies(List<NetEnemyState> into);
+        /// <summary>The pickups in the authority's world; when one goes from the list, someone collected it.</summary>
+        void WritePickups(List<NetPickupState> pickups);
+        /// <summary>False when there is no snapshot to read: an empty list then doesn't mean they were all collected.</summary>
+        bool ReadPickups(List<NetPickupState> into);
 
         void SendEnemyShot(in ShotEvent shot); // authority only
         void ReportHit(in HitReport hit);
-        void ClaimPickup(int spawnIndex);
+        void ClaimPickup(int id);
+        void GrantPickup(int id, PickupDef def, int playerId); // authority only
         void RequestRestart();
     }
 
@@ -166,12 +184,20 @@ namespace PooketSlug
         void Hurt(int damage);
     }
 
+    /// <summary>One pickup in the authority's snapshot.</summary>
+    public struct NetPickupState
+    {
+        public int Id;        // its NetIds id: a level spawn index, or a mid-game id
+        public PickupDef Def; // null for a pickup this build doesn't know
+        public Vector2 Pos;
+    }
+
     /// <summary>One enemy in the authority's snapshot.</summary>
     public struct NetEnemyState
     {
         public const int Dying = 1, FacingRight = 2, Moving = 4, Engaged = 8, Grounded = 16;
 
-        public int Id;       // spawn index in Level.Spawns
+        public int Id;       // its NetIds id: a level spawn index, or a mid-game id
         public EnemyDef Def; // null for an enemy this build doesn't know
         public int Flags;
         public int Hp;

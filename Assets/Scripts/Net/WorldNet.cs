@@ -14,22 +14,28 @@ namespace PooketSlug
         public Vector2 Pos;
     }
 
+    /// <summary>One pickup in the authority's snapshot (see <see cref="NetPickupState"/>).</summary>
+    public struct NetPickup : INetworkStruct
+    {
+        public short Ref; // the pickup's NetIds id + 1; 0 marks an empty slot
+        public byte Kind;  // PickupDef id
+        public Vector2 Pos;
+    }
+
     /// <summary>
     /// The shared world. It is a master-client object: the room's master client always has state authority,
     /// and if that client leaves, Photon hands it to the next one, whose game then becomes the authority.
     /// </summary>
     public sealed class WorldNet : NetworkBehaviour
     {
-        public const int MaxEnemies = 24;
-
         [Networked] public int Round { get; set; }
         [Networked] public float CamX { get; set; }
         [Networked] public int Score { get; set; }
         [Networked] public NetworkBool Victory { get; set; }
         [Networked] public int NextSpawn { get; set; }
         [Networked] public int NextNetId { get; set; } // the next id for something spawned mid-game (NetIds)
-        [Networked] public long Taken { get; set; } // one bit per Level.Spawns index: pickups already collected
-        [Networked, Capacity(MaxEnemies)] public NetworkArray<NetEnemy> Enemies => default;
+        [Networked, Capacity(NetLimits.Enemies)] public NetworkArray<NetEnemy> Enemies => default;
+        [Networked, Capacity(NetLimits.Pickups)] public NetworkArray<NetPickup> Pickups => default;
 
         public override void Spawned() => NetSession.Instance?.Replication.OnWorldSpawned(this);
 
@@ -45,20 +51,17 @@ namespace PooketSlug
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
         public void RPC_Hit(short enemyId, byte damage) => NetSession.Instance?.Replication.Events?.OnHit(new HitReport(enemyId, damage));
 
-        /// <summary>Both soldiers may touch a crate in the same moment: the authority gives it to the first claim.</summary>
+        /// <summary>Both soldiers may touch a crate in the same moment: the authority's world gives it to the first claim.</summary>
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-        public void RPC_Claim(short spawnIndex, RpcInfo info = default)
+        public void RPC_Claim(short id, RpcInfo info = default)
         {
-            if (spawnIndex < 0 || spawnIndex >= 64) return;
-            long bit = 1L << spawnIndex;
-            if ((Taken & bit) != 0) return;
-            Taken |= bit;
-            RPC_Granted(spawnIndex, info.IsInvokeLocal ? Runner.LocalPlayer : info.Source);
+            PlayerRef claimant = info.IsInvokeLocal ? Runner.LocalPlayer : info.Source;
+            NetSession.Instance?.Replication.Events?.OnPickupClaimed(id, claimant.PlayerId);
         }
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-        public void RPC_Granted(short spawnIndex, PlayerRef player) =>
-            NetSession.Instance?.Replication.Events?.OnPickupGranted(new PickupGrant(spawnIndex, player == Runner.LocalPlayer));
+        public void RPC_Granted(short id, byte kind, int playerId) =>
+            NetSession.Instance?.Replication.Events?.OnPickupGranted(new PickupGrant(id, Content.Pickup(kind), playerId == Runner.LocalPlayer.PlayerId));
 
         /// <summary>Starts a won mission again for everyone (each client rebuilds its world when Round changes).</summary>
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
@@ -71,8 +74,8 @@ namespace PooketSlug
             Victory = false;
             NextSpawn = 0;
             NextNetId = 0;
-            Taken = 0;
             for (int i = 0; i < Enemies.Length; i++) Enemies.Set(i, default);
+            for (int i = 0; i < Pickups.Length; i++) Pickups.Set(i, default);
         }
     }
 }

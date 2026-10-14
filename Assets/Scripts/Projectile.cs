@@ -177,8 +177,9 @@ namespace PooketSlug
     public sealed class Pickup : Entity
     {
         public readonly PickupDef Def;
-        public int NetId = -1;      // index in Level.Spawns
+        public int NetId = -1;      // its NetIds id; -1 stays local
         public bool ClaimPending;   // co-op: asked the authority for it, waiting for the answer
+        public bool Granted;        // co-op authority: already given to someone, so later claims lose
         readonly SpriteRenderer m_Sr;
         float m_Time;
 

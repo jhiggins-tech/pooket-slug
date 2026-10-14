@@ -12,11 +12,12 @@ Up: [Netcode](README.md)
 |---|---|---|
 | Your soldier: movement, aim, firing, grenades, health, respawn | **Its owner** | `PlayerNet` properties, smoothed by `RemotePlayer`; shots replayed by RPC |
 | Enemies, boss, AI targeting, enemy shots | **The master client** | `WorldNet.Enemies` snapshot → puppets; shots replayed by RPC |
-| Spawning (the level's spawn cursor), crates, score, victory | **The master client** | `WorldNet` properties |
+| Spawning (the level's spawn cursor), score, victory | **The master client** | `WorldNet` properties |
+| Crates and other pickups on the ground | **The master client** | `WorldNet.Pickups` snapshot → followers make and remove them |
 | Camera scroll | **The master client** (follows the soldiers) | `WorldNet.CamX`; others follow forward-only |
 | Hits on enemies | The shooter's client **reports**, the master **applies** | The master's snapshot shows the result |
 | Damage to a soldier | **The victim's owner** applies it | Projectiles and explosions are judged on the victim's client; the master's melee and contact damage is sent as an RPC |
-| Crate pickups | The master **arbitrates**: the first claim wins | Grant RPC to everyone |
+| Who gets a crate | The master's world **arbitrates**: the first claim wins | Grant RPC to everyone |
 
 Why it's split this way:
 - **Your own soldier never waits for the network,** so there's no input lag.
@@ -33,7 +34,7 @@ Known trade-off: clients trust each other. A modified client could claim hits or
   - `INetEvents` is the other direction: what the session tells the world. `NetSync` implements it, and the session holds it while a co-op world is playing.
   - Each event is a typed payload: `ShotEvent` (a weapon, origin and velocity), `HitReport`, `PickupGrant`, and damage as a plain number.
   - `INetSession` is used by `Game`: the lobby, state, room code, ping.
-  - `IAvatarLink` is a remote soldier, and `NetEnemyState` is one snapshot entry.
+  - `IAvatarLink` is a remote soldier. `NetEnemyState` and `NetPickupState` are snapshot entries, and `NetLimits` holds the tables' sizes.
 - **The netcode never sees `World` either:** it talks to `INetEvents`. That keeps the boundary in one place, so the Fusion code can become its own assembly ([refactor plan](../roadmap/refactor-plan.md), step 8).
 - **The Fusion implementation lives in [`Assets/Scripts/Net/`](../../../Assets/Scripts/Net/),** in its own assembly, `PooketSlug.Net`. It references Core and the SDK, and only compiles when `FUSION2` is defined (a define constraint). Nothing references it, so the compiler keeps game code from touching Fusion. It registers itself through `NetSessions.Factory`; without the SDK, the factory stays `null` and the title screen offers solo only.
 - **Inside it, `NetSession` connects and `NetReplication` shares.** `NetSession` hosts, joins, finds a quick match, reports failures and owns the runner. `NetReplication` holds the `PlayerNet` and `WorldNet` objects, is the game's `INetLink`, and passes the RPCs' events to `INetEvents`. The lobby, room browser and reconnects will grow in `NetSession`.
@@ -54,19 +55,22 @@ Sizes come from the woven assembly, where Fusion's weaver records them in words 
 | `NetSoldier` (`byte`) | Which soldier they play, as a `SoldierDef` id. Their partner's game uses it for the soldier's size and health |
 | `NetRound` (`int`) | `World.Round + 1` once playing; 0 = still in the lobby. Lets clients ignore a soldier that hasn't reached the current round |
 
-**`WorldNet`**: one per session, a master-client object, 152 words.
+**`WorldNet`**: one per session, a master-client object, 214 words.
 
 | Property | Meaning |
 |---|---|
 | `Round` (`int`) | Bumped on restart; every client rebuilds its `World` when it changes |
 | `CamX` (`float`) | Shared scroll position |
 | `Score` (`int`), `Victory` (`NetworkBool`) | Team score, mission won |
-| `NextSpawn` (`int`) | Spawn cursor into `Level.Spawns`, so followers place crates and props and a new master continues from it |
+| `NextSpawn` (`int`) | Spawn cursor into `Level.Spawns`, so followers place props and a new master continues from it |
 | `NextNetId` (`int`) | The next id for something spawned mid-game, so a new master doesn't reuse one |
-| `Taken` (`long`) | One bit per spawn index for collected crates. The level has 33 spawns; the limit is 64 |
 | `Enemies` (`NetworkArray<NetEnemy>`, capacity 24) | `NetEnemy`: `Ref` (the enemy's id + 1, 0 = empty), `Kind` (the `EnemyDef` id), `Flags` (dying, facing, moving, engaged, grounded), `Hp`, `Pos`. 6 words each |
+| `Pickups` (`NetworkArray<NetPickup>`, capacity 16) | `NetPickup`: `Ref` (the pickup's id + 1, 0 = empty), `Kind` (the `PickupDef` id), `Pos`. 4 words each. A pickup leaves the table when the master gives it to someone |
 
-- **An enemy's identity comes from [`NetIds`](../../../Assets/Scripts/Core/NetIds.cs).** A level spawn's id is its index in `Level.Spawns`, which every client knows without a message. Anything spawned mid-game gets the ids after those (`Spawner.SpawnEnemy`), from `NextNetId`, which a new master continues from. The snapshot carries the id, so followers make the enemy on first sight. Pickups are still level spawns only: dropped crates need a replicated table ([refactor plan](../roadmap/refactor-plan.md), step 10).
+- **An enemy's or pickup's identity comes from [`NetIds`](../../../Assets/Scripts/Core/NetIds.cs).** A level spawn's id is its index in `Level.Spawns`, which every client knows without a message. Anything spawned mid-game gets the ids after those (`Spawner.SpawnEnemy`, `Spawner.SpawnPickup`), from `NextNetId`, which a new master continues from. The snapshot carries the id, so followers make the enemy or pickup on first sight.
+- **The tables hold what's live, not the whole level.** A slot frees when its enemy is gone or its pickup is given out, so a mission can have any number of each. The sizes are in `NetLimits` (Core). If more are live than fit, the newest wait until older ones are gone. Pickups never despawn, so a [test](../verification/edit-mode-tests.md) checks that all of Mission one's fit at once.
+- **Followers remember what they collected,** so a snapshot that arrives late doesn't bring a pickup back. A pickup that leaves the table before its grant arrives is collected then (the state beat the message).
+- **Bosses and the tanks you ride will be network objects of their own** ([refactor plan](../roadmap/refactor-plan.md), step 10). They wait for those features.
 - **Writes happen from Unity's `Update`, not `FixedUpdateNetwork`.** Shared Mode lets the state authority set networked properties at any time. Fusion's own Shared-Mode sample does the same (`PlayerInteract.Update()` → `[Networked]` writes).
 
 ## RPCs
@@ -77,8 +81,8 @@ Sizes come from the woven assembly, where Fusion's weaver records them in words 
 | `RPC_Hurt(damage)` | `PlayerNet` | All → StateAuthority | The master's melee or contact damage, applied by the owner |
 | `RPC_EnemyShot(weapon, origin, vel)` | `WorldNet` | StateAuthority → Proxies, `InvokeLocal = false` | Replay enemy fire; each client damages only its own soldier |
 | `RPC_Hit(enemyId, damage)` | `WorldNet` | All → StateAuthority | A follower's bullet or grenade hit an enemy |
-| `RPC_Claim(spawnIndex)` | `WorldNet` | All → StateAuthority | "I touched this crate". The first claim sets the `Taken` bit |
-| `RPC_Granted(spawnIndex, player)` | `WorldNet` | StateAuthority → All | Everyone shows the pickup; the winner applies its effect |
+| `RPC_Claim(id)` | `WorldNet` | All → StateAuthority | "I touched this crate". The master's world (`NetSync.OnPickupClaimed`) gives it to the first claim, drops it from the snapshot and logs `Pickup … goes to player …` |
+| `RPC_Granted(id, kind, playerId)` | `WorldNet` | StateAuthority → All | Everyone removes the pickup with its popup; the winner applies its effect, using `kind` if it never saw the pickup |
 | `RPC_RequestRestart()` | `WorldNet` | All → StateAuthority | Restart a won mission (ignored unless `Victory`, so a double press restarts once) |
 
 - **Shots carry a weapon id,** a byte from [`Content`](../../../Assets/Scripts/Core/Content.cs). The receiver makes the weapon's projectile and plays its sound. The ids are pinned by [tests](../verification/edit-mode-tests.md), and an id the receiver doesn't know is ignored.
@@ -88,7 +92,7 @@ Fusion rules worth knowing (2.1.3):
 - **Callers:** an `All → StateAuthority` RPC called by the state authority itself runs locally, because `InvokeLocal` defaults to true.
 - **Who sent it:** take an optional last parameter `RpcInfo info = default`. For local calls, use `info.IsInvokeLocal ? Runner.LocalPlayer : info.Source`.
 - **Networked collections** are get-only: `[Networked, Capacity(N)] NetworkArray<T> X => default;`. Their element structs must implement `INetworkStruct`. Simple networked properties need `{ get; set; }`.
-- **RPC parameters** we use: `byte` (enums are cast), `short`, `Vector2` and `PlayerRef`.
+- **RPC parameters** we use: `byte` (ids from `Content`), `short`, `int` and `Vector2`. A player goes as `PlayerRef.PlayerId`, an `int`, so the events stay free of Fusion types.
 
 ## Network objects without prefabs
 
@@ -108,13 +112,14 @@ Scene-object registration isn't affected. Fusion's scene manager only collects `
 
 ```text
 Sync.Pull()       remote soldiers ← RemoteAvatars (add/remove RemotePlayer puppets), local skin
-                  followers only: Score, Victory, taken crates, enemy snapshot → create/update/remove puppets
+                  followers only: Score, Victory, pickup and enemy snapshots → create/update/remove them
 Player.Tick, RemotePlayer.Tick, Spawner.SpawnAhead, Enemies/Projectiles/Pickups/Effects.Tick
 Combat.Collide()  our shots vs enemies (authority applies, followers report), enemy shots vs *our* soldier only,
                   crates → Claim RPC in co-op
 Scoring.Tick()    popups rise and fade
 View.Tick()       the camera
-Sync.Push()       our soldier → PlayerNet; master only: CamX, Score, Victory, NextSpawn, NextNetId, Enemies → WorldNet
+Sync.Push()       our soldier → PlayerNet; master only: CamX, Score, Victory, NextSpawn, NextNetId, Enemies,
+                  Pickups → WorldNet
 ```
 
 The session delivers its events (shots, hits, pickups, damage) to `NetSync` too.
@@ -147,4 +152,5 @@ The session delivers its events (shots, hits, pickups, damage) to `NetSync` too.
 - **Fusion handles the transfer; the game only checks a flag.** `NetReplication.IsAuthority` (`WorldNet.HasStateAuthority`) flips, and the console logs `[PooketSlug/Net] This client now runs the shared world`.
 - **The new authority's puppets become real enemies.** Their AI timers start fresh.
 - **Spawning resumes** from `max(own cursor, NextSpawn)`, and mid-game ids from `NextNetId`.
+- **Its pickups carry on:** they're the ones it made from the snapshot, so it starts listing them itself.
 - **Tested on every build:** the [CI co-op test](../build-pipeline/workflow.md#the-two-player-co-op-test-job) makes the master leave and checks that the other client takes over. First confirmed on 2026-10-14 (run 38573051144).

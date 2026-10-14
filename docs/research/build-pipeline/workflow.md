@@ -114,7 +114,7 @@ A second job, `coop-test`, runs after the build on every push. It tests co-op on
 1. **It downloads the build artifact** and serves it on the runner with `python3 -m http.server`, so it doesn't wait for GitHub Pages to update.
 2. **It installs Playwright 1.56.1 and Chromium.**
 3. **It runs [`tools/coop.mjs`](../../../tools/coop.mjs)** in two separate headless Chromium instances. A hosts, B joins with the invite link, both play, then A leaves and B must take over the shared world ([details](../verification/browser-tests.md#two-browser-co-op-test)). GitHub's runners can open the WebSockets Photon needs; the cloud sandbox can't.
-4. **The job summary lists each check.** The `coop-test` artifact keeps both players' screenshots and console logs, even when the test fails.
+4. **The job summary lists each check,** and how many pickups were given out. The `coop-test` artifact keeps both players' screenshots and console logs, even when the test fails.
 
 - **It runs after the deploy, not before,** so a failure doesn't hold back the live build. It marks the push red instead.
 - **Each run briefly uses two of the free Photon plan's 20 concurrent users.**

@@ -4,8 +4,8 @@ namespace PooketSlug
 {
     /// <summary>
     /// Brings the level's spawns into the world as the camera reaches them, and anything spawned mid-game.
-    /// The authority (and a solo game) places everything. Co-op followers place only pickups and props, and
-    /// get enemies from the snapshot. Each enemy's network identity comes from <see cref="Ids"/>.
+    /// The authority (and a solo game) places everything. Co-op followers place only props, and get enemies
+    /// and pickups from the snapshot. Each enemy's and pickup's network identity comes from <see cref="Ids"/>.
     /// </summary>
     public sealed class Spawner
     {
@@ -54,19 +54,25 @@ namespace PooketSlug
             return e;
         }
 
+        /// <summary>
+        /// Authority only: a pickup that appears mid-game (a drop). It gets a fresh network id, so the snapshot
+        /// carries it to the other clients. Null on a follower.
+        /// </summary>
+        public Pickup SpawnPickup(PickupDef def, Vector2 pos)
+        {
+            World w = m_World;
+            if (!w.IsAuthority) return null;
+            var pk = new Pickup(w, def, pos) { NetId = Ids.Allocate() };
+            w.Pickups.Add(pk);
+            return pk;
+        }
+
         void SpawnStatic(Spawn s, int index)
         {
             World w = m_World;
             PickupDef pickup = Content.PickupFor(s.Kind);
-            if (pickup != null)
-            {
-                if (w.Coop && w.Net.IsTaken(index)) return;
-                w.Pickups.Add(new Pickup(w, pickup, s.Pos) { NetId = index });
-            }
-            else if (s.Kind == SpawnKind.Flag)
-            {
-                w.Props.Add(new Prop(w, Art.Flag, s.Pos, SortOrder.Pickups));
-            }
+            if (pickup != null) w.Pickups.Add(new Pickup(w, pickup, s.Pos) { NetId = index });
+            else if (s.Kind == SpawnKind.Flag) w.Props.Add(new Prop(w, Art.Flag, s.Pos, SortOrder.Pickups));
         }
 
         public void SpawnAhead()
@@ -75,12 +81,13 @@ namespace PooketSlug
             Level level = w.Level;
             if (w.Coop && !w.IsAuthority)
             {
-                // Followers only place static things; enemies arrive with the authority's snapshot.
+                // Followers only place props; enemies and pickups arrive with the authority's snapshot.
                 int limit = Mathf.Min(w.Net.NextSpawn, level.Spawns.Count);
                 while (m_NextStatic < limit)
                 {
                     int i = m_NextStatic++;
-                    if (Content.EnemyFor(level.Spawns[i].Kind) == null) SpawnStatic(level.Spawns[i], i);
+                    SpawnKind kind = level.Spawns[i].Kind;
+                    if (Content.EnemyFor(kind) == null && Content.PickupFor(kind) == null) SpawnStatic(level.Spawns[i], i);
                 }
                 return;
             }

@@ -134,10 +134,12 @@ namespace PooketSlug.Tests
         }
 
         [Test]
-        public void EverySpawnFitsTheSharedWorldsPickupMask()
+        public void TheMissionsPickupsFitTheSharedPickupTable()
         {
-            // WorldNet.Taken has one bit per spawn index, so a map can have at most 64 spawns.
-            Assert.LessOrEqual(new Level().Spawns.Count, 64);
+            int pickups = 0;
+            foreach (Spawn s in new Level().Spawns)
+                if (Content.PickupFor(s.Kind) != null) pickups++;
+            Assert.LessOrEqual(pickups, NetLimits.Pickups);
         }
     }
 }

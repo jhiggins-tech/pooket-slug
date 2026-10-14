@@ -77,6 +77,9 @@ namespace PooketSlug
         /// <summary>The weapon with this id, or null for an id no weapon has (say, from a different build).</summary>
         public static WeaponDef Weapon(int id) => id >= 0 && id < Weapons.Count ? Weapons[id] : null;
 
+        /// <summary>The pickup with this id, or null for an id no pickup has.</summary>
+        public static PickupDef Pickup(int id) => id >= 0 && id < Pickups.Count ? Pickups[id] : null;
+
         /// <summary>The soldier with this id, or null for an id no soldier has.</summary>
         public static SoldierDef Soldier(int id) => id >= 0 && id < Soldiers.Count ? Soldiers[id] : null;
 

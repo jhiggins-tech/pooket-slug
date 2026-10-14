@@ -5,7 +5,7 @@ namespace PooketSlug
 {
     /// <summary>
     /// The world's side of a co-op session (<see cref="INetLink"/>). Each tick it pulls what has arrived (the
-    /// partner's soldier, and on followers the authority's enemies, points and scroll), then pushes our own.
+    /// partner's soldier, and on followers the authority's enemies, pickups, points and scroll), then pushes our own.
     /// The session also delivers its events here (<see cref="INetEvents"/>): shots, hits, pickups and damage.
     /// </summary>
     public sealed class NetSync : INetEvents
@@ -13,6 +13,10 @@ namespace PooketSlug
         readonly World m_World;
         readonly List<NetEnemyState> m_Snapshot = new List<NetEnemyState>();
         readonly List<NetEnemyState> m_Outgoing = new List<NetEnemyState>();
+        readonly List<NetPickupState> m_PickupSnapshot = new List<NetPickupState>();
+        readonly List<NetPickupState> m_OutgoingPickups = new List<NetPickupState>();
+        readonly HashSet<int> m_SeenPickups = new HashSet<int>();  // in the latest snapshot
+        readonly HashSet<int> m_GonePickups = new HashSet<int>();  // collected here: a late snapshot mustn't bring them back
         readonly HashSet<int> m_SeenIds = new HashSet<int>();
         readonly HashSet<int> m_DeadIds = new HashSet<int>();
 
@@ -46,8 +50,7 @@ namespace PooketSlug
 
             w.Scoring.Points = Net.Score;
             if (Net.Victory) w.OnBossDestroyed();
-            foreach (Pickup pk in w.Pickups)
-                if (!pk.Removed && pk.NetId >= 0 && Net.IsTaken(pk.NetId)) pk.Collect(); // state beat the grant message
+            PullPickups();
 
             Net.ReadEnemies(m_Snapshot);
             m_SeenIds.Clear();
@@ -70,6 +73,34 @@ namespace PooketSlug
                 if (!e.Dying && !m_SeenIds.Contains(e.NetId)) e.Remove();
         }
 
+        /// <summary>Followers: make the authority's pickups, and collect the ones it no longer lists.</summary>
+        void PullPickups()
+        {
+            World w = m_World;
+            if (!Net.ReadPickups(m_PickupSnapshot)) return;
+            m_SeenPickups.Clear();
+            foreach (NetPickupState s in m_PickupSnapshot)
+            {
+                m_SeenPickups.Add(s.Id);
+                if (s.Def == null || m_GonePickups.Contains(s.Id) || FindPickup(s.Id) != null) continue;
+                w.Pickups.Add(new Pickup(w, s.Def, s.Pos) { NetId = s.Id });
+            }
+            // gone from the authority's world: someone collected it (the state beat the grant message)
+            foreach (Pickup pk in w.Pickups)
+            {
+                if (pk.Removed || m_SeenPickups.Contains(pk.NetId)) continue;
+                pk.Collect();
+                m_GonePickups.Add(pk.NetId);
+            }
+        }
+
+        Pickup FindPickup(int id)
+        {
+            foreach (Pickup p in m_World.Pickups)
+                if (p.NetId == id && !p.Removed) return p;
+            return null;
+        }
+
         /// <summary>Publishes our soldier, and (authority) the shared world state.</summary>
         public void Push()
         {
@@ -86,6 +117,11 @@ namespace PooketSlug
                 if (!e.Removed && e.NetId >= 0)
                     m_Outgoing.Add(new NetEnemyState { Id = e.NetId, Def = e.Def, Flags = e.SnapshotFlags, Hp = e.Hp, Pos = e.Pos });
             Net.WriteEnemies(m_Outgoing);
+            m_OutgoingPickups.Clear();
+            foreach (Pickup pk in w.Pickups)
+                if (!pk.Removed && !pk.Granted && pk.NetId >= 0)
+                    m_OutgoingPickups.Add(new NetPickupState { Id = pk.NetId, Def = pk.Def, Pos = pk.Pos });
+            Net.WritePickups(m_OutgoingPickups);
         }
 
         // ------------------------------------------------------------------ INetEvents (delivered by the session)
@@ -107,23 +143,26 @@ namespace PooketSlug
             if (e != null && e.Shootable) e.Hurt(hit.Damage);
         }
 
+        public void OnPickupClaimed(int id, int playerId)
+        {
+            if (!m_World.IsAuthority) return;
+            Pickup pk = FindPickup(id);
+            if (pk == null || pk.Granted) return; // gone, or someone got there first
+            pk.Granted = true;
+            Log.Net.Info($"Pickup {id} ({pk.Def.Name}) goes to player {playerId}");
+            Net.GrantPickup(id, pk.Def, playerId);
+        }
+
         public void OnPickupGranted(in PickupGrant grant)
         {
-            World w = m_World;
-            int spawnIndex = grant.SpawnIndex;
-            Pickup pk = null;
-            foreach (Pickup p in w.Pickups)
-                if (p.NetId == spawnIndex && !p.Removed) pk = p;
+            Pickup pk = FindPickup(grant.Id);
             if (grant.Mine)
             {
-                if (pk != null) pk.ApplyTo(w.Player);
-                else if (spawnIndex >= 0 && spawnIndex < w.Level.Spawns.Count)
-                {
-                    PickupDef def = Content.PickupFor(w.Level.Spawns[spawnIndex].Kind);
-                    if (def != null) Pickup.Give(def, w.Player);
-                }
+                if (pk != null) pk.ApplyTo(m_World.Player);
+                else if (grant.Def != null) Pickup.Give(grant.Def, m_World.Player); // never saw it ourselves
             }
             pk?.Collect();
+            m_GonePickups.Add(grant.Id);
         }
 
         public void OnHurt(int damage) => m_World.Player.Hurt(damage);

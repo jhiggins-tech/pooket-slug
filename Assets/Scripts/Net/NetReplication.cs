@@ -136,9 +136,6 @@ namespace PooketSlug
             set { if (IsAuthority) m_Shared.NextNetId = value; }
         }
 
-        public bool IsTaken(int spawnIndex) =>
-            SharedValid && spawnIndex >= 0 && spawnIndex < 64 && (m_Shared.Taken & (1L << spawnIndex)) != 0;
-
         public void WriteEnemies(List<NetEnemyState> enemies)
         {
             if (!IsAuthority) return;
@@ -171,6 +168,32 @@ namespace PooketSlug
             }
         }
 
+        public void WritePickups(List<NetPickupState> pickups)
+        {
+            if (!IsAuthority) return;
+            NetworkArray<NetPickup> slots = m_Shared.Pickups;
+            int n = 0;
+            foreach (NetPickupState p in pickups)
+            {
+                if (n == slots.Length) break; // more than fit: the rest show up once earlier ones are collected
+                slots.Set(n++, new NetPickup { Ref = (short)(p.Id + 1), Kind = p.Def.Id, Pos = p.Pos });
+            }
+            for (; n < slots.Length; n++) slots.Set(n, default);
+        }
+
+        public bool ReadPickups(List<NetPickupState> into)
+        {
+            into.Clear();
+            if (!SharedValid) return false;
+            NetworkArray<NetPickup> slots = m_Shared.Pickups;
+            for (int i = 0; i < slots.Length; i++)
+            {
+                NetPickup p = slots.Get(i);
+                if (p.Ref > 0) into.Add(new NetPickupState { Id = p.Ref - 1, Def = Content.Pickup(p.Kind), Pos = p.Pos });
+            }
+            return true;
+        }
+
         public void SendAvatar(SoldierDef soldier, Vector2 pos, Vector2 vel, int poseFlags, int hp)
         {
             if (m_Local == null || !m_Local.Object.IsValid) return;
@@ -197,9 +220,14 @@ namespace PooketSlug
             if (SharedValid) m_Shared.RPC_Hit((short)hit.EnemyId, (byte)Mathf.Clamp(hit.Damage, 0, 255));
         }
 
-        public void ClaimPickup(int spawnIndex)
+        public void ClaimPickup(int id)
         {
-            if (SharedValid) m_Shared.RPC_Claim((short)spawnIndex);
+            if (SharedValid) m_Shared.RPC_Claim((short)id);
+        }
+
+        public void GrantPickup(int id, PickupDef def, int playerId)
+        {
+            if (IsAuthority) m_Shared.RPC_Granted((short)id, def.Id, playerId);
         }
 
         public void RequestRestart()

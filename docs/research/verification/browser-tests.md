@@ -36,6 +36,7 @@ Up: [Verification](README.md)
 4. A presses **Esc** twice, and B must log `This client now runs the shared world`, which covers host migration.
 5. It saves screenshots of both windows at each step and writes the merged, time-stamped console log to `console.log`.
 6. It writes each check to `result.json`, and exits non-zero if any check fails.
+7. It also records how many pickups the shared world gave out (`Pickup … goes to player …` lines). That's not a check, since the soldiers may not reach a crate in 13 s.
 
 ## The sandbox's limits
 

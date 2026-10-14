@@ -2,6 +2,7 @@
 //   code mode (default): A hosts (H), B opens the invite link ?room=CODE and presses Enter.
 //   quick mode:          both press Q (quick match).
 // Then both play for a while, A leaves (Esc Esc), and B should take over the shared world.
+// It also counts the pickups the shared world gave out; that isn't a check, since the soldiers may not reach a crate.
 // Writes screenshots, console.log and result.json to <outdir>, and exits non-zero if any check fails.
 // CI runs it against each build (.github/workflows/webgl-pages.yml).
 // usage: PW_PATH=... node coop.mjs <url> <outdir> [code|quick]
@@ -122,8 +123,9 @@ try {
   fs.writeFileSync(`${out}/console.log`, all.join('\n') + '\n');
   console.log(all.filter(l => /PooketSlug|error|exception|warn|Fusion|Photon/i.test(l)).slice(-120).join('\n'));
   const ok = !failure && Object.values(checks).every(Boolean);
-  fs.writeFileSync(`${out}/result.json`, JSON.stringify({ mode, ok, failure, checks, seconds: Math.round((Date.now() - T0) / 1000) }, null, 2) + '\n');
-  console.log(`${t()} result: ${ok ? 'PASS' : 'FAIL'} ${JSON.stringify(checks)}`);
+  const pickups = all.filter(l => new RegExp(TAG + ' Pickup \\d+ .* goes to player').test(l)).length;
+  fs.writeFileSync(`${out}/result.json`, JSON.stringify({ mode, ok, failure, checks, pickups, seconds: Math.round((Date.now() - T0) / 1000) }, null, 2) + '\n');
+  console.log(`${t()} result: ${ok ? 'PASS' : 'FAIL'} ${JSON.stringify(checks)}, ${pickups} pickup(s) given out`);
   await A.browser.close();
   await B.browser.close();
   if (!ok) process.exitCode = 1;

@@ -6,7 +6,7 @@ namespace PooketSlug
     public abstract class Enemy : Actor
     {
         public readonly EnemyDef Def;
-        public int NetId = -1;   // index in Level.Spawns: the enemy's identity in co-op
+        public int NetId = -1;   // its NetIds id: the enemy's identity in co-op; -1 stays local
         public bool Dying;
         protected float DyingTime, Anim;
         protected const float Gravity = Tuning.Physics.Gravity, MaxFall = Tuning.Physics.MaxFall;

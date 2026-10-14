@@ -227,6 +227,9 @@ jobs:
               print()
               print("Stopped: " + r["failure"])
           print()
+          if "pickups" in r:
+              print(f"Pickups given out while playing: {r['pickups']} (not a check: the soldiers may not reach a crate).")
+              print()
           print(f"Took {r['seconds']} s. Screenshots and console logs are in the coop-test artifact.")
           EOF
 
