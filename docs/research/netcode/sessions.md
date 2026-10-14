@@ -39,7 +39,7 @@ runner.StartGame(new StartGameArgs {
 
 ## Room codes
 
-- **Hosting picks a 4-letter session name** from `ABCDEFGHJKLMNPQRSTUVWXYZ` (no I or O) and connects to the best region by ping.
+- **Hosting picks a 4-letter session name** from `ABCDEFGHJKLMNPQRSTUVWXYZ` (no I or O) and connects to the best region by ping. [`InviteCode`](../../../Assets/Scripts/Core/InviteCode.cs) makes, parses and formats the codes, and has [tests](../verification/edit-mode-tests.md).
 - **The displayed code is `NAME-REGION`,** for example `ABCD-EU`, using `runner.SessionInfo.Region` after connecting.
 - **Joining splits the code.** `ABCD-EU` → session `ABCD` with `FixedRegion = "eu"`. A code without a region falls back to the best region.
 - **Why the region is in the code:** Photon sessions exist per region. A friend whose best region differs would otherwise never find the room.

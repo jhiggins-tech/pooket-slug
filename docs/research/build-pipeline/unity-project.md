@@ -29,8 +29,10 @@ The committed Unity project is small:
 | `ProjectSettings/ProjectVersion.txt` | The only committed ProjectSettings file. Unity generates the rest with defaults on every CI run |
 | `Packages/manifest.json` | Packages and engine modules (see below) |
 | `Assets/Scripts/**.cs`, `Assets/Editor/WebGLBuild.cs` | All gameplay, art, audio and UI, plus the build entry point, each with its `.meta` |
+| `Assets/Scripts/Core/` | The pure logic, in its own assembly, `PooketSlug.Core` (an `.asmdef` with `autoReferenced`, so the rest of the game sees it) |
+| `Assets/Tests/EditMode/` | NUnit tests for Core, in an editor-only test assembly ([EditMode tests](../verification/edit-mode-tests.md)) |
 | `Assets/WebGLTemplates/PooketSlug/index.html` | The page around the canvas ([GitHub Pages](github-pages.md#the-webgl-template)) |
-| `Assets/link.xml` | Keeps `Assembly-CSharp` whole under managed code stripping. Everything is created from code at runtime, so no scene or prefab references keep types alive |
+| `Assets/link.xml` | Keeps `Assembly-CSharp` and `PooketSlug.Core` whole under managed code stripping. Everything is created from code at runtime, so no scene or prefab references keep types alive |
 | `Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion` | Fusion's config: only `AssembliesToWeave` ([SDK in CI](../netcode/sdk-in-ci.md)) |
 
 Everything else is generated:
@@ -61,6 +63,7 @@ The cost:
 | `com.unity.modules.animation` | Fusion's editor scripts (`Animator` tooling) |
 | `com.unity.modules.unitywebrequest` | Photon Realtime's `PhotonPing.cs` and Fusion's editor |
 | `com.unity.modules.imageconversion` | Fusion's editor (`Texture2D.LoadImage`) |
+| `com.unity.test-framework` 1.6.0 | The EditMode tests. It's built into the editor (a core package), so it needs no registry fetch, and it brings `com.unity.ext.nunit` |
 | `com.unity.nuget.mono-cecil` 1.11.6 | Fusion's IL weaver. This is the version bundled with the editor. Listing it also stops Fusion's installer from calling `Client.Add("com.unity.nuget.mono-cecil@1.10.2")` mid-build ([SDK in CI](../netcode/sdk-in-ci.md#fusions-defines-and-the-il-weaver)) |
 
 ## Input

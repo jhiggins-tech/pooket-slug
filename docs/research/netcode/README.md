@@ -57,3 +57,4 @@ Source files:
 - [`Assets/Scripts/World.cs`](../../../Assets/Scripts/World.cs), the co-op sync in `PullNet` / `PushNet`
 - [`Assets/Scripts/RemotePlayer.cs`](../../../Assets/Scripts/RemotePlayer.cs)
 - [`Assets/Scripts/PlayerVisual.cs`](../../../Assets/Scripts/PlayerVisual.cs)
+- [`Assets/Scripts/Core/AvatarPose.cs`](../../../Assets/Scripts/Core/AvatarPose.cs) and [`InviteCode.cs`](../../../Assets/Scripts/Core/InviteCode.cs), with [tests](../verification/edit-mode-tests.md)

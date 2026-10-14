@@ -66,8 +66,10 @@ Project layout:
 | --- | --- |
 | `Assets/Scripts/Game.cs` | Bootstrap, camera, state machine (title / playing / game over / victory), IMGUI HUD |
 | `Assets/Scripts/World.cs` | Entities, spawning, collisions, explosions, scrolling camera, parallax |
-| `Assets/Scripts/Level.cs` | ASCII tile map, tile queries, chunked level rendering |
-| `Assets/Scripts/Entity.cs` | Entity/Actor base classes and tile physics (AABB vs grid, one-way bridges) |
+| `Assets/Scripts/Core/` | Pure logic in its own assembly (`PooketSlug.Core`): the ASCII tile map, tile physics (AABB vs grid, one-way bridges), pose packing, room codes, seeded randomness, log channels and tuning |
+| `Assets/Tests/EditMode/` | NUnit tests for `Core`. CI runs them before each build |
+| `Assets/Scripts/LevelView.cs` | Draws the level as chunked textures |
+| `Assets/Scripts/Entity.cs` | Entity/Actor base classes |
 | `Assets/Scripts/Player.cs`, `Enemies.cs`, `Projectile.cs` | Gameplay |
 | `Assets/Scripts/RemotePlayer.cs`, `PlayerVisual.cs` | The partner's soldier (a smoothed puppet) and the soldier rendering both share |
 | `Assets/Scripts/NetContracts.cs` | What gameplay needs from an online session (`INetLink`, `INetSession`) |

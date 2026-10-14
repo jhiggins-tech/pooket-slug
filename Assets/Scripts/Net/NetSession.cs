@@ -17,7 +17,6 @@ namespace PooketSlug
     public sealed class NetSession : MonoBehaviour, INetSession, INetLink, INetworkRunnerCallbacks
     {
         const int MaxPlayers = Tuning.Coop.MaxPlayers;
-        const string CodeLetters = "ABCDEFGHJKLMNPQRSTUVWXYZ"; // no I or O
 
         static readonly Rng s_CodeRng = new Rng(Rng.NewSeed());
 
@@ -56,26 +55,18 @@ namespace PooketSlug
 
         // ------------------------------------------------------------------ lobby
 
-        public void Host()
-        {
-            var name = new char[4];
-            for (int i = 0; i < name.Length; i++) name[i] = CodeLetters[s_CodeRng.Range(0, CodeLetters.Length)];
-            Connect(new string(name), null, false, false);
-        }
+        public void Host() => Connect(InviteCode.NewName(s_CodeRng), null, false, false);
 
         /// <summary>Joins by invite code: "ABCD-EU" is session "ABCD" in Photon region "eu".</summary>
         public void Join(string code)
         {
             if (State == NetState.Connecting || State == NetState.Online) return;
-            string[] parts = (code ?? "").Trim().ToUpperInvariant().Split('-');
-            string name = parts[0].Trim();
-            string region = parts.Length > 1 ? parts[1].Trim().ToLowerInvariant() : null;
-            if (name.Length == 0)
+            if (!InviteCode.TryParse(code, out string name, out string region))
             {
                 Fail("TYPE A ROOM CODE LIKE ABCD-EU");
                 return;
             }
-            Connect(name, string.IsNullOrEmpty(region) ? null : region, false, true);
+            Connect(name, region, false, true);
         }
 
         /// <summary>Joins any open public game (or opens one) in the configured region, or the best by ping.</summary>
@@ -162,12 +153,12 @@ namespace PooketSlug
                 // Shared Mode creates a session that doesn't exist yet: being first in means nobody is hosting that code.
                 Log.Net.Warn($"No game called {sessionName} in region {runner.SessionInfo.Region}; leaving");
                 Leave();
-                Fail("NOBODY IS HOSTING " + sessionName + (region != null ? "-" + region.ToUpperInvariant() : ""));
+                Fail("NOBODY IS HOSTING " + InviteCode.Format(sessionName, region));
                 return;
             }
 
             string sessionRegion = runner.SessionInfo.Region;
-            RoomCode = visible ? null : runner.SessionInfo.Name + (string.IsNullOrEmpty(sessionRegion) ? "" : "-" + sessionRegion.ToUpperInvariant());
+            RoomCode = visible ? null : InviteCode.Format(runner.SessionInfo.Name, sessionRegion);
             State = NetState.Online;
             Status = "";
             m_WasAuthority = false;

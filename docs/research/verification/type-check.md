@@ -33,6 +33,9 @@ Up: [Verification](README.md)
 - **Defines:** `UNITY_6000_3_OR_NEWER` and friends, `UNITY_WEBGL`, plus the input defines.
 - **Check both input backends.** The active one isn't known until Unity generates ProjectSettings ([why](../build-pipeline/unity-project.md#input)). Compile once with `ENABLE_LEGACY_INPUT_MANAGER`, once with `ENABLE_INPUT_SYSTEM` (referencing `Unity.InputSystem.dll`), and once with both.
 - **Then the editor assembly:** compile `Assets/Editor/**` against the game assembly plus `UnityEditor*.dll`, with `UNITY_EDITOR` defined.
+- **Assembly definitions first.** Each `.asmdef` outside `Assets/Photon` compiles the scripts under its folder, after the ones it references. `Assembly-CSharp` gets everything else and references the auto-referenced ones, such as `PooketSlug.Core`.
+  - A test assembly compiles only when its define constraint, `UNITY_INCLUDE_TESTS`, holds. The Test Framework defines it in the editor.
+  - It also needs `--nunit` ([EditMode tests](edit-mode-tests.md)).
 - [`compile_unity.py`](tools/compile_unity.py) does all of this: the `game` stage, or `all` for the SDK and the game.
 - **Track record:** zero errors and zero warnings before the first push of the game, and no compile failures in CI since.
 
@@ -70,6 +73,7 @@ Up: [Verification](README.md)
 - **`InitializeOnLoadAttribute` came out ambiguous** when referencing both the module DLLs and older facades. Reference `Managed/UnityEngine/UnityEngine.dll` (the facade with type forwarders) together with the module DLLs, not the `Managed/UnityEngine.dll` next to it.
 - **Name each output DLL after the assembly** (`Fusion.Unity.dll`, not `fusion-unity.dll`). Attributes like `InternalsVisibleTo` and later references match on assembly names.
 - **An unquoted `;` in a `-define:` list breaks shell commands.** Quote the whole argument.
+- **`CS0012: The type 'Attribute' is defined in an assembly that is not referenced … 'mscorlib'`** came from compiling against Unity's NUnit, which targets .NET Framework. The editor also references the facades in `NetStandard/compat/2.1.0/shims/netfx/`, and now `compile_unity.py` does too.
 - **These compiles don't run the weaver.** Networked properties compile as plain auto-properties until [woven](fusion-weaver.md).
 
 ## Not covered

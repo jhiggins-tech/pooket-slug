@@ -12,8 +12,9 @@ namespace PooketSlug
     }
 
     /// <summary>
-    /// Tile map: 1 tile = 1 world unit = 16 px. Row 0 of <see cref="Map"/> is the top of the level.
+    /// Tile map: 1 tile = 1 world unit = 16 px. Row 0 of the map is the top of the level.
     /// '#' ground, '=' sandbags (solid), '-' one-way bridge; letters are spawn markers.
+    /// LevelView draws it.
     /// </summary>
     public sealed class Level
     {
@@ -40,16 +41,19 @@ namespace PooketSlug
         public Vector2 PlayerStart;
         readonly char[,] m_Tiles; // [x, y], y up
 
-        public Level()
+        /// <summary>The built-in mission map.</summary>
+        public Level() : this(Map) { }
+
+        public Level(string[] map)
         {
-            Height = Map.Length;
-            foreach (string row in Map) Width = Mathf.Max(Width, row.Length);
+            Height = map.Length;
+            foreach (string row in map) Width = Mathf.Max(Width, row.Length);
             m_Tiles = new char[Width, Height];
 
             for (int r = 0; r < Height; r++)
             {
                 int y = Height - 1 - r;
-                string row = Map[r];
+                string row = map[r];
                 for (int x = 0; x < Width; x++)
                 {
                     char ch = x < row.Length ? row[x] : Empty;
@@ -94,34 +98,6 @@ namespace PooketSlug
             for (int y = Height - 1; y >= 0; y--)
                 if (m_Tiles[c, y] != Empty) return y + 1;
             return 0f;
-        }
-
-        /// <summary>Builds the visuals: the tile map is baked into a few wide chunk textures.</summary>
-        public GameObject CreateView(Transform parent)
-        {
-            var root = new GameObject("LevelView");
-            root.transform.SetParent(parent, false);
-            const int chunk = 32;
-            for (int cx = 0; cx < Width; cx += chunk)
-            {
-                int w = Mathf.Min(chunk, Width - cx);
-                var canvas = new PixelCanvas(w * 16, Height * 16);
-                for (int x = 0; x < w; x++)
-                    for (int y = 0; y < Height; y++)
-                    {
-                        char t = m_Tiles[cx + x, y];
-                        if (t == Empty) continue;
-                        bool exposed = y + 1 >= Height || !IsSolid(cx + x, y + 1);
-                        Art.DrawTile(canvas, x * 16, y * 16, t, exposed, (cx + x) * 31 + y * 17);
-                    }
-                var go = new GameObject("Chunk" + cx / chunk);
-                go.transform.SetParent(root.transform, false);
-                go.transform.position = new Vector3(cx, 0, 0);
-                var sr = go.AddComponent<SpriteRenderer>();
-                sr.sprite = Art.ToSprite(canvas, Vector2.zero);
-                sr.sortingOrder = SortOrder.Tiles;
-            }
-            return root;
         }
     }
 }

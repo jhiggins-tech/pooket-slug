@@ -55,7 +55,7 @@ namespace PooketSlug
             Round = net?.Round ?? 0;
             Root = new GameObject("World").transform;
             Level = new Level();
-            Level.CreateView(Root);
+            LevelView.Create(Level, Root);
             BuildBackground();
 
             m_CamX = GameHalfWidth;

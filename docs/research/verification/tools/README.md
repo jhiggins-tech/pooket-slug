@@ -10,7 +10,8 @@ Up: [Verification](../README.md)
 |---|---|---|
 | [`extract-unity.sh`](extract-unity.sh) | Streams the GameCI editor image's editor layer from Docker Hub and extracts Unity's Roslyn compiler, the .NET runtime, the reference DLLs, module metadata, and the bundled Input System and Cecil packages (~300 MB written; ~7 GB streamed) | Manifest resolution against the image's saved manifests; the same extraction ran in the first session |
 | [`build-inputsystem.sh`](build-inputsystem.sh) | Compiles the Input System package's runtime sources into `Unity.InputSystem.dll` | 2026-10-14: 281 files, warnings only |
-| [`compile_unity.py`](compile_unity.py) | Compiles the Photon SDK (player and editor) and the game's assemblies, as Unity would for WebGL, against only the enabled engine modules. Also writes the PDB, reference list and defines for the weaver | 2026-10-14: SDK OK, game OK |
+| [`compile_unity.py`](compile_unity.py) | Compiles the Photon SDK (player and editor), the project's assembly definitions (Core and its tests) and the game's assemblies, as Unity would for WebGL, against only the enabled engine modules. Also writes the PDB, reference list and defines for the weaver | 2026-10-14: SDK OK; Core, tests and game OK, with and without the SDK |
+| [`run_tests.py`](run_tests.py) | Runs the [EditMode tests](../edit-mode-tests.md) outside Unity: builds them against NuGet's NUnit 3.14 with an NUnitLite entry point, and runs them on the editor's .NET runtime | 2026-10-14: 101 of 101; 11 of 11 deliberate bugs caught |
 | [`weave.sh`](weave.sh) + [`WeaveHarness.cs`](WeaveHarness.cs) | Runs Fusion's `ILPostProcessor` (the IL weaver) over the game assembly outside Unity, on the editor's own .NET runtime | 2026-10-14: woven, no diagnostics |
 | [`WeaveDump.cs`](WeaveDump.cs) | Prints what the weaver generated for named types: word counts, generated RPC invokers, getter IL. Run via `DUMP="PlayerNet WorldNet" weave.sh …` | 2026-10-14 |
 | [`smoke.mjs`](smoke.mjs) | Playwright: loads a deployed build, plays a few seconds with scripted input, saves screenshots and console logs | Used against every deploy |
@@ -28,8 +29,13 @@ tar -xzf $D/Resources/PackageManager/Editor/com.unity.nuget.mono-cecil-*.tgz -C 
 $T/build-inputsystem.sh $D $W/is
 python3 -I tools/unpack_unitypackage.py <Photon-Fusion-….unitypackage> .   # the SDK, if not already unpacked
 python3 -I $T/compile_unity.py --editor-data $D --project . --out $W/out \
-        --cecil-dir $W/package --inputsystem $W/is/Unity.InputSystem.dll all
+        --cecil-dir $W/package --inputsystem $W/is/Unity.InputSystem.dll \
+        --nunit $W/ext-nunit/package/net40/unity-custom/nunit.framework.dll all
 DUMP="PlayerNet WorldNet" $T/weave.sh $D "$PWD" $W/out $W/package $W/weave
+python3 -I $T/run_tests.py --editor-data $D --project . --core $W/out/game/PooketSlug.Core.dll \
+        --nunit $W/nunit/lib/netstandard2.0 --nunitlite $W/nunitlite/lib/netstandard2.0 --out $W/tests
 ```
+
+The two NUnit builds come from Unity's package registry and NuGet ([where](../edit-mode-tests.md#locally)).
 
 Playwright needs Chromium. In the cloud sandbox it's preinstalled: set `PW_PATH=$(npm root -g)/playwright` and don't run `playwright install`. Elsewhere, run `npm i playwright && npx playwright install chromium`.

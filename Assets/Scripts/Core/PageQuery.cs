@@ -9,9 +9,8 @@ namespace PooketSlug
         public static string Get(string url, string name)
         {
             if (string.IsNullOrEmpty(url) || string.IsNullOrEmpty(name)) return null;
-            int q = url.IndexOf('?');
-            if (q < 0) return null;
-            int hash = url.IndexOf('#', q);
+            int q = url.IndexOf('?'), hash = url.IndexOf('#');
+            if (q < 0 || (hash >= 0 && hash < q)) return null; // a '?' after the '#' is part of the fragment
             string query = hash < 0 ? url.Substring(q + 1) : url.Substring(q + 1, hash - q - 1);
             foreach (string part in query.Split('&'))
             {

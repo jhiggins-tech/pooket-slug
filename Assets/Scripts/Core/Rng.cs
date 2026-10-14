@@ -4,8 +4,8 @@ namespace PooketSlug
 {
     /// <summary>
     /// A small seeded random-number source (xorshift32). Each system owns one, so the same seed replays the
-    /// same choices: gameplay rolls use the world's <see cref="World.Rng"/>, and cosmetic effects use
-    /// <see cref="Fx"/>. Replays and generated levels will build on this.
+    /// same choices: gameplay rolls use the world's own Rng, and cosmetic effects use <see cref="Fx"/>.
+    /// Replays and generated levels will build on this.
     /// </summary>
     public sealed class Rng
     {

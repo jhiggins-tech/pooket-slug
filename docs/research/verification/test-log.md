@@ -46,6 +46,17 @@ All tests ran against Cardmaster's repository at `762ca94`, in the cloud sandbox
 | ~10:44 | Cardmaster's typecheck and unit tests, with the change | `npm run typecheck`, `npm run test:unit` | ✅ no type errors; 57 of 57 |
 | — | Cardmaster's hosting and sign-in tests, with the change | Its CI, once the branch is pushed | Not run yet: the commit is waiting on [owner 2c](../todo.md) |
 
+## Part 4: Refactor
+
+The [refactor plan](../roadmap/refactor-plan.md)'s steps, as they land.
+
+| When | What | How | Result |
+|---|---|---|---|
+| 13:48–14:00 | Step 1: log channels, tuning in one place, seeded randomness (`243f025`) | Local compile and weave, then CI run 38574958671 | ✅ Built and deployed. The co-op test passed all five checks, logging the new `[PooketSlug/Net]` lines |
+| ~14:03 | Step 2: the `PooketSlug.Core` assembly and its tests | `compile_unity.py` with assembly definitions, with and without the SDK, then the weave harness | ✅ Core 8 files, tests 7, game 18, editor 1: no errors or warnings. The weaver's output is unchanged: `PlayerNet` 8 words, `WorldNet` 151 |
+| ~14:03 | The EditMode tests, locally | [`run_tests.py`](tools/run_tests.py): NUnitLite 3.14 on the editor's .NET 6 runtime | ✅ 101 of 101 in 0.1 s |
+| ~14:05–14:12 | Do the tests catch bugs? | Core broken 11 ways, one at a time ([list](edit-mode-tests.md#do-the-tests-catch-bugs)) | ✅ 11 of 11 caught, each by the tests you'd expect |
+
 ## Not yet verified
 
 These were implemented, but none has been confirmed yet. Host migration was on this list until the CI co-op test confirmed it, and it's now checked on every build ([architecture](../netcode/architecture.md#host-migration)).

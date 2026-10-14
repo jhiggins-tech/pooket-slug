@@ -62,7 +62,25 @@ It takes 1 to 2 s. Why it works this way, and how to upgrade the SDK: [SDK in CI
 - Any asset change misses the exact key, then restores the most recent Library and imports incrementally.
 - Before Fusion, the cache was 83 MB compressed and saved about 70 s per build.
 
-### 5. The build step
+### 5. EditMode tests
+
+Four steps run the [EditMode tests](../verification/edit-mode-tests.md) before the build:
+1. **Pick the editor image:** `unityci/editor:ubuntu-<version>-webgl-3`, with the version read from `ProjectVersion.txt`. The builder picks the same image, so it's pulled once.
+2. **Run the tests** with `game-ci/unity-test-runner@v4`:
+
+   | Input | Value | Why |
+   |---|---|---|
+   | `customImage` | The image from step 1 | One pull for both Unity runs |
+   | `testMode` | `editmode` | The only tests so far |
+   | `artifactsPath` | `test-results` | Where the NUnit XML goes |
+   | `coverageEnabled` | `false` | No coverage package, and the action's docs say coverage crashes some Unity versions |
+   | `githubToken` | `''` | No check run, which would need `checks: write`. The summary covers it |
+
+   It activates Unity with the same three secrets as the build. A failing test fails the step, so the build and deploy don't run.
+3. **Summarise the results:** the counts, and the first line of each failure.
+4. **Upload the NUnit XML** as the `editmode-tests` artifact.
+
+### 6. The build step
 
 `game-ci/unity-builder@v4`, with the three Unity secrets passed as `env`:
 
@@ -77,15 +95,15 @@ It takes 1 to 2 s. Why it works this way, and how to upgrade the SDK: [SDK in CI
 - **Build path:** GameCI adds `-customBuildPath` (`build/WebGL/WebGL`) and `-buildTarget`.
 - **Exit code:** the build method exits `0` on success and `101` on failure, which fails the step.
 
-### 6. Upload build artifact
+### 7. Upload build artifact
 
 `actions/upload-artifact@v6` uploads `build/WebGL/WebGL` as `PooketSlug-WebGL`. Set `if-no-files-found: error`.
 
-### 7. Deploy to `gh-pages`
+### 8. Deploy to `gh-pages`
 
 `peaceiris/actions-gh-pages@v4` with `force_orphan: true`: each deploy is a single fresh commit on `gh-pages`. See [GitHub Pages](github-pages.md#deploying).
 
-### 8. Summary
+### 9. Summary
 
 Writes the commit, Unity version, build size and live URL to the job summary.
 
@@ -107,6 +125,7 @@ A second job, `coop-test`, runs after the build on every push. It tests co-op on
   - v4.8.x is the long-standing implementation on Node 20, and still gets backports.
   - We use v4. It logs a harmless "Node.js 20 is deprecated … forced to run on Node.js 24" warning.
   - Revisit v6 after a few point releases.
+- **`unity-test-runner` v4:** its current release drives the `game-ci/cli` binary on Node 24 (input `cliVersion`, default `latest`).
 - **Node 24 majors:** `actions/cache@v5`, `actions/upload-artifact@v6`, `actions/download-artifact@v8` and `actions/setup-node@v7` are already on Node 24.
 - **Third-party actions are pinned by tag, not SHA.** See [next steps](../next-steps.md).
 
