@@ -56,8 +56,8 @@ namespace PooketSlug
                 Enemy e = w.FindEnemy(s.Id);
                 if (e == null)
                 {
-                    if ((s.Flags & NetEnemyState.Dying) != 0 || m_DeadIds.Contains(s.Id)) continue;
-                    e = w.Spawner.CreateEnemy(s.Kind, s.Pos, s.Id);
+                    if ((s.Flags & NetEnemyState.Dying) != 0 || m_DeadIds.Contains(s.Id) || s.Def == null) continue;
+                    e = w.Spawner.CreateEnemy(s.Def, s.Pos, s.Id);
                     if (e == null) continue;
                     w.Enemies.Add(e);
                 }

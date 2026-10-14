@@ -315,7 +315,7 @@ namespace PooketSlug
                 slots.Set(n++, new NetEnemy
                 {
                     Ref = (short)(e.NetId + 1),
-                    Kind = (byte)e.Kind,
+                    Kind = e.Def.Id,
                     Flags = (byte)e.SnapshotFlags,
                     Hp = (short)e.Hp,
                     Pos = e.Pos,
@@ -332,7 +332,7 @@ namespace PooketSlug
             for (int i = 0; i < slots.Length; i++)
             {
                 NetEnemy e = slots.Get(i);
-                if (e.Ref > 0) into.Add(new NetEnemyState { Id = e.Ref - 1, Kind = (SpawnKind)e.Kind, Flags = e.Flags, Hp = e.Hp, Pos = e.Pos });
+                if (e.Ref > 0) into.Add(new NetEnemyState { Id = e.Ref - 1, Def = Content.Enemy(e.Kind), Flags = e.Flags, Hp = e.Hp, Pos = e.Pos });
             }
         }
 

@@ -19,10 +19,58 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void EnemyIdsNeverChange()
+        {
+            // The co-op snapshot carries each enemy's id.
+            Assert.AreEqual(0, Content.Rifleman.Id);
+            Assert.AreEqual(1, Content.Runner.Id);
+            Assert.AreEqual(2, Content.Drone.Id);
+            Assert.AreEqual(3, Content.Tank.Id);
+        }
+
+        [Test]
         public void EachTableHoldsItsDefinitionsAtTheirIds()
         {
             for (int i = 0; i < Content.Projectiles.Count; i++) Assert.AreEqual(i, Content.Projectiles[i].Id, Content.Projectiles[i].Name);
             for (int i = 0; i < Content.Weapons.Count; i++) Assert.AreEqual(i, Content.Weapons[i].Id, Content.Weapons[i].Name);
+            for (int i = 0; i < Content.Enemies.Count; i++) Assert.AreEqual(i, Content.Enemies[i].Id, Content.Enemies[i].Name);
+        }
+
+        [TestCase(SpawnKind.Soldier, EnemyBrain.Rifleman)]
+        [TestCase(SpawnKind.Runner, EnemyBrain.Runner)]
+        [TestCase(SpawnKind.Drone, EnemyBrain.Drone)]
+        [TestCase(SpawnKind.Tank, EnemyBrain.Tank)]
+        public void EachEnemyMarkerPlacesItsEnemy(SpawnKind marker, EnemyBrain brain)
+        {
+            Assert.AreEqual(brain, Content.EnemyFor(marker).Brain);
+        }
+
+        [TestCase(SpawnKind.CrateHeavy)]
+        [TestCase(SpawnKind.CrateBombs)]
+        [TestCase(SpawnKind.Medkit)]
+        [TestCase(SpawnKind.Flag)]
+        public void OtherMarkersPlaceNoEnemy(SpawnKind marker)
+        {
+            Assert.IsNull(Content.EnemyFor(marker));
+        }
+
+        [TestCase(-1)]
+        [TestCase(4)]
+        public void AnUnknownEnemyIdFindsNothing(int id)
+        {
+            Assert.IsNull(Content.Enemy(id));
+        }
+
+        [Test]
+        public void EveryEnemyHasABodyHealthAndWorth()
+        {
+            foreach (EnemyDef e in Content.Enemies)
+            {
+                Assert.Greater(e.HalfWidth, 0f, e.Name);
+                Assert.Greater(e.Height, 0f, e.Name);
+                Assert.Greater(e.Hp, 0, e.Name);
+                Assert.Greater(e.Score, 0, e.Name);
+            }
         }
 
         [TestCase(-1)]

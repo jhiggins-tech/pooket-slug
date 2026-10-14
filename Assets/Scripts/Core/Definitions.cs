@@ -105,4 +105,42 @@ namespace PooketSlug
 
         public override string ToString() => Name;
     }
+
+    /// <summary>The behaviour that drives an enemy. Each is a class in the game code, with its own timings.</summary>
+    public enum EnemyBrain
+    {
+        /// <summary>Advances, stops at range and fires level shots.</summary>
+        Rifleman,
+        /// <summary>Sprints at the nearest soldier and slashes up close.</summary>
+        Runner,
+        /// <summary>Hovers above the nearest soldier and drops bombs.</summary>
+        Drone,
+        /// <summary>The boss: patrols its arena, lobs shells and sweeps machine-gun bursts.</summary>
+        Tank,
+    }
+
+    /// <summary>One kind of enemy: its body, health and worth. The co-op snapshot carries its id.</summary>
+    public sealed class EnemyDef
+    {
+        public readonly byte Id;
+        public readonly string Name;
+        public readonly EnemyBrain Brain;
+        public readonly float HalfWidth, Height;
+        public readonly int Hp;
+        /// <summary>Points for destroying it.</summary>
+        public readonly int Score;
+
+        public EnemyDef(byte id, string name, EnemyBrain brain, float halfWidth, float height, int hp, int score)
+        {
+            Id = id;
+            Name = name;
+            Brain = brain;
+            HalfWidth = halfWidth;
+            Height = height;
+            Hp = hp;
+            Score = score;
+        }
+
+        public override string ToString() => Name;
+    }
 }

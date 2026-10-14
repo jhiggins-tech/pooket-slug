@@ -59,7 +59,7 @@ Sizes come from the woven assembly, where Fusion's weaver records them in words 
 | `Score` (`int`), `Victory` (`NetworkBool`) | Team score, mission won |
 | `NextSpawn` (`int`) | Spawn cursor into `Level.Spawns`, so followers place crates and props and a new master continues from it |
 | `Taken` (`long`) | One bit per spawn index for collected crates. The level has 33 spawns; the limit is 64 |
-| `Enemies` (`NetworkArray<NetEnemy>`, capacity 24) | `NetEnemy`: `Ref` (spawn index + 1, 0 = empty), `Kind`, `Flags` (dying, facing, moving, engaged, grounded), `Hp`, `Pos`. 6 words each |
+| `Enemies` (`NetworkArray<NetEnemy>`, capacity 24) | `NetEnemy`: `Ref` (spawn index + 1, 0 = empty), `Kind` (the `EnemyDef` id), `Flags` (dying, facing, moving, engaged, grounded), `Hp`, `Pos`. 6 words each |
 
 - **An enemy's identity is its index in `Level.Spawns`.** Every client loads the same level, so no ID needs allocating. This is also a limit: dynamically spawned entities need real network IDs ([refactor candidates](../roadmap/refactor-candidates.md)).
 - **Writes happen from Unity's `Update`, not `FixedUpdateNetwork`.** Shared Mode lets the state authority set networked properties at any time. Fusion's own Shared-Mode sample does the same (`PlayerInteract.Update()` → `[Networked]` writes).

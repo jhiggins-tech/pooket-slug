@@ -17,27 +17,23 @@ namespace PooketSlug
         /// <summary>How far through the level's spawns the authority has got; the next index to place.</summary>
         public int Next => m_Next;
 
-        public static bool IsEnemy(SpawnKind kind) =>
-            kind == SpawnKind.Soldier || kind == SpawnKind.Runner || kind == SpawnKind.Drone || kind == SpawnKind.Tank;
-
         public static PickupKind ToPickup(SpawnKind kind) =>
             kind == SpawnKind.CrateHeavy ? PickupKind.HeavyMachineGun : kind == SpawnKind.CrateBombs ? PickupKind.Bombs : PickupKind.Medkit;
 
-        /// <summary>Makes an enemy (not yet in the world's list). Null for a kind that isn't an enemy.</summary>
-        public Enemy CreateEnemy(SpawnKind kind, Vector2 pos, int id)
+        /// <summary>Makes an enemy (not yet in the world's list), driven by its definition's brain.</summary>
+        public Enemy CreateEnemy(EnemyDef def, Vector2 pos, int id)
         {
             World w = m_World;
             Enemy e;
-            switch (kind)
+            switch (def.Brain)
             {
-                case SpawnKind.Soldier: e = new Soldier(w, pos); break;
-                case SpawnKind.Runner: e = new Runner(w, pos); break;
-                case SpawnKind.Drone: e = new Drone(w, pos); break;
-                case SpawnKind.Tank: e = w.Boss = new TankBoss(w, pos); break;
+                case EnemyBrain.Rifleman: e = new Soldier(w, def, pos); break;
+                case EnemyBrain.Runner: e = new Runner(w, def, pos); break;
+                case EnemyBrain.Drone: e = new Drone(w, def, pos); break;
+                case EnemyBrain.Tank: e = w.Boss = new TankBoss(w, def, pos); break;
                 default: return null;
             }
             e.NetId = id;
-            e.Kind = kind;
             return e;
         }
 
@@ -69,7 +65,7 @@ namespace PooketSlug
                 while (m_NextStatic < limit)
                 {
                     int i = m_NextStatic++;
-                    if (!IsEnemy(level.Spawns[i].Kind)) SpawnStatic(level.Spawns[i], i);
+                    if (Content.EnemyFor(level.Spawns[i].Kind) == null) SpawnStatic(level.Spawns[i], i);
                 }
                 return;
             }
@@ -79,7 +75,8 @@ namespace PooketSlug
             {
                 int index = m_Next++;
                 Spawn s = level.Spawns[index];
-                if (IsEnemy(s.Kind)) w.Enemies.Add(CreateEnemy(s.Kind, s.Pos, index));
+                EnemyDef enemy = Content.EnemyFor(s.Kind);
+                if (enemy != null) w.Enemies.Add(CreateEnemy(enemy, s.Pos, index));
                 else SpawnStatic(s, index);
             }
             m_NextStatic = m_Next;

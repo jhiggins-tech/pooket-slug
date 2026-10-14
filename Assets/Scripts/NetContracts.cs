@@ -91,7 +91,7 @@ namespace PooketSlug
         public const int Dying = 1, FacingRight = 2, Moving = 4, Engaged = 8, Grounded = 16;
 
         public int Id;      // spawn index in Level.Spawns
-        public SpawnKind Kind;
+        public EnemyDef Def; // null for an enemy this build doesn't know
         public int Flags;
         public int Hp;
         public Vector2 Pos;

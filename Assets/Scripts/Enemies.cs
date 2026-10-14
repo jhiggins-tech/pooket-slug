@@ -2,22 +2,24 @@ using UnityEngine;
 
 namespace PooketSlug
 {
+    /// <summary>An enemy: the numbers come from its <see cref="EnemyDef"/>, the behaviour from the subclass (its brain).</summary>
     public abstract class Enemy : Actor
     {
-        public readonly int Score;
+        public readonly EnemyDef Def;
         public int NetId = -1;   // index in Level.Spawns: the enemy's identity in co-op
-        public SpawnKind Kind;
         public bool Dying;
         protected float DyingTime, Anim;
         protected const float Gravity = Tuning.Physics.Gravity, MaxFall = Tuning.Physics.MaxFall;
         Vector2 m_NetPos;
         bool m_NetPlaced;
 
-        protected Enemy(World world, string name, Vector2 feet, float halfW, float height, int hp, int score)
-            : base(world, name, feet, halfW, height, hp)
+        protected Enemy(World world, EnemyDef def, Vector2 feet)
+            : base(world, def.Name, feet, def.HalfWidth, def.Height, def.Hp)
         {
-            Score = score;
+            Def = def;
         }
+
+        public int Score => Def.Score;
 
         public bool Shootable => !Dying && !Removed;
         /// <summary>Nearest soldier (local or remote), refreshed every authoritative tick.</summary>
@@ -143,7 +145,7 @@ namespace PooketSlug
         readonly SpriteRenderer m_Legs, m_Torso, m_Flash;
         float m_Cooldown, m_Muzzle;
 
-        public Soldier(World world, Vector2 feet) : base(world, "Soldier", feet, 0.3f, 1.35f, 3, 100)
+        public Soldier(World world, EnemyDef def, Vector2 feet) : base(world, def, feet)
         {
             m_Legs = AddRenderer(Visual, "Legs", Art.SoldierLegsIdle, SortOrder.Enemies);
             m_Torso = AddRenderer(Visual, "Torso", Art.SoldierTorso, SortOrder.Enemies + 1);
@@ -193,7 +195,7 @@ namespace PooketSlug
         readonly SpriteRenderer m_Legs, m_Torso;
         float m_AttackCooldown;
 
-        public Runner(World world, Vector2 feet) : base(world, "Runner", feet, 0.3f, 1.35f, 2, 150)
+        public Runner(World world, EnemyDef def, Vector2 feet) : base(world, def, feet)
         {
             m_Legs = AddRenderer(Visual, "Legs", Art.RunnerLegsRun[0], SortOrder.Enemies);
             m_Torso = AddRenderer(Visual, "Torso", Art.RunnerTorso, SortOrder.Enemies + 1);
@@ -242,7 +244,7 @@ namespace PooketSlug
         readonly float m_Phase;
         float m_BombCooldown = 1.2f;
 
-        public Drone(World world, Vector2 feet) : base(world, "Drone", feet, 0.5f, 0.7f, 3, 200)
+        public Drone(World world, EnemyDef def, Vector2 feet) : base(world, def, feet)
         {
             m_Sr = AddRenderer(Visual, "Body", Art.Drone[0], SortOrder.Enemies + 2);
             m_Sr.transform.localPosition = new Vector3(0f, 0.35f, 0f);
@@ -299,7 +301,7 @@ namespace PooketSlug
         int m_Attack, m_BurstLeft;
         public bool Engaged;
 
-        public TankBoss(World world, Vector2 feet) : base(world, "Tank", feet, 1.5f, 1.3f, 45, 3000)
+        public TankBoss(World world, EnemyDef def, Vector2 feet) : base(world, def, feet)
         {
             m_Sr = AddRenderer(Visual, "Body", Art.Tank, SortOrder.Boss);
             m_HomeX = feet.x;

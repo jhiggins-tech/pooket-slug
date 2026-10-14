@@ -8,7 +8,7 @@ namespace PooketSlug
     public struct NetEnemy : INetworkStruct
     {
         public short Ref; // Level.Spawns index + 1; 0 marks an empty slot
-        public byte Kind;
+        public byte Kind;  // EnemyDef id
         public byte Flags;
         public short Hp;
         public Vector2 Pos;
