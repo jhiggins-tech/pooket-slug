@@ -127,7 +127,7 @@ jobs:
         with:
           targetPlatform: WebGL
           buildMethod: PooketSlug.EditorTools.WebGLBuild.Build
-          customParameters: -buildSha ${{ github.sha }} -photonAppId ${{ secrets.PHOTON_APP_ID }} -googleClientId ${{ vars.GOOGLE_CLIENT_ID }} -firebaseApiKey ${{ vars.FIREBASE_API_KEY }} -firebaseDbUrl ${{ vars.FIREBASE_DB_URL }}
+          customParameters: -buildSha ${{ github.sha }} -photonAppId ${{ secrets.PHOTON_APP_ID }} -googleClientId ${{ vars.GOOGLE_CLIENT_ID || secrets.GOOGLE_CLIENT_ID }} -firebaseApiKey ${{ vars.FIREBASE_API_KEY || secrets.FIREBASE_API_KEY }} -firebaseDbUrl ${{ vars.FIREBASE_DB_URL || secrets.FIREBASE_DB_URL }}
           versioning: None
 
       - name: Upload build artifact
