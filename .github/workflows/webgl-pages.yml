@@ -1,0 +1,87 @@
+name: WebGL build → GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+      - 'claude/**'
+    paths-ignore:
+      - '**.md'
+  workflow_dispatch:
+
+permissions:
+  contents: write # peaceiris/actions-gh-pages pushes the build to the gh-pages branch
+
+concurrency:
+  group: webgl-pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    name: Build WebGL with GameCI and deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      # The unityci/editor WebGL image is ~7 GB compressed; make room for it on the hosted runner.
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@v1.3.1
+        with:
+          tool-cache: false
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: true
+          swap-storage: false
+
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Cache Unity Library
+        uses: actions/cache@v4
+        with:
+          path: Library
+          key: Library-WebGL-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
+          restore-keys: |
+            Library-WebGL-
+
+      - name: Build WebGL (GameCI)
+        uses: game-ci/unity-builder@v4
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          targetPlatform: WebGL
+          buildMethod: PooketSlug.EditorTools.WebGLBuild.Build
+          customParameters: -buildSha ${{ github.sha }}
+          versioning: None
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PooketSlug-WebGL
+          path: build/WebGL/WebGL
+          if-no-files-found: error
+
+      - name: Deploy to gh-pages branch
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: build/WebGL/WebGL
+          publish_branch: gh-pages
+          force_orphan: true
+          user_name: github-actions[bot]
+          user_email: 41898282+github-actions[bot]@users.noreply.github.com
+          full_commit_message: Deploy ${{ github.sha }} from ${{ github.ref_name }}
+
+      - name: Summary
+        run: |
+          {
+            echo "### Pooket Slug WebGL build"
+            echo ""
+            echo "- Commit: \`${GITHUB_SHA::7}\` on \`${GITHUB_REF_NAME}\`"
+            echo "- Unity: \`$(sed -n 's/^m_EditorVersion: //p' ProjectSettings/ProjectVersion.txt)\`"
+            echo "- Build size: $(du -sh build/WebGL/WebGL | cut -f1)"
+            echo "- Live: https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/"
+          } >> "$GITHUB_STEP_SUMMARY"

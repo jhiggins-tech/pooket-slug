@@ -1,0 +1,4 @@
+<linker>
+  <!-- Everything is created from code at runtime, so keep the game assembly intact under managed stripping. -->
+  <assembly fullname="Assembly-CSharp" preserve="all" />
+</linker>
