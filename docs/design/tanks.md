@@ -45,7 +45,8 @@ Tanks stay hidden until they matter ([progressive disclosure](README.md#progress
 
 ## Calling in a tank
 
-- **Once per mission,** hold the stick down and hold SP for a moment, and a tank you've won drops in beside you. A tap of SP still fires your special, even while you're crouching.
+- **Once per mission,** hold the stick down and hold SP, and a tank you've won drops in beside you. A tap of SP still fires your special, even while you're crouching.
+- **The call charges up first.** Holding SP charges a short call-in before the tank drops. Letting go before it's charged cancels the call.
 - **Choose which tank** on the mission screen, before you start.
 - **In co-op, each player calls their own,** so both of you can have a tank out at once.
 
@@ -58,4 +59,4 @@ Tanks stay hidden until they matter ([progressive disclosure](README.md#progress
 ## Open questions
 
 - **Each tank's boss attacks** after kcaj's, worked out from each crewmate's kit.
-- **The hold-to-call time:** how long you hold SP before the tank comes, to be tuned in play.
+- **The charge-up time:** how long you hold SP before the tank drops, to be tuned in play.

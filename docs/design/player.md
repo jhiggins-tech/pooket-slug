@@ -89,6 +89,7 @@ Statuses come only from the soldiers' kits: each one belongs to a particular sol
 
 - **The crew they've freed,** and whether co-op is open.
 - **Career XP,** from clearing missions, kills and freeing crewmates. Each level gives tokens to spend on looks, as in Tabks: hats, skins, tank paint, death animations, kill effects and victory poses. XP never unlocks anything else.
+  - **Placeholder amounts, on Tabks' scale, to tune after playtesting:** +200 for each mission clear, +300 for each crewmate freed, and +1 for each kill. Every 600 XP earns a looks token.
 - **Rank:** the ladder from Pooket Tabks. Each stretch of a mission you beat moves you a little way up it, replays included, and you never drop down. Eight ranks are known, and the other 25 stay hidden until you reach them.
 - **Stats** for each soldier and weapon: shots, hits, accuracy, damage dealt and taken, and kills.
 - **Best scores,** which also go on a friends leaderboard ([leaderboards](levels.md#leaderboards)).
@@ -116,7 +117,7 @@ These are all Won't:
 - **The same soldier twice:** can both players in co-op pick the same soldier?
 - **Melee:** which soldiers get it.
 - **The team super:** what it does, and whether it changes with the pair of soldiers.
-- **Career XP:** how much each thing earns, and what looks cost in tokens.
+- **Career XP:** tuning the placeholder amounts after playtesting, and what looks cost in tokens.
 - **Rank:** where each mission splits into stages, and how many stages make a rung.
 - **Kits still to design:** the coming-soon crew's, and garyoldmancorp's real moves.
 - **Timings** for the weapons that charge or build up, to be tuned in play.
