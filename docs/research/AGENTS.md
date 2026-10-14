@@ -22,7 +22,7 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
 | Refactor pass | ⏳ Plan proposed; waiting for the owner's go-ahead | [refactor plan](roadmap/refactor-plan.md) |
 | "Sign in with Google" spike | ⏳ Reusing the Cardmaster Firebase project. Database rules drafted and tested, not yet committed; to be extended for the game design first. Waiting on the owner: permission to commit to Cardmaster, the console steps, the repository variables | [accounts](accounts/README.md), [todo](todo.md) |
 
-**Live build:** https://jhiggins-tech.github.io/pooket-slug/ · **What's next:** [todo.md](todo.md) · **Game design:** [DESIGN.md](../../DESIGN.md), written with the owner
+**Live build:** https://jhiggins-tech.github.io/pooket-slug/ · **What's next:** [todo.md](todo.md) · **Game design:** [DESIGN.md](../../DESIGN.md), written with the owner, and its four sign-off documents in [docs/design](../design/README.md)
 
 ## Contents
 
@@ -49,7 +49,7 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
 - [accounts/](accounts/README.md): the "Sign in with Google" spike: Google's button plus Firebase over REST (in the shared Cardmaster project) to keep stats and progression per player, with no server.
   - [gcloud-setup.md](accounts/gcloud-setup.md): the console changes, the values to hand back, the trade-offs of sharing, and the separate-project alternative.
   - [database-rules.md](accounts/database-rules.md): this game's section of the shared database rules: the player record, how the game writes it, the tests, and running them in the sandbox.
-- [roadmap/](roadmap/README.md): what to build next. The game design itself is [DESIGN.md](../../DESIGN.md) at the repository root.
+- [roadmap/](roadmap/README.md): what to build next. The game design itself is [DESIGN.md](../../DESIGN.md) at the repository root, with sign-off documents in [docs/design](../design/README.md).
   - [feature-candidates.csv](roadmap/feature-candidates.csv): 176 candidate mechanics and engineering items, with a MoSCoW column for the owner.
   - [refactor-candidates.md](roadmap/refactor-candidates.md): maintainability work, mapped to the features it unlocks.
   - [refactor-plan.md](roadmap/refactor-plan.md): the proposed refactor, ordered by the MoSCoW results and the design, with the decisions it needs.

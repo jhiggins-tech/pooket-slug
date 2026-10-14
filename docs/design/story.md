@@ -1,0 +1,67 @@
+# Story, plot and cutscenes
+
+The story of Pooket Slug, how it unfolds across the missions, and how cutscenes and reveals are shown.
+
+**Status:** draft for sign-off, 2026-10-14.
+
+**Read this when** you're writing a mission's story, a cutscene, or anything that reveals something new to the player.
+
+Up: [Design](README.md)
+
+## The premise
+
+- **The crew are missing, and only tones2 is left.** kie's Trollogram holograms have gone rogue, and glitchy hologram soldiers are everywhere.
+- **What's really going on comes out as you play.** The holograms have stolen the crew's tanks, and each tank is driven by a hologram copy of its owner. The game keeps this to itself until the first tank appears ([reveals](#reveals-are-story-beats)).
+- **Every mission has the same shape.** You fight through to a crewmate's tank, beat it, then beat its fake pilot. The fake glitches out, and the real crewmate is freed to play from then on.
+
+## Tone
+
+- **Arcade action, played straight:** hordes of goons, big explosions, and a boss at the end of every mission.
+- **The jokes come from the crew:** their weapons, their catchphrases and in-jokes from Pooket Tabks. kie's weasels pop to Pop Goes the Weasel, and the hologram goons flicker and glitch.
+- **Short and punchy.** It's made for phones, so there's never much to read.
+
+## The plot
+
+1. **The opening** *(proposed)*: a short scene. The holograms glitch loose, the crew vanish, and tones2 heads in alone. It doesn't mention tanks.
+2. **Mission one, the military base:** tones2 fights through the base to the motor pool. There comes the reveal: the crew's stolen tanks are parked inside, and kie's tank rolls out to fight, with a hologram kie at the controls. Beat the tank, then hologram kie on foot, and the real kie is freed.
+3. **The first drive:** kie's tank is yours now. A short drive out of the base ends the mission and teaches you the tank's controls.
+4. **Two of the crew:** with kie back, co-op opens and the menu changes. *(Proposed: kie's first line sets it up.)*
+5. **Each mission after that** frees one more crewmate from their own tank. The order after kie is open.
+6. **The coming-soon crew** (shotdownboyz, lankcity, odsey and doctorfox) arrive later, each with a mission of their own.
+7. **The ending** is open.
+
+## Cutscenes
+
+Cutscenes are **in-engine scenes**: the game's own art, drawn in code, with speech bubbles. There's no video.
+- **Each lasts a few seconds.** Tap to move on. Once you've seen a scene you can skip it, but a reveal always plays the first time.
+- **Kinds** *(proposed)*:
+  - **Briefing**, before a mission: where you're going, and who's held there.
+  - **Boss intro:** a warning banner, the music changes, and the tank makes its entrance.
+  - **Reveal:** the first time something new appears. It plays once, ever.
+  - **Freeing:** the fake pilot glitches out, and the real crewmate appears and joins.
+  - **Debrief:** the mission's tally, XP and rank, then anything newly unlocked.
+- **Music sets the mood,** with a track for each mission and one for bosses. An announcer ("Mission complete!") is a Should.
+- **In co-op,** scenes play for both players.
+
+## Reveals are story beats
+
+The game hides what's coming ([progressive disclosure](README.md#progressive-disclosure-the-thread-through-all-four)), so each reveal gets a scene of its own:
+
+| Reveal | When | How |
+|---|---|---|
+| Tanks exist | The motor pool, at the end of Mission one | kie's tank rolls out, with its boss intro |
+| You can drive one | Straight after kie is freed | You climb into his tank and drive it out of the base |
+| Co-op exists | Once Mission one has been beaten solo | The menu changes *(proposed: kie's line sets it up)* |
+| Each new crewmate | The end of their mission | The freeing scene |
+| XP and rank | The first debrief | The first XP, and the first step up the ladder |
+
+The second time you meet something, it's quick: a tank you've already fought only gets its boss intro.
+
+## Open questions
+
+- **The opening:** how the crew vanish, and why tones2 is the one left.
+- **The ending:** what the last mission is, and whether the rogue holograms are ever fixed.
+- **Mission order** after kie, which sets the order of the story.
+- **Voice:** text only, or an announcer as well.
+- **Skipping in co-op:** can either player skip, must both agree, or does the host decide?
+- **A partner who hasn't seen a scene:** does it play for them when the other player has already seen it?

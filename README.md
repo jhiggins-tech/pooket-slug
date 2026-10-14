@@ -78,4 +78,5 @@ Project layout:
 | `Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion` | Our Fusion config (weaver settings); the rest of `Assets/Photon/` is the SDK and is ignored |
 | `tools/unpack_unitypackage.py` | Unpacks a `.unitypackage` into the project without Unity (used by CI) |
 | `DESIGN.md` | The game design: crew, kits, missions, progression, ranks |
+| `docs/design/` | The design as four sign-off documents: story and cutscenes, tanks, player mechanics, and maps and progression. Start at [`README.md`](docs/design/README.md) |
 | `docs/research/` | Research notes and the reference guide: pipeline, netcode, verification, test log, roadmap. Start at [`AGENTS.md`](docs/research/AGENTS.md) |

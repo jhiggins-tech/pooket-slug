@@ -2,7 +2,7 @@
 
 What the code, build and netcode need before the owner's chosen features can be built, and in what order. It's based on the owner's MoSCoW pass over [feature-candidates.csv](feature-candidates.csv) and on the game design in [DESIGN.md](../../../DESIGN.md).
 
-**Status, 2026-10-14:** a proposal, waiting for the owner's go-ahead. No code has changed yet.
+**Status, 2026-10-14:** a proposal. The owner has answered its [decisions](#decisions-2026-10-14), and it waits for the go-ahead. No code has changed yet. The game design it serves is being signed off in [docs/design](../../design/README.md).
 
 **Read this when** you're approving the refactor, or about to start one of its steps.
 
@@ -32,20 +32,21 @@ The work comes in four phases, each done in small commits. Each phase ends with 
 1. **Housekeeping:** logging with categories (#16), tuning values in one place (#12), and seeded randomness (#17, which TEC-09 replays need).
 2. **Tests:** pure classes, with EditMode tests, for what's about to move: tile physics, level parsing, snapshot packing and room codes (#15, TEC-08). Add a test step to CI, which adds a few minutes to each build.
 3. **Pooling** for projectiles, particles and popups (#10, TEC-01). kcaj's Unmedicated alone is 120 pills.
+4. **A two-player test in CI** (OPS-02, promoted by the owner): after each deploy, run the two-browser co-op test against it. That's needed before phase 3.
 
 **Phase 2: structure** (each step is medium)
 
-4. **Split `World` into systems:** spawning, combat and damage (with statuses, TRN-01), camera, network sync, and scoring with the tally (#1, TEC-03).
-5. **Content as data.** Soldiers and their kits, weapons built from behaviours (bullet, lob, beam, cone, homing, spray; levels I–III with a fork at II), statuses, enemies, crates and tanks. Each gets a stable ID that network messages use (#2, #12, TEC-02).
-6. **Typed network events,** with smaller interfaces in place of the single `INetLink` (#6).
-7. **Assembly definitions,** if you agree (#5, TEC-04; see [your questions](#your-questions)).
+5. **Split `World` into systems:** spawning, combat and damage (with statuses, TRN-01), camera, network sync, and scoring with the tally (#1, TEC-03).
+6. **Content as data.** Soldiers and their kits, weapons built from behaviours (bullet, lob, beam, cone, homing, spray; levels I–III with a fork at II), statuses, enemies, crates and tanks. Each gets a stable ID that network messages use (#2, #12, TEC-02). The classic Metal Slug gun styles are kit behaviours, not separate guns (the owner's call).
+7. **Typed network events,** with smaller interfaces in place of the single `INetLink` (#6).
+8. **Assembly definitions** (#5, TEC-04; agreed): core and netcode assemblies, done while the files move.
 
 **Phase 3: netcode scale** (each step is medium, with a two-player test after each)
 
-8. **Dynamic network IDs** (#3, TEC-05).
-9. **Bigger replicated tables** for many small things, and a network object each for bosses and tanks (#4, TEC-06).
-10. **Per-player state:** soldier, kit levels, hearts, lives and statuses (#7, for two players only, since COP-04 is Won't).
-11. **Split `NetSession`** in two:
+9. **Dynamic network IDs** (#3, TEC-05).
+10. **Bigger replicated tables** for many small things, and a network object each for bosses and tanks (#4, TEC-06).
+11. **Per-player state:** soldier, kit levels, hearts, lives and statuses (#7, for two players only, since COP-04 is Won't).
+12. **Split `NetSession`** in two:
     - connecting and sessions: the fixed AU region, the room browser, the lobby with ready-up, spectators, and reconnecting (NET-02…05, NET-09)
     - replication.
 
@@ -53,13 +54,13 @@ The work comes in four phases, each done in small commits. Each phase ends with 
 
 **Phase 4: front end and platform** (each step is medium)
 
-12. **Input sources,** including the touch arcade pad (#8, ACC-02).
-13. **Game flow and a real UI system** (#9, UIX-01): the mission screen, character select, lobby, room browser, settings and HUD.
-14. **A profile and save interface,** local and cloud (#13, SOC-02, TEC-07). This joins the [sign-in work](../accounts/README.md).
-15. **Levels as data,** with a mission list (#11, LVL-01/02).
+13. **Input sources,** including the touch arcade pad (#8, ACC-02).
+14. **Game flow and uGUI, built in code** (#9; UIX-01, now a Must): the mission screen, character select, lobby, room browser, settings and HUD. Menus and HUD grow with the player's unlocks and reveals ([progressive disclosure](../../design/README.md#progressive-disclosure-the-thread-through-all-four)), and an invite link opened before co-op is unlocked starts Mission one instead.
+15. **A profile and save interface,** local and cloud (#13, SOC-02, TEC-07). This joins the [sign-in work](../accounts/README.md).
+16. **Levels as data,** with a mission list (#11, LVL-01/02).
 
 **Build and CI, alongside the phases**
-- **Releases (OPS-04):** production deploys from `main` only, with tagged versions and a changelog. Branch builds become CI artifacts.
+- **Releases:** branch pushes keep deploying the live game, as now (the owner's call). Tagged versions and a changelog (OPS-04) can come later without changing that.
 - **The rest:**
   - the test step (TEC-08)
   - the sign-in settings ([C1](../todo.md))
@@ -75,7 +76,7 @@ The work comes in four phases, each done in small commits. Each phase ends with 
 - URP (PRE-05)
 - cheat resistance (NET-08)
 
-**Checks for every step:** a local type-check and weave, a green CI build, and a smoke test of the deploy. Netcode steps also need a two-player test ([decision 3](#decisions-needed)).
+**Checks for every step:** a local type-check and weave, a green CI build, and a smoke test of the deploy. Netcode steps also need the CI two-player test (step 4).
 
 ## Your questions
 
@@ -97,7 +98,7 @@ The work comes in four phases, each done in small commits. Each phase ends with 
 | Building it in code | Natural | Wordy but fine | Fine; stylesheets are optional |
 | Drawbacks | Redraws every frame; glyphs go missing | Draw calls to watch | Fewer ready-made game controls |
 
-**Recommendation: uGUI, built in code. Promote UIX-01 to Must.**
+**Recommendation: uGUI, built in code. Promote UIX-01 to Must.** *Accepted by the owner, 2026-10-14.*
 - **Why:** the arcade pad (ACC-02, Must) needs multitouch, and the Must list also adds a lobby, a room browser, character select and cosmetics screens.
 - **IMGUI** stays for debug overlays.
 
@@ -109,7 +110,7 @@ The work comes in four phases, each done in small commits. Each phase ends with 
 - **Against:**
   - The netcode assembly has to be added to Fusion's weave list, which is a committed setting.
   - The local verification tools assume one assembly, so they'd need updating.
-- **Recommendation: Could is right.** It's cheapest during the `World` split, when the same files move anyway, so it's step 7 if you agree.
+- **Recommendation: Could is right.** It's cheapest during the `World` split, when the same files move anyway. *Accepted by the owner, 2026-10-14: step 8.*
 
 ## How the "See design doc" rows read
 
@@ -147,20 +148,17 @@ Other entries, as I read them:
 - **LVL-14 and CHR-01's customisation** are phase 2.
 - **TEC-07** (Won't) is covered anyway by cloud saves (SOC-02, Must), which need the same interface.
 
-## Decisions needed
+## Decisions (2026-10-14)
 
-1. **Leaderboards (SCR-10):** they're a Must in the CSV but "not picked" in the design.
-   - Scores come from players' own phones, and cheat resistance (NET-08) is a Won't, so a board would run on trust.
-   - A friends board, readable by signed-in players, is cheap to add in the shared database.
-   - Keep it, or follow the design?
-2. **Releases (OPS-04):** production deploys come from `main` only, with no previews (OPS-01 is a Won't).
-   - Branch work stops replacing the live game, and you'd play it once it merges.
-   - Is that OK? If so, the first step is merging this branch into `main`.
-3. **Two-player tests:** every netcode step needs one, and this sandbox can't open WebSockets. Either:
-   - promote the CI co-op test (OPS-02, a Could) so CI runs it, or
-   - you test each netcode step by hand.
-4. **Classic guns (WPN-02…10, Must):** are they crate guns of their own, alongside the crew's guns, or are they covered by the kits? This doesn't change the refactor.
-5. **UI system and assembly definitions:** do you accept the recommendations above?
+The owner's answers:
+
+| Question | Decision |
+|---|---|
+| Leaderboards (SCR-10) | **A friends board** for each mission, visible to signed-in players. It runs on trust |
+| Releases (OPS-04) | **Branches keep deploying** the live game, as now |
+| Two-player tests | **Automated in CI:** OPS-02 is promoted (step 4) |
+| Classic guns (WPN-02…10) | **Covered by the kits:** there are no separate classic guns |
+| UI system and assembly definitions | **Both accepted:** uGUI built in code (step 14) and assembly definitions (step 8) |
 
 ## The player record, scoped by the MoSCoW pass
 
@@ -176,8 +174,10 @@ The sign-in work extends its [drafted record](../accounts/database-rules.md) bef
 | `rank`, `feats` | Stages beaten (never goes down), and the feats done, stored by number | Ranks |
 | `tally` | Per soldier and weapon: shots, hits, damage dealt and taken, kills | SCR-07 |
 | `best`, `clears` | Best score, and clears per mission | SCR-01, LVL-02 |
+| `seen` | Reveals already shown | Progressive disclosure |
 | `first`, `ts` | First played, and last saved (server time) | Tracking |
 
 - **Feats are stored by number, never by name,** so the database doesn't give away the hidden rungs.
 - **`clears` replace the draft's `runs` and `wins`.**
-- **A leaderboard**, if it's kept, is a separate list that signed-in players can read.
+- **`seen`** lists the reveals already shown, such as the first tank or the first drive. Each reveal then plays once, and the menus know what to show ([progressive disclosure](../../design/README.md#progressive-disclosure-the-thread-through-all-four)).
+- **The friends leaderboard** is a separate list per mission: each player's display name and best score, readable by any signed-in player and written only by its owner.
