@@ -32,7 +32,7 @@ The work comes in four phases, each done in small commits. Each phase ends with 
 1. **Housekeeping:** logging with categories (#16), tuning values in one place (#12), and seeded randomness (#17, which TEC-09 replays need).
 2. **Tests:** pure classes, with EditMode tests, for what's about to move: tile physics, level parsing, snapshot packing and room codes (#15, TEC-08). Add a test step to CI, which adds a few minutes to each build.
 3. **Pooling** for projectiles, particles and popups (#10, TEC-01). kcaj's Unmedicated alone is 120 pills.
-4. **A two-player test in CI** (OPS-02, promoted by the owner): after each deploy, run the two-browser co-op test against it. That's needed before phase 3.
+4. **A two-player test in CI** (OPS-02, promoted by the owner): after each deploy, run the two-browser co-op test against it. That's needed before phase 3. **Done** 2026-10-14: it passed on its first run ([test log](../verification/test-log.md#part-2-photon-fusion-co-op)).
 
 **Phase 2: structure** (each step is medium)
 

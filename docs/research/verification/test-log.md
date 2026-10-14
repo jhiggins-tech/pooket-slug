@@ -31,6 +31,7 @@ Up: [Verification](README.md)
 | 08:23–08:30 | Build with `PHOTON_APP_ID` | Run 38533066347, attempt 2 | ✅ `Photon AppId baked in` |
 | 08:31 | Two-browser co-op test | [coop.mjs](../../../tools/coop.mjs) from the cloud sandbox | ⚠️ Blocked by the sandbox proxy (WebSocket upgrade → 502). The online menu, template registration, runner start-up and graceful failure were all verified ([detail](browser-tests.md#the-sandboxs-limits)) |
 | ~08:45 | **Live two-player session** on build `0.2.0+791a155` | The repo owner, on a normal network | ✅ "tested online, v happy with that!" |
+| 13:44–13:45 | **Two-player co-op test in CI**, against the build of `cfee223` | Run 38573051144, job *Two-player co-op test*: [coop.mjs](../../../tools/coop.mjs) in two headless Chromium instances on GitHub's runner, code mode | ✅ All five checks, in 55 s: A hosted `HCNW-AU`, B joined with the invite link, A saw B join, both played with no errors or disconnects, and B took over the shared world when A left |
 
 ## Part 3: Sign-in
 
@@ -47,11 +48,10 @@ All tests ran against Cardmaster's repository at `762ca94`, in the cloud sandbox
 
 ## Not yet verified
 
-These were implemented, and some are covered by `coop.mjs`, but none has been explicitly confirmed:
-- **Host migration:** the master client leaves and the other client takes over the world ([architecture](../netcode/architecture.md#host-migration)).
+These were implemented, but none has been confirmed yet. Host migration was on this list until the CI co-op test confirmed it, and it's now checked on every build ([architecture](../netcode/architecture.md#host-migration)).
 - **Quick match** between two players.
 - **The *Nobody is hosting* path** after a mistyped code.
 - **The *Game is full* path** for a third player.
 - **Bandwidth and CCU use** under real play.
 
-Run `coop.mjs` from a machine with normal network access, or follow the [manual steps](../netcode/sessions.md#testing-by-hand), and add the results here.
+`coop.mjs` in `quick` mode covers quick match. Run it from a machine with normal network access, or follow the [manual steps](../netcode/sessions.md#testing-by-hand), and add the results here.

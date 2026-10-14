@@ -24,7 +24,7 @@ _Last updated: 2026-10-14._
   You merge the pull request, and Cardmaster's CI deploys the rules.
 - [x] **3. Sort the feature list.** Done 2026-10-14: the `moscow` column is filled in [feature-candidates.csv](roadmap/feature-candidates.csv).
 - [ ] **4. Sign in for real** once the sign-in build is live, to confirm it end to end. *Needs C1.*
-- [ ] **5. Optional: play the untested co-op paths** in two visible windows: the host leaving mid-game, quick match, a mistyped code, a third player joining ([steps](netcode/sessions.md#testing-by-hand)). C3c would automate this instead.
+- [ ] **5. Optional: play the untested co-op paths** in two visible windows: the host leaving mid-game, quick match, a mistyped code, a third player joining ([steps](netcode/sessions.md#testing-by-hand)). CI now checks the host leaving on every build (C3c), so three paths are left.
 - [x] **6. Answer the refactor plan's open points.** Done 2026-10-14 ([decisions](roadmap/refactor-plan.md#decisions-2026-10-14)): a friends leaderboard, branches keep deploying, two-player tests automated in CI, classic guns covered by the kits, uGUI and assembly definitions accepted.
 - [x] **7. Sign off the four design documents** in [docs/design](../design/README.md). All four signed off on 2026-10-14; player mechanics after one revision.
 - [x] **8. Give the go-ahead for the refactor.** Given 2026-10-14.
@@ -56,7 +56,7 @@ The sorted CSV arrived on 2026-10-14, so C2's plan is out for approval. The vari
 - [ ] **C3. Loose ends** (small; any time):
   - [ ] C3a. Make connection failures say *Couldn't reach Photon* instead of `DISCONNECTED (ERROR)` ([sessions](netcode/sessions.md#when-things-fail)).
   - [ ] C3b. Fix the Photon region to **AU** (NET-05, from the MoSCoW pass), with four-letter room codes. Folded into the refactor plan, step 11 ([quick match](netcode/sessions.md#quick-match)).
-  - [ ] C3c. Run the two-browser co-op test in CI after each deploy. Promoted by the owner: it's step 4 of the [refactor plan](roadmap/refactor-plan.md). GitHub's runners can open WebSockets, so this covers owner 5 automatically.
+  - [x] C3c. Run the two-browser co-op test in CI after each deploy. Done 2026-10-14 as step 4 of the [refactor plan](roadmap/refactor-plan.md): it passed on its first run, host migration included ([test log](verification/test-log.md#part-2-photon-fusion-co-op)). Of owner 5's paths, it covers the host leaving.
 
 ## Done recently
 

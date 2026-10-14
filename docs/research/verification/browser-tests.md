@@ -51,7 +51,7 @@ Up: [Verification](README.md)
 
   Everything before that ran in the deployed build. The online menu appeared, the network templates registered, and Fusion's runner started. Then the game returned to the title with an error, as designed.
 - **Plain HTTPS to Photon works.** The proxy tunnels it, and Photon answers `403 HTTP not supported`. Only the upgrade is blocked.
-- **So live co-op has to be tested on a normal network,** by a person ([steps](../netcode/sessions.md#testing-by-hand)) or with `coop.mjs` from a machine that allows WebSockets.
+- **So live co-op is tested on a normal network.** GitHub's runners allow WebSockets, so CI runs `coop.mjs` after each deploy ([the job](../build-pipeline/workflow.md#the-two-player-co-op-test-job)). The paths it doesn't drive need a person ([steps](../netcode/sessions.md#testing-by-hand)).
 
 ## Reading pages behind a bot challenge
 
