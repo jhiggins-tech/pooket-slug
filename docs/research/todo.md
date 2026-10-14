@@ -26,8 +26,8 @@ _Last updated: 2026-10-14._
 - [ ] **4. Sign in for real** once the sign-in build is live, to confirm it end to end. *Needs C1.*
 - [ ] **5. Optional: play the untested co-op paths** in two visible windows: the host leaving mid-game, quick match, a mistyped code, a third player joining ([steps](netcode/sessions.md#testing-by-hand)). C3c would automate this instead.
 - [x] **6. Answer the refactor plan's open points.** Done 2026-10-14 ([decisions](roadmap/refactor-plan.md#decisions-2026-10-14)): a friends leaderboard, branches keep deploying, two-player tests automated in CI, classic guns covered by the kits, uGUI and assembly definitions accepted.
-- [ ] **7. Sign off the four design documents** in [docs/design](../design/README.md), on the [sign-off page](https://claude.ai/artifact/SuFxdReB83W6eM4T3VvYwv). Story, tanks, and maps and progression were signed off on 2026-10-14. Player mechanics was revised after your notes and needs a second look.
-- [ ] **8. Give the go-ahead for the refactor** ([plan](roadmap/refactor-plan.md)). *Unblocks C2.*
+- [x] **7. Sign off the four design documents** in [docs/design](../design/README.md). All four signed off on 2026-10-14; player mechanics after one revision.
+- [x] **8. Give the go-ahead for the refactor.** Given 2026-10-14.
 
 ## Claude
 
@@ -49,7 +49,7 @@ The sorted CSV arrived on 2026-10-14, so C2's plan is out for approval. The vari
     - get the CI build green
     - the rules go live when you merge the Cardmaster pull request
   - [ ] Docs: [accounts](accounts/README.md) and the [test log](verification/test-log.md).
-- [ ] **C2. Refactor pass** to prepare the build and netcode for the chosen features. *Waits for owner 8.*
+- [ ] **C2. Refactor pass** to prepare the build and netcode for the chosen features. *In progress since 2026-10-14.*
   - [x] Map the Must and Should rows to the [refactor candidates](roadmap/refactor-candidates.md), and send you a short plan before changing code. Sent 2026-10-14: [refactor plan](roadmap/refactor-plan.md).
   - [ ] Refactor in small commits. Each one is type-checked, weave-checked and smoke-tested. Anything that touches netcode gets a two-player test.
   - [ ] Update [architecture](netcode/architecture.md) and the refactor candidates as items land.

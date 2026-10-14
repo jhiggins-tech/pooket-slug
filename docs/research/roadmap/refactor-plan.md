@@ -2,7 +2,7 @@
 
 What the code, build and netcode need before the owner's chosen features can be built, and in what order. It's based on the owner's MoSCoW pass over [feature-candidates.csv](feature-candidates.csv) and on the game design in [DESIGN.md](../../../DESIGN.md).
 
-**Status, 2026-10-14:** a proposal. The owner has answered its [decisions](#decisions-2026-10-14), and it waits for the go-ahead. No code has changed yet. The game design it serves is being signed off in [docs/design](../../design/README.md).
+**Status, 2026-10-14:** approved, and in progress from phase 1. The owner answered its [decisions](#decisions-2026-10-14), and the game design it serves is signed off in [docs/design](../../design/README.md).
 
 **Read this when** you're approving the refactor, or about to start one of its steps.
 

@@ -15,7 +15,7 @@ Up: [Repository README](../../README.md)
 |---|---|---|
 | [Story, plot and cutscenes](story.md) | The premise, the plot mission by mission, and how cutscenes and reveals play | Signed off, 2026-10-14 |
 | [Tanks](tanks.md) | Tank bosses, winning a tank, driving one and calling it in | Signed off, 2026-10-14 |
-| [Player mechanics](player.md) | The crew, controls, kits, health and lives, crates, co-op, and what the player keeps | Revised after review; waiting for sign-off |
+| [Player mechanics](player.md) | The crew, controls, kits, health and lives, crates, co-op, and what the player keeps | Signed off, 2026-10-14 |
 | [Maps, missions and progression](levels.md) | What a mission is, difficulty, how maps are built, and the order things open up in, menus included | Signed off, 2026-10-14 |
 
 ## Progressive disclosure, the thread through all four
@@ -28,4 +28,4 @@ The game shows only what the player has already met. Nothing on screen, in the m
 
 ## After sign-off
 
-These four documents become the reference for building the game. DESIGN.md stays as the detailed record behind them, and where the two differ, these documents win.
+All four were signed off on 2026-10-14, on a [sign-off page](https://claude.ai/artifact/SuFxdReB83W6eM4T3VvYwv) (private to the owner). They're now the reference for building the game. DESIGN.md stays as the detailed record behind them, and where the two differ, these documents win.

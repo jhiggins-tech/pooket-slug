@@ -2,7 +2,7 @@
 
 How a soldier plays: the crew, the controls, the kit, health and lives, crates, status effects and co-op, plus what the player keeps between missions.
 
-**Status:** revised after the owner's review on 2026-10-14, and waiting for sign-off. The secret feats and status mods are gone, and the kit's tiers are spelled out.
+**Status:** signed off by the owner, 2026-10-14, after one revision: the secret feats and status mods are gone, and the kit's tiers are spelled out.
 
 **Read this when** you're working on anything the player controls or earns.
 

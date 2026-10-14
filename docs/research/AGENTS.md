@@ -19,7 +19,7 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
 | Online co-op (Fusion 2.1.3, Shared Mode) | ✅ Live; played by the owner on 2026-10-14 | [netcode](netcode/README.md), [test log](verification/test-log.md) |
 | Verification without a Unity license | ✅ Working toolkit, re-tested 2026-10-14 | [verification](verification/README.md) |
 | Feature roadmap | ✅ Sorted by the owner on 2026-10-14 (MoSCoW) | [roadmap](roadmap/README.md) |
-| Refactor pass | ⏳ Plan proposed; waiting for the owner's go-ahead | [refactor plan](roadmap/refactor-plan.md) |
+| Refactor pass | 🔧 In progress (go-ahead 2026-10-14); phase 1 first | [refactor plan](roadmap/refactor-plan.md) |
 | "Sign in with Google" spike | ⏳ Reusing the Cardmaster Firebase project. Database rules drafted and tested, not yet committed; to be extended for the game design first. Waiting on the owner: permission to commit to Cardmaster, the console steps, the repository variables | [accounts](accounts/README.md), [todo](todo.md) |
 
 **Live build:** https://jhiggins-tech.github.io/pooket-slug/ · **What's next:** [todo.md](todo.md) · **Game design:** [DESIGN.md](../../DESIGN.md), written with the owner, and its four sign-off documents in [docs/design](../design/README.md)
