@@ -134,6 +134,23 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void AMissedTouchDownStillCounts()
+        {
+            // the first frame a finger shows up in may not be the one it touched down in
+            SoldierInput input = Frame(Held(2, On(ArcadePad.Button.Fire)));
+            Assert.IsTrue(input.Fire && input.FirePressed);
+        }
+
+        [Test]
+        public void AFingerThatLandsLeftCanSlideOntoAButton()
+        {
+            Frame(Down(1, Thumb));
+            Frame(Held(1, Thumb), Down(2, new Vector2(Width * 0.45f, 300f)));
+            SoldierInput input = Frame(Held(1, Thumb), Held(2, On(ArcadePad.Button.Jump)));
+            Assert.IsTrue(input.Jump && input.JumpPressed);
+        }
+
+        [Test]
         public void SpecialFiresOncePerTouch()
         {
             Assert.IsTrue(Frame(Down(2, On(ArcadePad.Button.Special))).SpecialPressed);

@@ -106,13 +106,12 @@ namespace PooketSlug
             for (int i = 0; i < fingers.Count; i++)
             {
                 Finger f = fingers[i];
-                if (f.Began)
-                {
-                    began = true;
-                    m_Roles[f.Id] = Assign(f, ref pausePressed);
-                }
-                // A finger that was already down when the pad appeared has no role: it does nothing until it lifts.
-                if (!Visible || !m_Roles.TryGetValue(f.Id, out Role role)) continue;
+                began |= f.Began;
+                // A finger gets its role when it touches down, or when it first shows up if its touch-down was
+                // missed. A finger that was already down when the pad appeared keeps Ignore until it lifts.
+                if (f.Began || !m_Roles.ContainsKey(f.Id)) m_Roles[f.Id] = Assign(f, ref pausePressed);
+                if (!Visible) continue;
+                Role role = m_Roles[f.Id];
                 if (role == Role.Stick) Follow(f.Pos);
                 else if (role == Role.Buttons) Press(f.Pos);
             }
@@ -138,11 +137,15 @@ namespace PooketSlug
                 return Role.Pause;
             }
             if (!Visible) return Role.Ignore; // a menu's button, say: the finger does nothing here until it lifts
-            if (f.Pos.x >= Width * 0.5f) return Role.Buttons;
-            if (StickActive) return Role.Ignore; // one thumb runs the stick
-            m_StickFinger = f.Id;
-            m_Origin = m_Thumb = f.Pos;
-            return Role.Stick;
+            if (!StickActive && f.Pos.x < Width * 0.5f)
+            {
+                m_StickFinger = f.Id;
+                m_Origin = m_Thumb = f.Pos;
+                return Role.Stick;
+            }
+            // Any other finger presses whichever button it's on or slides to. One thumb runs the stick, so a
+            // second finger on the left presses nothing.
+            return Role.Buttons;
         }
 
         /// <summary>Moves the thumb. The stick's centre is dragged along when the thumb goes past the rim.</summary>
