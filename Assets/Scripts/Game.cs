@@ -107,7 +107,7 @@ namespace PooketSlug
         {
             m_World.Dispose();
             m_World = new World(m_Camera, m_Net.Link);
-            m_Net.World = m_World;
+            m_Net.Events = m_World.Sync;
             m_Coop = true;
             m_Paused = false;
             m_LeaveArmed = 0f;
@@ -117,7 +117,7 @@ namespace PooketSlug
 
         void EndCoop(string notice)
         {
-            m_Net.World = null;
+            m_Net.Events = null;
             m_Coop = false;
             m_World.Dispose();
             m_World = new World(m_Camera);

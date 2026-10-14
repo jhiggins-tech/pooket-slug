@@ -52,7 +52,7 @@ Up: [Research index](../AGENTS.md)
 - [sessions.md](sessions.md): host, join and quick match, room codes, the create-or-join trap, build versions, failure messages, console logs, hidden tabs, and how to test by hand.
 
 Source files:
-- [`Assets/Scripts/NetContracts.cs`](../../../Assets/Scripts/NetContracts.cs)
+- [`Assets/Scripts/Core/NetContracts.cs`](../../../Assets/Scripts/Core/NetContracts.cs): the interfaces and event payloads between game and netcode
 - [`Assets/Scripts/Net/`](../../../Assets/Scripts/Net/): `NetSession.cs`, `PlayerNet.cs`, `WorldNet.cs`, `NetConfig.cs`
 - [`Assets/Scripts/World/NetSync.cs`](../../../Assets/Scripts/World/NetSync.cs), the world's side of the session: the per-frame pull and push, and the session's events
 - [`Assets/Scripts/RemotePlayer.cs`](../../../Assets/Scripts/RemotePlayer.cs)

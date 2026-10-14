@@ -38,12 +38,15 @@ namespace PooketSlug
         }
 
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]
-        public void RPC_Hurt(byte damage) => NetSession.Instance?.World?.Sync?.OnLocalHurt(damage);
+        public void RPC_Hurt(byte damage) => NetSession.Instance?.Events?.OnHurt(damage);
 
         /// <summary>Replays one of our shots on the other clients (as a harmless copy).</summary>
         [Rpc(RpcSources.StateAuthority, RpcTargets.Proxies, InvokeLocal = false)]
-        public void RPC_Shot(byte weapon, Vector2 origin, Vector2 vel) =>
-            NetSession.Instance?.World?.Sync?.OnRemoteShot(weapon, origin, vel);
+        public void RPC_Shot(byte weapon, Vector2 origin, Vector2 vel)
+        {
+            WeaponDef def = Content.Weapon(weapon);
+            if (def != null) NetSession.Instance?.Events?.OnShot(new ShotEvent(def, origin, vel)); // else a weapon this build doesn't have
+        }
     }
 }
 #endif

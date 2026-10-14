@@ -6,12 +6,13 @@ namespace PooketSlug
     /// <summary>
     /// The world's side of a co-op session (<see cref="INetLink"/>). Each tick it pulls what has arrived (the
     /// partner's soldier, and on followers the authority's enemies, points and scroll), then pushes our own.
-    /// The session also delivers its events here: shots, hits, pickups and damage.
+    /// The session also delivers its events here (<see cref="INetEvents"/>): shots, hits, pickups and damage.
     /// </summary>
-    public sealed class NetSync
+    public sealed class NetSync : INetEvents
     {
         readonly World m_World;
         readonly List<NetEnemyState> m_Snapshot = new List<NetEnemyState>();
+        readonly List<NetEnemyState> m_Outgoing = new List<NetEnemyState>();
         readonly HashSet<int> m_SeenIds = new HashSet<int>();
         readonly HashSet<int> m_DeadIds = new HashSet<int>();
 
@@ -79,39 +80,40 @@ namespace PooketSlug
             Net.Score = w.Scoring.Points;
             Net.Victory = w.Victory;
             Net.NextSpawn = w.Spawner.Next;
-            Net.WriteEnemies(w.Enemies);
+            m_Outgoing.Clear();
+            foreach (Enemy e in w.Enemies)
+                if (!e.Removed && e.NetId >= 0)
+                    m_Outgoing.Add(new NetEnemyState { Id = e.NetId, Def = e.Def, Flags = e.SnapshotFlags, Hp = e.Hp, Pos = e.Pos });
+            Net.WriteEnemies(m_Outgoing);
         }
 
-        // network events (delivered by the session)
+        // ------------------------------------------------------------------ INetEvents (delivered by the session)
 
-        public void OnRemoteShot(int weaponId, Vector2 origin, Vector2 vel)
+        public int Round => m_World.Round;
+
+        public void OnShot(in ShotEvent shot)
         {
-            WeaponDef weapon = Content.Weapon(weaponId);
-            if (weapon == null) return; // a weapon this build doesn't have
-            m_World.SpawnProjectile(weapon.Projectile, origin, vel, false, cosmetic: true);
-            Sfx.PlayShot(weapon, 0.35f);
+            m_World.SpawnProjectile(shot.Weapon.Projectile, shot.Origin, shot.Velocity, false, cosmetic: true);
+            Sfx.PlayShot(shot.Weapon, 0.35f);
         }
 
-        public void OnEnemyShot(int weaponId, Vector2 origin, Vector2 vel)
-        {
-            WeaponDef weapon = Content.Weapon(weaponId);
-            if (weapon != null) m_World.Combat.SpawnEnemyShot(weapon, origin, vel);
-        }
+        public void OnEnemyShot(in ShotEvent shot) => m_World.Combat.SpawnEnemyShot(shot.Weapon, shot.Origin, shot.Velocity);
 
-        public void OnHitReported(int enemyId, int damage)
+        public void OnHit(in HitReport hit)
         {
             if (!m_World.IsAuthority) return;
-            Enemy e = m_World.FindEnemy(enemyId);
-            if (e != null && e.Shootable) e.Hurt(damage);
+            Enemy e = m_World.FindEnemy(hit.EnemyId);
+            if (e != null && e.Shootable) e.Hurt(hit.Damage);
         }
 
-        public void OnPickupGranted(int spawnIndex, bool mine)
+        public void OnPickupGranted(in PickupGrant grant)
         {
             World w = m_World;
+            int spawnIndex = grant.SpawnIndex;
             Pickup pk = null;
             foreach (Pickup p in w.Pickups)
                 if (p.NetId == spawnIndex && !p.Removed) pk = p;
-            if (mine)
+            if (grant.Mine)
             {
                 if (pk != null) pk.ApplyTo(w.Player);
                 else if (spawnIndex >= 0 && spawnIndex < w.Level.Spawns.Count)
@@ -123,6 +125,6 @@ namespace PooketSlug
             pk?.Collect();
         }
 
-        public void OnLocalHurt(int damage) => m_World.Player.Hurt(damage);
+        public void OnHurt(int damage) => m_World.Player.Hurt(damage);
     }
 }

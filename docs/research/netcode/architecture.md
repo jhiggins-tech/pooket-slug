@@ -28,11 +28,13 @@ Known trade-off: clients trust each other. A modified client could claim hits or
 
 ## The boundary between game and netcode
 
-- **Gameplay code never sees a Fusion type.** [`NetContracts.cs`](../../../Assets/Scripts/NetContracts.cs) defines what it needs:
-  - `INetLink` is used by `World`: authority, remote avatars, shared state, sending.
+- **Gameplay code never sees a Fusion type.** [`NetContracts.cs`](../../../Assets/Scripts/Core/NetContracts.cs), in the Core assembly, defines what it needs, using only Core types:
+  - `INetLink` is used by `World`. It's made of three smaller interfaces: `ISessionView` (authority, skin, round), `ISoldierChannel` (our soldier out, remote soldiers in) and `IWorldChannel` (the shared state and the events about it).
+  - `INetEvents` is the other direction: what the session tells the world. `NetSync` implements it, and the session holds it while a co-op world is playing.
+  - Each event is a typed payload: `ShotEvent` (a weapon, origin and velocity), `HitReport`, `PickupGrant`, and damage as a plain number.
   - `INetSession` is used by `Game`: the lobby, state, room code, ping.
-  - `IAvatarLink` is a remote soldier.
-  - `NetEnemyState` is one snapshot entry.
+  - `IAvatarLink` is a remote soldier, and `NetEnemyState` is one snapshot entry.
+- **The netcode never sees `World` either:** it talks to `INetEvents`. That keeps the boundary in one place, so the Fusion code can become its own assembly ([refactor plan](../roadmap/refactor-plan.md), step 8).
 - **The Fusion implementation lives in [`Assets/Scripts/Net/`](../../../Assets/Scripts/Net/),** inside `#if FUSION2`. It registers itself through `NetSessions.Factory`; without the SDK, the factory stays `null` and the title screen offers solo only.
 - **`World` takes an optional `INetLink`.** `null` means solo, and solo behaviour is unchanged.
 

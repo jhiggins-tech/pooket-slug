@@ -35,7 +35,7 @@ namespace PooketSlug
         public NetState State { get; private set; }
         public string Status { get; private set; } = "";
         public string RoomCode { get; private set; }
-        public World World { get; set; }
+        public INetEvents Events { get; set; }
         public INetLink Link => this;
         public bool Ready => State == NetState.Online && SharedValid && m_Local != null;
         public int PlayerCount => m_Players.Count;
@@ -269,7 +269,7 @@ namespace PooketSlug
             get
             {
                 m_Remotes.Clear();
-                int round = World != null ? World.Round : Round;
+                int round = Events != null ? Events.Round : Round;
                 foreach (PlayerNet p in m_Players)
                     if (p != m_Local && p.PlayingRound == round) m_Remotes.Add(p);
                 return m_Remotes;
@@ -303,20 +303,19 @@ namespace PooketSlug
         public bool IsTaken(int spawnIndex) =>
             SharedValid && spawnIndex >= 0 && spawnIndex < 64 && (m_Shared.Taken & (1L << spawnIndex)) != 0;
 
-        public void WriteEnemies(List<Enemy> enemies)
+        public void WriteEnemies(List<NetEnemyState> enemies)
         {
             if (!IsAuthority) return;
             NetworkArray<NetEnemy> slots = m_Shared.Enemies;
             int n = 0;
-            foreach (Enemy e in enemies)
+            foreach (NetEnemyState e in enemies)
             {
                 if (n == slots.Length) break; // more than fit: the rest show up once earlier ones are gone
-                if (e.Removed || e.NetId < 0) continue;
                 slots.Set(n++, new NetEnemy
                 {
-                    Ref = (short)(e.NetId + 1),
+                    Ref = (short)(e.Id + 1),
                     Kind = e.Def.Id,
-                    Flags = (byte)e.SnapshotFlags,
+                    Flags = (byte)e.Flags,
                     Hp = (short)e.Hp,
                     Pos = e.Pos,
                 });
@@ -343,22 +342,22 @@ namespace PooketSlug
             m_Local.NetVel = vel;
             m_Local.NetPose = poseFlags;
             m_Local.NetHp = hp;
-            m_Local.NetRound = (World != null ? World.Round : Round) + 1;
+            m_Local.NetRound = (Events != null ? Events.Round : Round) + 1;
         }
 
-        public void SendShot(WeaponDef weapon, Vector2 origin, Vector2 vel)
+        public void SendShot(in ShotEvent shot)
         {
-            if (m_Local != null && m_Local.Object.IsValid) m_Local.RPC_Shot(weapon.Id, origin, vel);
+            if (m_Local != null && m_Local.Object.IsValid) m_Local.RPC_Shot(shot.Weapon.Id, shot.Origin, shot.Velocity);
         }
 
-        public void SendEnemyShot(WeaponDef weapon, Vector2 origin, Vector2 vel)
+        public void SendEnemyShot(in ShotEvent shot)
         {
-            if (IsAuthority) m_Shared.RPC_EnemyShot(weapon.Id, origin, vel);
+            if (IsAuthority) m_Shared.RPC_EnemyShot(shot.Weapon.Id, shot.Origin, shot.Velocity);
         }
 
-        public void ReportHit(int enemyId, int damage)
+        public void ReportHit(in HitReport hit)
         {
-            if (SharedValid) m_Shared.RPC_Hit((short)enemyId, (byte)Mathf.Clamp(damage, 0, 255));
+            if (SharedValid) m_Shared.RPC_Hit((short)hit.EnemyId, (byte)Mathf.Clamp(hit.Damage, 0, 255));
         }
 
         public void ClaimPickup(int spawnIndex)

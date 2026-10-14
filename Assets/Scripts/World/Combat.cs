@@ -18,14 +18,14 @@ namespace PooketSlug
         public void FirePlayerShot(WeaponDef weapon, Vector2 origin, Vector2 vel)
         {
             m_World.SpawnProjectile(weapon.Projectile, origin, vel, false);
-            m_World.Net?.SendShot(weapon, origin, vel);
+            m_World.Net?.SendShot(new ShotEvent(weapon, origin, vel));
         }
 
         /// <summary>Authority side: an enemy fires (replayed on the other clients).</summary>
         public void FireEnemyShot(WeaponDef weapon, Vector2 origin, Vector2 vel)
         {
             SpawnEnemyShot(weapon, origin, vel);
-            if (m_World.Coop) m_World.Net.SendEnemyShot(weapon, origin, vel);
+            if (m_World.Coop) m_World.Net.SendEnemyShot(new ShotEvent(weapon, origin, vel));
         }
 
         /// <summary>An enemy's shot, fired here or replayed from the authority.</summary>
@@ -46,7 +46,7 @@ namespace PooketSlug
                 return;
             }
             e.FlashHit();
-            m_World.Net.ReportHit(e.NetId, damage);
+            m_World.Net.ReportHit(new HitReport(e.NetId, damage));
         }
 
         /// <summary>Nearest soldier still in the fight (the local one if everybody is down).</summary>

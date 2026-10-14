@@ -93,4 +93,4 @@ The cost:
 
 - **IMGUI's built-in font is missing glyphs.** `∞` and `→` rendered as blanks in the HUD, while `·` was fine. Only the real build showed this, so use ASCII or ship a font.
 - **Fusion's installer changes settings on editor load.** It sets `PlayerSettings.runInBackground = true` and adds scripting defines for every build target. Both are expected ([SDK in CI](../netcode/sdk-in-ci.md#fusions-defines-and-the-il-weaver)).
-- **Keep code that must build without the SDK free of Fusion types.** The networking files are wrapped in `#if FUSION2`. Everything else talks to [`NetContracts.cs`](../../../Assets/Scripts/NetContracts.cs).
+- **Keep code that must build without the SDK free of Fusion types.** The networking files are wrapped in `#if FUSION2`. Everything else talks to [`NetContracts.cs`](../../../Assets/Scripts/Core/NetContracts.cs).
