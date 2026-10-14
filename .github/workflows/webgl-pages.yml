@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Cache Unity Library
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: Library
           key: Library-WebGL-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
@@ -58,7 +58,7 @@ jobs:
           versioning: None
 
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: PooketSlug-WebGL
           path: build/WebGL/WebGL
