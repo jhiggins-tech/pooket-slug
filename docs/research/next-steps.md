@@ -19,7 +19,7 @@ The working checklist, including who does what and what's blocking what, is in [
 - **A pre-build check without Unity:** the [type-check and weave](verification/README.md) could run in a fast job before the long Unity build. It needs a cached copy of the extracted editor DLLs.
 - **Supply chain:** pin third-party actions to commit SHAs, and revisit `unity-builder` v6 after a few point releases.
 - **More platforms:** the same workflow becomes a `targetPlatform` matrix for desktop and Android.
-- **Size:** probably leave it. Brotli plus `decompressionFallback` would save perhaps 15–20% of the 10.4 MB at the cost of JavaScript decompression.
+- **Size:** the page downloads 14.1 MB since uGUI, up from 10.4 MB. Most of the growth is UI Toolkit, which uGUI's event system reaches, so stripping can't remove it ([numbers](build-pipeline/numbers.md#what-ugui-costs)). Brotli plus `decompressionFallback` would save perhaps 15–20%, at the cost of decompressing in JavaScript. Our own input handling in place of the event system could save most of the rest, at the cost of uGUI's ready-made controls. Worth revisiting if phones load slowly.
 
 ## Code and content
 

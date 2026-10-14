@@ -17,11 +17,12 @@ Up: [Research index](AGENTS.md)
 - **A custom `buildMethod` is the control point.** One editor script creates the scene, sets PlayerSettings, stamps the commit into the version and bakes config. GameCI's `customParameters` passes anything else. → [build script](build-pipeline/unity-project.md#the-build-script)
 - **A code-only project means no hand-written Unity YAML.** Only `ProjectVersion.txt`, the manifest, scripts and one template are committed; Unity generates the rest in CI. → [unity project](build-pipeline/unity-project.md#a-code-only-project)
 - **Deploying through a `gh-pages` branch decouples deploys from `main`.** A feature branch can deploy without environment rules. → [pages](build-pipeline/github-pages.md#deploying)
-- **Turn WebGL compression off for Pages.** Pages gzips on the fly: 35.4 MB becomes 10.4 MB over the wire with Fusion, 7.2 MB without. → [pages](build-pipeline/github-pages.md#compression), [numbers](build-pipeline/numbers.md)
+- **Turn WebGL compression off for Pages.** Pages gzips on the fly: 35.4 MB became 10.4 MB over the wire with Fusion (7.2 MB without), and 51.4 MB becomes 14.1 MB since uGUI. → [pages](build-pipeline/github-pages.md#compression), [numbers](build-pipeline/numbers.md)
 - **Check the GameCI image exists before pinning a Unity version,** and **pin packages to the versions bundled in the editor**, so package resolution needs no registry. → [unity project](build-pipeline/unity-project.md#version-and-editor-image)
 - **Not knowing Active Input Handling up front is fine** if input code supports both backends. → [input](build-pipeline/unity-project.md#input)
 - **IMGUI's default font lacks glyphs** such as `∞` and `→`. Only the real build showed it. → [gotchas](build-pipeline/unity-project.md#gotchas)
 - **The concurrency group is global, and each push cancels the run in flight.** → [workflow](build-pipeline/workflow.md#triggers-permissions-and-concurrency)
+- **Find out what a package really adds before reaching for stripping.** uGUI added 36% to the download, mostly UI Toolkit: the Input System brings in UI Toolkit's module, and uGUI's event system then calls into it. `Low` stripping removed 24 KB. The build's IL2CPP metadata counts the types each assembly kept. → [numbers](build-pipeline/numbers.md#what-ugui-costs)
 
 ## Netcode
 

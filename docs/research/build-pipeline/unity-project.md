@@ -57,7 +57,7 @@ The cost:
 | Package | Needed by |
 |---|---|
 | `com.unity.inputsystem` 1.20.0 | The input sources in `Assets/Scripts/Input/` (keyboard, gamepad and touch). Pinned to the version **bundled in the editor image** (`Editor/Data/Resources/PackageManager/Editor/`), so resolving packages needs no registry fetch |
-| `com.unity.ugui` 2.0.0 | The HUD and menus, built in code ([`Assets/Scripts/Ui/`](../../../Assets/Scripts/Ui/)). It's a core package built into the editor, so it needs no registry fetch. It also turns on the Input System's UI support, whose input module the menus' event system uses |
+| `com.unity.ugui` 2.0.0 | The HUD and menus, built in code ([`Assets/Scripts/Ui/`](../../../Assets/Scripts/Ui/)). It's a core package built into the editor, so it needs no registry fetch. It also turns on the Input System's UI support, whose input module the menus' event system uses. It costs about 3.7 MB of download, mostly UI Toolkit, which its event system reaches because the Input System brings in UI Toolkit's module ([numbers](numbers.md#what-ugui-costs)) |
 | `com.unity.modules.audio`, `imgui`, `jsonserialize` | The game: procedural audio, uGUI's text input (it reads IMGUI's key events), and `JsonUtility` for `pooket-net.json` and the profile |
 | `com.unity.modules.physics`, `physics2d` | Fusion.Unity (`RunnerSimulatePhysics`, `Rigidbody2D` helpers). The game itself uses its own tile physics |
 | `com.unity.modules.ai` | Fusion.Unity and its editor (NavMesh helpers) |
@@ -97,10 +97,9 @@ The cost:
    - `bundleVersion` = `0.2.0+<short sha>`, or `0.2.0-local`. This is the version shown in-game, and it's also Photon's `AppVersion` ([sessions](../netcode/sessions.md#build-versions)).
    - A 960×540 default canvas, `runInBackground`, no splash screen.
    - **WebGL:** compression `Disabled`, `decompressionFallback` off, `nameFilesAsHashes` off, `dataCaching` on, template `PROJECT:PooketSlug`.
-   - **Managed stripping `Low`.** At Unity's default, `Minimal`, package assemblies such as uGUI and the Input System ship whole. Our own assemblies stay whole through [`Assets/link.xml`](../../../Assets/link.xml).
-5. **Keeps Photon's SDK whole** under stripping, as it was at `Minimal`: when the SDK is unpacked, it writes `Assets/Photon/link.xml` (git-ignored, like the SDK) listing its ten assemblies. Fusion finds things by reflection.
-6. **Runs `AssetDatabase.SaveAssets()`,** then **logs two `[PooketSlug]` diagnostics lines:** SDK present, weaver compiled, co-op code compiled, WebGL defines; then the stripping level and whether the SDK is kept whole.
-7. **Builds** with `BuildPipeline.BuildPlayer`, prints a result summary and exits `0` or `101`.
+   - **Managed stripping is Unity's default, `Minimal`.** `Low` was tried on 2026-10-14 and saved 24 KB of a 42 MB wasm, because what uGUI added can't be stripped ([what uGUI costs](numbers.md#what-ugui-costs)).
+5. **Runs `AssetDatabase.SaveAssets()`,** then **logs one `[PooketSlug]` diagnostics line:** SDK present, weaver compiled, co-op code compiled, WebGL defines.
+6. **Builds** with `BuildPipeline.BuildPlayer`, prints a result summary and exits `0` or `101`.
 
 ## Gotchas
 

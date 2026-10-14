@@ -57,11 +57,44 @@ What a browser fetches, measured from the live page with and without `Accept-Enc
 - **Load time:** the page loaded in about 1.8 s before Fusion and about 3.5 s after, in headless Chromium in the cloud sandbox (cold cache). Those numbers say little about real devices.
 - **Frame rate:** the FPS counter reads 17–29 in headless Chromium, which renders WebGL in software (SwiftShader). That isn't a real-GPU number either.
 
+### What uGUI costs
+
+uGUI replaced IMGUI in refactor step 14a. Steps 13 and 14a compared, from their build artifacts and the live page:
+
+| File | Step 13: raw | Step 13: gzipped | With uGUI: raw | With uGUI: gzipped |
+|---|---|---|---|---|
+| `WebGL.wasm` | 28.62 MB | 8.22 MB | 42.12 MB | 11.09 MB |
+| `WebGL.data` | 6.52 MB | 1.99 MB | 8.74 MB | 2.86 MB |
+| **Total**, with the framework, loader and page | **35.6 MB** | **10.3 MB** | **51.4 MB** | **14.1 MB** |
+
+Step 13's gzipped sizes are `gzip -6` of its artifact; for step 14a, Pages' own gzip came out about 1% bigger than that. So uGUI added about **3.7 MB over the wire, 36%**.
+
+**Where it comes from.** Types that survived stripping, counted in each build's IL2CPP metadata (`global-metadata.dat`, inside `WebGL.data`):
+
+| Assembly | Step 13 | With uGUI | What it is |
+|---|---|---|---|
+| `UnityEngine.UIElementsModule` | 0 | 1,654 | UI Toolkit, which the game doesn't use |
+| `UnityEngine.PropertiesModule`, `UnityEngine.HierarchyCoreModule` | 58 | 214 | What UI Toolkit needs |
+| `UnityEngine.UI` | — | 205 | uGUI: all of it, since `Minimal` copies package assemblies whole |
+| `Fusion.Unity` | 77 | 119 | Fusion's statistics overlay, compiled in when uGUI is present (`FUSION_ENABLE_UGUI`) |
+| `Unity.TextMeshPro` | — | 0 | Part of uGUI 2.0; stripped entirely |
+| All | 5,999 types, 36,422 methods | 8,217 types, 53,471 methods | |
+
+**Why UI Toolkit is there:**
+- The Input System 1.20.0 depends on the UI Toolkit module, `com.unity.modules.uielements`.
+- In a project with that module, uGUI compiles its UI Toolkit bridge (`PACKAGE_UITOOLKIT`), and `EventSystem.OnEnable`, `Start` and `Update` call it. The menus' event system therefore reaches UI Toolkit's runtime, and no stripping level removes code that's reachable.
+- Before uGUI nothing reached it, so the linker dropped all of it.
+- **`Low` stripping didn't help.** It was tried on 2026-10-14 (`25d4276`, reverted): 24 KB less wasm, and uGUI still whole.
+
+**Ways to win it back, none tried:**
+- Brotli with `decompressionFallback`, perhaps 15–20% less to download ([compression](github-pages.md#compression)).
+- Handle taps, clicks and the room-code entry ourselves instead of through uGUI's event system, then strip at `Medium`. That should drop the event system and UI Toolkit with it. It costs uGUI's ready-made sliders, scroll views and text fields, which settings and a room browser would want.
+
 ## Session and network costs
 
 - **Photon free plan:** 20 CCU, i.e. 10 two-player sessions at once, plus 3 GB of traffic per CCU per month ([choosing a stack](../netcode/choosing-a-stack.md#free-tier-and-licensing)).
 - **Replicated state:**
-  - `PlayerNet` is 8 words (32 bytes) per player.
-  - `WorldNet` is 151 words: 24 enemy slots of 6 words each, plus 7 words of world state.
+  - `PlayerNet` is 9 words (36 bytes) per player.
+  - `WorldNet` is 215 words: 24 enemy slots of 6 words each, 16 pickup slots of 4 words each, plus 7 words of world state.
   - Fusion sends only the words that changed ([architecture](../netcode/architecture.md#replicated-state)).
   - Actual bandwidth hasn't been measured yet. Before choosing Fusion we estimated 2–4 KB/s per client.
