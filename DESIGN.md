@@ -8,7 +8,7 @@ The tech spike (Unity 6.3 WebGL built by GameCI, with Photon Fusion co-op) is on
 
 ## The pitch
 
-The crew climb out of their tanks and fight on foot. Their tanks have been stolen, so each one is a boss first, and then yours to ride. It plays like arcade Metal Slug: hordes of goons, chunky explosions, lives and continues. Missions come first (the Roguelite is on ice), live online co-op opens once you've beaten Mission one solo, and it's for phones first.
+The crew climb out of their tanks and fight on foot. Their tanks have been stolen, so each one is a boss first, and then yours to ride. It plays like arcade Metal Slug: hordes of goons, chunky explosions, lives and continues. Missions come first (the Roguelite is on ice), live online co-op opens once you've beaten Mission one solo, and it's made for phones.
 
 ## Story
 
@@ -25,7 +25,8 @@ kie's Trollogram holograms went rogue and stole the crew's tanks. The goons are 
 ### Mission one
 - **A military base**, Metal Slug played straight: sandbags and watchtowers, ending at the motor pool where the stolen tanks are parked.
 - **About 5 minutes**: a run through, then kie's tank.
-- **You play tones2**, and you have to beat it solo before co-op opens.
+- **You play tones2**, the only soldier you have at the start, and solo ([Missions](#missions)).
+- **Straight in**: no tutorial. The button labels and an ⓘ screen, as in Tabks, cover the kit.
 - **Goons**: the spike's three, as flickering holograms: riflemen (crouch under their shots), knife runners and bomb-dropping drones.
 - **The boss, kie's tank**, cycles through its Tabks kit, faster as it gets hurt:
   - **Weasel Pop**: waves of weasels that scurry at you and pop. Jump them, or hose them down with ten-1.
@@ -62,6 +63,7 @@ kie's Trollogram holograms went rogue and stole the crew's tanks. The goons are 
 
 - **Left thumb**: a stick to run; up aims up, down crouches (or aims down in the air).
 - **Right thumb**: FIRE (hold to keep firing), JUMP, special (SP) and super (SU), plus the ability (AB) above the special for the soldiers who have one.
+- **Calling in your tank**: hold the stick down and press SP.
 - **In a tank**, the stick swings the turret and FIRE is held to build power, as in Tabks.
 
 ### The kit
@@ -88,7 +90,7 @@ Tabks' statuses, with turns turned into seconds:
 
 ## Tanks
 - **Beat a crew tank and its pilot, then climb in.** Inside, Tabks rules apply: the tank's health bar, its Tabks kit with 5 / 3 / 1 rounds, the turret swinging round on the stick, and FIRE held to build power. It's slow, heavy artillery in a fast game. Eject before it blows.
-- **Calling one in**: in Missions, a tank you've won is a button once a mission, and it drops in beside you. You choose which tank on the mission screen (in the Roguelite, at the start of each stage).
+- **Calling one in**: in Missions, once a mission, hold the stick down and press SP, and a tank you've won drops in beside you. You choose which tank on the mission screen (in the Roguelite, at the start of each stage).
 - **Soldiers and tanks mix**: tones2 can ride kcaj's tank, Double Park, Unmedicated and all.
 
 ## Bosses
@@ -161,12 +163,13 @@ shotdownboyz, lankcity, odsey and doctorfox each arrive as a new mission, with t
 
 ## Progression
 - **Characters**: free the crew ([Missions](#missions)). Unlike Tabks, XP never unlocks characters.
-- **Career XP**: every mission earns XP (and every Roguelite run, once it's back), and its levels only ever give cosmetics: hats (Tabks already has kiwicore's flat cap), skins, tank paint, death animations, kill effects and victory poses.
+- **Career XP** comes from clearing missions (more the first time), kills (a little for a goon, more for a tank) and freeing a crewmate (a big bonus, the first time). Its levels only ever give cosmetics: hats (Tabks already has kiwicore's flat cap), skins, tank paint, death animations, kill effects and victory poses.
 - **Within a mission or run**: [crates](#crates).
 
 ## Ranks
 - **The ladder is Tabks'**: 33 ranks, with their insignia and jingles. 8 are known (Bronze, Silver, Gold, Platinum, Diamond, Master, Grandmaster, Champion) and 25 are hidden. As in Tabks, don't name the hidden ones (or describe their looks) in docs, changelogs, tests or commit messages.
-- **Rungs are milestones**, not a rating: how far you get, and the alert level you reach. Those are Roguelite things, so while it's on ice, what the rungs count is open.
+- **For now, you climb slowly with stages beaten**: each stage you beat moves you a little way up the ladder. It's not a rating, so a rank never goes down.
+- **When the Roguelite is back**, the plan was milestones for how far you get and the alert level you reach.
 - **Feats unlock rungs**: each hidden rank's rung also needs its secret feat (clearing a mission without firing, say, or beating a tank with its own stolen weapon), so some steps can't be climbed until someone works out how.
 - **By your name in Slug**: your Slug rank. Your Tabks rank stays in Tabks.
 
@@ -207,13 +210,13 @@ The spike is Unity 6.3 WebGL, built by GameCI and published to https://jhiggins-
   | Keeping it all | SOC-01 sign in with Google, SOC-02 cloud saves, TEC-07 save system |
 
   Not picked in the brainstorm: versus and ghost races (VRS-01, VRS-03), team lives (COP-03), couch co-op (COP-05, COP-06) and online leaderboards (SCR-10).
-- **Accounts**: the accounts plan's player record holds best score, runs and wins, and its rules allow nothing else. This design adds freed crew, whether co-op is open (Mission one beaten solo), career XP, cosmetics (owned and worn), rank milestones and feats, and the tally. Each is a rules change in Cardmaster, so they're worth planning into the first rules pull request. Like the scores, they're written by the player's own phone, which the rules can't make honest: fine for personal progress, and this design has no public leaderboard.
+- **Accounts**: the accounts plan's player record holds best score, runs and wins, and its rules allow nothing else. This design adds freed crew, whether co-op is open (Mission one beaten solo), career XP, cosmetics (owned and worn), rank progress (stages beaten) and feats, and the tally. Each is a rules change in Cardmaster, so they're worth planning into the first rules pull request. Like the scores, they're written by the player's own phone, which the rules can't make honest: fine for personal progress, and this design has no public leaderboard.
 
 ## Considered, not picked
 - **One-hit deaths**, as in Metal Slug: the owner pivoted to hearts.
-- **PvP**: run-by-run duels on a shared seed, live versus, and rating players against the bosses. Ranks are milestones instead.
+- **PvP**: run-by-run duels on a shared seed, live versus, and rating players against the bosses. Ranks come from progress instead.
 - **Other ways to play together**: passing the phone, relay turns online, and two players on one phone. Co-op is live online only.
-- **Lasting growth**: a career shared with Tabks, and per-soldier mastery levels. Growth is crates within a run, and cosmetics across runs.
+- **Lasting growth**: a career shared with Tabks, and per-soldier mastery levels. Growth is crates within a mission (or run), and cosmetics from career XP.
 - **Chosen alert levels**: DEFCON 5 → 1 picked before a run, or Hades-style twists. The alert climbs as you go instead.
 - **More pixel terrain**: everywhere, or soft ground in levels. It's only in boss arenas.
 - **Other run lengths**: three stages, or endless. It's five, then loop.
@@ -232,13 +235,17 @@ The spike is Unity 6.3 WebGL, built by GameCI and published to https://jhiggins-
 - **A longer Mission one**: about 10 minutes, or 15+ with checkpoints. It's about 5.
 - **Other goons**: ones that all blow up, hologram copies of the crew, or hologram mini-tanks. It's the spike's three, glitched.
 - **kie's tank with one move**: only the shell game, the weasel waves or the pickpocket. It cycles through all three.
+- **Ranks for now**: mission feats, mission difficulty levels, waiting for the Roguelite, or showing your Tabks rank meanwhile. You climb slowly with stages beaten.
+- **The call-in elsewhere**: a button that pops up when it's ready, or a tank icon in the HUD. It's stick down + SP.
+- **XP for feats**. It comes from clears, kills and freeing the crew.
+- **Teaching tones2's kit** as you go, or in a training yard first. Mission one goes straight in.
 
 ## Open questions
-- **Ranks while the Roguelite is on ice**: the milestones were depth and alert, so do Missions count meanwhile, or do ranks wait for it? Then the table itself: depth keeps counting through the loops and the alert only climbs, so the two rise together, and stalling to raise the alert needs thought.
-- **Tanks**: where the call-in button goes.
+- **Ranks**: what counts as a stage in Missions (a whole mission, or a stretch of one), how many stages a rung takes, and whether replays count. When the Roguelite is back: its milestone table, where depth keeps counting through the loops and the alert only climbs, so the two rise together and stalling to raise the alert needs thought.
 - **Missions**: the order after kie.
+- **Crouching specials**: stick down + SP calls your tank in, so can you still fire your special while crouching once a tank is ready?
 - **Bosses**: each tank's attacks after kie's, worked out from its Tabks kit.
-- **Career XP**: what earns how much, and how it pays out (not decided yet): tokens you spend as in Tabks, a fixed track, a track per soldier, or mystery crates.
+- **Career XP**: how much each source earns, and how it pays out (not decided yet): tokens you spend as in Tabks, a fixed track, a track per soldier, or mystery crates.
 - **The 25 feats** for the hidden rungs.
 - **Kits still to design**: the coming-soon crew's, and garyoldmancorp's real moves (designed in Tabks first).
 - **Timings**: ten-1's build-up, ten-3's spew, Sew's pin, the scam window.
