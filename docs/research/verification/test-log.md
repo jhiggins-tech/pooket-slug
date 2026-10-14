@@ -82,6 +82,7 @@ The [refactor plan](../roadmap/refactor-plan.md)'s steps, as they land.
 | 17:58–18:01 | Do the tests catch bugs in the refactor's later code? | Core at `74fc4e0` broken 21 ways, one at a time: the touch pad, input, the profile and the missions ([list](edit-mode-tests.md#do-the-tests-catch-bugs)) | ✅ 21 of 21 caught |
 | 18:09–18:20 | Why didn't stripping help? | The build artifacts of steps 13 and 14a and of the follow-up, unpacked: the assemblies each ships, and the types each kept in its IL2CPP metadata | ✅ UI Toolkit: 0 types at step 13, 1,654 with uGUI. The Input System brings in UI Toolkit's module, so uGUI's event system calls into it, and stripping can't remove what's reachable. uGUI itself is 205 types, whole at both levels; TextMeshPro is stripped entirely ([numbers](../build-pipeline/numbers.md#what-ugui-costs)) |
 | 18:14–18:17 | The pad fix on the live build (`74fc4e0`) | `touch.mjs` six times, checking FIRE's pixels in each | ✅ FIRE lit in six runs of six, with no errors; the stick ran the soldier, and II paused |
+| 18:17–18:37 | The revert to `Minimal` (`4a8a12b`) | Run 38613952856, then the live page's sizes and `touch.mjs` twice | ✅ 177 of 177 tests; built, deployed, and the co-op test passed all five checks in 57 s (no pickups given out). The wasm is 42,145,618 bytes and the page 14.05 MB over the wire, as before `Low`. FIRE lit in both touch runs |
 
 ## Not yet verified
 
