@@ -1,0 +1,6 @@
+{
+  "AssembliesToWeave": [
+    "Assembly-CSharp",
+    "Assembly-CSharp-firstpass"
+  ]
+}

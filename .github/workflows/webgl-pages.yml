@@ -37,6 +37,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      # Photon's license forbids redistributing the SDK, so it is stored as a release asset in a private
+      # repo and unpacked into Assets/Photon here, before Unity starts (see tools/unpack_unitypackage.py).
+      - name: Fetch Photon Fusion SDK
+        env:
+          GH_TOKEN: ${{ secrets.VENDOR_TOKEN }}
+          FUSION_TAG: fusion-2.1.3
+          FUSION_FILE: Photon-Fusion-2.1.3-Stable-2390.unitypackage
+          FUSION_SHA256: 375e21bc771ce5f7cea942b5f804e7c28c8f4d858f7e9aab96725214564bc52e
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::Repository secret VENDOR_TOKEN is not set (read-only token for jhiggins-tech/pooket-slug-vendor)."
+            exit 1
+          fi
+          gh release download "$FUSION_TAG" -R jhiggins-tech/pooket-slug-vendor -p "$FUSION_FILE" -D vendor
+          echo "$FUSION_SHA256  vendor/$FUSION_FILE" | sha256sum -c -
+          python3 -I tools/unpack_unitypackage.py "vendor/$FUSION_FILE" .
+          # our committed Fusion config wins over anything the package ships
+          git checkout -- Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion
+
       - name: Cache Unity Library
         uses: actions/cache@v5
         with:
@@ -56,6 +75,15 @@ jobs:
           buildMethod: PooketSlug.EditorTools.WebGLBuild.Build
           customParameters: -buildSha ${{ github.sha }}
           versioning: None
+
+      # Temporary: capture the ProjectSettings Unity generates once Fusion's installer has added its
+      # scripting defines, so they can be committed (the IL weaver needs FUSION_WEAVER at first compile).
+      - name: Upload generated ProjectSettings
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: ProjectSettings
+          path: ProjectSettings/
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v6

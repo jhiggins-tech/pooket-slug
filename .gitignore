@@ -37,3 +37,14 @@ crashlytics-build.properties
 *.apk
 *.aab
 *.unitypackage
+
+# Photon Fusion SDK: Photon's license forbids redistributing it, so CI downloads it from a private
+# release and unpacks it here (tools/unpack_unitypackage.py). Only our project's Fusion config is committed.
+/vendor/
+/Assets/Photon.meta
+/Assets/Photon/*
+!/Assets/Photon/Fusion/
+/Assets/Photon/Fusion/*
+!/Assets/Photon/Fusion/Resources/
+/Assets/Photon/Fusion/Resources/*
+!/Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion

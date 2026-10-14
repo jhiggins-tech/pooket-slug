@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using UnityEditor;
+using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -48,6 +49,8 @@ namespace PooketSlug.EditorTools
         {
             EnsureScene();
             ConfigurePlayer(sha);
+            AssetDatabase.SaveAssets(); // persist settings changes (incl. Fusion's installer defines) to ProjectSettings/
+            LogNetworkingSetup();
 
             var options = new BuildPlayerOptions
             {
@@ -73,6 +76,9 @@ namespace PooketSlug.EditorTools
 
         static void ConfigurePlayer(string sha)
         {
+            // Photon Fusion requires text serialization (it is also Unity's default for new projects).
+            EditorSettings.serializationMode = SerializationMode.ForceText;
+
             PlayerSettings.companyName = "jhiggins-tech";
             PlayerSettings.productName = "Pooket Slug";
             PlayerSettings.bundleVersion = string.IsNullOrEmpty(sha)
@@ -91,6 +97,15 @@ namespace PooketSlug.EditorTools
             PlayerSettings.WebGL.nameFilesAsHashes = false;
             PlayerSettings.WebGL.dataCaching = true;
             PlayerSettings.WebGL.template = "PROJECT:PooketSlug";
+        }
+
+        /// <summary>Build-log diagnostics: is the Fusion SDK present, are its defines set, did its IL weaver compile?</summary>
+        static void LogNetworkingSetup()
+        {
+            bool sdk = Directory.Exists("Assets/Photon/Fusion");
+            string defines = PlayerSettings.GetScriptingDefineSymbols(NamedBuildTarget.WebGL);
+            bool weaver = File.Exists("Library/ScriptAssemblies/Unity.Fusion.CodeGen.dll");
+            Console.WriteLine($"[PooketSlug] Fusion SDK present: {sdk}; IL weaver compiled: {weaver}; WebGL defines: '{defines}'");
         }
 
         static string GetArg(string[] args, string name)
