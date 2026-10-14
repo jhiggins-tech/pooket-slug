@@ -22,18 +22,19 @@ _Last updated: 2026-10-14._
   - apply the change yourself.
 
   You merge the pull request, and Cardmaster's CI deploys the rules.
-- [ ] **3. Sort the feature list.** Fill the `moscow` column (Must / Should / Could / Won't) in [feature-candidates.csv](roadmap/feature-candidates.csv) and send it back. *Unblocks C2.*
+- [x] **3. Sort the feature list.** Done 2026-10-14: the `moscow` column is filled in [feature-candidates.csv](roadmap/feature-candidates.csv).
 - [ ] **4. Sign in for real** once the sign-in build is live, to confirm it end to end. *Needs C1.*
 - [ ] **5. Optional: play the untested co-op paths** in two visible windows: the host leaving mid-game, quick match, a mistyped code, a third player joining ([steps](netcode/sessions.md#testing-by-hand)). C3c would automate this instead.
+- [ ] **6. Answer the refactor plan's open points** ([decisions needed](roadmap/refactor-plan.md#decisions-needed)): leaderboards, releases from `main`, two-player testing, the classic guns, the UI system and assembly definitions. Then give the go-ahead. *Unblocks C2.*
 
 ## Claude
 
-Whichever input arrives first starts: the variables start C1, the sorted CSV starts C2.
+The sorted CSV arrived on 2026-10-14, so C2's plan is out for approval. The variables start the rest of C1.
 
 - [ ] **C1. "Sign in with Google" spike** ([plan](accounts/README.md)). *Waits for owner 2.*
   - [ ] Database rules, as a pull request to Cardmaster: a `pooketSlug/players/{uid}` section in its rules file, where only the player reads and writes, the shape is validated, the stats only go up, and there are no deletes. Add tests to its rules test suite.
     - Drafted 2026-10-14 ([database rules](accounts/database-rules.md)). It passes 24 of 24 rules tests, and all 12 deliberate weakenings were caught.
-    - **Extend it before committing.** The [game design](https://github.com/jhiggins-tech/pooket-slug/blob/claude/inspiring-wozniak-5db5aq/DESIGN.md#building-on-the-spike) also needs, per player: freed crew, whether co-op is open (Mission one beaten solo), career XP, cosmetics owned and worn, rank rung and feats, and the tally per soldier and weapon. Scope that from the MoSCoW pass (owner 3), so the first pull request covers what's planned.
+    - **Extend it before committing.** The [game design](../../DESIGN.md#building-on-the-spike) also needs, per player: freed crew, whether co-op is open (Mission one beaten solo), career XP, cosmetics owned and worn, rank rung and feats, and the tally per soldier and weapon. Scoped from the MoSCoW pass in the [refactor plan](roadmap/refactor-plan.md#the-player-record-scoped-by-the-moscow-pass). Extend it once you approve that.
     - *Commit, push and pull request need owner 2c.*
   - [ ] Page: `pooket-auth.js` (Google button, token exchange and refresh, database calls), an `#account` slot in the header, and results queued until the game has loaded. Storage keys prefixed `pooket-slug.`.
   - [ ] Bridge: a `PooketAuth.jslib` plugin (`PS_AuthInit`, `PS_Save`, `PS_SignOut`) plus a `SendMessage` receiver in C#.
@@ -46,14 +47,14 @@ Whichever input arrives first starts: the variables start C1, the sorted CSV sta
     - get the CI build green
     - the rules go live when you merge the Cardmaster pull request
   - [ ] Docs: [accounts](accounts/README.md) and the [test log](verification/test-log.md).
-- [ ] **C2. Refactor pass** to prepare the build and netcode for the chosen features. *Waits for owner 3.*
-  - [ ] Map the Must and Should rows to the [refactor candidates](roadmap/refactor-candidates.md), and send you a short plan before changing code.
+- [ ] **C2. Refactor pass** to prepare the build and netcode for the chosen features. *Waits for owner 6.*
+  - [x] Map the Must and Should rows to the [refactor candidates](roadmap/refactor-candidates.md), and send you a short plan before changing code. Sent 2026-10-14: [refactor plan](roadmap/refactor-plan.md).
   - [ ] Refactor in small commits. Each one is type-checked, weave-checked and smoke-tested. Anything that touches netcode gets a two-player test.
   - [ ] Update [architecture](netcode/architecture.md) and the refactor candidates as items land.
 - [ ] **C3. Loose ends** (small; any time):
   - [ ] C3a. Make connection failures say *Couldn't reach Photon* instead of `DISCONNECTED (ERROR)` ([sessions](netcode/sessions.md#when-things-fail)).
-  - [ ] C3b. Optionally, pin a quick-match region with a `PHOTON_REGION` variable passed as `-photonRegion` ([quick match](netcode/sessions.md#quick-match)).
-  - [ ] C3c. Run the two-browser co-op test in CI after each deploy. GitHub's runners can open WebSockets, so this would cover owner 5 automatically ([roadmap OPS-02](roadmap/feature-candidates.csv)).
+  - [ ] C3b. Fix the Photon region to **AU** (NET-05, from the MoSCoW pass), with four-letter room codes. Folded into the refactor plan, step 11 ([quick match](netcode/sessions.md#quick-match)).
+  - [ ] C3c. Run the two-browser co-op test in CI after each deploy (refactor plan, decision 3). GitHub's runners can open WebSockets, so this would cover owner 5 automatically ([roadmap OPS-02](roadmap/feature-candidates.csv)).
 
 ## Done recently
 

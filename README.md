@@ -77,4 +77,5 @@ Project layout:
 | `Assets/Editor/WebGLBuild.cs` | Build entry point for GameCI and the editor menu |
 | `Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion` | Our Fusion config (weaver settings); the rest of `Assets/Photon/` is the SDK and is ignored |
 | `tools/unpack_unitypackage.py` | Unpacks a `.unitypackage` into the project without Unity (used by CI) |
+| `DESIGN.md` | The game design: crew, kits, missions, progression, ranks |
 | `docs/research/` | Research notes and the reference guide: pipeline, netcode, verification, test log, roadmap. Start at [`AGENTS.md`](docs/research/AGENTS.md) |

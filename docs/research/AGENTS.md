@@ -18,11 +18,11 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
 | GameCI → WebGL → GitHub Pages | ✅ Live; each push redeploys in 6–8 min | [build-pipeline](build-pipeline/README.md) |
 | Online co-op (Fusion 2.1.3, Shared Mode) | ✅ Live; played by the owner on 2026-10-14 | [netcode](netcode/README.md), [test log](verification/test-log.md) |
 | Verification without a Unity license | ✅ Working toolkit, re-tested 2026-10-14 | [verification](verification/README.md) |
-| Feature roadmap | ⏳ Waiting for the owner's MoSCoW pass | [roadmap](roadmap/README.md) |
-| Refactor pass | ⏳ After the roadmap | [refactor candidates](roadmap/refactor-candidates.md) |
+| Feature roadmap | ✅ Sorted by the owner on 2026-10-14 (MoSCoW) | [roadmap](roadmap/README.md) |
+| Refactor pass | ⏳ Plan proposed; waiting for the owner's go-ahead | [refactor plan](roadmap/refactor-plan.md) |
 | "Sign in with Google" spike | ⏳ Reusing the Cardmaster Firebase project. Database rules drafted and tested, not yet committed; to be extended for the game design first. Waiting on the owner: permission to commit to Cardmaster, the console steps, the repository variables | [accounts](accounts/README.md), [todo](todo.md) |
 
-**Live build:** https://jhiggins-tech.github.io/pooket-slug/ · **What's next:** [todo.md](todo.md) · **Game design:** [DESIGN.md](https://github.com/jhiggins-tech/pooket-slug/blob/claude/inspiring-wozniak-5db5aq/DESIGN.md), written with the owner on its own branch
+**Live build:** https://jhiggins-tech.github.io/pooket-slug/ · **What's next:** [todo.md](todo.md) · **Game design:** [DESIGN.md](../../DESIGN.md), written with the owner
 
 ## Contents
 
@@ -49,9 +49,10 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
 - [accounts/](accounts/README.md): the "Sign in with Google" spike: Google's button plus Firebase over REST (in the shared Cardmaster project) to keep stats and progression per player, with no server.
   - [gcloud-setup.md](accounts/gcloud-setup.md): the console changes, the values to hand back, the trade-offs of sharing, and the separate-project alternative.
   - [database-rules.md](accounts/database-rules.md): this game's section of the shared database rules: the player record, how the game writes it, the tests, and running them in the sandbox.
-- [roadmap/](roadmap/README.md): what to build next.
+- [roadmap/](roadmap/README.md): what to build next. The game design itself is [DESIGN.md](../../DESIGN.md) at the repository root.
   - [feature-candidates.csv](roadmap/feature-candidates.csv): 176 candidate mechanics and engineering items, with a MoSCoW column for the owner.
   - [refactor-candidates.md](roadmap/refactor-candidates.md): maintainability work, mapped to the features it unlocks.
+  - [refactor-plan.md](roadmap/refactor-plan.md): the proposed refactor, ordered by the MoSCoW results and the design, with the decisions it needs.
 
 ## Quick facts
 
@@ -73,4 +74,4 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
 - **When you add a document,** add it to its topic `README.md` and to the contents above.
 - **Record test results** in [test-log.md](verification/test-log.md).
 - **Never paste Photon SDK code, secret values, or private-repo code here.** This repository is public, and the SDK is licensed.
-- **Never name the hidden ranks.** Of the rank ladder's 33 ranks, only Bronze, Silver, Gold, Platinum, Diamond, Master, Grandmaster and Champion may be named. Don't name or describe the other 25 in docs, tests or commit messages ([the owner's rule](https://github.com/jhiggins-tech/pooket-slug/blob/claude/inspiring-wozniak-5db5aq/DESIGN.md#ranks)).
+- **Never name the hidden ranks.** Of the rank ladder's 33 ranks, only Bronze, Silver, Gold, Platinum, Diamond, Master, Grandmaster and Champion may be named. Don't name or describe the other 25 in docs, tests or commit messages ([the owner's rule](../../DESIGN.md#ranks)).

@@ -9,8 +9,8 @@ Up: [Research index](../AGENTS.md)
 ## The process
 
 1. **Candidate list (done, 2026-10-14):** [`feature-candidates.csv`](feature-candidates.csv) lists 176 side-scroller, Metal Slug and multiplayer mechanics, including co-op combinations, plus the engineering work they need. Existing features are marked `Done` or `Partial`, so the list doubles as a map of what the game has.
-2. **MoSCoW (with the owner):** fill the `moscow` column with **Must**, **Should**, **Could** or **Won't**, and use `notes` for anything else. `Done` rows can stay blank.
-3. **Refactor pass:** prepare the code, build and netcode for the Must and Should features, guided by [`refactor-candidates.md`](refactor-candidates.md). That doc maps each refactor to the feature IDs it unlocks.
+2. **MoSCoW (done by the owner, 2026-10-14):** the `moscow` column holds **M**, **S**, **C** or **W**. Some rows point to the game design (`See design doc`) or ask a question; the [refactor plan](refactor-plan.md) reads and answers those.
+3. **Refactor pass:** prepare the code, build and netcode for the Must and Should features. The [refactor plan](refactor-plan.md) (proposed, waiting for the owner's go-ahead) orders the [refactor candidates](refactor-candidates.md), which map each refactor to the feature IDs it unlocks.
 
 ## Columns
 
@@ -25,7 +25,7 @@ Up: [Research index](../AGENTS.md)
 | `pipeline_impact` | **None** = code only · **Low** = a small package or a few assets · **Medium** = a new asset pipeline, CI job, or config/secrets · **High** = a new SDK, backend service or build target |
 | `effort` | **S** ≤ 1 day · **M** 2–5 days · **L** 1–2 weeks · **XL** > 2 weeks, for one developer who knows the code |
 | `depends_on` | IDs, separated by `;`, that should come first. These are often an engineering item (`TEC-…`) |
-| `moscow` | For you to fill: Must / Should / Could / Won't |
+| `moscow` | The owner's call: M / S / C / W, or a note such as `See design doc` |
 | `notes` | For you |
 
 The impact and effort figures are first estimates, relative to the code as of 2026-10-14. The refactor pass will revisit them for the rows you mark Must or Should.
@@ -33,4 +33,5 @@ The impact and effort figures are first estimates, relative to the code as of 20
 ## Documents
 
 - [feature-candidates.csv](feature-candidates.csv): the list.
-- [refactor-candidates.md](refactor-candidates.md): the maintainability improvements we'd make with hindsight, each mapped to the features it unlocks. A draft until the MoSCoW results are in.
+- [refactor-candidates.md](refactor-candidates.md): the maintainability improvements we'd make with hindsight, each mapped to the features it unlocks.
+- [refactor-plan.md](refactor-plan.md): which of those to do, in what order, for the chosen features. It also covers the open decisions and the player record for sign-in.

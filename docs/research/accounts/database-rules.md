@@ -23,7 +23,7 @@ Each player has one record at `pooketSlug/players/{uid}`. It must have all five 
 - **Only the player** can read or write their record, and nobody can list the players.
 - **Nothing can be deleted,** neither the record nor any field in it.
 - **The first write must be the whole record.** Later writes can change some fields.
-- **The game design needs more.** Its [Building on the spike](https://github.com/jhiggins-tech/pooket-slug/blob/claude/inspiring-wozniak-5db5aq/DESIGN.md#building-on-the-spike) section adds, per player: freed crew, whether co-op is open (Mission one beaten solo), career XP, cosmetics owned and worn, rank rung and feats, and the tally per soldier and weapon. Each is a rules change in Cardmaster, so the plan is to extend or reshape this record before the first pull request, scoped by the owner's MoSCoW pass. Anything added later means another small rules change, with tests.
+- **The game design needs more.** Its [Building on the spike](../../../DESIGN.md#building-on-the-spike) section adds, per player: freed crew, whether co-op is open (Mission one beaten solo), career XP, cosmetics owned and worn, rank rung and feats, and the tally per soldier and weapon. Each is a rules change in Cardmaster, so the plan is to extend or reshape this record before the first pull request, as scoped in the [refactor plan](../roadmap/refactor-plan.md#the-player-record-scoped-by-the-moscow-pass). Anything added later means another small rules change, with tests.
 - **The rules can't make a score honest.** With their own token, a player can write any numbers that pass these checks. That's fine for a personal record, but don't build a leaderboard on it ([why](README.md#database-rules)).
 
 ## Writing it from the game

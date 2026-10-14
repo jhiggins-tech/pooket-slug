@@ -1,6 +1,6 @@
 # Refactor candidates (draft)
 
-The structural improvements we'd make with hindsight, now that the spike works. This is a **draft**: the refactor pass will pick and order these against the MoSCoW results in [`feature-candidates.csv`](feature-candidates.csv). Each one lists the feature IDs it unlocks, so the choice can follow the roadmap.
+The structural improvements we'd make with hindsight, now that the spike works. The [refactor plan](refactor-plan.md) picks and orders these against the MoSCoW results in [`feature-candidates.csv`](feature-candidates.csv). Each one lists the feature IDs it unlocks, so the choice can follow the roadmap.
 
 **Read this when** you're planning the refactor pass, or about to add a feature that fights the current structure.
 
@@ -41,7 +41,7 @@ Up: [Roadmap](README.md)
 
 ## Suggested order
 
-The order depends on the MoSCoW results; this is a starting point.
+This was the starting point, before the MoSCoW results. The [refactor plan](refactor-plan.md) replaces it.
 1. **Changes that pay off for any roadmap:** 5 (assemblies), 10 (pooling), 15 (tests around what's about to move), 16 (logging). They're small, cheap and safe.
 2. **The structural core:** 1 (split `World`), 2 (data-driven content), 6 (typed events).
 3. **Then the scale limits the chosen features need:** 3 and 4 (identity and replication), 7 (N players), 11 (levels).

@@ -1,6 +1,6 @@
 # Accounts: "Sign in with Google" spike
 
-Plan for identifying players with their Google account and keeping their stats and progression across devices and browsers. The drafted record holds best score, runs and wins. The [game design](https://github.com/jhiggins-tech/pooket-slug/blob/claude/inspiring-wozniak-5db5aq/DESIGN.md) needs more (freed crew, the co-op unlock, career XP, cosmetics, rank progress and the tally), which the record gets before its first pull request ([database rules](database-rules.md#the-record)). It reuses the Firebase project of the owner's game Cardmaster ([setup](gcloud-setup.md)). Roadmap rows SOC-01 and SOC-02, which then unlock SCR-07…09.
+Plan for identifying players with their Google account and keeping their stats and progression across devices and browsers. The drafted record holds best score, runs and wins. The [game design](../../../DESIGN.md) needs more (freed crew, the co-op unlock, career XP, cosmetics, rank progress and the tally), which the record gets before its first pull request ([database rules](database-rules.md#the-record)). It reuses the Firebase project of the owner's game Cardmaster ([setup](gcloud-setup.md)). Roadmap rows SOC-01 and SOC-02, which then unlock SCR-07…09.
 
 **Status, 2026-10-14:**
 - **Database rules:** drafted and tested ([database rules](database-rules.md)), but not yet committed to Cardmaster.
