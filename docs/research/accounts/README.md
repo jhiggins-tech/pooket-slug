@@ -3,10 +3,9 @@
 Plan for identifying players with their Google account and keeping their stats and progression across devices and browsers. The record holds what the [game design](../../../DESIGN.md) keeps per player: best scores and clears, freed crew, the co-op unlock, career XP, cosmetics, rank progress and the tally ([database rules](database-rules.md#the-record)), and there's a friends board per mission. It reuses the Firebase project of the owner's game Cardmaster ([setup](gcloud-setup.md)). Roadmap rows SOC-01 and SOC-02, which then unlock SCR-07…09.
 
 **Status, 2026-10-14:**
-- **Database rules:** committed to a Cardmaster branch with the owner's go-ahead, tested, and green in its CI ([database rules](database-rules.md)). They go live when merged into Cardmaster's `main`.
+- **Database rules:** live since 2026-10-14, merged into Cardmaster and deployed by its CI ([database rules](database-rules.md)).
 - **Page, bridge and game code:** not started.
 - **Waiting on the owner** ([to-do](../todo.md)):
-  - merging the rules into Cardmaster's `main`
   - the console steps in the Cardmaster project
   - the repository variables
 

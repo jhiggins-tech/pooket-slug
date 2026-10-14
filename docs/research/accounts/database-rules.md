@@ -2,7 +2,7 @@
 
 This game's section of the shared Realtime Database rules: each player's record, a friends leaderboard, how the game should write them, and how the rules are tested.
 
-**Status, 2026-10-14:** committed to Cardmaster with the owner's go-ahead, on its branch [`claude/gallant-keller-3qzp97`](https://github.com/jhiggins-tech/cardmaster/tree/claude/gallant-keller-3qzp97) (`121c939`). Cardmaster's CI passed on it: its build, and its rules, hosting and sign-in tests. It deploys only from `main`, so **the rules go live when [jhiggins-tech/cardmaster#11](https://github.com/jhiggins-tech/cardmaster/pull/11), opened at the owner's request, is merged.** From then on, Cardmaster's `firebase/database.rules.json` is the source of truth.
+**Status, 2026-10-14: live.** Committed to Cardmaster with the owner's go-ahead (`121c939`), merged as [jhiggins-tech/cardmaster#11](https://github.com/jhiggins-tech/cardmaster/pull/11), and deployed to the shared Firebase project by Cardmaster's CI. Cardmaster's [`firebase/database.rules.json`](https://github.com/jhiggins-tech/cardmaster/blob/main/firebase/database.rules.json) is now the source of truth.
 
 **Read this when** you're writing the game's save code, changing what it stores, or reviewing the rules pull request.
 
@@ -56,7 +56,7 @@ This is the plan for the save code. The local half is written: the [`Profile`](.
 
 ## The rules section
 
-The section is in [Cardmaster's rules file](https://github.com/jhiggins-tech/cardmaster/blob/claude/gallant-keller-3qzp97/firebase/database.rules.json), as a new top-level `pooketSlug` key after `lobby`. Nothing else in the file changes. How it works:
+The section is in [Cardmaster's rules file](https://github.com/jhiggins-tech/cardmaster/blob/main/firebase/database.rules.json), as a new top-level `pooketSlug` key after `lobby`. Nothing else in the file changes. How it works:
 - **Write access is granted in two places:** on a player's record, to that player, never to delete it; and on a board entry, to its player. Everything else is `.validate`.
 - **Deletes:** the record's `.write` needs `newData.exists()`. A required field can't be deleted either: validation runs on the record that holds it, and `hasChildren` then fails.
 - **The save number:** the record's own `.validate` compares `newData.child('rev')` with `data.child('rev')`. It runs on every write that changes the record, a `PATCH` of one field included.

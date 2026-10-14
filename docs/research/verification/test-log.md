@@ -48,6 +48,7 @@ All tests ran against Cardmaster's repository at `762ca94`, in the cloud sandbox
 | ~21:53 | The draft, extended to the planned record and the friends board, with a save number | The same, on Node 22.22. 13 tests for `pooketSlug` in place of the draft's 7 | ✅ 30 of 30: Cardmaster's 17, and 9 for the record and 4 for the board. One new test was wrong at first (it expected an overlong player id to be refused; the rules bound mission ids) and was fixed |
 | 21:54–21:59 | Do the new tests catch weakened rules? | The new rules weakened 32 ways, one at a time ([list](../accounts/database-rules.md#tests)) | ✅ 32 of 32 caught, each by a named test. Three needed a second pass, after their search patterns had also matched Cardmaster's own rules |
 | 21:59–22:01 | Cardmaster's CI on the committed rules (`121c939`, branch `claude/gallant-keller-3qzp97`), with the owner's go-ahead | Run 38644449649 | ✅ Build, and the rules, hosting and sign-in tests passed; the deploy job was skipped, as it only runs on `main` |
+| 22:29–22:31 | The pull request, [jhiggins-tech/cardmaster#11](https://github.com/jhiggins-tech/cardmaster/pull/11), and its merge by the owner | Run 38647981617 on the pull request, then run 38648058033 on `main` | ✅ Both passed. On `main`, *Deploy the database rules and the PWA* succeeded: the rules are live |
 
 ## Part 4: Refactor
 

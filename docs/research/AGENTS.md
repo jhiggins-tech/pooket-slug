@@ -21,7 +21,7 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
 | Feature roadmap | ✅ Sorted by the owner on 2026-10-14 (MoSCoW) | [roadmap](roadmap/README.md) |
 | Refactor pass | ✅ All 16 steps landed 2026-10-14, each verified in CI; some parts wait for their features | [refactor plan](roadmap/refactor-plan.md) |
 | Automated tests | ✅ EditMode tests before each build, and the two-player co-op test after each deploy | [EditMode tests](verification/edit-mode-tests.md), [browser tests](verification/browser-tests.md) |
-| "Sign in with Google" spike | ⏳ Reusing the Cardmaster Firebase project. Database rules for the player record and a friends board committed to a Cardmaster branch, tested and green in its CI; live once merged into its `main`. Waiting on the owner: that merge, the console steps, the repository variables | [accounts](accounts/README.md), [todo](todo.md) |
+| "Sign in with Google" spike | ⏳ Reusing the Cardmaster Firebase project. Database rules for the player record and a friends board are live (merged into Cardmaster and deployed). Waiting on the owner: the console steps and the repository variables | [accounts](accounts/README.md), [todo](todo.md) |
 
 **Live build:** https://jhiggins-tech.github.io/pooket-slug/ · **What's next:** [todo.md](todo.md) · **Game design:** [DESIGN.md](../../DESIGN.md), written with the owner, and its four sign-off documents in [docs/design](../design/README.md)
 
