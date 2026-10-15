@@ -114,7 +114,7 @@ Mission one's debrief, the first time: the tally, then XP and rank are revealed 
 
 1. **The tally** (about 3 s): MISSION COMPLETE! at the top, and the announcer says it if the drive didn't. Then the numbers count up: score, time, goons, accuracy, and how many lives and continues were left. Your best score so far shows beside it, with NEW BEST! if it is.
 2. **The first XP** (about 3 s): a new bar slides in for the first time, labelled XP. It fills from the mission's parts: the mission cleared, kie freed, and the kills ([career XP](player.md#what-the-player-keeps)). kie's bubble: "YOU GET XP FOR THAT."
-3. **The first step up the ladder** (about 3 s): the rank badge appears, and you go up from the bottom rank to the first rank above it, with a RANK UP! stamp and a chip fanfare. Only that rank's name is shown; the ladder's hidden ranks stay hidden ([rank](player.md#what-the-player-keeps)).
+3. **The first step up the ladder** (about 3 s): the rank badge appears, and you go up from the lowest rank on the ladder, where everyone starts ([rank](player.md#what-the-player-keeps)), to the one above it, with a RANK UP! stamp and a chip fanfare. Only that rank's name is shown; the ladder's hidden ranks stay hidden ([rank](player.md#what-the-player-keeps)).
 4. **Sign in to keep it** (only for players who aren't signed in): kie's bubble: "SIGN IN SO THIS DOESN'T VANISH." The sign-in button shows over the game, as on the title screen, beside CONTINUE. Signing in here saves the run's progress straight away; skipping is fine and asks again only on the next debrief.
 5. **Continue:** to the title screen, where the menu grows ([two of the crew](#two-of-the-crew)).
 
