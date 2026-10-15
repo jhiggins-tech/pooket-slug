@@ -73,6 +73,8 @@ namespace PooketSlug
             Spike.Configure(url); // ?spike=hits for this visit (before the art and sounds, which make what spikes need)
             Art.Init();
             Sfx.Init(gameObject);
+            Music.Init(gameObject);
+            if (Spike.Music) Music.Prepare(MusicTracks.All); // rendered at launch, so the mission starts without a stutter
             m_Options = OptionsStore.Load();
             ApplyOptions();
 
@@ -129,6 +131,8 @@ namespace PooketSlug
         {
             var world = new World(m_Camera, mission, net) { TanksToCall = m_TankUnlocked ? 1 : 0, SkipToPilot = m_TestPilot };
             world.BossIntro += OnBossIntro;
+            world.BossFightStarted += OnBossFightStarted;
+            world.TankWrecked += OnTankWrecked;
             m_IntroName = null;
             if (m_TestCrate)
             {
@@ -179,6 +183,12 @@ namespace PooketSlug
             SetState(GameState.Playing);
             Sfx.Play(Sfx.Start);
             Sfx.Say("mission-start", 0.3f);
+            if (Spike.Music)
+            {
+                Music.Silence();
+                Music.Sting(MusicTracks.MissionStart);
+                Music.Play(MusicTracks.SteelNight, MusicTracks.MissionStart.Seconds);
+            }
         }
 
         void Restart()
@@ -204,6 +214,7 @@ namespace PooketSlug
             m_World = NewWorld(m_Mission);
             m_Paused = false;
             m_StartNote = null;
+            Music.Silence();
             SetState(GameState.Title);
         }
 
@@ -225,11 +236,27 @@ namespace PooketSlug
 
         // ------------------------------------------------------------------ the boss intro
 
+        /// <summary>?spike=music, which is solo only.</summary>
+        bool MusicOn => Spike.Music && !m_Coop;
+
         void OnBossIntro(BossEnemy boss, bool firstTime)
         {
+            if (MusicOn) Music.Stop(); // the screen locks and the mission's music cuts out (docs/design/tanks.md)
             m_IntroT = -0.001f; // just before 0, so the first cues fire on the next tick
             m_IntroFull = firstTime;
             m_IntroName = boss.DisplayName;
+        }
+
+        /// <summary>The tank's first shot: the boss music kicks in.</summary>
+        void OnBossFightStarted(BossEnemy boss)
+        {
+            if (MusicOn) Music.Play(MusicTracks.TankAlert);
+        }
+
+        /// <summary>The tank's wrecked: a victory sting over the boss music, which runs on through the pilot round.</summary>
+        void OnTankWrecked()
+        {
+            if (MusicOn) Music.Sting(MusicTracks.BossVictory);
         }
 
         /// <summary>Moves the intro on, and plays the siren and the announcer's lines as they come due.</summary>
@@ -256,6 +283,7 @@ namespace PooketSlug
         void ApplyOptions()
         {
             Sfx.Muted = !m_Options.Sound;
+            Music.Muted = !m_Options.Sound;
             ScrollCamera.Shaking = m_Options.Shake;
         }
 
@@ -300,6 +328,7 @@ namespace PooketSlug
             m_World = NewWorld(Missions.ByNetId(m_Net.Link.Mission) ?? m_Mission, m_Net.Link);
             m_Net.Events = m_World.Sync;
             m_Coop = true;
+            Music.Silence(); // spikes are solo only
             m_Paused = false;
             m_LeaveArmed = 0f;
             m_StartNote = null;
@@ -347,6 +376,8 @@ namespace PooketSlug
             MenuAction click = m_Menu.TakeClick();
             float dt = Mathf.Min(Time.unscaledDeltaTime, 1f / 30f);
             m_StateTime += dt;
+            Music.Tick(dt);
+            Music.Paused = m_Paused;
 
             m_Frames++;
             m_FpsTimer += Time.unscaledDeltaTime;
@@ -453,6 +484,7 @@ namespace PooketSlug
                     if (keys.Pause || keys.PadPause || keys.Back || (keys.Start && m_StateTime > 0.2f)) { m_Paused = true; break; }
 
                     m_World.Tick(dt, soldier);
+                    if (MusicOn && m_World.Victory && Music.Playing != null) Music.Stop(fade: true); // the pilot glitched out
                     m_OutFor = m_World.Player.Lives.IsOut ? m_OutFor + dt : 0f;
                     if (m_OutFor > Tuning.Lives.GameOverDelay) EndRun(GameState.GameOver);
                     else if (m_World.Victory && m_World.VictoryTime > 1f) EndRun(GameState.Victory);
@@ -561,6 +593,7 @@ namespace PooketSlug
         void EndRun(GameState state)
         {
             SetState(state);
+            if (state == GameState.GameOver) Music.Silence();
             bool wasOpen = m_Profile.coop;
             m_Profile.RecordRun(m_World.Mission, Setting.Normal, m_World.Scoring.Points, won: state == GameState.Victory, solo: !m_Coop);
             m_CoopJustOpened = !wasOpen && m_Profile.coop;

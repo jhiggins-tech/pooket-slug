@@ -120,6 +120,8 @@ namespace PooketSlug
         public event System.Action<BossEnemy, bool> BossIntro;
         /// <summary>The boss's first shot: its entrance is over and the fight is on.</summary>
         public event System.Action<BossEnemy> BossFightStarted;
+        /// <summary>A boss tank was wrecked, and its pilot round starts.</summary>
+        public event System.Action TankWrecked;
         /// <summary>
         /// Set before the boss spawns for the quick intro: the tank starts in place and skips its entrance (a restart at
         /// the boss-door checkpoint; replays when there are any).
@@ -269,6 +271,7 @@ namespace PooketSlug
         {
             Log.Game.Info("Boss tank wrecked: the pilot jumps out");
             Scoring.Popup("TANK WRECKED!", tank.Center + Vector2.up * 1.6f, new Color(1f, 0.85f, 0.3f));
+            TankWrecked?.Invoke();
             if (!IsAuthority) return;
             if (Spawner.SpawnEnemy(Content.Pilot, tank.Pos + Vector2.up * 0.6f) is Pilot pilot)
                 pilot.JumpOut(Player.Pos.x < tank.Pos.x ? -1 : 1);

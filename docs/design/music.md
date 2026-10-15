@@ -65,6 +65,8 @@ Everything is code: no audio files, nothing to download, and a track is a few li
 
 **Writing the notes:** Claude composes each track in the notation, then renders it to a WAV in CI so it can be heard in a browser before it goes in the game. Each track goes on the Roadmap with a listen link, like a spike.
 
+**First cut** (spike, 2026-10-15, `?spike=music`, solo only): the notation (`Core/Score.cs`), the renderer (`Core/MusicRender.cs`), the player (`Music.cs`), Mission one's theme, the boss theme and the mission start and boss victory stings (`Core/MusicTracks.cs`), hooked into the boss intro. Every track is rendered at launch for now.
+
 **Build order:** the notation and player first, with the boss theme (the intro already waits on it), then Mission one's theme, the stings, and the title and debrief.
 
 ## Open questions
