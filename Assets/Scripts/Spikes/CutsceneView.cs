@@ -27,7 +27,9 @@ namespace PooketSlug
         readonly Image m_Fade, m_Flicker, m_Back, m_Window, m_Door, m_DoorGap, m_Bag, m_Cup, m_Card, m_Spark;
         readonly Image[] m_Snow = new Image[36], m_Chips = new Image[10], m_Jet = new Image[8], m_Beams = new Image[2];
         readonly Figure m_Tones2, m_Goon;
-        readonly Text m_Sign, m_Hint, m_Waiting;
+        readonly Text m_Sign, m_Hint, m_Waiting, m_Subtitle;
+        readonly RectTransform m_SubBand, m_BigCard;
+        readonly Image m_Dim;
         readonly RectTransform m_CardBand;
         readonly Text m_CardText;
         readonly Button m_Skip;
@@ -102,6 +104,20 @@ namespace PooketSlug
             for (int i = 0; i < m_Jet.Length; i++) m_Jet[i] = Picture("Water", null, 0f, 0f, 4f, 3f, Water);
             for (int i = 0; i < m_Snow.Length; i++) m_Snow[i] = Picture("Snow", null, 0f, 0f, 1.5f, 1.5f, new Color(1f, 1f, 1f, 0.85f));
 
+            // the keycard's close-up: the room dimmed, and the card big enough to read
+            m_Dim = Ui.Picture(m_Stage, "Dim", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, new Color(0.03f, 0.02f, 0.05f, 0.7f));
+            Stretch(m_Dim.rectTransform);
+            m_BigCard = Ui.Rect(m_Stage, "Keycard close-up", Ui.Middle, Ui.Middle, new Vector2(0f, 26f), new Vector2(124f, 78f) * Px);
+            m_BigCard.gameObject.AddComponent<Image>().color = new Color(0.3f, 0.85f, 0.92f);
+            m_BigCard.gameObject.AddComponent<Outline>().effectColor = Ink;
+            Ui.Picture(m_BigCard, "Stripe", White, Ui.TopCenter, Ui.TopCenter, new Vector2(0f, -10f), new Vector2(124f, 18f) * Px, new Color(0.08f, 0.2f, 0.26f));
+            Ui.Picture(m_BigCard, "Photo", White, Ui.BottomLeft, Ui.BottomLeft, new Vector2(10f, 12f) * Px, new Vector2(26f, 30f) * Px, new Color(0.12f, 0.3f, 0.36f));
+            Ui.Picture(m_BigCard, "Chip", White, Ui.BottomRight, Ui.BottomRight, new Vector2(-10f, 14f) * Px, new Vector2(16f, 12f) * Px, Gold);
+            Ui.Label(m_BigCard, "Title", Ui.TopCenter, new Vector2(0f, -18f), 22, TextAnchor.UpperCenter, Color.white).text = "MILITARY BASE";
+            Ui.Label(m_BigCard, "Gate", Vector2.zero, new Vector2(84f, 66f), 18, TextAnchor.MiddleLeft, Ink).text = "NORTH GATE";
+            Ui.Label(m_BigCard, "Access", Vector2.zero, new Vector2(84f, 40f), 11, TextAnchor.MiddleLeft, new Color(0.08f, 0.2f, 0.26f)).text = "ACCESS: ALL AREAS";
+            foreach (Text t in m_BigCard.GetComponentsInChildren<Text>()) t.GetComponent<Shadow>().enabled = false;
+
             m_CardBand = Ui.Rect(m_Stage, "Caption card", Ui.Middle, Ui.Middle, new Vector2(0f, 10f), new Vector2(StageW * Px + 20f, 76f));
             var band = m_CardBand.gameObject.AddComponent<Image>();
             band.color = new Color(0.06f, 0.04f, 0.08f, 0.92f);
@@ -114,9 +130,17 @@ namespace PooketSlug
             m_Fade = Ui.Picture(m_Stage, "Cut", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, Color.black);
             Stretch(m_Fade.rectTransform);
 
-            m_Hint = Ui.Label(m_Stage, "Tap", Ui.BottomRight, new Vector2(-8f, 8f), 9, TextAnchor.LowerRight, new Color(1f, 1f, 1f, 0.55f));
+            // the narrator's subtitles, in a band along the bottom
+            m_SubBand = Ui.Rect(m_Stage, "Subtitles", new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(0f, 6f), new Vector2(StageW * Px - 40f, 26f));
+            var sub = m_SubBand.gameObject.AddComponent<Image>();
+            sub.color = new Color(0f, 0f, 0f, 0.62f);
+            sub.raycastTarget = false;
+            m_Subtitle = Ui.Label(m_SubBand, "Narrator", Ui.Middle, Vector2.zero, 13, TextAnchor.MiddleCenter, Paper);
+            m_Subtitle.fontStyle = FontStyle.BoldAndItalic;
+
+            m_Hint = Ui.Label(m_Stage, "Tap", Ui.TopRight, new Vector2(-8f, -8f), 9, TextAnchor.UpperRight, new Color(1f, 1f, 1f, 0.55f));
             m_Hint.text = "TAP TO GO ON";
-            m_Waiting = Ui.Label(m_Stage, "Waiting", new Vector2(0.5f, 0f), new Vector2(0f, 8f), 11, TextAnchor.LowerCenter, Cyan);
+            m_Waiting = Ui.Label(m_Stage, "Waiting", new Vector2(0.5f, 0f), new Vector2(0f, 38f), 11, TextAnchor.LowerCenter, Cyan);
             m_Skip = Ui.Button(m_Stage, "SKIP", new Vector2(StageW * Px / 2f - 42f, StageH * Px / 2f - 20f), new Vector2(64f, 22f), () => m_SkipPressed = true, out Text skipKey);
             skipKey.text = "ESC";
 
@@ -185,6 +209,7 @@ namespace PooketSlug
                 case "jet": Sfx.Play(Sfx.Splat, 0.8f); break;
                 case "glitch": Sfx.Play(Sfx.Glitch, 0.7f); m_GoonDiedAt = m_Player.T; break;
                 case "card-drop": Sfx.Play(Sfx.Pickup, 0.6f); break;
+                case "card-up": Sfx.Play(Sfx.Pickup, 0.9f); break;
                 case "crush": Sfx.Play(Sfx.Hit, 0.7f); break;
                 case "card": Sfx.Play(Sfx.Thump, 1f); break;
                 default:
@@ -226,12 +251,15 @@ namespace PooketSlug
                 ShowBubble(bubbles++, line, now);
             }
             for (int i = bubbles; i < m_Bubbles.Count; i++) Ui.Show(m_Bubbles[i].Rt, false);
+            string said = p.Narration;
+            Ui.Show(m_SubBand, said != null);
+            if (said != null) m_Subtitle.text = said;
             Ui.Show(m_CardBand, card);
 
             Ui.Show(m_Skip, p.CanSkip);
             Ui.Show(m_Hint, !p.CanSkip && !p.Waiting && p.Shot == 0 && t > 1.2f);
             Ui.Show(m_Waiting, p.Waiting);
-            if (p.Waiting) m_Waiting.text = p.HasTapped(0) ? "WAITING FOR YOUR PARTNER  ● ○" : "YOUR PARTNER'S READY: TAP TO GO ON  ○ ●";
+            if (p.Waiting) m_Waiting.text = p.HasTapped(0) ? "WAITING FOR YOUR PARTNER" : "YOUR PARTNER'S READY: TAP TO GO ON";
         }
 
         void ShowBubble(int i, CutsceneLine line, float now)
@@ -270,6 +298,7 @@ namespace PooketSlug
             b.Text = Ui.Label(b.Rt, "Line", Ui.Middle, Vector2.zero, 11, TextAnchor.MiddleCenter, Ink);
             b.Text.GetComponent<Shadow>().enabled = false;
             b.Tail.transform.SetAsFirstSibling();
+            b.Rt.SetSiblingIndex(m_SubBand.GetSiblingIndex());
             return b;
         }
 
@@ -286,13 +315,15 @@ namespace PooketSlug
             for (int i = 0; i < m_Snow.Length; i++) Snow(i, now, street);
             Ui.Show(m_Goon.Rt, false);
             Ui.Show(m_Card, false);
+            Ui.Show(m_Dim, shot == 4);
+            Ui.Show(m_BigCard, shot == 4);
             Ui.Show(m_Spark, !street && shot >= 2 && (int)(now * 9f) % 3 == 0);
             foreach (Image j in m_Jet) Ui.Show(j, false);
             foreach (Image b in m_Beams) Ui.Show(b, false);
             foreach (Image c in m_Chips) Ui.Show(c, false);
-            Ui.Show(m_Tones2.Rt, true);
+            Ui.Show(m_Tones2.Rt, shot != 4);
             Ui.Show(m_Bag, shot <= 2);
-            Ui.Show(m_Cup, shot <= 4);
+            Ui.Show(m_Cup, shot <= 5);
             m_Window.color = Warm;
             m_Door.rectTransform.localRotation = Quaternion.identity;
             m_Door.rectTransform.localScale = Vector3.one;
@@ -300,51 +331,60 @@ namespace PooketSlug
 
             switch (shot)
             {
-                case 0: // outside the hangout: tones2 walks in from the left with the snacks
+                case 0: // outside the hangout: tones2 strolls in from the left with the snacks
                 {
-                    float x = Mathf.Lerp(-16f, 196f, Mathf.Clamp01(t / 2.6f));
-                    Soldier(x, Street, t < 2.6f, t);
+                    float x = Mathf.Lerp(-16f, 196f, Mathf.Clamp01(t / 3.6f));
+                    Soldier(x, Street, t < 3.6f, t);
                     break;
                 }
                 case 1: // the door swings in off a hinge, and the warm light turns cold
                 {
                     Soldier(206f, Street, false, t);
-                    float swing = Mathf.Clamp01((t - 0.3f) / 0.25f);
+                    float swing = Mathf.Clamp01((t - 0.5f) / 0.3f);
                     // it swings in on its hinge and sags, hanging off it
                     m_Door.rectTransform.localScale = new Vector3(1f - swing * 0.65f, 1f, 1f);
                     m_Door.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -swing * 9f);
-                    bool cold = t > 0.6f;
+                    bool cold = t > 1.2f;
                     Color glow = cold ? ((int)(now * 14f) % 4 == 0 ? Warm : Cyan) : Warm;
-                    if (t > 1.1f) glow = Cyan;
+                    if (t > 1.8f) glow = Cyan;
                     m_Window.color = glow;
                     m_DoorGap.color = glow;
                     break;
                 }
-                case 2: // inside, raided: the bag drops and the chips go everywhere
+                case 2: // inside, raided: a long look, then the bag drops and the chips go everywhere
                 {
                     Soldier(56f, Floor, false, t);
-                    if (t >= 0.6f)
+                    if (t >= 2.2f)
                     {
                         Ui.Show(m_Bag, true);
-                        float fall = Mathf.Clamp01((t - 0.6f) / 0.2f);
+                        float fall = Mathf.Clamp01((t - 2.2f) / 0.2f);
                         m_Bag.rectTransform.anchoredPosition = new Vector2(66f, Mathf.Lerp(Floor + 12f, Floor, fall)) * Px;
-                        if (fall >= 1f) Chips(t - 0.8f, 66f);
+                        if (fall >= 1f) Chips(t - 2.4f, 66f);
                     }
                     break;
                 }
-                case 3: // a straggler: it pops up, shouts, gets sprayed, glitches out and drops a keycard
+                case 3: // a straggler: it flickers up and shouts, gets sprayed, glitches out and drops its keycard, which tones2 picks up
                 {
                     Ui.Show(m_Bag, false);
                     Chips(9f, 66f);
-                    bool walk = t > 2f && t < 2.4f;
-                    float x = t <= 2f ? 56f : Mathf.Lerp(56f, 164f, Mathf.Clamp01((t - 2f) / 0.4f));
-                    Soldier(x, Floor, walk, t, spraying: t >= 1.2f && t < 1.7f);
+                    bool walk = t > 5.4f && t < 6.2f;
+                    float x = t <= 5.4f ? 56f : Mathf.Lerp(56f, 164f, Mathf.Clamp01((t - 5.4f) / 0.8f));
+                    bool spraying = t >= 3.2f && t < 3.8f;
+                    Soldier(x, Floor, walk, t, spraying);
                     Goon(t, now);
-                    if (t >= 1.2f && t < 1.7f) Jet(t - 1.2f, x + 10f, 168f);
-                    if (t >= 1.9f && t < 2.4f) Keycard(Mathf.Clamp01((t - 1.9f) / 0.3f), 176f);
+                    if (spraying) Jet(t - 3.2f, x + 10f, 168f);
+                    if (t >= 4.2f && t < 6.4f) Keycard(Mathf.Clamp01((t - 4.2f) / 0.35f), 176f);
                     break;
                 }
-                case 4: // heading out: searchlights through the window, the slushie crushed, and off he goes
+                case 4: // the keycard, close up: it slides up into view, and flickers like the holograms do
+                {
+                    Soldier(40f, Floor, false, t);
+                    float up = Mathf.Clamp01(t / 0.35f);
+                    m_BigCard.anchoredPosition = new Vector2((int)(now * 10f) % 9 == 0 ? 2f : 0f, Mathf.Lerp(-140f, 26f, 1f - (1f - up) * (1f - up)));
+                    m_BigCard.localRotation = Quaternion.Euler(0f, 0f, (1f - up) * -8f);
+                    break;
+                }
+                case 5: // heading out: searchlights through the window, the slushie crushed, and off he goes
                 {
                     Chips(9f, 66f);
                     for (int i = 0; i < m_Beams.Length; i++)
@@ -352,10 +392,10 @@ namespace PooketSlug
                         Ui.Show(m_Beams[i], true);
                         m_Beams[i].rectTransform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(now * 1.3f + i * 2f) * 20f);
                     }
-                    float x = t < 1f ? 164f : Mathf.Lerp(164f, 340f, (t - 1f) / 2f);
-                    Soldier(x, Floor, t >= 1f, t);
-                    if (t >= 0.8f) Ui.Show(m_Cup, false);
-                    else m_Cup.rectTransform.localScale = new Vector3(1f, t > 0.6f ? 0.5f : 1f, 1f);
+                    float x = t < 1.8f ? 164f : Mathf.Lerp(164f, 340f, (t - 1.8f) / 3f);
+                    Soldier(x, Floor, t >= 1.8f, t);
+                    if (t >= 1.6f) Ui.Show(m_Cup, false);
+                    else m_Cup.rectTransform.localScale = new Vector3(1f, t > 1.4f ? 0.5f : 1f, 1f);
                     break;
                 }
             }

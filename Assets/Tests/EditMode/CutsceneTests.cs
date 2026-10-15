@@ -16,12 +16,47 @@ namespace PooketSlug.Tests
         }
 
         [Test]
-        public void TheOpeningIsFiveShotsOfAboutFifteenSeconds()
+        public void TheOpeningIsSixUnhurriedShotsEachWithANarratorLine()
         {
-            Assert.AreEqual(5, Cutscenes.Opening.Shots.Length);
-            Assert.AreEqual(15f, Cutscenes.Opening.Seconds, 0.01f);
+            Assert.AreEqual(6, Cutscenes.Opening.Shots.Length);
+            Assert.That(Cutscenes.Opening.Seconds, Is.InRange(28f, 34f));
             foreach (CutsceneShot shot in Cutscenes.Opening.Shots)
-                Assert.That(shot.Seconds, Is.InRange(2f, 4f), shot.Name);
+            {
+                Assert.That(shot.Seconds, Is.InRange(4f, 7f), shot.Name);
+                Assert.IsTrue(System.Array.Exists(shot.Lines, l => l.Who == Speaker.Narrator), shot.Name + " has narration");
+            }
+        }
+
+        [Test]
+        public void EveryLineHasTimeToBeRead()
+        {
+            // about three words a second, counted from when a line appears to when it goes
+            foreach (CutsceneShot shot in Cutscenes.Opening.Shots)
+                for (int i = 0; i < shot.Lines.Length; i++)
+                {
+                    CutsceneLine line = shot.Lines[i];
+                    if (line.Who == Speaker.Caption) continue;
+                    float until = shot.Seconds;
+                    if (line.Who == Speaker.Narrator)
+                        for (int j = i + 1; j < shot.Lines.Length; j++)
+                            if (shot.Lines[j].Who == Speaker.Narrator) { until = shot.Lines[j].At; break; }
+                    int words = line.Text.Split(' ').Length;
+                    Assert.That(until - line.At, Is.GreaterThanOrEqualTo(words / 3f), line.Text);
+                }
+        }
+
+        [Test]
+        public void TheNarratorSpeaksInSubtitlesNotBubbles()
+        {
+            var p = new CutscenePlayer(Cutscenes.Opening, seenBefore: false);
+            var lines = new List<CutsceneLine>();
+            Assert.IsNull(p.Narration);
+            Run(p, 0.5f);
+            Assert.AreEqual("Friday night. tones2's back from the snack run.", p.Narration);
+            Assert.AreEqual(0, p.Showing(lines), "no bubble for the narrator");
+            while (p.Shot < 3) Run(p, 0.1f);
+            Run(p, 5f);
+            Assert.AreEqual("It glitches out, and drops its keycard.", p.Narration, "the latest line replaces the last");
         }
 
         [Test]
@@ -29,7 +64,7 @@ namespace PooketSlug.Tests
         {
             var p = new CutscenePlayer(Cutscenes.Opening, seenBefore: false);
             var cues = new List<string>();
-            Run(p, 20f, cues);
+            Run(p, 40f, cues);
             Assert.IsTrue(p.Done);
             Assert.IsFalse(p.Skipped);
             int expected = 0;
@@ -97,12 +132,14 @@ namespace PooketSlug.Tests
             var lines = new List<CutsceneLine>();
             Assert.AreEqual(0, p.Showing(lines));
             Run(p, 1f);
+            Assert.AreEqual(0, p.Showing(lines));
+            Run(p, 2.5f);
             Assert.AreEqual(1, p.Showing(lines));
             Assert.AreEqual("SNACKS ARE HERE LADS", lines[0].Text);
-            while (p.Shot < 3) Run(p, 0.1f);
+            while (p.Shot < 4) Run(p, 0.1f);
             Run(p, 3f);
-            Assert.AreEqual(2, p.Showing(lines), "the goon's cut-off line, then tones2's");
-            Assert.AreEqual(Speaker.Goon, lines[0].Who);
+            Assert.AreEqual(1, p.Showing(lines), "tones2 says where the card sends him");
+            Assert.AreEqual(Speaker.Tones2, lines[0].Who);
         }
     }
 }

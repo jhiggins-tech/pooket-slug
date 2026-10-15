@@ -3,9 +3,12 @@ using System.Collections.Generic;
 namespace PooketSlug
 {
     /// <summary>Who says a line in a cutscene, which sets how its bubble looks.</summary>
-    public enum Speaker { Tones2, Kie, Goon, Hologram, Caption }
+    public enum Speaker { Tones2, Kie, Goon, Hologram, Caption, Narrator }
 
-    /// <summary>One speech bubble (or the caption card), shown from <see cref="At"/> seconds into its shot until the shot ends.</summary>
+    /// <summary>
+    /// One speech bubble, the caption card, or the narrator's subtitle, shown from <see cref="At"/> seconds into its
+    /// shot until the shot ends (the narrator's until their next line).
+    /// </summary>
     public readonly struct CutsceneLine
     {
         public readonly float At;
@@ -76,22 +79,50 @@ namespace PooketSlug
     /// <summary>The scenes as written in <c>docs/design/story.md</c>. The lines are placeholders for the owner's own.</summary>
     public static class Cutscenes
     {
-        /// <summary>The opening: the snack run and the raided hangout, which doubles as Mission one's briefing.</summary>
+        /// <summary>
+        /// The opening: the snack run and the raided hangout, which doubles as Mission one's briefing. The narrator
+        /// tells it in subtitles (a voice comes later), and the keycard gets a close-up so it's clear where it sends you.
+        /// </summary>
         public static readonly CutsceneDef Opening = new CutsceneDef("scene-opening",
-            new CutsceneShot("Outside the hangout", 3f,
-                new[] { new CutsceneLine(0.8f, Speaker.Tones2, "SNACKS ARE HERE LADS") }),
-            new CutsceneShot("The door", 2f,
-                new[] { new CutsceneLine(0.9f, Speaker.Tones2, "...LADS?") },
-                new[] { new CutsceneCue(0.3f, "door"), new CutsceneCue(0.6f, "static") }),
-            new CutsceneShot("Inside, raided", 3f,
-                new CutsceneLine[0],
-                new[] { new CutsceneCue(0.6f, "drop"), new CutsceneCue(1.4f, "static") }),
-            new CutsceneShot("A straggler", 4f,
-                new[] { new CutsceneLine(0.5f, Speaker.Goon, "INTRUDER. INTRUD-"), new CutsceneLine(2.4f, Speaker.Tones2, "MILITARY BASE. NORTH GATE.") },
-                new[] { new CutsceneCue(0.2f, "goon"), new CutsceneCue(1.2f, "jet"), new CutsceneCue(1.6f, "glitch"), new CutsceneCue(1.9f, "card-drop") }),
-            new CutsceneShot("Heading out", 3f,
-                new[] { new CutsceneLine(0.2f, Speaker.Tones2, "RIGHT."), new CutsceneLine(1.4f, Speaker.Caption, "MISSION 1 · THE MILITARY BASE\nFIND THE CREW") },
-                new[] { new CutsceneCue(0.8f, "crush"), new CutsceneCue(1.4f, "card"), new CutsceneCue(1.5f, "say:mission-start") }));
+            new CutsceneShot("Outside the hangout", 5f,
+                new[]
+                {
+                    new CutsceneLine(0.4f, Speaker.Narrator, "Friday night. tones2's back from the snack run."),
+                    new CutsceneLine(3.2f, Speaker.Tones2, "SNACKS ARE HERE LADS"),
+                }),
+            new CutsceneShot("The door", 4.5f,
+                new[]
+                {
+                    new CutsceneLine(0.9f, Speaker.Narrator, "But the door's been kicked in."),
+                    new CutsceneLine(2.4f, Speaker.Tones2, "...LADS?"),
+                },
+                new[] { new CutsceneCue(0.5f, "door"), new CutsceneCue(1.2f, "static") }),
+            new CutsceneShot("Inside, raided", 5f,
+                new[] { new CutsceneLine(0.5f, Speaker.Narrator, "The hangout's trashed, and the crew are gone.") },
+                new[] { new CutsceneCue(2.2f, "drop"), new CutsceneCue(3.4f, "static") }),
+            new CutsceneShot("A straggler", 7f,
+                new[]
+                {
+                    new CutsceneLine(0.8f, Speaker.Goon, "INTRUDER. INTRUD-"),
+                    new CutsceneLine(1.4f, Speaker.Narrator, "One of the raiders is still here: a hologram."),
+                    new CutsceneLine(4.6f, Speaker.Narrator, "It glitches out, and drops its keycard."),
+                },
+                new[] { new CutsceneCue(0.3f, "goon"), new CutsceneCue(3.2f, "jet"), new CutsceneCue(3.8f, "glitch"), new CutsceneCue(4.2f, "card-drop") }),
+            new CutsceneShot("The keycard", 5f,
+                new[]
+                {
+                    new CutsceneLine(0.5f, Speaker.Narrator, "A pass for the military base, up on the hill."),
+                    new CutsceneLine(2.6f, Speaker.Tones2, "THAT'S WHERE THEY TOOK THEM."),
+                },
+                new[] { new CutsceneCue(0.1f, "card-up") }),
+            new CutsceneShot("Heading out", 5f,
+                new[]
+                {
+                    new CutsceneLine(0.4f, Speaker.Narrator, "So tones2 goes in alone."),
+                    new CutsceneLine(1.2f, Speaker.Tones2, "RIGHT."),
+                    new CutsceneLine(2.8f, Speaker.Caption, "MISSION 1 · THE MILITARY BASE\nFIND THE CREW"),
+                },
+                new[] { new CutsceneCue(1.6f, "crush"), new CutsceneCue(2.8f, "card"), new CutsceneCue(2.9f, "say:mission-start") }));
     }
 
     /// <summary>
@@ -177,14 +208,27 @@ namespace PooketSlug
             return due?.Count ?? 0;
         }
 
-        /// <summary>The lines on screen now, in the order they're written.</summary>
+        /// <summary>The bubbles and the caption card on screen now, in the order they're written (not the narrator).</summary>
         public int Showing(List<CutsceneLine> into)
         {
             into.Clear();
             if (Done) return 0;
             foreach (CutsceneLine line in Current.Lines)
-                if (T >= line.At) into.Add(line);
+                if (T >= line.At && line.Who != Speaker.Narrator) into.Add(line);
             return into.Count;
+        }
+
+        /// <summary>The narrator's subtitle now: their latest line in this shot, or null.</summary>
+        public string Narration
+        {
+            get
+            {
+                if (Done) return null;
+                string said = null;
+                foreach (CutsceneLine line in Current.Lines)
+                    if (line.Who == Speaker.Narrator && T >= line.At) said = line.Text;
+                return said;
+            }
         }
 
         void Next()
