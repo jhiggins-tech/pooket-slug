@@ -33,7 +33,7 @@ kie's Trollogram holograms went rogue and stole the crew's tanks. The goons are 
 - **The boss, kie's tank**, cycles through its Tabks kit, faster as it gets hurt:
   - **Weasel Pop**: waves of weasels that scurry at you and pop. Jump them, or hose them down with ten-1.
   - **Trollogram**: it splits into hologram copies that shuffle round, and you have to hit the real one. A shot fake blows up, as in Tabks.
-  - **Steal**: its roulette spins over your kit and takes one thing (a crate's upgrade, or your special) until you hit it hard enough to drop it.
+  - **Steal**: its roulette spins over your kit and takes your special (or your super's charge) until you hit it hard enough to drop it.
 - **The pilot round**: a hologram kie on foot, with Weasel Pop, Trollogram decoys and Steal. Beat him and the real kie is freed.
 
 ### Roguelite (on ice)
@@ -65,8 +65,8 @@ kie's Trollogram holograms went rogue and stole the crew's tanks. The goons are 
 
 - **Left thumb**: a stick to run; up aims up, down crouches (or aims down in the air).
 - **Right thumb**: FIRE (hold to keep firing), JUMP, special (SP) and super (SU), plus the ability (AB) above the special for the soldiers who have one.
-- **Calling in your tank**: hold the stick down and press SP.
-- **In a tank**, the stick swings the turret and FIRE is held to build power, as in Tabks.
+- **Calling in your tank**: hold the stick down and hold SP. The call charges up first, and letting go early cancels it; a tap of SP still fires the special.
+- **In your tank**, the stick drives and points the gun eight ways and FIRE shoots at once, Metal Slug style ([tanks](docs/design/tanks.md#driving-a-tank)). Only boss tanks swing a turret and charge their shots.
 
 ### The kit
 Each soldier's Tabks tiers become a hero kit:
@@ -77,13 +77,12 @@ Each soldier's Tabks tiers become a hero kit:
 
 ### Crates
 Pickups last the mission (or the run), so everyone starts level next time.
-- **Upgrade crates**:
-  - **Weapon levels**: a primary, special or super goes up a level (I → II → III). At II it forks one of two ways; each soldier's forks are under [The crew](#the-crew).
-  - **Status mods**: whatever you fire picks up a Tabks status and puts it on what it hits. Stack a few and a primary becomes a debuff hose.
+- **Upgrade crates** (on hold on the roadmap): a primary, special or super goes up a level (I → II → III). At II it forks one of two ways; each soldier's forks are under [The crew](#the-crew).
+- **Medkits** heal hearts, and **bomb crates** refill specials.
 - **Gun crates**: a crewmate's gun, which replaces your primary until it's empty.
 
 ### Statuses
-Tabks' statuses, with turns turned into seconds:
+Tabks' statuses, with turns turned into seconds. They come only from the soldiers' kits; no crate adds them:
 - **Burn**: damage over time (Hyperfixate).
 - **Cooked**: deals half damage (the Rizzler).
 - **Tattooed**: takes 25% more damage from everything (Tattoo Gun).
@@ -91,14 +90,15 @@ Tabks' statuses, with turns turned into seconds:
 - **Toxic**: mud and sludge that poison whatever walks through them (ten-2, ten-3).
 
 ## Tanks
-- **Beat a crew tank and its pilot, then climb in.** Inside, Tabks rules apply: the tank's health bar, its Tabks kit with 5 / 3 / 1 rounds, the turret swinging round on the stick, and FIRE held to build power. It's slow, heavy artillery in a fast game. Eject before it blows.
-- **Calling one in**: in Missions, once a mission, hold the stick down and press SP, and a tank you've won drops in beside you. You choose which tank on the mission screen (in the Roguelite, at the start of each stage).
+- **Two kinds of tank** (2026-10-15): the **boss tank** a hologram drives is slow artillery, swinging its turret and charging its shots. **Your tank**, once won, drives Metal Slug style: the stick drives it and points the gun eight ways, and FIRE shoots at once ([tanks](docs/design/tanks.md#two-kinds-of-tank)).
+- **Beat a crew tank and its pilot, then climb in.** Your tank has its own health bar and its Tabks kit with 5 / 3 / 1 rounds that never refill. Eject before it blows.
+- **Calling one in**: in Missions, once a mission, hold the stick down and hold SP until the call charges (letting go early cancels it), and a tank you've won drops in beside you. You choose which tank on the mission screen (in the Roguelite, at the start of each stage).
 - **Soldiers and tanks mix**: tones2 can ride kcaj's tank, Double Park, Unmedicated and all.
 
 ## Bosses
 - **Each mission ends with a crew tank, fighting with its own Tabks kit**: kcaj's tank sweeps a Hyperfixate beam, then ends in Unmedicated. kie's is first ([Mission one](#mission-one)). The spike's tank boss (lobbed shells, and low bursts you jump) is where the code starts.
 - **The pilot round**: wreck the tank and its hologram pilot jumps out to fight you on foot with that crewmate's own kit. It's a mirror match, and a taste of who you're about to free. Then it glitches out (Tabks has the hologram blast) and the real crewmate is freed.
-- **Boss arenas are the only places with Tabks' pixel terrain**: blasts dig craters there, as they do in Tabks. Everywhere else, the ground is solid.
+- **Boss arenas are the only places with Tabks' pixel terrain**: blasts dig craters there, as they do in Tabks. Everywhere else, the ground is solid. If craters prove very hard to build, arenas get solid ground too.
 
 ## Co-op
 - **Live online**: two phones, both on screen. The spike does this with Photon Fusion 2 in Shared Mode, and a partner can drop in. There's no hotseat.
@@ -110,16 +110,16 @@ Tabks' statuses, with turns turned into seconds:
 In Tabks' setup order. Each Tabks weapon's own rules are documented in its kit file (`src/characters/kits/` in pooket-tabks).
 
 ### tones2 (id `tones`)
-- **ten-1** (primary): hold FIRE for a jet that builds from spray to a clean arc in about a second. The droplets trickle damage and push goons back, and letting go resets the pressure. Splashback stays in: point-blank on something big, it knocks your aim off.
+- **ten-1** (primary): hold FIRE for a jet that builds from spray to a clean arc in about a second. The droplets trickle damage and push goons back, and letting go resets the pressure. Splashback stays in, without damage: point-blank on a wall or something big, it slows tones2 down for a moment.
 - **Fork at II**: Hydrant (more range and pressure) or Sprinkler (a wide fan).
-- **ten-2** (special): half a second of shaking, then a rocket jump along your aim. The launch carpets the floor in toxic mud that poisons goons walking through it.
-- **ten-3** (super): a second and a half of spew that melts anything close and leaves sludge that burns goons who walk through it.
+- **ten-2** (special): half a second of shaking, then a rocket jump straight up, steered in the air like a normal jump. The launch carpets the floor in toxic mud that poisons goons walking through it.
+- **ten-3** (super): a second and a half of spew that melts anything close, and he can walk while it pours out. It leaves sludge that lasts a long time (about 15 seconds) and burns goons who walk through it.
 
 ### kie
 - **Weasel Pop** (primary): each press tumbles out three weasels. Where they land, they scurry under the nearest goon and pop, to Pop Goes the Weasel. It's lobbed, so it reaches behind cover, but it's weak against flyers.
 - **Fork at II**: Ferret Frenzy (more, smaller weasels) or Badger (one big one that won't stop chasing).
 - **Trollogram** (special): drop a hologram of yourself that goons shoot instead of you, and press again to swap places with it. A shot hologram blows up on everything nearby. The running joke: these are the ones that went rogue.
-- **Steal** (super): the roulette spins and kie lifts a random power-up off the toughest enemy on screen. The tougher it is, the bigger the prize: a status mod off a goon, say, or a weapon level or a whole crew gun off a boss tank.
+- **Steal** (super): the roulette spins and kie lifts a random power-up off the toughest enemy on screen. The tougher it is, the bigger the prize: a burst of the goon's own weapon, say, or a whole crew gun off a boss tank.
 
 ### kcaj
 - **Double Park** (primary): twin cones, either side of your aim.
@@ -165,14 +165,13 @@ shotdownboyz, lankcity, odsey and doctorfox each arrive as a new mission, with t
 
 ## Progression
 - **Characters**: free the crew ([Missions](#missions)). Unlike Tabks, XP never unlocks characters.
-- **Career XP** comes from clearing missions (more the first time), kills (a little for a goon, more for a tank) and freeing a crewmate (a big bonus, the first time). Its levels only ever give cosmetics: hats (Tabks already has kiwicore's flat cap), skins, tank paint, death animations, kill effects and victory poses.
+- **Career XP** comes from clearing missions, kills and freeing crewmates. Placeholder amounts, to tune: +200 a clear, +300 a crewmate freed, +1 a kill, and a looks token every 600 XP. Its levels only ever give cosmetics: hats (Tabks already has kiwicore's flat cap), skins, tank paint, death animations, kill effects and victory poses.
 - **Within a mission or run**: [crates](#crates).
 
 ## Ranks
 - **The ladder is Tabks'**: 33 ranks, with their insignia and jingles. 8 are known (Bronze, Silver, Gold, Platinum, Diamond, Master, Grandmaster, Champion) and 25 are hidden. As in Tabks, don't name the hidden ones (or describe their looks) in docs, changelogs, tests or commit messages.
 - **For now, you climb slowly with stages beaten**: each stage you beat moves you a little way up the ladder. It's not a rating, so a rank never goes down.
 - **When the Roguelite is back**, the plan was milestones for how far you get and the alert level you reach.
-- **Feats unlock rungs**: each hidden rank's rung also needs its secret feat (clearing a mission without firing, say, or beating a tank with its own stolen weapon), so some steps can't be climbed until someone works out how.
 - **By your name in Slug**: your Slug rank. Your Tabks rank stays in Tabks.
 
 ## Stats
@@ -189,7 +188,7 @@ The spike is Unity 6.3 WebGL, built by GameCI and published to https://jhiggins-
   - The heavy machine gun crate becomes gun crates.
   - The medkit heals hearts, and the bomb crate refills specials.
 - **What carries over from Tabks**: its code is TypeScript, so that stays behind, but its rules and numbers carry over. Each weapon is documented in its kit file, the rank ladder is in `src/stats/ranks.ts` and the tally is in `src/game/tally.ts`.
-- **The roadmap**: the feature list (`docs/research/roadmap/feature-candidates.csv`) is waiting for its MoSCoW pass. This design needs these rows:
+- **The roadmap**: the feature list (`docs/research/roadmap/feature-candidates.csv`) has had its MoSCoW pass. This design needs these rows:
 
   | The design | Feature candidates |
   |---|---|
@@ -205,14 +204,14 @@ The spike is Unity 6.3 WebGL, built by GameCI and published to https://jhiggins-
   | Missions | LVL-02 multiple missions, as the crew grows (one to start) |
   | The Roguelite (on ice) | LVL-14 endless or procedural mode |
   | Boss-arena terrain | LVL-10 destructible scenery, in arenas only |
-  | Freeing the crew, opening co-op, and feats | SCR-09 unlockables, SCR-08 achievements |
+  | Freeing the crew and opening co-op | SCR-09 unlockables, SCR-08 achievements |
   | Stats | SCR-07 per-player stats |
   | Career XP and cosmetics | CHR-04 cosmetics, PRE-03 death animations per weapon |
   | Band Aid and Stage Dive | AUD-02 music (a beat to drum to) |
   | Keeping it all | SOC-01 sign in with Google, SOC-02 cloud saves, TEC-07 save system |
 
   Not picked in the brainstorm: versus and ghost races (VRS-01, VRS-03), team lives (COP-03), couch co-op (COP-05, COP-06) and online leaderboards (SCR-10).
-- **Accounts**: the accounts plan's player record holds best score, runs and wins, and its rules allow nothing else. This design adds freed crew, whether co-op is open (Mission one beaten solo), career XP, cosmetics (owned and worn), rank progress (stages beaten) and feats, and the tally. Each is a rules change in Cardmaster, so they're worth planning into the first rules pull request. Like the scores, they're written by the player's own phone, which the rules can't make honest: fine for personal progress, and this design has no public leaderboard.
+- **Accounts**: the accounts plan's player record holds best score, runs and wins, and its rules allow nothing else. This design adds freed crew, whether co-op is open (Mission one beaten solo), career XP, cosmetics (owned and worn), rank progress (stages beaten), and the tally. Each is a rules change in Cardmaster, so they're worth planning into the first rules pull request. Like the scores, they're written by the player's own phone, which the rules can't make honest: fine for personal progress, and this design has no public leaderboard.
 
 ## Considered, not picked
 - **One-hit deaths**, as in Metal Slug: the owner pivoted to hearts.
@@ -241,13 +240,13 @@ The spike is Unity 6.3 WebGL, built by GameCI and published to https://jhiggins-
 - **The call-in elsewhere**: a button that pops up when it's ready, or a tank icon in the HUD. It's stick down + SP.
 - **XP for feats**. It comes from clears, kills and freeing the crew.
 - **Teaching tones2's kit** as you go, or in a training yard first. Mission one goes straight in.
+- **Secret feats** for the hidden rungs, and **status-mod crates**. Both dropped (14 Oct).
+- **Your tank as artillery**, with a turret and charged shots. Only boss tanks fight that way (15 Oct).
 
 ## Open questions
-- **Ranks**: what counts as a stage in Missions (a whole mission, or a stretch of one), how many stages a rung takes, and whether replays count. When the Roguelite is back: its milestone table, where depth keeps counting through the loops and the alert only climbs, so the two rise together and stalling to raise the alert needs thought.
-- **Missions**: the order after kie.
-- **Crouching specials**: stick down + SP calls your tank in, so can you still fire your special while crouching once a tank is ready?
+- **Ranks**: what counts as a stage in Missions (a whole mission, or a stretch of one), how many stages a rung takes, (replays count). When the Roguelite is back: its milestone table, where depth keeps counting through the loops and the alert only climbs, so the two rise together and stalling to raise the alert needs thought.
+- **Missions**: the order after kcaj.
 - **Bosses**: each tank's attacks after kie's, worked out from its Tabks kit.
-- **Career XP**: how much each source earns, and how it pays out (not decided yet): tokens you spend as in Tabks, a fixed track, a track per soldier, or mystery crates.
-- **The 25 feats** for the hidden rungs.
+- **Career XP**: tuning the placeholder amounts, and what looks cost in tokens.
 - **Kits still to design**: the coming-soon crew's, and garyoldmancorp's real moves (designed in Tabks first).
 - **Timings**: ten-1's build-up, ten-3's spew, Sew's pin, the scam window.

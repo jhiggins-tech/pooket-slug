@@ -2,7 +2,7 @@
 
 How the player discovers tanks, fights them as bosses, wins them, drives them and calls them in.
 
-**Status:** signed off by the owner, 2026-10-14. Revised 2026-10-15: boss tanks and the tanks you drive are separate things.
+**Status:** signed off by the owner, 2026-10-14. Revised 2026-10-15: boss tanks and the tanks you drive are separate things; kie's roulette steals your special; craters can be dropped if they're very hard.
 
 **Read this when** you're designing a tank boss, a tank's controls, or anything tanks touch.
 
@@ -35,11 +35,11 @@ Tanks stay hidden until they matter ([progressive disclosure](README.md#progress
 - **Boss tanks move and aim like artillery.** The turret swings to aim, and the big shots charge up before they fire, so you can see them coming and get out of the way.
 - **Then comes the pilot round.** Wreck the tank and its hologram pilot jumps out to fight you on foot with the crewmate's kit. It's a mirror match, and a taste of who you're about to free. Beat the pilot and it glitches out, and the real crewmate is freed.
 - **Replays keep the pilot round.** Only the freeing scene is skipped.
-- **Bosses fight in arenas,** the only places where blasts dig craters in the ground.
+- **Bosses fight in arenas,** the only places where blasts dig craters in the ground. If craters prove very hard to build, arenas get solid ground like everywhere else.
 - **kie's tank comes first.** It cycles through three attacks, all from kie's kit:
   - waves of weasels that run at you and pop
   - hologram copies of itself, where only the real one can be hurt
-  - a roulette that steals one of your upgrades until you hit it hard enough to drop it
+  - a roulette that steals your special (or your super's charge) until you hit it hard enough to drop it
 - **kcaj's tank is next,** in Mission two. It sweeps a beam, then rains pills across the screen.
 - **Later tanks** take their attacks from their own crewmates' kits in the same way.
 

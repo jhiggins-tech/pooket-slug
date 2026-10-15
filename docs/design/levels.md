@@ -2,7 +2,7 @@
 
 What a mission is, how its map is built and what's in it, and the order in which the game opens up: missions, crew, co-op and menus.
 
-**Status:** signed off by the owner, 2026-10-14.
+**Status:** signed off by the owner, 2026-10-14. Revised 2026-10-15: craters can be dropped if they're very hard.
 
 **Read this when** you're designing a mission or a map, or changing what unlocks when.
 
@@ -41,7 +41,7 @@ Up: [Design](README.md)
   - **Moving platforms and lifts.**
   - **Mounted guns** that a soldier can man.
   - **Supply crates** (a Should). In co-op, whoever grabs one first gets it.
-- **The ground is solid,** except in boss arenas, where blasts dig craters.
+- **The ground is solid,** except in boss arenas, where blasts dig craters. If craters prove very hard to build, arenas are solid too.
 - **Goons come in hordes.** Later missions add shield soldiers, grenadiers, paratroopers, troop trucks and snipers (all Shoulds), a few new kinds at a time.
 - **Helicopters can appear in any mission. Enemy tanks only come after Mission one,** so the crew's tanks stay a surprise.
 - **In co-op,** the camera keeps both players on screen.

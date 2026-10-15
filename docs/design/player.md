@@ -2,7 +2,7 @@
 
 How a soldier plays: the crew, the controls, the kit, health and lives, crates, status effects and co-op, plus what the player keeps between missions.
 
-**Status:** signed off by the owner, 2026-10-14, after one revision: the secret feats and status mods are gone, and the kit's tiers are spelled out.
+**Status:** signed off by the owner, 2026-10-14, after one revision: the secret feats and status mods are gone, and the kit's tiers are spelled out. Revised 2026-10-15: tones2's kit as spiked, and the team super is a combo for each pair.
 
 **Read this when** you're working on anything the player controls or earns.
 
@@ -15,7 +15,7 @@ Up: [Design](README.md)
 
 | Soldier | Plays like |
 |---|---|
-| tones2 | A water jet that builds pressure, a rocket jump that leaves toxic mud, and a spew that melts anything close |
+| tones2 | A water jet that builds pressure (point-blank splashback slows him), a straight-up rocket jump that leaves toxic mud, and a spew he can walk with that leaves long-lasting sludge |
 | kie | Weasels that hunt goons down, a decoy hologram, and a roulette that steals power-ups |
 | kcaj | Twin cones, a beam that locks on and burns, and a screen full of pills |
 | torikloud | Words fired as bullet bursts, sound waves through walls, and a twin who copies him. He has the most health |
@@ -81,7 +81,7 @@ Statuses come only from the soldiers' kits: each one belongs to a particular sol
 - **Two phones, online.** Co-op opens once Mission one has been beaten solo ([progression](levels.md#the-order-things-open-up)), and a partner can drop in mid-mission.
 - **Lives and scores:** each player has their own, and their stats are kept separately.
 - **Some kits help a partner:** kiwicore's drum solo heals them, ciarra's marks make their shots hit harder, and kcaj's pills never hurt them.
-- **The team super:** when both players' supers are charged, they can fire them together for a screen-clearing team super.
+- **The team super:** when both players' supers are charged, they can fire them together for a screen-clearing team super. Each pair of soldiers gets its own combo, designed first as a table of ideas, before any code.
 - **Friendly fire is off.**
 - **Your partner is always easy to find:** an arrow when they're off-screen, and a warning when their health is low or they've switched away from the game.
 
@@ -116,7 +116,7 @@ These are all Won't:
 
 - **The same soldier twice:** can both players in co-op pick the same soldier?
 - **Melee:** which soldiers get it.
-- **The team super:** what it does, and whether it changes with the pair of soldiers.
+- **The team super:** each pair's combo, from the table of ideas.
 - **Career XP:** tuning the placeholder amounts after playtesting, and what looks cost in tokens.
 - **Rank:** where each mission splits into stages, and how many stages make a rung.
 - **Kits still to design:** the coming-soon crew's, and garyoldmancorp's real moves.
