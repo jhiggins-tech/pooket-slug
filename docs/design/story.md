@@ -116,9 +116,35 @@ Mission one's debrief, the first time: the tally, then XP and rank are revealed 
 2. **The first XP** (about 3 s): a new bar slides in for the first time, labelled XP. It fills from the mission's parts: the mission cleared, kie freed, and the kills ([career XP](player.md#what-the-player-keeps)). kie's bubble: "YOU GET XP FOR THAT."
 3. **The first step up the ladder** (about 3 s): the rank badge appears, and you go up from the bottom rank to the first rank above it, with a RANK UP! stamp and a chip fanfare. Only that rank's name is shown; the ladder's hidden ranks stay hidden ([rank](player.md#what-the-player-keeps)).
 4. **Sign in to keep it** (only for players who aren't signed in): kie's bubble: "SIGN IN SO THIS DOESN'T VANISH." The sign-in button shows over the game, as on the title screen, beside CONTINUE. Signing in here saves the run's progress straight away; skipping is fine and asks again only on the next debrief.
-5. **Continue:** to the title screen, where the menu has grown (the co-op opens scene).
+5. **Continue:** to the title screen, where the menu grows ([two of the crew](#two-of-the-crew)).
 
 On a replay, the debrief is the same screen without the first-time lines and the sign-in step, and with any new looks tokens shown.
+
+## Two of the crew
+
+The third reveal: co-op exists ([reveals](#reveals-are-story-beats)). It plays once, ever, the first time the title screen loads after Mission one is beaten solo, which is usually straight after [the first debrief](#the-first-debrief). If the game is closed during the debrief, it plays the next time the title screen loads. Draft, 2026-10-15. About 8 seconds, four shots, played on the title screen itself: the title is the stage, so the menu grows in front of the player. A tap moves on; it can't be skipped, but it's short.
+
+| # | Shot | What happens | Bubbles and text | Time |
+|---|---|---|---|---|
+| 1 | **The old title** | The title screen as on first launch: the logo, START, SETTINGS and the sign-in button. tones2 stands at the left, alone, as he has been all along. | (no bubble: the title's usual quiet) | 1 s |
+| 2 | **kie walks in** | kie walks in from the right, eating the snacks from [freeing kie](#freeing-kie), and stops beside tones2. | kie: "MISSED ME?" | 2 s |
+| 3 | **The menu grows** | kie elbows the START button. It cracks and splits into three that drop in one at a time, each with a chip clunk: **MISSIONS**, **CO-OP** and **CREW**. SETTINGS and sign-in stay where they were. | (no bubble: three clunks) | 3 s |
+| 4 | **kie's line** | kie leans on the CO-OP button and points out at the player. It pulses once, and control comes back. | kie: "TWO OF US NOW. BRING A MATE." | 2 s |
+
+**What each new button opens** ([what the player sees](levels.md#what-the-player-sees-and-when)):
+- **MISSIONS:** the mission screen, with Mission one's replay and its hard setting, and kcaj's mission.
+- **CO-OP:** online play on two phones: host a room, join with a code, quick match, browse rooms, or watch a game ([online](levels.md#online-once-its-open)).
+- **CREW:** the crew screen, with tones2 and kie.
+
+**What it teaches without a word:** kie is a second soldier now, and the second soldier is a second player. The scene says "co-op" only through the button and kie's line, so nothing is explained in text.
+
+**Where it never plays:**
+- **In co-op.** Mission one is always first beaten solo, so this scene is always solo.
+- **For a friend who opens an invite link before beating Mission one.** They're started on Mission one ([invite links](levels.md#what-the-player-sees-and-when)), and see this scene once they've beaten it themselves.
+
+**Signed in or not:** whether it's been seen is kept with the rest of the player's progress, so a player who signs in on a new phone doesn't see it again.
+
+**What the engine needs from it:** the title screen as a cutscene stage, with the crew's sprites standing on it; menu buttons that can animate in; and the unlock state that the [menu-grows spike](levels.md#what-the-player-sees-and-when) adds, saying Mission one has been beaten. The lines are placeholders for the owner to rewrite in the crew's own voice.
 
 ## Reveals are story beats
 
@@ -128,7 +154,7 @@ The game hides what's coming ([progressive disclosure](README.md#progressive-dis
 |---|---|---|
 | Tanks exist | The motor pool, at the end of Mission one | kie's tank rolls out, with its boss intro |
 | You can drive one | Straight after kie is freed | You climb into his tank and drive it out of the base |
-| Co-op exists | Once Mission one has been beaten solo | The menu changes, and kie's first line sets it up |
+| Co-op exists | Once Mission one has been beaten solo | [Two of the crew](#two-of-the-crew): the menu grows, and kie's first line sets it up |
 | Each new crewmate | The end of their mission | The freeing scene |
 | XP and rank | The first debrief | The first XP, and the first step up the ladder |
 
