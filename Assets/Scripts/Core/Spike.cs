@@ -5,17 +5,15 @@ namespace PooketSlug
 {
     /// <summary>
     /// Spike tests: small throwaway experiments switched on from the page address, so they ride along in the
-    /// normal build without changing the game anyone else plays. <c>?spike=holo,hits,tank</c> turns on
-    /// the hologram goons, the hit feel and the artillery boss tank for that visit, and
+    /// normal build without changing the game anyone else plays. <c>?spike=hits,tank</c> turns on
+    /// the hit feel and the artillery boss tank for that visit, and
     /// <c>chip</c> Pooket Tabks' 8-bit sounds. Spikes are solo
     /// only: a co-op game ignores them.
     /// </summary>
     public static class Spike
     {
-        public const string HoloKey = "holo", HitsKey = "hits", TankKey = "tank", ChipKey = "chip";
+        public const string HitsKey = "hits", TankKey = "tank", ChipKey = "chip";
 
-        /// <summary>The goons are glitchy holograms, and glitch out when they die.</summary>
-        public static bool Holo;
         /// <summary>Hits land with weight: sparks, flashes, and damage numbers floating off you.</summary>
         public static bool Hits;
         /// <summary>The boss tank fights like artillery: it swings its turret and charges up lobbed shots.</summary>
@@ -23,13 +21,12 @@ namespace PooketSlug
         /// <summary>Every sound is redone with Pooket Tabks' 8-bit recipes (<see cref="Chip"/>).</summary>
         public static bool Chip;
 
-        public static bool Any => Holo || Hits || Tank || Chip;
+        public static bool Any => Hits || Tank || Chip;
 
         /// <summary>Reads <c>?spike=</c> from the page address.</summary>
         public static void Configure(string url)
         {
             string[] keys = (PageQuery.Get(url, "spike") ?? "").ToLowerInvariant().Split(',');
-            Holo = Array.IndexOf(keys, HoloKey) >= 0;
             Hits = Array.IndexOf(keys, HitsKey) >= 0;
             Tank = Array.IndexOf(keys, TankKey) >= 0;
             Chip = Array.IndexOf(keys, ChipKey) >= 0;
@@ -42,7 +39,6 @@ namespace PooketSlug
             {
                 if (!Any) return null;
                 var parts = new System.Collections.Generic.List<string>();
-                if (Holo) parts.Add("HOLOGRAM GOONS");
                 if (Hits) parts.Add("HIT FEEL");
                 if (Tank) parts.Add("BOSS TANK");
                 if (Chip) parts.Add("8-BIT SOUND");

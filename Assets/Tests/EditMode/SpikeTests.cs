@@ -18,26 +18,26 @@ namespace PooketSlug.Tests
             Assert.IsNull(Spike.Label);
         }
 
-        [TestCase("?spike=holo", true, false)]
-        [TestCase("?spike=tank,holo", true, true)]
-        [TestCase("?SPIKE=Holo,TANK", true, true)]
-        [TestCase("?spike=tones2", false, false)] // tones2 is everyone's soldier now: there's no spike for him
-        [TestCase("?spike=hol", false, false)]
-        public void TheAddressTurnsSpikesOn(string query, bool holo, bool tank)
+        [TestCase("?spike=hits", true, false)]
+        [TestCase("?spike=tank,hits", true, true)]
+        [TestCase("?SPIKE=Hits,TANK", true, true)]
+        [TestCase("?spike=tones2,holo", false, false)] // tones2 and the hologram goons are in the game now: no spikes for them
+        [TestCase("?spike=hit", false, false)]
+        public void TheAddressTurnsSpikesOn(string query, bool hits, bool tank)
         {
             Spike.Configure(Page + query);
-            Assert.AreEqual(holo, Spike.Holo);
+            Assert.AreEqual(hits, Spike.Hits);
             Assert.AreEqual(tank, Spike.Tank);
-            Assert.IsFalse(Spike.Hits);
-            Assert.AreEqual(holo || tank, Spike.Label != null);
+            Assert.IsFalse(Spike.Chip);
+            Assert.AreEqual(hits || tank, Spike.Label != null);
         }
 
         [Test]
         public void TheBannerNamesEverySpikeThatsOn()
         {
-            Spike.Configure(Page + "?spike=holo,hits,tank");
+            Spike.Configure(Page + "?spike=hits,tank,chip");
             Assert.IsTrue(Spike.Hits && Spike.Tank);
-            Assert.AreEqual("SPIKE TEST · HOLOGRAM GOONS + HIT FEEL + BOSS TANK", Spike.Label);
+            Assert.AreEqual("SPIKE TEST · HIT FEEL + BOSS TANK + 8-BIT SOUND", Spike.Label);
             Spike.Configure(Page + "?spike=hits");
             Assert.AreEqual("SPIKE TEST · HIT FEEL", Spike.Label);
             Spike.Configure(Page + "?spike=chip");

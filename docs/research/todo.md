@@ -87,6 +87,11 @@ C2, the refactor, is done. C1's code is written and checked locally; it goes liv
   - [x] Verify locally: each input backend, 257 of 257 EditMode tests.
   - [ ] Verify in CI: build, deploy and the co-op test (which now rocket jumps too).
   - Known gap: the jet's push only moves goons on the authority's screen; a follower's droplets damage but don't push.
+- [ ] **C8. Hologram goons for real** ([story](../design/story.md)), queued from the Roadmap 2026-10-15: the approved spike, on for everyone.
+  - [x] Every goon (riflemen, knife runners, drones) is a hologram with the flicker look and the glitch-out death (`HoloLook`); the tank and barrels stay real. No `?spike=holo` any more.
+  - [x] Co-op: each screen draws its own goons as holograms; a follower plays the death when the snapshot says a goon is dying.
+  - [x] Verify locally: each input backend, 257 of 257 EditMode tests.
+  - [ ] Verify in CI: build, deploy and the co-op test.
 
 ## Done recently
 

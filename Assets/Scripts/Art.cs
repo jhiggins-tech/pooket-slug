@@ -309,13 +309,13 @@ namespace PooketSlug
                 for (int i = 0; i < c.Px.Length; i++)
                     if (c.Px[i].a != 0) white.Px[i] = new Color32(255, 255, 255, 255);
                 s_Flash[sprite] = Sprite.Create(ToTexture(white), new Rect(0, 0, c.W, c.H), pivot, PPU, 0, SpriteMeshType.FullRect);
-                if (Spike.Holo) s_Holo[sprite] = Sprite.Create(ToTexture(Hologram(c)), new Rect(0, 0, c.W, c.H), pivot, PPU, 0, SpriteMeshType.FullRect);
+                s_Holo[sprite] = Sprite.Create(ToTexture(Hologram(c)), new Rect(0, 0, c.W, c.H), pivot, PPU, 0, SpriteMeshType.FullRect);
             }
             return sprite;
         }
 
         /// <summary>
-        /// A sprite's hologram (spike: <see cref="Spike.Holo"/>): its shading in greys, scanlined, with a bright
+        /// A sprite's hologram (the goons, <see cref="HoloLook"/>): its shading in greys, scanlined, with a bright
         /// edge. It's tinted by the renderer's colour, so each kind of goon can glow its own colour.
         /// </summary>
         public static Sprite Holo(Sprite s) => s != null && s_Holo.TryGetValue(s, out Sprite h) ? h : s;

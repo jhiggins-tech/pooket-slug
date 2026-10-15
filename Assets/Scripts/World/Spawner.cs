@@ -41,8 +41,8 @@ namespace PooketSlug
                 default: return null;
             }
             e.NetId = id;
-            if (Spike.Holo && !w.Coop && def.Brain != EnemyBrain.Tank && def.Brain != EnemyBrain.Barrel)
-                e.Look = new HoloLook(e); // the goons are holograms; the tank and barrels are real
+            if (def.Brain != EnemyBrain.Tank && def.Brain != EnemyBrain.Barrel)
+                e.Look = new HoloLook(e); // the goons are holograms (on every screen in co-op); the tank and barrels are real
             return e;
         }
 

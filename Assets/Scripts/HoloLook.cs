@@ -4,7 +4,8 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// Spike: a goon drawn as one of kie's rogue holograms, and its glitch-out death.
+    /// A goon drawn as one of kie's rogue holograms (<c>docs/design/story.md</c>), and its glitch-out death. Every goon
+    /// is one; the tank and the barrels are real.
     /// <para>
     /// The look: every sprite is swapped for its hologram (<see cref="Art.Holo"/>: greys, scanlines, a bright edge)
     /// and tinted by kind (riflemen cyan, knife runners magenta, drones amber), with a shimmer, and every so often a
@@ -31,6 +32,7 @@ namespace PooketSlug
         SpriteRenderer[] m_Parts, m_Ghosts;
         Sprite[] m_Last; // each part's last hologram sprite, for the death to tear up
         readonly List<SpriteRenderer> m_Bands = new List<SpriteRenderer>();
+        static readonly Dictionary<Sprite, Sprite[]> s_Bands = new Dictionary<Sprite, Sprite[]>();
         float m_GlitchUntil, m_NextGlitch, m_NextJitter; // in world time, so a paused game holds still
         Vector2 m_Jitter;
         bool m_DeathStarted, m_Bits;
@@ -140,7 +142,7 @@ namespace PooketSlug
                 m_Ghosts[i].enabled = false;
                 Sprite holo = m_Last[i] ?? Art.Holo(part.sprite);
                 if (!shown || holo == null) continue;
-                foreach (Sprite band in SpikeArt.Bands(holo, BandPx))
+                foreach (Sprite band in Bands(holo, BandPx))
                 {
                     var go = new GameObject("Band");
                     go.transform.SetParent(part.transform.parent, false);
@@ -201,6 +203,28 @@ namespace PooketSlug
         {
             Vector3 p = band.transform.localPosition;
             band.transform.localPosition = new Vector3(x, p.y, p.z);
+        }
+
+        /// <summary>
+        /// <paramref name="sprite"/> cut into horizontal bands <paramref name="band"/> pixels tall, bottom first. Each
+        /// band keeps the sprite's pivot, so drawn at the same spot they make up the whole sprite again.
+        /// </summary>
+        static Sprite[] Bands(Sprite sprite, int band)
+        {
+            if (s_Bands.TryGetValue(sprite, out Sprite[] cached)) return cached;
+            Rect r = sprite.rect;
+            int count = Mathf.CeilToInt(r.height / band);
+            var bands = new Sprite[count];
+            Vector2 pivot = sprite.pivot; // in pixels
+            for (int i = 0; i < count; i++)
+            {
+                float y = r.y + i * band, h = Mathf.Min(band, r.yMax - y);
+                var rect = new Rect(r.x, y, r.width, h);
+                var p = new Vector2(pivot.x / r.width, (pivot.y - i * band) / h);
+                bands[i] = Sprite.Create(sprite.texture, rect, p, Art.PPU, 0, SpriteMeshType.FullRect);
+            }
+            s_Bands[sprite] = bands;
+            return bands;
         }
     }
 }
