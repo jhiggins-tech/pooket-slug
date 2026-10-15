@@ -55,6 +55,11 @@ namespace PooketSlug
         bool m_CoopJustOpened; // this run's win opened co-op
         MissionDef m_Mission = Missions.One; // the mission a solo game plays; a shared game plays the host's
         string m_PageUrl;      // the page's address without its query, for invite links
+        // the boss intro under way (docs/design/tanks.md): seconds since it began, whether it's the full one, and the name card
+        float m_IntroT;
+        bool m_IntroFull;
+        string m_IntroName;
+        readonly BossIntroShow.Cue[] m_IntroCues = new BossIntroShow.Cue[4];
 
         /// <summary>Co-op shows only once Mission one has been beaten solo (progressive disclosure).</summary>
         bool CoopOpen => m_Profile.coop || m_Unlocked;
@@ -121,6 +126,8 @@ namespace PooketSlug
         World NewWorld(MissionDef mission, INetLink net = null)
         {
             var world = new World(m_Camera, mission, net) { TanksToCall = m_TankUnlocked ? 1 : 0 };
+            world.BossIntro += OnBossIntro;
+            m_IntroName = null;
             if (m_TestCrate)
             {
                 // Just past where a joining partner appears (1.25 ahead of the start), so whoever runs first takes
@@ -212,6 +219,34 @@ namespace PooketSlug
             if (m_Account.SignedIn)
                 return string.IsNullOrEmpty(m_Account.Name) ? "SIGNED IN · PROGRESS SAVES ONLINE" : "SIGNED IN AS " + m_Account.Name.ToUpperInvariant() + " · PROGRESS SAVES ONLINE";
             return "SIGN IN AT THE TOP RIGHT TO SAVE YOUR PROGRESS ONLINE";
+        }
+
+        // ------------------------------------------------------------------ the boss intro
+
+        void OnBossIntro(BossEnemy boss, bool firstTime)
+        {
+            m_IntroT = -0.001f; // just before 0, so the first cues fire on the next tick
+            m_IntroFull = firstTime;
+            m_IntroName = boss.DisplayName;
+        }
+
+        /// <summary>Moves the intro on, and plays the siren and the announcer's lines as they come due.</summary>
+        void TickIntro(float dt)
+        {
+            if (m_IntroName == null) return;
+            float from = m_IntroT;
+            m_IntroT += dt;
+            int n = BossIntroShow.Cues(m_IntroFull, from, m_IntroT, m_IntroCues);
+            for (int i = 0; i < n; i++)
+            {
+                switch (m_IntroCues[i])
+                {
+                    case BossIntroShow.Cue.Siren: Sfx.Play(Sfx.Siren, 0.7f); break;
+                    case BossIntroShow.Cue.SayWarning: Sfx.Say("warning"); break;
+                    case BossIntroShow.Cue.SayBoss: Sfx.Say("boss-tank"); break;
+                }
+            }
+            if (new BossIntroShow(m_IntroT, m_IntroFull).Over) m_IntroName = null;
         }
 
         // ------------------------------------------------------------------ settings
@@ -382,6 +417,7 @@ namespace PooketSlug
                     break;
 
                 case GameState.Playing:
+                    if (!m_Paused) TickIntro(dt);
                     if (m_Coop)
                     {
                         if (!CoopAlive()) break;
@@ -462,6 +498,8 @@ namespace PooketSlug
                 Net = m_Coop ? m_Net : null,
                 PageUrl = m_PageUrl,
                 LeaveArmed = m_LeaveArmed > 0f,
+                Intro = new BossIntroShow(m_IntroT, m_IntroFull),
+                IntroName = m_IntroName,
             });
             m_Menu.Refresh(new MenuInfo
             {

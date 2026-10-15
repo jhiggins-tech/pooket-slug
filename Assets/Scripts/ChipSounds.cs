@@ -149,6 +149,12 @@ namespace PooketSlug
                 }
                 c.Tone(0f, 0.9f, 180f, 900f, duty: 0.125f, steps: 12, vol: 0.1f, env: new[] { 0.1f, 0.4f, 1f, 1f });
             });
+            // The boss intro's siren: one wail up and back down, square and a little thin, like an arcade alarm.
+            Sfx.Siren = Render("chipSiren", 0.56f, c =>
+            {
+                c.Tone(0f, 0.28f, 520f, 880f, duty: 0.25f, vol: 0.15f, env: Flat);
+                c.Tone(0.28f, 0.28f, 880f, 520f, duty: 0.25f, vol: 0.15f, env: new[] { 0.8f, 1f, 1f, 0f });
+            });
             // The spinners' tick: the turret's servo.
             Sfx.Servo = Render("chipServo", 0.04f, c => c.Tone(0f, 0.03f, 1760f, duty: 0.125f, vol: 0.08f));
 

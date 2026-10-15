@@ -6,7 +6,7 @@ namespace PooketSlug
     /// <summary>The sound bank: every clip is an 8-bit recipe (<see cref="ChipSounds"/>), rendered at startup.</summary>
     public static class Sfx
     {
-        public static AudioClip Shot, Heavy, EnemyShot, Cannon, Explosion, BigExplosion, Jump, Hurt, Hit, Pickup, Throw, Start, Victory, GameOver;
+        public static AudioClip Siren, Shot, Heavy, EnemyShot, Cannon, Explosion, BigExplosion, Jump, Hurt, Hit, Pickup, Throw, Start, Victory, GameOver;
         // tones2's kit, and the extras (the hologram goons, the boss tank)
         public static AudioClip JetLoop, Splat, RocketRumble, RocketLaunch, Glitch, Poison, Spew, Sizzle, Thump, Charge, Servo;
         // kie's kit
