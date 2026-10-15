@@ -396,22 +396,22 @@ namespace PooketSlug
                 byte a = (byte)(rng.Next(3) == 0 ? 255 : rng.Next(90, 200));
                 far.Set(rng.Next(w), rng.Next(48, 112), new Color32(230, 236, 255, a));
             }
-            Beam(far, 70, 30, -0.35f, 80);
-            Beam(far, 230, 30, 0.45f, 80);
+            Beam(far, 70, 40, -0.35f, 72);
+            Beam(far, 230, 40, 0.45f, 72);
             int[][] hangars = { new[] { 8, 64 }, new[] { 132, 72 }, new[] { 240, 56 } };
             foreach (int[] h in hangars)
             {
                 int hx = h[0], hw = h[1];
-                far.Rect(hx, 0, hw, 46, Night);
-                for (int i = 0; i <= hw / 2; i++) far.Rect(hx + i, 46, 1, i / 5, Night);
-                for (int i = 0; i <= hw / 2; i++) far.Rect(hx + hw - 1 - i, 46, 1, i / 5, Night);
-                for (int k = 0; k < 3; k++) far.Rect(hx + 8 + k * (hw / 3), 36, 3, 2, Glow);
+                far.Rect(hx, 0, hw, 62, Night);
+                for (int i = 0; i <= hw / 2; i++) far.Rect(hx + i, 62, 1, i / 5, Night);
+                for (int i = 0; i <= hw / 2; i++) far.Rect(hx + hw - 1 - i, 62, 1, i / 5, Night);
+                for (int k = 0; k < 3; k++) far.Rect(hx + 8 + k * (hw / 3), 50, 3, 2, Glow);
             }
-            far.Rect(100, 0, 2, 66, Night); // radar mast
+            far.Rect(100, 0, 2, 76, Night); // radar mast
             for (int y = -4; y <= 4; y++)
                 for (int x = -9; x <= 9; x++)
-                    if (x * x / 81f + y * y / 16f <= 1f) far.Set(101 + x, 68 + y, Night);
-            far.Set(101, 74, Beacon);
+                    if (x * x / 81f + y * y / 16f <= 1f) far.Set(101 + x, 78 + y, Night);
+            far.Set(101, 84, Beacon);
             far.Rect(220, 0, 2, 78, Night); // crane
             far.Rect(200, 76, 40, 2, Night);
             far.Rect(206, 60, 1, 16, Night);
@@ -420,7 +420,7 @@ namespace PooketSlug
 
             // Mid layer: the perimeter wall, capped with snow and razor wire, with floodlight poles.
             var mid = new PixelCanvas(w, 96);
-            const int wallTop = 46;
+            const int wallTop = 36;
             for (int x = 0; x < w; x++)
             {
                 mid.Rect(x, 0, 1, wallTop, x % 32 == 0 ? WallSeam : Wall);
