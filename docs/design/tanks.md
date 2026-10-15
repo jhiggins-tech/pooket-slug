@@ -56,7 +56,7 @@ A boss tank's arrival is the mission's big moment ([story](story.md#cutscenes): 
 
 **The announcer** (picked 2026-10-15) is a generated voice: a gravelly arcade announcer made with text-to-speech by the vendor repository's CI from its `voice/lines.json`, so a line is changed or added by editing that file. It also calls "Mission one... start!" and "Mission complete!".
 
-**The music** (picked 2026-10-15): a looping Mission one track plays through the run, and a faster, minor-key boss track takes over for the fight. Both are made in code with the chip synth the sound effects use.
+**The music** (picked 2026-10-15): a looping Mission one track plays through the run, and a faster, minor-key boss track takes over for the fight. Both are made in code with the chip synth the sound effects use. The full track list is in [music](music.md).
 
 **The second time** you meet a tank (a replay, or after a lost fight at the boss-door checkpoint), the intro is quick: the banner and siren only, with the tank already in place, and the boss music starts at once.
 
