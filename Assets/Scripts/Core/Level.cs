@@ -26,6 +26,8 @@ namespace PooketSlug
         public readonly List<Spawn> Spawns = new List<Spawn>();
         public Vector2 PlayerStart;
         readonly char[,] m_Tiles; // [x, y], y up
+        /// <summary>Spike: ground that blasts dig into, over the boss arena (null for plain tiles everywhere).</summary>
+        public CraterGround Craters;
 
         public Level(string[] map)
         {
@@ -77,11 +79,22 @@ namespace PooketSlug
 
         public bool IsSolid(int x, int y)
         {
+            if (Craters != null && Craters.CoversColumn(x) && y >= 0 && y < Height) return Craters.TileSolid(x, y);
+            return TileSolid(x, y);
+        }
+
+        /// <summary>The map's own tile, whatever's been dug out of it.</summary>
+        public bool TileSolid(int x, int y)
+        {
             char t = Get(x, y);
             return t == Ground || t == Block;
         }
 
-        public bool IsSolidAt(Vector2 p) => IsSolid(Mathf.FloorToInt(p.x), Mathf.FloorToInt(p.y));
+        public bool IsSolidAt(Vector2 p)
+        {
+            if (Craters != null && Craters.Covers(p.x) && p.y < Height) return Craters.IsSolidAt(p);
+            return IsSolid(Mathf.FloorToInt(p.x), Mathf.FloorToInt(p.y));
+        }
 
         /// <summary>Top of the highest standable tile (ground, sandbags or bridge) in the column at x.</summary>
         public float TopSurfaceY(float x)

@@ -7,7 +7,8 @@ namespace PooketSlug
     {
         const int Chunk = 32;
 
-        public static GameObject Create(Level level, Transform parent)
+        /// <param name="skipFrom">Columns from here on are drawn by someone else (the craters spike's arena).</param>
+        public static GameObject Create(Level level, Transform parent, int skipFrom = int.MaxValue)
         {
             var root = new GameObject("LevelView");
             root.transform.SetParent(parent, false);
@@ -19,8 +20,8 @@ namespace PooketSlug
                     for (int y = 0; y < level.Height; y++)
                     {
                         char t = level.Get(cx + x, y);
-                        if (t == Level.Empty) continue;
-                        bool exposed = y + 1 >= level.Height || !level.IsSolid(cx + x, y + 1);
+                        if (t == Level.Empty || cx + x >= skipFrom) continue;
+                        bool exposed = y + 1 >= level.Height || !level.TileSolid(cx + x, y + 1);
                         Art.DrawTile(canvas, x * 16, y * 16, t, exposed, (cx + x) * 31 + y * 17);
                     }
                 var go = new GameObject("Chunk" + cx / Chunk);

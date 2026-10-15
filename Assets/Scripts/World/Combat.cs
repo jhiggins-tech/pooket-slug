@@ -210,6 +210,7 @@ namespace PooketSlug
             w.View.Shake(0.1f * size);
             w.HitFeel?.Blast(size);
             if (damage <= 0) return;
+            if (w.Level.Craters != null && w.Level.Craters.Dig(at, radius)) w.CraterView.Refresh();
 
             if (hostile)
             {

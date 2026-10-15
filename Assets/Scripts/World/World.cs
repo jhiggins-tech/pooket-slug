@@ -66,7 +66,16 @@ namespace PooketSlug
             m_EffectPool = new EntityPool<Effect>(() => new Effect(this), 64);
             m_ParticlePool = new EntityPool<Particle>(() => new Particle(this), 256);
             Level = mission.Load();
-            LevelView.Create(Level, Root);
+            if (Spike.Craters && net == null) // spikes are solo only
+            {
+                // the boss arena, from the last checkpoint to the end of the map, is diggable ground
+                int arena = Level.Width;
+                foreach (Spawn s in Level.Spawns)
+                    if (s.Kind == SpawnKind.Checkpoint) arena = Mathf.FloorToInt(s.Pos.x);
+                if (arena < Level.Width) Level.Craters = new CraterGround(Level, arena, Level.Width);
+            }
+            LevelView.Create(Level, Root, Level.Craters?.X0 ?? int.MaxValue);
+            if (Level.Craters != null) CraterView = new CraterView(Level, Level.Craters, Root);
             View = new ScrollCamera(this);
             Spawner = new Spawner(this);
             Combat = new Combat(this);
@@ -88,6 +97,9 @@ namespace PooketSlug
             View.Tick(0f);
             Spawner.SpawnAhead();
         }
+
+        /// <summary>Spike: draws the arena's dug ground (null unless <c>?spike=craters</c>).</summary>
+        public CraterView CraterView;
 
         public bool Coop => Net != null;
         /// <summary>Runs enemies, pickups and score: always offline, the master client in co-op.</summary>
