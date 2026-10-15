@@ -67,6 +67,59 @@ The first cutscene, and Mission one's briefing ([the plot](#the-plot), step 1). 
 
 **What the cutscene engine needs from it:** a backdrop (the street, then the room), placed props (door, couch, setup, keycard), the soldier and a goon moving along simple paths, a goon dying the goon's way, speech bubbles anchored above a character, a caption card, and a timer with tap-to-advance and SKIP.
 
+## The motor pool reveal
+
+The first-ever reveal: tanks exist ([reveals](#reveals-are-story-beats)). It plays once, ever, the first time anyone reaches the motor pool; every later fight, a replay included, gets only [the boss intro](tanks.md#the-boss-intro). Draft, 2026-10-15. About 10 seconds, four shots; tap moves on, and it can't be skipped the first time.
+
+| # | Shot | What happens | Bubbles and text | Time |
+|---|---|---|---|---|
+| 1 | **The shutter** | tones2 steps into the arena and the screen locks. The motor pool's blast shutter grinds up, and cold light pours out from behind it. | (no bubble: the shutter's grind, a hum) | 2 s |
+| 2 | **The tanks** | The camera eases right and in: the crew's tanks parked in a row under work lights, each in its crewmate's paint, with cables and cyan hologram junk all over them. One space at the front is empty, its paint scuffs still steaming. | tones2: "...ARE THOSE OURS?" | 3 s |
+| 3 | **kie's tank** | An engine roars off-screen, and kie's tank rolls out of the shadows into the empty space. On top, in the hatch: kie, but cyan, flickering, grinning. | Hologram kie, glitchy bubble: "HEY TONES. WANNA RACE?" | 3 s |
+| 4 | **Hatch shut** | Hologram kie drops into the hatch and it slams. The turret swings round to tones2. Straight into the boss intro's WARNING! banner, name card and boss music, with control back in your hands. | tones2: "THAT'S NOT KIE." | 2 s |
+
+**How it fits the boss intro:** the first time, this scene is the tank's entrance, so the intro that follows skips the roll-out and goes straight to the banner, the name card ("KIE'S TANK") and the music.
+
+## Freeing kie
+
+The freeing scene, after hologram kie is beaten on foot ([the pilot round](tanks.md#the-pilot-round)). Draft, 2026-10-15. About 10 seconds, four shots; it can be skipped once seen, on a replay.
+
+| # | Shot | What happens | Bubbles and text | Time |
+|---|---|---|---|---|
+| 1 | **The glitch-out** | Hologram kie staggers, freezes mid-taunt, and glitches apart: the big version of the goons' death (the pilot glitch spike). The boss music cuts out. | Hologram kie: "WAIT, I WAS WINN-" | 3 s |
+| 2 | **The real kie** | Where it stood, a cyan cage of light flickers out, and the real kie drops to the floor, dazed, in his own colours. | kie: "...HOW LONG WAS I IN THERE?" | 3 s |
+| 3 | **The bit** | tones2 holds out the last of the snacks from the opening. kie takes them. | tones2: "BROUGHT SNACKS." · kie: "LEGEND." | 2 s |
+| 4 | **The point** | kie looks over at his tank, still running, the hatch open. | kie: "SHE'S YOURS. GET US OUT OF HERE." | 2 s |
+
+Then straight into the first drive, the first time; on a replay, into the debrief. In co-op, the partner's soldier stands beside tones2 throughout.
+
+## The first drive
+
+The second reveal: you can drive a tank ([reveals](#reveals-are-story-beats)). It plays once, ever, straight after freeing kie. Draft, 2026-10-15. A short scene, then a short playable drive that ends the mission. The drive teaches the controls by doing, one prompt at a time, each shown only until you've done it once.
+
+**The scene** (about 4 seconds): tones2 climbs onto kie's tank and drops into the hatch; kie hops up behind the turret and holds on. Bubble, kie: "STICK DRIVES. FIRE SHOOTS. GO!" The motor pool's far wall is a gate, and the searchlights are swinging back.
+
+**The drive** (about 30 seconds, playable): out of the motor pool and through the base's back gate to the road outside, the only way out. Goons pour in to stop you, and the prompts come one at a time:
+1. **"DRIVE"** with the stick (or arrows), shown until you've moved.
+2. **"AIM"**: a few goons on a gantry above; the gun points the same eight ways you aim on foot.
+3. **"FIRE"**: the gate's guard post is in the way; shoot it down. The tank's rounds counter appears for the first time (5 main shots, 3 specials, 1 super), with a note that rounds never refill ([driving a tank](tanks.md#driving-a-tank)).
+4. **"SP"**: a wall of goons behind sandbags at the gate; the special clears it.
+5. **The gate:** you smash through it and out onto the road, the snow and the searchlights behind you. The caption card slams in, and the announcer calls "Mission complete!".
+
+Eject and the super are left for later missions to teach, so the drive stays short. The first drive always happens solo, since Mission one is first beaten solo. On a co-op replay there's no drive scene: the mission ends at the freeing.
+
+## The first debrief
+
+Mission one's debrief, the first time: the tally, then XP and rank are revealed ([what the player sees, and when](levels.md#what-the-player-sees-and-when)). Draft, 2026-10-15. It's a screen more than a scene: the crew stand to one side and the numbers count up on the other. Each part counts up fast, and a tap fills it at once; another tap moves on.
+
+1. **The tally** (about 3 s): MISSION COMPLETE! at the top, and the announcer says it if the drive didn't. Then the numbers count up: score, time, goons, accuracy, and how many lives and continues were left. Your best score so far shows beside it, with NEW BEST! if it is.
+2. **The first XP** (about 3 s): a new bar slides in for the first time, labelled XP. It fills from the mission's parts: the mission cleared, kie freed, and the kills ([career XP](player.md#what-the-player-keeps)). kie's bubble: "YOU GET XP FOR THAT."
+3. **The first step up the ladder** (about 3 s): the rank badge appears, and you go up from the bottom rank to the first rank above it, with a RANK UP! stamp and a chip fanfare. Only that rank's name is shown; the ladder's hidden ranks stay hidden ([rank](player.md#what-the-player-keeps)).
+4. **Sign in to keep it** (only for players who aren't signed in): kie's bubble: "SIGN IN SO THIS DOESN'T VANISH." The sign-in button shows over the game, as on the title screen, beside CONTINUE. Signing in here saves the run's progress straight away; skipping is fine and asks again only on the next debrief.
+5. **Continue:** to the title screen, where the menu has grown (the co-op opens scene).
+
+On a replay, the debrief is the same screen without the first-time lines and the sign-in step, and with any new looks tokens shown.
+
 ## Reveals are story beats
 
 The game hides what's coming ([progressive disclosure](README.md#progressive-disclosure-the-thread-through-all-four)), so each reveal gets a scene of its own:
