@@ -108,6 +108,30 @@ namespace PooketSlug
             HitStop(e.MaxHp >= Tuning.Impact.BigHp ? Tuning.Impact.BigKillStop : Tuning.Impact.KillStop);
         }
 
+        /// <summary>
+        /// Co-op, authority side: who a 1-up claimed by <paramref name="claimant"/> goes to. A partner who's out of
+        /// lives comes first (<c>docs/design/player.md</c>, Health and lives).
+        /// </summary>
+        public int OneUpFor(int claimant)
+        {
+            if (Player.Lives.OutOfLives && Net.LocalPlayerId >= 0 && Net.LocalPlayerId != claimant) return Net.LocalPlayerId;
+            foreach (RemotePlayer r in Remotes)
+                if (r.OutOfLives && r.Link.PlayerId >= 0 && r.Link.PlayerId != claimant) return r.Link.PlayerId;
+            return claimant;
+        }
+
+        /// <summary>Everyone in the game is out of lives and continues: the mission is lost.</summary>
+        public bool AllOut
+        {
+            get
+            {
+                if (!Player.Lives.IsOut) return false;
+                foreach (RemotePlayer r in Remotes)
+                    if (!r.Gone) return false; // a partner offered a continue might still take it
+                return true;
+            }
+        }
+
         /// <summary>Uses up one of <see cref="TanksToCall"/>.</summary>
         public void CallTank(Vector2 at)
         {

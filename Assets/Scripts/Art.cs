@@ -97,7 +97,7 @@ namespace PooketSlug
         public static Sprite[] Drone, Explosion, Spark;
         public static Sprite Tank, Bullet, HeavyBullet, EnemyBullet, Shell, Grenade, Bomb, MuzzleFlash;
         static Sprite[] s_Projectiles, s_Pickups;
-        public static Sprite CrateHeavy, CrateBombs, Medkit, Flag, Pixel, Sky, Mountains, Ruins;
+        public static Sprite CrateHeavy, CrateBombs, Medkit, OneUp, Flag, Pixel, Sky, Mountains, Ruins;
         public static Texture2D HeartTex, WhiteTex, DiscTex;
 
         static Dictionary<char, Color32> s_Pal;
@@ -182,10 +182,12 @@ namespace PooketSlug
             CrateHeavy = Simple(ArtData.CrateHeavy, feet);
             CrateBombs = Simple(ArtData.CrateBombs, feet);
             Medkit = Simple(ArtData.Medkit, feet);
+            OneUp = Simple(ArtData.OneUp, feet);
             s_Pickups = new Sprite[Content.Pickups.Count];
             s_Pickups[Content.HeavyMachineGunCrate.Id] = CrateHeavy;
             s_Pickups[Content.BombCrate.Id] = CrateBombs;
             s_Pickups[Content.Medkit.Id] = Medkit;
+            s_Pickups[Content.OneUp.Id] = OneUp;
             Flag = Simple(ArtData.Flag, feet);
 
             var px = new PixelCanvas(1, 1);

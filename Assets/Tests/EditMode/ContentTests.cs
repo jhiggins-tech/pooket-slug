@@ -41,6 +41,7 @@ namespace PooketSlug.Tests
         [TestCase(SpawnKind.CrateHeavy, PickupEffect.Gun)]
         [TestCase(SpawnKind.CrateBombs, PickupEffect.Specials)]
         [TestCase(SpawnKind.Medkit, PickupEffect.Heal)]
+        [TestCase(SpawnKind.OneUp, PickupEffect.Life)]
         public void EachCrateMarkerPlacesItsPickup(SpawnKind marker, PickupEffect effect)
         {
             Assert.AreEqual(effect, Content.PickupFor(marker).Effect);
@@ -95,6 +96,7 @@ namespace PooketSlug.Tests
         [TestCase(SpawnKind.CrateHeavy)]
         [TestCase(SpawnKind.CrateBombs)]
         [TestCase(SpawnKind.Medkit)]
+        [TestCase(SpawnKind.OneUp)]
         [TestCase(SpawnKind.Flag)]
         public void OtherMarkersPlaceNoEnemy(SpawnKind marker)
         {

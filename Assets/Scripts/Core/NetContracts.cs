@@ -123,6 +123,8 @@ namespace PooketSlug
     {
         bool IsAuthority { get; }
         int LocalSkin { get; }
+        /// <summary>Our player's id in the session (-1 before we're in).</summary>
+        int LocalPlayerId { get; }
         /// <summary>The shared world's round; a restart moves everyone to the next.</summary>
         int Round { get; }
     }
@@ -182,6 +184,8 @@ namespace PooketSlug
         int PoseFlags { get; }
         int Hp { get; }
         int Skin { get; }
+        /// <summary>Their player's id in the session.</summary>
+        int PlayerId { get; }
         /// <summary>Asks the owning client to apply damage to its soldier.</summary>
         void Hurt(int damage);
     }

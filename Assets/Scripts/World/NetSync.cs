@@ -150,6 +150,7 @@ namespace PooketSlug
             Pickup pk = FindPickup(id);
             if (pk == null || pk.Granted) return; // gone, or someone got there first
             pk.Granted = true;
+            if (pk.Def.Effect == PickupEffect.Life) playerId = m_World.OneUpFor(playerId);
             Log.Net.Info($"Pickup {id} ({pk.Def.Name}) goes to player {playerId}");
             Net.GrantPickup(id, pk.Def, playerId);
         }

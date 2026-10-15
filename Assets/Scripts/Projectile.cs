@@ -211,6 +211,7 @@ namespace PooketSlug
                 case PickupEffect.Gun: player.GiveGun(def.Gun); break;
                 case PickupEffect.Specials: player.Specials += def.Amount; break;
                 case PickupEffect.Heal: player.Heal(def.Amount); break;
+                case PickupEffect.Life: player.GiveLife(); break;
             }
         }
 

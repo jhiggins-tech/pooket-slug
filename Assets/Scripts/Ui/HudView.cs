@@ -53,7 +53,8 @@ namespace PooketSlug
 
         // co-op
         readonly RectTransform m_Coop;
-        readonly Text m_Waiting, m_Room, m_Link, m_Status, m_Down, m_Leave;
+        readonly Text m_Waiting, m_Room, m_Link, m_Status, m_Down, m_DownNote, m_Lives, m_Leave;
+        int m_LivesShown = -1;
         readonly List<Text> m_PartnerLabels = new List<Text>(), m_Tags = new List<Text>();
         readonly List<Image> m_PartnerHearts = new List<Image>();
         string m_StatusKey;
@@ -101,7 +102,9 @@ namespace PooketSlug
             m_Room = Ui.Label(m_Coop, "Room", Ui.TopCenter, new Vector2(0f, -56f), 16, TextAnchor.UpperCenter, Color.white);
             m_Link = Ui.Label(m_Coop, "Link", Ui.TopCenter, new Vector2(0f, -76f), 8, TextAnchor.UpperCenter, new Color(1f, 1f, 1f, 0.8f));
             m_Status = Ui.Label(m_Coop, "Status", new Vector2(0.5f, 0f), new Vector2(0f, 28f), 8, TextAnchor.UpperCenter, Faint);
-            m_Down = Ui.Label(m_Coop, "Down", Ui.Middle, new Vector2(0f, 30f), 18, TextAnchor.MiddleCenter, Hurt);
+            m_Down = Ui.Label(m_Top, "Down", Ui.Middle, new Vector2(0f, 30f), 18, TextAnchor.MiddleCenter, Hurt);
+            m_DownNote = Ui.Label(m_Top, "Down note", Ui.Middle, new Vector2(0f, 10f), 10, TextAnchor.MiddleCenter, Color.white);
+            m_Lives = Ui.Label(m_Top, "Lives", Ui.TopLeft, new Vector2(78f, -22f), 10, TextAnchor.UpperLeft, Arms);
             m_Leave = Ui.Label(m_Coop, "Leave", Ui.Middle, new Vector2(0f, -16f), 12, TextAnchor.MiddleCenter, Color.white);
 
             m_Build = Ui.Label(m_Root, "Build", Ui.BottomLeft, new Vector2(6f, 14f), 8, TextAnchor.UpperLeft, Faint);
@@ -139,6 +142,34 @@ namespace PooketSlug
             if (kit.HasAbility) m_AbilityFill.rectTransform.sizeDelta = new Vector2(MeterWidth * kit.AbilityProgress, 4f);
         }
 
+        /// <summary>Spare lives by the hearts; while down, when they're back, the continue on offer, or that they're out.</summary>
+        void Lives(Player p, bool coop)
+        {
+            LifeBank lives = p.Lives;
+            if (lives.Lives != m_LivesShown) m_Lives.text = "LIVES " + (m_LivesShown = lives.Lives);
+            string down = null, note = null;
+            if (p.Dead && !lives.OutOfLives)
+            {
+                down = "DOWN!  BACK IN " + Mathf.Max(1, Mathf.CeilToInt(Tuning.Lives.RespawnDelay - p.DeadTime));
+                if (lives.Lives == 0 && p.DeadTime < Tuning.Lives.RespawnDelay) note = "NO LIVES LEFT AFTER THIS ONE";
+            }
+            else if (lives.Offering)
+            {
+                down = "CONTINUE?  " + Mathf.CeilToInt(lives.OfferLeft);
+                string press = GameInput.TouchActive ? "TAP FIRE" : "PRESS FIRE";
+                note = press + " TO CONTINUE  ·  " + lives.Continues + (lives.Continues == 1 ? " CONTINUE LEFT" : " CONTINUES LEFT");
+            }
+            else if (lives.IsOut && coop)
+            {
+                down = "OUT!";
+                note = "YOUR PARTNER'S NEXT 1UP BRINGS YOU BACK";
+            }
+            Ui.Show(m_Down, down != null);
+            Ui.Show(m_DownNote, note != null);
+            if (down != null && down != m_Down.text) m_Down.text = down;
+            if (note != null && note != m_DownNote.text) m_DownNote.text = note;
+        }
+
         /// <summary>A tank call-in's charge, over the soldier's head while SP is held.</summary>
         void CallIn(Player p, Camera cam)
         {
@@ -172,6 +203,7 @@ namespace PooketSlug
                     m_Arms.text = "ARMS " + arms + "   " + p.Def.Special.Hud + " " + p.Specials;
                 }
                 Kit(p);
+                Lives(p, info.Net != null);
                 HideFrom(m_Hearts, Hearts(m_Hearts, m_NewHeart, 0, p.MaxHp, p.Hp, new Vector2(8f, -24f), 13f, 12f, Color.white));
 
                 TankBoss boss = w.Boss;
@@ -211,7 +243,7 @@ namespace PooketSlug
             {
                 int skin = Mathf.Clamp(r.Link.Skin, 0, 1);
                 string name = skin == 0 ? "P1" : "P2";
-                float y = 56f + 14f * row;
+                float y = 80f + 14f * row; // under the kit's meters
                 Text label = Pooled(m_PartnerLabels, row, m_NewPartnerLabel);
                 label.rectTransform.anchoredPosition = new Vector2(8f, -y);
                 label.text = name;
@@ -245,8 +277,6 @@ namespace PooketSlug
             string status = (room != null ? "ROOM " + room : "QUICK MATCH") + "  ·  " + net.PlayerCount + "/2  ·  " + net.PingMs + " MS  ·  " + leave;
             if (status != m_StatusKey) m_Status.text = m_StatusKey = status;
 
-            Ui.Show(m_Down, p.Dead);
-            if (p.Dead) m_Down.text = "DOWN!  BACK IN " + Mathf.Max(1, Mathf.CeilToInt(Tuning.Coop.RespawnDelay - p.DeadTime));
             Ui.Show(m_Leave, info.LeaveArmed);
             if (info.LeaveArmed) m_Leave.text = GameInput.TouchActive ? "TAP EXIT AGAIN TO LEAVE THE GAME" : "PRESS ESC AGAIN TO LEAVE THE GAME";
         }

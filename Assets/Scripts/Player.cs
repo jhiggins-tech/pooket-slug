@@ -8,6 +8,8 @@ namespace PooketSlug
         public readonly SoldierDef Def;
         /// <summary>The special's charges, the super and the ability (<c>docs/design/player.md</c>, The kit).</summary>
         public readonly KitMeters Kit;
+        /// <summary>Lives and continues, this player's own.</summary>
+        public readonly LifeBank Lives = LifeBank.Standard();
         /// <summary>Charges left for the special (<see cref="SoldierDef.Special"/>).</summary>
         public int Specials { get => Kit.Specials; set => Kit.Specials = value; }
         /// <summary>A crate's gun, which replaces the primary while <see cref="GunAmmo"/> lasts.</summary>
@@ -24,6 +26,7 @@ namespace PooketSlug
         public float SlowTimer;
 
         float m_Coyote, m_JumpBuffer, m_FireCooldown, m_Anim, m_Muzzle, m_Invuln, m_DropThrough, m_Knock;
+        bool m_Fell; // this death's fall has been counted against the lives
         readonly CallInGesture m_CallIn = new CallInGesture(Tuning.Kit.CallInTapTime, Tuning.Kit.CallInChargeTime);
         Vector2 m_Aim = Vector2.right;
         readonly PlayerVisual m_Visual;
@@ -67,6 +70,8 @@ namespace PooketSlug
             Crouching = Crouching,
             Running = Grounded && Mathf.Abs(Vel.x) > 0.1f,
             Dead = Dead,
+            Out = Lives.OutOfLives,
+            Gone = Lives.IsOut,
             Muzzle = m_Muzzle > 0f,
             Blink = m_Invuln > 0f && !Dead,
             Flash = FlashTimer > 0f,
@@ -84,7 +89,7 @@ namespace PooketSlug
                 Vel.y = Mathf.Max(Vel.y - Tuning.Physics.Gravity * dt, -Tuning.Physics.MaxFall);
                 Vel.x = Mathf.MoveTowards(Vel.x, 0f, 6f * dt);
                 MoveWithTiles(dt);
-                if (World.Coop && DeadTime > Tuning.Coop.RespawnDelay) Respawn();
+                Down(dt);
                 return;
             }
 
@@ -252,7 +257,7 @@ namespace PooketSlug
                 Dead = true;
                 DeadTime = 0f;
                 Vel = new Vector2(-Facing * 3f, 9f);
-                Sfx.Play(World.Coop ? Sfx.Hurt : Sfx.GameOver);
+                Sfx.Play(Sfx.Hurt);
                 World.Burst(Center, 14, new Color(0.85f, 0.2f, 0.15f));
             }
             else
@@ -275,15 +280,47 @@ namespace PooketSlug
             GunAmmo += gun.Ammo;
         }
 
-        /// <summary>Co-op only: come back at the left edge of the shared screen.</summary>
+        /// <summary>
+        /// While down: after a moment the fall costs a life and the soldier comes back. Out of lives, a continue is
+        /// offered (FIRE or JUMP takes it); let it go and they're out, until a partner's 1-up brings them back.
+        /// </summary>
+        void Down(float dt)
+        {
+            if (!m_Fell)
+            {
+                if (DeadTime < Tuning.Lives.RespawnDelay) return;
+                m_Fell = true;
+                LifeBank.Fall fall = Lives.Fallen();
+                if (fall == LifeBank.Fall.Respawn) Respawn();
+                else if (fall == LifeBank.Fall.Out) Sfx.Play(Sfx.GameOver);
+                return;
+            }
+            if (!Lives.Offering) return;
+            SoldierInput input = InputEnabled ? Input : default;
+            if (input.FirePressed || input.JumpPressed)
+            {
+                Lives.TakeContinue();
+                Respawn();
+            }
+            else if (Lives.Tick(dt)) Sfx.Play(Sfx.GameOver);
+        }
+
+        /// <summary>A 1-up: a spare life, or back in for a player who was out of lives.</summary>
+        public void GiveLife()
+        {
+            if (Lives.AddLife() && Dead) Respawn();
+        }
+
+        /// <summary>Comes back at the left edge of the screen.</summary>
         void Respawn()
         {
             Dead = false;
             DeadTime = 0f;
+            m_Fell = false;
             Hp = MaxHp;
-            Specials = Mathf.Max(Specials, Tuning.Coop.RespawnMinSpecials);
+            Specials = Mathf.Max(Specials, Tuning.Lives.RespawnMinSpecials);
             Vel = Vector2.zero;
-            m_Invuln = Tuning.Coop.RespawnInvulnerability;
+            m_Invuln = Tuning.Lives.RespawnInvulnerability;
             float x = World.View.Left + 2f;
             Pos = new Vector2(x, World.Level.TopSurfaceY(x));
             World.Scoring.Popup("BACK IN!", Pos + Vector2.up * 2f, new Color(0.6f, 0.9f, 1f));

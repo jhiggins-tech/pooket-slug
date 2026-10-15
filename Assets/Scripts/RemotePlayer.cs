@@ -20,6 +20,10 @@ namespace PooketSlug
 
         public override bool IsDown => m_Pose.Dead;
         public bool Invulnerable => m_Pose.Blink || m_Pose.Dead;
+        /// <summary>Out of lives: a 1-up goes to them first.</summary>
+        public bool OutOfLives => m_Pose.Out;
+        /// <summary>Out of lives and continues.</summary>
+        public bool Gone => m_Pose.Gone;
 
         public override void Tick(float dt)
         {

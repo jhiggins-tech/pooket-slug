@@ -5,12 +5,16 @@ namespace PooketSlug
     {
         const int FacingRightBit = 1 << 0, AimUpBit = 1 << 1, AimDownBit = 1 << 2, GroundedBit = 1 << 3, CrouchBit = 1 << 4;
         const int RunningBit = 1 << 5, DeadBit = 1 << 6, MuzzleBit = 1 << 7, BlinkBit = 1 << 8, FlashBit = 1 << 9;
-        const int DiagonalBit = 1 << 10;
+        const int DiagonalBit = 1 << 10, OutBit = 1 << 11, GoneBit = 1 << 12;
 
         public int Facing;  // 1 = right, -1 = left
         public int AimY;    // 1 = up, -1 = down, 0 = forward
         /// <summary>Aiming up or down and forward, at 45°.</summary>
         public bool Diagonal;
+        /// <summary>Out of lives (offered a continue, or out): a partner's 1-up goes to them first.</summary>
+        public bool Out;
+        /// <summary>Out of lives and continues: waiting on a partner's 1-up.</summary>
+        public bool Gone;
         public bool Grounded, Crouching, Running, Dead, Muzzle, Blink, Flash;
         public float Anim, DeadTime;
 
@@ -18,7 +22,7 @@ namespace PooketSlug
             (Facing > 0 ? FacingRightBit : 0) | (AimY > 0 ? AimUpBit : 0) | (AimY < 0 ? AimDownBit : 0) |
             (Grounded ? GroundedBit : 0) | (Crouching ? CrouchBit : 0) | (Running ? RunningBit : 0) |
             (Dead ? DeadBit : 0) | (Muzzle ? MuzzleBit : 0) | (Blink ? BlinkBit : 0) | (Flash ? FlashBit : 0) |
-            (Diagonal && AimY != 0 ? DiagonalBit : 0);
+            (Diagonal && AimY != 0 ? DiagonalBit : 0) | (Out ? OutBit : 0) | (Gone ? GoneBit : 0);
 
         /// <summary>Unpacks replicated flags; animation clocks are kept locally by the caller.</summary>
         public static AvatarPose Unpack(int flags, float anim, float deadTime) => new AvatarPose
@@ -33,6 +37,8 @@ namespace PooketSlug
             Blink = (flags & BlinkBit) != 0,
             Flash = (flags & FlashBit) != 0,
             Diagonal = (flags & DiagonalBit) != 0 && (flags & (AimUpBit | AimDownBit)) != 0,
+            Out = (flags & OutBit) != 0,
+            Gone = (flags & GoneBit) != 0,
             Anim = anim,
             DeadTime = deadTime,
         };

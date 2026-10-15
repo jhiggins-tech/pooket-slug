@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace PooketSlug
 {
-    public enum SpawnKind { Soldier, Runner, Drone, Tank, CrateHeavy, CrateBombs, Medkit, Flag }
+    public enum SpawnKind { Soldier, Runner, Drone, Tank, CrateHeavy, CrateBombs, Medkit, Flag, OneUp }
 
     public struct Spawn
     {
@@ -50,6 +50,7 @@ namespace PooketSlug
                         case 'H': Spawns.Add(new Spawn { Kind = SpawnKind.CrateHeavy, Pos = feet }); break;
                         case 'B': Spawns.Add(new Spawn { Kind = SpawnKind.CrateBombs, Pos = feet }); break;
                         case '+': Spawns.Add(new Spawn { Kind = SpawnKind.Medkit, Pos = feet }); break;
+                        case 'U': Spawns.Add(new Spawn { Kind = SpawnKind.OneUp, Pos = feet }); break;
                         case 'F': Spawns.Add(new Spawn { Kind = SpawnKind.Flag, Pos = feet }); break;
                     }
                 }

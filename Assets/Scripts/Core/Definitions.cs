@@ -163,6 +163,8 @@ namespace PooketSlug
         Specials,
         /// <summary>Heals <see cref="PickupDef.Amount"/> health.</summary>
         Heal,
+        /// <summary>A spare life; in co-op it goes first to a partner who's out of lives.</summary>
+        Life,
     }
 
     /// <summary>One kind of pickup. A pickup in the world is known by its level spawn, so this id stays local.</summary>

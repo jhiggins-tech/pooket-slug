@@ -91,6 +91,7 @@ namespace PooketSlug
 
         public bool IsAuthority => SharedValid && m_Shared.HasStateAuthority;
         public int LocalSkin => m_Local != null ? m_Local.Skin : 0;
+        public int LocalPlayerId => m_Local != null ? m_Local.PlayerId : -1;
         public int Round => SharedValid ? m_Shared.Round : 0;
 
         /// <summary>The other soldiers already playing the same round as us.</summary>

@@ -22,6 +22,23 @@ namespace PooketSlug
             public const float HurtInvulnerability = 1.4f;
         }
 
+        /// <summary>Lives and continues, each player's own (<see cref="LifeBank"/>). Placeholders, to tune in play.</summary>
+        public static class Lives
+        {
+            /// <summary>Spare lives at the start of a mission, and after a continue (so three lives in all).</summary>
+            public const int Spare = 2;
+            public const int MaxSpare = 9;
+            public const int Continues = 2;
+            /// <summary>Seconds to take a continue before it's let go.</summary>
+            public const float ContinueSeconds = 9f;
+            /// <summary>Seconds down before coming back, and of invulnerability after.</summary>
+            public const float RespawnDelay = 2.5f, RespawnInvulnerability = 2.5f;
+            /// <summary>Charges of the special a soldier comes back with, at least.</summary>
+            public const int RespawnMinSpecials = 5;
+            /// <summary>Seconds after a solo player is out before the game-over screen.</summary>
+            public const float GameOverDelay = 1f;
+        }
+
         /// <summary>The kit's meters and the tank call-in. Placeholders, to tune in play.</summary>
         public static class Kit
         {
@@ -60,9 +77,6 @@ namespace PooketSlug
             /// <summary>Both clients scroll and spawn by this half-width, whatever their screen's shape.</summary>
             public const float HalfWidth = 10f;
             public const int MaxPlayers = 2;
-            public const float RespawnDelay = 2.5f, RespawnInvulnerability = 2.5f;
-            /// <summary>Charges of the special a soldier comes back with, at least.</summary>
-            public const int RespawnMinSpecials = 5;
             /// <summary>The camera never scrolls the trailing soldier closer than this to the left edge.</summary>
             public const float TrailMargin = 0.5f;
             /// <summary>Followers scroll this many times faster to catch up with the authority's camera.</summary>

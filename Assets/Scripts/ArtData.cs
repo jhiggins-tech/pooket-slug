@@ -341,6 +341,19 @@ namespace PooketSlug
             "zzzzzzzzzzzz",
         };
 
+        public static readonly string[] OneUp =
+        {
+            "tttttttttttttt",
+            "tTTTTTTTTTTTTt",
+            "tTTWTWTWTWWTTt",
+            "tTWWTWTWTWTWTt",
+            "tTTWTWTWTWWTTt",
+            "tTTWTWTWTWTTTt",
+            "tTTWTWWWTWTTTt",
+            "tTTTTTTTTTTTTt",
+            "tttttttttttttt",
+        };
+
         public static readonly string[] Heart =
         {
             ".rr.rr.",

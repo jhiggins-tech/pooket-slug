@@ -56,6 +56,8 @@ namespace PooketSlug
             "BOMBS +10", new Color(0.6f, 1f, 0.5f), score: 500, amount: 10);
         public static readonly PickupDef Medkit = new PickupDef(2, "Medkit", PickupEffect.Heal,
             "+2 HP", new Color(1f, 0.5f, 0.5f), score: 500, amount: 2);
+        public static readonly PickupDef OneUp = new PickupDef(3, "1-up", PickupEffect.Life,
+            "1UP!", new Color(0.5f, 1f, 0.6f), score: 1000, amount: 1);
 
         // ------------------------------------------------------------------ soldiers
 
@@ -72,7 +74,7 @@ namespace PooketSlug
         public static readonly IReadOnlyList<ProjectileDef> Projectiles = ById(p => p.Id, Bullet, HeavyBullet, EnemyBullet, Shell, Grenade, Bomb);
         public static readonly IReadOnlyList<WeaponDef> Weapons = ById(w => w.Id, Pistol, HeavyMachineGun, Rifle, Cannon, GrenadeThrow, DroneBomb, TankGun);
         public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank);
-        public static readonly IReadOnlyList<PickupDef> Pickups = ById(p => p.Id, HeavyMachineGunCrate, BombCrate, Medkit);
+        public static readonly IReadOnlyList<PickupDef> Pickups = ById(p => p.Id, HeavyMachineGunCrate, BombCrate, Medkit, OneUp);
         public static readonly IReadOnlyList<SoldierDef> Soldiers = ById(s => s.Id, Trooper);
 
         /// <summary>The weapon with this id, or null for an id no weapon has (say, from a different build).</summary>
@@ -95,6 +97,7 @@ namespace PooketSlug
                 case SpawnKind.CrateHeavy: return HeavyMachineGunCrate;
                 case SpawnKind.CrateBombs: return BombCrate;
                 case SpawnKind.Medkit: return Medkit;
+                case SpawnKind.OneUp: return OneUp;
                 default: return null;
             }
         }

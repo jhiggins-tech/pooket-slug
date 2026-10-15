@@ -37,8 +37,10 @@ namespace PooketSlug
         INetSession m_Net;      // null when the build has no Photon SDK or AppId
         bool m_Coop;            // m_World is the shared co-op world
         bool m_Unlocked;        // ?unlock=coop: co-op is open for this visit, for testing
-        bool m_TankUnlocked;    // ?unlock=tank: a tank can be called in each mission, for testing
+        bool m_TankUnlocked;
+        float m_OutFor;         // seconds the game has had nobody left in it (out of lives and continues)    // ?unlock=tank: a tank can be called in each mission, for testing
         bool m_TestCrate;       // ?test=crate: a crate just ahead of the start, so the co-op test sees one handed out
+        bool m_TestOneUp;       // ?test=1up: a 1-up just ahead of the start
         string m_Notice, m_StartNote;
         float m_NoticeTime, m_LeaveArmed;
 
@@ -81,7 +83,9 @@ namespace PooketSlug
             string[] unlocks = (PageQuery.Get(url, "unlock") ?? "").ToLowerInvariant().Split(',');
             m_Unlocked = Array.IndexOf(unlocks, Reveals.Coop) >= 0;
             m_TankUnlocked = Array.IndexOf(unlocks, Reveals.Tank) >= 0;
-            m_TestCrate = Array.IndexOf((PageQuery.Get(url, "test") ?? "").ToLowerInvariant().Split(','), "crate") >= 0;
+            string[] tests = (PageQuery.Get(url, "test") ?? "").ToLowerInvariant().Split(',');
+            m_TestCrate = Array.IndexOf(tests, "crate") >= 0;
+            m_TestOneUp = Array.IndexOf(tests, "1up") >= 0;
 
             m_World = NewWorld(m_Mission);
             m_Hud = new HudView(transform);
@@ -118,6 +122,11 @@ namespace PooketSlug
                 float x = world.Level.PlayerStart.x + 2.75f;
                 world.Spawner.SpawnPickup(Content.HeavyMachineGunCrate, new Vector2(x, world.Level.TopSurfaceY(x)));
             }
+            if (m_TestOneUp)
+            {
+                float x = world.Level.PlayerStart.x + 4.5f;
+                world.Spawner.SpawnPickup(Content.OneUp, new Vector2(x, world.Level.TopSurfaceY(x)));
+            }
             return world;
         }
 
@@ -125,6 +134,7 @@ namespace PooketSlug
         {
             m_State = state;
             m_StateTime = 0f;
+            m_OutFor = 0f;
         }
 
         void StartSolo()
@@ -319,9 +329,11 @@ namespace PooketSlug
                             }
                             m_LeaveArmed = 2f;
                         }
-                        // no pausing a shared game, and no game over: fallen soldiers come back
+                        // no pausing a shared game; it's over when everyone is out of lives and continues
                         m_World.Tick(dt, soldier);
-                        if (m_World.Victory && m_World.VictoryTime > 1f) EndRun(GameState.Victory);
+                        m_OutFor = m_World.AllOut ? m_OutFor + dt : 0f;
+                        if (m_OutFor > Tuning.Lives.GameOverDelay) EndRun(GameState.GameOver);
+                        else if (m_World.Victory && m_World.VictoryTime > 1f) EndRun(GameState.Victory);
                         break;
                     }
                     if (m_Paused)
@@ -335,7 +347,8 @@ namespace PooketSlug
                     if (keys.Pause || keys.PadPause || keys.Back || (keys.Start && m_StateTime > 0.2f)) { m_Paused = true; break; }
 
                     m_World.Tick(dt, soldier);
-                    if (m_World.Player.Dead && m_World.Player.DeadTime > 1.6f) EndRun(GameState.GameOver);
+                    m_OutFor = m_World.Player.Lives.IsOut ? m_OutFor + dt : 0f;
+                    if (m_OutFor > Tuning.Lives.GameOverDelay) EndRun(GameState.GameOver);
                     else if (m_World.Victory && m_World.VictoryTime > 1f) EndRun(GameState.Victory);
                     break;
 

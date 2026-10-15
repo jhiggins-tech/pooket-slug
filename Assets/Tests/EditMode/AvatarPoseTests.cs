@@ -45,14 +45,14 @@ namespace PooketSlug.Tests
         }
 
         [Test]
-        public void ThePackedPoseFitsInElevenBits()
+        public void ThePackedPoseFitsInThirteenBits()
         {
             var all = new AvatarPose
             {
-                Facing = 1, AimY = 1, Diagonal = true, Grounded = true, Crouching = true, Running = true,
+                Facing = 1, AimY = 1, Diagonal = true, Out = true, Gone = true, Grounded = true, Crouching = true, Running = true,
                 Dead = true, Muzzle = true, Blink = true, Flash = true,
             };
-            Assert.Less(all.Pack() | new AvatarPose { AimY = -1 }.Pack(), 1 << 11);
+            Assert.Less(all.Pack() | new AvatarPose { AimY = -1 }.Pack(), 1 << 13);
         }
 
         [Test]
@@ -64,6 +64,16 @@ namespace PooketSlug.Tests
                 Assert.IsTrue(pose.Diagonal);
                 Assert.AreEqual(aim, pose.AimY);
             }
+        }
+
+        [Test]
+        public void OutOfLivesSurvivesPacking()
+        {
+            AvatarPose pose = AvatarPose.Unpack(new AvatarPose { Facing = 1, Dead = true, Out = true }.Pack(), 0f, 0f);
+            Assert.IsTrue(pose.Out);
+            Assert.IsFalse(pose.Gone);
+            pose = AvatarPose.Unpack(new AvatarPose { Facing = 1, Dead = true, Out = true, Gone = true }.Pack(), 0f, 0f);
+            Assert.IsTrue(pose.Out && pose.Gone);
         }
 
         [Test]
