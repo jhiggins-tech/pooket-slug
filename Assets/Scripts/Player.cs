@@ -34,6 +34,8 @@ namespace PooketSlug
         readonly WaterJet m_Jet;
         readonly RocketJump m_Rocket;
         readonly Spew m_Spew;
+        // kie's kit (spike)
+        readonly Trollogram m_Troll;
 
         public Player(World world, SoldierDef def, Vector2 feet, int skin)
             : base(world, "Player", feet, def.HalfWidth, def.StandHeight, def.MaxHp)
@@ -44,6 +46,7 @@ namespace PooketSlug
             if (def.Primary.Behaviour == WeaponBehaviour.Jet) m_Jet = new WaterJet(this, Tones2Tuning.Jet);
             if (def.Special.Behaviour == WeaponBehaviour.RocketJump) m_Rocket = new RocketJump(this, Tones2Tuning.Rocket);
             if (def.Super != null && def.Super.Behaviour == WeaponBehaviour.Spew) m_Spew = new Spew(this, Tones2Tuning.Spew);
+            if (def.Special.Behaviour == WeaponBehaviour.Trollogram) m_Troll = new Trollogram(this);
             Grounded = true; // spawned standing on the ground (matters for the title-screen pose)
         }
 
@@ -157,6 +160,10 @@ namespace PooketSlug
             if (m_Rocket != null)
             {
                 m_Rocket.Tick(dt, special && !Spewing);
+            }
+            else if (m_Troll != null)
+            {
+                m_Troll.Tick(dt, special);
             }
             else if (special && Kit.UseSpecial())
             {
@@ -277,6 +284,9 @@ namespace PooketSlug
                 m_Knock = Tuning.Impact.KnockTime;
             }
         }
+
+        /// <summary>Can't be hurt for <paramref name="seconds"/> (blinking), as after a hit.</summary>
+        public void Shield(float seconds) => m_Invuln = Mathf.Max(m_Invuln, seconds);
 
         public void Heal(int amount) => Hp = Mathf.Min(MaxHp, Hp + amount);
 

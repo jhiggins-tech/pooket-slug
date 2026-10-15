@@ -20,6 +20,8 @@ namespace PooketSlug
         public readonly Rng Rng = new Rng(Rng.NewSeed());
         public Player Player;
         public BossEnemy Boss;
+        /// <summary>kie's hologram on the players' side (Trollogram), or null: the goons shoot it instead while it's up.</summary>
+        public TrollDecoy Decoy;
 
         public readonly ScrollCamera View;
         public readonly Spawner Spawner;

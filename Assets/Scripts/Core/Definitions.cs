@@ -65,6 +65,8 @@ namespace PooketSlug
         Spew,
         /// <summary>kie's Weasel Pop: a press tumbles out weasels that hunt goons along the ground and pop (<see cref="WeaselPopSpec"/>).</summary>
         Weasels,
+        /// <summary>kie's Trollogram: a hologram decoy the goons shoot instead, to swap places with (<see cref="TrollogramSpec"/>).</summary>
+        Trollogram,
     }
 
     /// <summary>A weapon: what it fires, and how. Shots are replicated by weapon id.</summary>

@@ -10,7 +10,7 @@ namespace PooketSlug
         // tones2's kit, and the extras (the hologram goons, the boss tank)
         public static AudioClip JetLoop, Splat, RocketRumble, RocketLaunch, Glitch, Poison, Spew, Sizzle, Thump, Charge, Servo;
         // kie's kit
-        public static AudioClip WeaselThrow, WeaselTune;
+        public static AudioClip WeaselThrow, WeaselTune, TrollDrop, TrollSwap;
         public static bool Muted;
 
         static AudioSource s_Source, s_Voice;

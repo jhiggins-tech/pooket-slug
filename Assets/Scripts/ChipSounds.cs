@@ -177,6 +177,18 @@ namespace PooketSlug
                 }
                 c.Noise(0f, 0.06f, rate: 0.7f, vol: 0.18f); // the pop
             });
+            // A Trollogram flickering on: a shimmering rising sweep with sparkles.
+            Sfx.TrollDrop = Render("chipTrollDrop", 0.45f, c =>
+            {
+                c.Tone(0f, 0.35f, 300f, 1800f, duty: 0.125f, steps: 10, vibratoRate: 30f, vibratoDepth: 40f, vol: 0.1f);
+                c.Arp(new[] { 96f, 100f, 103f, 108f }, 0.05f, at: 0.25f, dur: 0.04f, duty: 0.125f, vol: 0.06f);
+            });
+            // Swapping places with it: a quick there-and-back blip.
+            Sfx.TrollSwap = Render("chipTrollSwap", 0.22f, c =>
+            {
+                c.Tone(0f, 0.09f, 2200f, 500f, duty: 0.25f, steps: 5, vol: 0.1f);
+                c.Tone(0.1f, 0.1f, 500f, 2200f, duty: 0.25f, steps: 5, vol: 0.1f);
+            });
         }
 
         static readonly float[] Flat = { 0f, 1f, 1f, 1f };

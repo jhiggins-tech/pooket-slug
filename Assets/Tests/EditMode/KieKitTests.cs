@@ -75,5 +75,39 @@ namespace PooketSlug.Tests
             Assert.AreEqual(0, Content.WeaselPop.Ammo);
             Assert.Greater(Spec.MaxOut, Spec.Count);
         }
+    
+        static readonly TrollogramSpec Troll = new TrollogramSpec();
+
+        [Test]
+        public void SpDropsAHologramWithACharge()
+        {
+            Assert.AreEqual(TrollAction.Drop, Troll.OnSpecial(false, 99f, 1));
+            Assert.AreEqual(TrollAction.Nothing, Troll.OnSpecial(false, 99f, 0), "no charges, no hologram");
+        }
+
+        [Test]
+        public void SpAgainSwapsForFreeButNotStraightBack()
+        {
+            Assert.AreEqual(TrollAction.Swap, Troll.OnSpecial(true, 99f, 0), "swapping costs no charge");
+            Assert.AreEqual(TrollAction.Nothing, Troll.OnSpecial(true, Troll.SwapCooldown * 0.5f, 3));
+            Assert.AreEqual(TrollAction.Swap, Troll.OnSpecial(true, Troll.SwapCooldown, 3));
+        }
+
+        [Test]
+        public void GoonsShootTheHologramOnlyWhileItsOnScreen()
+        {
+            Assert.IsTrue(TrollogramSpec.Draws(true, 10f, 0f, 20f));
+            Assert.IsFalse(TrollogramSpec.Draws(true, 25f, 0f, 20f), "off screen: they go back to kie");
+            Assert.IsFalse(TrollogramSpec.Draws(false, 10f, 0f, 20f));
+        }
+
+        [Test]
+        public void TrollogramIsKiesSpecial()
+        {
+            Assert.AreSame(Content.Trollogram, Content.Kie.Special);
+            Assert.AreEqual(WeaponBehaviour.Trollogram, Content.Trollogram.Behaviour);
+            Assert.Greater(Troll.Damage, 0);
+            Assert.Greater(Troll.Life, Troll.SwapCooldown);
+        }
     }
 }

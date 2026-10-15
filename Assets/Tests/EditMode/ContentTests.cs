@@ -20,6 +20,7 @@ namespace PooketSlug.Tests
             Assert.AreEqual(8, Content.RocketJump.Id);
             Assert.AreEqual(9, Content.Spew.Id);
             Assert.AreEqual(11, Content.WeaselPop.Id);
+            Assert.AreEqual(12, Content.Trollogram.Id);
         }
 
         [Test]
@@ -158,7 +159,7 @@ namespace PooketSlug.Tests
         }
 
         [TestCase(-1)]
-        [TestCase(12)]
+        [TestCase(13)]
         [TestCase(255)]
         public void AnUnknownWeaponIdFindsNothing(int id)
         {
@@ -178,7 +179,8 @@ namespace PooketSlug.Tests
             {
                 bool pours = w.Behaviour == WeaponBehaviour.Jet || w.Behaviour == WeaponBehaviour.RocketJump || w.Behaviour == WeaponBehaviour.Spew;
                 if (pours) Assert.IsNull(w.Projectile, w.Name + ": tones2's kit fires no projectile");
-                else if (w.Behaviour == WeaponBehaviour.Weasels) Assert.IsNull(w.Projectile, w.Name + ": weasels are critters, not projectiles");
+                else if (w.Behaviour == WeaponBehaviour.Weasels || w.Behaviour == WeaponBehaviour.Trollogram)
+                    Assert.IsNull(w.Projectile, w.Name + ": weasels and holograms aren't projectiles");
                 else Assert.AreSame(w.Projectile, Content.Projectiles[w.Projectile.Id], w.Name);
             }
         }

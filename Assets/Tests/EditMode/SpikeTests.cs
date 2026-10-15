@@ -53,6 +53,9 @@ namespace PooketSlug.Tests
             Assert.IsNull(Spike.Soldier);
             Spike.Configure(Page + "?spike=kie-weasels");
             Assert.AreSame(Content.Kie, Spike.Soldier);
+            Spike.Configure(Page + "?spike=kie-trollogram");
+            Assert.AreSame(Content.Kie, Spike.Soldier);
+            Assert.AreEqual("SPIKE TEST · TROLLOGRAM", Spike.Label);
         }
 
         [Test]

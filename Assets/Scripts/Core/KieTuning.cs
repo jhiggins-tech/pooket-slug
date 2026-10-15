@@ -2,11 +2,43 @@ using UnityEngine;
 
 namespace PooketSlug
 {
-    /// <summary>kie's kit as numbers (<c>docs/design/kits.md</c>): Weasel Pop so far.</summary>
+    /// <summary>kie's kit as numbers (<c>docs/design/kits.md</c>): Weasel Pop and Trollogram so far.</summary>
     public static class KieTuning
     {
         public static readonly WeaselPopSpec Weasels = new WeaselPopSpec();
+        public static readonly TrollogramSpec Trollogram = new TrollogramSpec();
     }
+
+    /// <summary>
+    /// kie's special, Trollogram, as numbers and rules. SP drops a hologram of kie where he stands (a charge), and the
+    /// goons shoot it instead of him while it's on screen. SP again, while it stands, swaps him and it (free). The
+    /// first thing that hits it blows it up on every goon nearby. These are the ones that went rogue.
+    /// </summary>
+    public sealed class TrollogramSpec
+    {
+        /// <summary>Seconds a hologram stands before it switches itself off.</summary>
+        public float Life = 12f;
+        /// <summary>Seconds between swaps, so a held or doubled tap doesn't swap straight back.</summary>
+        public float SwapCooldown = 0.35f;
+        /// <summary>Seconds kie can't be hurt after a swap, while he glitches into place.</summary>
+        public float SwapShield = 0.3f;
+        /// <summary>The blast when it's shot: its reach, damage and size on screen.</summary>
+        public float BlastRadius = 2.2f, BlastSize = 1.2f;
+        public int Damage = 4;
+
+        /// <summary>What SP does: swap with a hologram that's up (once the cooldown allows), or drop one with a charge.</summary>
+        public TrollAction OnSpecial(bool decoyUp, float sinceSwap, int charges)
+        {
+            if (decoyUp) return sinceSwap >= SwapCooldown ? TrollAction.Swap : TrollAction.Nothing;
+            return charges > 0 ? TrollAction.Drop : TrollAction.Nothing;
+        }
+
+        /// <summary>Whether goons take the hologram for kie: it's up, and on screen (between <paramref name="left"/> and <paramref name="right"/>).</summary>
+        public static bool Draws(bool up, float x, float left, float right) => up && x >= left && x <= right;
+    }
+
+    /// <summary>What a press of SP does with Trollogram (<see cref="TrollogramSpec.OnSpecial"/>).</summary>
+    public enum TrollAction { Nothing, Drop, Swap }
 
     /// <summary>
     /// kie's primary, Weasel Pop, as numbers and rules. Each press tumbles out three weasels, lobbed along the aim
