@@ -179,6 +179,12 @@ namespace PooketSlug
         public bool CanHunt(Vector2 weasel, Vector2 goon, bool flies) =>
             !flies && Mathf.Abs(goon.x - weasel.x) <= HuntRange && Mathf.Abs(goon.y - weasel.y) <= HuntHeight;
 
+        /// <summary>
+        /// Weasels only work on screen: one whose middle leaves it (either side) is gone, quietly, and only goons on
+        /// screen are hunted, so nothing ahead is blown up before you get there (owner, 2026-10-15).
+        /// </summary>
+        public static bool OnScreen(float x, float left, float right) => x >= left && x <= right;
+
         /// <summary>Close enough under the goon (its middle at <paramref name="goonX"/>) to pop.</summary>
         public bool Under(float weaselX, float goonX, float goonHalfWidth) => Mathf.Abs(goonX - weaselX) <= Mathf.Max(Reach, goonHalfWidth * 0.6f);
     }

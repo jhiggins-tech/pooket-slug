@@ -155,5 +155,14 @@ namespace PooketSlug.Tests
             Assert.AreSame(Content.Steal, Content.Kie.Super);
             Assert.AreEqual(WeaponBehaviour.Steal, Content.Steal.Behaviour);
         }
+
+        [Test]
+        public void WeaselsOnlyWorkOnScreen()
+        {
+            Assert.IsTrue(WeaselPopSpec.OnScreen(5f, 0f, 20f));
+            Assert.IsTrue(WeaselPopSpec.OnScreen(20f, 0f, 20f));
+            Assert.IsFalse(WeaselPopSpec.OnScreen(20.1f, 0f, 20f), "off the right edge: gone");
+            Assert.IsFalse(WeaselPopSpec.OnScreen(-0.1f, 0f, 20f), "off the left edge: gone");
+        }
     }
 }

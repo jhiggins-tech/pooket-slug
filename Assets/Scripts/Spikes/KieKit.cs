@@ -53,8 +53,9 @@ namespace PooketSlug
         {
             WeaselPopSpec spec = KieTuning.Weasels;
             m_Time += dt;
-            if (Pos.y < -2f || Pos.x < World.View.Left - 4f)
+            if (Pos.y < -2f || !WeaselPopSpec.OnScreen(Pos.x, World.View.Left, World.View.Right))
             {
+                // off the screen: gone, without a pop
                 Remove();
                 return;
             }
@@ -101,6 +102,7 @@ namespace PooketSlug
             foreach (Enemy e in World.Enemies)
             {
                 if (!e.Shootable || e.Def.Brain == EnemyBrain.Barrel) continue;
+                if (!WeaselPopSpec.OnScreen(e.Pos.x, World.View.Left, World.View.Right)) continue; // nothing ahead of the screen
                 if (!spec.CanHunt(Pos, e.Pos, e.Def.Brain == EnemyBrain.Drone)) continue;
                 float dx = Mathf.Abs(e.Pos.x - Pos.x);
                 if (dx < bestDx)
