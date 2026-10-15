@@ -91,6 +91,8 @@ namespace PooketSlug
         public static PlayerSkin[] PlayerSkins;
         /// <summary>tones2 in his Pooket Tabks colours: [0] player 1 (pink bandana), [1] player 2 (blue bandana).</summary>
         public static PlayerSkin[] Tones2Skins;
+        /// <summary>kie in his Pooket Tabks colours (blue, green and teal): [0] player 1, [1] player 2 (a paler blue).</summary>
+        public static PlayerSkin[] KieSkins;
         public static Sprite[] SoldierLegsRun, RunnerLegsRun;
         public static Sprite SoldierLegsIdle, RunnerLegsJump;
         public static Sprite SoldierTorso, RunnerTorso;
@@ -158,6 +160,17 @@ namespace PooketSlug
                 BuildSkin(Swap(new Dictionary<char, uint>
                 {
                     { 'r', 0x3a9ae8 }, { 'R', 0x22609c }, { 'g', 0xff8c42 }, { 'G', 0xc06428 }, { 'c', 0xff5a5f }, { 'C', 0xb83c40 },
+                })),
+            };
+            KieSkins = new[]
+            {
+                BuildSkin(Swap(new Dictionary<char, uint>
+                {
+                    { 'r', 0x4ea8ff }, { 'R', 0x2a70c0 }, { 'g', 0x46d27a }, { 'G', 0x2a9050 }, { 'c', 0x2dd4bf }, { 'C', 0x1a9488 },
+                })),
+                BuildSkin(Swap(new Dictionary<char, uint>
+                {
+                    { 'r', 0xa8d8ff }, { 'R', 0x6898c8 }, { 'g', 0x46d27a }, { 'G', 0x2a9050 }, { 'c', 0x2dd4bf }, { 'C', 0x1a9488 },
                 })),
             };
             SoldierTorso = Part(ArtData.TorsoForward, ArtData.TorsoForwardTop, soldier);
@@ -249,7 +262,7 @@ namespace PooketSlug
         /// <summary>How <paramref name="soldier"/> looks as player <paramref name="skin"/> + 1.</summary>
         public static PlayerSkin SkinFor(SoldierDef soldier, int skin)
         {
-            PlayerSkin[] skins = soldier == Content.Tones2 ? Tones2Skins : PlayerSkins;
+            PlayerSkin[] skins = soldier == Content.Tones2 ? Tones2Skins : soldier == Content.Kie ? KieSkins : PlayerSkins;
             return skins[Mathf.Clamp(skin, 0, skins.Length - 1)];
         }
 

@@ -187,6 +187,14 @@ namespace PooketSlug
         void Fire(WeaponDef weapon)
         {
             Vector2 origin = MuzzlePos;
+            if (weapon.Behaviour == WeaponBehaviour.Weasels)
+            {
+                // kie's Weasel Pop: critters, not shots; nothing happens while too many are out
+                if (!KieKit.ThrowWeasels(World, origin, m_Aim, Vel)) return;
+                m_FireCooldown = weapon.Cooldown;
+                m_Muzzle = 0.05f;
+                return;
+            }
             Vector2 dir = m_Aim;
             if (weapon.Spread > 0f)
             {

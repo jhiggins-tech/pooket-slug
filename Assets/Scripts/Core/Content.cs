@@ -49,6 +49,8 @@ namespace PooketSlug
         public static readonly WeaponDef Spew = new WeaponDef(9, "ten-3", WeaponBehaviour.Spew, null, hud: "TEN-3");
         /// <summary>The boss tank's cannon: it aims its own lobs (<see cref="BossTank"/>).</summary>
         public static readonly WeaponDef BossCannon = new WeaponDef(10, "Boss cannon", WeaponBehaviour.Lob, BigShell, muzzleBlast: 0.6f, kick: 0.15f);
+        // kie's kit (KieKit.cs, numbers in KieTuning). Weasels are critters, not projectiles.
+        public static readonly WeaponDef WeaselPop = new WeaponDef(11, "Weasel Pop", WeaponBehaviour.Weasels, null, cooldown: KieTuning.Weasels.Cooldown, hud: "WEASELS");
 
         /// <summary>How Mission one's boss tank fights.</summary>
         public static readonly BossTankSpec BossTank = new BossTankSpec();
@@ -91,14 +93,22 @@ namespace PooketSlug
             halfWidth: 0.3f, standHeight: 1.35f, crouchHeight: 0.8f, maxHp: 5, primary: WaterJet, special: RocketJump, startSpecials: 3,
             super: Spew, crateSpecials: 3); // the rocket jump is a strong special: a bomb crate gives about 3
 
+        /// <summary>
+        /// kie, Mission one's crewmate (<c>docs/design/kits.md</c>): Weasel Pop so far, with the stand-in grenades and super
+        /// until Trollogram and Steal are built. Played only in spikes (<c>?spike=kie-weasels</c>), and by Mission one's pilot.
+        /// </summary>
+        public static readonly SoldierDef Kie = new SoldierDef(2, "kie", runSpeed: 5.5f, crawlSpeed: 2f, jumpVelocity: 17f,
+            halfWidth: 0.3f, standHeight: 1.35f, crouchHeight: 0.8f, maxHp: 5, primary: WeaselPop, special: GrenadeThrow,
+            startSpecials: Tuning.Kit.SpecialCharges, specialMax: Tuning.Kit.SpecialCharges, specialRefill: Tuning.Kit.SpecialRefill);
+
         // ------------------------------------------------------------------ lookups (after the definitions: statics initialise in order)
 
         public static readonly IReadOnlyList<ProjectileDef> Projectiles = ById(p => p.Id, Bullet, HeavyBullet, EnemyBullet, Shell, Grenade, Bomb, BigShell);
         public static readonly IReadOnlyList<WeaponDef> Weapons = ById(w => w.Id, Pistol, HeavyMachineGun, Rifle, Cannon, GrenadeThrow, DroneBomb, TankGun,
-            WaterJet, RocketJump, Spew, BossCannon);
+            WaterJet, RocketJump, Spew, BossCannon, WeaselPop);
         public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank, Barrel);
         public static readonly IReadOnlyList<PickupDef> Pickups = ById(p => p.Id, HeavyMachineGunCrate, BombCrate, Medkit, OneUp);
-        public static readonly IReadOnlyList<SoldierDef> Soldiers = ById(s => s.Id, Trooper, Tones2);
+        public static readonly IReadOnlyList<SoldierDef> Soldiers = ById(s => s.Id, Trooper, Tones2, Kie);
 
         /// <summary>The weapon with this id, or null for an id no weapon has (say, from a different build).</summary>
         public static WeaponDef Weapon(int id) => id >= 0 && id < Weapons.Count ? Weapons[id] : null;

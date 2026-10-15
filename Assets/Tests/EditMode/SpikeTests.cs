@@ -40,8 +40,21 @@ namespace PooketSlug.Tests
             Spike.Configure(Page + "?spike=kie,hits");
             Assert.IsTrue(Spike.Kie);
             Assert.AreEqual("SPIKE TEST · HIT FEEL + KIE'S TANK", Spike.Label);
+            Spike.Configure(Page + "?spike=kie-weasels");
+            Assert.IsTrue(Spike.Weasels);
+            Assert.IsFalse(Spike.Kie, "kie's kit is not kie's tank");
+            Assert.AreEqual("SPIKE TEST · WEASEL POP", Spike.Label);
             Spike.Configure(Page + "?spike=chip"); // the 8-bit sounds are the game's own now: no longer a spike
             Assert.IsNull(Spike.Label);
+        }
+
+        [Test]
+        public void TheWeaselSpikeHasYouPlayKie()
+        {
+            Spike.Configure(Page);
+            Assert.IsNull(Spike.Soldier);
+            Spike.Configure(Page + "?spike=kie-weasels");
+            Assert.AreSame(Content.Kie, Spike.Soldier);
         }
 
         [Test]

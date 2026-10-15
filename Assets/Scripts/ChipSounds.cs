@@ -151,6 +151,32 @@ namespace PooketSlug
             });
             // The spinners' tick: the turret's servo.
             Sfx.Servo = Render("chipServo", 0.04f, c => c.Tone(0f, 0.03f, 1760f, duty: 0.125f, vol: 0.08f));
+
+            // kie's weasels tumbling out: three little squeaks, up and up.
+            Sfx.WeaselThrow = Render("chipWeaselThrow", 0.2f, c =>
+            {
+                for (int i = 0; i < 3; i++) c.Tone(i * 0.05f, 0.045f, 1300f + i * 300f, 2100f + i * 300f, duty: 0.125f, vol: 0.08f);
+            });
+            // Tabks' Pop Goes the Weasel, its last line: "POP! goes the wea-sel", the pop landing on the high A.
+            Sfx.WeaselTune = Render("chipWeaselTune", 1.6f, c =>
+            {
+                (float note, int steps)[] pop = { (81f, 3), (74f, 2), (77f, 1), (76f, 3), (72f, 3) };
+                (float note, int steps)[] bass = { (53f, 3), (50f, 3), (55f, 3), (48f, 3) };
+                const float step = 0.11f;
+                float t = 0f;
+                foreach (var (note, steps) in pop)
+                {
+                    c.Tone(t, steps * step * 0.8f, Chip.Midi(note), duty: 0.25f, vol: 0.13f);
+                    t += steps * step;
+                }
+                t = 0f;
+                foreach (var (note, steps) in bass)
+                {
+                    c.Tone(t, steps * step * 0.6f, Chip.Midi(note), triangle: true, vol: 0.2f);
+                    t += steps * step;
+                }
+                c.Noise(0f, 0.06f, rate: 0.7f, vol: 0.18f); // the pop
+            });
         }
 
         static readonly float[] Flat = { 0f, 1f, 1f, 1f };

@@ -63,6 +63,8 @@ namespace PooketSlug
         RocketJump,
         /// <summary>A short-range spew that leaves burning sludge (spike: <see cref="SpewSpec"/>).</summary>
         Spew,
+        /// <summary>kie's Weasel Pop: a press tumbles out weasels that hunt goons along the ground and pop (<see cref="WeaselPopSpec"/>).</summary>
+        Weasels,
     }
 
     /// <summary>A weapon: what it fires, and how. Shots are replicated by weapon id.</summary>
