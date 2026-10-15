@@ -39,6 +39,7 @@ namespace PooketSlug
                 Victory = Notes("victory", 0.13f, 523, 659, 784, 1047, 784, 1047);
                 GameOver = Notes("gameOver", 0.2f, 392, 330, 262, 196);
                 if (Spike.Any) MakeSpikeSounds();
+                if (Spike.Chip) ChipSounds.Make(); // the 8-bit spike redoes them all
             }
             catch (Exception e)
             {
@@ -155,6 +156,14 @@ namespace PooketSlug
                 data[i] = Mathf.Clamp(sample(t, p) * env, -1f, 1f);
             }
             var clip = AudioClip.Create(name, n, 1, Rate, false);
+            clip.SetData(data, 0);
+            return clip;
+        }
+
+        /// <summary>A clip of ready-made samples (the chip spike's).</summary>
+        public static AudioClip Clip(string name, float[] data, int rate)
+        {
+            var clip = AudioClip.Create(name, data.Length, 1, rate, false);
             clip.SetData(data, 0);
             return clip;
         }

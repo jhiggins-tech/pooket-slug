@@ -103,6 +103,33 @@
     <!-- pooket-config.js is written by the build (WebGLBuild.cs) from the repository variables -->
     <script src="pooket-config.js"></script>
     <script src="pooket-auth.js"></script>
+    <script>
+      // Spike (?spike=chip): make sure phones play the sound. Unity's audio context starts suspended until a
+      // touch; iPhones also mute web audio with the ringer switch off, and suspend it ("interrupted") after a call
+      // or a trip to another app. So: on every touch or key, resume any audio context that isn't running, and ask
+      // Safari to treat the page's sound as media playback, which ignores the ringer switch.
+      (function () {
+        if (!/[?&]spike=[^&#]*\bchip\b/i.test(location.search)) return;
+        var contexts = [];
+        ["AudioContext", "webkitAudioContext"].forEach(function (name) {
+          var Base = window[name];
+          if (!Base) return;
+          var Tracked = function (options) {
+            var ctx = new Base(options);
+            contexts.push(ctx);
+            return ctx;
+          };
+          Tracked.prototype = Base.prototype;
+          window[name] = Tracked;
+        });
+        function wake() {
+          try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {}
+          contexts.forEach(function (ctx) { if (ctx.state !== "running" && ctx.state !== "closed") ctx.resume().catch(function () {}); });
+        }
+        ["touchend", "pointerup", "keydown"].forEach(function (type) { window.addEventListener(type, wake, true); });
+        document.addEventListener("visibilitychange", function () { if (!document.hidden) wake(); });
+      })();
+    </script>
     <script src="Build/{{{ LOADER_FILENAME }}}"></script>
     <script>
       var canvas = document.querySelector("#unity-canvas");

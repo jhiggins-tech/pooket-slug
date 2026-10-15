@@ -1,0 +1,173 @@
+using System;
+using UnityEngine;
+
+namespace PooketSlug
+{
+    /// <summary>
+    /// Spike (?spike=chip): every sound redone with Pooket Tabks' 8-bit recipes (src/audio/sfx.ts), on the
+    /// <see cref="Chip"/> synth. Each recipe below says which Tabks sound it's from; a few are cut down, because
+    /// a machine gun fires far more often than an artillery tank.
+    /// </summary>
+    public static class ChipSounds
+    {
+        /// <summary>Replaces the sound bank's clips with the chip versions (the spike clips too, when they're made).</summary>
+        public static void Make()
+        {
+            // ---- Shots ----
+            // Tabks' "pew" (a stepped downward sweep), short and light for the pistol.
+            Sfx.Shot = Render("chipShot", 0.13f, c =>
+            {
+                c.Tone(0f, 0.12f, 1600f, 300f, duty: 0.25f, steps: 6, vol: 0.15f);
+                c.Noise(0f, 0.05f, rate: 0.9f, vol: 0.1f);
+            });
+            // The heavy machine gun: a fatter, shorter pew with more crunch.
+            Sfx.Heavy = Render("chipHeavy", 0.1f, c =>
+            {
+                c.Tone(0f, 0.09f, 1100f, 160f, duty: 0.5f, steps: 5, vol: 0.14f);
+                c.Noise(0f, 0.06f, rate: 0.6f, vol: 0.14f);
+            });
+            // The goons' rifles: a lower, quieter pew, so yours stand out.
+            Sfx.EnemyShot = Render("chipEnemyShot", 0.15f, c => c.Tone(0f, 0.14f, 900f, 200f, duty: 0.125f, steps: 6, vol: 0.12f));
+            // Tabks' plain shell: pew and a thump of noise, with the boss's big bottom end.
+            Sfx.Cannon = Render("chipCannon", 0.3f, c =>
+            {
+                c.Tone(0f, 0.22f, 1400f, 180f, duty: 0.25f, steps: 10, vol: 0.18f);
+                c.Noise(0f, 0.12f, rate: 0.45f, vol: 0.2f);
+                c.Tone(0f, 0.25f, 120f, 45f, duty: 0.5f, steps: 6, vol: 0.18f);
+            });
+            // Tabks' slide whistle (The Rizzler), short: a grenade lobbed.
+            Sfx.Throw = Render("chipThrow", 0.2f, c => c.Tone(0f, 0.18f, 450f, 1100f, triangle: true, vol: 0.14f));
+
+            // ---- Blasts and hits ----
+            Sfx.Explosion = Render("chipExplosion", 0.7f, c => Boom(c, 30f));
+            Sfx.BigExplosion = Render("chipBigExplosion", 1.1f, c => Boom(c, 60f));
+            // Tabks' "oof": a big one when you're hurt, a small one when you hit something.
+            Sfx.Hurt = Render("chipHurt", 0.22f, c => c.Tone(0f, 0.2f, 520f, 160f, duty: 0.25f, steps: 4, vol: 0.16f));
+            Sfx.Hit = Render("chipHit", 0.11f, c => c.Tone(0f, 0.1f, 700f, 380f, duty: 0.25f, steps: 4, vol: 0.08f));
+
+            // ---- Getting about ----
+            // Tabks' hop (ciarra's frog boing).
+            Sfx.Jump = Render("chipJump", 0.2f, c =>
+            {
+                c.Tone(0f, 0.11f, 240f, 760f, duty: 0.25f, vol: 0.1f);
+                c.Tone(0.11f, 0.07f, 760f, 520f, duty: 0.25f, vol: 0.06f);
+            });
+
+            // ---- Jingles ----
+            // Tabks' refunded round: ding-DING.
+            Sfx.Pickup = Render("chipPickup", 0.45f, c =>
+            {
+                c.Tone(0f, 0.07f, Chip.Midi(83), duty: 0.5f, vol: 0.14f);
+                c.Tone(0.07f, 0.35f, Chip.Midi(88), duty: 0.5f, vol: 0.14f);
+            });
+            // Tabks' wake-up (Take a Nap's level-up arpeggio): mission start.
+            Sfx.Start = Render("chipStart", 0.45f, c => c.Arp(new[] { 72f, 76f, 79f, 84f, 88f, 91f }, 0.065f, duty: 0.25f, vol: 0.14f));
+            // Tabks' victory fanfare.
+            Sfx.Victory = Render("chipVictory", 1.65f, c =>
+            {
+                c.Arp(new[] { 72f, 76f, 79f, 84f }, 0.11f, duty: 0.25f, vol: 0.15f);
+                c.Arp(new[] { 79f, 84f }, 0.18f, at: 0.5f, dur: 0.16f, duty: 0.25f, vol: 0.15f);
+                c.Tone(0.9f, 0.7f, Chip.Midi(88), duty: 0.25f, vibratoRate: 6f, vibratoDepth: 10f, vol: 0.15f);
+            });
+            // Tabks' did-not-finish: sad trombone, wah wah wah waaaah.
+            Sfx.GameOver = Render("chipGameOver", 1.9f, c =>
+            {
+                float[] notes = { 67f, 66f, 65f };
+                for (int i = 0; i < notes.Length; i++)
+                    c.Tone(i * 0.32f, 0.28f, Chip.Midi(notes[i]), Chip.Midi(notes[i]) * 0.97f, duty: 0.5f, vol: 0.14f);
+                c.Tone(0.96f, 0.9f, Chip.Midi(64), Chip.Midi(63), duty: 0.5f, vibratoRate: 6f, vibratoDepth: 9f, vol: 0.14f);
+            });
+
+            if (Spike.Any) MakeSpikeSounds();
+        }
+
+        /// <summary>The other spikes' sounds, from the matching Tabks weapons (tones2 is ten's kit there).</summary>
+        static void MakeSpikeSounds()
+        {
+            // ten-1's hiss and gurgle, as a seamless loop: 96 Hz and 8 Hz both fit a whole number of times in half a second.
+            Sfx.JetLoop = Render("chipJetLoop", 0.5f, c =>
+            {
+                c.Noise(0f, 0.5f, rate: 0.9f, vol: 0.12f, env: Flat);
+                c.Tone(0f, 0.5f, 96f, duty: 0.125f, vibratoRate: 8f, vibratoDepth: 30f, vol: 0.07f, env: Flat);
+            });
+            // Tabks' splashback, the slap part.
+            Sfx.Splat = Render("chipSplat", 0.1f, c => c.Noise(0f, 0.08f, rate: 0.9f, to: 0.3f, vol: 0.14f));
+            // ten-2's putt-putt engine (a rumbling loop of it).
+            Sfx.RocketRumble = Render("chipRocketRumble", 0.5f, c =>
+            {
+                for (float t = 0f; t < 0.45f; t += 0.09f)
+                {
+                    c.Noise(t, 0.05f, rate: 0.5f, vol: 0.1f);
+                    c.Tone(t, 0.05f, 110f, duty: 0.5f, vol: 0.08f);
+                }
+            });
+            // Tabks' jetpack launch: FWOOOSH-boing.
+            Sfx.RocketLaunch = Render("chipRocketLaunch", 0.9f, c =>
+            {
+                c.Noise(0f, 0.9f, rate: 0.25f, to: 1.5f, vol: 0.25f);
+                c.Tone(0f, 0.5f, 180f, 1300f, duty: 0.25f, steps: 12, vol: 0.15f);
+            });
+            // Tabks' hologram blowing up: the stuttering glitch-out, the power-down and the pixel sparkles.
+            Sfx.Glitch = Render("chipGlitch", 0.75f, c =>
+            {
+                float[] chirps = { 2400f, 700f, 3100f, 520f, 1900f, 3600f };
+                for (int i = 0; i < chirps.Length; i++) c.Tone(i * 0.028f, 0.022f, chirps[i], duty: 0.125f, vol: 0.09f);
+                c.Tone(0.15f, 0.42f, 1500f, 45f, duty: 0.5f, steps: 16, vol: 0.18f);
+                c.Noise(0.15f, 0.55f, rate: 1.1f, to: 0.12f, vol: 0.2f);
+                c.Arp(new[] { 100f, 96f, 98f, 93f, 95f, 89f }, 0.045f, at: 0.42f, dur: 0.035f, duty: 0.125f, vol: 0.06f);
+            });
+            // Tabks' fizzle (a hologram whose owner is out), short: a dose of poison.
+            Sfx.Poison = Render("chipPoison", 0.16f, c =>
+            {
+                c.Tone(0f, 0.15f, 700f, 200f, duty: 0.125f, steps: 5, vol: 0.1f);
+                c.Noise(0f, 0.15f, rate: 1.4f, to: 0.3f, vol: 0.05f);
+            });
+            // ten-3: BLEURGH.
+            Sfx.Spew = Render("chipSpew", SpikeContent.Spew.Duration, c =>
+            {
+                float dur = SpikeContent.Spew.Duration;
+                c.Tone(0f, dur, 240f, 65f, duty: 0.125f, vibratoRate: 17f, vibratoDepth: 35f, vol: 0.2f);
+                c.Noise(0f, dur, rate: 0.22f, to: 0.12f, vol: 0.14f);
+            });
+            // Tabks' cook, the sizzle part.
+            Sfx.Sizzle = Render("chipSizzle", 0.15f, c => c.Noise(0f, 0.14f, rate: 2f, vol: 0.08f));
+            // Band Aid's floor tom: a heavy landing.
+            Sfx.Thump = Render("chipThump", 0.22f, c =>
+            {
+                c.Tone(0f, 0.2f, 170f, 80f, duty: 0.5f, steps: 6, vol: 0.22f);
+                c.Noise(0f, 0.05f, rate: 0.5f, vol: 0.12f);
+            });
+            // The boss tank charging: ten-2's engine revving up into a stepped whine.
+            Sfx.Charge = Render("chipCharge", 0.95f, c =>
+            {
+                float t = 0f;
+                while (t < 0.9f)
+                {
+                    float k = t / 0.9f;
+                    c.Noise(t, 0.05f, rate: 0.25f + k * 0.6f, vol: 0.04f + k * 0.06f);
+                    t += 0.2f - k * 0.14f;
+                }
+                c.Tone(0f, 0.9f, 180f, 900f, duty: 0.125f, steps: 12, vol: 0.1f, env: new[] { 0.1f, 0.4f, 1f, 1f });
+            });
+            // The spinners' tick: the turret's servo.
+            Sfx.Servo = Render("chipServo", 0.04f, c => c.Tone(0f, 0.03f, 1760f, duty: 0.125f, vol: 0.08f));
+        }
+
+        static readonly float[] Flat = { 0f, 1f, 1f, 1f };
+
+        /// <summary>Tabks' blast: crunchy noise, bigger blasts longer and lower (<paramref name="r"/> is its radius there).</summary>
+        static void Boom(Chip c, float r)
+        {
+            float dur = 0.18f + r / 70f;
+            c.Noise(0f, dur, rate: 0.8f, to: 0.12f, vol: Mathf.Min(0.45f, 0.12f + r / 90f));
+            c.Tone(0f, dur * 0.6f, 130f, 40f, duty: 0.5f, steps: 6, vol: 0.2f);
+        }
+
+        static AudioClip Render(string name, float seconds, Action<Chip> recipe)
+        {
+            var chip = new Chip(seconds);
+            recipe(chip);
+            return Sfx.Clip(name, chip.Finish(), Chip.Rate);
+        }
+    }
+}
