@@ -2,7 +2,7 @@
 
 The game's music: every track and short sting, the style they share, and how they're made in code with the chip synth the sound effects already use.
 
-**Status:** draft, 2026-10-15, waiting for the owner's picks. The track names and tempos are first ideas; the notes get written when each track is built.
+**Status:** approved by the owner, 2026-10-15. The draft's picks stand until the owner answers the open questions. The track names and tempos are first ideas; the notes get written when each track is built.
 
 **Read this when** you're building the music player or writing a track, or a new mission or boss needs music.
 
