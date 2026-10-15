@@ -55,7 +55,7 @@ C2, the refactor, is done. C1's code is written and checked locally; it goes liv
   - [x] C3a. Make connection failures say *Couldn't reach Photon* instead of `DISCONNECTED (ERROR)`. Done 2026-10-14 ([sessions](netcode/sessions.md#when-things-fail)).
   - [x] C3b. Fix the Photon region to **AU** (NET-05, from the MoSCoW pass), with four-letter room codes. Done 2026-10-14 in `NetSession` and `InviteCode` ([regions and room codes](netcode/sessions.md#regions-and-room-codes)). Older `ABCD-EU` codes still parse, and the CI co-op test reads either form.
   - [x] C3c. Run the two-browser co-op test in CI after each deploy. Done 2026-10-14 as step 4 of the [refactor plan](roadmap/refactor-plan.md): it passed on its first run, host migration included ([test log](verification/test-log.md#part-2-photon-fusion-co-op)). Of owner 5's paths, it covers the host leaving.
-- [ ] **C4. The full controls**, from the signed-off [player](../design/player.md) and [tanks](../design/tanks.md) docs. Asked for 2026-10-15; some spikes wait on it (tones2's spew needs a super button).
+- [x] **C4. The full controls**, from the signed-off [player](../design/player.md) and [tanks](../design/tanks.md) docs. Asked for 2026-10-15; some spikes wait on it (tones2's spew needs a super button).
   - [x] The kit's meters (`KitMeters` in `Core/Controls.cs`): SP has 3 charges that refill one every 6 s (crates can go past 3); SU, the super, charges from 12 kills (a kill is credited where our soldier's hit lands, in `Combat.DamageEnemy`); AB, the ability, has a cooldown and shows only for a soldier that has one.
   - [x] The super: a soldier's own `SoldierDef.Super`, or until those exist a fan of nine primary shots along the aim. The shots replicate like any other.
   - [x] Calling in a tank (`CallInGesture`): stick down + hold SP. A tap still fires the special; holding charges for 0.8 s after a 0.2 s tap window; letting go of SP or of down cancels. It only works while a tank is available: for now that's `?unlock=tank`, once per mission, and the result is a *TANK INBOUND!* marker and a `World.TankCalled` event until there's a tank to drive.
@@ -63,7 +63,7 @@ C2, the refactor, is done. C1's code is written and checked locally; it goes liv
   - [x] Knockback when hurt, and a short hit-stop on kills (longer for big ones), solo only.
   - [x] Bindings: SU on V/U and the gamepad's Y; AB on B/I and LB; SP is now read held as well as pressed. The touch pad gains SU and AB buttons; the HUD shows the super meter (it flashes when ready), the SP refill under it, the AB cooldown, and the call-in charge over the soldier's head. The title screen lists SU.
   - [x] Verify locally: compiles on each input backend, with and without the SDK; the weaver; 212 of 212 EditMode tests (new: kit meters, the call-in gesture, aiming, the pad's new buttons, the diagonal bit).
-  - [ ] Verify in CI, then tell the spike thread.
+  - [x] Verify in CI: run 38663493862 built, deployed and passed the co-op test (2026-10-15). The spike thread has been told.
   - Not yet: team supers, each soldier's own super and ability, and the tank itself.
 
 ## Done recently
