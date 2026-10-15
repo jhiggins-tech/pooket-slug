@@ -200,38 +200,54 @@ jobs:
       - name: Host, join, play, and hand over the world
         run: node tools/coop.mjs http://127.0.0.1:8000/index.html coop-test code
 
+      - name: Fight the boss together
+        if: success() || failure()
+        run: node tools/coop.mjs http://127.0.0.1:8000/index.html coop-test/boss boss
+
       - name: Summary
         if: always()
         run: |
           python3 - >> "$GITHUB_STEP_SUMMARY" <<'EOF'
           import json
-          try:
-              r = json.load(open('coop-test/result.json'))
-          except Exception:
-              print("### Two-player co-op test\n\nNo result: the test stopped before writing one.")
-              raise SystemExit
-          checks = [
-              ("hostOnline", "A hosts a room"),
-              ("guestOnline", "B joins with the invite link"),
-              ("joined", "A sees B join"),
-              ("played", "Both play with no errors or disconnects"),
-              ("pickup", "A's world hands out the test crate (?test=crate)"),
-              ("takeover", "B takes over the world when A leaves"),
+          runs = [
+              ("Two-player co-op test", "coop-test/result.json", [
+                  ("hostOnline", "A hosts a room"),
+                  ("guestOnline", "B joins with the invite link"),
+                  ("joined", "A sees B join"),
+                  ("played", "Both play with no errors or disconnects"),
+                  ("pickup", "A's world hands out the test crate (?test=crate)"),
+                  ("takeover", "B takes over the world when A leaves"),
+              ]),
+              ("Two-player boss fight", "coop-test/boss/result.json", [
+                  ("hostOnline", "A hosts a room"),
+                  ("guestOnline", "B joins with the invite link"),
+                  ("joined", "A sees B join"),
+                  ("played", "Both fight the boss with no errors or disconnects"),
+                  ("bossFollowed", "B's boss tank follows the turret of A's"),
+                  ("bossFired", "B sees the boss tank fire in A's world"),
+              ]),
           ]
-          print("### Two-player co-op test: " + ("passed" if r["ok"] else "failed"))
-          print()
-          print("| Check | Result |")
-          print("|---|---|")
-          for key, label in checks:
-              print(f"| {label} | {'✅' if r['checks'].get(key) else '❌'} |")
-          if r.get("failure"):
+          for title, path, checks in runs:
+              try:
+                  r = json.load(open(path))
+              except Exception:
+                  print(f"### {title}\n\nNo result: the test stopped before writing one.\n")
+                  continue
+              print(f"### {title}: " + ("passed" if r["ok"] else "failed"))
               print()
-              print("Stopped: " + r["failure"])
-          print()
-          if "pickups" in r:
-              print(f"Pickups given out while playing: {r['pickups']}.")
+              print("| Check | Result |")
+              print("|---|---|")
+              for key, label in checks:
+                  print(f"| {label} | {'✅' if r['checks'].get(key) else '❌'} |")
+              if r.get("failure"):
+                  print()
+                  print("Stopped: " + r["failure"])
               print()
-          print(f"Took {r['seconds']} s. Screenshots and console logs are in the coop-test artifact.")
+              if "pickups" in r and r.get("mode") != "boss":
+                  print(f"Pickups given out while playing: {r['pickups']}.")
+                  print()
+              print(f"Took {r['seconds']} s. Screenshots and console logs are in the coop-test artifact.")
+              print()
           EOF
 
       - name: Upload screenshots and logs

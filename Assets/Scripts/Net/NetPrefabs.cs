@@ -6,13 +6,13 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// The project has no prefab assets, so the two network prefabs are built in code too: a template is
+    /// The project has no prefab assets, so the network prefabs are built in code too: a template is
     /// assembled under an inactive root (so it never runs itself), baked, and registered in Fusion's prefab
     /// table under a fixed GUID. Every client registers them in the same order, so the ids line up.
     /// </summary>
     static class NetPrefabs
     {
-        public static NetworkPrefabId Player, World;
+        public static NetworkPrefabId Player, World, Boss;
         static GameObject s_Root;
 
         public static void Register()
@@ -23,6 +23,7 @@ namespace PooketSlug
             UnityEngine.Object.DontDestroyOnLoad(s_Root);
             Player = Add<PlayerNet>("PlayerNet", new Guid("7c0f3d1e-52a8-4f0b-9a61-3b1e6d2c0a01"), NetworkObjectFlags.DestroyWhenStateAuthorityLeaves);
             World = Add<WorldNet>("WorldNet", new Guid("7c0f3d1e-52a8-4f0b-9a61-3b1e6d2c0a02"), NetworkObjectFlags.MasterClientObject);
+            Boss = Add<BossNet>("BossNet", new Guid("7c0f3d1e-52a8-4f0b-9a61-3b1e6d2c0a03"), NetworkObjectFlags.MasterClientObject);
         }
 
         static NetworkPrefabId Add<T>(string name, Guid guid, NetworkObjectFlags flags) where T : NetworkBehaviour

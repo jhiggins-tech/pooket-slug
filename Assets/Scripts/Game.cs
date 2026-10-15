@@ -41,7 +41,7 @@ namespace PooketSlug
         float m_OutFor;         // seconds the game has had nobody left in it (out of lives and continues)    // ?unlock=tank: a tank can be called in each mission, for testing
         bool m_TestCrate;       // ?test=crate: a crate just ahead of the start, so the co-op test sees one handed out
         bool m_TestOneUp;       // ?test=1up: a 1-up just ahead of the start
-        bool m_TestBoss;        // ?test=boss: a solo game starts just before the boss's arena
+        bool m_TestBoss;        // ?test=boss: a game starts just before the boss's arena (co-op too: the co-op test's boss round)
         string m_Notice, m_StartNote;
         float m_NoticeTime, m_LeaveArmed;
 
@@ -62,7 +62,7 @@ namespace PooketSlug
         {
             string url = Application.absoluteURL;
             Log.Configure(PageQuery.Get(url, "log")); // ?log=net:debug,game:warn for this visit
-            Spike.Configure(url); // ?spike=holo,tank for this visit (before the art and sounds, which make what spikes need)
+            Spike.Configure(url); // ?spike=holo,hits for this visit (before the art and sounds, which make what spikes need)
             Art.Init();
             Sfx.Init(gameObject);
 
@@ -129,7 +129,7 @@ namespace PooketSlug
                 float x = world.Level.PlayerStart.x + 4.5f;
                 world.Spawner.SpawnPickup(Content.OneUp, new Vector2(x, world.Level.TopSurfaceY(x)));
             }
-            if (m_TestBoss && net == null) StartAtBoss(world);
+            if (m_TestBoss) StartAtBoss(world);
             return world;
         }
 

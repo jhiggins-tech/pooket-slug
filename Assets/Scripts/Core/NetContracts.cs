@@ -154,6 +154,10 @@ namespace PooketSlug
         void WritePickups(List<NetPickupState> pickups);
         /// <summary>False when there is no snapshot to read: an empty list then doesn't mean they were all collected.</summary>
         bool ReadPickups(List<NetPickupState> into);
+        /// <summary>The boss's own state beyond its enemy snapshot: where its turret points and its shot.</summary>
+        void WriteBoss(in NetBossState boss);
+        /// <summary>False until the authority has written one.</summary>
+        bool ReadBoss(out NetBossState boss);
 
         void SendEnemyShot(in ShotEvent shot); // authority only
         void ReportHit(in HitReport hit);
@@ -208,5 +212,23 @@ namespace PooketSlug
         public int Flags;
         public int Hp;
         public Vector2 Pos;
+    }
+
+    /// <summary>
+    /// The boss tank's own replicated state, in its network object: what the enemy snapshot doesn't carry. A
+    /// follower's tank swings, charges and kicks with it; the shells themselves come as enemy shots.
+    /// </summary>
+    public struct NetBossState
+    {
+        /// <summary>What it's doing (the tank's own phases, from 1; 0 is no boss state yet).</summary>
+        public int Phase;
+        /// <summary>The turret's angle, degrees up from facing right.</summary>
+        public float Angle;
+        /// <summary>How far the shot has charged, 0 to 1, and how hard it'll be thrown.</summary>
+        public float Charge, Power;
+        /// <summary>Where the charging shot will come down.</summary>
+        public Vector2 Landing;
+        /// <summary>Shots fired so far (it wraps): a change means it just fired.</summary>
+        public int Shots;
     }
 }
