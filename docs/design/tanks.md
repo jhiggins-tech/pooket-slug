@@ -49,7 +49,7 @@ A boss tank's arrival is the mission's big moment ([story](story.md#cutscenes): 
 
 **How it plays, in order** (about three seconds; you keep control throughout, so it never feels like the game took the stick away):
 1. **The screen locks** as you step into the arena, and the mission's music cuts out.
-2. **The warning:** a siren sounds twice, the screen edges flash red, and the banner slams in. *To pick:* the banner's look.
+2. **The warning:** a siren sounds twice, the screen edges flash red, and a big flashing red **WARNING!** slams in between hazard stripes that sweep across the top and bottom of the screen, Metal Slug style (picked 2026-10-15).
 3. **The entrance:** the motor pool's blast shutter grinds open and the tank rolls out onto the arena floor. It can't be hurt and doesn't fire until it stops.
 4. **The name card:** the tank's name ("KIE'S TANK") drops in under the banner, and the announcer calls it. *To pick:* the line and the voice.
 5. **The fight:** the boss music kicks in on the tank's first shot, and its health bar fills up across the top. *To pick:* how the music works.
