@@ -85,9 +85,43 @@ namespace PooketSlug
 
         public void Dispose() => Object.Destroy(Root.gameObject);
 
+        /// <summary>Tanks our soldier can still call in this mission (<c>docs/design/tanks.md</c>).</summary>
+        public int TanksToCall;
+        /// <summary>Our soldier called in a tank, at this spot. Nothing drives one yet, so for now it's a marker.</summary>
+        public event System.Action<Vector2> TankCalled;
+        float m_HitStop;
+
+        /// <summary>Freezes a solo game for a moment, to give a kill weight. Co-op never stops: the others keep playing.</summary>
+        public void HitStop(float seconds)
+        {
+            if (!Coop) m_HitStop = Mathf.Max(m_HitStop, seconds);
+        }
+
+        /// <summary>Our soldier killed an enemy: it charges the super, and lands with a hit-stop.</summary>
+        public void OnPlayerKill(Enemy e)
+        {
+            Player.Kit.AddKill();
+            HitStop(e.MaxHp >= Tuning.Impact.BigHp ? Tuning.Impact.BigKillStop : Tuning.Impact.KillStop);
+        }
+
+        /// <summary>Uses up one of <see cref="TanksToCall"/>.</summary>
+        public void CallTank(Vector2 at)
+        {
+            if (TanksToCall <= 0) return;
+            TanksToCall--;
+            Scoring.Popup("TANK INBOUND!", at + Vector2.up * 2.4f, new Color(1f, 0.85f, 0.3f));
+            View.Shake(0.2f);
+            TankCalled?.Invoke(at);
+        }
+
         /// <summary>Runs one frame, with the local soldier following <paramref name="input"/>.</summary>
         public void Tick(float dt, in SoldierInput input)
         {
+            if (m_HitStop > 0f)
+            {
+                m_HitStop -= dt;
+                return;
+            }
             Elapsed += dt;
             if (Victory) VictoryTime += dt;
 

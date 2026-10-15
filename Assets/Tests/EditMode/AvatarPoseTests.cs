@@ -45,14 +45,31 @@ namespace PooketSlug.Tests
         }
 
         [Test]
-        public void ThePackedPoseFitsInTenBits()
+        public void ThePackedPoseFitsInElevenBits()
         {
             var all = new AvatarPose
             {
-                Facing = 1, AimY = 1, Grounded = true, Crouching = true, Running = true,
+                Facing = 1, AimY = 1, Diagonal = true, Grounded = true, Crouching = true, Running = true,
                 Dead = true, Muzzle = true, Blink = true, Flash = true,
             };
-            Assert.Less(all.Pack() | new AvatarPose { AimY = -1 }.Pack(), 1 << 10);
+            Assert.Less(all.Pack() | new AvatarPose { AimY = -1 }.Pack(), 1 << 11);
+        }
+
+        [Test]
+        public void DiagonalsSurvivePacking()
+        {
+            foreach (int aim in new[] { -1, 1 })
+            {
+                AvatarPose pose = AvatarPose.Unpack(new AvatarPose { Facing = 1, AimY = aim, Diagonal = true }.Pack(), 0f, 0f);
+                Assert.IsTrue(pose.Diagonal);
+                Assert.AreEqual(aim, pose.AimY);
+            }
+        }
+
+        [Test]
+        public void ALevelAimIsNeverDiagonal()
+        {
+            Assert.IsFalse(AvatarPose.Unpack(new AvatarPose { Facing = 1, Diagonal = true }.Pack(), 0f, 0f).Diagonal);
         }
     }
 }

@@ -14,7 +14,7 @@ namespace PooketSlug
         bool Read(ref SoldierInput soldier, ref MenuInput menu);
     }
 
-    /// <summary>Arrows or WASD to move, Z/Space/K to jump, X/J to fire, C/L for the special.</summary>
+    /// <summary>Arrows or WASD to move, Z/Space/K to jump, X/J to fire, C/L for the special, V/U for the super, B/I for the ability.</summary>
     public sealed class KeyboardSource : IInputSource
     {
         public bool Read(ref SoldierInput soldier, ref MenuInput menu)
@@ -30,7 +30,12 @@ namespace PooketSlug
             soldier.JumpPressed |= kb.zKey.wasPressedThisFrame || kb.spaceKey.wasPressedThisFrame || kb.kKey.wasPressedThisFrame;
             soldier.Fire |= kb.xKey.isPressed || kb.jKey.isPressed;
             soldier.FirePressed |= kb.xKey.wasPressedThisFrame || kb.jKey.wasPressedThisFrame;
+            soldier.Special |= kb.cKey.isPressed || kb.lKey.isPressed;
             soldier.SpecialPressed |= kb.cKey.wasPressedThisFrame || kb.lKey.wasPressedThisFrame;
+            soldier.Super |= kb.vKey.isPressed || kb.uKey.isPressed;
+            soldier.SuperPressed |= kb.vKey.wasPressedThisFrame || kb.uKey.wasPressedThisFrame;
+            soldier.Ability |= kb.bKey.isPressed || kb.iKey.isPressed;
+            soldier.AbilityPressed |= kb.bKey.wasPressedThisFrame || kb.iKey.wasPressedThisFrame;
             menu.Start |= kb.enterKey.wasPressedThisFrame || kb.numpadEnterKey.wasPressedThisFrame;
             menu.Restart |= kb.rKey.wasPressedThisFrame;
             menu.Pause |= kb.pKey.wasPressedThisFrame;
@@ -49,7 +54,12 @@ namespace PooketSlug
             soldier.JumpPressed |= Input.GetKeyDown(KeyCode.Z) || Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.K);
             soldier.Fire |= Input.GetKey(KeyCode.X) || Input.GetKey(KeyCode.J);
             soldier.FirePressed |= Input.GetKeyDown(KeyCode.X) || Input.GetKeyDown(KeyCode.J);
+            soldier.Special |= Input.GetKey(KeyCode.C) || Input.GetKey(KeyCode.L);
             soldier.SpecialPressed |= Input.GetKeyDown(KeyCode.C) || Input.GetKeyDown(KeyCode.L);
+            soldier.Super |= Input.GetKey(KeyCode.V) || Input.GetKey(KeyCode.U);
+            soldier.SuperPressed |= Input.GetKeyDown(KeyCode.V) || Input.GetKeyDown(KeyCode.U);
+            soldier.Ability |= Input.GetKey(KeyCode.B) || Input.GetKey(KeyCode.I);
+            soldier.AbilityPressed |= Input.GetKeyDown(KeyCode.B) || Input.GetKeyDown(KeyCode.I);
             menu.Start |= Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter);
             menu.Restart |= Input.GetKeyDown(KeyCode.R);
             menu.Pause |= Input.GetKeyDown(KeyCode.P);
@@ -64,7 +74,7 @@ namespace PooketSlug
         }
     }
 
-    /// <summary>The d-pad or left stick to move, A to jump, X or the right trigger to fire, B or RB for the special.</summary>
+    /// <summary>The d-pad or left stick to move, A to jump, X or the right trigger to fire, B or RB for the special, Y for the super, LB for the ability.</summary>
     public sealed class GamepadSource : IInputSource
     {
         public bool Read(ref SoldierInput soldier, ref MenuInput menu)
@@ -82,11 +92,17 @@ namespace PooketSlug
             soldier.JumpPressed |= pad.buttonSouth.wasPressedThisFrame;
             soldier.Fire |= pad.buttonWest.isPressed || pad.rightTrigger.isPressed;
             soldier.FirePressed |= pad.buttonWest.wasPressedThisFrame || pad.rightTrigger.wasPressedThisFrame;
+            soldier.Special |= pad.buttonEast.isPressed || pad.rightShoulder.isPressed;
             soldier.SpecialPressed |= pad.buttonEast.wasPressedThisFrame || pad.rightShoulder.wasPressedThisFrame;
+            soldier.Super |= pad.buttonNorth.isPressed;
+            soldier.SuperPressed |= pad.buttonNorth.wasPressedThisFrame;
+            soldier.Ability |= pad.leftShoulder.isPressed;
+            soldier.AbilityPressed |= pad.leftShoulder.wasPressedThisFrame;
             menu.Start |= pad.startButton.wasPressedThisFrame;
             menu.Restart |= pad.selectButton.wasPressedThisFrame;
             return pad.buttonSouth.wasPressedThisFrame || pad.buttonWest.wasPressedThisFrame || pad.buttonEast.wasPressedThisFrame
                 || pad.buttonNorth.wasPressedThisFrame || pad.rightTrigger.wasPressedThisFrame || pad.rightShoulder.wasPressedThisFrame
+                || pad.leftShoulder.wasPressedThisFrame
                 || pad.startButton.wasPressedThisFrame || pad.selectButton.wasPressedThisFrame || pad.dpad.ReadValue() != Vector2.zero
                 || stick.sqrMagnitude > SoldierInput.AimThreshold * SoldierInput.AimThreshold;
 #else

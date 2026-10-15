@@ -77,7 +77,7 @@ namespace PooketSlug
     /// <summary>The sprite set for one playable soldier (palette-swapped per player).</summary>
     public sealed class PlayerSkin
     {
-        public Sprite TorsoForward, TorsoUp, TorsoDown, LegsIdle, LegsJump, LegsCrouch;
+        public Sprite TorsoForward, TorsoUp, TorsoDown, TorsoUpDiag, TorsoDownDiag, LegsIdle, LegsJump, LegsCrouch;
         public Sprite[] LegsRun;
     }
 
@@ -217,6 +217,8 @@ namespace PooketSlug
                 TorsoForward = Part(ArtData.TorsoForward, ArtData.TorsoForwardTop, pal),
                 TorsoUp = Part(ArtData.TorsoUp, ArtData.TorsoUpTop, pal),
                 TorsoDown = Part(ArtData.TorsoDown, ArtData.TorsoDownTop, pal),
+                TorsoUpDiag = Part(ArtData.TorsoUpDiag, ArtData.TorsoUpDiagTop, pal),
+                TorsoDownDiag = Part(ArtData.TorsoDownDiag, ArtData.TorsoDownDiagTop, pal),
                 LegsIdle = Part(ArtData.LegsIdle, ArtData.LegsTop, pal),
                 LegsJump = Part(ArtData.LegsJump, ArtData.LegsTop, pal),
                 LegsCrouch = Part(ArtData.LegsCrouch, ArtData.LegsCrouchTop, pal),

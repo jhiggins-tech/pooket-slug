@@ -6,8 +6,10 @@ namespace PooketSlug
     public sealed class Player : Actor
     {
         public readonly SoldierDef Def;
+        /// <summary>The special's charges, the super and the ability (<c>docs/design/player.md</c>, The kit).</summary>
+        public readonly KitMeters Kit;
         /// <summary>Charges left for the special (<see cref="SoldierDef.Special"/>).</summary>
-        public int Specials;
+        public int Specials { get => Kit.Specials; set => Kit.Specials = value; }
         /// <summary>A crate's gun, which replaces the primary while <see cref="GunAmmo"/> lasts.</summary>
         public WeaponDef Gun;
         public int GunAmmo;
@@ -21,7 +23,8 @@ namespace PooketSlug
         /// <summary>Seconds left slowed down by splashback from his own jet (tones2).</summary>
         public float SlowTimer;
 
-        float m_Coyote, m_JumpBuffer, m_FireCooldown, m_Anim, m_Muzzle, m_Invuln, m_DropThrough;
+        float m_Coyote, m_JumpBuffer, m_FireCooldown, m_Anim, m_Muzzle, m_Invuln, m_DropThrough, m_Knock;
+        readonly CallInGesture m_CallIn = new CallInGesture(Tuning.Kit.CallInTapTime, Tuning.Kit.CallInChargeTime);
         Vector2 m_Aim = Vector2.right;
         readonly PlayerVisual m_Visual;
         // spike kits (tones2): a primary or special that isn't a plain shot
@@ -32,7 +35,7 @@ namespace PooketSlug
             : base(world, "Player", feet, def.HalfWidth, def.StandHeight, def.MaxHp)
         {
             Def = def;
-            Specials = def.StartSpecials;
+            Kit = new KitMeters(def.StartSpecials, def.SpecialMax, def.SpecialRefill, Tuning.Kit.SuperKills, def.Ability != null ? def.AbilityCooldown : 0f);
             m_Visual = new PlayerVisual(Visual, def == SpikeContent.Tones2 ? Art.Tones2Skin : Art.PlayerSkins[skin], SortOrder.Player);
             if (def.Primary.Behaviour == WeaponBehaviour.Jet) m_Jet = new WaterJet(this, SpikeContent.Jet);
             if (def.Special.Behaviour == WeaponBehaviour.RocketJump) m_Rocket = new RocketJump(this, SpikeContent.Rocket);
@@ -40,7 +43,9 @@ namespace PooketSlug
         }
 
         public bool Invulnerable => m_Invuln > 0f || Dead;
-        /// <summary>Where the soldier is aiming: forward, up, or down in the air.</summary>
+        /// <summary>How charged a tank call-in is, 0 to 1, while SP is held with the stick down.</summary>
+        public float CallInCharge => m_CallIn.Charge;
+        /// <summary>Where the soldier is aiming: forward, up, down in the air, or a diagonal (<see cref="Aiming"/>).</summary>
         public Vector2 Aim => m_Aim;
         public override bool IsDown => Dead;
         public int Skin { set => m_Visual.Skin = Art.PlayerSkins[value]; }
@@ -48,7 +53,8 @@ namespace PooketSlug
         public AvatarPose Pose => new AvatarPose
         {
             Facing = Facing,
-            AimY = m_Aim.y > 0f ? 1 : m_Aim.y < 0f ? -1 : 0,
+            AimY = Aiming.AimY(m_Aim),
+            Diagonal = Aiming.IsDiagonal(m_Aim),
             Grounded = Grounded,
             Crouching = Crouching,
             Running = Grounded && Mathf.Abs(Vel.x) > 0.1f,
@@ -64,6 +70,7 @@ namespace PooketSlug
         {
             if (Dead)
             {
+                m_CallIn.Reset();
                 m_Jet?.Tick(dt, false);
                 DeadTime += dt;
                 Vel.y = Mathf.Max(Vel.y - Tuning.Physics.Gravity * dt, -Tuning.Physics.MaxFall);
@@ -83,8 +90,9 @@ namespace PooketSlug
             Height = Crouching ? Def.CrouchHeight : Def.StandHeight;
             float speed = Crouching ? Def.CrawlSpeed : Def.RunSpeed;
             if (SlowTimer > 0f) speed *= SpikeContent.Jet.SplashSlow;
-            Vel.x = rooted ? 0f : moveX * speed;
-            if (moveX != 0f && !rooted) Facing = moveX > 0f ? 1 : -1;
+            if (m_Knock > 0f) m_Knock -= dt; // knocked back: the push carries on for a moment
+            else Vel.x = rooted ? 0f : moveX * speed;
+            if (moveX != 0f && !rooted && m_Knock <= 0f) Facing = moveX > 0f ? 1 : -1;
             SlowTimer -= dt;
 
             // --- jumping (with coyote time + input buffering) ---
@@ -118,9 +126,7 @@ namespace PooketSlug
             if (World.Coop) Pos.x = Mathf.Min(Pos.x, World.View.Right - HalfW);
 
             // --- aiming & shooting ---
-            if (up) m_Aim = Vector2.up;
-            else if (down && !Grounded) m_Aim = Vector2.down;
-            else m_Aim = new Vector2(Facing, 0f);
+            m_Aim = Aiming.Direction(up, down, moveX, Facing, Grounded);
 
             m_FireCooldown -= dt;
             bool gun = GunAmmo > 0;
@@ -128,17 +134,25 @@ namespace PooketSlug
             bool wantsFire = gun ? input.Fire : (input.FirePressed || input.Fire);
             if (wantsFire && m_FireCooldown <= 0f && (gun || m_Jet == null)) Fire(gun ? Gun : Def.Primary);
 
+            // SP: the special, or with the stick down and a tank to call, a held call-in
+            Kit.Tick(dt);
+            CallInGesture.Result sp = m_CallIn.Tick(dt, down, input.Special, input.SpecialPressed, World.TanksToCall > 0);
+            bool special = sp == CallInGesture.Result.FireSpecial;
+            if (sp == CallInGesture.Result.Called) World.CallTank(Pos);
+            else if (sp == CallInGesture.Result.Cancelled) Sfx.Play(Sfx.Hurt, 0.25f);
             if (m_Rocket != null)
             {
-                m_Rocket.Tick(dt, input.SpecialPressed);
+                m_Rocket.Tick(dt, special);
             }
-            else if (input.SpecialPressed && Specials > 0)
+            else if (special && Kit.UseSpecial())
             {
-                Specials--;
-                WeaponDef special = Def.Special;
-                World.Combat.FirePlayerShot(special, Pos + new Vector2(Facing * 0.3f, Height * 0.8f), special.LobVelocity(Facing, Vel));
-                Sfx.PlayShot(special);
+                WeaponDef sw = Def.Special;
+                World.Combat.FirePlayerShot(sw, Pos + new Vector2(Facing * 0.3f, Height * 0.8f), sw.LobVelocity(Facing, Vel));
+                Sfx.PlayShot(sw);
             }
+
+            if (input.SuperPressed && Kit.UseSuper()) FireSuper();
+            if (input.AbilityPressed && Kit.UseAbility()) FireOnce(Def.Ability);
 
             m_Invuln -= dt;
             m_Muzzle -= dt;
@@ -151,8 +165,7 @@ namespace PooketSlug
         {
             get
             {
-                int aimY = m_Aim.y > 0f ? 1 : m_Aim.y < 0f ? -1 : 0;
-                Vector2 local = PlayerVisual.MuzzleLocal(aimY, Crouching);
+                Vector2 local = PlayerVisual.MuzzleLocal(Aiming.AimY(m_Aim), Crouching, Aiming.IsDiagonal(m_Aim));
                 return Pos + new Vector2(local.x * Facing, local.y);
             }
         }
@@ -177,6 +190,41 @@ namespace PooketSlug
             Sfx.PlayShot(weapon);
         }
 
+        /// <summary>
+        /// The super (SU), once kills have charged it. A soldier without one of their own fires a fan of their
+        /// primary's shots, a stand-in until each soldier's super is built.
+        /// </summary>
+        void FireSuper()
+        {
+            World.Scoring.Popup("SUPER!", Pos + Vector2.up * 2.2f, new Color(1f, 0.85f, 0.3f));
+            World.View.Shake(0.25f);
+            if (Def.Super != null)
+            {
+                FireOnce(Def.Super);
+                return;
+            }
+            WeaponDef w = Def.Primary.Projectile != null ? Def.Primary : Content.Pistol; // a jet has no shot to fan
+            const int shots = 9;
+            const float fan = 40f;
+            for (int i = 0; i < shots; i++)
+            {
+                float a = (-fan + 2f * fan * i / (shots - 1)) * Mathf.Deg2Rad;
+                Vector2 dir = new Vector2(m_Aim.x * Mathf.Cos(a) - m_Aim.y * Mathf.Sin(a), m_Aim.x * Mathf.Sin(a) + m_Aim.y * Mathf.Cos(a));
+                World.Combat.FirePlayerShot(w, MuzzlePos, dir * w.Speed);
+            }
+            m_Muzzle = 0.1f;
+            Sfx.PlayShot(w);
+        }
+
+        /// <summary>One shot of a super or ability weapon, along the aim.</summary>
+        void FireOnce(WeaponDef weapon)
+        {
+            if (weapon == null) return;
+            World.Combat.FirePlayerShot(weapon, MuzzlePos, m_Aim * weapon.Speed);
+            m_Muzzle = 0.05f;
+            Sfx.PlayShot(weapon);
+        }
+
         public void Hurt(int damage)
         {
             if (Invulnerable) return;
@@ -196,6 +244,9 @@ namespace PooketSlug
             {
                 m_Invuln = Tuning.Soldier.HurtInvulnerability;
                 Sfx.Play(Sfx.Hurt);
+                // knocked back, away from where they face (the hit nearly always comes from ahead)
+                Vel = new Vector2(-Facing * Tuning.Impact.KnockSpeed, Mathf.Max(Vel.y, Tuning.Impact.KnockHop));
+                m_Knock = Tuning.Impact.KnockTime;
             }
         }
 

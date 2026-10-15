@@ -64,7 +64,8 @@ namespace PooketSlug
         /// Each crew member will be a definition like this one.
         /// </summary>
         public static readonly SoldierDef Trooper = new SoldierDef(0, "Trooper", runSpeed: 5.5f, crawlSpeed: 2f, jumpVelocity: 17f,
-            halfWidth: 0.3f, standHeight: 1.35f, crouchHeight: 0.8f, maxHp: 5, primary: Pistol, special: GrenadeThrow, startSpecials: 10);
+            halfWidth: 0.3f, standHeight: 1.35f, crouchHeight: 0.8f, maxHp: 5, primary: Pistol, special: GrenadeThrow,
+            startSpecials: Tuning.Kit.SpecialCharges, specialMax: Tuning.Kit.SpecialCharges, specialRefill: Tuning.Kit.SpecialRefill);
 
         // ------------------------------------------------------------------ lookups (after the definitions: statics initialise in order)
 

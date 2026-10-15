@@ -81,6 +81,49 @@ namespace PooketSlug
             "..............m.........",
         };
 
+        /// <summary>Aiming up and forward, at 45°.</summary>
+        public const int TorsoUpDiagTop = 8;
+        public static readonly string[] TorsoUpDiag =
+        {
+            "........................",
+            ".........rrrrr.......mm.",
+            "........rrrrrrr.....mM..",
+            "......RRrrrrrrr....mM...",
+            ".....R..hhsssss...mM....",
+            "........hsssses..mM.....",
+            "........hssssss.mM......",
+            ".........SsssS.mMM......",
+            "........cgggggsM........",
+            ".......ccgggggcs........",
+            ".......cCgGgggC.........",
+            ".......cgGgggg..........",
+            "........gGgggg..........",
+            "........bbbybb..........",
+        };
+
+        /// <summary>Aiming down and forward in the air, at 45°.</summary>
+        public const int TorsoDownDiagTop = 8;
+        public static readonly string[] TorsoDownDiag =
+        {
+            "........................",
+            ".........rrrrr..........",
+            "........rrrrrrr.........",
+            "......RRrrrrrrr.........",
+            ".....R..hhsssss.........",
+            "........hsssses.........",
+            "........hssssss.........",
+            ".........SsssS..........",
+            "........cgggggc.........",
+            ".......ccgggggcc........",
+            ".......cCgGgggCsM.......",
+            ".......cgGgggg.MmM......",
+            "........gGgggg..MmM.....",
+            "........bbbybb...MmM....",
+            "..................MmM...",
+            "...................Mm...",
+            "....................m...",
+        };
+
         // ---- Legs (24x32 canvas) ----
 
         public const int LegsTop = 22;

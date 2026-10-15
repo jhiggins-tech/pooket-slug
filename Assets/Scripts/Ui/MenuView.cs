@@ -167,13 +167,13 @@ namespace PooketSlug
                     if (info.Touch)
                     {
                         m_Controls1.text = "LEFT THUMB  RUN, AIM UP, CROUCH (AIM DOWN IN THE AIR)";
-                        m_Controls2.text = "RIGHT THUMB  FIRE (HOLD IT), JUMP, SP      DROP  DOWN + JUMP";
+                        m_Controls2.text = "RIGHT THUMB  FIRE (HOLD IT), JUMP, SP, SU (SUPER, FROM KILLS)      DROP  DOWN + JUMP";
                         m_Controls3.text = "II  PAUSE";
                     }
                     else
                     {
                         m_Controls1.text = "MOVE  Arrows / WASD      JUMP  Z / Space      FIRE  X / J";
-                        m_Controls2.text = "GRENADE  C / L      AIM  Up / Down (in air)      DROP  Down + Jump";
+                        m_Controls2.text = "GRENADE  C / L      SUPER  V / U      AIM  Up / Down (in air), + run for 45°      DROP  Down + Jump";
                         m_Controls3.text = "PAUSE  P / Enter      RESTART  R      MUTE  M      Gamepad supported";
                     }
                     bool coop = info.Online && info.CoopOpen;

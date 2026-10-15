@@ -15,6 +15,8 @@ namespace PooketSlug
         public float PoisonTimer;
         /// <summary>A spike's look for this enemy (the hologram goons), or null for the plain one.</summary>
         public HoloLook Look;
+        /// <summary>Our soldier has had the kill (a co-op follower sees the death only when the authority reports it).</summary>
+        public bool KillCredited;
         protected const float Gravity = Tuning.Physics.Gravity, MaxFall = Tuning.Physics.MaxFall;
         Vector2 m_NetPos;
         bool m_NetPlaced;

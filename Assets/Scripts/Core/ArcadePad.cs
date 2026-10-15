@@ -10,8 +10,8 @@ namespace PooketSlug
     /// </summary>
     public sealed class ArcadePad
     {
-        public enum Button { Fire, Jump, Special, Pause }
-        const int ButtonCount = 4;
+        public enum Button { Fire, Jump, Special, Super, Ability, Pause }
+        const int ButtonCount = 6;
 
         /// <summary>A finger on the screen this frame.</summary>
         public readonly struct Finger
@@ -51,6 +51,8 @@ namespace PooketSlug
         public bool Visible { get; set; }
         /// <summary>The pause button is on screen. It can show without the rest, as on the pause screen.</summary>
         public bool PauseVisible { get; set; }
+        /// <summary>The soldier has an ability, so its button (AB) shows.</summary>
+        public bool AbilityVisible { get; set; }
         public float Width { get; private set; }
         /// <summary>Where the stick rests when no thumb is on it.</summary>
         public Vector2 StickHome { get; private set; }
@@ -63,7 +65,7 @@ namespace PooketSlug
         public Vector2 Center(Button b) => m_Center[(int)b];
         public float Radius(Button b) => m_Radius[(int)b];
         public bool Held(Button b) => m_Held[(int)b];
-        public bool Shown(Button b) => b == Button.Pause ? PauseVisible : Visible;
+        public bool Shown(Button b) => b == Button.Pause ? PauseVisible : b == Button.Ability ? Visible && AbilityVisible : Visible;
 
         /// <summary>Places the stick and the buttons on a screen this many HUD units wide.</summary>
         public void Layout(float width)
@@ -74,6 +76,8 @@ namespace PooketSlug
             Place(Button.Fire, width - 64f, h - 72f, 32f);
             Place(Button.Jump, width - 146f, h - 46f, 26f);
             Place(Button.Special, width - 120f, h - 132f, 22f);
+            Place(Button.Super, width - 46f, h - 152f, 20f);
+            Place(Button.Ability, width - 198f, h - 118f, 18f);
             Place(Button.Pause, width - 22f, 60f, 13f);
         }
 
@@ -125,7 +129,12 @@ namespace PooketSlug
             input.FirePressed |= fire && !m_WasHeld[(int)Button.Fire];
             input.Jump |= jump;
             input.JumpPressed |= jump && !m_WasHeld[(int)Button.Jump];
+            input.Special |= Held(Button.Special);
             input.SpecialPressed |= Held(Button.Special) && !m_WasHeld[(int)Button.Special];
+            input.Super |= Held(Button.Super);
+            input.SuperPressed |= Held(Button.Super) && !m_WasHeld[(int)Button.Super];
+            input.Ability |= Held(Button.Ability);
+            input.AbilityPressed |= Held(Button.Ability) && !m_WasHeld[(int)Button.Ability];
             return began;
         }
 
@@ -164,7 +173,7 @@ namespace PooketSlug
             float bestDist = float.MaxValue;
             for (int i = 0; i < ButtonCount; i++)
             {
-                if (i == (int)Button.Pause) continue;
+                if (i == (int)Button.Pause || !Shown((Button)i)) continue;
                 float d = Vector2.Distance(pos, m_Center[i]);
                 if (d <= m_Radius[i] * Reach && d < bestDist)
                 {

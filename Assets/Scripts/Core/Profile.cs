@@ -11,6 +11,8 @@ namespace PooketSlug
     {
         /// <summary>Co-op has opened (Mission one beaten solo).</summary>
         public const string Coop = "coop";
+        /// <summary>A tank can be called in. Until tanks arrive, only <c>?unlock=tank</c> opens it, for testing.</summary>
+        public const string Tank = "tank";
     }
 
     /// <summary>A mission's record at one setting.</summary>

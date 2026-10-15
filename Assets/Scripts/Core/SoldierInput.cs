@@ -14,7 +14,9 @@ namespace PooketSlug
         public bool Left, Right, Up, Down;
         public bool Jump, JumpPressed;
         public bool Fire, FirePressed;
-        public bool SpecialPressed;
+        public bool Special, SpecialPressed;
+        public bool Super, SuperPressed;
+        public bool Ability, AbilityPressed;
 
         /// <summary>-1, 0 or 1: pushing both ways at once cancels out, as with the arrow keys.</summary>
         public float MoveX => (Right ? 1f : 0f) - (Left ? 1f : 0f);
@@ -39,7 +41,12 @@ namespace PooketSlug
             JumpPressed |= other.JumpPressed;
             Fire |= other.Fire;
             FirePressed |= other.FirePressed;
+            Special |= other.Special;
             SpecialPressed |= other.SpecialPressed;
+            Super |= other.Super;
+            SuperPressed |= other.SuperPressed;
+            Ability |= other.Ability;
+            AbilityPressed |= other.AbilityPressed;
         }
     }
 }

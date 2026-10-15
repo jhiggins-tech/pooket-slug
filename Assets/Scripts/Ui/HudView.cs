@@ -33,10 +33,15 @@ namespace PooketSlug
         static readonly Color CoopBlue = new Color(0.6f, 0.9f, 1f);
         static readonly Color[] SkinColors = { new Color(1f, 0.5f, 0.4f), new Color(0.45f, 0.72f, 1f) };
         static readonly Color PadFill = new Color(0.08f, 0.06f, 0.1f, 0.35f), PadHeld = new Color(1f, 0.62f, 0.2f, 0.6f);
+        static readonly Color PadReady = new Color(1f, 0.85f, 0.3f, 0.45f);
 
         readonly RectTransform m_Root, m_Top;
         readonly Text m_Score, m_Arms, m_Hi, m_Time, m_BossName, m_Build, m_Fps, m_Banner, m_Note;
         readonly Image m_BossBack, m_BossFill;
+        // the kit's meters: the super (SU), the special's refill (SP) and the ability (AB); and a tank call-in's charge
+        readonly Text m_SuperLabel, m_AbilityLabel;
+        readonly Image m_SuperBack, m_SuperFill, m_RefillFill, m_AbilityBack, m_AbilityFill, m_CallBack, m_CallFill;
+        const float MeterWidth = 60f;
         readonly List<Image> m_Hearts = new List<Image>();
         readonly List<Text> m_Popups = new List<Text>();
         int m_Points = -1, m_HiScore = -1, m_Seconds = -1, m_FpsShown = -1;
@@ -55,8 +60,8 @@ namespace PooketSlug
         // touch pad
         readonly RectTransform m_Pad;
         readonly Image m_StickBase, m_StickKnob;
-        readonly Image[] m_Buttons = new Image[4];
-        readonly Text[] m_ButtonLabels = new Text[4];
+        readonly Image[] m_Buttons = new Image[6];
+        readonly Text[] m_ButtonLabels = new Text[6];
         int m_SpecialsShown = -1;
 
         public HudView(Transform parent)
@@ -77,6 +82,15 @@ namespace PooketSlug
             m_BossName.text = "REBEL TANK";
             m_BossBack = Ui.Picture(m_Top, "Boss bar", null, Ui.TopCenter, Ui.TopCenter, new Vector2(0f, -21f), new Vector2(182f, 8f), new Color(0.1f, 0.05f, 0.08f, 0.85f));
             m_BossFill = Ui.Picture(m_BossBack.rectTransform, "Health", null, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(1f, 0f), new Vector2(180f, 6f), new Color(0.9f, 0.25f, 0.2f));
+            m_SuperLabel = Ui.Label(m_Top, "Super", Ui.TopLeft, new Vector2(8f, -55f), 8, TextAnchor.UpperLeft, Arms);
+            m_SuperLabel.text = "SU";
+            m_SuperBack = Meter(m_Top, "Super meter", new Vector2(24f, -57f), out m_SuperFill, Gold);
+            m_RefillFill = Ui.Picture(m_SuperBack.rectTransform, "SP refill", null, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(1f, -3f), new Vector2(0f, 2f), new Color(0.55f, 0.85f, 1f, 0.9f));
+            m_AbilityLabel = Ui.Label(m_Top, "Ability", Ui.TopLeft, new Vector2(8f, -67f), 8, TextAnchor.UpperLeft, Arms);
+            m_AbilityLabel.text = "AB";
+            m_AbilityBack = Meter(m_Top, "Ability meter", new Vector2(24f, -69f), out m_AbilityFill, CoopBlue);
+            m_CallBack = Ui.Picture(m_Root, "Call-in", null, Ui.BottomLeft, Ui.Middle, Vector2.zero, new Vector2(34f, 6f), new Color(0.1f, 0.05f, 0.08f, 0.85f));
+            m_CallFill = Ui.Picture(m_CallBack.rectTransform, "Charge", null, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(1f, 0f), new Vector2(0f, 4f), new Color(1f, 0.85f, 0.3f));
             m_Banner = Ui.Label(m_Root, "Banner", Ui.Middle, new Vector2(0f, 60f), 26, TextAnchor.MiddleCenter, Gold);
             m_Note = Ui.Label(m_Root, "Note", Ui.Middle, new Vector2(0f, 32f), 12, TextAnchor.MiddleCenter, CoopBlue);
 
@@ -96,13 +110,43 @@ namespace PooketSlug
             m_Pad = Ui.Fill(m_Root, "Touch pad");
             m_StickBase = Ui.Picture(m_Pad, "Stick", Ui.Disc, Ui.TopLeft, Ui.Middle, Vector2.zero, Vector2.one * (ArcadePad.StickRadius + 12f) * 2f, PadFill);
             m_StickKnob = Ui.Picture(m_Pad, "Knob", Ui.Disc, Ui.TopLeft, Ui.Middle, Vector2.zero, Vector2.one * 36f, Color.white);
-            string[] names = { "FIRE", "JUMP", "SP", "II" };
+            string[] names = { "FIRE", "JUMP", "SP", "SU", "AB", "II" };
             for (int i = 0; i < m_Buttons.Length; i++)
             {
                 m_Buttons[i] = Ui.Picture(m_Pad, names[i], Ui.Disc, Ui.TopLeft, Ui.Middle, Vector2.zero, Vector2.one, PadFill);
                 m_ButtonLabels[i] = Ui.Label(m_Buttons[i].rectTransform, "Label", Ui.Middle, Vector2.zero, i == (int)ArcadePad.Button.Pause ? 8 : 10, TextAnchor.MiddleCenter, Color.white);
                 m_ButtonLabels[i].text = names[i];
             }
+        }
+
+        static Image Meter(RectTransform parent, string name, Vector2 at, out Image fill, Color color)
+        {
+            Image back = Ui.Picture(parent, name, null, Ui.TopLeft, Ui.TopLeft, at, new Vector2(MeterWidth + 2f, 6f), new Color(0.1f, 0.05f, 0.08f, 0.85f));
+            fill = Ui.Picture(back.rectTransform, "Fill", null, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(1f, 0f), new Vector2(0f, 4f), color);
+            return back;
+        }
+
+        /// <summary>The super meter (flashing when ready), the special's refill under it, and the ability's cooldown.</summary>
+        void Kit(Player p)
+        {
+            KitMeters kit = p.Kit;
+            m_SuperFill.rectTransform.sizeDelta = new Vector2(MeterWidth * kit.SuperCharge, 4f);
+            m_SuperFill.color = kit.SuperReady && (int)(Time.unscaledTime * 6f) % 2 == 0 ? Color.white : Gold;
+            m_RefillFill.rectTransform.sizeDelta = new Vector2(MeterWidth * kit.SpecialRefillProgress, 2f);
+            Ui.Show(m_AbilityLabel, kit.HasAbility);
+            Ui.Show(m_AbilityBack, kit.HasAbility);
+            if (kit.HasAbility) m_AbilityFill.rectTransform.sizeDelta = new Vector2(MeterWidth * kit.AbilityProgress, 4f);
+        }
+
+        /// <summary>A tank call-in's charge, over the soldier's head while SP is held.</summary>
+        void CallIn(Player p, Camera cam)
+        {
+            float charge = p.CallInCharge;
+            bool on = charge > 0f && !p.Dead;
+            Ui.Show(m_CallBack, on);
+            if (!on) return;
+            m_CallBack.rectTransform.anchoredPosition = Ui.FromScreen(cam.WorldToScreenPoint(new Vector3(p.Pos.x, p.Pos.y + p.Height + 0.6f, 0f)));
+            m_CallFill.rectTransform.sizeDelta = new Vector2(32f * charge, 4f);
         }
 
         public void Refresh(World w, Camera cam, in HudInfo info)
@@ -126,6 +170,7 @@ namespace PooketSlug
                     string arms = p.GunAmmo > 0 ? p.Gun.Hud + " " + p.GunAmmo : p.Def.Primary.Hud; // the font has no infinity glyph
                     m_Arms.text = "ARMS " + arms + "   " + p.Def.Special.Hud + " " + p.Specials;
                 }
+                Kit(p);
                 HideFrom(m_Hearts, Hearts(m_Hearts, m_NewHeart, 0, p.MaxHp, p.Hp, new Vector2(8f, -24f), 13f, 12f, Color.white));
 
                 TankBoss boss = w.Boss;
@@ -154,6 +199,7 @@ namespace PooketSlug
             if (info.Fps != m_FpsShown || info.Muted != m_MutedShown)
                 m_Fps.text = (m_FpsShown = info.Fps) + " FPS" + ((m_MutedShown = info.Muted) ? " · MUTED" : "");
             Pad(GameInput.Pad, p, info.Net != null);
+            CallIn(p, cam);
         }
 
         void Coop(World w, Camera cam, in HudInfo info)
@@ -232,6 +278,7 @@ namespace PooketSlug
                 m_StickKnob.color = new Color(1f, 1f, 1f, pad.StickActive ? 0.7f : 0.35f);
                 if (p.Specials != m_SpecialsShown)
                     m_ButtonLabels[(int)ArcadePad.Button.Special].text = "SP " + (m_SpecialsShown = p.Specials);
+                pad.AbilityVisible = p.Kit.HasAbility;
             }
             m_ButtonLabels[(int)ArcadePad.Button.Pause].text = coop ? "EXIT" : "II";
             for (int i = 0; i < m_Buttons.Length; i++)
@@ -243,7 +290,7 @@ namespace PooketSlug
                 bool held = pad.Held(b);
                 image.rectTransform.anchoredPosition = Down(pad.Center(b));
                 image.rectTransform.sizeDelta = Vector2.one * pad.Radius(b) * 2f;
-                image.color = held ? PadHeld : PadFill;
+                image.color = held ? PadHeld : b == ArcadePad.Button.Super && p.Kit.SuperReady ? PadReady : PadFill;
                 m_ButtonLabels[i].color = held ? Color.white : new Color(1f, 1f, 1f, 0.85f);
             }
         }

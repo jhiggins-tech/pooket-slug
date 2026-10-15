@@ -210,10 +210,24 @@ namespace PooketSlug
         public readonly WeaponDef Special;
         /// <summary>Charges of the special at the start of a mission.</summary>
         public readonly int StartSpecials;
+        /// <summary>The special refills one charge every <see cref="SpecialRefill"/> seconds, up to this many (0: no refill).</summary>
+        public readonly int SpecialMax;
+        public readonly float SpecialRefill;
+        /// <summary>Tier 3 of the kit, charged by kills. Null: the stand-in super (a fan of the primary's shots).</summary>
+        public readonly WeaponDef Super;
+        /// <summary>The bonus move, on a cooldown. Null for soldiers without one: their AB button doesn't show.</summary>
+        public readonly WeaponDef Ability;
+        public readonly float AbilityCooldown;
 
         public SoldierDef(byte id, string name, float runSpeed, float crawlSpeed, float jumpVelocity, float halfWidth, float standHeight,
-            float crouchHeight, int maxHp, WeaponDef primary, WeaponDef special, int startSpecials)
+            float crouchHeight, int maxHp, WeaponDef primary, WeaponDef special, int startSpecials,
+            int specialMax = 0, float specialRefill = 0f, WeaponDef super = null, WeaponDef ability = null, float abilityCooldown = 0f)
         {
+            SpecialMax = specialMax;
+            SpecialRefill = specialRefill;
+            Super = super;
+            Ability = ability;
+            AbilityCooldown = ability != null ? abilityCooldown : 0f;
             Id = id;
             Name = name;
             RunSpeed = runSpeed;

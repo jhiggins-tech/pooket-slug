@@ -158,6 +158,49 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void SpIsHeldAsWellAsPressed()
+        {
+            SoldierInput input = Frame(Down(2, On(ArcadePad.Button.Special)));
+            Assert.IsTrue(input.Special && input.SpecialPressed);
+            input = Frame(Held(2, On(ArcadePad.Button.Special)));
+            Assert.IsTrue(input.Special);
+            Assert.IsFalse(input.SpecialPressed);
+        }
+
+        [Test]
+        public void SuFiresTheSuper()
+        {
+            Assert.IsTrue(Frame(Down(2, On(ArcadePad.Button.Super))).SuperPressed);
+            Assert.IsFalse(Frame(Held(2, On(ArcadePad.Button.Super))).SuperPressed);
+        }
+
+        [Test]
+        public void AbShowsAndAnswersOnlyForASoldierWithAnAbility()
+        {
+            Assert.IsFalse(m_Pad.Shown(ArcadePad.Button.Ability));
+            Assert.IsFalse(Frame(Down(2, On(ArcadePad.Button.Ability))).Ability);
+            Frame();
+            m_Pad.AbilityVisible = true;
+            Assert.IsTrue(m_Pad.Shown(ArcadePad.Button.Ability));
+            Assert.IsTrue(Frame(Down(3, On(ArcadePad.Button.Ability))).AbilityPressed);
+        }
+
+        [Test]
+        public void TheButtonsDontOverlap()
+        {
+            var buttons = (ArcadePad.Button[])System.Enum.GetValues(typeof(ArcadePad.Button));
+            foreach (ArcadePad.Button a in buttons)
+                foreach (ArcadePad.Button b in buttons)
+                {
+                    if (a >= b) continue;
+                    float gap = Vector2.Distance(On(a), On(b)) - m_Pad.Radius(a) - m_Pad.Radius(b);
+                    Assert.Greater(gap, 0f, a + " and " + b);
+                    Vector2 c = On(a);
+                    Assert.IsTrue(c.x > 0f && c.x < Width && c.y > 0f && c.y < Tuning.Hud.Height, a + " is on screen");
+                }
+        }
+
+        [Test]
         public void ThePauseButtonPauses()
         {
             SoldierInput input = Frame(Down(4, On(ArcadePad.Button.Pause)));

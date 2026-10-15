@@ -22,6 +22,29 @@ namespace PooketSlug
             public const float HurtInvulnerability = 1.4f;
         }
 
+        /// <summary>The kit's meters and the tank call-in. Placeholders, to tune in play.</summary>
+        public static class Kit
+        {
+            /// <summary>The special's charges: 3, each refilling over this many seconds.</summary>
+            public const int SpecialCharges = 3;
+            public const float SpecialRefill = 6f;
+            /// <summary>Kills that fill the super.</summary>
+            public const int SuperKills = 12;
+            /// <summary>Holding SP longer than this is a hold; then the call-in charges for this long.</summary>
+            public const float CallInTapTime = 0.2f, CallInChargeTime = 0.8f;
+        }
+
+        /// <summary>How hits feel: knockback and the brief pause on big hits.</summary>
+        public static class Impact
+        {
+            /// <summary>A hit pushes the soldier back this fast, for this long, with a little hop.</summary>
+            public const float KnockSpeed = 4f, KnockTime = 0.15f, KnockHop = 3f;
+            /// <summary>Solo only: the game pauses this long when a goon dies, longer for a big one.</summary>
+            public const float KillStop = 0.035f, BigKillStop = 0.09f;
+            /// <summary>Enemies with at least this much health count as big.</summary>
+            public const int BigHp = 10;
+        }
+
         public static class Camera
         {
             /// <summary>180 px at 16 px per unit.</summary>

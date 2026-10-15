@@ -30,8 +30,10 @@ namespace PooketSlug
         }
 
         /// <summary>Gun tip position relative to the feet, for a right-facing soldier (px / 16).</summary>
-        public static Vector2 MuzzleLocal(int aimY, bool crouching)
+        public static Vector2 MuzzleLocal(int aimY, bool crouching, bool diagonal = false)
         {
+            if (diagonal && aimY > 0) return new Vector2(10.5f, 22.5f) / Art.PPU;
+            if (diagonal && aimY < 0) return new Vector2(9.5f, 7.5f) / Art.PPU;
             if (aimY > 0) return new Vector2(3.5f, 30.5f) / Art.PPU;
             if (aimY < 0) return new Vector2(2.5f, 3.5f) / Art.PPU;
             return new Vector2(11.5f, crouching ? 8.5f : 14.5f) / Art.PPU;
@@ -46,7 +48,9 @@ namespace PooketSlug
             else if (p.Crouching) legs = Skin.LegsCrouch;
             else if (p.Running) legs = Skin.LegsRun[runFrame];
             else legs = Skin.LegsIdle;
-            Sprite torso = p.AimY > 0 ? Skin.TorsoUp : p.AimY < 0 ? Skin.TorsoDown : Skin.TorsoForward;
+            Sprite torso = p.AimY > 0 ? (p.Diagonal ? Skin.TorsoUpDiag : Skin.TorsoUp)
+                : p.AimY < 0 ? (p.Diagonal ? Skin.TorsoDownDiag : Skin.TorsoDown)
+                : Skin.TorsoForward;
 
             m_Legs.sprite = p.Flash ? Art.Flash(legs) : legs;
             m_Torso.sprite = p.Flash ? Art.Flash(torso) : torso;
@@ -59,8 +63,8 @@ namespace PooketSlug
             if (m_Flash.enabled)
             {
                 // Visual is mirrored by facing, so work in right-facing local space.
-                Vector2 aim = p.AimY > 0 ? Vector2.up : p.AimY < 0 ? Vector2.down : Vector2.right;
-                Vector2 tip = MuzzleLocal(p.AimY, p.Crouching) + aim * (3f / Art.PPU);
+                Vector2 aim = p.AimY == 0 ? Vector2.right : new Vector2(p.Diagonal ? 1f : 0f, p.AimY).normalized;
+                Vector2 tip = MuzzleLocal(p.AimY, p.Crouching, p.Diagonal) + aim * (3f / Art.PPU);
                 m_Flash.transform.localPosition = new Vector3(tip.x, tip.y, 0f);
             }
 

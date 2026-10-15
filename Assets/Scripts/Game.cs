@@ -37,6 +37,7 @@ namespace PooketSlug
         INetSession m_Net;      // null when the build has no Photon SDK or AppId
         bool m_Coop;            // m_World is the shared co-op world
         bool m_Unlocked;        // ?unlock=coop: co-op is open for this visit, for testing
+        bool m_TankUnlocked;    // ?unlock=tank: a tank can be called in each mission, for testing
         bool m_TestCrate;       // ?test=crate: a crate just ahead of the start, so the co-op test sees one handed out
         string m_Notice, m_StartNote;
         float m_NoticeTime, m_LeaveArmed;
@@ -77,7 +78,9 @@ namespace PooketSlug
             m_Account.CloudProfile += OnCloudProfile;
             m_Store = new CloudProfileStore(new LocalProfileStore(), m_Account);
             m_Profile = m_Store.Load();
-            m_Unlocked = Array.IndexOf((PageQuery.Get(url, "unlock") ?? "").ToLowerInvariant().Split(','), Reveals.Coop) >= 0;
+            string[] unlocks = (PageQuery.Get(url, "unlock") ?? "").ToLowerInvariant().Split(',');
+            m_Unlocked = Array.IndexOf(unlocks, Reveals.Coop) >= 0;
+            m_TankUnlocked = Array.IndexOf(unlocks, Reveals.Tank) >= 0;
             m_TestCrate = Array.IndexOf((PageQuery.Get(url, "test") ?? "").ToLowerInvariant().Split(','), "crate") >= 0;
 
             m_World = NewWorld(m_Mission);
@@ -107,7 +110,7 @@ namespace PooketSlug
         /// <summary>A world for <paramref name="mission"/>, shared when <paramref name="net"/> is given.</summary>
         World NewWorld(MissionDef mission, INetLink net = null)
         {
-            var world = new World(m_Camera, mission, net);
+            var world = new World(m_Camera, mission, net) { TanksToCall = m_TankUnlocked ? 1 : 0 };
             if (m_TestCrate)
             {
                 // Just past where a joining partner appears (1.25 ahead of the start), so whoever runs first takes
