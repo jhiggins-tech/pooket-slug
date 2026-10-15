@@ -35,8 +35,8 @@ const at = (x, y, id) => ({ x: box.x + x * s, y: box.y + y * s, id });
 const touch = (type, points) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: points });
 console.log(`canvas ${box.width.toFixed(0)}x${box.height.toFixed(0)} at ${box.x.toFixed(0)},${box.y.toFixed(0)}; ${vw.toFixed(0)} HUD units wide`);
 
-// PLAY sits 46 units below the middle of the title screen
-const play = at(vw / 2, 180 + 46, 1);
+// START sits 4 units below the middle of the title screen
+const play = at(vw / 2, 180 + 4, 1);
 await touch('touchStart', [play]);
 await page.waitForTimeout(120);
 await touch('touchEnd', []);
