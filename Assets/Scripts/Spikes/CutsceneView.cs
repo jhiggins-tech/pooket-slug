@@ -66,6 +66,7 @@ namespace PooketSlug
         public CutsceneView(Transform parent)
         {
             m_Root = Ui.Canvas(parent, "Cutscene", 20);
+            m_Root.gameObject.AddComponent<GraphicRaycaster>(); // taps and SKIP (the menus' event system serves it)
             Image black = Ui.Picture(m_Root, "Letterbox", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, Color.black);
             Stretch(black.rectTransform);
             black.raycastTarget = true;
