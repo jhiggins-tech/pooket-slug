@@ -104,12 +104,11 @@
     <script src="pooket-config.js"></script>
     <script src="pooket-auth.js"></script>
     <script>
-      // Spike (?spike=chip): make sure phones play the sound. Unity's audio context starts suspended until a
+      // Make sure phones play the sound. Unity's audio context starts suspended until a
       // touch; iPhones also mute web audio with the ringer switch off, and suspend it ("interrupted") after a call
       // or a trip to another app. So: on every touch or key, resume any audio context that isn't running, and ask
       // Safari to treat the page's sound as media playback, which ignores the ringer switch.
       (function () {
-        if (!/[?&]spike=[^&#]*\bchip\b/i.test(location.search)) return;
         var contexts = [];
         ["AudioContext", "webkitAudioContext"].forEach(function (name) {
           var Base = window[name];

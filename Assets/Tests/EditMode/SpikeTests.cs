@@ -40,9 +40,8 @@ namespace PooketSlug.Tests
             Assert.AreEqual("SPIKE TEST · HOLOGRAM GOONS + HIT FEEL + BOSS TANK", Spike.Label);
             Spike.Configure(Page + "?spike=hits");
             Assert.AreEqual("SPIKE TEST · HIT FEEL", Spike.Label);
-            Spike.Configure(Page + "?spike=chip");
-            Assert.IsTrue(Spike.Chip);
-            Assert.AreEqual("SPIKE TEST · 8-BIT SOUND", Spike.Label);
+            Spike.Configure(Page + "?spike=chip"); // the 8-bit sounds are the game's own now: no longer a spike
+            Assert.IsNull(Spike.Label);
         }
 
         [TestCase(-8f, 0f, 45f)]

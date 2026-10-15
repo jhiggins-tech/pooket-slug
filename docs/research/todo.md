@@ -87,6 +87,12 @@ C2, the refactor, is done. C1's code is written and checked locally; it goes liv
   - [x] Verify locally: each input backend, 257 of 257 EditMode tests.
   - [ ] Verify in CI: build, deploy and the co-op test (which now rocket jumps too).
   - Known gap: the jet's push only moves goons on the authority's screen; a follower's droplets damage but don't push.
+- [ ] **C7. 8-bit sounds for real**, promoted from the approved chip-sound spike on the Roadmap, 2026-10-15.
+  - [x] `ChipSounds` (moved out of `Spikes/`) makes every clip at startup, for everyone; `Sfx` keeps only playback. The old procedural recipes are gone.
+  - [x] The page always runs the phone audio unlock (resume a suspended audio context on each touch or key, and ask Safari to play through the ringer switch), not only with `?spike=chip`.
+  - [x] The `chip` spike key is gone from `Core/Spike.cs`; `?spike=chip` now does nothing.
+  - [x] Verify locally: each input backend, 257 of 257 EditMode tests.
+  - [ ] Verify in CI.
 
 ## Done recently
 
