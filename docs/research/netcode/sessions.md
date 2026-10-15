@@ -81,8 +81,9 @@ runner.StartGame(new StartGameArgs {
 | timeouts | CONNECTION TIMED OUT |
 | anything else | DISCONNECTED (REASON) |
 
+While connecting (`NetSession.DescribeConnectFailure`), the vague reasons, `Error`, the timeouts and `ConnectionRefused`, read **COULDN'T REACH PHOTON, CHECK YOUR CONNECTION** instead. The named reasons above keep their messages.
+
 - **During play,** `Game` checks `INetSession.Ready` every frame. If the session is gone, it drops to the title with the reason.
-- **Planned tweak:** a failure *while connecting* currently reads `DISCONNECTED (ERROR)`. *Couldn't reach Photon* would be clearer ([next steps](../next-steps.md)).
 
 ## Console logs
 

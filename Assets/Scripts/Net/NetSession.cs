@@ -140,7 +140,7 @@ namespace PooketSlug
             if (!ok)
             {
                 Log.Net.Warn($"Couldn't go online: {reason}");
-                Fail(Describe(reason));
+                Fail(DescribeConnectFailure(reason));
                 Dispose(runner);
                 return;
             }
@@ -205,13 +205,32 @@ namespace PooketSlug
             }
         }
 
+        /// <summary>
+        /// A failure before the session started. The reasons Photon names keep their message; the vague ones (an
+        /// error, a timeout, a refusal) almost always mean Photon couldn't be reached at all.
+        /// </summary>
+        static string DescribeConnectFailure(ShutdownReason reason)
+        {
+            switch (reason)
+            {
+                case ShutdownReason.Error:
+                case ShutdownReason.PhotonCloudTimeout:
+                case ShutdownReason.ConnectionTimeout:
+                case ShutdownReason.OperationTimeout:
+                case ShutdownReason.ConnectionRefused:
+                    return "COULDN'T REACH PHOTON, CHECK YOUR CONNECTION";
+                default:
+                    return Describe(reason);
+            }
+        }
+
         // ------------------------------------------------------------------ INetworkRunnerCallbacks
 
         public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
         {
             if (runner != m_Runner) return; // we left on purpose
             Log.Net.Warn($"Session ended: {shutdownReason}");
-            Fail(Describe(shutdownReason));
+            Fail(State == NetState.Connecting ? DescribeConnectFailure(shutdownReason) : Describe(shutdownReason));
         }
 
         public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
