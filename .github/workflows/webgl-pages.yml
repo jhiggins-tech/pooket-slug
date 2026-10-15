@@ -66,6 +66,8 @@ jobs:
           if gh release download announcer -R jhiggins-tech/pooket-slug-vendor -p announcer.zip -D vendor; then
             mkdir -p Assets/Resources/Voice
             unzip -o -q vendor/announcer.zip '*.wav' -d Assets/Resources/Voice
+            # .bytes, so Unity keeps them as raw WAV bytes (Sfx.Say makes the clips) instead of encoding them as AAC
+            for f in Assets/Resources/Voice/*.wav; do mv "$f" "${f%.wav}.bytes"; done
             ls -l Assets/Resources/Voice
           else
             echo "::warning::No announcer.zip on the vendor repository's announcer release: the announcer stays quiet in this build."
