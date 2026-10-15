@@ -20,6 +20,9 @@ namespace PooketSlug
         public string PageUrl;
         /// <summary>Co-op: the first press of Esc (or EXIT) is waiting for the second.</summary>
         public bool LeaveArmed;
+        /// <summary>The boss intro under way, and the boss's name for its card; null name when there's none.</summary>
+        public BossIntroShow Intro;
+        public string IntroName;
     }
 
     /// <summary>
@@ -36,6 +39,11 @@ namespace PooketSlug
         static readonly Color PadReady = new Color(1f, 0.85f, 0.3f, 0.45f);
 
         readonly RectTransform m_Root, m_Top;
+        // the boss intro
+        static readonly Color Warn = new Color(1f, 0.18f, 0.12f), WarnDim = new Color(0.55f, 0.05f, 0.05f);
+        readonly Image m_Edges;
+        readonly RawImage m_StripesTop, m_StripesBottom;
+        readonly Text m_Warning, m_IntroName;
         readonly Text m_Score, m_Arms, m_Hi, m_Time, m_BossName, m_Build, m_Fps, m_Banner, m_Note;
         readonly Image m_BossBack, m_BossFill;
         // the kit's meters: the super (SU), the special's refill (SP) and the ability (AB); and a tank call-in's charge
@@ -94,6 +102,15 @@ namespace PooketSlug
             m_CallBack = Ui.Picture(m_Root, "Call-in", null, Ui.BottomLeft, Ui.Middle, Vector2.zero, new Vector2(34f, 6f), new Color(0.1f, 0.05f, 0.08f, 0.85f));
             m_CallFill = Ui.Picture(m_CallBack.rectTransform, "Charge", null, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(1f, 0f), new Vector2(0f, 4f), new Color(1f, 0.85f, 0.3f));
             m_Banner = Ui.Label(m_Root, "Banner", Ui.Middle, new Vector2(0f, 60f), 26, TextAnchor.MiddleCenter, Gold);
+            m_Edges = Ui.Picture(m_Root, "Warning edges", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, Color.clear);
+            m_Edges.rectTransform.anchorMin = Vector2.zero;
+            m_Edges.rectTransform.anchorMax = Vector2.one;
+            m_Edges.raycastTarget = false;
+            m_StripesTop = Stripes(m_Root, "Stripes top", 1f);
+            m_StripesBottom = Stripes(m_Root, "Stripes bottom", 0f);
+            m_Warning = Ui.Label(m_Root, "Warning", Ui.Middle, new Vector2(0f, 40f), 44, TextAnchor.MiddleCenter, Warn);
+            m_Warning.text = "WARNING!";
+            m_IntroName = Ui.Label(m_Root, "Boss name", Ui.Middle, new Vector2(0f, 2f), 18, TextAnchor.MiddleCenter, Color.white);
             m_Note = Ui.Label(m_Root, "Note", Ui.Middle, new Vector2(0f, 32f), 12, TextAnchor.MiddleCenter, CoopBlue);
 
             m_Coop = Ui.Fill(m_Top, "Co-op");
@@ -121,6 +138,68 @@ namespace PooketSlug
                 m_ButtonLabels[i] = Ui.Label(m_Buttons[i].rectTransform, "Label", Ui.Middle, Vector2.zero, i == (int)ArcadePad.Button.Pause ? 8 : 10, TextAnchor.MiddleCenter, Color.white);
                 m_ButtonLabels[i].text = names[i];
             }
+        }
+
+        /// <summary>A band of yellow and black hazard stripes across the screen, at the top (1) or bottom (0).</summary>
+        static RawImage Stripes(RectTransform parent, string name, float edge)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(RawImage));
+            var rt = (RectTransform)go.transform;
+            rt.SetParent(parent, false);
+            rt.anchorMin = new Vector2(0f, edge);
+            rt.anchorMax = new Vector2(1f, edge);
+            rt.pivot = new Vector2(0.5f, edge);
+            rt.sizeDelta = new Vector2(0f, 16f);
+            var img = go.GetComponent<RawImage>();
+            img.texture = HazardTexture();
+            img.raycastTarget = false;
+            go.SetActive(false);
+            return img;
+        }
+
+        static Texture2D s_Hazard;
+
+        static Texture2D HazardTexture()
+        {
+            if (s_Hazard != null) return s_Hazard;
+            const int size = 16;
+            s_Hazard = new Texture2D(size, size, TextureFormat.RGBA32, false) { filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Repeat };
+            var yellow = new Color32(255, 200, 40, 255);
+            var black = new Color32(20, 16, 20, 255);
+            var px = new Color32[size * size];
+            for (int y = 0; y < size; y++)
+                for (int x = 0; x < size; x++)
+                    px[y * size + x] = ((x + y) / (size / 2)) % 2 == 0 ? yellow : black;
+            s_Hazard.SetPixels32(px);
+            s_Hazard.Apply();
+            return s_Hazard;
+        }
+
+        /// <summary>The boss intro: WARNING! flashing between hazard stripes, the screen's edges going red, then the name card.</summary>
+        void Intro(in HudInfo info)
+        {
+            BossIntroShow show = info.Intro;
+            bool on = info.IntroName != null && info.Playing;
+            float stripes = on ? show.Stripes : 0f;
+            m_StripesTop.gameObject.SetActive(stripes > 0f);
+            m_StripesBottom.gameObject.SetActive(stripes > 0f);
+            if (stripes > 0f)
+            {
+                // they sweep in from the sides, and crawl while they're up
+                float tiles = m_Root.rect.width / 16f, scroll = show.T * 2f;
+                m_StripesTop.uvRect = new Rect(scroll, 0f, tiles, 1f);
+                m_StripesBottom.uvRect = new Rect(-scroll, 0f, tiles, 1f);
+                float h = 16f * stripes;
+                m_StripesTop.rectTransform.sizeDelta = new Vector2(0f, h);
+                m_StripesBottom.rectTransform.sizeDelta = new Vector2(0f, h);
+            }
+            Ui.Show(m_Warning, on && show.Warning);
+            if (on && show.Warning) m_Warning.color = show.WarningLit ? Warn : WarnDim;
+            float edges = on ? show.Edges : 0f;
+            m_Edges.color = new Color(1f, 0f, 0f, 0.22f * edges);
+            Ui.Show(m_Edges, edges > 0f);
+            Ui.Show(m_IntroName, on && show.NameCard);
+            if (on && show.NameCard && m_IntroName.text != info.IntroName) m_IntroName.text = info.IntroName;
         }
 
         static Image Meter(RectTransform parent, string name, Vector2 at, out Image fill, Color color)
@@ -229,6 +308,7 @@ namespace PooketSlug
             Ui.Show(m_Note, note);
             if (note) m_Note.text = info.Note;
 
+            Intro(info);
             Popups(w, cam);
             if (info.Fps != m_FpsShown || info.Muted != m_MutedShown)
                 m_Fps.text = (m_FpsShown = info.Fps) + " FPS" + ((m_MutedShown = info.Muted) ? " · MUTED" : "");

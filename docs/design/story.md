@@ -45,7 +45,7 @@ Cutscenes are **in-engine scenes**: the game's own art, drawn in code, with spee
 
 ## The opening scene
 
-The first cutscene, and Mission one's briefing ([the plot](#the-plot), step 1). Draft, 2026-10-15. It's the test case for the in-engine cutscenes, so it uses only what they need: the game's own sprites, a few props, speech bubbles and one caption card.
+The first cutscene, and Mission one's briefing ([the plot](#the-plot), step 1). Approved by the owner, 2026-10-15. It's the test case for the in-engine cutscenes, so it uses only what they need: the game's own sprites, a few props, speech bubbles and one caption card.
 
 **Rules it follows:** about 15 seconds in all, five shots of 2 to 4 seconds. A tap moves to the next shot, and each moves on by itself too. It plays in full the first time; after that a SKIP button shows from the start. Nothing in it hints at tanks, vehicles or co-op. Bubbles are a few words each, in the game's capitals, so they read at a glance on a phone. The lines are placeholders for the owner to rewrite in the crew's own voice.
 
