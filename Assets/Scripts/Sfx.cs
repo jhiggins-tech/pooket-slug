@@ -11,7 +11,8 @@ namespace PooketSlug
         public static AudioClip JetLoop, Splat, RocketRumble, RocketLaunch, Glitch, Poison, Spew, Sizzle, Thump, Charge, Servo;
         public static bool Muted;
 
-        static AudioSource s_Source;
+        static AudioSource s_Source, s_Voice;
+        static readonly System.Collections.Generic.Dictionary<string, AudioClip> s_Lines = new System.Collections.Generic.Dictionary<string, AudioClip>();
 
         public static void Init(GameObject host)
         {
@@ -20,6 +21,9 @@ namespace PooketSlug
                 s_Source = host.AddComponent<AudioSource>();
                 s_Source.playOnAwake = false;
                 s_Source.spatialBlend = 0f;
+                s_Voice = host.AddComponent<AudioSource>();
+                s_Voice.playOnAwake = false;
+                s_Voice.spatialBlend = 0f;
 
                 ChipSounds.Make();
             }
@@ -64,6 +68,28 @@ namespace PooketSlug
         {
             if (Muted || s_Source == null || clip == null) return;
             s_Source.PlayOneShot(clip, volume);
+        }
+
+        /// <summary>
+        /// The arcade announcer says line <paramref name="id"/> (<c>mission-start</c>, <c>mission-complete</c>,
+        /// <c>warning</c>, <c>boss-tank</c>) after <paramref name="delay"/> seconds, cutting off any line still
+        /// playing. The lines are made by the vendor repository's CI and fetched into <c>Resources/Voice</c> by the
+        /// game's; a build without them stays quiet here.
+        /// </summary>
+        public static void Say(string id, float delay = 0f)
+        {
+            if (Muted || s_Voice == null) return;
+            if (!s_Lines.TryGetValue(id, out AudioClip clip))
+            {
+                clip = Resources.Load<AudioClip>("Voice/" + id);
+                s_Lines[id] = clip;
+                if (clip == null) Log.Audio.Info("No announcer line " + id + " in this build");
+            }
+            if (clip == null) return;
+            s_Voice.Stop();
+            s_Voice.clip = clip;
+            s_Voice.volume = 0.9f;
+            s_Voice.PlayDelayed(delay);
         }
 
         /// <summary>A clip of ready-made samples (<see cref="ChipSounds"/>' renders).</summary>

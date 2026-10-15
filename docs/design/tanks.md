@@ -51,7 +51,9 @@ A boss tank's arrival is the mission's big moment ([story](story.md#cutscenes): 
 1. **The screen locks** as you step into the arena, and the mission's music cuts out.
 2. **The warning:** a siren sounds twice, the screen edges flash red, and a big flashing red **WARNING!** slams in between hazard stripes that sweep across the top and bottom of the screen, Metal Slug style (picked 2026-10-15).
 3. **The entrance:** the motor pool's blast shutter grinds open and the tank rolls out onto the arena floor. It can't be hurt and doesn't fire until it stops.
-4. **The name card:** the tank's name ("KIE'S TANK") drops in under the banner, and the announcer calls it. *To pick:* the line and the voice.
+4. **The name card:** the tank's name ("KIE'S TANK") drops in under the banner, and the announcer shouts "Here comes the tank!" (it shouts "Warning!" with the banner in step 2).
+
+**The announcer** (picked 2026-10-15) is a generated voice: a gravelly arcade announcer made with text-to-speech by the vendor repository's CI from its `voice/lines.json`, so a line is changed or added by editing that file. It also calls "Mission one... start!" and "Mission complete!".
 5. **The fight:** the boss music kicks in on the tank's first shot, and its health bar fills up across the top.
 
 **The music** (picked 2026-10-15): a looping Mission one track plays through the run, and a faster, minor-key boss track takes over for the fight. Both are made in code with the chip synth the sound effects use.

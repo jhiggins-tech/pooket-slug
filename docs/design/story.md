@@ -40,7 +40,7 @@ Cutscenes are **in-engine scenes**: the game's own art, drawn in code, with spee
   - **Reveal:** the first time something new appears. It plays once, ever.
   - **Freeing:** the fake pilot glitches out, and the real crewmate appears and joins.
   - **Debrief:** the mission's tally, XP and rank, then anything newly unlocked.
-- **Sound:** there's a music track for each mission, and one for bosses. The crew talk in speech bubbles, and an arcade announcer calls the big moments ("Mission complete!").
+- **Sound:** there's a music track for each mission, and one for bosses. The crew talk in speech bubbles, and an arcade announcer calls the big moments ("Mission complete!"), in a generated voice ([tanks](tanks.md#the-boss-intro)).
 - **In co-op,** scenes play for both players, and a scene ends once both have tapped. A partner who hasn't seen it gets to watch it.
 
 ## Reveals are story beats
@@ -60,5 +60,4 @@ The second time you meet something, it's quick: a tank you've already fought onl
 ## Open questions
 
 - **Mission order after kcaj**, which sets the order of the story.
-- **The announcer's voice:** recorded (perhaps by one of the crew), or made by the game.
 - **Each mission's story:** its briefing, and how its crewmate's freeing plays out.

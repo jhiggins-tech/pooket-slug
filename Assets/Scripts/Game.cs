@@ -169,6 +169,7 @@ namespace PooketSlug
             m_Paused = false;
             SetState(GameState.Playing);
             Sfx.Play(Sfx.Start);
+            Sfx.Say("mission-start", 0.3f);
         }
 
         void Restart()
@@ -267,6 +268,7 @@ namespace PooketSlug
             m_StartNote = null;
             SetState(GameState.Playing);
             Sfx.Play(Sfx.Start);
+            Sfx.Say("mission-start", 0.3f);
         }
 
         void EndCoop(string notice)

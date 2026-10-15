@@ -57,6 +57,20 @@ jobs:
           # our committed Fusion config wins over anything the package ships
           git checkout -- Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion
 
+      # The arcade announcer's lines are made with text-to-speech by the vendor repository's CI (voice/lines.json
+      # there) and published as announcer.zip. Without them the game still builds, and the announcer stays quiet.
+      - name: Fetch the announcer's voice
+        env:
+          GH_TOKEN: ${{ secrets.VENDOR_PAT }}
+        run: |
+          if gh release download announcer -R jhiggins-tech/pooket-slug-vendor -p announcer.zip -D vendor; then
+            mkdir -p Assets/Resources/Voice
+            unzip -o -q vendor/announcer.zip '*.wav' -d Assets/Resources/Voice
+            ls -l Assets/Resources/Voice
+          else
+            echo "::warning::No announcer.zip on the vendor repository's announcer release: the announcer stays quiet in this build."
+          fi
+
       - name: Cache Unity Library
         uses: actions/cache@v5
         with:

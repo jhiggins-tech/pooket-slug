@@ -248,6 +248,7 @@ namespace PooketSlug
             Victory = true;
             Player.InputEnabled = true;
             Sfx.Play(Sfx.Victory);
+            Sfx.Say("mission-complete", 0.2f);
         }
 
         // ------------------------------------------------------------------ pooled spawning
