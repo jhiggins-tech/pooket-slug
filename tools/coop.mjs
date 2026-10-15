@@ -114,9 +114,9 @@ try {
   await Promise.all([shot(A, '2-together'), shot(B, '2-together')]);
 
   if (BOSS) {
-    // Both step up to the gate and fight from there (walking on would run into the tank); B's tank follows
-    // A's (its network object) and fires when A's does.
-    await Promise.all([walk(A, 'ArrowRight', 1500), walk(B, 'ArrowRight', 1500)]);
+    // Both walk up past the gate, far enough for the camera to show the whole tank (it wakes then), and fight
+    // from there. B's tank follows A's (its network object) and fires when A's does.
+    await Promise.all([walk(A, 'ArrowRight', 3000), walk(B, 'ArrowRight', 3000)]);
     for (let i = 0; i < 4; i++) {
       await Promise.all([play(A, null, 5000), play(B, null, 5000)]);
       await Promise.all([shot(A, `3-boss-${i}`), shot(B, `3-boss-${i}`)]);
