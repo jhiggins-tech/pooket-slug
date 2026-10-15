@@ -71,6 +71,18 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void TheNarratorSpikePlaysTheSceneInTheVoiceAsked()
+        {
+            Spike.Configure(Page + "?spike=narrator&voice=C");
+            Assert.IsTrue(Spike.Narrator);
+            Assert.IsTrue(Spike.Scenes, "the narrator needs the scene");
+            Assert.AreEqual("c", Spike.Voice);
+            Assert.AreEqual("SPIKE TEST · NARRATOR", Spike.Label);
+            Spike.Configure(Page + "?spike=narrator");
+            Assert.IsNull(Spike.Voice);
+        }
+
+        [Test]
         public void TheWeaselSpikeHasYouPlayKie()
         {
             Spike.Configure(Page);

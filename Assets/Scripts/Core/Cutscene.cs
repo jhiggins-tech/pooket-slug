@@ -14,12 +14,15 @@ namespace PooketSlug
         public readonly float At;
         public readonly Speaker Who;
         public readonly string Text;
+        /// <summary>The recorded line's id, for a voice to read it (the narrator's), or null.</summary>
+        public readonly string Voice;
 
-        public CutsceneLine(float at, Speaker who, string text)
+        public CutsceneLine(float at, Speaker who, string text, string voice = null)
         {
             At = at;
             Who = who;
             Text = text;
+            Voice = voice;
         }
     }
 
@@ -87,42 +90,42 @@ namespace PooketSlug
             new CutsceneShot("Outside the hangout", 5f,
                 new[]
                 {
-                    new CutsceneLine(0.4f, Speaker.Narrator, "Friday night. tones2's back from the snack run."),
+                    new CutsceneLine(0.4f, Speaker.Narrator, "Friday night. tones2's back from the snack run.", "opening-1"),
                     new CutsceneLine(3.2f, Speaker.Tones2, "SNACKS ARE HERE LADS"),
                 }),
             new CutsceneShot("The door", 4.5f,
                 new[]
                 {
-                    new CutsceneLine(0.9f, Speaker.Narrator, "But the door's been kicked in."),
+                    new CutsceneLine(0.9f, Speaker.Narrator, "But the door's been kicked in.", "opening-2"),
                     new CutsceneLine(2.4f, Speaker.Tones2, "...LADS?"),
                 },
                 new[] { new CutsceneCue(0.5f, "door"), new CutsceneCue(1.2f, "static") }),
             new CutsceneShot("Inside, raided", 5f,
-                new[] { new CutsceneLine(0.5f, Speaker.Narrator, "The hangout's trashed, and the crew are gone.") },
+                new[] { new CutsceneLine(0.5f, Speaker.Narrator, "The hangout's trashed, and the crew are gone.", "opening-3") },
                 new[] { new CutsceneCue(2.2f, "drop"), new CutsceneCue(3.4f, "static") }),
-            new CutsceneShot("A straggler", 7f,
+            new CutsceneShot("A straggler", 8f,
                 new[]
                 {
                     new CutsceneLine(0.8f, Speaker.Goon, "INTRUDER. INTRUD-"),
-                    new CutsceneLine(1.4f, Speaker.Narrator, "One of the raiders is still here: a hologram."),
-                    new CutsceneLine(4.6f, Speaker.Narrator, "It glitches out, and drops its keycard."),
+                    new CutsceneLine(1.2f, Speaker.Narrator, "One of the raiders is still here: a hologram.", "opening-4a"),
+                    new CutsceneLine(5.0f, Speaker.Narrator, "It glitches out, and drops its keycard.", "opening-4b"),
                 },
                 new[] { new CutsceneCue(0.3f, "goon"), new CutsceneCue(3.2f, "jet"), new CutsceneCue(3.8f, "glitch"), new CutsceneCue(4.2f, "card-drop") }),
             new CutsceneShot("The keycard", 5f,
                 new[]
                 {
-                    new CutsceneLine(0.5f, Speaker.Narrator, "A pass for the military base, up on the hill."),
+                    new CutsceneLine(0.5f, Speaker.Narrator, "A pass for the military base, up on the hill.", "opening-5"),
                     new CutsceneLine(2.6f, Speaker.Tones2, "THAT'S WHERE THEY TOOK THEM."),
                 },
                 new[] { new CutsceneCue(0.1f, "card-up") }),
-            new CutsceneShot("Heading out", 5f,
+            new CutsceneShot("Heading out", 6f,
                 new[]
                 {
-                    new CutsceneLine(0.4f, Speaker.Narrator, "So tones2 goes in alone."),
+                    new CutsceneLine(0.4f, Speaker.Narrator, "So tones2 goes in alone.", "opening-6"),
                     new CutsceneLine(1.2f, Speaker.Tones2, "RIGHT."),
-                    new CutsceneLine(2.8f, Speaker.Caption, "MISSION 1 · THE MILITARY BASE\nFIND THE CREW"),
+                    new CutsceneLine(3.9f, Speaker.Caption, "MISSION 1 · THE MILITARY BASE\nFIND THE CREW"),
                 },
-                new[] { new CutsceneCue(1.6f, "crush"), new CutsceneCue(2.8f, "card"), new CutsceneCue(2.9f, "say:mission-start") }));
+                new[] { new CutsceneCue(1.6f, "crush"), new CutsceneCue(3.9f, "card"), new CutsceneCue(4.1f, "say:mission-start") }));
     }
 
     /// <summary>
@@ -219,16 +222,21 @@ namespace PooketSlug
         }
 
         /// <summary>The narrator's subtitle now: their latest line in this shot, or null.</summary>
-        public string Narration
+        public string Narration => Narrating(out CutsceneLine line) ? line.Text : null;
+
+        /// <summary>The narrator's line up now (their latest in this shot), if there is one.</summary>
+        public bool Narrating(out CutsceneLine line)
         {
-            get
-            {
-                if (Done) return null;
-                string said = null;
-                foreach (CutsceneLine line in Current.Lines)
-                    if (line.Who == Speaker.Narrator && T >= line.At) said = line.Text;
-                return said;
-            }
+            line = default;
+            if (Done) return false;
+            bool any = false;
+            foreach (CutsceneLine l in Current.Lines)
+                if (l.Who == Speaker.Narrator && T >= l.At)
+                {
+                    line = l;
+                    any = true;
+                }
+            return any;
         }
 
         void Next()

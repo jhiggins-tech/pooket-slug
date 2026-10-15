@@ -19,10 +19,10 @@ namespace PooketSlug.Tests
         public void TheOpeningIsSixUnhurriedShotsEachWithANarratorLine()
         {
             Assert.AreEqual(6, Cutscenes.Opening.Shots.Length);
-            Assert.That(Cutscenes.Opening.Seconds, Is.InRange(28f, 34f));
+            Assert.That(Cutscenes.Opening.Seconds, Is.InRange(30f, 36f));
             foreach (CutsceneShot shot in Cutscenes.Opening.Shots)
             {
-                Assert.That(shot.Seconds, Is.InRange(4f, 7f), shot.Name);
+                Assert.That(shot.Seconds, Is.InRange(4f, 8f), shot.Name);
                 Assert.IsTrue(System.Array.Exists(shot.Lines, l => l.Who == Speaker.Narrator), shot.Name + " has narration");
             }
         }
@@ -55,8 +55,21 @@ namespace PooketSlug.Tests
             Assert.AreEqual("Friday night. tones2's back from the snack run.", p.Narration);
             Assert.AreEqual(0, p.Showing(lines), "no bubble for the narrator");
             while (p.Shot < 3) Run(p, 0.1f);
-            Run(p, 5f);
+            Run(p, 5.5f);
             Assert.AreEqual("It glitches out, and drops its keycard.", p.Narration, "the latest line replaces the last");
+            Assert.IsTrue(p.Narrating(out CutsceneLine line));
+            Assert.AreEqual("opening-4b", line.Voice, "the recording the narrator voice spike plays");
+        }
+
+        [Test]
+        public void EveryNarratorLineHasItsOwnRecording()
+        {
+            var ids = new HashSet<string>();
+            foreach (CutsceneShot shot in Cutscenes.Opening.Shots)
+                foreach (CutsceneLine line in shot.Lines)
+                    if (line.Who == Speaker.Narrator)
+                        Assert.IsTrue(ids.Add(line.Voice ?? ""), line.Text);
+            Assert.AreEqual(7, ids.Count);
         }
 
         [Test]

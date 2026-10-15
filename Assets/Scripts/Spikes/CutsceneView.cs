@@ -33,6 +33,12 @@ namespace PooketSlug
         readonly RectTransform m_CardBand;
         readonly Text m_CardText;
         readonly Button m_Skip;
+        // ?spike=narrator: the candidate voices, and a button to switch between them
+        readonly NarratorVoices m_Voices;
+        readonly Button m_VoiceButton;
+        readonly Text m_VoiceLabel;
+        string m_LastSaid;
+        bool m_VoicePressed;
         readonly List<Bubble> m_Bubbles = new List<Bubble>();
         readonly List<CutsceneLine> m_Lines = new List<CutsceneLine>();
         static Sprite s_Street, s_Room, s_White;
@@ -144,6 +150,15 @@ namespace PooketSlug
             m_Skip = Ui.Button(m_Stage, "SKIP", new Vector2(StageW * Px / 2f - 42f, StageH * Px / 2f - 20f), new Vector2(64f, 22f), () => m_SkipPressed = true, out Text skipKey);
             skipKey.text = "ESC";
 
+            if (Spike.Narrator)
+            {
+                m_Voices = NarratorVoices.Load(Spike.Voice);
+                m_VoiceButton = Ui.Button(m_Stage, "VOICE", new Vector2(-StageW * Px / 2f + 130f, StageH * Px / 2f - 20f), new Vector2(244f, 22f), () => m_VoicePressed = true, out Text voiceKey);
+                voiceKey.text = m_Voices != null ? "TAP TO TRY THE NEXT VOICE" : "NO VOICES IN THIS BUILD: SUBTITLES ONLY";
+                m_VoiceLabel = m_VoiceButton.GetComponentInChildren<Text>();
+                m_VoiceLabel.fontSize = 10;
+            }
+
             Ui.Show(m_Root, false);
         }
 
@@ -166,7 +181,8 @@ namespace PooketSlug
             m_Player = player;
             m_GoonDiedAt = -1f;
             m_FlickerUntil = 0f;
-            m_Tapped = m_SkipPressed = false;
+            m_Tapped = m_SkipPressed = m_VoicePressed = false;
+            m_LastSaid = null;
             if (s_Street == null)
             {
                 s_Street = Backdrop(DrawStreet);
@@ -177,6 +193,7 @@ namespace PooketSlug
 
         public void Hide()
         {
+            if (m_Voices != null) Sfx.Hush();
             m_Player = null;
             Ui.Show(m_Root, false);
         }
@@ -251,15 +268,34 @@ namespace PooketSlug
                 ShowBubble(bubbles++, line, now);
             }
             for (int i = bubbles; i < m_Bubbles.Count; i++) Ui.Show(m_Bubbles[i].Rt, false);
-            string said = p.Narration;
-            Ui.Show(m_SubBand, said != null);
-            if (said != null) m_Subtitle.text = said;
+            bool narrating = p.Narrating(out CutsceneLine narration);
+            Ui.Show(m_SubBand, narrating);
+            if (narrating) m_Subtitle.text = narration.Text;
+            Voice(narrating ? narration.Voice : null);
             Ui.Show(m_CardBand, card);
 
             Ui.Show(m_Skip, p.CanSkip);
             Ui.Show(m_Hint, !p.CanSkip && !p.Waiting && p.Shot == 0 && t > 1.2f);
             Ui.Show(m_Waiting, p.Waiting);
             if (p.Waiting) m_Waiting.text = p.HasTapped(0) ? "WAITING FOR YOUR PARTNER" : "YOUR PARTNER'S READY: TAP TO GO ON";
+        }
+
+        /// <summary>?spike=narrator: reads each narrator line as it comes up, and the voice button tries the next voice.</summary>
+        void Voice(string line)
+        {
+            if (m_VoiceButton == null) return;
+            Ui.Show(m_VoiceButton, true);
+            m_VoiceLabel.text = m_Voices != null ? m_Voices.Label : "NARRATOR: NO VOICE";
+            if (m_Voices == null) return;
+            if (m_VoicePressed)
+            {
+                m_VoicePressed = false;
+                m_Voices.Next();
+                m_LastSaid = null; // say the line up now again, in the new voice
+            }
+            if (line == m_LastSaid) return;
+            m_LastSaid = line;
+            m_Voices.Say(line);
         }
 
         void ShowBubble(int i, CutsceneLine line, float now)

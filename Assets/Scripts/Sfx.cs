@@ -81,23 +81,38 @@ namespace PooketSlug
         /// playing. The lines are made by the vendor repository's CI and fetched into <c>Resources/Voice</c> by the
         /// game's (as <c>&lt;id&gt;.bytes</c>, so Unity leaves them as plain WAV bytes); a build without them stays quiet here.
         /// </summary>
-        public static void Say(string id, float delay = 0f)
+        public static void Say(string id, float delay = 0f) => Speak("Voice/" + id, 0.9f, delay);
+
+        /// <summary>
+        /// The cutscene narrator reads line <paramref name="id"/> in candidate voice <paramref name="voice"/> (the narrator
+        /// voice spike), from <c>Resources/Narrator/&lt;voice&gt;/&lt;id&gt;.bytes</c>, fetched like the announcer's.
+        /// </summary>
+        public static void Narrate(string voice, string id) => Speak("Narrator/" + voice + "/" + id, 1f, 0f);
+
+        /// <summary>Plays a recorded line (a WAV kept as .bytes), cutting off any still playing. Quiet if it isn't in the build.</summary>
+        static void Speak(string path, float volume, float delay)
         {
             if (Muted || s_Voice == null) return;
-            if (!s_Lines.TryGetValue(id, out AudioClip clip))
+            if (!s_Lines.TryGetValue(path, out AudioClip clip))
             {
-                TextAsset raw = Resources.Load<TextAsset>("Voice/" + id); // <id>.bytes: a WAV, made into a clip here
+                TextAsset raw = Resources.Load<TextAsset>(path); // <id>.bytes: a WAV, made into a clip here
                 int rate = 0;
                 float[] samples = raw != null ? Wav.Read(raw.bytes, out rate) : null;
-                clip = samples != null ? Clip("voice-" + id, samples, rate) : null;
-                s_Lines[id] = clip;
-                if (clip == null) Log.Audio.Info("No announcer line " + id + " in this build");
+                clip = samples != null ? Clip("voice-" + path, samples, rate) : null;
+                s_Lines[path] = clip;
+                if (clip == null) Log.Audio.Info("No recorded line " + path + " in this build");
             }
             if (clip == null) return;
             s_Voice.Stop();
             s_Voice.clip = clip;
-            s_Voice.volume = 0.9f;
+            s_Voice.volume = volume;
             s_Voice.PlayDelayed(delay);
+        }
+
+        /// <summary>Stops the line being said, if any.</summary>
+        public static void Hush()
+        {
+            if (s_Voice != null) s_Voice.Stop();
         }
 
         /// <summary>A clip of ready-made samples (<see cref="ChipSounds"/>' renders).</summary>

@@ -13,7 +13,7 @@ namespace PooketSlug
     public static class Spike
     {
         public const string HitsKey = "hits", WeaselsKey = "kie-weasels", TrollogramKey = "kie-trollogram", StealKey = "kie-steal", CratersKey = "craters", MusicKey = "music";
-        public const string CutscenesKey = "cutscenes", CutscenesCoopKey = "cutscenes-coop";
+        public const string CutscenesKey = "cutscenes", CutscenesCoopKey = "cutscenes-coop", NarratorKey = "narrator";
         public const string DriveKey = "drive";
 
         /// <summary>Hits land with weight: sparks, flashes, and damage numbers floating off you.</summary>
@@ -40,6 +40,12 @@ namespace PooketSlug
         /// <summary>The scene plays as if in co-op, with a pretend partner who taps a moment after you.</summary>
         public static bool ScenesCoop;
 
+        /// <summary>The scene's narrator reads their lines aloud, in a candidate voice (<c>?voice=a</c> to <c>d</c> picks one).</summary>
+        public static bool Narrator;
+
+        /// <summary>The candidate voice the address asks for, or null for the first.</summary>
+        public static string Voice;
+
         /// <summary>Your tank (<see cref="PlayerTankSpec"/>): one parked a few steps ahead to climb into, and one to call in.</summary>
         public static bool Drive;
 
@@ -59,7 +65,9 @@ namespace PooketSlug
             Craters = Array.IndexOf(keys, CratersKey) >= 0;
             Music = Array.IndexOf(keys, MusicKey) >= 0;
             ScenesCoop = Array.IndexOf(keys, CutscenesCoopKey) >= 0;
-            Scenes = ScenesCoop || Array.IndexOf(keys, CutscenesKey) >= 0;
+            Narrator = Array.IndexOf(keys, NarratorKey) >= 0;
+            Scenes = ScenesCoop || Narrator || Array.IndexOf(keys, CutscenesKey) >= 0;
+            Voice = PageQuery.Get(url, "voice")?.Trim().ToLowerInvariant();
             Drive = Array.IndexOf(keys, DriveKey) >= 0;
         }
 
@@ -76,7 +84,8 @@ namespace PooketSlug
                 if (Steal) parts.Add("STEAL");
                 if (Craters) parts.Add("CRATERS");
                 if (Music) parts.Add("MUSIC");
-                if (Scenes) parts.Add("CUTSCENES");
+                if (Narrator) parts.Add("NARRATOR");
+                else if (Scenes) parts.Add("CUTSCENES");
                 if (Drive) parts.Add("YOUR TANK");
                 return "SPIKE TEST · " + string.Join(" + ", parts);
             }
