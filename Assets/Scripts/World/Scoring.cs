@@ -10,6 +10,8 @@ namespace PooketSlug
         public Vector2 Pos;
         public Color Color;
         public float Age;
+        /// <summary>Its text size, or 0 for the usual.</summary>
+        public int Size;
     }
 
     /// <summary>The run's points, and the popups that announce them. The HUD draws both.</summary>
@@ -25,8 +27,8 @@ namespace PooketSlug
             if (popup) Popup(points.ToString(), at, Color.white);
         }
 
-        public void Popup(string text, Vector2 at, Color color) =>
-            Popups.Add(new PopupText { Text = text, Pos = at, Color = color });
+        public void Popup(string text, Vector2 at, Color color, int size = 0) =>
+            Popups.Add(new PopupText { Text = text, Pos = at, Color = color, Size = size });
 
         public void Tick(float dt)
         {

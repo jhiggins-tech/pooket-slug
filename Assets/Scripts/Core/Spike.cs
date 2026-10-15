@@ -110,7 +110,7 @@ namespace PooketSlug
     {
         public float Duration = 1.5f;
         /// <summary>Gobbets per second, their speed and spread (degrees either side of the aim) and how fast they fall.</summary>
-        public float DropsPerSecond = 40f, Speed = 9f, Spread = 18f, Gravity = 20f;
+        public float DropsPerSecond = 70f, Speed = 9f, Spread = 18f, Gravity = 20f;
         /// <summary>Damage each gobbet soaks in: a rifleman melts in about six.</summary>
         public float Damage = 0.5f, Push = 0.35f;
         /// <summary>How long the sludge stays, and how often it burns a goon standing in it (a point each time).</summary>

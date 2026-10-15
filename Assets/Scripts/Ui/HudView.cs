@@ -42,6 +42,7 @@ namespace PooketSlug
         readonly Text m_SuperLabel, m_AbilityLabel;
         readonly Image m_SuperBack, m_SuperFill, m_RefillFill, m_AbilityBack, m_AbilityFill, m_CallBack, m_CallFill;
         const float MeterWidth = 60f;
+        const int PopupSize = 9;
         readonly List<Image> m_Hearts = new List<Image>();
         readonly List<Text> m_Popups = new List<Text>();
         int m_Points = -1, m_HiScore = -1, m_Seconds = -1, m_FpsShown = -1;
@@ -67,7 +68,7 @@ namespace PooketSlug
         public HudView(Transform parent)
         {
             m_Root = Ui.Canvas(parent, "HUD", 0);
-            m_NewPopup = () => Ui.Label(m_Root, "Popup", Ui.BottomLeft, Vector2.zero, 9, TextAnchor.MiddleCenter, Color.white);
+            m_NewPopup = () => Ui.Label(m_Root, "Popup", Ui.BottomLeft, Vector2.zero, PopupSize, TextAnchor.MiddleCenter, Color.white);
             m_NewPartnerLabel = () => Ui.Label(m_Coop, "Partner", Ui.TopLeft, Vector2.zero, 10, TextAnchor.UpperLeft, Color.white);
             m_NewTag = () => Ui.Label(m_Coop, "Name tag", Ui.BottomLeft, Vector2.zero, 8, TextAnchor.MiddleCenter, Color.white);
             m_NewHeart = () => Ui.Picture(m_Top, "Heart", Ui.Heart, Ui.TopLeft, Ui.TopLeft, Vector2.zero, Vector2.one, Color.white);
@@ -260,6 +261,8 @@ namespace PooketSlug
                 Text t = Pooled(m_Popups, i, m_NewPopup);
                 t.rectTransform.anchoredPosition = Ui.FromScreen(cam.WorldToScreenPoint(new Vector3(pop.Pos.x, pop.Pos.y, 0f)));
                 if (!ReferenceEquals(t.text, pop.Text)) t.text = pop.Text;
+                int size = pop.Size > 0 ? pop.Size : PopupSize;
+                if (t.fontSize != size) t.fontSize = size;
                 Color c = pop.Color;
                 c.a = Mathf.Clamp01(Tuning.Hud.PopupLife - pop.Age);
                 t.color = c;

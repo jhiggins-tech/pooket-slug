@@ -11,7 +11,7 @@ namespace PooketSlug
     public sealed class HitFeel
     {
         static readonly Color Hot = new Color(1f, 0.95f, 0.6f), Gold = new Color(1f, 0.75f, 0.2f);
-        static readonly Color Pain = new Color(1f, 0.15f, 0.1f), Numbers = new Color(1f, 0.35f, 0.3f);
+        static readonly Color Pain = new Color(1f, 0.15f, 0.1f), Numbers = new Color(1f, 0.3f, 0.25f);
 
         readonly World m_World;
         readonly SpriteRenderer m_Flash;
@@ -72,7 +72,7 @@ namespace PooketSlug
         public void Hurt(Player p, int damage)
         {
             int out100 = Mathf.RoundToInt(100f * damage / Mathf.Max(1, p.MaxHp));
-            m_World.Scoring.Popup("-" + out100, p.Pos + new Vector2(Rng.Fx.Range(-0.3f, 0.3f), p.Height + 0.4f), Numbers);
+            m_World.Scoring.Popup("-" + out100, p.Pos + new Vector2(Rng.Fx.Range(-0.3f, 0.3f), p.Height + 0.4f), Numbers, 14);
             Flash(Pain, 0.28f, 0.14f);
         }
 

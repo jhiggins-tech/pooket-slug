@@ -190,7 +190,7 @@ namespace PooketSlug
             float speed = m_Vel.magnitude;
             m_Sr.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(m_Vel.y, m_Vel.x) * Mathf.Rad2Deg);
             // Fast droplets stretch along their flight, so the full jet reads as a stream. Gobbets stay lumpy.
-            m_Sr.transform.localScale = m_Kind == DropKind.Spew ? Vector3.one : new Vector3(1f + speed / 9f, 1f, 1f);
+            m_Sr.transform.localScale = m_Kind == DropKind.Spew ? new Vector3(1.5f, 1.5f, 1f) : new Vector3(1f + speed / 9f, 1f, 1f);
         }
     }
 
