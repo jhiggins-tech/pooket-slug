@@ -76,14 +76,17 @@ namespace PooketSlug
         /// The arcade announcer says line <paramref name="id"/> (<c>mission-start</c>, <c>mission-complete</c>,
         /// <c>warning</c>, <c>boss-tank</c>) after <paramref name="delay"/> seconds, cutting off any line still
         /// playing. The lines are made by the vendor repository's CI and fetched into <c>Resources/Voice</c> by the
-        /// game's; a build without them stays quiet here.
+        /// game's (as <c>&lt;id&gt;.bytes</c>, so Unity leaves them as plain WAV bytes); a build without them stays quiet here.
         /// </summary>
         public static void Say(string id, float delay = 0f)
         {
             if (Muted || s_Voice == null) return;
             if (!s_Lines.TryGetValue(id, out AudioClip clip))
             {
-                clip = Resources.Load<AudioClip>("Voice/" + id);
+                TextAsset raw = Resources.Load<TextAsset>("Voice/" + id); // <id>.bytes: a WAV, made into a clip here
+                int rate = 0;
+                float[] samples = raw != null ? Wav.Read(raw.bytes, out rate) : null;
+                clip = samples != null ? Clip("voice-" + id, samples, rate) : null;
                 s_Lines[id] = clip;
                 if (clip == null) Log.Audio.Info("No announcer line " + id + " in this build");
             }

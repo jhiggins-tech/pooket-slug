@@ -229,6 +229,9 @@ namespace PooketSlug
                 Power = boss.Power,
                 Landing = boss.Landing,
                 Shots = (byte)boss.Shots,
+                KieState = (byte)boss.KieState,
+                KieProgress = boss.KieProgress,
+                KieDrops = (byte)boss.KieDrops,
             };
         }
 
@@ -238,7 +241,8 @@ namespace PooketSlug
             if (!BossValid) return false;
             NetBoss b = m_Boss.State;
             if (b.Phase == 0) return false;
-            boss = new NetBossState { Phase = b.Phase, Angle = b.Angle, Charge = b.Charge, Power = b.Power, Landing = b.Landing, Shots = b.Shots };
+            boss = new NetBossState { Phase = b.Phase, Angle = b.Angle, Charge = b.Charge, Power = b.Power, Landing = b.Landing, Shots = b.Shots,
+                KieState = b.KieState, KieProgress = b.KieProgress, KieDrops = b.KieDrops };
             return true;
         }
 

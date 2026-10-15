@@ -14,8 +14,9 @@ namespace PooketSlug
     /// network object (<see cref="NetBossState"/>), so a follower's tank swings, charges, shows the marker and kicks
     /// along with it.
     ///
-    /// With <c>?spike=kie</c> (solo) it fights as kie's tank: its charged shots cycle through weasels, hologram copies and
-    /// a roulette that steals (<see cref="KieBoss"/>). The copies are tanks of this kind too, made with <c>decoy</c>.
+    /// It's kie's tank: its charged shots cycle through weasels, hologram copies and a roulette that steals
+    /// (<see cref="KieBoss"/>). The copies are tanks of this kind too (<see cref="Content.TankCopy"/>, made with
+    /// <c>decoy</c>): they stand where kie's trick put them and copy the real one's every move, turret, charge and shot.
     /// </summary>
     public sealed class TankBoss : BossEnemy
     {
@@ -34,7 +35,7 @@ namespace PooketSlug
         Vector2 m_Landing;
         bool m_LandingSeen, m_SeenFire, m_FightStarted;
 
-        /// <summary>A hologram copy of kie's tank: it drives and fires like the real one, but can't be hurt.</summary>
+        /// <summary>A hologram copy of kie's tank: it moves and fires with the real one, but can't be hurt.</summary>
         public readonly bool Decoy;
 
         public TankBoss(World world, EnemyDef def, Vector2 feet, bool decoy = false) : base(world, def, feet)
@@ -57,12 +58,8 @@ namespace PooketSlug
             m_Marker.sprite = Art.LandingMarker;
             m_Marker.sortingOrder = SortOrder.Effects;
             m_Marker.enabled = false;
-            if (decoy)
-            {
-                Engaged = true;
-                m_Timer = World.Rng.Range(0.6f, 1.6f);
-            }
-            else if (Spike.Kie && !world.Coop) m_Kie = new KieBoss(world, this); // spikes are solo only
+            if (decoy) Engaged = true;
+            else m_Kie = new KieBoss(world, this); // on every screen in co-op: the roulette and the disguise are drawn on each
             if (!decoy && !world.QuickBossIntro && ShutterX(world, feet.x, out float shutter))
             {
                 // Waits out of sight in the motor pool, to roll out of its shutter when it wakes.
@@ -141,6 +138,11 @@ namespace PooketSlug
 
         protected override void TickAlive(float dt)
         {
+            if (Decoy)
+            {
+                Mirror(true);
+                return;
+            }
             if (!Engaged)
             {
                 if (World.View.Right < Pos.x + HalfW + 0.5f) return;
@@ -183,8 +185,8 @@ namespace PooketSlug
 
             Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
             MoveWithTiles(dt);
-            if (!Decoy) World.Combat.DamageAvatarsTouching(Bounds, 1);
-            m_Kie?.Tick(dt);
+            World.Combat.DamageAvatarsTouching(Bounds, 1);
+            m_Kie.Tick(dt);
         }
 
         /// <summary>Turns the turret toward the angle it wants, whirring.</summary>
@@ -255,8 +257,13 @@ namespace PooketSlug
         void Fire()
         {
             StartFight();
-            if (m_Kie != null && m_Kie.Fire(Muzzle, m_Angle))
+            if (m_Kie.Fire(Muzzle, m_Angle, out bool thrown))
             {
+                if (thrown)
+                {
+                    m_Shots++; // a follower's tank kicks with it
+                    Recoil();
+                }
                 m_LandingSeen = false;
                 m_Timer = m_Spec.RecoilTime / Rage + m_Kie.Wait;
                 Enter(State.Recoil);
@@ -264,7 +271,15 @@ namespace PooketSlug
             }
             m_Shots++;
             bool spread = m_Spec.SpreadEvery > 0 && m_Shots % m_Spec.SpreadEvery == 0;
-            Vector2 muzzle = Muzzle;
+            Shoot(Muzzle, spread);
+            foreach (TankBoss copy in m_Kie.Copies) Shoot(copy.Muzzle, spread); // kie's copies fire with it
+            Recoil();
+            m_Timer = m_Spec.RecoilTime / Rage;
+            Enter(State.Recoil);
+        }
+
+        void Shoot(Vector2 muzzle, bool spread)
+        {
             WeaponDef cannon = Content.BossCannon;
             if (spread)
             {
@@ -272,9 +287,25 @@ namespace PooketSlug
                     World.Combat.FireEnemyShot(cannon, muzzle, Velocity(m_Angle, m_Power * (1f + i * m_Spec.SpreadPower)));
             }
             else World.Combat.FireEnemyShot(cannon, muzzle, Velocity(m_Angle, m_Power));
-            Recoil();
-            m_Timer = m_Spec.RecoilTime / Rage;
-            Enter(State.Recoil);
+        }
+
+        /// <summary>
+        /// A copy: take up the real tank's turret, charge, kick and landing marker (moved over by the gap between
+        /// them), and on the authority its steps along the patrol too, so nothing tells them apart.
+        /// </summary>
+        void Mirror(bool move)
+        {
+            if (!(World.Boss is TankBoss real) || real == this || real.Dying) return;
+            m_State = real.m_State;
+            m_Charge = real.m_Charge;
+            m_Power = real.m_Power;
+            m_Angle = real.m_Angle;
+            m_WantAngle = real.m_WantAngle;
+            m_Kick = real.m_Kick;
+            m_LandingSeen = real.m_LandingSeen;
+            m_Landing = real.m_Landing + new Vector2(Pos.x - real.Pos.x, 0f);
+            Vel.x = real.Vel.x;
+            if (move) Pos.x = m_HomeX + (real.Pos.x - real.m_HomeX);
         }
 
         /// <summary>The bang and the barrel kicking back, as it fires (here, or on the authority's screen).</summary>
@@ -291,12 +322,15 @@ namespace PooketSlug
         public NetBossState NetState => new NetBossState
         {
             Phase = (int)m_State + 1, Angle = m_Angle, Charge = m_Charge, Power = m_Power, Landing = m_Landing, Shots = m_Shots & 0xff,
+            KieState = m_Kie.NetState(m_LandingSeen), KieProgress = m_Kie.Progress, KieDrops = m_Kie.Drops & 0xff,
         };
 
         /// <summary>Follower: take up the authority's turret, charge and shots. The shells come as enemy shots.</summary>
         public void ApplyNet(in NetBossState s)
         {
-            if (Dying || s.Phase == 0) return;
+            if (s.Phase == 0) return;
+            m_Kie.ApplyNet(s.KieState, s.KieProgress, s.KieDrops); // before the death check: it drops what it stole as it dies
+            if (Dying) return;
             var phase = (State)(s.Phase - 1);
             if (phase == State.Charge && m_State != State.Charge) Sfx.Play(Sfx.Charge, 0.5f);
             m_State = phase;
@@ -304,7 +338,7 @@ namespace PooketSlug
             m_Charge = s.Charge;
             m_Power = s.Power;
             m_Landing = s.Landing;
-            m_LandingSeen = phase == State.Charge;
+            m_LandingSeen = phase == State.Charge && KieBoss.MarkerShown(s.KieState);
             if (m_SeenShots >= 0 && s.Shots != m_SeenShots)
             {
                 if (!m_SeenFire) Log.Net.Info("The boss tank fired on the authority's screen");
@@ -317,13 +351,20 @@ namespace PooketSlug
 
         protected override void TickFollower(float dt)
         {
+            if (Decoy)
+            {
+                Mirror(false);
+                return;
+            }
+            m_Kie.Tick(dt);
             m_Kick = Mathf.MoveTowards(m_Kick, 0f, dt * 6f);
             Swing(dt * 1.5f); // a touch quicker, so it never lags far behind the authority's
         }
 
-        protected override int ExtraFlags => Engaged ? NetEnemyState.Engaged : 0;
+        protected override int ExtraFlags => (Engaged ? NetEnemyState.Engaged : 0) | (m_Kie != null && m_Kie.Disguised ? NetEnemyState.Disguised : 0);
         protected override void OnSnapshot(int flags)
         {
+            m_Kie?.SetDisguised((flags & NetEnemyState.Disguised) != 0); // the authority's hologram trick
             bool woke = !Engaged && (flags & NetEnemyState.Engaged) != 0;
             Engaged = (flags & NetEnemyState.Engaged) != 0;
             if (woke && !Decoy) World.OnBossIntro(this, Entering); // the authority's tank woke

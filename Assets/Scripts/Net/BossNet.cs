@@ -11,6 +11,8 @@ namespace PooketSlug
         public float Angle, Charge, Power;
         public Vector2 Landing;
         public byte Shots;
+        public byte KieState, KieDrops;
+        public float KieProgress;
     }
 
     /// <summary>

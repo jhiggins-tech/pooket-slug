@@ -31,6 +31,8 @@ namespace PooketSlug.Tests
             Assert.AreEqual(2, Content.Drone.Id);
             Assert.AreEqual(3, Content.Tank.Id);
             Assert.AreEqual(4, Content.Barrel.Id);
+            Assert.AreEqual(5, Content.Weasel.Id);
+            Assert.AreEqual(6, Content.TankCopy.Id);
         }
 
         [Test]
@@ -137,7 +139,7 @@ namespace PooketSlug.Tests
         }
 
         [TestCase(-1)]
-        [TestCase(5)]
+        [TestCase(7)]
         public void AnUnknownEnemyIdFindsNothing(int id)
         {
             Assert.IsNull(Content.Enemy(id));

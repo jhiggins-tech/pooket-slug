@@ -47,9 +47,31 @@ namespace PooketSlug.Tests
         }
 
         [Test]
-        public void TheWeaselNeverGoesOnTheWire()
+        public void KiesWeaselsAndCopiesAreMadeMidFightNotPlaced()
         {
-            Assert.IsNull(Content.Enemy(KieTankSpec.Weasel.Id), "spike content stays out of the tables co-op reads");
+            foreach (SpawnKind kind in System.Enum.GetValues(typeof(SpawnKind)))
+            {
+                EnemyDef def = Content.EnemyFor(kind);
+                Assert.AreNotSame(Content.Weasel, def, kind.ToString());
+                Assert.AreNotSame(Content.TankCopy, def, kind.ToString());
+            }
+        }
+
+        [Test]
+        public void TheRouletteFitsInItsNetworkByte()
+        {
+            int all = KieTankSpec.RoulettePhase | KieTankSpec.NoMarker;
+            Assert.Less(all, 256);
+            Assert.AreEqual(0, KieTankSpec.RoulettePhase & KieTankSpec.NoMarker);
+            Assert.AreEqual(KieTankSpec.RouletteHolding, (KieTankSpec.RouletteHolding | KieTankSpec.NoMarker) & KieTankSpec.RoulettePhase);
+        }
+
+        [Test]
+        public void TheDisguiseFitsInTheSnapshotsFlagsByte()
+        {
+            Assert.Less(NetEnemyState.Disguised, 256);
+            foreach (int other in new[] { NetEnemyState.Dying, NetEnemyState.FacingRight, NetEnemyState.Moving, NetEnemyState.Engaged, NetEnemyState.Grounded })
+                Assert.AreEqual(0, other & NetEnemyState.Disguised);
         }
 
         [Test]
