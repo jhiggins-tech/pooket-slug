@@ -132,6 +132,6 @@ namespace PooketSlug
         /// <summary>tones2, from Pooket Tabks: the water jet, the mud rocket jump and the spew.</summary>
         public static readonly SoldierDef Tones2 = new SoldierDef(250, "tones2", runSpeed: 5.5f, crawlSpeed: 2f, jumpVelocity: 17f,
             halfWidth: 0.3f, standHeight: 1.35f, crouchHeight: 0.8f, maxHp: 5, primary: WaterJet, special: RocketJump, startSpecials: 3,
-            super: SpewWeapon);
+            super: SpewWeapon, crateSpecials: 3); // the rocket jump is a strong special: a bomb crate gives about 3
     }
 }
