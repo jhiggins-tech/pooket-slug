@@ -77,7 +77,7 @@ The cost:
   - Any finger but the stick's presses buttons, so a thumb that lands near the middle can slide onto one. A finger counts from the frame it's first seen, even if its touch-down was missed.
   - **II** pauses a solo game. In co-op it reads **EXIT**, and two presses leave, like Esc.
   - It shows while playing once the screen has been touched, and hides when a key or gamepad button is pressed. A phone starts with touch hints (`Application.isMobilePlatform`).
-  - The menus are uGUI buttons, so taps work them directly. A finger that's still down when the pad appears (from the PLAY button, say) does nothing until it lifts.
+  - The menus are uGUI buttons, so taps work them directly. A finger that's still down when the pad appears (from the START button, say) does nothing until it lifts.
   - It reads touches itself rather than using the Input System's on-screen controls. Those need uGUI's event system, and they give neither a stick that follows the thumb nor sliding between buttons.
   - It's drawn by the uGUI HUD (`HudView`).
 - **The page gives the canvas every touch:** `touch-action: none`, with no text selection or long-press menu. On a phone held sideways, the header and footer hide and the game fits the screen; held upright, the page asks to turn it.

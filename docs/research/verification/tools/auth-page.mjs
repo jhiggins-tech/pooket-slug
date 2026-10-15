@@ -53,7 +53,7 @@ function tokenFor(uid, life) {
 
 const template = fs.readFileSync(path.join(repo, 'Assets/WebGLTemplates/PooketSlug/pooket-auth.js'), 'utf8');
 const page = config => `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body>
-<header><div id="account" hidden></div></header><canvas id="unity-canvas" tabindex="-1"></canvas>
+<div id="stage"><div id="account" hidden></div><canvas id="unity-canvas" tabindex="-1"></canvas></div>
 <script>window.POOKET_CONFIG = ${JSON.stringify(config)};</script>
 <script src="pooket-auth.js"></script>
 <script>
@@ -158,6 +158,10 @@ try {
   check('the record holds the local progress', best(rec)?.best === 500 && best(rec)?.clears === 1 && rec.coop === true, JSON.stringify(best(rec)));
   check('the record has the required fields and the first name', rec?.xp === 0 && rec?.tokens === 0 && rec?.rank === 0 && rec?.name === 'Ann' && rec?.first === rec?.ts && rec?.version === 1);
   check('the page shows who is signed in', (await a.locator('#account').innerText()).includes('Signed in as Ann'));
+  await a.evaluate(() => PooketAuth.show(false));
+  check('the game can hide the sign-in while playing', await a.locator('#account').isHidden());
+  await a.evaluate(() => PooketAuth.show(true));
+  check('and show it again on the title screen', await a.locator('#account').isVisible());
   check('the game hears it is signed in, before the cloud profile', (await a.evaluate(() => messages.findIndex(m => m[1] === 'OnAccount' && m[2].signedIn) < messages.findIndex(m => m[1] === 'OnCloudProfile'))));
   check('the ID token was refreshed before it lapsed', refreshes > 0, `${refreshes} refresh(es)`);
 

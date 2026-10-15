@@ -17,7 +17,7 @@ namespace PooketSlug
         }
     }
 
-    public enum GameState { Title, Online, CodeEntry, Lobby, Playing, GameOver, Victory }
+    public enum GameState { Title, Settings, Online, CodeEntry, Lobby, Playing, GameOver, Victory }
 
     /// <summary>
     /// Owns the camera, the current <see cref="World"/>, the online session and the player's profile, and runs
@@ -49,6 +49,8 @@ namespace PooketSlug
         MenuView m_Menu;
         IProfileStore m_Store; // this browser, and the cloud while signed in
         CloudAccount m_Account;
+        bool m_AccountShown = true; // the page shows the sign-in button until the game says otherwise
+        Options m_Options;
         Profile m_Profile;
         bool m_CoopJustOpened; // this run's win opened co-op
         MissionDef m_Mission = Missions.One; // the mission a solo game plays; a shared game plays the host's
@@ -65,6 +67,8 @@ namespace PooketSlug
             Spike.Configure(url); // ?spike=hits for this visit (before the art and sounds, which make what spikes need)
             Art.Init();
             Sfx.Init(gameObject);
+            m_Options = OptionsStore.Load();
+            ApplyOptions();
 
             var camGo = new GameObject("Main Camera") { tag = "MainCamera" };
             camGo.transform.SetParent(transform, false);
@@ -205,7 +209,22 @@ namespace PooketSlug
             if (!m_Account.Available) return null;
             if (m_Account.SignedIn)
                 return string.IsNullOrEmpty(m_Account.Name) ? "SIGNED IN · PROGRESS SAVES ONLINE" : "SIGNED IN AS " + m_Account.Name.ToUpperInvariant() + " · PROGRESS SAVES ONLINE";
-            return GameInput.TouchActive ? "HOLD YOUR PHONE UPRIGHT TO SIGN IN AND SAVE ONLINE" : "SIGN IN ABOVE THE GAME TO SAVE YOUR PROGRESS ONLINE";
+            return "SIGN IN AT THE TOP RIGHT TO SAVE YOUR PROGRESS ONLINE";
+        }
+
+        // ------------------------------------------------------------------ settings
+
+        void ApplyOptions()
+        {
+            Sfx.Muted = !m_Options.Sound;
+            ScrollCamera.Shaking = m_Options.Shake;
+        }
+
+        void ChangeOptions(Options options)
+        {
+            m_Options = options;
+            ApplyOptions();
+            OptionsStore.Save(options);
         }
 
         // ------------------------------------------------------------------ online co-op
@@ -298,7 +317,12 @@ namespace PooketSlug
                 m_FpsTimer = 0f;
             }
 
-            if (keys.Mute && m_State != GameState.CodeEntry) Sfx.Muted = !Sfx.Muted;
+            if ((keys.Mute && m_State != GameState.CodeEntry) || (click == MenuAction.Sound && m_State == GameState.Settings))
+            {
+                Options o = m_Options;
+                o.Sound = !o.Sound;
+                ChangeOptions(o);
+            }
 
             switch (m_State)
             {
@@ -311,7 +335,18 @@ namespace PooketSlug
                         if (keys.Quick) { GoOnline(m_Net.QuickMatch); break; }
                         if (keys.Join) { OpenCodeEntry(""); break; }
                     }
-                    if (click == MenuAction.Play || keys.Start || soldier.FirePressed || soldier.JumpPressed) StartSolo();
+                    if (click == MenuAction.Settings || keys.Settings) SetState(GameState.Settings);
+                    else if (click == MenuAction.Play || keys.Start || soldier.FirePressed || soldier.JumpPressed) StartSolo();
+                    break;
+
+                case GameState.Settings:
+                    if (click == MenuAction.Shake || keys.Shake)
+                    {
+                        Options o = m_Options;
+                        o.Shake = !o.Shake;
+                        ChangeOptions(o);
+                    }
+                    else if (click == MenuAction.Back || keys.Back || keys.Settings) SetState(GameState.Title);
                     break;
 
                 case GameState.Online:
@@ -441,7 +476,16 @@ namespace PooketSlug
                 Score = m_World.Scoring.Points,
                 Seconds = Mathf.FloorToInt(m_World.Elapsed),
                 Account = AccountLine(),
+                Options = m_Options,
             });
+
+            // The sign-in button sits over the game, on the title screen and settings only.
+            bool account = m_State == GameState.Title || m_State == GameState.Settings;
+            if (account != m_AccountShown)
+            {
+                m_AccountShown = account;
+                m_Account.Show(account);
+            }
         }
 
         MenuScreen MenuScreenNow()
@@ -449,6 +493,7 @@ namespace PooketSlug
             switch (m_State)
             {
                 case GameState.Title: return MenuScreen.Title;
+                case GameState.Settings: return MenuScreen.Settings;
                 case GameState.Online: return MenuScreen.Online;
                 case GameState.CodeEntry: return MenuScreen.Join;
                 case GameState.Lobby: return MenuScreen.Connecting;

@@ -44,6 +44,8 @@ namespace PooketSlug
             menu.Join |= kb.jKey.wasPressedThisFrame;
             menu.Quick |= kb.qKey.wasPressedThisFrame;
             menu.Back |= kb.escapeKey.wasPressedThisFrame;
+            menu.Settings |= kb.oKey.wasPressedThisFrame;
+            menu.Shake |= kb.kKey.wasPressedThisFrame;
             return kb.anyKey.wasPressedThisFrame;
 #else
             soldier.Left |= Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A);
@@ -68,6 +70,8 @@ namespace PooketSlug
             menu.Join |= Input.GetKeyDown(KeyCode.J);
             menu.Quick |= Input.GetKeyDown(KeyCode.Q);
             menu.Back |= Input.GetKeyDown(KeyCode.Escape);
+            menu.Settings |= Input.GetKeyDown(KeyCode.O);
+            menu.Shake |= Input.GetKeyDown(KeyCode.K);
             // a touch also counts as the mouse here, and isn't the keyboard
             return Input.anyKeyDown && !Input.GetMouseButtonDown(0) && !Input.GetMouseButtonDown(1) && !Input.GetMouseButtonDown(2);
 #endif
@@ -100,6 +104,7 @@ namespace PooketSlug
             soldier.AbilityPressed |= pad.leftShoulder.wasPressedThisFrame;
             menu.Start |= pad.startButton.wasPressedThisFrame;
             menu.Restart |= pad.selectButton.wasPressedThisFrame;
+            menu.Settings |= pad.selectButton.wasPressedThisFrame; // the title screen's SETTINGS, and back
             return pad.buttonSouth.wasPressedThisFrame || pad.buttonWest.wasPressedThisFrame || pad.buttonEast.wasPressedThisFrame
                 || pad.buttonNorth.wasPressedThisFrame || pad.rightTrigger.wasPressedThisFrame || pad.rightShoulder.wasPressedThisFrame
                 || pad.leftShoulder.wasPressedThisFrame

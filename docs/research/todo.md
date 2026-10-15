@@ -98,6 +98,12 @@ C2, the refactor, is done. C1's code is written and checked locally; it goes liv
   - [x] The `chip` spike key is gone from `Core/Spike.cs`; `?spike=chip` now does nothing.
   - [x] Verify locally: each input backend, 257 of 257 EditMode tests.
   - [ ] Verify in CI.
+- [ ] **C8. Title screen: Start, settings, sign-in** ([the order things open up](../design/levels.md#the-order-things-open-up)), queued from the Roadmap 2026-10-15.
+  - [x] The title offers START (Mission one), SETTINGS (O, or a gamepad's select) and, once Mission one is beaten, CO-OP. One line of essential keys stays on the title; the full controls moved to settings.
+  - [x] Settings: SOUND on/off (M anywhere) and SCREEN SHAKE on/off (K), kept in this browser (`Options`, `OptionsStore`).
+  - [x] Sign-in moved from above the game to a small button over its top right, shown on the title and settings only (`PooketAuth.show`, `PS_ShowAccount`). It works on a sideways phone now, where the page's header is hidden.
+  - [x] Verify locally: each input backend, 263 of 263 EditMode tests, and the sign-in page test (24 of 24).
+  - [ ] Verify in CI.
 
 ## Done recently
 

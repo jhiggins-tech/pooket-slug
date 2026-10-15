@@ -14,4 +14,9 @@ mergeInto(LibraryManager.library, {
   PS_SignOut: function () {
     if (window.PooketAuth) window.PooketAuth.signOut();
   },
+
+  // The sign-in button over the game: shown on the title screen and settings, hidden while playing.
+  PS_ShowAccount: function (show) {
+    if (window.PooketAuth) window.PooketAuth.show(!!show);
+  },
 });

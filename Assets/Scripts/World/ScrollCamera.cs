@@ -33,7 +33,13 @@ namespace PooketSlug
         public float Right => m_X + GameHalfWidth;
         public Rect Rect => new Rect(m_X - Mathf.Max(HalfWidth, GameHalfWidth), 0f, 2f * Mathf.Max(HalfWidth, GameHalfWidth), Tuning.Camera.ViewHeight);
 
-        public void Shake(float amount) => m_Shake = Mathf.Max(m_Shake, amount);
+        /// <summary>Screen shake is on (the SCREEN SHAKE setting).</summary>
+        public static bool Shaking = true;
+
+        public void Shake(float amount)
+        {
+            if (Shaking) m_Shake = Mathf.Max(m_Shake, amount);
+        }
 
         /// <summary>Moves straight to <paramref name="x"/>, for a test that starts partway through a level.</summary>
         public void JumpTo(float x) => m_X = Mathf.Max(m_X, x);

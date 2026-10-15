@@ -35,10 +35,12 @@ namespace PooketSlug
         [DllImport("__Internal")] static extern void PS_AuthInit();
         [DllImport("__Internal")] static extern void PS_Save(string json);
         [DllImport("__Internal")] static extern void PS_SignOut();
+        [DllImport("__Internal")] static extern void PS_ShowAccount(int show);
 #else
         static void PS_AuthInit() { }
         static void PS_Save(string json) { }
         static void PS_SignOut() { }
+        static void PS_ShowAccount(int show) { }
 #endif
 
         /// <summary>Makes the receiver the page sends to.</summary>
@@ -58,6 +60,9 @@ namespace PooketSlug
         }
 
         public void SignOut() => PS_SignOut();
+
+        /// <summary>Shows or hides the page's sign-in button, which sits over the top right of the game.</summary>
+        public void Show(bool show) => PS_ShowAccount(show ? 1 : 0);
 
         // ------------------------------------------------------------------ from the page (SendMessage)
 

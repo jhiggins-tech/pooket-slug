@@ -5,6 +5,7 @@ namespace PooketSlug
     {
         public bool Start, Restart, Pause, Mute;
         public bool Host, Join, Quick, Back; // online co-op menu
+        public bool Settings, Shake; // the settings screen
         /// <summary>The touch pad's pause button. The game decides what it means (pause, or leave a shared game).</summary>
         public bool PadPause;
 
@@ -18,6 +19,8 @@ namespace PooketSlug
             Join |= other.Join;
             Quick |= other.Quick;
             Back |= other.Back;
+            Settings |= other.Settings;
+            Shake |= other.Shake;
             PadPause |= other.PadPause;
         }
     }

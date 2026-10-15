@@ -5,10 +5,10 @@ using UnityEngine.UI;
 namespace PooketSlug
 {
     /// <summary>Which menu is on screen.</summary>
-    public enum MenuScreen { None, Title, Online, Join, Connecting, Paused, GameOver, Victory }
+    public enum MenuScreen { None, Title, Settings, Online, Join, Connecting, Paused, GameOver, Victory }
 
     /// <summary>What a menu button (or its key) asks the game to do.</summary>
-    public enum MenuAction { None, Play, Online, Host, Join, Quick, Submit, Back, Resume, Restart, Menu }
+    public enum MenuAction { None, Play, Settings, Sound, Shake, Online, Host, Join, Quick, Submit, Back, Resume, Restart, Menu }
 
     /// <summary>What the menus show, gathered by <see cref="Game"/> each frame.</summary>
     public struct MenuInfo
@@ -33,10 +33,12 @@ namespace PooketSlug
         public int Score, Seconds;
         /// <summary>The title screen's line about sign-in; null hides it.</summary>
         public string Account;
+        /// <summary>The settings, as the settings screen shows them.</summary>
+        public Options Options;
     }
 
     /// <summary>
-    /// The menus in uGUI: title, online co-op, join, connecting, pause, game over and victory. Buttons work by
+    /// The menus in uGUI: title, settings, online co-op, join, connecting, pause, game over and victory. Buttons work by
     /// click and tap; each also has a key, which <see cref="Game"/> reads, shown under it on a keyboard. Only
     /// what the player has met is shown: co-op appears once Mission one is beaten solo.
     /// </summary>
@@ -44,14 +46,14 @@ namespace PooketSlug
     {
         static readonly Color Orange = new Color(1f, 0.62f, 0.2f), Keys = new Color(1f, 0.95f, 0.8f);
         static readonly Color CoopBlue = new Color(0.6f, 0.9f, 1f), Gold = new Color(1f, 0.85f, 0.3f);
-        static readonly Vector2 Wide = new Vector2(150f, 26f), Narrow = new Vector2(110f, 26f);
+        static readonly Vector2 Wide = new Vector2(150f, 26f), Narrow = new Vector2(110f, 26f), Setting = new Vector2(190f, 26f);
 
         readonly RectTransform m_Root;
         readonly Image m_Dim;
-        readonly RectTransform m_Title, m_Online, m_Join, m_Connecting, m_Paused, m_GameOver, m_Victory;
-        readonly Text m_Controls1, m_Controls2, m_Controls3, m_OnlineOff, m_Account, m_Notice, m_NewBadge, m_Status, m_Score, m_Result, m_Opened;
+        readonly RectTransform m_Title, m_Settings, m_Online, m_Join, m_Connecting, m_Paused, m_GameOver, m_Victory;
+        readonly Text m_Hint, m_Controls1, m_Controls2, m_Controls3, m_OnlineOff, m_SoundLabel, m_ShakeLabel, m_Account, m_Notice, m_NewBadge, m_Status, m_Score, m_Result, m_Opened;
         readonly Button m_Play, m_Coop, m_Retry, m_GameOverMenu, m_Again, m_SecondVictory;
-        readonly Text m_PlayKey, m_CoopKey, m_HostKey, m_JoinKey, m_QuickKey, m_OnlineBackKey, m_SubmitKey, m_JoinBackKey, m_CancelKey;
+        readonly Text m_PlayKey, m_SettingsKey, m_SoundKey, m_ShakeKey, m_SettingsBackKey, m_CoopKey, m_HostKey, m_JoinKey, m_QuickKey, m_OnlineBackKey, m_SubmitKey, m_JoinBackKey, m_CancelKey;
         readonly Text m_ResumeKey, m_RestartKey, m_MenuKey, m_RetryKey, m_GameOverMenuKey, m_AgainKey, m_SecondKey, m_SecondLabel;
         readonly InputField m_Code;
         MenuScreen m_Shown;
@@ -79,17 +81,27 @@ namespace PooketSlug
             m_Title = Ui.Fill(m_Root, "Title");
             Line(m_Title, 110f, 44, Orange).text = "POOKET SLUG";
             Line(m_Title, 74f, 12, Color.white).text = "built by GameCI · hosted on GitHub Pages";
-            m_Controls1 = Line(m_Title, 30f, 10, Keys);
-            m_Controls2 = Line(m_Title, 14f, 10, Keys);
-            m_Controls3 = Line(m_Title, -2f, 10, Keys);
-            m_Play = Ui.Button(m_Title, "PLAY", new Vector2(0f, -46f), Wide, () => Click(MenuAction.Play), out m_PlayKey);
-            m_Coop = Ui.Button(m_Title, "CO-OP", new Vector2(85f, -46f), Narrow, () => Click(MenuAction.Online), out m_CoopKey);
+            m_Hint = Line(m_Title, 34f, 10, Keys);
+            m_Play = Ui.Button(m_Title, "START", new Vector2(0f, -4f), Wide, () => Click(MenuAction.Play), out m_PlayKey);
+            m_Coop = Ui.Button(m_Title, "CO-OP", new Vector2(85f, -4f), Narrow, () => Click(MenuAction.Online), out m_CoopKey);
+            Ui.Button(m_Title, "SETTINGS", new Vector2(0f, -48f), Narrow, () => Click(MenuAction.Settings), out m_SettingsKey);
             m_NewBadge = Ui.Label(m_Coop.GetComponent<RectTransform>(), "New", Ui.TopRight, new Vector2(6f, 7f), 9, TextAnchor.MiddleCenter, Gold);
             m_NewBadge.text = "NEW!";
-            m_OnlineOff = Line(m_Title, -84f, 9, new Color(1f, 1f, 1f, 0.6f));
+            m_OnlineOff = Line(m_Title, -90f, 9, new Color(1f, 1f, 1f, 0.6f));
             m_OnlineOff.text = "ONLINE CO-OP IS OFF IN THIS BUILD (NO PHOTON APP ID)";
             m_Account = Line(m_Title, -125f, 9, new Color(1f, 1f, 1f, 0.75f));
             m_Notice = Line(m_Root, -100f, 12, new Color(1f, 0.5f, 0.4f));
+
+            // settings
+            m_Settings = Ui.Fill(m_Root, "Settings");
+            Line(m_Settings, 110f, 22, Orange).text = "SETTINGS";
+            m_SoundLabel = Label(Ui.Button(m_Settings, "SOUND", new Vector2(0f, 72f), Setting, () => Click(MenuAction.Sound), out m_SoundKey));
+            m_ShakeLabel = Label(Ui.Button(m_Settings, "SCREEN SHAKE", new Vector2(0f, 34f), Setting, () => Click(MenuAction.Shake), out m_ShakeKey));
+            Line(m_Settings, 2f, 12, Orange).text = "CONTROLS";
+            m_Controls1 = Line(m_Settings, -16f, 10, Keys);
+            m_Controls2 = Line(m_Settings, -32f, 10, Keys);
+            m_Controls3 = Line(m_Settings, -48f, 10, Keys);
+            Ui.Button(m_Settings, "BACK", new Vector2(0f, -90f), Narrow, () => Click(MenuAction.Back), out m_SettingsBackKey);
 
             // online co-op
             m_Online = Ui.Fill(m_Root, "Online");
@@ -136,7 +148,7 @@ namespace PooketSlug
             m_Opened.text = "CO-OP IS OPEN: PLAY ONLINE WITH A FRIEND FROM THE MENU";
             m_Again = Ui.Button(m_Victory, "PLAY AGAIN", new Vector2(-70f, -40f), Wide, () => Click(MenuAction.Restart), out m_AgainKey);
             m_SecondVictory = Ui.Button(m_Victory, "MENU", new Vector2(70f, -40f), Wide, () => Click(m_SecondIsLeave ? MenuAction.Back : MenuAction.Menu), out m_SecondKey);
-            m_SecondLabel = m_SecondVictory.transform.Find("Label").GetComponent<Text>();
+            m_SecondLabel = Label(m_SecondVictory);
 
             Show(MenuScreen.None);
         }
@@ -164,6 +176,23 @@ namespace PooketSlug
             {
                 case MenuScreen.Title:
                     Dim(new Color(0f, 0f, 0f, 0.35f));
+                    m_Hint.text = info.Touch ? "LEFT THUMB RUNS · RIGHT THUMB FIRES AND JUMPS · MORE IN SETTINGS"
+                        : "MOVE  Arrows      JUMP  Z      FIRE  X      MORE IN SETTINGS";
+                    bool coop = info.Online && info.CoopOpen;
+                    Ui.Show(m_Coop, coop);
+                    m_Play.GetComponent<RectTransform>().anchoredPosition = new Vector2(coop ? -85f : 0f, -4f);
+                    Ui.Show(m_NewBadge, info.CoopNew && (int)(Time.unscaledTime * 2.5f) % 2 == 0);
+                    Key(m_PlayKey, keys, "ENTER");
+                    Key(m_CoopKey, keys, "H HOST · J JOIN · Q QUICK");
+                    Key(m_SettingsKey, keys, "O");
+                    Ui.Show(m_OnlineOff, info.OnlineOff && info.CoopOpen);
+                    Ui.Show(m_Account, info.Account != null);
+                    if (info.Account != null && m_Account.text != info.Account) m_Account.text = info.Account;
+                    break;
+                case MenuScreen.Settings:
+                    Dim(new Color(0f, 0f, 0f, 0.6f));
+                    m_SoundLabel.text = Options.Label("SOUND", info.Options.Sound);
+                    m_ShakeLabel.text = Options.Label("SCREEN SHAKE", info.Options.Shake);
                     if (info.Touch)
                     {
                         m_Controls1.text = "LEFT THUMB  RUN, AIM UP, CROUCH (AIM DOWN IN THE AIR)";
@@ -176,15 +205,9 @@ namespace PooketSlug
                         m_Controls2.text = "GRENADE  C / L      SUPER  V / U      AIM  Up / Down (in air), + run for 45°      DROP  Down + Jump";
                         m_Controls3.text = "PAUSE  P / Enter      RESTART  R      MUTE  M      Gamepad supported";
                     }
-                    bool coop = info.Online && info.CoopOpen;
-                    Ui.Show(m_Coop, coop);
-                    m_Play.GetComponent<RectTransform>().anchoredPosition = new Vector2(coop ? -85f : 0f, -46f);
-                    Ui.Show(m_NewBadge, info.CoopNew && (int)(Time.unscaledTime * 2.5f) % 2 == 0);
-                    Key(m_PlayKey, keys, "ENTER");
-                    Key(m_CoopKey, keys, "H HOST · J JOIN · Q QUICK");
-                    Ui.Show(m_OnlineOff, info.OnlineOff && info.CoopOpen);
-                    Ui.Show(m_Account, info.Account != null);
-                    if (info.Account != null && m_Account.text != info.Account) m_Account.text = info.Account;
+                    Key(m_SoundKey, keys, "M");
+                    Key(m_ShakeKey, keys, "K");
+                    Key(m_SettingsBackKey, keys, "ESC");
                     break;
                 case MenuScreen.Online:
                     Dim(new Color(0f, 0f, 0f, 0.6f));
@@ -242,6 +265,7 @@ namespace PooketSlug
             m_Shown = screen;
             Ui.Show(m_Dim, screen != MenuScreen.None);
             Ui.Show(m_Title, screen == MenuScreen.Title);
+            Ui.Show(m_Settings, screen == MenuScreen.Settings);
             Ui.Show(m_Online, screen == MenuScreen.Online);
             Ui.Show(m_Join, screen == MenuScreen.Join);
             Ui.Show(m_Connecting, screen == MenuScreen.Connecting);
@@ -256,6 +280,8 @@ namespace PooketSlug
         void Click(MenuAction action) => m_Clicked = action;
 
         void Dim(Color color) => m_Dim.color = color;
+
+        static Text Label(Button button) => button.transform.Find("Label").GetComponent<Text>();
 
         static void Key(Text hint, bool show, string key)
         {

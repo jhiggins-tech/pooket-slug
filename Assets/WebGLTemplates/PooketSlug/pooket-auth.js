@@ -6,6 +6,9 @@
  *   ──► the Realtime Database (REST): pooketSlug/players/<uid>, under the rules in Cardmaster's repository
  *   ──► the game, through PooketAuth.jslib and SendMessage
  *
+ * The account area (#account) sits over the top right of the game; the game shows it on its title screen and
+ * settings only (PooketAuth.show).
+ *
  * The settings come from pooket-config.js, which the build writes from the repository variables. Without
  * them the account area stays empty and the game keeps its progress in this browser only.
  *
@@ -354,7 +357,7 @@
       area.append(slot);
       loadGoogle().then(function (id) {
         if (session || !slot.isConnected) return;
-        id.renderButton(slot, { type: "standard", theme: "filled_black", size: "medium", text: "signin_with", shape: "pill" });
+        id.renderButton(slot, { type: "standard", theme: "filled_black", size: "small", text: "signin", shape: "pill" });
       }).catch(function (e) {
         setStatus(e.message);
       });
@@ -500,6 +503,10 @@
       if (enabled) save(profileJson);
     },
     signOut: signOut,
+    /** The game shows its sign-in button on the title screen and settings, and hides it while playing. */
+    show: function (on) {
+      if (area) area.style.visibility = on ? "" : "hidden"; // kept in place, so Google's button needn't be drawn again
+    },
     // For tests:
     _state: function () { return { enabled: enabled, uid: session && session.uid, rev: cloud.rev, queued: queue.length }; },
     _toProfile: toProfile,
