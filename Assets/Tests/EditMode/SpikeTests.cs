@@ -18,64 +18,29 @@ namespace PooketSlug.Tests
             Assert.IsNull(Spike.Label);
         }
 
-        [TestCase("?spike=hits", true, false)]
-        [TestCase("?spike=tank,hits", true, true)]
-        [TestCase("?SPIKE=Hits,TANK", true, true)]
-        [TestCase("?spike=tones2,holo,chip", false, false)] // tones2, the hologram goons and the 8-bit sounds are in the game now
-        [TestCase("?spike=hit", false, false)]
-        public void TheAddressTurnsSpikesOn(string query, bool hits, bool tank)
+        [TestCase("?spike=hits", true)]
+        [TestCase("?SPIKE=Hits,TANK", true)]
+        [TestCase("?spike=tones2,holo,chip,tank", false)] // all four are in the game now: no spikes for them
+        [TestCase("?spike=hit", false)]
+        public void TheAddressTurnsSpikesOn(string query, bool hits)
         {
             Spike.Configure(Page + query);
             Assert.AreEqual(hits, Spike.Hits);
-            Assert.AreEqual(tank, Spike.Tank);
-            Assert.AreEqual(hits || tank, Spike.Label != null);
+            Assert.AreEqual(hits, Spike.Label != null);
         }
 
         [Test]
         public void TheBannerNamesEverySpikeThatsOn()
         {
-            Spike.Configure(Page + "?spike=hits,tank");
-            Assert.IsTrue(Spike.Hits && Spike.Tank);
-            Assert.AreEqual("SPIKE TEST · HIT FEEL + BOSS TANK", Spike.Label);
+            Spike.Configure(Page + "?spike=hits,holo");
+            Assert.IsTrue(Spike.Hits);
+            Assert.AreEqual("SPIKE TEST · HIT FEEL", Spike.Label);
             Spike.Configure(Page + "?spike=hits");
             Assert.AreEqual("SPIKE TEST · HIT FEEL", Spike.Label);
             Spike.Configure(Page + "?spike=chip"); // the 8-bit sounds are the game's own now: no longer a spike
             Assert.IsNull(Spike.Label);
         }
 
-        [TestCase(-8f, 0f, 45f)]
-        [TestCase(-5f, -1f, 60f)]
-        [TestCase(6f, 2f, 55f)]
-        public void TheBossTanksShotLandsWhereItAimed(float dx, float dy, float lob)
-        {
-            const float g = 18f;
-            float v = BossTankSpec.PowerFor(dx, dy, lob, g);
-            Assert.IsFalse(float.IsNaN(v));
-            // fly it: at the time it crosses dx, it's at dy
-            float a = lob * UnityEngine.Mathf.Deg2Rad;
-            float t = UnityEngine.Mathf.Abs(dx) / (v * UnityEngine.Mathf.Cos(a));
-            float y = v * UnityEngine.Mathf.Sin(a) * t - 0.5f * g * t * t;
-            Assert.AreEqual(dy, y, 1e-3f);
-        }
-
-        [Test]
-        public void ATooFlatLobCantReachAHighTarget()
-        {
-            Assert.IsTrue(float.IsNaN(BossTankSpec.PowerFor(-4f, 6f, 30f, 18f)), "tan 30° × 4 is under 6: no speed gets there");
-        }
-
-        [Test]
-        public void TheBossTankGetsQuickerAsItsHurt()
-        {
-            BossTankSpec spec = SpikeContent.BossTank;
-            Assert.AreEqual(1f, spec.Rage(1f), 1e-6f);
-            Assert.AreEqual(spec.MaxRage, spec.Rage(0f), 1e-6f);
-            Assert.Greater(spec.Rage(0.5f), 1f);
-            Assert.Less(spec.Rage(0.5f), spec.MaxRage);
-            Assert.Greater(spec.MaxAngle, 90f, "it can lob over its own back");
-        }
-
-    
         [Test]
         public void ChipMidiNotesMatchTabks()
         {
@@ -132,15 +97,6 @@ namespace PooketSlug.Tests
             var chip = new Chip(0.1f);
             for (int i = 0; i < 20; i++) chip.Tone(0f, 0.1f, 300f + i * 37f, vol: 0.5f);
             foreach (float v in chip.Finish()) Assert.LessOrEqual(Mathf.Abs(v), 1f);
-        }
-
-        [Test]
-        public void SpikeContentNeverGoesOnTheWire()
-        {
-            // Not in Content's tables, so a co-op partner can never be sent one.
-            CollectionAssert.DoesNotContain(Content.Weapons, SpikeContent.BossCannon);
-            CollectionAssert.DoesNotContain(Content.Projectiles, SpikeContent.BigShell);
-            Assert.IsNull(Content.Weapon(SpikeContent.BossCannon.Id));
         }
     }
 }

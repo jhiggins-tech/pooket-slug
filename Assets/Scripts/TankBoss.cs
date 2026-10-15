@@ -3,14 +3,18 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// Spike: the boss tank as artillery, its own entity apart from the tank you drive (<c>docs/design/tanks.md</c>,
+    /// Mission one's boss: a tank that fights as artillery, its own entity apart from the tank you drive (<c>docs/design/tanks.md</c>,
     /// Two kinds of tank). It fights like a Pocket Tanks tank: it drives a short way along its arena, stops, swings
     /// its turret round to the angle it wants, then charges the shot while a meter fills over it and a marker
     /// shows where the shell will land, and lobs it. Every third shot is a spread of three. The turret can swing
     /// right over its back, so getting behind it doesn't make you safe. It gets quicker as it's hurt
-    /// (<see cref="BossTankSpec"/>). Solo only, like every spike: co-op still gets the old tank.
+    /// (<see cref="BossTankSpec"/>, <see cref="Content.BossTank"/>).
+    ///
+    /// In co-op the authority runs it. Its shells go out as enemy shots, and its turret, charge and shots go in its
+    /// network object (<see cref="NetBossState"/>), so a follower's tank swings, charges, shows the marker and kicks
+    /// along with it.
     /// </summary>
-    public sealed class ArtilleryTank : BossEnemy
+    public sealed class TankBoss : BossEnemy
     {
         enum State { Drive, Aim, Charge, Recoil }
 
@@ -21,28 +25,28 @@ namespace PooketSlug
         readonly Transform m_BarrelPivot;
         readonly float m_HomeX;
         State m_State = State.Recoil;
-        float m_StateTime, m_Timer = 1.2f, m_DriveTo, m_Angle = 150f, m_WantAngle = 150f, m_Power, m_Kick, m_ServoTimer, m_ExplodeTimer;
-        int m_Shots;
+        float m_StateTime, m_Timer = 1.2f, m_DriveTo, m_Angle = 150f, m_WantAngle = 150f, m_Power, m_Charge, m_Kick, m_ServoTimer, m_ExplodeTimer;
+        int m_Shots, m_SeenShots = -1;
         Vector2 m_Landing;
-        bool m_LandingSeen;
+        bool m_LandingSeen, m_SeenFire;
 
-        public ArtilleryTank(World world, EnemyDef def, Vector2 feet) : base(world, def, feet)
+        public TankBoss(World world, EnemyDef def, Vector2 feet) : base(world, def, feet)
         {
-            m_Spec = SpikeContent.BossTank;
+            m_Spec = Content.BossTank;
             m_HomeX = feet.x;
             Facing = -1; // the art faces left already; keep Visual unflipped
-            m_Hull = AddRenderer(Visual, "Hull", SpikeArt.TankHull, SortOrder.Boss);
+            m_Hull = AddRenderer(Visual, "Hull", Art.TankHull, SortOrder.Boss);
             var pivot = new GameObject("Turret");
             m_BarrelPivot = pivot.transform;
             m_BarrelPivot.SetParent(Visual, false);
-            m_BarrelPivot.localPosition = SpikeArt.BarrelPivot;
-            m_Barrel = AddRenderer(m_BarrelPivot, "Barrel", SpikeArt.TankBarrel, SortOrder.Boss - 1);
+            m_BarrelPivot.localPosition = Art.TankBarrelPivot;
+            m_Barrel = AddRenderer(m_BarrelPivot, "Barrel", Art.TankBarrel, SortOrder.Boss - 1);
             m_MeterBack = Bar("Meter", SortOrder.Effects, MeterBack);
             m_MeterFill = Bar("Power", SortOrder.Effects + 1, MeterFill);
             var marker = new GameObject("Landing marker");
             marker.transform.SetParent(Go.transform, false); // goes with the tank; placed in the world each frame
             m_Marker = marker.AddComponent<SpriteRenderer>();
-            m_Marker.sprite = SpikeArt.LandingMarker;
+            m_Marker.sprite = Art.LandingMarker;
             m_Marker.sortingOrder = SortOrder.Effects;
             m_Marker.enabled = false;
         }
@@ -63,7 +67,7 @@ namespace PooketSlug
             get
             {
                 float a = m_Angle * Mathf.Deg2Rad;
-                return Pos + SpikeArt.BarrelPivot + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * (20f / Art.PPU);
+                return Pos + Art.TankBarrelPivot + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * (20f / Art.PPU);
             }
         }
 
@@ -84,6 +88,7 @@ namespace PooketSlug
             float rage = Rage;
             m_StateTime += dt;
             m_Kick = Mathf.MoveTowards(m_Kick, 0f, dt * 6f);
+            m_Charge = 0f;
             Vel.x = 0f;
             switch (m_State)
             {
@@ -92,16 +97,11 @@ namespace PooketSlug
                     if (Mathf.Abs(m_DriveTo - Pos.x) < 0.1f || m_StateTime >= m_Spec.DriveTime) Aim();
                     break;
                 case State.Aim:
-                    m_Angle = Mathf.MoveTowards(m_Angle, m_WantAngle, m_Spec.TurnRate * rage * dt);
-                    m_ServoTimer -= dt;
-                    if (m_ServoTimer <= 0f)
-                    {
-                        m_ServoTimer = 0.11f;
-                        Sfx.Play(Sfx.Servo, 0.25f);
-                    }
+                    Swing(dt);
                     if (Mathf.Approximately(m_Angle, m_WantAngle)) StartCharge();
                     break;
                 case State.Charge:
+                    m_Charge = Mathf.Clamp01(m_StateTime * rage / m_Spec.ChargeTime);
                     if (m_StateTime >= m_Spec.ChargeTime / rage) Fire();
                     break;
                 case State.Recoil:
@@ -115,6 +115,19 @@ namespace PooketSlug
             World.Combat.DamageAvatarsTouching(Bounds, 1);
         }
 
+        /// <summary>Turns the turret toward the angle it wants, whirring.</summary>
+        void Swing(float dt)
+        {
+            if (Mathf.Approximately(m_Angle, m_WantAngle)) return;
+            m_Angle = Mathf.MoveTowards(m_Angle, m_WantAngle, m_Spec.TurnRate * Rage * dt);
+            m_ServoTimer -= dt;
+            if (m_ServoTimer <= 0f)
+            {
+                m_ServoTimer = 0.11f;
+                Sfx.Play(Sfx.Servo, 0.25f);
+            }
+        }
+
         void Drive()
         {
             float half = m_Spec.PatrolHalfWidth;
@@ -125,9 +138,9 @@ namespace PooketSlug
         /// <summary>Picks the shot: a lob that lands on the target, and the turret angle that throws it.</summary>
         void Aim()
         {
-            Vector2 from = Pos + SpikeArt.BarrelPivot, to = Target.Pos;
+            Vector2 from = Pos + Art.TankBarrelPivot, to = Target.Pos;
             float dx = to.x - from.x, dy = to.y - from.y;
-            float g = SpikeContent.BigShell.Gravity;
+            float g = Content.BigShell.Gravity;
             float lob = World.Rng.Range(m_Spec.LowLob, m_Spec.HighLob);
             float power = BossTankSpec.PowerFor(dx, dy, lob, g);
             if (float.IsNaN(power) || power > m_Spec.MaxPower) power = m_Spec.MaxPower; // out of reach: it falls short
@@ -156,7 +169,7 @@ namespace PooketSlug
         Vector2 Predict(Vector2 at, Vector2 vel)
         {
             const float step = 1f / 60f;
-            float g = SpikeContent.BigShell.Gravity;
+            float g = Content.BigShell.Gravity;
             for (int i = 0; i < 600; i++)
             {
                 vel.y -= g * step;
@@ -172,19 +185,63 @@ namespace PooketSlug
             m_Shots++;
             bool spread = m_Spec.SpreadEvery > 0 && m_Shots % m_Spec.SpreadEvery == 0;
             Vector2 muzzle = Muzzle;
-            WeaponDef cannon = SpikeContent.BossCannon;
+            WeaponDef cannon = Content.BossCannon;
             if (spread)
             {
                 for (int i = -1; i <= 1; i++)
-                    World.Combat.SpawnEnemyShot(cannon, muzzle, Velocity(m_Angle, m_Power * (1f + i * m_Spec.SpreadPower)));
+                    World.Combat.FireEnemyShot(cannon, muzzle, Velocity(m_Angle, m_Power * (1f + i * m_Spec.SpreadPower)));
             }
-            else World.Combat.SpawnEnemyShot(cannon, muzzle, Velocity(m_Angle, m_Power));
-            Sfx.Play(Sfx.Cannon, 0.9f);
-            m_Kick = 1f;
-            m_LandingSeen = false;
+            else World.Combat.FireEnemyShot(cannon, muzzle, Velocity(m_Angle, m_Power));
+            Recoil();
             m_Timer = m_Spec.RecoilTime / Rage;
             Enter(State.Recoil);
         }
+
+        /// <summary>The bang and the barrel kicking back, as it fires (here, or on the authority's screen).</summary>
+        void Recoil()
+        {
+            Sfx.Play(Sfx.Cannon, 0.9f);
+            m_Kick = 1f;
+            m_LandingSeen = false;
+        }
+
+        // ------------------------------------------------------------------ co-op
+
+        /// <summary>Authority: what its network object carries.</summary>
+        public NetBossState NetState => new NetBossState
+        {
+            Phase = (int)m_State + 1, Angle = m_Angle, Charge = m_Charge, Power = m_Power, Landing = m_Landing, Shots = m_Shots & 0xff,
+        };
+
+        /// <summary>Follower: take up the authority's turret, charge and shots. The shells come as enemy shots.</summary>
+        public void ApplyNet(in NetBossState s)
+        {
+            if (Dying || s.Phase == 0) return;
+            var phase = (State)(s.Phase - 1);
+            if (phase == State.Charge && m_State != State.Charge) Sfx.Play(Sfx.Charge, 0.5f);
+            m_State = phase;
+            m_WantAngle = s.Angle;
+            m_Charge = s.Charge;
+            m_Power = s.Power;
+            m_Landing = s.Landing;
+            m_LandingSeen = phase == State.Charge;
+            if (m_SeenShots >= 0 && s.Shots != m_SeenShots)
+            {
+                if (!m_SeenFire) Log.Net.Info("The boss tank fired on the authority's screen");
+                m_SeenFire = true;
+                Recoil();
+            }
+            m_SeenShots = s.Shots;
+        }
+
+        protected override void TickFollower(float dt)
+        {
+            m_Kick = Mathf.MoveTowards(m_Kick, 0f, dt * 6f);
+            Swing(dt * 1.5f); // a touch quicker, so it never lags far behind the authority's
+        }
+
+        protected override int ExtraFlags => Engaged ? NetEnemyState.Engaged : 0;
+        protected override void OnSnapshot(int flags) => Engaged = (flags & NetEnemyState.Engaged) != 0;
 
         protected override void Die()
         {
@@ -218,16 +275,16 @@ namespace PooketSlug
             Visual.localScale = Vector3.one;
             float rumble = !Dying && Mathf.Abs(Vel.x) > 0.05f && ((int)(Anim * 16f) % 2 == 0) ? 1f / Art.PPU : 0f;
             m_Hull.transform.localPosition = new Vector3(0f, rumble, 0f);
-            m_Hull.sprite = Flashed(SpikeArt.TankHull);
-            m_Barrel.sprite = Flashed(SpikeArt.TankBarrel);
+            m_Hull.sprite = Flashed(Art.TankHull);
+            m_Barrel.sprite = Flashed(Art.TankBarrel);
 
             // The barrel sprite points left; turn it to the angle, and kick it back along itself when it fires.
             m_BarrelPivot.localRotation = Quaternion.Euler(0f, 0f, m_Angle - 180f);
-            m_BarrelPivot.localPosition = (Vector3)SpikeArt.BarrelPivot + new Vector3(0f, rumble, 0f);
+            m_BarrelPivot.localPosition = (Vector3)Art.TankBarrelPivot + new Vector3(0f, rumble, 0f);
             m_Barrel.transform.localPosition = new Vector3(m_Kick * 4f / Art.PPU, 0f, 0f);
 
             bool charging = m_State == State.Charge && !Dying;
-            float charge = charging ? Mathf.Clamp01(m_StateTime * Rage / m_Spec.ChargeTime) : 0f;
+            float charge = charging ? m_Charge : 0f;
             // The barrel glows hotter as the shot charges.
             m_Barrel.color = charging ? Color.Lerp(Color.white, new Color(1f, 0.55f, 0.3f), charge * (0.6f + 0.4f * Mathf.Sin(Anim * 40f))) : Color.white;
 

@@ -49,7 +49,7 @@ C2, the refactor, is done. C1's code is written and checked locally; it goes liv
 - [x] **C2. Refactor pass** to prepare the build and netcode for the chosen features. *Done 2026-10-14.*
   - [x] Map the Must and Should rows to the [refactor candidates](roadmap/refactor-candidates.md), and send you a short plan before changing code. Sent 2026-10-14: [refactor plan](roadmap/refactor-plan.md).
   - [x] Refactor in small commits. Each one is type-checked, weave-checked and smoke-tested. Anything that touches netcode gets a two-player test.
-    - All four phases landed on 2026-10-14, each step checked locally and in CI ([progress](roadmap/refactor-plan.md#the-plan), [test log](verification/test-log.md#part-4-refactor)). What waits for its feature is listed with each step: boss and tank network objects, the rest of per-player state, the lobby features, character select, settings, and the cloud profile.
+    - All four phases landed on 2026-10-14, each step checked locally and in CI ([progress](roadmap/refactor-plan.md#the-plan), [test log](verification/test-log.md#part-4-refactor)). What waits for its feature is listed with each step: the rideable tank's network object (the boss got its own 2026-10-15), the rest of per-player state, the lobby features, character select, settings, and the cloud profile.
   - [x] Update [architecture](netcode/architecture.md) and the refactor candidates as items land.
 - [ ] **C3. Loose ends** (small; any time):
   - [x] C3a. Make connection failures say *Couldn't reach Photon* instead of `DISCONNECTED (ERROR)`. Done 2026-10-14 ([sessions](netcode/sessions.md#when-things-fail)).

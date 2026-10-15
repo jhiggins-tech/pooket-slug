@@ -35,7 +35,7 @@ namespace PooketSlug
                 case EnemyBrain.Runner: e = new Runner(w, def, pos); break;
                 case EnemyBrain.Drone: e = new Drone(w, def, pos); break;
                 case EnemyBrain.Tank:
-                    e = w.Boss = Spike.Tank && !w.Coop ? new ArtilleryTank(w, def, pos) : (BossEnemy)new TankBoss(w, def, pos); // spikes are solo only
+                    e = w.Boss = new TankBoss(w, def, pos);
                     break;
                 case EnemyBrain.Barrel: e = new Barrel(w, def, pos); break;
                 default: return null;

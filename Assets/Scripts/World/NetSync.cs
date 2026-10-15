@@ -5,7 +5,7 @@ namespace PooketSlug
 {
     /// <summary>
     /// The world's side of a co-op session (<see cref="INetLink"/>). Each tick it pulls what has arrived (the
-    /// partner's soldier, and on followers the authority's enemies, pickups, points and scroll), then pushes our own.
+    /// partner's soldier, and on followers the authority's enemies, the boss's turret, pickups, points and scroll), then pushes our own.
     /// The session also delivers its events here (<see cref="INetEvents"/>): shots, hits, pickups and damage.
     /// </summary>
     public sealed class NetSync : INetEvents
@@ -19,6 +19,7 @@ namespace PooketSlug
         readonly HashSet<int> m_GonePickups = new HashSet<int>();  // collected here: a late snapshot mustn't bring them back
         readonly HashSet<int> m_SeenIds = new HashSet<int>();
         readonly HashSet<int> m_DeadIds = new HashSet<int>();
+        bool m_BossFollowed;
 
         public NetSync(World world) => m_World = world;
 
@@ -71,6 +72,13 @@ namespace PooketSlug
             // gone from the authority's world (left behind or finished dying)
             foreach (Enemy e in w.Enemies)
                 if (!e.Dying && !m_SeenIds.Contains(e.NetId)) e.Remove();
+
+            if (w.Boss is TankBoss boss && !boss.Removed && Net.ReadBoss(out NetBossState bs))
+            {
+                if (!m_BossFollowed) Log.Net.Info("Following the boss tank's turret from the authority");
+                m_BossFollowed = true;
+                boss.ApplyNet(bs);
+            }
         }
 
         /// <summary>Followers: make the authority's pickups, and collect the ones it no longer lists.</summary>
@@ -123,6 +131,7 @@ namespace PooketSlug
                 if (!pk.Removed && !pk.Granted && pk.NetId >= 0)
                     m_OutgoingPickups.Add(new NetPickupState { Id = pk.NetId, Def = pk.Def, Pos = pk.Pos });
             Net.WritePickups(m_OutgoingPickups);
+            if (w.Boss is TankBoss boss && !boss.Removed) Net.WriteBoss(boss.NetState);
         }
 
         // ------------------------------------------------------------------ INetEvents (delivered by the session)

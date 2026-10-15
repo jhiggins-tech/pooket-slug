@@ -22,6 +22,9 @@ namespace PooketSlug
             blastRadius: 1.7f, blastSize: 1f, spin: ProjectileSpin.Tumble);
         public static readonly ProjectileDef Bomb = new ProjectileDef(5, "Bomb", radius: 0.18f, damage: 1, life: 4f, gravity: 22f,
             blastRadius: 1f, blastSize: 0.7f, spin: ProjectileSpin.None);
+        /// <summary>The boss tank's big shell: a wider blast than a shell.</summary>
+        public static readonly ProjectileDef BigShell = new ProjectileDef(6, "Big shell", radius: 0.25f, damage: 1, life: 6f, gravity: 18f,
+            blastRadius: 1.4f, blastSize: 1.1f);
 
         // ------------------------------------------------------------------ weapons
         // Ids 0-5 are the byte the projectile enum used to send for the same shot.
@@ -44,6 +47,11 @@ namespace PooketSlug
         public static readonly WeaponDef WaterJet = new WeaponDef(7, "ten-1", WeaponBehaviour.Jet, null, hud: "TEN-1");
         public static readonly WeaponDef RocketJump = new WeaponDef(8, "ten-2", WeaponBehaviour.RocketJump, null, hud: "TEN-2");
         public static readonly WeaponDef Spew = new WeaponDef(9, "ten-3", WeaponBehaviour.Spew, null, hud: "TEN-3");
+        /// <summary>The boss tank's cannon: it aims its own lobs (<see cref="BossTank"/>).</summary>
+        public static readonly WeaponDef BossCannon = new WeaponDef(10, "Boss cannon", WeaponBehaviour.Lob, BigShell, muzzleBlast: 0.6f, kick: 0.15f);
+
+        /// <summary>How Mission one's boss tank fights.</summary>
+        public static readonly BossTankSpec BossTank = new BossTankSpec();
 
         // ------------------------------------------------------------------ enemies
         // Ids are the byte the co-op snapshot sent for each kind before (its SpawnKind).
@@ -85,9 +93,9 @@ namespace PooketSlug
 
         // ------------------------------------------------------------------ lookups (after the definitions: statics initialise in order)
 
-        public static readonly IReadOnlyList<ProjectileDef> Projectiles = ById(p => p.Id, Bullet, HeavyBullet, EnemyBullet, Shell, Grenade, Bomb);
+        public static readonly IReadOnlyList<ProjectileDef> Projectiles = ById(p => p.Id, Bullet, HeavyBullet, EnemyBullet, Shell, Grenade, Bomb, BigShell);
         public static readonly IReadOnlyList<WeaponDef> Weapons = ById(w => w.Id, Pistol, HeavyMachineGun, Rifle, Cannon, GrenadeThrow, DroneBomb, TankGun,
-            WaterJet, RocketJump, Spew);
+            WaterJet, RocketJump, Spew, BossCannon);
         public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank, Barrel);
         public static readonly IReadOnlyList<PickupDef> Pickups = ById(p => p.Id, HeavyMachineGunCrate, BombCrate, Medkit, OneUp);
         public static readonly IReadOnlyList<SoldierDef> Soldiers = ById(s => s.Id, Trooper, Tones2);

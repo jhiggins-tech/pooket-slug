@@ -83,6 +83,7 @@ namespace PooketSlug
             if (!World.IsAuthority)
             {
                 TickPuppet(dt);
+                TickFollower(dt);
                 return;
             }
             Target = World.Combat.NearestAvatar(Pos);
@@ -92,6 +93,9 @@ namespace PooketSlug
         }
 
         protected abstract void TickAlive(float dt);
+
+        /// <summary>Co-op follower: anything beyond gliding to the snapshot, each tick while it's alive.</summary>
+        protected virtual void TickFollower(float dt) { }
 
         /// <summary>Co-op follower: glide toward the authority's latest snapshot.</summary>
         void TickPuppet(float dt)
@@ -319,111 +323,5 @@ namespace PooketSlug
         public bool Engaged;
 
         protected BossEnemy(World world, EnemyDef def, Vector2 feet) : base(world, def, feet) { }
-    }
-
-    /// <summary>End-of-level boss: lobs cannon shells and sweeps low machine-gun bursts (jump them).</summary>
-    public sealed class TankBoss : BossEnemy
-    {
-        readonly SpriteRenderer m_Sr;
-        readonly float m_HomeX;
-        float m_AttackTimer = 1.5f, m_BurstTimer, m_ExplodeTimer;
-        int m_Attack, m_BurstLeft;
-
-        public TankBoss(World world, EnemyDef def, Vector2 feet) : base(world, def, feet)
-        {
-            m_Sr = AddRenderer(Visual, "Body", Art.Tank, SortOrder.Boss);
-            m_HomeX = feet.x;
-            Facing = -1; // the art faces left already; keep Visual unflipped
-        }
-
-        public override void Render()
-        {
-            Go.transform.localPosition = new Vector3(Snap(Pos.x), Snap(Pos.y), 0f);
-            Visual.localScale = Vector3.one;
-            float rumble = !Dying && Mathf.Abs(Vel.x) > 0.05f && ((int)(Anim * 16f) % 2 == 0) ? 1f / Art.PPU : 0f;
-            m_Sr.transform.localPosition = new Vector3(0f, rumble, 0f);
-            m_Sr.sprite = Flashed(Art.Tank);
-            if (Dying) m_Sr.color = Color.Lerp(Color.white, new Color(0.35f, 0.3f, 0.3f), DyingTime / 1.5f);
-        }
-
-        protected override void TickAlive(float dt)
-        {
-            if (!Engaged)
-            {
-                if (World.View.Right >= Pos.x + HalfW + 0.5f) Engaged = true;
-                else return;
-            }
-
-            // patrol a short track in the arena
-            float targetX = m_HomeX + Mathf.Sin(Anim * 0.5f) * 2.5f;
-            Vel.x = Mathf.Clamp((targetX - Pos.x) * 2f, -1.6f, 1.6f);
-            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
-            MoveWithTiles(dt);
-
-            World.Combat.DamageAvatarsTouching(Bounds, 1);
-            if (Target.IsDown) return;
-
-            if (m_BurstLeft > 0)
-            {
-                m_BurstTimer -= dt;
-                if (m_BurstTimer <= 0f)
-                {
-                    m_BurstLeft--;
-                    m_BurstTimer = 0.14f;
-                    var origin = Pos + new Vector2(-1.6f, 0.45f);
-                    World.Combat.FireEnemyShot(Content.TankGun, origin, new Vector2(-Content.TankGun.Speed, 0f));
-                }
-                return;
-            }
-
-            m_AttackTimer -= dt;
-            if (m_AttackTimer > 0f) return;
-
-            if (m_Attack % 3 == 2)
-            {
-                m_BurstLeft = 4;
-                m_BurstTimer = 0f;
-                m_AttackTimer = 1.6f;
-            }
-            else
-            {
-                // lob a shell that lands near the player
-                var muzzle = Pos + new Vector2(-1.5f, 1.15f);
-                float vy = 7.5f, g = Content.Cannon.Projectile.Gravity;
-                float flight = (vy + Mathf.Sqrt(vy * vy + 2f * g * Mathf.Max(0f, muzzle.y - Target.Pos.y))) / g;
-                float vx = Mathf.Clamp((Target.Pos.x - muzzle.x) / flight, -11f, -1.5f);
-                World.Combat.FireEnemyShot(Content.Cannon, muzzle, new Vector2(vx, vy));
-                m_AttackTimer = 1.4f;
-            }
-            m_Attack++;
-        }
-
-        protected override int ExtraFlags => Engaged ? NetEnemyState.Engaged : 0;
-        protected override void OnSnapshot(int flags) => Engaged = (flags & NetEnemyState.Engaged) != 0;
-
-        protected override void Die()
-        {
-            base.Die();
-            World.BossDefeatedPending = true;
-        }
-
-        protected override void TickDying(float dt)
-        {
-            m_ExplodeTimer -= dt;
-            if (m_ExplodeTimer <= 0f && DyingTime < 1.6f)
-            {
-                m_ExplodeTimer = 0.18f;
-                var p = Pos + new Vector2(Rng.Fx.Range(-1.4f, 1.4f), Rng.Fx.Range(0.2f, 1.6f));
-                World.Combat.Explode(p, 0.5f, 0, false, 0.7f);
-            }
-            if (DyingTime >= 1.6f)
-            {
-                World.Combat.Explode(Center, 1.5f, 0, false, 1.8f);
-                World.Burst(Center, 30, new Color(0.35f, 0.4f, 0.2f));
-                Sfx.Play(Sfx.BigExplosion);
-                World.OnBossDestroyed();
-                Remove();
-            }
-        }
     }
 }

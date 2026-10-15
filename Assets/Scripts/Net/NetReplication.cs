@@ -6,17 +6,18 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// The replicated side of a session: the <see cref="PlayerNet"/> and <see cref="WorldNet"/> objects, and the
+    /// The replicated side of a session: the <see cref="PlayerNet"/>, <see cref="WorldNet"/> and <see cref="BossNet"/> objects, and the
     /// game's <see cref="INetLink"/> onto them. <see cref="NetSession"/> connects and runs the session's life;
     /// this is what the session shares while it's up. The objects' RPCs arrive here and go on to <see cref="Events"/>.
     /// </summary>
     public sealed class NetReplication : INetLink
     {
         WorldNet m_Shared;
+        BossNet m_Boss;
         PlayerNet m_Local;
         readonly List<PlayerNet> m_Players = new List<PlayerNet>();
         readonly List<IAvatarLink> m_Remotes = new List<IAvatarLink>();
-        bool m_SpawnedWorld, m_WasAuthority;
+        bool m_SpawnedWorld, m_SpawnedBoss, m_WasAuthority;
 
         /// <summary>Receives the session's events; null outside co-op play.</summary>
         public INetEvents Events { get; set; }
@@ -26,15 +27,18 @@ namespace PooketSlug
         public int PlayerCount => m_Players.Count;
 
         bool SharedValid => m_Shared != null && m_Shared.Object != null && m_Shared.Object.IsValid;
+        bool BossValid => m_Boss != null && m_Boss.Object != null && m_Boss.Object.IsValid;
 
         /// <summary>Forgets every replicated object: the session ended, or a new one is starting.</summary>
         public void Reset()
         {
             m_Shared = null;
+            m_Boss = null;
             m_Local = null;
             m_Players.Clear();
             m_Remotes.Clear();
             m_SpawnedWorld = false;
+            m_SpawnedBoss = false;
             m_WasAuthority = false;
         }
 
@@ -46,6 +50,12 @@ namespace PooketSlug
             {
                 m_SpawnedWorld = true;
                 runner.Spawn(NetPrefabs.World);
+            }
+            // And the boss's object beside it (once; it migrates the same way).
+            if (m_Boss == null && !m_SpawnedBoss && runner.IsSharedModeMasterClient)
+            {
+                m_SpawnedBoss = true;
+                runner.Spawn(NetPrefabs.Boss);
             }
 
             if (IsAuthority != m_WasAuthority)
@@ -85,6 +95,13 @@ namespace PooketSlug
         internal void OnWorldDespawned(WorldNet w)
         {
             if (m_Shared == w) m_Shared = null;
+        }
+
+        internal void OnBossSpawned(BossNet b) => m_Boss = b;
+
+        internal void OnBossDespawned(BossNet b)
+        {
+            if (m_Boss == b) m_Boss = null;
         }
 
         // ------------------------------------------------------------------ INetLink
@@ -198,6 +215,30 @@ namespace PooketSlug
                 NetPickup p = slots.Get(i);
                 if (p.Ref > 0) into.Add(new NetPickupState { Id = p.Ref - 1, Def = Content.Pickup(p.Kind), Pos = p.Pos });
             }
+            return true;
+        }
+
+        public void WriteBoss(in NetBossState boss)
+        {
+            if (!IsAuthority || !BossValid || !m_Boss.HasStateAuthority) return;
+            m_Boss.State = new NetBoss
+            {
+                Phase = (byte)boss.Phase,
+                Angle = boss.Angle,
+                Charge = boss.Charge,
+                Power = boss.Power,
+                Landing = boss.Landing,
+                Shots = (byte)boss.Shots,
+            };
+        }
+
+        public bool ReadBoss(out NetBossState boss)
+        {
+            boss = default;
+            if (!BossValid) return false;
+            NetBoss b = m_Boss.State;
+            if (b.Phase == 0) return false;
+            boss = new NetBossState { Phase = b.Phase, Angle = b.Angle, Charge = b.Charge, Power = b.Power, Landing = b.Landing, Shots = b.Shots };
             return true;
         }
 
