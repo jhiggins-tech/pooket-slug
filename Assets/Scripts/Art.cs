@@ -237,7 +237,8 @@ namespace PooketSlug
         public static Sprite PickupSprite(PickupDef def) => s_Pickups[def.Id];
 
         /// <summary>A projectile's sprite (the content is data in Core; how it looks lives here).</summary>
-        public static Sprite ProjectileSprite(ProjectileDef def) => s_Projectiles[def.Id];
+        /// <summary>A projectile's look; spike projectiles (ids past the content tables) borrow the shell's.</summary>
+        public static Sprite ProjectileSprite(ProjectileDef def) => def.Id < s_Projectiles.Length ? s_Projectiles[def.Id] : Shell;
 
         public static Sprite Flash(Sprite s) => s != null && s_Flash.TryGetValue(s, out Sprite f) ? f : s;
 
