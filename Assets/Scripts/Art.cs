@@ -89,8 +89,8 @@ namespace PooketSlug
 
         /// <summary>[0] = player 1 (red bandana), [1] = player 2 (blue bandana).</summary>
         public static PlayerSkin[] PlayerSkins;
-        /// <summary>tones2 in his Pooket Tabks colours (spike: <see cref="Spike.Tones2"/>).</summary>
-        public static PlayerSkin Tones2Skin;
+        /// <summary>tones2 in his Pooket Tabks colours: [0] player 1 (pink bandana), [1] player 2 (blue bandana).</summary>
+        public static PlayerSkin[] Tones2Skins;
         public static Sprite[] SoldierLegsRun, RunnerLegsRun;
         public static Sprite SoldierLegsIdle, RunnerLegsJump;
         public static Sprite SoldierTorso, RunnerTorso;
@@ -149,11 +149,17 @@ namespace PooketSlug
 
             Vector2 feet = new Vector2(0.5f, 0f);
             PlayerSkins = new[] { BuildSkin(s_Pal), BuildSkin(player2) };
-            if (Spike.Tones2)
-                Tones2Skin = BuildSkin(Swap(new Dictionary<char, uint>
+            Tones2Skins = new[]
+            {
+                BuildSkin(Swap(new Dictionary<char, uint>
                 {
                     { 'r', 0xff7eb6 }, { 'R', 0xc0508a }, { 'g', 0xff8c42 }, { 'G', 0xc06428 }, { 'c', 0xff5a5f }, { 'C', 0xb83c40 },
-                }));
+                })),
+                BuildSkin(Swap(new Dictionary<char, uint>
+                {
+                    { 'r', 0x3a9ae8 }, { 'R', 0x22609c }, { 'g', 0xff8c42 }, { 'G', 0xc06428 }, { 'c', 0xff5a5f }, { 'C', 0xb83c40 },
+                })),
+            };
             SoldierTorso = Part(ArtData.TorsoForward, ArtData.TorsoForwardTop, soldier);
             RunnerTorso = Part(ArtData.TorsoForward, ArtData.TorsoForwardTop, runner);
 
@@ -242,6 +248,13 @@ namespace PooketSlug
 
         /// <summary>A projectile's sprite (the content is data in Core; how it looks lives here).</summary>
         /// <summary>A projectile's look; spike projectiles (ids past the content tables) borrow the shell's.</summary>
+        /// <summary>How <paramref name="soldier"/> looks as player <paramref name="skin"/> + 1.</summary>
+        public static PlayerSkin SkinFor(SoldierDef soldier, int skin)
+        {
+            PlayerSkin[] skins = soldier == Content.Tones2 ? Tones2Skins : PlayerSkins;
+            return skins[Mathf.Clamp(skin, 0, skins.Length - 1)];
+        }
+
         public static Sprite ProjectileSprite(ProjectileDef def) => def.Id < s_Projectiles.Length ? s_Projectiles[def.Id] : Shell;
 
         public static Sprite Flash(Sprite s) => s != null && s_Flash.TryGetValue(s, out Sprite f) ? f : s;

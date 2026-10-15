@@ -16,6 +16,9 @@ namespace PooketSlug.Tests
             Assert.AreEqual(4, Content.GrenadeThrow.Id);
             Assert.AreEqual(5, Content.DroneBomb.Id);
             Assert.AreEqual(6, Content.TankGun.Id);
+            Assert.AreEqual(7, Content.WaterJet.Id);
+            Assert.AreEqual(8, Content.RocketJump.Id);
+            Assert.AreEqual(9, Content.Spew.Id);
         }
 
         [Test]
@@ -75,7 +78,7 @@ namespace PooketSlug.Tests
         public void EverySoldierGetsSomethingFromABombCrate()
         {
             foreach (SoldierDef s in Content.Soldiers) Assert.Greater(s.CrateSpecials, 0, s.Name);
-            Assert.Greater(SpikeContent.Tones2.CrateSpecials, 0);
+            Assert.AreEqual(3, Content.Tones2.CrateSpecials, "the rocket jump is a strong special: a bomb crate gives 3");
         }
 
         [Test]
@@ -124,6 +127,8 @@ namespace PooketSlug.Tests
             // Each player's soldier is replicated by id.
             Assert.AreEqual(0, Content.Trooper.Id);
             Assert.AreSame(Content.Trooper, Content.Soldier(0));
+            Assert.AreEqual(1, Content.Tones2.Id);
+            Assert.AreSame(Content.Tones2, Content.Soldier(1));
             Assert.IsNull(Content.Soldier(-1));
             Assert.IsNull(Content.Soldier(Content.Soldiers.Count));
         }
@@ -148,7 +153,7 @@ namespace PooketSlug.Tests
         }
 
         [TestCase(-1)]
-        [TestCase(7)]
+        [TestCase(10)]
         [TestCase(255)]
         public void AnUnknownWeaponIdFindsNothing(int id)
         {
@@ -165,7 +170,11 @@ namespace PooketSlug.Tests
         public void EveryWeaponFiresARegisteredProjectile()
         {
             foreach (WeaponDef w in Content.Weapons)
-                Assert.AreSame(w.Projectile, Content.Projectiles[w.Projectile.Id], w.Name);
+            {
+                bool pours = w.Behaviour == WeaponBehaviour.Jet || w.Behaviour == WeaponBehaviour.RocketJump || w.Behaviour == WeaponBehaviour.Spew;
+                if (pours) Assert.IsNull(w.Projectile, w.Name + ": tones2's kit fires no projectile");
+                else Assert.AreSame(w.Projectile, Content.Projectiles[w.Projectile.Id], w.Name);
+            }
         }
 
         [Test]

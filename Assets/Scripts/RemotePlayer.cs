@@ -7,6 +7,7 @@ namespace PooketSlug
     {
         public readonly IAvatarLink Link;
         readonly PlayerVisual m_Visual;
+        readonly Tones2Copy m_Tones2; // their liquids, as harmless copies
         AvatarPose m_Pose;
         float m_Anim, m_DeadTime;
         bool m_Placed;
@@ -15,7 +16,8 @@ namespace PooketSlug
             : base(world, "RemotePlayer", link.Pos, link.Soldier.HalfWidth, link.Soldier.StandHeight, link.Soldier.MaxHp)
         {
             Link = link;
-            m_Visual = new PlayerVisual(Visual, Art.PlayerSkins[Mathf.Clamp(link.Skin, 0, 1)], SortOrder.Player - 5);
+            m_Visual = new PlayerVisual(Visual, Art.SkinFor(link.Soldier, link.Skin), SortOrder.Player - 5);
+            if (link.Soldier.Primary.Behaviour == WeaponBehaviour.Jet) m_Tones2 = new Tones2Copy(this);
         }
 
         public override bool IsDown => m_Pose.Dead;
@@ -46,12 +48,14 @@ namespace PooketSlug
             {
                 Pos = Vector2.Lerp(Pos, target, 1f - Mathf.Exp(-Tuning.Coop.RemoteSoldierSmoothing * dt));
             }
+            m_Tones2?.Tick(dt, m_Pose, Link.Vel);
         }
 
         public override void Render()
         {
             base.Render();
-            m_Visual.Skin = Art.PlayerSkins[Mathf.Clamp(Link.Skin, 0, 1)];
+            if (m_Tones2 != null) Go.transform.localPosition += (Vector3)Tones2Copy.ShakeOffset(m_Pose);
+            m_Visual.Skin = Art.SkinFor(Link.Soldier, Link.Skin);
             m_Visual.Apply(m_Pose);
         }
     }

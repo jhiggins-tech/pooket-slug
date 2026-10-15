@@ -61,7 +61,7 @@ async function walk(p, dir, ms) {
   await p.page.keyboard.up(dir);
 }
 
-/** Hold a direction for `ms` while tapping fire (and jumping now and then). */
+/** Hold a direction for `ms` while tapping fire (and jumping, and rocket jumping, now and then). */
 async function play(p, dir, ms) {
   const kb = p.page.keyboard;
   await kb.down(dir);
@@ -69,6 +69,7 @@ async function play(p, dir, ms) {
   for (let i = 0; Date.now() < end; i++) {
     await kb.down('x'); await p.page.waitForTimeout(80); await kb.up('x');
     if (i % 5 === 2) { await kb.down('z'); await p.page.waitForTimeout(180); await kb.up('z'); }
+    if (i % 9 === 4) { await kb.down('c'); await p.page.waitForTimeout(80); await kb.up('c'); } // tones2's rocket jump: its mud is sent to the partner
     await p.page.waitForTimeout(120);
   }
   await kb.up(dir);

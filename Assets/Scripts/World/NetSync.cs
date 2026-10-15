@@ -131,6 +131,17 @@ namespace PooketSlug
 
         public void OnShot(in ShotEvent shot)
         {
+            if (shot.Weapon.Projectile == null)
+            {
+                // tones2's rocket jump: the same mud on our screen, harmless (it poisons goons on theirs)
+                if (shot.Weapon == Content.RocketJump)
+                {
+                    m_World.Liquids.SpillMud(shot.Origin, Tones2Tuning.Rocket, cosmetic: true);
+                    Tones2Sprays.Exhaust(m_World, shot.Origin);
+                    Sfx.Play(Sfx.RocketLaunch, 0.35f);
+                }
+                return; // the jet and the spew come with their pose (Tones2Copy)
+            }
             m_World.SpawnProjectile(shot.Weapon.Projectile, shot.Origin, shot.Velocity, false, cosmetic: true);
             Sfx.PlayShot(shot.Weapon, 0.35f);
         }

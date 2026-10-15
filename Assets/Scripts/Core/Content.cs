@@ -39,6 +39,11 @@ namespace PooketSlug
         public static readonly WeaponDef DroneBomb = new WeaponDef(5, "Bomb drop", WeaponBehaviour.Lob, Bomb, carry: 0.5f);
         /// <summary>The tank's machine gun.</summary>
         public static readonly WeaponDef TankGun = new WeaponDef(6, "Tank gun", WeaponBehaviour.Bullet, EnemyBullet, speed: 7.5f);
+        // tones2's kit (Tones2Kit.cs, numbers in Tones2Tuning). None fires a projectile: the jet and the spew pour
+        // out droplets, and the rocket jump launches him. Only the rocket jump is sent, so partners see the mud.
+        public static readonly WeaponDef WaterJet = new WeaponDef(7, "ten-1", WeaponBehaviour.Jet, null, hud: "TEN-1");
+        public static readonly WeaponDef RocketJump = new WeaponDef(8, "ten-2", WeaponBehaviour.RocketJump, null, hud: "TEN-2");
+        public static readonly WeaponDef Spew = new WeaponDef(9, "ten-3", WeaponBehaviour.Spew, null, hud: "TEN-3");
 
         // ------------------------------------------------------------------ enemies
         // Ids are the byte the co-op snapshot sent for each kind before (its SpawnKind).
@@ -63,20 +68,29 @@ namespace PooketSlug
         // ------------------------------------------------------------------ soldiers
 
         /// <summary>
-        /// Today's soldier, until the crew's own kits are built (<c>docs/design/player.md</c>): a pistol and grenades.
-        /// Each crew member will be a definition like this one.
+        /// The first soldier, with a pistol and grenades. Nobody plays him now; he stays as the stand-in for a soldier
+        /// a co-op partner's build has and this one doesn't.
         /// </summary>
         public static readonly SoldierDef Trooper = new SoldierDef(0, "Trooper", runSpeed: 5.5f, crawlSpeed: 2f, jumpVelocity: 17f,
             halfWidth: 0.3f, standHeight: 1.35f, crouchHeight: 0.8f, maxHp: 5, primary: Pistol, special: GrenadeThrow,
             startSpecials: Tuning.Kit.SpecialCharges, specialMax: Tuning.Kit.SpecialCharges, specialRefill: Tuning.Kit.SpecialRefill);
 
+        /// <summary>
+        /// tones2, from Pooket Tabks, who everyone plays until the crew is freed (<c>docs/design/player.md</c>): the water
+        /// jet, the mud rocket jump and the spew.
+        /// </summary>
+        public static readonly SoldierDef Tones2 = new SoldierDef(1, "tones2", runSpeed: 5.5f, crawlSpeed: 2f, jumpVelocity: 17f,
+            halfWidth: 0.3f, standHeight: 1.35f, crouchHeight: 0.8f, maxHp: 5, primary: WaterJet, special: RocketJump, startSpecials: 3,
+            super: Spew, crateSpecials: 3); // the rocket jump is a strong special: a bomb crate gives about 3
+
         // ------------------------------------------------------------------ lookups (after the definitions: statics initialise in order)
 
         public static readonly IReadOnlyList<ProjectileDef> Projectiles = ById(p => p.Id, Bullet, HeavyBullet, EnemyBullet, Shell, Grenade, Bomb);
-        public static readonly IReadOnlyList<WeaponDef> Weapons = ById(w => w.Id, Pistol, HeavyMachineGun, Rifle, Cannon, GrenadeThrow, DroneBomb, TankGun);
+        public static readonly IReadOnlyList<WeaponDef> Weapons = ById(w => w.Id, Pistol, HeavyMachineGun, Rifle, Cannon, GrenadeThrow, DroneBomb, TankGun,
+            WaterJet, RocketJump, Spew);
         public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank, Barrel);
         public static readonly IReadOnlyList<PickupDef> Pickups = ById(p => p.Id, HeavyMachineGunCrate, BombCrate, Medkit, OneUp);
-        public static readonly IReadOnlyList<SoldierDef> Soldiers = ById(s => s.Id, Trooper);
+        public static readonly IReadOnlyList<SoldierDef> Soldiers = ById(s => s.Id, Trooper, Tones2);
 
         /// <summary>The weapon with this id, or null for an id no weapon has (say, from a different build).</summary>
         public static WeaponDef Weapon(int id) => id >= 0 && id < Weapons.Count ? Weapons[id] : null;

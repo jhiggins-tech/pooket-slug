@@ -1,3 +1,5 @@
+using UnityEngine;
+
 namespace PooketSlug
 {
     /// <summary>Everything needed to draw a soldier. Produced by the local soldier and replicated for remote ones.</summary>
@@ -6,6 +8,9 @@ namespace PooketSlug
         const int FacingRightBit = 1 << 0, AimUpBit = 1 << 1, AimDownBit = 1 << 2, GroundedBit = 1 << 3, CrouchBit = 1 << 4;
         const int RunningBit = 1 << 5, DeadBit = 1 << 6, MuzzleBit = 1 << 7, BlinkBit = 1 << 8, FlashBit = 1 << 9;
         const int DiagonalBit = 1 << 10, OutBit = 1 << 11, GoneBit = 1 << 12;
+        // tones2's kit, so a partner's copy can pour out the same liquids: the jet and its pressure (3 bits), the spew,
+        // and shaking before a rocket jump
+        const int JetBit = 1 << 13, PressureShift = 14, PressureMask = 7 << PressureShift, SpewBit = 1 << 17, RootedBit = 1 << 18;
 
         public int Facing;  // 1 = right, -1 = left
         public int AimY;    // 1 = up, -1 = down, 0 = forward
@@ -16,13 +21,18 @@ namespace PooketSlug
         /// <summary>Out of lives and continues: waiting on a partner's 1-up.</summary>
         public bool Gone;
         public bool Grounded, Crouching, Running, Dead, Muzzle, Blink, Flash;
+        /// <summary>tones2: firing his jet, at <see cref="Pressure"/> (0 to 1, in sevenths on the wire); spewing; shaking before a rocket jump.</summary>
+        public bool Jetting, Spewing, Rooted;
+        public float Pressure;
         public float Anim, DeadTime;
 
         public int Pack() =>
             (Facing > 0 ? FacingRightBit : 0) | (AimY > 0 ? AimUpBit : 0) | (AimY < 0 ? AimDownBit : 0) |
             (Grounded ? GroundedBit : 0) | (Crouching ? CrouchBit : 0) | (Running ? RunningBit : 0) |
             (Dead ? DeadBit : 0) | (Muzzle ? MuzzleBit : 0) | (Blink ? BlinkBit : 0) | (Flash ? FlashBit : 0) |
-            (Diagonal && AimY != 0 ? DiagonalBit : 0) | (Out ? OutBit : 0) | (Gone ? GoneBit : 0);
+            (Diagonal && AimY != 0 ? DiagonalBit : 0) | (Out ? OutBit : 0) | (Gone ? GoneBit : 0) |
+            (Jetting ? JetBit | (Mathf.Clamp(Mathf.RoundToInt(Pressure * 7f), 0, 7) << PressureShift) : 0) |
+            (Spewing ? SpewBit : 0) | (Rooted ? RootedBit : 0);
 
         /// <summary>Unpacks replicated flags; animation clocks are kept locally by the caller.</summary>
         public static AvatarPose Unpack(int flags, float anim, float deadTime) => new AvatarPose
@@ -39,6 +49,10 @@ namespace PooketSlug
             Diagonal = (flags & DiagonalBit) != 0 && (flags & (AimUpBit | AimDownBit)) != 0,
             Out = (flags & OutBit) != 0,
             Gone = (flags & GoneBit) != 0,
+            Jetting = (flags & JetBit) != 0,
+            Pressure = ((flags & PressureMask) >> PressureShift) / 7f,
+            Spewing = (flags & SpewBit) != 0,
+            Rooted = (flags & RootedBit) != 0,
             Anim = anim,
             DeadTime = deadTime,
         };

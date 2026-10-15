@@ -80,6 +80,13 @@ C2, the refactor, is done. C1's code is written and checked locally; it goes liv
   - [x] Verify locally: each input backend, 230 of 230 EditMode tests.
   - [x] Verify in CI: run 38700639233 (with the spike thread's tones2 change, +3 per crate) built, deployed and passed the co-op test (2026-10-15).
   - Out of scope: the heavy machine gun crate, which becomes the gun crates later.
+- [ ] **C7. tones2's kit for real** ([kits](../design/kits.md#tones2)), queued from the Roadmap 2026-10-15: the approved spikes, on for everyone.
+  - [x] Everyone plays tones2 (`Content.Tones2`, soldier id 1; the Trooper stays as the stand-in for an unknown soldier). His kit is in Content's tables: ten-1 (7), ten-2 (8), ten-3 (9). No `?spike=tones2` any more.
+  - [x] The super charges from kills like anyone's (the spike started with it full).
+  - [x] Co-op: the jet, its pressure, the spew and the rocket jump's shake ride in the pose (`AvatarPose`), and a rocket jump is sent as a shot, so a partner's screen pours out harmless copies (`Tones2Copy`, cosmetic droplets and puddles). Damage is done on the owner's screen, as with shots. A player 2 tones2 has a blue bandana.
+  - [x] Verify locally: each input backend, 257 of 257 EditMode tests.
+  - [ ] Verify in CI: build, deploy and the co-op test (which now rocket jumps too).
+  - Known gap: the jet's push only moves goons on the authority's screen; a follower's droplets damage but don't push.
 
 ## Done recently
 

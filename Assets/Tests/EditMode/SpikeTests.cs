@@ -18,42 +18,31 @@ namespace PooketSlug.Tests
             Assert.IsNull(Spike.Label);
         }
 
-        [TestCase("?spike=tones2", true, false)]
-        [TestCase("?spike=holo", false, true)]
-        [TestCase("?spike=tones2,holo", true, true)]
-        [TestCase("?SPIKE=Holo,TONES2", true, true)]
-        [TestCase("?spike=tones", false, false)]
-        public void TheAddressTurnsSpikesOn(string query, bool tones2, bool holo)
+        [TestCase("?spike=holo", true, false)]
+        [TestCase("?spike=tank,holo", true, true)]
+        [TestCase("?SPIKE=Holo,TANK", true, true)]
+        [TestCase("?spike=tones2", false, false)] // tones2 is everyone's soldier now: there's no spike for him
+        [TestCase("?spike=hol", false, false)]
+        public void TheAddressTurnsSpikesOn(string query, bool holo, bool tank)
         {
             Spike.Configure(Page + query);
-            Assert.AreEqual(tones2, Spike.Tones2);
             Assert.AreEqual(holo, Spike.Holo);
+            Assert.AreEqual(tank, Spike.Tank);
             Assert.IsFalse(Spike.Hits);
-            Assert.AreEqual(tones2 || holo, Spike.Label != null);
+            Assert.AreEqual(holo || tank, Spike.Label != null);
         }
 
         [Test]
         public void TheBannerNamesEverySpikeThatsOn()
         {
-            Spike.Configure(Page + "?spike=tones2,holo,hits,tank");
+            Spike.Configure(Page + "?spike=holo,hits,tank");
             Assert.IsTrue(Spike.Hits && Spike.Tank);
-            Assert.AreEqual("SPIKE TEST · TONES2 + HOLOGRAM GOONS + HIT FEEL + BOSS TANK", Spike.Label);
+            Assert.AreEqual("SPIKE TEST · HOLOGRAM GOONS + HIT FEEL + BOSS TANK", Spike.Label);
             Spike.Configure(Page + "?spike=hits");
             Assert.AreEqual("SPIKE TEST · HIT FEEL", Spike.Label);
             Spike.Configure(Page + "?spike=chip");
             Assert.IsTrue(Spike.Chip);
             Assert.AreEqual("SPIKE TEST · 8-BIT SOUND", Spike.Label);
-        }
-
-        [Test]
-        public void TheSpewMeltsAGoonInAFewGobbetsAndLastsASecondAndAHalf()
-        {
-            SpewSpec spew = SpikeContent.Spew;
-            Assert.AreEqual(1.5f, spew.Duration, 1e-6f);
-            float gobbets = Content.Rifleman.Hp / spew.Damage;
-            Assert.LessOrEqual(gobbets, 8f, "it melts anything close");
-            Assert.Less(gobbets / spew.DropsPerSecond, 0.25f, "a rifleman in the spew is gone in a blink");
-            Assert.Greater(spew.SludgeLife, 0f);
         }
 
         [TestCase(-8f, 0f, 45f)]
@@ -88,90 +77,6 @@ namespace PooketSlug.Tests
             Assert.Greater(spec.MaxAngle, 90f, "it can lob over its own back");
         }
 
-        [Test]
-        public void TheSpewOnlyReachesClose()
-        {
-            SpewSpec spew = SpikeContent.Spew;
-            var jet = new JetSpec();
-            // Thrown level, how far a gobbet gets before it drops a tile and a half: much less than the full jet.
-            float t = UnityEngine.Mathf.Sqrt(2f * 1.5f / spew.Gravity);
-            float reach = spew.Speed * 1.1f * t;
-            float jetT = UnityEngine.Mathf.Sqrt(2f * 1.5f / jet.Gravity(1f));
-            Assert.Less(reach, 4f);
-            Assert.Less(reach, jet.Speed(1f) * jetT / 2f);
-        }
-
-        [Test]
-        public void TheJetBuildsToFullPressureThenHolds()
-        {
-            var jet = new JetSpec();
-            Assert.AreEqual(0f, jet.Pressure(0f), 1e-6f);
-            Assert.AreEqual(1f, jet.Pressure(jet.RampTime), 1e-6f);
-            Assert.AreEqual(1f, jet.Pressure(jet.RampTime * 3f), 1e-6f);
-            float last = 0f;
-            for (int i = 1; i <= 20; i++)
-            {
-                float p = jet.Pressure(jet.RampTime * i / 20f);
-                Assert.GreaterOrEqual(p, last, "the pressure only builds while FIRE is held");
-                last = p;
-            }
-        }
-
-        [Test]
-        public void FullPressureIsAFasterNarrowerLongerJet()
-        {
-            var jet = new JetSpec();
-            Assert.Greater(jet.Speed(1f), jet.Speed(0f));
-            Assert.Less(jet.Spread(1f), jet.Spread(0f), "a spray at first, a clean jet at full");
-            Assert.Less(jet.Gravity(1f), jet.Gravity(0f), "a weak spray drops short");
-            Assert.Greater(jet.Damage(1f), jet.Damage(0f), "the full jet does the real damage");
-            Assert.Greater(jet.Push(1f), jet.Push(0f));
-        }
-
-        [Test]
-        public void EachDropletOnlyTricklesDamage()
-        {
-            var jet = new JetSpec();
-            Assert.Less(jet.Damage(1f), 1f, "it takes several droplets to make a point of damage");
-            Assert.Greater(jet.Damage(0f), 0f);
-        }
-
-        [Test]
-        public void SplashbackSlowsButNeverStops()
-        {
-            var jet = new JetSpec();
-            Assert.Greater(jet.SplashSlow, 0f);
-            Assert.Less(jet.SplashSlow, 1f);
-        }
-
-        [Test]
-        public void TheRocketJumpGoesHigherThanAJump()
-        {
-            Assert.Greater(SpikeContent.Rocket.LaunchVelocity, SpikeContent.Tones2.JumpVelocity);
-            Assert.AreEqual(SpikeContent.Rocket.Charges, SpikeContent.Tones2.StartSpecials, "the special starts with all its charges");
-        }
-
-        [Test]
-        public void Tones2sKitIsTheJetAndTheRocketJump()
-        {
-            Assert.AreEqual(WeaponBehaviour.Jet, SpikeContent.Tones2.Primary.Behaviour);
-            Assert.AreEqual(WeaponBehaviour.RocketJump, SpikeContent.Tones2.Special.Behaviour);
-            Assert.AreEqual(WeaponBehaviour.Spew, SpikeContent.Tones2.Super.Behaviour);
-            Assert.AreEqual(0, SpikeContent.Tones2.Primary.Ammo, "tier 1 has unlimited ammo");
-        }
-
-        [Test]
-        public void SpikeContentNeverGoesOnTheWire()
-        {
-            // Not in Content's tables, so a co-op partner can never be sent one.
-            CollectionAssert.DoesNotContain(Content.Weapons, SpikeContent.WaterJet);
-            CollectionAssert.DoesNotContain(Content.Weapons, SpikeContent.RocketJump);
-            CollectionAssert.DoesNotContain(Content.Weapons, SpikeContent.SpewWeapon);
-            CollectionAssert.DoesNotContain(Content.Weapons, SpikeContent.BossCannon);
-            CollectionAssert.DoesNotContain(Content.Soldiers, SpikeContent.Tones2);
-            Assert.IsNull(Content.Weapon(SpikeContent.WaterJet.Id));
-            Assert.IsNull(Content.Soldier(SpikeContent.Tones2.Id));
-        }
     
         [Test]
         public void ChipMidiNotesMatchTabks()
@@ -229,6 +134,15 @@ namespace PooketSlug.Tests
             var chip = new Chip(0.1f);
             for (int i = 0; i < 20; i++) chip.Tone(0f, 0.1f, 300f + i * 37f, vol: 0.5f);
             foreach (float v in chip.Finish()) Assert.LessOrEqual(Mathf.Abs(v), 1f);
+        }
+
+        [Test]
+        public void SpikeContentNeverGoesOnTheWire()
+        {
+            // Not in Content's tables, so a co-op partner can never be sent one.
+            CollectionAssert.DoesNotContain(Content.Weapons, SpikeContent.BossCannon);
+            CollectionAssert.DoesNotContain(Content.Projectiles, SpikeContent.BigShell);
+            Assert.IsNull(Content.Weapon(SpikeContent.BossCannon.Id));
         }
     }
 }

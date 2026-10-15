@@ -78,7 +78,7 @@ namespace PooketSlug
                 float x = Mathf.Max(start.x + net.LocalSkin * 1.25f, View.Left + 2f);
                 start = new Vector2(x, Level.TopSurfaceY(x));
             }
-            SoldierDef soldier = Spike.Tones2 && !Coop ? SpikeContent.Tones2 : Content.Trooper; // spikes are solo only
+            SoldierDef soldier = Content.Tones2; // everyone is tones2 until the crew screen (docs/design/levels.md)
             Player = new Player(this, soldier, start, Coop ? net.LocalSkin : 0);
             View.Tick(0f);
             Spawner.SpawnAhead();

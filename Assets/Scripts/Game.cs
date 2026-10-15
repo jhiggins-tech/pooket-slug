@@ -62,7 +62,7 @@ namespace PooketSlug
         {
             string url = Application.absoluteURL;
             Log.Configure(PageQuery.Get(url, "log")); // ?log=net:debug,game:warn for this visit
-            Spike.Configure(url); // ?spike=tones2,holo for this visit (before the art and sounds, which make what spikes need)
+            Spike.Configure(url); // ?spike=holo,tank for this visit (before the art and sounds, which make what spikes need)
             Art.Init();
             Sfx.Init(gameObject);
 

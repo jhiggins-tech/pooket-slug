@@ -78,11 +78,11 @@ namespace PooketSlug
                 c.Tone(0.96f, 0.9f, Chip.Midi(64), Chip.Midi(63), duty: 0.5f, vibratoRate: 6f, vibratoDepth: 9f, vol: 0.14f);
             });
 
-            if (Spike.Any) MakeSpikeSounds();
+            MakeKitSounds();
         }
 
         /// <summary>The other spikes' sounds, from the matching Tabks weapons (tones2 is ten's kit there).</summary>
-        static void MakeSpikeSounds()
+        static void MakeKitSounds()
         {
             // ten-1's hiss and gurgle, as a seamless loop: 96 Hz and 8 Hz both fit a whole number of times in half a second.
             Sfx.JetLoop = Render("chipJetLoop", 0.5f, c =>
@@ -123,9 +123,9 @@ namespace PooketSlug
                 c.Noise(0f, 0.15f, rate: 1.4f, to: 0.3f, vol: 0.05f);
             });
             // ten-3: BLEURGH.
-            Sfx.Spew = Render("chipSpew", SpikeContent.Spew.Duration, c =>
+            Sfx.Spew = Render("chipSpew", Tones2Tuning.Spew.Duration, c =>
             {
-                float dur = SpikeContent.Spew.Duration;
+                float dur = Tones2Tuning.Spew.Duration;
                 c.Tone(0f, dur, 240f, 65f, duty: 0.125f, vibratoRate: 17f, vibratoDepth: 35f, vol: 0.2f);
                 c.Noise(0f, dur, rate: 0.22f, to: 0.12f, vol: 0.14f);
             });

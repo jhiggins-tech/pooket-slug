@@ -30,7 +30,7 @@ namespace PooketSlug
         readonly CallInGesture m_CallIn = new CallInGesture(Tuning.Kit.CallInTapTime, Tuning.Kit.CallInChargeTime);
         Vector2 m_Aim = Vector2.right;
         readonly PlayerVisual m_Visual;
-        // spike kits (tones2): a primary or special that isn't a plain shot
+        // tones2's kit: a primary, special and super that aren't plain shots
         readonly WaterJet m_Jet;
         readonly RocketJump m_Rocket;
         readonly Spew m_Spew;
@@ -40,14 +40,10 @@ namespace PooketSlug
         {
             Def = def;
             Kit = new KitMeters(def.StartSpecials, def.SpecialMax, def.SpecialRefill, Tuning.Kit.SuperKills, def.Ability != null ? def.AbilityCooldown : 0f);
-            m_Visual = new PlayerVisual(Visual, def == SpikeContent.Tones2 ? Art.Tones2Skin : Art.PlayerSkins[skin], SortOrder.Player);
-            if (def.Primary.Behaviour == WeaponBehaviour.Jet) m_Jet = new WaterJet(this, SpikeContent.Jet);
-            if (def.Special.Behaviour == WeaponBehaviour.RocketJump) m_Rocket = new RocketJump(this, SpikeContent.Rocket);
-            if (def.Super != null && def.Super.Behaviour == WeaponBehaviour.Spew)
-            {
-                m_Spew = new Spew(this, SpikeContent.Spew);
-                Kit.FillSuper(); // the spike starts with the super ready, to try it straight away
-            }
+            m_Visual = new PlayerVisual(Visual, Art.SkinFor(def, skin), SortOrder.Player);
+            if (def.Primary.Behaviour == WeaponBehaviour.Jet) m_Jet = new WaterJet(this, Tones2Tuning.Jet);
+            if (def.Special.Behaviour == WeaponBehaviour.RocketJump) m_Rocket = new RocketJump(this, Tones2Tuning.Rocket);
+            if (def.Super != null && def.Super.Behaviour == WeaponBehaviour.Spew) m_Spew = new Spew(this, Tones2Tuning.Spew);
             Grounded = true; // spawned standing on the ground (matters for the title-screen pose)
         }
 
@@ -59,7 +55,7 @@ namespace PooketSlug
         /// <summary>Where the soldier is aiming: forward, up, down in the air, or a diagonal (<see cref="Aiming"/>).</summary>
         public Vector2 Aim => m_Aim;
         public override bool IsDown => Dead;
-        public int Skin { set => m_Visual.Skin = Art.PlayerSkins[value]; }
+        public int Skin { set => m_Visual.Skin = Art.SkinFor(Def, value); }
 
         public AvatarPose Pose => new AvatarPose
         {
@@ -77,6 +73,10 @@ namespace PooketSlug
             Flash = FlashTimer > 0f,
             Anim = m_Anim,
             DeadTime = DeadTime,
+            Jetting = m_Jet != null && m_Jet.Pressure > 0f,
+            Pressure = m_Jet != null ? m_Jet.Pressure : 0f,
+            Spewing = Spewing,
+            Rooted = m_Rocket != null && m_Rocket.Rooted,
         };
 
         public override void Tick(float dt)
@@ -102,7 +102,7 @@ namespace PooketSlug
             Crouching = Grounded && down && !rooted;
             Height = Crouching ? Def.CrouchHeight : Def.StandHeight;
             float speed = Crouching ? Def.CrawlSpeed : Def.RunSpeed;
-            if (SlowTimer > 0f) speed *= SpikeContent.Jet.SplashSlow;
+            if (SlowTimer > 0f) speed *= Tones2Tuning.Jet.SplashSlow;
             if (m_Knock > 0f) m_Knock -= dt; // knocked back: the push carries on for a moment
             else Vel.x = rooted ? 0f : moveX * speed;
             if (moveX != 0f && !rooted && m_Knock <= 0f) Facing = moveX > 0f ? 1 : -1;

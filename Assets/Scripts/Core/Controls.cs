@@ -191,5 +191,12 @@ namespace PooketSlug
 
         /// <summary>The aim is a diagonal.</summary>
         public static bool IsDiagonal(Vector2 aim) => Mathf.Abs(aim.x) > 0.1f && Mathf.Abs(aim.y) > 0.1f;
+
+        /// <summary>The aim back from what a pose keeps of it (a partner's soldier): the inverse of <see cref="AimY"/> and <see cref="IsDiagonal"/>.</summary>
+        public static Vector2 FromPose(int facing, int aimY, bool diagonal)
+        {
+            if (aimY == 0) return new Vector2(facing, 0f);
+            return diagonal ? new Vector2(facing * Diag, aimY * Diag) : new Vector2(0f, aimY);
+        }
     }
 }

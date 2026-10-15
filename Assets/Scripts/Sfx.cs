@@ -9,7 +9,7 @@ namespace PooketSlug
         const int Rate = 22050;
 
         public static AudioClip Shot, Heavy, EnemyShot, Cannon, Explosion, BigExplosion, Jump, Hurt, Hit, Pickup, Throw, Start, Victory, GameOver;
-        // spike sounds: tones2's kit and the hologram goons
+        // tones2's kit, and the spikes' (the hologram goons, the boss tank)
         public static AudioClip JetLoop, Splat, RocketRumble, RocketLaunch, Glitch, Poison, Spew, Sizzle, Thump, Charge, Servo;
         public static bool Muted;
 
@@ -38,7 +38,7 @@ namespace PooketSlug
                 Start = Notes("start", 0.11f, 392, 523, 659, 784);
                 Victory = Notes("victory", 0.13f, 523, 659, 784, 1047, 784, 1047);
                 GameOver = Notes("gameOver", 0.2f, 392, 330, 262, 196);
-                if (Spike.Any) MakeSpikeSounds();
+                MakeKitSounds();
                 if (Spike.Chip) ChipSounds.Make(); // the 8-bit spike redoes them all
             }
             catch (Exception e)
@@ -65,7 +65,7 @@ namespace PooketSlug
             Play(clip, volume >= 0f ? volume : own);
         }
 
-        static void MakeSpikeSounds()
+        static void MakeKitSounds()
         {
             // A seamless hiss for the jet (looped; its pitch and volume follow the pressure).
             float lp = 0f;
