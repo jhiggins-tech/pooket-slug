@@ -10,7 +10,7 @@ Up: [Design](README.md)
 
 ## How a kit is built
 
-From [player mechanics](player.md#the-kit): the primary has unlimited ammo, the special has 3 charges that refill over time, the super charges from kills, and the ability (larinovsky, garyoldmancorp and kiwicore only) is on a cooldown. A fork at level II comes from an upgrade crate, which is on hold for now. Health is 100, shown as five hearts of 20.
+From [player mechanics](player.md#the-kit): the primary has unlimited ammo, the special has 3 charges that refill over time, the super charges from kills, and the ability (larinovsky, garyoldmancorp and kiwicore only) is on a cooldown. Each soldier's super does its own thing and isn't a screen clearer; in co-op two charged supers can combine into a [team super](team-supers.md), which is. A fork at level II comes from an upgrade crate, which is on hold for now. Health is 100, shown as five hearts of 20.
 
 
 ## tones2

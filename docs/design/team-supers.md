@@ -13,7 +13,8 @@ Up: [Design](README.md)
 From [co-op](player.md#co-op): when both players' supers are charged, they can fire them together for a screen-clearing team super, and each pair of soldiers has its own combo.
 
 - **Firing it** (picked 2026-10-15): when both supers are charged and the pair has a combo, a TEAM button appears on both players' pads. Either player can fire it alone, and it spends both supers. SU still fires your own super as usual.
-- **What it costs:** both supers, emptied. It's stronger than the two supers fired separately, and it clears the screen of goons. Against a boss it lands a big hit but doesn't end the fight.
+- **What it does** (owner, 2026-10-15): a short animation, two or three seconds, and then **every enemy on screen dies**. That's the rule for every team super; a combo can tweak it, but this is the outcome. Against a boss it lands a big hit but doesn't end the fight. It spends both supers.
+- **Solo supers are different:** fired on its own, each soldier's super does its own thing ([kits](kits.md)), such as tones2's spew or kie's Steal, and isn't a screen clearer.
 - **The look:** the action freezes for a beat, and a split card slams in with both soldiers' portraits and the combo's name, Street Fighter style, while the announcer calls "TEAM SUPER!". The combo then plays out across the whole screen, mixing both kits' effects.
 - **Nobody is hurt by it:** like every co-op attack, it never hurts either player ([friendly fire is off](player.md#co-op)).
 - **Two different soldiers** are always in co-op ([player](player.md#co-op)), so every pair below is two different crewmates.
@@ -21,37 +22,37 @@ From [co-op](player.md#co-op): when both players' supers are charged, they can f
 
 ## The combos
 
-Eight soldiers make 28 pairs. The pairs open up as the crew is freed: tones2 and kie are the only pair after Mission one, then kcaj joins the next two, and so on. garyoldmancorp's super isn't designed yet, so his combos use his scooter and Diced Coffee wheel for now.
+Each combo is a gag built from both kits, and it always ends the same way: every enemy on screen dies (bosses take a big hit). Eight soldiers make 28 pairs. The pairs open up as the crew is freed: tones2 and kie are the only pair after Mission one, then kcaj joins the next two, and so on. garyoldmancorp's super isn't designed yet, so his combos use his scooter and Diced Coffee wheel for now.
 
 | Pair | Combo | What happens |
 |---|---|---|
-| tones2 + kie | **Sewer Rats** | tones2 floods the floor with sludge and kie's weasels surf the wave right across the screen, popping in toxic splashes under every goon they reach. |
-| tones2 + kcaj | **Mentos and Cola** | Unmedicated's pills rain into tones2's flood, and every pill that lands fizzes up into a geyser that throws goons into the air. |
+| tones2 + kie | **Sewer Rats** | tones2 floods the floor with sludge and kie's weasels surf the wave right across the screen, popping in toxic splashes under every goon on screen. |
+| tones2 + kcaj | **Mentos and Cola** | Unmedicated's pills rain into tones2's flood, and every pill that lands fizzes up into a geyser; every goon on screen is blown away. |
 | tones2 + torikloud | **Spew Boom** | torikloud's Sonic Boom picks up tones2's spew and carries it across the whole screen as one green wave, through walls. |
 | tones2 + ciarra | **Slip 'n' Slide** | tones2 sprays a water slide along the ground and ciarra belly-slides a full screen along it, flattening everything, finishing in a splash blast. |
-| tones2 + larinovsky | **Hangover Cure** | larinovsky naps through it while tones2 spews in every direction; the cats guard them both, and both wake at full health. |
+| tones2 + larinovsky | **Hangover Cure** | larinovsky naps through it while tones2 spews in every direction and melts every goon on screen; the cats keep watch. |
 | tones2 + garyoldmancorp | **Jet Ski** | gary rides tones2's jet like a jet ski across the screen, unstoppable; the CRASH! at the far wall hurts goons, not him. |
 | tones2 + kiwicore | **Foam Party** | kiwicore stage-dives into a screen full of tones2's foam; goons slip, slide and pop as he crowd-surfs across them. |
 | kie + kcaj | **Pill Weasels** | a weasel for every goon on screen, each carrying a pill; they scurry under their goon, pop, and burst into bouncing pills. |
 | kie + torikloud | **Mistrial** | kie fills the screen with a hologram jury, and torikloud shouts OBJECTION!; every juror explodes on the goons nearest it. |
 | kie + ciarra | **Fun Run** | ciarra runs a Marathon leg with a pack of weasels chasing her; each one peels off and pops under a goon as she passes. |
 | kie + larinovsky | **The Long Con** | kie's roulette lifts the weapon off every enemy on screen, and larinovsky's scam fires them all back at once. |
-| kie + garyoldmancorp | **Casino Night** | the Steal roulette and the Diced Coffee wheel spin together. Jackpot: every enemy freezes and kie pockets their power-ups. Bust: both are launched up and rain weasels on the way down. |
+| kie + garyoldmancorp | **Casino Night** | the Steal roulette and the Diced Coffee wheel spin together and always land on JACKPOT: every enemy on screen freezes and shatters, and kie pockets the loot. |
 | kie + kiwicore | **Encore** | kie projects a hologram stadium crowd and kiwicore stage-dives across it; every hologram fan he lands on bursts like a shot Trollogram. |
-| kcaj + torikloud | **Prescription Pad** | torikloud's Debate words come out as pills, one per letter, bouncing across the screen; a long word is a long, deadly prescription. |
+| kcaj + torikloud | **Prescription Pad** | torikloud reads out one very long word, and every letter is a pill that bounces across the screen and pops on a goon until none are left. |
 | kcaj + ciarra | **Stitches** | ciarra's Sew pins every goon on screen, kcaj's Hyperfixate locks a beam onto each one at once, and they burn while pinned. |
 | kcaj + larinovsky | **Double Dose** | both pill kits at once: 240 pills and walking blasts fill the screen, then the cooked goons pop in a chain. |
 | kcaj + garyoldmancorp | **Brain Freeze** | everything freezes solid (lactose free, guaranteed) and gary scooters through the frozen goons, shattering them. |
-| kcaj + kiwicore | **Drop the Beat** | kiwicore drums four bars, and every beat drops another wave of pills; hit the beat and the wave is bigger. |
+| kcaj + kiwicore | **Drop the Beat** | kiwicore hits one huge drum fill and a wave of pills drops on every beat, wiping out every goon on screen. |
 | torikloud + ciarra | **Cross-stitch Verdict** | ciarra sews torikloud's word GUILTY in thread right across the screen, through every goon it passes, then pulls it tight. |
 | torikloud + larinovsky | **Bedtime Story** | torikloud filibusters until every goon on screen falls asleep; larinovsky's cats swat each sleeper into a little halo. |
 | torikloud + garyoldmancorp | **Drive-by Debate** | gary scooters across the screen with both torikloud twins on the back, shouting words; every letter is a bullet. |
 | torikloud + kiwicore | **Wall of Sound** | kiwicore drums into torikloud's Sonic Boom; each beat sends a full-screen sound wave that wipes out bullets and goons. |
-| ciarra + larinovsky | **Piggyback** | ciarra runs a Marathon leg with larinovsky asleep on her back; they arrive at full health with a 50-damage blast. |
+| ciarra + larinovsky | **Piggyback** | ciarra runs the whole screen with larinovsky asleep on her back, flattening every goon, and finishes with a blast. |
 | ciarra + garyoldmancorp | **Photo Finish** | ciarra and gary race each other across the screen, flattening everything in two lanes, and the finish line blows up. |
 | ciarra + kiwicore | **Victory Lap** | kiwicore crowd-surfs on top of ciarra's run, hitting the flyers she can't reach, and the leg ends in a stage-dive blast. |
-| larinovsky + garyoldmancorp | **Coffee Nap** | the coffee freezes every enemy (always lactose free here) while larinovsky naps; both players wake at full health. |
-| larinovsky + kiwicore | **Lullaby** | kiwicore drums a slow lullaby and larinovsky naps; every beat heals both players and sends the cats out to swat a goon. |
+| larinovsky + garyoldmancorp | **Coffee Nap** | the coffee freezes every enemy (always lactose free here) and larinovsky's cats swat each frozen goon to pieces. |
+| larinovsky + kiwicore | **Lullaby** | kiwicore drums a lullaby that puts every goon on screen to sleep, and on the last beat they all float off as little halos. |
 | garyoldmancorp + kiwicore | **Tour Bus** | gary tows kiwicore across the screen on a drum riser; every beat he plays knocks back everything in their path. |
 
 ## Building them

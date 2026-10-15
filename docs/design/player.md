@@ -43,7 +43,7 @@ Up: [Design](README.md)
 Each soldier's kit comes from their Pooket Tabks tiers:
 - **Tier 1 is the primary,** with unlimited ammo.
 - **Tier 2 is the special,** with 3 charges that refill over time.
-- **Tier 3 is the super,** charged by kills.
+- **Tier 3 is the super,** charged by kills. Fired solo it does the soldier's own thing and isn't a screen clearer; combined with a partner's it becomes a team super that clears the screen ([team supers](team-supers.md)).
 - **The bonus move is the ability,** on a cooldown. Only larinovsky, garyoldmancorp and kiwicore have one.
 
 **Some soldiers have a melee attack.** For them, FIRE becomes a melee hit when a goon is right next to them. It's part of their kit, not every soldier's.
@@ -81,7 +81,7 @@ Statuses come only from the soldiers' kits: each one belongs to a particular sol
 - **Two phones, online.** Co-op opens once Mission one has been beaten solo ([progression](levels.md#the-order-things-open-up)), and a partner can drop in mid-mission.
 - **Lives and scores:** each player has their own, and their stats are kept separately.
 - **Some kits help a partner:** kiwicore's drum solo heals them, ciarra's marks make their shots hit harder, and kcaj's pills never hurt them.
-- **The team super:** when both players' supers are charged, they can fire them together for a screen-clearing team super. Each pair of soldiers gets its own combo ([team supers](team-supers.md)).
+- **The team super:** when both players' supers are charged, they can fire them together for a team super: a short animation, and then every enemy on screen dies (owner, 2026-10-15). Each pair of soldiers gets its own combo ([team supers](team-supers.md)).
 - **Friendly fire is off.**
 - **Two different soldiers:** both players can't pick the same soldier (owner, 2026-10-15).
 - **Your partner is always easy to find:** an arrow when they're off-screen, and a warning when their health is low or they've switched away from the game.
