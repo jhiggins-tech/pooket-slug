@@ -369,74 +369,95 @@ namespace PooketSlug
             Spark[1] = ToSprite(b, Center);
         }
 
+        // ---- Mission one's look: the steel night base (concept C, picked 2026-10-15) ----
+
+        static readonly Color32 Night = Hex(0x16203c), Glow = Hex(0xffe08a), Beacon = Hex(0xd83838);
+        static readonly Color32 SnowTop = Hex(0xf4f8ff), Snow = Hex(0xc8d4e8), SnowShade = Hex(0x8c9cbc);
+        static readonly Color32 Wall = Hex(0x3a4058), WallSeam = Hex(0x2a3048), Wire = new Color32(150, 160, 180, 200);
+
         static void BuildBackground()
         {
             // Sky: tiny vertical gradient, bilinear-filtered and stretched over the view.
             var sky = new PixelCanvas(1, 32);
-            Color top = new Color32(0x6c, 0xa8, 0xe0, 255), horizon = new Color32(0xf8, 0xdc, 0xa8, 255);
+            Color top = new Color32(0x0a, 0x10, 0x26, 255), horizon = new Color32(0x2c, 0x3e, 0x66, 255);
             for (int y = 0; y < 32; y++) sky.Set(0, y, Color.Lerp(horizon, top, Mathf.SmoothStep(0, 1, y / 31f)));
             Sky = ToSprite(sky, Center, filter: FilterMode.Bilinear);
 
-            // Far mountains: sum of sines with periods that divide the width, so the strip tiles seamlessly.
+            // Far layer: stars, searchlight beams and the base's skyline (hangars, a radar mast, a crane).
+            // Nothing crosses the strip's edges, so it tiles seamlessly.
             const int w = 320;
-            var far = new PixelCanvas(w, 96);
-            Color32 rock = Hex(0xd8a878), rockShade = Hex(0xc09068), rim = Hex(0xf0c898);
-            for (int x = 0; x < w; x++)
+            var far = new PixelCanvas(w, 112);
+            var rng = new System.Random(7);
+            for (int i = 0; i < 70; i++)
             {
-                float t = x / (float)w * Mathf.PI * 2f;
-                float h = 46 + 18 * Mathf.Sin(t * 2 + 0.6f) + 10 * Mathf.Sin(t * 5 + 1.3f) + 4 * Mathf.Sin(t * 13);
-                int hi = Mathf.RoundToInt(h);
-                for (int y = 0; y < hi; y++) far.Set(x, y, ((x / 3 + y / 5) % 7 == 0 && y < hi - 3) ? rockShade : rock);
-                far.Set(x, hi - 1, rim);
+                byte a = (byte)(rng.Next(3) == 0 ? 255 : rng.Next(90, 200));
+                far.Set(rng.Next(w), rng.Next(48, 112), new Color32(230, 236, 255, a));
             }
+            Beam(far, 70, 30, -0.35f, 80);
+            Beam(far, 230, 30, 0.45f, 80);
+            int[][] hangars = { new[] { 8, 64 }, new[] { 132, 72 }, new[] { 240, 56 } };
+            foreach (int[] h in hangars)
+            {
+                int hx = h[0], hw = h[1];
+                far.Rect(hx, 0, hw, 46, Night);
+                for (int i = 0; i <= hw / 2; i++) far.Rect(hx + i, 46, 1, i / 5, Night);
+                for (int i = 0; i <= hw / 2; i++) far.Rect(hx + hw - 1 - i, 46, 1, i / 5, Night);
+                for (int k = 0; k < 3; k++) far.Rect(hx + 8 + k * (hw / 3), 36, 3, 2, Glow);
+            }
+            far.Rect(100, 0, 2, 66, Night); // radar mast
+            for (int y = -4; y <= 4; y++)
+                for (int x = -9; x <= 9; x++)
+                    if (x * x / 81f + y * y / 16f <= 1f) far.Set(101 + x, 68 + y, Night);
+            far.Set(101, 74, Beacon);
+            far.Rect(220, 0, 2, 78, Night); // crane
+            far.Rect(200, 76, 40, 2, Night);
+            far.Rect(206, 60, 1, 16, Night);
+            far.Set(238, 78, Beacon);
             Mountains = ToSprite(far, new Vector2(0f, 0f));
 
-            // Mid layer: ruined skyline with palms.
+            // Mid layer: the perimeter wall, capped with snow and razor wire, with floodlight poles.
             var mid = new PixelCanvas(w, 96);
-            Color32 wall = Hex(0xa87850), wallDark = Hex(0x8a6040), window = Hex(0x5a3c2c);
-            Color32 trunk = Hex(0x6a4a30), leaf = Hex(0x5a7a3a), sand = Hex(0xc89a68);
-            var rng = new System.Random(42);
-            int bx = 4;
-            while (bx < w - 40)
-            {
-                int bw = rng.Next(22, 44), bh = rng.Next(26, 62);
-                mid.Rect(bx, 0, bw, bh, wall);
-                mid.Rect(bx + bw - 4, 0, 4, bh, wallDark);
-                // broken roofline
-                for (int i = 0; i < bw; i += 3)
-                {
-                    int bite = rng.Next(0, 6);
-                    mid.Rect(bx + i, bh - bite, 3, bite, default);
-                }
-                for (int wy = 8; wy < bh - 10; wy += 12)
-                    for (int wx = bx + 4; wx < bx + bw - 8; wx += 9)
-                        if (rng.NextDouble() < 0.8) mid.Rect(wx, wy, 4, 6, window);
-                bx += bw + rng.Next(18, 40);
-                if (bx < w - 20)
-                {
-                    int px = bx - rng.Next(8, 14), ph = rng.Next(34, 50);
-                    for (int y = 0; y < ph; y++) mid.Rect(px + (y * y) / 400, y, 3, 1, trunk);
-                    int tx = px + (ph * ph) / 400 + 1;
-                    for (int k = -1; k <= 1; k += 2)
-                        for (int i = 0; i < 16; i++)
-                            mid.Rect(tx + k * i, ph + 2 - (i * i) / 18, 2, 2, leaf);
-                    mid.Circle(tx + 1, ph + 2, 3, leaf);
-                }
-            }
+            const int wallTop = 46;
             for (int x = 0; x < w; x++)
             {
-                int dune = 6 + Mathf.RoundToInt(4 * Mathf.Sin(x / (float)w * Mathf.PI * 6));
-                mid.Rect(x, 0, 1, dune, sand);
+                mid.Rect(x, 0, 1, wallTop, x % 32 == 0 ? WallSeam : Wall);
+                mid.Set(x, wallTop, SnowShade);
+                mid.Set(x, wallTop + 1, Snow);
+                if (x % 7 == 3) mid.Set(x, wallTop - 1, Snow);
+            }
+            for (int x = 0; x < w; x += 5) // razor wire coils
+                for (int a = 0; a < 360; a += 30)
+                {
+                    float r = a * Mathf.Deg2Rad;
+                    mid.Set(x + 2 + Mathf.RoundToInt(2.5f * Mathf.Cos(r)), wallTop + 5 + Mathf.RoundToInt(2.5f * Mathf.Sin(r)), Wire);
+                }
+            foreach (int px in new[] { 90, 250 })
+            {
+                mid.Rect(px, wallTop, 2, 34, WallSeam);
+                mid.Rect(px - 3, wallTop + 34, 8, 3, WallSeam);
+                mid.Rect(px - 2, wallTop + 33, 6, 1, Glow);
             }
             Ruins = ToSprite(mid, new Vector2(0f, 0f));
         }
 
+        /// <summary>A faint searchlight cone rising from (x, y), leaning by `lean` px per row.</summary>
+        static void Beam(PixelCanvas c, int x, int y, float lean, int length)
+        {
+            for (int t = 0; t < length; t++)
+            {
+                int half = 1 + t / 8;
+                int cx = x + Mathf.RoundToInt(lean * t);
+                for (int dx = -half; dx <= half; dx++) c.Set(cx + dx, y + t, new Color32(255, 240, 180, 26));
+            }
+        }
+
         // ---- Tiles (baked into level chunk textures by LevelView) ----
 
-        static readonly Color32 SandTop = Hex(0xf0d088), SandLight = Hex(0xe0b870), Sand = Hex(0xc89858);
-        static readonly Color32 Dirt = Hex(0xa87448), DirtDark = Hex(0x8a5a38), Pebble = Hex(0xd0a070);
-        static readonly Color32 Bag = Hex(0xc8b080), BagDark = Hex(0x9a8058), BagSeam = Hex(0x6a5438);
-        static readonly Color32 Plank = Hex(0x9a6a40), PlankDark = Hex(0x6a4428), PlankLight = Hex(0xc08a58);
+        static readonly Color32 Concrete = Hex(0x7a808e), ConcreteLight = Hex(0x9aa0ac), ConcreteSeam = Hex(0x4e5260);
+        static readonly Color32 ConcreteDark = Hex(0x3a3e4a);
+        static readonly Color32 Bag = Hex(0xc4c8cc), BagDark = Hex(0x8a9098), BagSeam = Hex(0x6c727c);
+        static readonly Color32 Steel = Hex(0x5a6478), SteelDark = Hex(0x2e3444), SteelLight = Hex(0x8a96aa);
+        static readonly Color32 Hazard = Hex(0xf0c030), HazardDark = Hex(0x24242c);
 
         /// <summary>Writes one 16x16 tile into <paramref name="c"/> at pixel (ox, oy).</summary>
         public static void DrawTile(PixelCanvas c, int ox, int oy, char tile, bool exposedTop, int seed)
@@ -445,26 +466,35 @@ namespace PooketSlug
             switch (tile)
             {
                 case '#':
+                    // Concrete slabs, two courses per tile, with a snow cap where the top is open.
                     for (int y = 0; y < 16; y++)
                         for (int x = 0; x < 16; x++)
                         {
-                            Color32 col = Dirt;
                             int depth = 15 - y;
-                            bool sand = exposedTop && depth < 6 + ((x * 7 + seed) % 3);
-                            if (sand) col = depth == 0 ? SandTop : depth < 3 ? SandLight : Sand;
-                            else if ((x * 13 + y * 7 + seed) % 11 == 0) col = DirtDark;
+                            bool upper = depth < 8;
+                            Color32 col = Concrete;
+                            if (depth == 7 || depth == 15) col = ConcreteSeam;
+                            else if (depth == 0 || depth == 8) col = ConcreteLight;
+                            else if (x == (upper ? 5 : 12)) col = ConcreteSeam;
+                            else if ((x * 13 + y * 7 + seed) % 17 == 0) col = ConcreteDark;
+                            if (exposedTop)
+                            {
+                                if (depth < 2) col = SnowTop;
+                                else if (depth < 4) col = Snow;
+                                else if (depth == 4) col = SnowShade;
+                                else if (depth < 7 && (x * 5 + seed) % 7 == 0) col = Snow; // drips
+                            }
                             c.Set(ox + x, oy + y, col);
                         }
-                    for (int i = 0; i < 3; i++)
+                    if (rng.Next(3) == 0)
                     {
-                        int px = rng.Next(1, 14), py = rng.Next(1, exposedTop ? 9 : 14);
-                        c.Rect(ox + px, oy + py, 2, 1, Pebble);
-                        c.Set(ox + px, oy + py - 1, DirtDark);
+                        int cx = rng.Next(2, 12), cy = rng.Next(1, 6);
+                        for (int i = 0; i < 3; i++) c.Set(ox + cx + i, oy + cy + i / 2, ConcreteDark); // a crack
                     }
                     break;
 
                 case '=':
-                    // two rows of sandbags
+                    // two rows of snow-camo sandbags
                     for (int row = 0; row < 2; row++)
                     {
                         int by = oy + row * 8, shift = row == 0 ? 0 : 4;
@@ -478,26 +508,36 @@ namespace PooketSlug
                                     if (gx < ox || gx >= ox + 16) continue;
                                     bool corner = (x == 0 || x == 7) && (y == 0 || y == 7);
                                     if (corner) continue;
-                                    Color32 col = (x == 0 || y == 0) ? BagDark : (y == 7 || x == 7) ? BagSeam : Bag;
+                                    Color32 col = (x == 0 || y == 0) ? BagSeam : (y == 7 || x == 7) ? BagDark : Bag;
                                     if (y == 3 && x > 1 && x < 6) col = BagDark;
+                                    if (y == 7 && x > 1 && x < 6) col = SnowTop;
                                     c.Set(gx, by + y, col);
                                 }
                         }
                     }
+                    if (exposedTop)
+                        for (int x = 1; x < 15; x++)
+                        {
+                            c.Set(ox + x, oy + 15, SnowTop);
+                            if (x % 4 != 0) c.Set(ox + x, oy + 14, Snow);
+                        }
                     break;
 
                 case '-':
+                    // a steel catwalk: hazard-striped edge, grating, and trusses below
                     for (int x = 0; x < 16; x++)
                     {
-                        c.Set(ox + x, oy + 15, PlankLight);
-                        c.Set(ox + x, oy + 14, Plank);
-                        c.Set(ox + x, oy + 13, Plank);
-                        c.Set(ox + x, oy + 12, PlankDark);
+                        c.Set(ox + x, oy + 15, SnowTop);
+                        c.Set(ox + x, oy + 14, ((x + 16) / 2) % 2 == 0 ? Hazard : HazardDark);
+                        c.Set(ox + x, oy + 13, x % 3 == 0 ? SteelDark : Steel);
+                        c.Set(ox + x, oy + 12, x % 3 == 0 ? SteelDark : SteelLight);
+                        c.Set(ox + x, oy + 11, SteelDark);
                     }
-                    for (int x = 3; x < 16; x += 8) c.Rect(ox + x, oy + 12, 1, 4, PlankDark);
-                    // rope / support struts hanging below
-                    c.Rect(ox + 2, oy + 8, 1, 4, PlankDark);
-                    c.Rect(ox + 13, oy + 8, 1, 4, PlankDark);
+                    for (int i = 0; i < 4; i++)
+                    {
+                        c.Set(ox + 3 + i, oy + 10 - i, SteelLight);
+                        c.Set(ox + 12 - i, oy + 10 - i, SteelLight);
+                    }
                     break;
             }
         }

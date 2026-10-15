@@ -18,6 +18,7 @@ Up: [Design](README.md)
 ## Mission one: the military base
 
 - **Metal Slug played straight:** sandbags and watchtowers, ending at the motor pool, where the stolen tanks are parked.
+- **The look: a steel base at night** (picked 2026-10-15). Snow on concrete and steel, hazard stripes, searchlights, live fences and steam vents, with the motor pool's blast shutter as the boss door. The cold palette makes the hologram goons and the fire stand out. The concept sheets are in the project's files, under concepts/m1-map.
 - **About five minutes long.**
 - **Solo, as tones2,** straight in with no tutorial.
 - **Goons:** riflemen (crouch under their shots), knife runners and bomb-dropping drones, all as flickering holograms.
