@@ -133,7 +133,8 @@ namespace PooketSlug
             {
                 Dying = true;
                 DyingTime = 0f;
-                World.Scoring.Popup(Score.ToString(), Center + Vector2.up * 0.6f, Color.white);
+                // shot down; a weasel that popped on someone or one of kie's copies glitching out scores nothing
+                if (Hp <= 0) World.Scoring.Popup(Score.ToString(), Center + Vector2.up * 0.6f, Color.white);
             }
         }
 

@@ -4,28 +4,43 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// Spike (<c>?spike=kie</c>, solo only): kie's tank boss, riding on the artillery tank (<see cref="TankBoss"/>). Each
-    /// charged shot is the next attack of three (<see cref="KieTankSpec.AttackFor"/>):
+    /// kie's tank, riding on Mission one's artillery tank (<see cref="TankBoss"/>). Each charged shot is the next attack of
+    /// three (<see cref="KieTankSpec.AttackFor"/>, tuned in <see cref="Content.KieTank"/>):
     /// <list type="bullet">
     /// <item>Weasels: three lobbed at you, which land, scurry over and pop (<see cref="Weasel"/>). Shoot them first.</item>
-    /// <item>Holograms: two copies of the tank glitch in, and all three shuffle; every one flickers like a hologram
-    /// (<see cref="HoloLook"/>) and fires. Only the real one can be hurt, and the first hit on it ends the trick.</item>
+    /// <item>Holograms: two copies of the tank glitch in (<see cref="Content.TankCopy"/>) and all three shuffle. Every one
+    /// flickers like a hologram and moves and fires as one. Only the real one can be hurt, and the first hit on it
+    /// ends the trick.</item>
     /// <item>Roulette: a wheel spins over the tank and steals your special's charges (or your super's charge). Hit
     /// the tank hard enough and it drops what it stole (<see cref="KieLoot"/>) for you to grab back.</item>
     /// </list>
     /// A turn whose attack is still going is a plain shell. It all quickens as the tank is hurt, with its rage.
+    /// <para>
+    /// Co-op: the authority runs the attacks. Weasels and copies are enemies, so the snapshot carries them; the
+    /// disguise is a flag on the tank's snapshot (<see cref="NetEnemyState.Disguised"/>); and the roulette rides in
+    /// the tank's network object (<see cref="NetBossState.KieState"/>). Every screen steals from its own soldier and
+    /// drops its own soldier's loot, so the wheel takes from everyone at once.
+    /// </para>
     /// </summary>
     public sealed class KieBoss
     {
-        public static readonly KieTankSpec Spec = new KieTankSpec();
+        static KieTankSpec Spec => Content.KieTank;
 
         readonly World m_World;
         readonly TankBoss m_Tank;
-        readonly List<TankBoss> m_Decoys = new List<TankBoss>();
+        readonly List<TankBoss> m_Copies = new List<TankBoss>();
         readonly SpriteRenderer m_Frame, m_Icon, m_BarBack, m_BarFill;
-        float m_HomeX, m_DecoyTime, m_Spin = -1f, m_Shown;
-        int m_Turn, m_Held, m_Damage;
+        float m_HomeX, m_Shown;
+        int m_Turn;
+        bool m_Disguised;
+
+        // the roulette as the authority runs it, and as every screen has seen it
+        int m_Phase, m_Damage, m_Drops, m_SeenPhase, m_SeenDrops;
+        float m_Spin, m_LocalSpin = -1f, m_Progress;
+        bool m_MarkerShown = true;
+        // what this screen's soldier lost
         KieSteal m_Pick, m_Holding;
+        int m_Held;
 
         public KieBoss(World world, TankBoss tank)
         {
@@ -52,22 +67,40 @@ namespace PooketSlug
             return sr;
         }
 
-        bool DecoysUp => m_Decoys.Count > 0;
-        bool Holding => m_Holding != KieSteal.Nothing || m_Spin >= 0f;
-        KieAttack Next => KieTankSpec.AttackFor(m_Turn, DecoysUp, Holding);
+        /// <summary>Authority: the copies standing with it, which fire its shells with it.</summary>
+        public IReadOnlyList<TankBoss> Copies => m_Copies;
 
-        /// <summary>The next charged shot comes down somewhere, so the landing marker means something.</summary>
+        /// <summary>It's wearing its hologram look among its copies.</summary>
+        public bool Disguised => m_Disguised;
+
+        KieAttack Next => KieTankSpec.AttackFor(m_Turn, m_Copies.Count > 0, m_Phase != 0);
+
+        /// <summary>Authority: the next charged shot comes down somewhere, so the landing marker means something.</summary>
         public bool NextLands => Next == KieAttack.Shell || Next == KieAttack.Weasels;
 
         /// <summary>Extra seconds the tank rests after the attack just made (the wheel spinning).</summary>
         public float Wait { get; private set; }
 
-        /// <summary>The tank's charged shot: kie's attack in its place, or false for a plain shell.</summary>
-        public bool Fire(Vector2 muzzle, float angle)
+        /// <summary>Authority: how close it is to dropping what it stole, 0 to 1.</summary>
+        public float Progress => m_Phase == KieTankSpec.RouletteHolding ? Mathf.Clamp01(m_Damage / (float)Spec.DropDamage(m_Tank.MaxHp)) : 0f;
+
+        /// <summary>Authority: times it has dropped what it stole.</summary>
+        public int Drops => m_Drops;
+
+        /// <summary>Authority: the roulette for the network object, with whether the landing marker is shown.</summary>
+        public int NetState(bool markerShown) => m_Phase | (markerShown ? 0 : KieTankSpec.NoMarker);
+
+        /// <summary>Follower: whether the authority's tank shows its landing marker.</summary>
+        public static bool MarkerShown(int netState) => (netState & KieTankSpec.NoMarker) == 0;
+
+        /// <summary>Authority: the tank's charged shot, kie's attack in its place, or false for a plain shell.</summary>
+        /// <summary><paramref name="thrown"/>: it came out of the barrel (the weasels), so the tank kicks as if it fired.</summary>
+        public bool Fire(Vector2 muzzle, float angle, out bool thrown)
         {
             KieAttack attack = Next;
             m_Turn++;
             Wait = 0f;
+            thrown = attack == KieAttack.Weasels;
             switch (attack)
             {
                 case KieAttack.Weasels:
@@ -78,11 +111,9 @@ namespace PooketSlug
                     Wait = 0.5f;
                     return true;
                 case KieAttack.Roulette:
-                    Player p = m_World.Player;
-                    m_Pick = KieTankSpec.Pick(p.Specials, p.Kit.SuperCharge, m_World.Rng.Value);
+                    m_Phase = KieTankSpec.RouletteSpinning;
                     m_Spin = 0f;
                     Wait = Spec.SpinTime / m_Tank.Fury + 0.3f;
-                    m_World.Scoring.Popup("ROULETTE!", m_Tank.Pos + Vector2.up * 4.4f, new Color(1f, 0.6f, 0.9f));
                     return true;
                 default:
                     return false;
@@ -104,10 +135,9 @@ namespace PooketSlug
             for (int i = 0; i < Spec.WeaselCount; i++)
             {
                 float k = 1f + (i - (Spec.WeaselCount - 1) * 0.5f) * Spec.WeaselSpread;
-                m_World.Enemies.Add(new Weasel(m_World, muzzle, dir * (power * k), speed));
+                if (m_World.Spawner.SpawnEnemy(Content.Weasel, muzzle) is Weasel weasel) weasel.Launch(dir * (power * k), speed);
             }
             Sfx.Play(Sfx.Throw, 0.9f);
-            Sfx.Play(Sfx.Cannon, 0.5f);
             m_World.Scoring.Popup("WEASELS!", m_Tank.Pos + Vector2.up * 4.4f, new Color(1f, 0.75f, 0.4f));
         }
 
@@ -118,7 +148,6 @@ namespace PooketSlug
             float[] slots = Spec.Slots(m_HomeX);
             int real = m_World.Rng.Range(0, slots.Length);
             float y = m_Tank.Pos.y;
-            m_World.Burst(m_Tank.Center, 14, new Color(0.45f, 1f, 1f));
             for (int i = 0; i < slots.Length; i++)
             {
                 var at = new Vector2(Standable(slots[i], y), y);
@@ -127,20 +156,19 @@ namespace PooketSlug
                     m_Tank.Pos = at;
                     m_Tank.HomeX = at.x;
                 }
-                else
+                else if (m_World.Spawner.SpawnEnemy(Content.TankCopy, at) is TankBoss copy)
                 {
-                    var copy = new TankBoss(m_World, m_Tank.Def, at, decoy: true) { Hp = m_Tank.Hp, MaxHp = m_Tank.MaxHp, Facing = m_Tank.Facing };
-                    copy.Look = new HoloLook(copy);
-                    m_World.Enemies.Add(copy);
-                    m_Decoys.Add(copy);
+                    copy.Hp = m_Tank.Hp;
+                    copy.MaxHp = m_Tank.MaxHp;
+                    m_Copies.Add(copy);
                 }
-                m_World.Burst(at + Vector2.up, 10, new Color(0.45f, 1f, 1f));
             }
-            m_Tank.Look = new HoloLook(m_Tank);
             m_DecoyTime = Spec.DecoyTime;
-            Sfx.Play(Sfx.Glitch, 0.9f);
+            SetDisguised(true);
             m_World.Scoring.Popup("WHICH ONE?", m_Tank.Pos + Vector2.up * 4.4f, new Color(0.45f, 1f, 1f));
         }
+
+        float m_DecoyTime;
 
         /// <summary>The nearest spot to <paramref name="x"/>, going back toward home, with floor under it and no wall in it.</summary>
         float Standable(float x, float y)
@@ -155,24 +183,71 @@ namespace PooketSlug
             return m_HomeX;
         }
 
+        /// <summary>Authority: the copies glitch out and the real one drops its disguise.</summary>
         void EndHolograms(bool found)
         {
-            if (!DecoysUp) return;
-            foreach (TankBoss copy in m_Decoys)
-                if (!copy.Removed) copy.Dying = true; // glitches out
-            m_Decoys.Clear();
-            m_Tank.Look?.Detach();
-            m_Tank.Look = null;
+            if (m_Copies.Count == 0) return;
+            foreach (TankBoss copy in m_Copies)
+                if (!copy.Removed) copy.Dying = true; // glitches out (the snapshot carries it)
+            m_Copies.Clear();
             m_Tank.HomeX = m_HomeX;
+            SetDisguised(false);
             if (found) m_World.Scoring.Popup("FOUND ME!", m_Tank.Pos + Vector2.up * 4.4f, Color.white);
+        }
+
+        /// <summary>Puts on or takes off the real tank's hologram look (on a follower, as the authority's snapshot says).</summary>
+        public void SetDisguised(bool on)
+        {
+            if (on == m_Disguised) return;
+            m_Disguised = on;
+            m_World.Burst(m_Tank.Center, 14, new Color(0.45f, 1f, 1f));
+            Sfx.Play(Sfx.Glitch, 0.8f);
+            if (on) m_Tank.Look = new HoloLook(m_Tank);
+            else
+            {
+                m_Tank.Look?.Detach();
+                m_Tank.Look = null;
+            }
         }
 
         // ------------------------------------------------------------------ the roulette
 
+        /// <summary>
+        /// Every screen: follow the roulette as the authority runs it. A spin starting picks what to take from our
+        /// soldier; holding takes it; a drop gives it back as loot to grab.
+        /// </summary>
+        public void ApplyNet(int state, float progress, int drops)
+        {
+            int phase = state & KieTankSpec.RoulettePhase;
+            m_MarkerShown = MarkerShown(state);
+            m_Progress = progress;
+            if (phase != m_SeenPhase)
+            {
+                if (phase == KieTankSpec.RouletteSpinning) StartSpin();
+                else if (phase == KieTankSpec.RouletteHolding) Steal();
+                else m_LocalSpin = -1f;
+                m_SeenPhase = phase;
+            }
+            if (drops != m_SeenDrops)
+            {
+                m_SeenDrops = drops;
+                Drop();
+            }
+        }
+
+        void StartSpin()
+        {
+            Player p = m_World.Player;
+            m_Pick = KieTankSpec.Pick(p.Specials, p.Kit.SuperCharge, Rng.Fx.Value);
+            m_LocalSpin = 0f;
+            m_World.Scoring.Popup("ROULETTE!", m_Tank.Pos + Vector2.up * 4.4f, new Color(1f, 0.6f, 0.9f));
+        }
+
         void Steal()
         {
-            m_Spin = -1f;
+            m_LocalSpin = -1f;
             Player p = m_World.Player;
+            if (p.IsDown) return;
             Vector2 over = p.Pos + Vector2.up * 2.6f;
             int amount = m_Pick == KieSteal.Special ? p.Specials : m_Pick == KieSteal.Super ? Mathf.RoundToInt(p.Kit.SuperCharge * p.Kit.SuperKills) : 0;
             if (amount <= 0)
@@ -184,7 +259,6 @@ namespace PooketSlug
             else amount = p.Kit.TakeSuper();
             m_Holding = m_Pick;
             m_Held = amount;
-            m_Damage = 0;
             m_World.Scoring.Popup(m_Pick == KieSteal.Special ? p.Def.Special.Hud + " STOLEN!" : "SUPER STOLEN!", over, new Color(1f, 0.45f, 0.8f));
             Sfx.Play(Sfx.Glitch, 0.7f);
             Sfx.Play(Sfx.Pickup, 0.6f);
@@ -212,43 +286,54 @@ namespace PooketSlug
 
         // ------------------------------------------------------------------ the tank's side
 
-        /// <summary>Each tick of the tank, once it has woken.</summary>
+        /// <summary>Each tick of the tank once it's awake (on a follower, each tick it's alive).</summary>
         public void Tick(float dt)
         {
             m_Shown += dt;
-            if (DecoysUp)
+            if (m_LocalSpin >= 0f) m_LocalSpin += dt;
+            if (!m_World.IsAuthority) return;
+
+            if (m_Copies.Count > 0)
             {
                 m_DecoyTime -= dt;
                 if (m_DecoyTime <= 0f) EndHolograms(false);
             }
-            if (m_Spin >= 0f)
+            if (m_Phase == KieTankSpec.RouletteSpinning)
             {
                 m_Spin += dt;
-                if (m_Spin >= Spec.SpinTime / m_Tank.Fury) Steal();
+                if (m_Spin >= Spec.SpinTime / m_Tank.Fury)
+                {
+                    m_Phase = KieTankSpec.RouletteHolding;
+                    m_Damage = 0;
+                }
             }
+            ApplyNet(NetState(true), Progress, m_Drops); // our own screen follows it like a partner's would
         }
 
-        /// <summary>The real tank took <paramref name="damage"/>.</summary>
+        /// <summary>Authority: the real tank took <paramref name="damage"/>.</summary>
         public void OnHurt(int damage)
         {
             EndHolograms(true);
-            if (m_Holding == KieSteal.Nothing) return;
+            if (m_Phase != KieTankSpec.RouletteHolding) return;
             m_Damage += damage;
-            if (m_Damage >= Spec.DropDamage(m_Tank.MaxHp)) Drop();
+            if (m_Damage < Spec.DropDamage(m_Tank.MaxHp)) return;
+            m_Phase = 0;
+            m_Drops++;
+            ApplyNet(NetState(true), 0f, m_Drops);
         }
 
-        /// <summary>The tank is destroyed: the trick ends and anything it stole falls out.</summary>
+        /// <summary>Authority: the tank is destroyed. The trick ends and anything it stole falls out.</summary>
         public void OnDie()
         {
             EndHolograms(false);
-            m_Spin = -1f;
-            Drop();
-            m_Frame.enabled = m_Icon.enabled = m_BarBack.enabled = m_BarFill.enabled = false;
+            if (m_Phase == KieTankSpec.RouletteHolding) m_Drops++;
+            m_Phase = 0;
+            ApplyNet(0, 0f, m_Drops);
         }
 
         public void Render()
         {
-            bool spinning = m_Spin >= 0f, holding = m_Holding != KieSteal.Nothing;
+            bool spinning = m_LocalSpin >= 0f, holding = m_Holding != KieSteal.Nothing;
             bool shown = !m_Tank.Dying && (spinning || holding);
             m_Frame.enabled = m_Icon.enabled = shown;
             m_BarBack.enabled = m_BarFill.enabled = shown && holding;
@@ -261,10 +346,10 @@ namespace PooketSlug
             if (spinning)
             {
                 // flicks between the two, slowing, and settles on what it'll take for the last part of the spin
-                float t = m_Spin / (Spec.SpinTime / m_Tank.Fury);
+                float t = m_LocalSpin / (Spec.SpinTime / m_Tank.Fury);
                 face = t > 0.8f ? m_Pick : ((int)(Mathf.Sqrt(t) * 14f) % 2 == 0 ? KieSteal.Special : KieSteal.Super);
-                if (face == KieSteal.Nothing) face = (int)(m_Spin * 8f) % 2 == 0 ? KieSteal.Special : KieSteal.Super;
-                m_Frame.color = t > 0.8f && (int)(m_Spin * 16f) % 2 == 0 ? Color.white : new Color(1f, 0.45f, 0.8f);
+                if (face == KieSteal.Nothing) face = (int)(m_LocalSpin * 8f) % 2 == 0 ? KieSteal.Special : KieSteal.Super;
+                m_Frame.color = t > 0.8f && (int)(m_LocalSpin * 16f) % 2 == 0 ? Color.white : new Color(1f, 0.45f, 0.8f);
             }
             else
             {
@@ -276,7 +361,7 @@ namespace PooketSlug
 
             // how close it is to dropping it
             const float width = 18f;
-            float fill = Mathf.Round(Mathf.Clamp01(m_Damage / (float)Spec.DropDamage(m_Tank.MaxHp)) * (width - 2f));
+            float fill = Mathf.Round(m_Progress * (width - 2f));
             float barY = y - 0.75f + bob;
             m_BarBack.transform.localPosition = new Vector3(0f, barY, 0f);
             m_BarBack.transform.localScale = new Vector3(width, 4f, 1f);
@@ -285,25 +370,34 @@ namespace PooketSlug
         }
     }
 
-    /// <summary>Spike: one of kie's weasels. Thrown from the tank, it lands, scurries at you and pops; shoot it first.</summary>
+    /// <summary>
+    /// One of kie's weasels. Thrown from the tank, it lands, scurries at the nearest soldier and pops; shoot it first.
+    /// In co-op the authority runs it; its pop hurts every soldier in reach, and a follower plays the pop when the
+    /// snapshot says it's gone (a shot one, with no health left, makes a small harmless one).
+    /// </summary>
     public sealed class Weasel : Enemy
     {
+        const float PopTime = 0.15f; // dying this long before it's gone, so the snapshot carries the pop
         readonly SpriteRenderer m_Sr;
-        readonly float m_Speed;
-        float m_Fuse;
-        bool m_Landed;
+        float m_Speed, m_Fuse;
+        bool m_Landed, m_Boomed;
 
-        public Weasel(World world, Vector2 at, Vector2 vel, float speed) : base(world, KieTankSpec.Weasel, at)
+        public Weasel(World world, EnemyDef def, Vector2 at) : base(world, def, at)
+        {
+            m_Sr = AddRenderer(Visual, "Body", KieArt.Weasel[0], SortOrder.Enemies + 1);
+        }
+
+        /// <summary>Authority: thrown from the tank at <paramref name="vel"/>, to run at <paramref name="speed"/> once down.</summary>
+        public void Launch(Vector2 vel, float speed)
         {
             Vel = vel;
             m_Speed = speed;
             Facing = vel.x >= 0f ? 1 : -1;
-            m_Sr = AddRenderer(Visual, "Body", KieArt.Weasel[0], SortOrder.Enemies + 1);
         }
 
         protected override void TickAlive(float dt)
         {
-            KieTankSpec spec = KieBoss.Spec;
+            KieTankSpec spec = Content.KieTank;
             if (!m_Landed)
             {
                 Vel.y = Mathf.Max(Vel.y - spec.WeaselGravity * dt, -MaxFall);
@@ -328,29 +422,38 @@ namespace PooketSlug
 
         void Pop()
         {
-            KieTankSpec spec = KieBoss.Spec;
-            World.Combat.Explode(Center, spec.WeaselBlast, spec.WeaselDamage, true, 0.6f);
-            Remove();
+            KieTankSpec spec = Content.KieTank;
+            World.Combat.HostileBlast(Center, spec.WeaselBlast, spec.WeaselDamage, 0.6f);
+            m_Boomed = true;
+            Dying = true; // no score: nobody shot it
         }
 
-        protected override void Die()
+        protected override void TickDying(float dt)
         {
-            base.Die();
-            World.Combat.Explode(Center, 0.4f, 0, false, 0.35f); // shot: a harmless pop
-            Remove();
+            if (!m_Boomed)
+            {
+                m_Boomed = true;
+                // shot (no health left): a small harmless pop; on a follower, a popped one goes off at full size
+                bool popped = Hp > 0;
+                World.Combat.Explode(Center, 0.4f, 0, false, popped ? 0.6f : 0.35f);
+            }
+            if (DyingTime >= PopTime) Remove();
         }
 
         public override void Render()
         {
             base.Render();
-            bool running = m_Landed && Grounded && Mathf.Abs(Vel.x) > 0.1f;
+            Visual.gameObject.SetActive(!Dying);
+            bool landed = m_Landed || (!World.IsAuthority && Grounded);
+            if (!World.IsAuthority && Grounded) m_Landed = true;
+            bool running = landed && Grounded && Mathf.Abs(Vel.x) > 0.1f;
             m_Sr.sprite = Flashed(KieArt.Weasel[running && (int)(Anim * 16f) % 2 == 1 ? 1 : 0]);
             // a weasel in the air tumbles
-            Visual.localRotation = m_Landed ? Quaternion.identity : Quaternion.Euler(0f, 0f, Anim * -720f * Facing);
+            Visual.localRotation = landed ? Quaternion.identity : Quaternion.Euler(0f, 0f, Anim * -720f * Facing);
         }
     }
 
-    /// <summary>Spike: what kie's tank stole, knocked loose. Grab it to get it back.</summary>
+    /// <summary>What kie's tank stole from our soldier, knocked loose. Grab it to get it back (each screen drops its own soldier's).</summary>
     public sealed class KieLoot : Entity
     {
         const float Life = 14f;
@@ -408,7 +511,7 @@ namespace PooketSlug
         }
     }
 
-    /// <summary>Spike art for kie's tank: the weasel, and the roulette's frame and icons.</summary>
+    /// <summary>The art for kie's tank: the weasel, and the roulette's frame and icons.</summary>
     public static class KieArt
     {
         static Sprite[] s_Weasel;

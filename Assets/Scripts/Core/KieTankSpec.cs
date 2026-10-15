@@ -9,8 +9,8 @@ namespace PooketSlug
     public enum KieSteal { Nothing, Special, Super }
 
     /// <summary>
-    /// Spike (<c>?spike=kie</c>): kie's boss tank (<c>docs/design/tanks.md</c>, Tank bosses), the artillery tank with a
-    /// three-attack cycle in place of its plain shells. Each charged shot is the next of: a wave of weasels lobbed at
+    /// kie's boss tank (<c>docs/design/tanks.md</c>, Tank bosses): Mission one's artillery tank with a three-attack cycle in
+    /// place of its plain shells (<see cref="Content.KieTank"/>). Each charged shot is the next of: a wave of weasels lobbed at
     /// you that scurry over and pop; hologram copies of itself, where only the real one can be hurt; and a roulette
     /// that steals your special (or your super's charge) until you hit the tank hard enough to knock it loose. It
     /// still gets quicker as it's hurt (<see cref="BossTankSpec.Rage"/>). The numbers and rules, kept apart from
@@ -18,9 +18,6 @@ namespace PooketSlug
     /// </summary>
     public sealed class KieTankSpec
     {
-        /// <summary>The spike's weasel: not in <see cref="Content"/>, so never on the wire (spikes are solo only).</summary>
-        public static readonly EnemyDef Weasel = new EnemyDef(250, "Weasel", EnemyBrain.Runner, 0.35f, 0.55f, 1, 50);
-
         /// <summary>Weasels in a wave, and how much harder or softer than the middle one each neighbour is thrown.</summary>
         public int WeaselCount = 3;
         public float WeaselSpread = 0.18f;
@@ -40,6 +37,9 @@ namespace PooketSlug
         public float SpinTime = 1.8f;
         /// <summary>Damage to knock loose what it stole, as a fraction of its full health.</summary>
         public float DropFraction = 0.1f;
+
+        /// <summary>The roulette, as its tank's network object carries it: spinning, holding, and whether the shot charging lands.</summary>
+        public const int RouletteSpinning = 1, RouletteHolding = 2, RoulettePhase = 3, NoMarker = 4;
 
         /// <summary>
         /// The attack for its <paramref name="turn"/>th charged shot (from 0): weasels, holograms, roulette, round

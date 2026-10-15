@@ -52,6 +52,8 @@ namespace PooketSlug
 
         /// <summary>How Mission one's boss tank fights.</summary>
         public static readonly BossTankSpec BossTank = new BossTankSpec();
+        /// <summary>What makes the boss tank kie's: its three attacks (<see cref="KieTankSpec"/>).</summary>
+        public static readonly KieTankSpec KieTank = new KieTankSpec();
 
         // ------------------------------------------------------------------ enemies
         // Ids are the byte the co-op snapshot sent for each kind before (its SpawnKind).
@@ -61,6 +63,9 @@ namespace PooketSlug
         public static readonly EnemyDef Drone = new EnemyDef(2, "Drone", EnemyBrain.Drone, halfWidth: 0.5f, height: 0.7f, hp: 3, score: 200);
         public static readonly EnemyDef Tank = new EnemyDef(3, "Tank", EnemyBrain.Tank, halfWidth: 1.5f, height: 1.3f, hp: 45, score: 3000);
         public static readonly EnemyDef Barrel = new EnemyDef(4, "Explosive barrel", EnemyBrain.Barrel, halfWidth: 0.38f, height: 1.1f, hp: 3, score: 100);
+        /// <summary>kie's tank's weasels and hologram copies (<see cref="KieTank"/>), made mid-fight.</summary>
+        public static readonly EnemyDef Weasel = new EnemyDef(5, "Weasel", EnemyBrain.Weasel, halfWidth: 0.35f, height: 0.55f, hp: 1, score: 50);
+        public static readonly EnemyDef TankCopy = new EnemyDef(6, "Tank copy", EnemyBrain.TankCopy, halfWidth: 1.5f, height: 1.3f, hp: 45, score: 100);
 
         // ------------------------------------------------------------------ pickups
 
@@ -96,7 +101,7 @@ namespace PooketSlug
         public static readonly IReadOnlyList<ProjectileDef> Projectiles = ById(p => p.Id, Bullet, HeavyBullet, EnemyBullet, Shell, Grenade, Bomb, BigShell);
         public static readonly IReadOnlyList<WeaponDef> Weapons = ById(w => w.Id, Pistol, HeavyMachineGun, Rifle, Cannon, GrenadeThrow, DroneBomb, TankGun,
             WaterJet, RocketJump, Spew, BossCannon);
-        public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank, Barrel);
+        public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank, Barrel, Weasel, TankCopy);
         public static readonly IReadOnlyList<PickupDef> Pickups = ById(p => p.Id, HeavyMachineGunCrate, BombCrate, Medkit, OneUp);
         public static readonly IReadOnlyList<SoldierDef> Soldiers = ById(s => s.Id, Trooper, Tones2);
 

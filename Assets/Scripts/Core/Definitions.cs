@@ -129,6 +129,10 @@ namespace PooketSlug
         Tank,
         /// <summary>An explosive barrel: stands still and blows up when it's destroyed.</summary>
         Barrel,
+        /// <summary>kie's weasel: lobbed by its tank, it lands, scurries at the nearest soldier and pops.</summary>
+        Weasel,
+        /// <summary>A hologram copy of kie's tank: it copies the real one and can't be hurt.</summary>
+        TankCopy,
     }
 
     /// <summary>One kind of enemy: its body, health and worth. The co-op snapshot carries its id.</summary>

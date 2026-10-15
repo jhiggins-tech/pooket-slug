@@ -38,11 +38,13 @@ namespace PooketSlug
                     e = w.Boss = new TankBoss(w, def, pos);
                     break;
                 case EnemyBrain.Barrel: e = new Barrel(w, def, pos); break;
+                case EnemyBrain.Weasel: e = new Weasel(w, def, pos); break;
+                case EnemyBrain.TankCopy: e = new TankBoss(w, def, pos, decoy: true); break;
                 default: return null;
             }
             e.NetId = id;
-            if (def.Brain != EnemyBrain.Tank && def.Brain != EnemyBrain.Barrel)
-                e.Look = new HoloLook(e); // the goons are holograms (on every screen in co-op); the tank and barrels are real
+            if (def.Brain != EnemyBrain.Tank && def.Brain != EnemyBrain.Barrel && def.Brain != EnemyBrain.Weasel)
+                e.Look = new HoloLook(e); // the goons and kie's tank copies are holograms (on every screen in co-op); the tank, barrels and weasels are real
             return e;
         }
 

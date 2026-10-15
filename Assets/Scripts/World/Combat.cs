@@ -160,6 +160,17 @@ namespace PooketSlug
             return dx * dx + dy * dy <= radius * radius;
         }
 
+        /// <summary>
+        /// Authority: an enemy's blast that hurts every soldier in reach, ours and (through their owners) the partners'
+        /// (a weasel popping).
+        /// </summary>
+        public void HostileBlast(Vector2 at, float radius, int damage, float size)
+        {
+            Explode(at, radius, damage, true, size);
+            foreach (RemotePlayer r in m_World.Remotes)
+                if (!r.IsDown && !r.Invulnerable && Overlaps(r.Bounds, at, radius)) DamageAvatar(r, damage);
+        }
+
         public void Explode(Vector2 at, float radius, int damage, bool hostile, float size)
         {
             World w = m_World;

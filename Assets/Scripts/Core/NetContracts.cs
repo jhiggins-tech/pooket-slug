@@ -206,6 +206,8 @@ namespace PooketSlug
     public struct NetEnemyState
     {
         public const int Dying = 1, FacingRight = 2, Moving = 4, Engaged = 8, Grounded = 16;
+        /// <summary>kie's tank is wearing its hologram look, among its copies.</summary>
+        public const int Disguised = 32;
 
         public int Id;       // its NetIds id: a level spawn index, or a mid-game id
         public EnemyDef Def; // null for an enemy this build doesn't know
@@ -230,5 +232,11 @@ namespace PooketSlug
         public Vector2 Landing;
         /// <summary>Shots fired so far (it wraps): a change means it just fired.</summary>
         public int Shots;
+        /// <summary>kie's roulette (<see cref="KieBoss"/>): spinning or holding what it stole, and whether the shot charging lands anywhere.</summary>
+        public int KieState;
+        /// <summary>How close kie's tank is to dropping what it stole, 0 to 1.</summary>
+        public float KieProgress;
+        /// <summary>Times it has dropped what it stole (it wraps): a change means each screen's soldier gets theirs back.</summary>
+        public int KieDrops;
     }
 }
