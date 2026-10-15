@@ -43,6 +43,30 @@ Cutscenes are **in-engine scenes**: the game's own art, drawn in code, with spee
 - **Sound:** there's a music track for each mission, and one for bosses. The crew talk in speech bubbles, and an arcade announcer calls the big moments ("Mission complete!"), in a generated voice ([tanks](tanks.md#the-boss-intro)).
 - **In co-op,** scenes play for both players, and a scene ends once both have tapped. A partner who hasn't seen it gets to watch it.
 
+## The opening scene
+
+The first cutscene, and Mission one's briefing ([the plot](#the-plot), step 1). Draft, 2026-10-15. It's the test case for the in-engine cutscenes, so it uses only what they need: the game's own sprites, a few props, speech bubbles and one caption card.
+
+**Rules it follows:** about 15 seconds in all, five shots of 2 to 4 seconds. A tap moves to the next shot, and each moves on by itself too. It plays in full the first time; after that a SKIP button shows from the start. Nothing in it hints at tanks, vehicles or co-op. Bubbles are a few words each, in the game's capitals, so they read at a glance on a phone. The lines are placeholders for the owner to rewrite in the crew's own voice.
+
+| # | Shot | What happens | Bubbles and text | Time |
+|---|---|---|---|---|
+| 1 | **Outside the hangout, night** | A side-on street at night, snow falling, with the crew's hangout: a garage with a hand-painted POOKET sign and warm light in the window. tones2 walks in from the left, arms full: a bag of snacks and a big slushie. | tones2: "SNACKS ARE HERE LADS" | 3 s |
+| 2 | **The door** | He nudges the door with his shoulder and it swings in, hanging off one hinge. The warm light flickers and turns cold cyan. He stops. | tones2: "...LADS?" | 2 s |
+| 3 | **Inside, raided** | The hangout is trashed: the couch flipped, the gaming setup sparking, controllers on the floor, cyan scorch marks up the walls. Nobody's there. The snack bag drops; chips everywhere. | (no bubble: a beat of quiet, a crackle of static) | 3 s |
+| 4 | **A straggler** | A hologram goon flickers up from behind the couch, sees him and shouts in a glitchy bubble. tones2 sprays it with ten-1 and it glitches out, the goons' own death. Where it stood, a cyan keycard clatters to the floor. | Goon: "INTRUDER. INTRUD-" · tones2 (picking up the card): "MILITARY BASE. NORTH GATE." | 4 s |
+| 5 | **Heading out** | Out of the window, searchlights sweep the sky over a hill in the distance. tones2 finishes the slushie in one go, crushes the cup, and walks out to the right. The caption card slams in, and the announcer calls it as the mission starts. | tones2: "RIGHT." · Card: "MISSION 1 · THE MILITARY BASE · FIND THE CREW" · Announcer: "Mission one... start!" | 3 s |
+
+**What it teaches without a word:** the holograms are the enemy and they glitch out when beaten (shot 4, using the goon death), tones2 sprays water (the jet), and the base is where the crew went.
+
+**What it sets up:** the empty hangout is the room the crew come back to as they're freed. A later scene can show it filling up again.
+
+**Sound:** quiet street ambience in shots 1 to 3, a static crackle on the cyan flicker, the jet and the glitch-out in shot 4, and the mission music kicks in with the caption card ([the boss intro](tanks.md#the-boss-intro) sets out the music).
+
+**In co-op:** Mission one is solo the first time, so this scene first plays solo. On a co-op replay it plays for both players, and ends once both have tapped, or by itself ([cutscenes](#cutscenes)).
+
+**What the cutscene engine needs from it:** a backdrop (the street, then the room), placed props (door, couch, setup, keycard), the soldier and a goon moving along simple paths, a goon dying the goon's way, speech bubbles anchored above a character, a caption card, and a timer with tap-to-advance and SKIP.
+
 ## Reveals are story beats
 
 The game hides what's coming ([progressive disclosure](README.md#progressive-disclosure-the-thread-through-all-four)), so each reveal gets a scene of its own:
