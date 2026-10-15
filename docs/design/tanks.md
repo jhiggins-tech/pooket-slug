@@ -86,7 +86,7 @@ Wreck the tank and its hologram pilot jumps out to fight you on foot with the cr
 
 **Fairness:** the pilot never sees off-screen, never reads your input ahead of time, and its kit follows the same rules as yours: charges, cooldowns, the super charging from hits. Its shots hurt you and your partner, and never the goons or itself.
 
-**The fight's size:** *to pick.* How much health the pilot has, and how long the duel lasts.
+**The fight's size** (picked 2026-10-15): a boss duel. The pilot has about three times a soldier's health and its own boss bar, so the duel lasts around 30 to 45 seconds.
 
 **In co-op:** *to pick.* How one pilot takes on two players.
 
