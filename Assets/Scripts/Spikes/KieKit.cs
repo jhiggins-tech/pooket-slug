@@ -300,3 +300,115 @@ namespace PooketSlug
         }
     }
 }
+
+namespace PooketSlug
+{
+    /// <summary>
+    /// Spike (<c>?spike=kie-steal</c>): kie's super for a player. SU spins a roulette over the toughest enemy on screen,
+    /// and kie lifts a weapon off it: a burst of a goon's own weapon, or a boss tank's whole cannon (<see cref="StealSpec"/>).
+    /// The loot streams off it into kie and takes his primary's place until its ammo runs out.
+    /// </summary>
+    public sealed class StealRoulette : Entity
+    {
+        static readonly Color Pink = new Color(1f, 0.45f, 0.8f), Gold = new Color(1f, 0.85f, 0.3f);
+        static readonly StealPrize[] Faces = { StealPrize.Rifle, StealPrize.Knives, StealPrize.Bombs, StealPrize.Cannon };
+
+        readonly Player m_Player;
+        readonly Enemy m_Mark;
+        readonly StealPrize m_Prize;
+        readonly SpriteRenderer m_Frame, m_Icon;
+        float m_Time;
+
+        StealRoulette(World world, Player player, Enemy mark) : base(world, "Steal", mark.Center)
+        {
+            m_Player = player;
+            m_Mark = mark;
+            m_Prize = StealSpec.PrizeFor(mark.Def.Brain);
+            m_Frame = AddRenderer(Go.transform, "Roulette", KieArt.Frame, SortOrder.Effects);
+            m_Icon = AddRenderer(Go.transform, "Prize", Icon(Faces[0]), SortOrder.Effects + 1);
+        }
+
+        /// <summary>kie pressed SU: a roulette over the toughest enemy on screen, or false with nobody there to rob.</summary>
+        public static bool Start(World w, Player p)
+        {
+            var marks = new System.Collections.Generic.List<Enemy>();
+            foreach (Enemy e in w.Enemies)
+            {
+                if (!e.Shootable || !StealSpec.Robbable(e.Def.Brain)) continue;
+                if (e is TankBoss t && (t.Decoy || t.Entering)) continue;
+                if (e.Pos.x < w.View.Left || e.Pos.x > w.View.Right) continue;
+                marks.Add(e);
+            }
+            var hp = new int[marks.Count];
+            var dist = new float[marks.Count];
+            for (int i = 0; i < marks.Count; i++)
+            {
+                hp[i] = marks[i].MaxHp;
+                dist[i] = Mathf.Abs(marks[i].Pos.x - p.Pos.x);
+            }
+            int pick = StealSpec.Toughest(hp, dist);
+            if (pick < 0)
+            {
+                w.Scoring.Popup("NOBODY TO ROB!", p.Pos + Vector2.up * 2.2f, new Color(0.8f, 0.8f, 0.85f));
+                return false;
+            }
+            w.Props.Add(new StealRoulette(w, p, marks[pick]));
+            w.Scoring.Popup("STEAL!", p.Pos + Vector2.up * 2.2f, Pink);
+            Sfx.Play(Sfx.Servo, 0.6f);
+            return true;
+        }
+
+        static Sprite Icon(StealPrize prize)
+        {
+            switch (prize)
+            {
+                case StealPrize.Knives: return Art.ProjectileSprite(Content.Knife);
+                case StealPrize.Bombs: return Art.Grenade;
+                case StealPrize.Cannon: return Art.Shell;
+                default: return Art.EnemyBullet;
+            }
+        }
+
+        public override void Tick(float dt)
+        {
+            float spin = KieTuning.Steal.SpinTime;
+            float before = m_Time;
+            m_Time += dt;
+            if (!m_Mark.Removed) Pos = new Vector2(m_Mark.Pos.x, m_Mark.Pos.y + m_Mark.Height + 1.2f);
+            // ticks as it spins, slowing down
+            if ((int)(Mathf.Sqrt(before / spin) * 12f) != (int)(Mathf.Sqrt(m_Time / spin) * 12f)) Sfx.Play(Sfx.Servo, 0.5f);
+            if (m_Time >= spin) Lift();
+        }
+
+        void Lift()
+        {
+            Remove();
+            Player p = m_Player;
+            WeaponDef loot = Content.StolenWeapon(m_Prize);
+            if (loot == null || p.Dead) return;
+            p.GiveGun(loot);
+            World.Scoring.Popup(loot.Hud + " STOLEN!", p.Pos + Vector2.up * 2.4f, Gold);
+            Sfx.Play(Sfx.Pickup, 0.8f);
+            Sfx.Play(Sfx.Glitch, 0.4f);
+            // the loot streams off the mark into kie
+            Vector2 to = p.Center;
+            for (int i = 0; i < 16; i++)
+            {
+                Vector2 from = Pos + new Vector2(Rng.Fx.Range(-0.3f, 0.3f), Rng.Fx.Range(-0.3f, 0.3f));
+                float t = Rng.Fx.Range(0.3f, 0.5f);
+                var vel = (to - from) / t + Vector2.up * Rng.Fx.Range(-1f, 3f);
+                World.SpawnParticle(from, vel, i % 2 == 0 ? Pink : Gold, Rng.Fx.Range(1.5f, 2.5f), t);
+            }
+        }
+
+        public override void Render()
+        {
+            base.Render();
+            float t = m_Time / KieTuning.Steal.SpinTime;
+            // flicks through the prizes, slowing, and settles on the real one for the last part
+            StealPrize face = t > 0.75f ? m_Prize : Faces[(int)(Mathf.Sqrt(t) * 12f) % Faces.Length];
+            m_Icon.sprite = Icon(face);
+            m_Frame.color = t > 0.75f && (int)(m_Time * 16f) % 2 == 0 ? Color.white : Pink;
+        }
+    }
+}

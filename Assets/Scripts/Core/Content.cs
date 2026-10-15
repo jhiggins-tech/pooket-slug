@@ -25,6 +25,12 @@ namespace PooketSlug
         /// <summary>The boss tank's big shell: a wider blast than a shell.</summary>
         public static readonly ProjectileDef BigShell = new ProjectileDef(6, "Big shell", radius: 0.25f, damage: 1, life: 6f, gravity: 18f,
             blastRadius: 1.4f, blastSize: 1.1f);
+        /// <summary>Knives stolen off a knife runner (kie's Steal): thrown, tumbling, a little drop.</summary>
+        public static readonly ProjectileDef Knife = new ProjectileDef(7, "Knife", radius: 0.14f, damage: 2, life: 2f, gravity: 6f, contactDamage: true,
+            spin: ProjectileSpin.Tumble);
+        /// <summary>A boss tank's cannon in kie's hands (Steal): a heavy shell with a wide blast.</summary>
+        public static readonly ProjectileDef StolenShell = new ProjectileDef(8, "Stolen shell", radius: 0.25f, damage: 8, life: 4f, gravity: 12f,
+            blastRadius: 1.6f, blastSize: 1.2f);
 
         // ------------------------------------------------------------------ weapons
         // Ids 0-5 are the byte the projectile enum used to send for the same shot.
@@ -52,6 +58,16 @@ namespace PooketSlug
         // kie's kit (KieKit.cs, numbers in KieTuning). Weasels are critters, not projectiles.
         public static readonly WeaponDef WeaselPop = new WeaponDef(11, "Weasel Pop", WeaponBehaviour.Weasels, null, cooldown: KieTuning.Weasels.Cooldown, hud: "WEASELS");
         public static readonly WeaponDef Trollogram = new WeaponDef(12, "Trollogram", WeaponBehaviour.Trollogram, null, hud: "TROLL");
+        public static readonly WeaponDef Steal = new WeaponDef(13, "Steal", WeaponBehaviour.Steal, null, hud: "STEAL");
+        // What Steal lifts (StealSpec): each takes the primary's place, like a crate's gun, until its ammo runs out.
+        public static readonly WeaponDef StolenRifle = new WeaponDef(14, "Stolen rifle", WeaponBehaviour.Bullet, Bullet, speed: 16f, cooldown: 0.12f,
+            spread: 3f, ammo: 30, hud: "RIFLE");
+        public static readonly WeaponDef StolenKnives = new WeaponDef(15, "Stolen knives", WeaponBehaviour.Bullet, Knife, speed: 14f, cooldown: 0.22f,
+            ammo: 15, hud: "KNIVES");
+        public static readonly WeaponDef StolenBombs = new WeaponDef(16, "Stolen bombs", WeaponBehaviour.Lob, Grenade, cooldown: 0.4f,
+            throwVelocity: new Vector2(5.5f, 8f), carry: 0.3f, ammo: 8, hud: "BOMBS");
+        public static readonly WeaponDef StolenCannon = new WeaponDef(17, "Stolen cannon", WeaponBehaviour.Bullet, StolenShell, speed: 15f, cooldown: 0.7f,
+            ammo: 5, muzzleBlast: 0.5f, kick: 0.15f, hud: "CANNON");
 
         /// <summary>How Mission one's boss tank fights.</summary>
         public static readonly BossTankSpec BossTank = new BossTankSpec();
@@ -100,24 +116,37 @@ namespace PooketSlug
             super: Spew, crateSpecials: 3); // the rocket jump is a strong special: a bomb crate gives about 3
 
         /// <summary>
-        /// kie, Mission one's crewmate (<c>docs/design/kits.md</c>): Weasel Pop and Trollogram so far, with the stand-in super
-        /// until Steal is built. Played only in spikes (<c>?spike=kie-weasels</c>, <c>kie-trollogram</c>), and by Mission one's pilot.
+        /// kie, Mission one's crewmate (<c>docs/design/kits.md</c>): Weasel Pop, Trollogram and Steal. Played only in spikes (<c>?spike=kie-weasels</c>, <c>kie-trollogram</c>, <c>kie-steal</c>), and by Mission one's pilot.
         /// </summary>
         public static readonly SoldierDef Kie = new SoldierDef(2, "kie", runSpeed: 5.5f, crawlSpeed: 2f, jumpVelocity: 17f,
             halfWidth: 0.3f, standHeight: 1.35f, crouchHeight: 0.8f, maxHp: 5, primary: WeaselPop, special: Trollogram,
-            startSpecials: Tuning.Kit.SpecialCharges, specialMax: Tuning.Kit.SpecialCharges, specialRefill: Tuning.Kit.SpecialRefill);
+            startSpecials: Tuning.Kit.SpecialCharges, specialMax: Tuning.Kit.SpecialCharges, specialRefill: Tuning.Kit.SpecialRefill, super: Steal);
 
         // ------------------------------------------------------------------ lookups (after the definitions: statics initialise in order)
 
-        public static readonly IReadOnlyList<ProjectileDef> Projectiles = ById(p => p.Id, Bullet, HeavyBullet, EnemyBullet, Shell, Grenade, Bomb, BigShell);
+        public static readonly IReadOnlyList<ProjectileDef> Projectiles = ById(p => p.Id, Bullet, HeavyBullet, EnemyBullet, Shell, Grenade, Bomb, BigShell, Knife, StolenShell);
         public static readonly IReadOnlyList<WeaponDef> Weapons = ById(w => w.Id, Pistol, HeavyMachineGun, Rifle, Cannon, GrenadeThrow, DroneBomb, TankGun,
-            WaterJet, RocketJump, Spew, BossCannon, WeaselPop, Trollogram);
+            WaterJet, RocketJump, Spew, BossCannon, WeaselPop, Trollogram,
+            Steal, StolenRifle, StolenKnives, StolenBombs, StolenCannon);
         public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank, Barrel, Weasel, TankCopy);
         public static readonly IReadOnlyList<PickupDef> Pickups = ById(p => p.Id, HeavyMachineGunCrate, BombCrate, Medkit, OneUp);
         public static readonly IReadOnlyList<SoldierDef> Soldiers = ById(s => s.Id, Trooper, Tones2, Kie);
 
         /// <summary>The weapon with this id, or null for an id no weapon has (say, from a different build).</summary>
         public static WeaponDef Weapon(int id) => id >= 0 && id < Weapons.Count ? Weapons[id] : null;
+
+        /// <summary>The weapon Steal lifts as <paramref name="prize"/>, or null for nothing.</summary>
+        public static WeaponDef StolenWeapon(StealPrize prize)
+        {
+            switch (prize)
+            {
+                case StealPrize.Rifle: return StolenRifle;
+                case StealPrize.Knives: return StolenKnives;
+                case StealPrize.Bombs: return StolenBombs;
+                case StealPrize.Cannon: return StolenCannon;
+                default: return null;
+            }
+        }
 
         /// <summary>The pickup with this id, or null for an id no pickup has.</summary>
         public static PickupDef Pickup(int id) => id >= 0 && id < Pickups.Count ? Pickups[id] : null;

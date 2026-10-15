@@ -172,7 +172,14 @@ namespace PooketSlug
                 Sfx.PlayShot(sw);
             }
 
-            if (input.SuperPressed && Kit.UseSuper()) FireSuper();
+            if (input.SuperPressed && Kit.SuperReady)
+            {
+                if (Def.Super != null && Def.Super.Behaviour == WeaponBehaviour.Steal)
+                {
+                    if (StealRoulette.Start(World, this)) Kit.UseSuper(); // nobody to rob: the super isn't spent
+                }
+                else if (Kit.UseSuper()) FireSuper();
+            }
             if (input.AbilityPressed && Kit.UseAbility()) FireOnce(Def.Ability);
 
             m_Invuln -= dt;
@@ -213,7 +220,8 @@ namespace PooketSlug
                 GunAmmo--;
                 if (GunAmmo == 0) World.Scoring.Popup("OUT OF AMMO", Pos + Vector2.up * 2f, new Color(1f, 0.6f, 0.4f));
             }
-            World.Combat.FirePlayerShot(weapon, origin, dir * weapon.Speed);
+            Vector2 vel = weapon.Behaviour == WeaponBehaviour.Lob ? weapon.LobVelocity(Facing, Vel) : dir * weapon.Speed;
+            World.Combat.FirePlayerShot(weapon, origin, vel);
             m_FireCooldown = weapon.Cooldown;
             m_Muzzle = 0.05f;
             Sfx.PlayShot(weapon);

@@ -83,6 +83,7 @@ namespace PooketSlug
             SoldierDef soldier = Content.Tones2; // everyone is tones2 until the crew screen (docs/design/levels.md)
             if (!Coop && Spike.Soldier != null) soldier = Spike.Soldier; // spikes are solo only
             Player = new Player(this, soldier, start, Coop ? net.LocalSkin : 0);
+            if (!Coop && Spike.Steal) Player.Kit.FillSuper(); // the Steal spike starts charged, to try it at once
             View.Tick(0f);
             Spawner.SpawnAhead();
         }

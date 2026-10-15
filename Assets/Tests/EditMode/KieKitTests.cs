@@ -109,5 +109,51 @@ namespace PooketSlug.Tests
             Assert.Greater(Troll.Damage, 0);
             Assert.Greater(Troll.Life, Troll.SwapCooldown);
         }
+    
+        [Test]
+        public void StealRobsTheToughestEnemyTheNearestOfEquals()
+        {
+            Assert.AreEqual(-1, StealSpec.Toughest(new int[0], new float[0]), "nobody on screen");
+            Assert.AreEqual(1, StealSpec.Toughest(new[] { 3, 45, 2 }, new[] { 1f, 9f, 0.5f }), "the tank, however far");
+            Assert.AreEqual(2, StealSpec.Toughest(new[] { 3, 2, 3 }, new[] { 6f, 1f, 2f }), "of two riflemen, the nearer");
+        }
+
+        [Test]
+        public void TheTougherTheMarkTheBiggerThePrize()
+        {
+            Assert.AreEqual(StealPrize.Rifle, StealSpec.PrizeFor(EnemyBrain.Rifleman));
+            Assert.AreEqual(StealPrize.Knives, StealSpec.PrizeFor(EnemyBrain.Runner));
+            Assert.AreEqual(StealPrize.Bombs, StealSpec.PrizeFor(EnemyBrain.Drone));
+            Assert.AreEqual(StealPrize.Cannon, StealSpec.PrizeFor(EnemyBrain.Tank));
+            Assert.IsFalse(StealSpec.Robbable(EnemyBrain.Barrel));
+            Assert.IsFalse(StealSpec.Robbable(EnemyBrain.TankCopy), "a hologram copy has nothing to take");
+            int cannon = 0, rifle = 0;
+            foreach (WeaponDef w in Content.Weapons)
+            {
+                if (w == Content.StolenCannon) cannon = w.Projectile.Damage;
+                if (w == Content.StolenRifle) rifle = w.Projectile.Damage;
+            }
+            Assert.Greater(cannon, rifle);
+        }
+
+        [Test]
+        public void EveryPrizeIsAGunWithAmmo()
+        {
+            foreach (StealPrize prize in new[] { StealPrize.Rifle, StealPrize.Knives, StealPrize.Bombs, StealPrize.Cannon })
+            {
+                WeaponDef w = Content.StolenWeapon(prize);
+                Assert.IsNotNull(w, prize.ToString());
+                Assert.Greater(w.Ammo, 0, prize + ": it runs out, like a crate's gun");
+                Assert.IsNotNull(w.Projectile, prize.ToString());
+            }
+            Assert.IsNull(Content.StolenWeapon(StealPrize.Nothing));
+        }
+
+        [Test]
+        public void StealIsKiesSuper()
+        {
+            Assert.AreSame(Content.Steal, Content.Kie.Super);
+            Assert.AreEqual(WeaponBehaviour.Steal, Content.Steal.Behaviour);
+        }
     }
 }

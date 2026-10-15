@@ -6,12 +6,12 @@ namespace PooketSlug
     /// <summary>
     /// Spike tests: small throwaway experiments switched on from the page address, so they ride along in the
     /// normal build without changing the game anyone else plays. <c>?spike=hits</c> turns on
-    /// the hit feel for that visit, <c>?spike=kie-weasels</c> or <c>kie-trollogram</c> playing as kie with his kit as built so far. Spikes are solo
+    /// the hit feel for that visit, <c>?spike=kie-weasels</c>, <c>kie-trollogram</c> or <c>kie-steal</c> playing as kie with his kit as built so far. Spikes are solo
     /// only: a co-op game ignores them.
     /// </summary>
     public static class Spike
     {
-        public const string HitsKey = "hits", WeaselsKey = "kie-weasels", TrollogramKey = "kie-trollogram";
+        public const string HitsKey = "hits", WeaselsKey = "kie-weasels", TrollogramKey = "kie-trollogram", StealKey = "kie-steal";
 
         /// <summary>Hits land with weight: sparks, flashes, and damage numbers floating off you.</summary>
         public static bool Hits;
@@ -22,10 +22,13 @@ namespace PooketSlug
         /// <summary>You play kie, with Trollogram (<see cref="TrollogramSpec"/>).</summary>
         public static bool Trollogram;
 
-        public static bool Any => Hits || Weasels || Trollogram;
+        /// <summary>You play kie, with Steal (<see cref="StealSpec"/>), and start with the super charged to try it.</summary>
+        public static bool Steal;
+
+        public static bool Any => Hits || Weasels || Trollogram || Steal;
 
         /// <summary>The soldier a spike has you play, or null for the usual one: kie, with his kit as built so far.</summary>
-        public static SoldierDef Soldier => Weasels || Trollogram ? Content.Kie : null;
+        public static SoldierDef Soldier => Weasels || Trollogram || Steal ? Content.Kie : null;
 
         /// <summary>Reads <c>?spike=</c> from the page address.</summary>
         public static void Configure(string url)
@@ -34,6 +37,7 @@ namespace PooketSlug
             Hits = Array.IndexOf(keys, HitsKey) >= 0;
             Weasels = Array.IndexOf(keys, WeaselsKey) >= 0;
             Trollogram = Array.IndexOf(keys, TrollogramKey) >= 0;
+            Steal = Array.IndexOf(keys, StealKey) >= 0 || Array.IndexOf(keys, "steal") >= 0;
         }
 
         /// <summary>What the start banner says, or null when no spike is on.</summary>
@@ -46,6 +50,7 @@ namespace PooketSlug
                 if (Hits) parts.Add("HIT FEEL");
                 if (Weasels) parts.Add("WEASEL POP");
                 if (Trollogram) parts.Add("TROLLOGRAM");
+                if (Steal) parts.Add("STEAL");
                 return "SPIKE TEST · " + string.Join(" + ", parts);
             }
         }

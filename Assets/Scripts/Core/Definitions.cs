@@ -67,6 +67,8 @@ namespace PooketSlug
         Weasels,
         /// <summary>kie's Trollogram: a hologram decoy the goons shoot instead, to swap places with (<see cref="TrollogramSpec"/>).</summary>
         Trollogram,
+        /// <summary>kie's Steal: a roulette over the toughest enemy on screen lifts a weapon off it (<see cref="StealSpec"/>).</summary>
+        Steal,
     }
 
     /// <summary>A weapon: what it fires, and how. Shots are replicated by weapon id.</summary>

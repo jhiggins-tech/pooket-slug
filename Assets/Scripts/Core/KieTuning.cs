@@ -2,11 +2,55 @@ using UnityEngine;
 
 namespace PooketSlug
 {
-    /// <summary>kie's kit as numbers (<c>docs/design/kits.md</c>): Weasel Pop and Trollogram so far.</summary>
+    /// <summary>kie's kit as numbers (<c>docs/design/kits.md</c>): Weasel Pop, Trollogram and Steal.</summary>
     public static class KieTuning
     {
         public static readonly WeaselPopSpec Weasels = new WeaselPopSpec();
         public static readonly TrollogramSpec Trollogram = new TrollogramSpec();
+        public static readonly StealSpec Steal = new StealSpec();
+    }
+
+    /// <summary>What kie's Steal can lift off a goon: a burst of its own weapon, or a boss tank's cannon.</summary>
+    public enum StealPrize { Nothing, Rifle, Knives, Bombs, Cannon }
+
+    /// <summary>
+    /// kie's super, Steal, as rules. SU spins a roulette over the toughest enemy on screen, and kie lifts a power-up
+    /// off it: the tougher it is, the bigger the prize. A goon gives a burst of its own weapon (a rifleman's rifle,
+    /// a knife runner's knives, a drone's bombs); a boss tank gives its whole cannon. The prize takes the primary's
+    /// place, like a crate's gun, until its ammo runs out. With nothing on screen to rob, the super isn't spent.
+    /// </summary>
+    public sealed class StealSpec
+    {
+        /// <summary>Seconds the roulette spins before it lands.</summary>
+        public float SpinTime = 1.2f;
+
+        /// <summary>The prize a <paramref name="brain"/> gives (a hologram copy of a tank, or a barrel, gives nothing).</summary>
+        public static StealPrize PrizeFor(EnemyBrain brain)
+        {
+            switch (brain)
+            {
+                case EnemyBrain.Rifleman: return StealPrize.Rifle;
+                case EnemyBrain.Weasel: return StealPrize.Rifle; // a weasel has nothing; you get a rifle off its handler
+                case EnemyBrain.Runner: return StealPrize.Knives;
+                case EnemyBrain.Drone: return StealPrize.Bombs;
+                case EnemyBrain.Tank: return StealPrize.Cannon;
+                default: return StealPrize.Nothing;
+            }
+        }
+
+        /// <summary>Whether a <paramref name="brain"/> can be robbed at all.</summary>
+        public static bool Robbable(EnemyBrain brain) => PrizeFor(brain) != StealPrize.Nothing;
+
+        /// <summary>
+        /// Which of the candidates to rob (index, or -1 for none): the toughest by full health, the nearest of equals.
+        /// </summary>
+        public static int Toughest(int[] maxHp, float[] distance)
+        {
+            int best = -1;
+            for (int i = 0; i < maxHp.Length; i++)
+                if (best < 0 || maxHp[i] > maxHp[best] || (maxHp[i] == maxHp[best] && distance[i] < distance[best])) best = i;
+            return best;
+        }
     }
 
     /// <summary>
