@@ -70,6 +70,9 @@ namespace PooketSlug
             if (m_Kills < SuperKills) m_Kills++;
         }
 
+        /// <summary>Charges the super all the way (a spike starts with it ready, to try it at once).</summary>
+        public void FillSuper() => m_Kills = SuperKills;
+
         /// <summary>Fires the super if it's charged, emptying it.</summary>
         public bool UseSuper()
         {

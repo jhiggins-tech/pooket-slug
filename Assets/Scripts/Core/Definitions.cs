@@ -61,6 +61,8 @@ namespace PooketSlug
         Jet,
         /// <summary>The soldier shakes, then launches upward (spike: <see cref="RocketSpec"/>).</summary>
         RocketJump,
+        /// <summary>A short-range spew that leaves burning sludge (spike: <see cref="SpewSpec"/>).</summary>
+        Spew,
     }
 
     /// <summary>A weapon: what it fires, and how. Shots are replicated by weapon id.</summary>

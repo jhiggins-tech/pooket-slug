@@ -30,6 +30,7 @@ namespace PooketSlug
         // spike kits (tones2): a primary or special that isn't a plain shot
         readonly WaterJet m_Jet;
         readonly RocketJump m_Rocket;
+        readonly Spew m_Spew;
 
         public Player(World world, SoldierDef def, Vector2 feet, int skin)
             : base(world, "Player", feet, def.HalfWidth, def.StandHeight, def.MaxHp)
@@ -39,10 +40,17 @@ namespace PooketSlug
             m_Visual = new PlayerVisual(Visual, def == SpikeContent.Tones2 ? Art.Tones2Skin : Art.PlayerSkins[skin], SortOrder.Player);
             if (def.Primary.Behaviour == WeaponBehaviour.Jet) m_Jet = new WaterJet(this, SpikeContent.Jet);
             if (def.Special.Behaviour == WeaponBehaviour.RocketJump) m_Rocket = new RocketJump(this, SpikeContent.Rocket);
+            if (def.Super != null && def.Super.Behaviour == WeaponBehaviour.Spew)
+            {
+                m_Spew = new Spew(this, SpikeContent.Spew);
+                Kit.FillSuper(); // the spike starts with the super ready, to try it straight away
+            }
             Grounded = true; // spawned standing on the ground (matters for the title-screen pose)
         }
 
-        public bool Invulnerable => m_Invuln > 0f || Dead;
+        public bool Invulnerable => m_Invuln > 0f || Dead || Spewing;
+        /// <summary>tones2's spew is pouring out: he holds still, and nothing hurts him.</summary>
+        bool Spewing => m_Spew != null && m_Spew.Active;
         /// <summary>How charged a tank call-in is, 0 to 1, while SP is held with the stick down.</summary>
         public float CallInCharge => m_CallIn.Charge;
         /// <summary>Where the soldier is aiming: forward, up, down in the air, or a diagonal (<see cref="Aiming"/>).</summary>
@@ -85,7 +93,7 @@ namespace PooketSlug
             bool up = input.Up, down = input.Down;
 
             // --- horizontal ---
-            bool rooted = m_Rocket != null && m_Rocket.Rooted; // shaking before the rocket jump
+            bool rooted = (m_Rocket != null && m_Rocket.Rooted) || Spewing; // shaking before the rocket jump, or spewing
             Crouching = Grounded && down && !rooted;
             Height = Crouching ? Def.CrouchHeight : Def.StandHeight;
             float speed = Crouching ? Def.CrawlSpeed : Def.RunSpeed;
@@ -127,12 +135,13 @@ namespace PooketSlug
 
             // --- aiming & shooting ---
             m_Aim = Aiming.Direction(up, down, moveX, Facing, Grounded);
+            m_Spew?.Tick(dt);
 
             m_FireCooldown -= dt;
             bool gun = GunAmmo > 0;
             m_Jet?.Tick(dt, input.Fire && !gun && !rooted);
             bool wantsFire = gun ? input.Fire : (input.FirePressed || input.Fire);
-            if (wantsFire && m_FireCooldown <= 0f && (gun || m_Jet == null)) Fire(gun ? Gun : Def.Primary);
+            if (wantsFire && m_FireCooldown <= 0f && (gun || m_Jet == null) && !rooted) Fire(gun ? Gun : Def.Primary);
 
             // SP: the special, or with the stick down and a tank to call, a held call-in
             Kit.Tick(dt);
@@ -142,7 +151,7 @@ namespace PooketSlug
             else if (sp == CallInGesture.Result.Cancelled) Sfx.Play(Sfx.Hurt, 0.25f);
             if (m_Rocket != null)
             {
-                m_Rocket.Tick(dt, special);
+                m_Rocket.Tick(dt, special && !Spewing);
             }
             else if (special && Kit.UseSpecial())
             {
@@ -198,6 +207,11 @@ namespace PooketSlug
         {
             World.Scoring.Popup("SUPER!", Pos + Vector2.up * 2.2f, new Color(1f, 0.85f, 0.3f));
             World.View.Shake(0.25f);
+            if (m_Spew != null)
+            {
+                m_Spew.Start();
+                return;
+            }
             if (Def.Super != null)
             {
                 FireOnce(Def.Super);
@@ -229,6 +243,7 @@ namespace PooketSlug
         {
             if (Invulnerable) return;
             Hp -= damage;
+            World.HitFeel?.Hurt(this, damage);
             FlashTimer = 0.08f;
             World.View.Shake(0.15f);
             if (Hp <= 0)

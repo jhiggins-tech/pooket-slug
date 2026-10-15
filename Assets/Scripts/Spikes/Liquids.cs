@@ -5,24 +5,46 @@ namespace PooketSlug
 {
     /// <summary>
     /// Spike: tones2's liquids. Droplets from his water jet, which soak damage into goons and push them back, and
-    /// splash back onto him off walls and big things up close; and the toxic mud his rocket jump leaves. Droplets
-    /// are pooled and run in the world's effects list, so they tick and sweep with everything else.
+    /// splash back onto him off walls and big things up close; the toxic mud his rocket jump leaves; and the
+    /// gobbets of his spew, which leave burning sludge where they land. Droplets are pooled and run in the
+    /// world's effects list, so they tick and sweep with everything else.
     /// </summary>
     public sealed class Liquids
     {
         readonly World m_World;
         EntityPool<Droplet> m_Drops;
+        readonly Dictionary<int, MudPuddle> m_Sludge = new Dictionary<int, MudPuddle>(); // by column: one strip each
         float m_SplatQuiet;
 
         public Liquids(World world) => m_World = world;
 
-        /// <summary>A droplet from the jet (or, with <paramref name="splash"/>, one splashing back at tones2).</summary>
-        public void Spray(Vector2 pos, Vector2 vel, float gravity, float damage, float push, bool splash = false)
+        /// <summary>A droplet: from the jet, splashing back at tones2, or a gobbet of spew.</summary>
+        public void Spray(Vector2 pos, Vector2 vel, float gravity, float damage, float push, DropKind kind = DropKind.Jet)
         {
             if (m_Drops == null) m_Drops = new EntityPool<Droplet>(() => new Droplet(m_World), 128);
             Droplet d = m_Drops.Get();
-            d.Launch(pos, vel, gravity, damage, push, splash);
+            d.Launch(pos, vel, gravity, damage, push, kind);
             m_World.Effects.Add(d);
+        }
+
+        /// <summary>A gobbet of spew landed at <paramref name="at"/>: sludge on the floor there, or fresh sludge if there's some already.</summary>
+        public void SpillSludge(Vector2 at)
+        {
+            Level level = m_World.Level;
+            int c = Mathf.FloorToInt(at.x);
+            int top = Mathf.FloorToInt(at.y + 0.5f);
+            for (int y = top; y >= top - 2; y--)
+            {
+                if (level.Get(c, y - 1) == Level.Empty || level.Get(c, y) != Level.Empty) continue;
+                if (m_Sludge.TryGetValue(c, out MudPuddle old) && !old.Removed && Mathf.Approximately(old.Pos.y, y))
+                {
+                    old.Renew();
+                    return;
+                }
+                m_Sludge[c] = new MudPuddle(m_World, new Vector2(c, y), MudPuddle.Kind.Sludge, c);
+                m_World.Effects.Add(m_Sludge[c]);
+                return;
+            }
         }
 
         /// <summary>Carpets the floor around <paramref name="feet"/> in toxic mud.</summary>
@@ -37,7 +59,7 @@ namespace PooketSlug
                 for (int y = top; y >= top - 2; y--)
                 {
                     if (level.Get(c, y - 1) == Level.Empty || level.Get(c, y) != Level.Empty) continue;
-                    m_World.Effects.Add(new MudPuddle(m_World, new Vector2(c, y), spec, c));
+                    m_World.Effects.Add(new MudPuddle(m_World, new Vector2(c, y), MudPuddle.Kind.Mud, c));
                     break;
                 }
             }
@@ -54,29 +76,33 @@ namespace PooketSlug
         }
     }
 
-    /// <summary>One droplet of tones2's jet. Pooled: <see cref="Liquids.Spray"/> launches one.</summary>
+    /// <summary>What a droplet is: from the jet, splashing back at tones2, or a gobbet of his spew.</summary>
+    public enum DropKind { Jet, Splash, Spew }
+
+    /// <summary>One droplet of tones2's jet or spew. Pooled: <see cref="Liquids.Spray"/> launches one.</summary>
     public sealed class Droplet : Entity
     {
         readonly SpriteRenderer m_Sr;
         Vector2 m_Vel;
         float m_Gravity, m_Damage, m_Push, m_Life;
-        bool m_Splash;
+        DropKind m_Kind;
 
         public Droplet(World world) : base(world, "Droplet", Vector2.zero)
         {
             m_Sr = AddRenderer(Go.transform, "Sprite", null, SortOrder.Projectiles);
         }
 
-        public void Launch(Vector2 pos, Vector2 vel, float gravity, float damage, float push, bool splash)
+        public void Launch(Vector2 pos, Vector2 vel, float gravity, float damage, float push, DropKind kind)
         {
             Pos = pos;
             m_Vel = vel;
             m_Gravity = gravity;
             m_Damage = damage;
             m_Push = push;
-            m_Splash = splash;
+            m_Kind = kind;
             m_Life = SpikeContent.Jet.DropLife;
-            m_Sr.sprite = SpikeArt.Drops[!splash && vel.sqrMagnitude > 14f * 14f ? 1 : 0];
+            m_Sr.sprite = kind == DropKind.Spew ? SpikeArt.Gobs[Rng.Fx.Range(0, SpikeArt.Gobs.Length)]
+                : SpikeArt.Drops[kind == DropKind.Jet && vel.sqrMagnitude > 14f * 14f ? 1 : 0];
         }
 
         public override void Destroy() => World.Liquids.Release(this);
@@ -87,7 +113,7 @@ namespace PooketSlug
             m_Vel.y -= m_Gravity * dt;
             Vector2 next = Pos + m_Vel * dt;
 
-            if (m_Splash)
+            if (m_Kind == DropKind.Splash)
             {
                 Player p = World.Player;
                 if (!p.Dead && p.Bounds.Contains(next))
@@ -111,7 +137,8 @@ namespace PooketSlug
 
             if (World.Level.IsSolidAt(next))
             {
-                if (!m_Splash) SplashOff(next);
+                if (m_Kind == DropKind.Jet) SplashOff(next);
+                else if (m_Kind == DropKind.Spew) World.Liquids.SpillSludge(Pos);
                 Remove();
                 return;
             }
@@ -134,9 +161,10 @@ namespace PooketSlug
             JetSpec spec = SpikeContent.Jet;
             Vector2 dir = m_Vel.normalized;
             e.Shove = Vector2.ClampMagnitude(e.Shove + dir * m_Push, spec.MaxShove);
-            if (Rng.Fx.Value < 0.4f) World.SpawnParticle(at, new Vector2(-dir.x * Rng.Fx.Range(1f, 3f), Rng.Fx.Range(1f, 4f)), SpikeArt.Water, 1.5f, 0.35f);
+            Color fleck = m_Kind == DropKind.Spew ? SpikeArt.Spew : SpikeArt.Water;
+            if (Rng.Fx.Value < 0.4f) World.SpawnParticle(at, new Vector2(-dir.x * Rng.Fx.Range(1f, 3f), Rng.Fx.Range(1f, 4f)), fleck, 1.5f, 0.35f);
             World.Liquids.Splat(0.25f);
-            if (e.HalfW >= 1f) SplashOff(at); // something big up close splashes back too
+            if (m_Kind == DropKind.Jet && e.HalfW >= 1f) SplashOff(at); // something big up close splashes back too
         }
 
         /// <summary>Off a wall or something big: up close, some of it arcs back onto tones2.</summary>
@@ -153,7 +181,7 @@ namespace PooketSlug
             const float t = 0.3f, g = 24f;
             var vel = new Vector2(to.x / t + Rng.Fx.Range(-1f, 1f), (to.y + 0.5f * g * t * t) / t);
             Vector2 start = at - m_Vel.normalized * 0.1f;
-            World.Liquids.Spray(start, vel, g, 0f, 0f, splash: true);
+            World.Liquids.Spray(start, vel, g, 0f, 0f, DropKind.Splash);
         }
 
         public override void Render()
@@ -161,56 +189,70 @@ namespace PooketSlug
             base.Render();
             float speed = m_Vel.magnitude;
             m_Sr.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(m_Vel.y, m_Vel.x) * Mathf.Rad2Deg);
-            // Fast droplets stretch along their flight, so the full jet reads as a stream.
-            m_Sr.transform.localScale = new Vector3(1f + speed / 9f, 1f, 1f);
+            // Fast droplets stretch along their flight, so the full jet reads as a stream. Gobbets stay lumpy.
+            m_Sr.transform.localScale = m_Kind == DropKind.Spew ? Vector3.one : new Vector3(1f + speed / 9f, 1f, 1f);
         }
     }
 
-    /// <summary>A tile-wide strip of toxic mud from tones2's rocket jump. Goons standing in it are poisoned.</summary>
+    /// <summary>
+    /// A tile-wide strip on the floor that hurts goons standing in it: toxic mud from tones2's rocket jump
+    /// (poison) or sludge from his spew (it burns).
+    /// </summary>
     public sealed class MudPuddle : Entity
     {
+        public enum Kind { Mud, Sludge }
+
         readonly SpriteRenderer m_Sr;
-        readonly RocketSpec m_Spec;
+        readonly Kind m_Kind;
+        readonly float m_Life, m_Interval;
         readonly Dictionary<Enemy, float> m_NextDose = new Dictionary<Enemy, float>();
         float m_Age, m_BubbleTimer;
 
-        public MudPuddle(World world, Vector2 bottomLeft, RocketSpec spec, int variant) : base(world, "Mud", bottomLeft)
+        public MudPuddle(World world, Vector2 bottomLeft, Kind kind, int variant) : base(world, kind == Kind.Mud ? "Mud" : "Sludge", bottomLeft)
         {
-            m_Spec = spec;
-            Sprite[] strips = SpikeArt.MudStrips;
+            m_Kind = kind;
+            m_Life = kind == Kind.Mud ? SpikeContent.Rocket.MudLife : SpikeContent.Spew.SludgeLife;
+            m_Interval = kind == Kind.Mud ? SpikeContent.Rocket.PoisonInterval : SpikeContent.Spew.BurnInterval;
+            Sprite[] strips = kind == Kind.Mud ? SpikeArt.MudStrips : SpikeArt.SludgeStrips;
             m_Sr = AddRenderer(Go.transform, "Sprite", strips[(variant % strips.Length + strips.Length) % strips.Length], SortOrder.Pickups);
             m_BubbleTimer = Rng.Fx.Range(0.1f, 0.6f);
         }
 
-        /// <summary>Where it poisons: the tile it covers, a little way up.</summary>
+        /// <summary>Where it hurts: the tile it covers, a little way up.</summary>
         Rect Area => new Rect(Pos.x, Pos.y, 1f, 0.45f);
+
+        /// <summary>More landed on it: it starts its time over (without oozing in again).</summary>
+        public void Renew() => m_Age = Mathf.Min(m_Age, 0.2f);
 
         public override void Tick(float dt)
         {
             m_Age += dt;
-            if (m_Age >= m_Spec.MudLife)
+            if (m_Age >= m_Life)
             {
                 Remove();
                 return;
             }
 
+            bool mud = m_Kind == Kind.Mud;
+            Color fleck = mud ? SpikeArt.Toxic : SpikeArt.Ember;
             Rect area = Area;
             foreach (Enemy e in World.Enemies)
             {
                 if (!e.Shootable || !e.Bounds.Overlaps(area)) continue;
-                e.PoisonTimer = 0.4f;
+                if (mud) e.PoisonTimer = 0.4f;
+                else e.BurnTimer = 0.4f;
                 if (m_NextDose.TryGetValue(e, out float at) && World.Elapsed < at) continue;
-                m_NextDose[e] = World.Elapsed + m_Spec.PoisonInterval;
+                m_NextDose[e] = World.Elapsed + m_Interval;
                 World.Combat.DamageEnemy(e, 1);
-                Sfx.Play(Sfx.Poison, 0.4f);
-                World.SpawnParticle(e.Center, new Vector2(Rng.Fx.Range(-1f, 1f), 3f), SpikeArt.Toxic, 1.5f, 0.6f);
+                Sfx.Play(mud ? Sfx.Poison : Sfx.Sizzle, 0.4f);
+                World.SpawnParticle(e.Center, new Vector2(Rng.Fx.Range(-1f, 1f), 3f), fleck, 1.5f, 0.6f);
             }
 
             m_BubbleTimer -= dt;
             if (m_BubbleTimer <= 0f)
             {
-                m_BubbleTimer = Rng.Fx.Range(0.4f, 1.2f);
-                World.SpawnParticle(Pos + new Vector2(Rng.Fx.Range(0.1f, 0.9f), 0.3f), new Vector2(0f, 2.5f), SpikeArt.Toxic, 1.5f, 0.35f);
+                m_BubbleTimer = mud ? Rng.Fx.Range(0.4f, 1.2f) : Rng.Fx.Range(0.15f, 0.5f); // sludge smokes and spits more
+                World.SpawnParticle(Pos + new Vector2(Rng.Fx.Range(0.1f, 0.9f), 0.3f), new Vector2(0f, 2.5f), fleck, 1.5f, 0.35f);
             }
         }
 
@@ -218,9 +260,10 @@ namespace PooketSlug
         {
             base.Render();
             // Oozes in, then dries up over its last second.
-            float grow = Mathf.Clamp01(m_Age / 0.2f), fade = Mathf.Clamp01(m_Spec.MudLife - m_Age);
+            float grow = Mathf.Clamp01(m_Age / 0.2f), fade = Mathf.Clamp01(m_Life - m_Age);
             m_Sr.transform.localScale = new Vector3(1f, grow, 1f);
             Color c = Color.white;
+            if (m_Kind == Kind.Sludge) c = Color.Lerp(Color.white, new Color(1f, 0.75f, 0.55f), 0.5f + 0.5f * Mathf.Sin(m_Age * 9f + Pos.x)); // a hot glow
             c.a = fade;
             m_Sr.color = c;
         }

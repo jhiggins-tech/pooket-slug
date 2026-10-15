@@ -5,19 +5,21 @@ namespace PooketSlug
 {
     /// <summary>
     /// Spike tests: small throwaway experiments switched on from the page address, so they ride along in the
-    /// normal build without changing the game anyone else plays. <c>?spike=tones2,holo</c> turns on tones2's
-    /// kit and the hologram goons for that visit. Spikes are solo only: a co-op game ignores them.
+    /// normal build without changing the game anyone else plays. <c>?spike=tones2,holo,hits</c> turns on tones2's
+    /// kit, the hologram goons and the hit feel for that visit. Spikes are solo only: a co-op game ignores them.
     /// </summary>
     public static class Spike
     {
-        public const string Tones2Key = "tones2", HoloKey = "holo";
+        public const string Tones2Key = "tones2", HoloKey = "holo", HitsKey = "hits";
 
-        /// <summary>Play as tones2: the water jet and the mud rocket jump.</summary>
+        /// <summary>Play as tones2: the water jet, the mud rocket jump and the spew.</summary>
         public static bool Tones2;
         /// <summary>The goons are glitchy holograms, and glitch out when they die.</summary>
         public static bool Holo;
+        /// <summary>Hits land with weight: sparks, flashes, and damage numbers floating off you.</summary>
+        public static bool Hits;
 
-        public static bool Any => Tones2 || Holo;
+        public static bool Any => Tones2 || Holo || Hits;
 
         /// <summary>Reads <c>?spike=</c> from the page address.</summary>
         public static void Configure(string url)
@@ -25,6 +27,7 @@ namespace PooketSlug
             string[] keys = (PageQuery.Get(url, "spike") ?? "").ToLowerInvariant().Split(',');
             Tones2 = Array.IndexOf(keys, Tones2Key) >= 0;
             Holo = Array.IndexOf(keys, HoloKey) >= 0;
+            Hits = Array.IndexOf(keys, HitsKey) >= 0;
         }
 
         /// <summary>What the start banner says, or null when no spike is on.</summary>
@@ -33,8 +36,11 @@ namespace PooketSlug
             get
             {
                 if (!Any) return null;
-                if (Tones2 && Holo) return "SPIKE TEST · TONES2 + HOLOGRAM GOONS";
-                return Tones2 ? "SPIKE TEST · TONES2" : "SPIKE TEST · HOLOGRAM GOONS";
+                var parts = new System.Collections.Generic.List<string>();
+                if (Tones2) parts.Add("TONES2");
+                if (Holo) parts.Add("HOLOGRAM GOONS");
+                if (Hits) parts.Add("HIT FEEL");
+                return "SPIKE TEST · " + string.Join(" + ", parts);
             }
         }
     }
@@ -96,18 +102,36 @@ namespace PooketSlug
         public float PoisonInterval = 0.5f;
     }
 
+    /// <summary>
+    /// tones2's ten-3, the super: a second and a half of spew that melts anything close, and leaves sludge on the
+    /// floor that burns goons who walk through it. He stands his ground while it pours out, and nothing hurts him.
+    /// </summary>
+    public sealed class SpewSpec
+    {
+        public float Duration = 1.5f;
+        /// <summary>Gobbets per second, their speed and spread (degrees either side of the aim) and how fast they fall.</summary>
+        public float DropsPerSecond = 40f, Speed = 9f, Spread = 18f, Gravity = 20f;
+        /// <summary>Damage each gobbet soaks in: a rifleman melts in about six.</summary>
+        public float Damage = 0.5f, Push = 0.35f;
+        /// <summary>How long the sludge stays, and how often it burns a goon standing in it (a point each time).</summary>
+        public float SludgeLife = 5f, BurnInterval = 0.4f;
+    }
+
     /// <summary>The spikes' own content. None of it is in <see cref="Content"/>'s tables, so none of it goes on the wire.</summary>
     public static class SpikeContent
     {
         public static readonly JetSpec Jet = new JetSpec();
         public static readonly RocketSpec Rocket = new RocketSpec();
+        public static readonly SpewSpec Spew = new SpewSpec();
 
         // Ids from the top of the range, well away from Content's: these weapons are never sent.
         public static readonly WeaponDef WaterJet = new WeaponDef(250, "ten-1", WeaponBehaviour.Jet, null, hud: "TEN-1");
         public static readonly WeaponDef RocketJump = new WeaponDef(251, "ten-2", WeaponBehaviour.RocketJump, null, hud: "TEN-2");
+        public static readonly WeaponDef SpewWeapon = new WeaponDef(252, "ten-3", WeaponBehaviour.Spew, null, hud: "TEN-3");
 
-        /// <summary>tones2, from Pooket Tabks: the water jet and the mud rocket jump. His spew (the super) waits for a super button.</summary>
+        /// <summary>tones2, from Pooket Tabks: the water jet, the mud rocket jump and the spew.</summary>
         public static readonly SoldierDef Tones2 = new SoldierDef(250, "tones2", runSpeed: 5.5f, crawlSpeed: 2f, jumpVelocity: 17f,
-            halfWidth: 0.3f, standHeight: 1.35f, crouchHeight: 0.8f, maxHp: 5, primary: WaterJet, special: RocketJump, startSpecials: 3);
+            halfWidth: 0.3f, standHeight: 1.35f, crouchHeight: 0.8f, maxHp: 5, primary: WaterJet, special: RocketJump, startSpecials: 3,
+            super: SpewWeapon);
     }
 }

@@ -27,7 +27,42 @@ namespace PooketSlug.Tests
             Spike.Configure(Page + query);
             Assert.AreEqual(tones2, Spike.Tones2);
             Assert.AreEqual(holo, Spike.Holo);
+            Assert.IsFalse(Spike.Hits);
             Assert.AreEqual(tones2 || holo, Spike.Label != null);
+        }
+
+        [Test]
+        public void TheBannerNamesEverySpikeThatsOn()
+        {
+            Spike.Configure(Page + "?spike=tones2,holo,hits");
+            Assert.IsTrue(Spike.Hits);
+            Assert.AreEqual("SPIKE TEST · TONES2 + HOLOGRAM GOONS + HIT FEEL", Spike.Label);
+            Spike.Configure(Page + "?spike=hits");
+            Assert.AreEqual("SPIKE TEST · HIT FEEL", Spike.Label);
+        }
+
+        [Test]
+        public void TheSpewMeltsAGoonInAFewGobbetsAndLastsASecondAndAHalf()
+        {
+            SpewSpec spew = SpikeContent.Spew;
+            Assert.AreEqual(1.5f, spew.Duration, 1e-6f);
+            float gobbets = Content.Rifleman.Hp / spew.Damage;
+            Assert.LessOrEqual(gobbets, 8f, "it melts anything close");
+            Assert.Less(gobbets / spew.DropsPerSecond, 0.25f, "a rifleman in the spew is gone in a blink");
+            Assert.Greater(spew.SludgeLife, 0f);
+        }
+
+        [Test]
+        public void TheSpewOnlyReachesClose()
+        {
+            SpewSpec spew = SpikeContent.Spew;
+            var jet = new JetSpec();
+            // Thrown level, how far a gobbet gets before it drops a tile and a half: much less than the full jet.
+            float t = UnityEngine.Mathf.Sqrt(2f * 1.5f / spew.Gravity);
+            float reach = spew.Speed * 1.1f * t;
+            float jetT = UnityEngine.Mathf.Sqrt(2f * 1.5f / jet.Gravity(1f));
+            Assert.Less(reach, 4f);
+            Assert.Less(reach, jet.Speed(1f) * jetT / 2f);
         }
 
         [Test]
@@ -85,6 +120,7 @@ namespace PooketSlug.Tests
         {
             Assert.AreEqual(WeaponBehaviour.Jet, SpikeContent.Tones2.Primary.Behaviour);
             Assert.AreEqual(WeaponBehaviour.RocketJump, SpikeContent.Tones2.Special.Behaviour);
+            Assert.AreEqual(WeaponBehaviour.Spew, SpikeContent.Tones2.Super.Behaviour);
             Assert.AreEqual(0, SpikeContent.Tones2.Primary.Ammo, "tier 1 has unlimited ammo");
         }
 
@@ -94,6 +130,7 @@ namespace PooketSlug.Tests
             // Not in Content's tables, so a co-op partner can never be sent one.
             CollectionAssert.DoesNotContain(Content.Weapons, SpikeContent.WaterJet);
             CollectionAssert.DoesNotContain(Content.Weapons, SpikeContent.RocketJump);
+            CollectionAssert.DoesNotContain(Content.Weapons, SpikeContent.SpewWeapon);
             CollectionAssert.DoesNotContain(Content.Soldiers, SpikeContent.Tones2);
             Assert.IsNull(Content.Weapon(SpikeContent.WaterJet.Id));
             Assert.IsNull(Content.Soldier(SpikeContent.Tones2.Id));

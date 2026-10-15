@@ -27,6 +27,8 @@ namespace PooketSlug
         public readonly Scoring Scoring = new Scoring();
         /// <summary>Droplets and puddles (spike: tones2's kit).</summary>
         public readonly Liquids Liquids;
+        /// <summary>The hit feel spike's sparks, flashes and damage numbers, or null when it's off.</summary>
+        public readonly HitFeel HitFeel;
         /// <summary>The co-op session's side of the world; null when playing solo.</summary>
         public readonly NetSync Sync;
 
@@ -64,6 +66,7 @@ namespace PooketSlug
             Spawner = new Spawner(this);
             Combat = new Combat(this);
             Liquids = new Liquids(this);
+            if (Spike.Hits && !Coop) HitFeel = new HitFeel(this); // spikes are solo only
             if (net != null) Sync = new NetSync(this);
 
             Vector2 start = Level.PlayerStart;
@@ -101,6 +104,7 @@ namespace PooketSlug
         public void OnPlayerKill(Enemy e)
         {
             Player.Kit.AddKill();
+            HitFeel?.Kill(e);
             HitStop(e.MaxHp >= Tuning.Impact.BigHp ? Tuning.Impact.BigKillStop : Tuning.Impact.KillStop);
         }
 
@@ -164,6 +168,7 @@ namespace PooketSlug
             foreach (Pickup p in Pickups) p.Render();
             foreach (Entity e in Effects) e.Render();
             foreach (Entity e in Props) e.Render();
+            HitFeel?.Render();
         }
 
         static void Sweep<T>(List<T> list) where T : Entity

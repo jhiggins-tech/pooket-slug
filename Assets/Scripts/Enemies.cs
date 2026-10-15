@@ -13,6 +13,8 @@ namespace PooketSlug
         public float Soak;
         /// <summary>Seconds left showing the poison of toxic mud.</summary>
         public float PoisonTimer;
+        /// <summary>Seconds left showing the burn of tones2's sludge.</summary>
+        public float BurnTimer;
         /// <summary>A spike's look for this enemy (the hologram goons), or null for the plain one.</summary>
         public HoloLook Look;
         /// <summary>Our soldier has had the kill (a co-op follower sees the death only when the authority reports it).</summary>
@@ -66,6 +68,7 @@ namespace PooketSlug
             FlashTimer -= dt;
             Anim += dt;
             PoisonTimer -= dt;
+            BurnTimer -= dt;
             if (Dying)
             {
                 DyingTime += dt;

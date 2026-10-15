@@ -124,7 +124,11 @@ namespace PooketSlug
                 foreach (Enemy e in w.Enemies)
                 {
                     if (!e.Shootable || !Overlaps(e.Bounds, p.Pos, p.Radius)) continue;
-                    if (!p.Cosmetic && p.Def.ContactDamage) DamageEnemy(e, p.Damage);
+                    if (!p.Cosmetic && p.Def.ContactDamage)
+                    {
+                        DamageEnemy(e, p.Damage);
+                        w.HitFeel?.Spark(p.Pos, p.Vel, p.Damage >= 2);
+                    }
                     p.Detonate();
                     break;
                 }
@@ -163,6 +167,7 @@ namespace PooketSlug
             w.Burst(at, Mathf.RoundToInt(6 * size), new Color(0.35f, 0.3f, 0.28f));
             Sfx.Play(Sfx.Explosion, Mathf.Clamp01(0.4f + size * 0.4f));
             w.View.Shake(0.1f * size);
+            w.HitFeel?.Blast(size);
             if (damage <= 0) return;
 
             if (hostile)

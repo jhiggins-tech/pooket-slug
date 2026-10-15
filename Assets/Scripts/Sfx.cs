@@ -10,7 +10,7 @@ namespace PooketSlug
 
         public static AudioClip Shot, Heavy, EnemyShot, Cannon, Explosion, BigExplosion, Jump, Hurt, Hit, Pickup, Throw, Start, Victory, GameOver;
         // spike sounds: tones2's kit and the hologram goons
-        public static AudioClip JetLoop, Splat, RocketRumble, RocketLaunch, Glitch, Poison;
+        public static AudioClip JetLoop, Splat, RocketRumble, RocketLaunch, Glitch, Poison, Spew, Sizzle, Thump;
         public static bool Muted;
 
         static AudioSource s_Source;
@@ -84,6 +84,15 @@ namespace PooketSlug
                 return Square(Sweep(t, 0.32f, f, f * 0.7f)) * 0.22f * ((step % 4) == 3 ? 0.2f : 1f) + Noise() * 0.06f;
             });
             Poison = Make("poison", 0.12f, (t, p) => Sine(Sweep(t, 0.12f, 300, 180)) * 0.25f + Noise() * 0.08f);
+            // tones2's spew: a gurgling retch that wobbles down over a second and a half.
+            Spew = Make("spew", 1.5f, (t, p) =>
+            {
+                float wobble = 1f + 0.25f * Mathf.Sin(t * 38f);
+                return Square(Sweep(t, 1.5f, 170f * wobble, 70f * wobble)) * 0.22f * (1f - p * 0.6f) + Noise() * 0.18f * (0.6f + 0.4f * Mathf.Sin(t * 23f));
+            });
+            Sizzle = Make("sizzle", 0.14f, (t, p) => Noise() * 0.3f * (1 - p) * (0.5f + 0.5f * Mathf.Sin(t * 900f)));
+            // A heavy hit landing: a low thud with a click on top.
+            Thump = Make("thump", 0.12f, (t, p) => Sine(Sweep(t, 0.12f, 160, 50)) * 0.5f * (1 - p) + Noise() * 0.2f * Mathf.Max(0f, 1f - p * 6f));
         }
 
         /// <summary>A looping source for a continuous sound (the jet), or null without sound.</summary>

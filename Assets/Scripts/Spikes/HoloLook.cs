@@ -23,7 +23,7 @@ namespace PooketSlug
         const int BandPx = 3;
 
         static readonly Color Cyan = new Color(0.45f, 1f, 1f), Magenta = new Color(1f, 0.45f, 0.9f), Amber = new Color(1f, 0.82f, 0.35f);
-        static readonly Color Poisoned = new Color(0.62f, 1f, 0.2f);
+        static readonly Color Poisoned = new Color(0.62f, 1f, 0.2f), Burning = new Color(1f, 0.5f, 0.15f);
 
         readonly Enemy m_Enemy;
         readonly Color m_Tint;
@@ -91,7 +91,8 @@ namespace PooketSlug
             Transform visual = m_Enemy.VisualRoot;
             visual.localPosition = glitching ? (Vector3)m_Jitter : Vector3.zero;
 
-            Color tint = m_Enemy.PoisonTimer > 0f ? Color.Lerp(m_Tint, Poisoned, 0.75f) : m_Tint;
+            Color tint = m_Enemy.BurnTimer > 0f ? Color.Lerp(m_Tint, Burning, 0.75f)
+                : m_Enemy.PoisonTimer > 0f ? Color.Lerp(m_Tint, Poisoned, 0.75f) : m_Tint;
             // A steady shimmer, and the odd dropout while glitching.
             tint.a = glitching && Rng.Fx.Value < 0.3f ? 0.35f : 0.8f + 0.12f * Mathf.Sin(now * 23f + m_Phase);
             for (int i = 0; i < m_Parts.Length; i++)

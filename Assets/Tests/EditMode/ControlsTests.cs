@@ -63,6 +63,16 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void ASpikeCanStartWithTheSuperReady()
+        {
+            var kit = new KitMeters(3, 3, 6f, 12, 0f);
+            kit.FillSuper();
+            Assert.IsTrue(kit.SuperReady);
+            Assert.IsTrue(kit.UseSuper());
+            Assert.IsFalse(kit.SuperReady, "after that it charges from kills as usual");
+        }
+
+        [Test]
         public void TheAbilityWaitsOutItsCooldown()
         {
             var kit = new KitMeters(3, 3, 6f, 12, 5f);
