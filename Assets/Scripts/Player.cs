@@ -163,7 +163,7 @@ namespace PooketSlug
             }
             else if (m_Troll != null)
             {
-                m_Troll.Tick(dt, special);
+                m_Troll.Tick(dt, special, input.Special);
             }
             else if (special && Kit.UseSpecial())
             {

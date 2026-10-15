@@ -21,7 +21,8 @@ namespace PooketSlug
         public Player Player;
         public BossEnemy Boss;
         /// <summary>kie's hologram on the players' side (Trollogram), or null: the goons shoot it instead while it's up.</summary>
-        public TrollDecoy Decoy;
+        /// <summary>kie's Trollograms (players' side) standing in the world: every goon shoots one while it's on screen.</summary>
+        public readonly List<TrollDecoy> Decoys = new List<TrollDecoy>();
 
         public readonly ScrollCamera View;
         public readonly Spawner Spawner;

@@ -92,9 +92,11 @@ namespace PooketSlug
     }
 
     /// <summary>
-    /// kie's special, Trollogram, as numbers and rules. SP drops a hologram of kie where he stands (a charge), and the
-    /// goons shoot it instead of him while it's on screen. SP again, while it stands, swaps him and it (free). The
-    /// first thing that hits it blows it up on every goon nearby. These are the ones that went rogue.
+    /// kie's special, Trollogram, as numbers and rules. A tap of SP drops a hologram of kie where he stands (a charge),
+    /// up to <see cref="MaxUp"/> at once, and every goon shoots a hologram instead of him while one's on screen (the
+    /// nearest one to it). Holding SP swaps him with the hologram furthest from him (free), and so does a tap with no
+    /// charges left. The first thing that hits one blows it up on every goon nearby. These are the ones that went rogue.
+    /// (Several at once, and always the goons' target on screen: owner, 2026-10-15.)
     /// </summary>
     public sealed class TrollogramSpec
     {
@@ -102,6 +104,9 @@ namespace PooketSlug
         public float Life = 12f;
         /// <summary>Seconds between swaps, so a held or doubled tap doesn't swap straight back.</summary>
         public float SwapCooldown = 0.35f;
+        /// <summary>Holograms kie can have up at once, and how long SP is held (with one up) before it's a swap, not a drop.</summary>
+        public int MaxUp = 3;
+        public float HoldToSwap = 0.3f;
         /// <summary>Seconds kie can't be hurt after a swap, while he glitches into place.</summary>
         public float SwapShield = 0.3f;
         /// <summary>The blast when it's shot: its reach, damage and size on screen.</summary>
@@ -115,12 +120,28 @@ namespace PooketSlug
             return charges > 0 ? TrollAction.Drop : TrollAction.Nothing;
         }
 
+        /// <summary>
+        /// kie's SP pressed: with no hologram up, drop one at once (with a charge); with one up, wait to see if it's a
+        /// tap or a hold (<see cref="TrollAction.Wait"/>).
+        /// </summary>
+        public TrollAction OnPress(int up, int charges) => up > 0 ? TrollAction.Wait : charges > 0 ? TrollAction.Drop : TrollAction.Nothing;
+
+        /// <summary>A tap of SP with <paramref name="up"/> holograms up: another (a charge, room for it), or else a swap.</summary>
+        public TrollAction OnTap(int up, int charges, float sinceSwap)
+        {
+            if (charges > 0 && up < MaxUp) return TrollAction.Drop;
+            return up > 0 && sinceSwap >= SwapCooldown ? TrollAction.Swap : TrollAction.Nothing;
+        }
+
+        /// <summary>SP held this long, with a hologram up: a swap.</summary>
+        public bool HoldSwaps(float held) => held >= HoldToSwap;
+
         /// <summary>Whether goons take the hologram for kie: it's up, and on screen (between <paramref name="left"/> and <paramref name="right"/>).</summary>
         public static bool Draws(bool up, float x, float left, float right) => up && x >= left && x <= right;
     }
 
     /// <summary>What a press of SP does with Trollogram (<see cref="TrollogramSpec.OnSpecial"/>).</summary>
-    public enum TrollAction { Nothing, Drop, Swap }
+    public enum TrollAction { Nothing, Drop, Swap, Wait }
 
     /// <summary>
     /// kie's primary, Weasel Pop, as numbers and rules. Each press tumbles out three weasels, lobbed along the aim

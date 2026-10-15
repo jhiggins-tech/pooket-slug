@@ -60,8 +60,19 @@ namespace PooketSlug
         /// </summary>
         public Actor NearestAvatar(Vector2 from)
         {
-            TrollDecoy decoy = m_World.Decoy;
-            if (decoy != null && TrollogramSpec.Draws(decoy.Up, decoy.Pos.x, m_World.View.Left, m_World.View.Right)) return decoy;
+            TrollDecoy nearestDecoy = null;
+            float decoyDist = float.MaxValue;
+            foreach (TrollDecoy d in m_World.Decoys)
+            {
+                if (!TrollogramSpec.Draws(d.Up, d.Pos.x, m_World.View.Left, m_World.View.Right)) continue;
+                float dd = (d.Pos - from).sqrMagnitude;
+                if (dd < decoyDist)
+                {
+                    nearestDecoy = d;
+                    decoyDist = dd;
+                }
+            }
+            if (nearestDecoy != null) return nearestDecoy; // a hologram on screen always comes first
             Player player = m_World.Player;
             Actor best = player;
             float bestDist = player.IsDown ? float.MaxValue : (player.Pos - from).sqrMagnitude;
@@ -116,10 +127,12 @@ namespace PooketSlug
                 if (p.Removed) continue;
                 if (p.Hostile)
                 {
-                    TrollDecoy decoy = w.Decoy;
-                    if (decoy != null && decoy.Up && Overlaps(decoy.Bounds, p.Pos, p.Radius))
+                    TrollDecoy hitDecoy = null;
+                    foreach (TrollDecoy d in w.Decoys)
+                        if (d.Up && Overlaps(d.Bounds, p.Pos, p.Radius)) hitDecoy = d;
+                    if (hitDecoy != null)
                     {
-                        decoy.Blow();
+                        hitDecoy.Blow();
                         p.Detonate();
                         continue;
                     }
@@ -200,7 +213,8 @@ namespace PooketSlug
 
             if (hostile)
             {
-                if (w.Decoy != null && w.Decoy.Up && Overlaps(w.Decoy.Bounds, at, radius)) w.Decoy.Blow();
+                for (int i = w.Decoys.Count - 1; i >= 0; i--)
+                    if (w.Decoys[i].Up && Overlaps(w.Decoys[i].Bounds, at, radius)) w.Decoys[i].Blow();
                 if (!w.Player.Invulnerable && Overlaps(w.Player.Bounds, at, radius)) w.Player.Hurt(damage);
                 return;
             }

@@ -147,42 +147,83 @@ namespace PooketSlug
 namespace PooketSlug
 {
     /// <summary>
-    /// Spike (<c>?spike=kie-trollogram</c>): kie's special for a player. SP drops a hologram of him where he stands
-    /// (a charge); the goons shoot it instead of him while it's on screen, and SP again swaps him and it (free). The
-    /// first thing that hits it blows it up on every goon nearby (<see cref="TrollogramSpec"/>).
+    /// Spike (<c>?spike=kie-trollogram</c>): kie's special for a player. A tap of SP drops a hologram of him where he
+    /// stands (a charge, up to three at once); the goons shoot them instead of him while they're on screen. Holding SP
+    /// swaps him with the one furthest away (free). The first thing that hits one blows it up on every goon nearby
+    /// (<see cref="TrollogramSpec"/>).
     /// </summary>
     public sealed class Trollogram
     {
         readonly Player m_Player;
-        float m_SinceSwap = 99f;
+        float m_SinceSwap = 99f, m_Held = -1f;
 
         public Trollogram(Player player) => m_Player = player;
 
-        public void Tick(float dt, bool pressed)
+        /// <param name="pressed">SP was pressed this frame (as a special, not a tank call-in).</param>
+        /// <param name="held">SP is down.</param>
+        public void Tick(float dt, bool pressed, bool held)
         {
             m_SinceSwap += dt;
-            if (!pressed) return;
+            TrollogramSpec spec = KieTuning.Trollogram;
+            Player p = m_Player;
+            int up = Up(p.World);
+            if (pressed)
+            {
+                TrollAction a = spec.OnPress(up, p.Specials);
+                if (a == TrollAction.Wait) m_Held = 0f;
+                else Do(a);
+                return;
+            }
+            if (m_Held < 0f) return;
+            if (!held)
+            {
+                m_Held = -1f;
+                Do(spec.OnTap(up, p.Specials, m_SinceSwap));
+                return;
+            }
+            m_Held += dt;
+            if (spec.HoldSwaps(m_Held))
+            {
+                m_Held = -1f;
+                if (up > 0) Do(TrollAction.Swap);
+            }
+        }
+
+        static int Up(World w)
+        {
+            int n = 0;
+            foreach (TrollDecoy d in w.Decoys)
+                if (d.Up) n++;
+            return n;
+        }
+
+        void Do(TrollAction action)
+        {
             Player p = m_Player;
             World w = p.World;
-            TrollDecoy decoy = w.Decoy != null && w.Decoy.Up ? w.Decoy : null;
-            switch (KieTuning.Trollogram.OnSpecial(decoy != null, m_SinceSwap, p.Specials))
+            switch (action)
             {
                 case TrollAction.Drop:
                     p.Specials--;
-                    w.Decoy = new TrollDecoy(w, p.Pos, p.Pose, p.Def);
-                    w.Props.Add(w.Decoy);
+                    var decoy = new TrollDecoy(w, p.Pos, p.Pose, p.Def);
+                    w.Decoys.Add(decoy);
+                    w.Props.Add(decoy);
                     Sfx.Play(Sfx.TrollDrop, 0.8f);
                     w.Scoring.Popup("TROLLOGRAM!", p.Pos + Vector2.up * 2.2f, TrollDecoy.Tint);
                     break;
                 case TrollAction.Swap:
+                    TrollDecoy far = null;
+                    foreach (TrollDecoy d in w.Decoys)
+                        if (d.Up && (far == null || Mathf.Abs(d.Pos.x - p.Pos.x) > Mathf.Abs(far.Pos.x - p.Pos.x))) far = d;
+                    if (far == null) return;
                     m_SinceSwap = 0f;
                     Vector2 was = p.Pos;
-                    p.Pos = decoy.Pos;
+                    p.Pos = far.Pos;
                     p.Vel = Vector2.zero;
                     p.Shield(KieTuning.Trollogram.SwapShield);
-                    decoy.SwapTo(was, p.Pose);
+                    far.SwapTo(was, p.Pose);
                     w.Burst(p.Center, 10, TrollDecoy.Tint);
-                    w.Burst(decoy.Center, 10, TrollDecoy.Tint);
+                    w.Burst(far.Center, 10, TrollDecoy.Tint);
                     Sfx.Play(Sfx.TrollSwap, 0.8f);
                     break;
             }
@@ -191,7 +232,7 @@ namespace PooketSlug
 
     /// <summary>
     /// A hologram of kie on the players' side (Trollogram): it stands in his pose, shimmering, and draws the goons'
-    /// fire while it's on screen (<see cref="Combat.NearestAvatar"/>). The first hit blows it up on every goon nearby;
+    /// fire while it's on screen (several can be up) (<see cref="Combat.NearestAvatar"/>). The first hit blows it up on every goon nearby;
     /// left alone, it switches itself off. It glitches out either way.
     /// </summary>
     public sealed class TrollDecoy : Actor
@@ -274,7 +315,7 @@ namespace PooketSlug
 
         public override void Destroy()
         {
-            if (World.Decoy == this) World.Decoy = null;
+            World.Decoys.Remove(this);
             base.Destroy();
         }
 

@@ -22,7 +22,7 @@ From [player mechanics](player.md#the-kit): the primary has unlimited ammo, the 
 ## kie
 - **Weasel Pop** (primary): each press tumbles out three weasels. Where they land, they scurry under the nearest goon and pop, to Pop Goes the Weasel. It's lobbed, so it reaches behind cover, but it's weak against flyers.
 - **Fork at II**: Ferret Frenzy (more, smaller weasels) or Badger (one big one that won't stop chasing).
-- **Trollogram** (special): drop a hologram of yourself that goons shoot instead of you, and press again to swap places with it. A shot hologram blows up on everything nearby. The running joke: these are the ones that went rogue.
+- **Trollogram** (special): tap to drop a hologram of yourself (up to three at once); while one is on screen, goons always shoot a hologram instead of you. Hold to swap places with the one furthest away (owner, 2026-10-15: several at once, always the goons' target). A shot hologram blows up on everything nearby. The running joke: these are the ones that went rogue.
 - **Steal** (super): the roulette spins and kie lifts a random power-up off the toughest enemy on screen. The tougher it is, the bigger the prize: a burst of the goon's own weapon, say, or a whole crew gun off a boss tank.
 
 ## kcaj

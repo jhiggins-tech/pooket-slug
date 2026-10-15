@@ -164,5 +164,21 @@ namespace PooketSlug.Tests
             Assert.IsFalse(WeaselPopSpec.OnScreen(20.1f, 0f, 20f), "off the right edge: gone");
             Assert.IsFalse(WeaselPopSpec.OnScreen(-0.1f, 0f, 20f), "off the left edge: gone");
         }
+
+        [Test]
+        public void ATapDropsAnotherHologramAndAHoldSwaps()
+        {
+            Assert.AreEqual(TrollAction.Drop, Troll.OnPress(0, 3), "none up: drops at once");
+            Assert.AreEqual(TrollAction.Nothing, Troll.OnPress(0, 0));
+            Assert.AreEqual(TrollAction.Wait, Troll.OnPress(1, 3), "one up: a tap or a hold?");
+            Assert.AreEqual(TrollAction.Drop, Troll.OnTap(1, 2, 99f), "a tap: another one");
+            Assert.AreEqual(TrollAction.Drop, Troll.OnTap(Troll.MaxUp - 1, 1, 99f));
+            Assert.AreEqual(TrollAction.Swap, Troll.OnTap(Troll.MaxUp, 3, 99f), "no room for another: a tap swaps");
+            Assert.AreEqual(TrollAction.Swap, Troll.OnTap(1, 0, 99f), "no charges: a tap swaps");
+            Assert.AreEqual(TrollAction.Nothing, Troll.OnTap(1, 0, Troll.SwapCooldown * 0.5f));
+            Assert.IsFalse(Troll.HoldSwaps(Troll.HoldToSwap * 0.5f));
+            Assert.IsTrue(Troll.HoldSwaps(Troll.HoldToSwap));
+            Assert.Greater(Troll.MaxUp, 1, "several at once");
+        }
     }
 }
