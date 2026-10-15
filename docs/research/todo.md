@@ -105,11 +105,11 @@ C2, the refactor, is done. C1's code is written and checked locally; it goes liv
   - [x] Verify locally: each input backend, 263 of 263 EditMode tests, and the sign-in page test (24 of 24).
   - [x] Verify in CI: built, deployed and the co-op test passed (run 38719671718; that run's new boss co-op step failed, which is the boss tank build's). Live: sign-in shows on the title and settings, hidden while playing.
 
-- [ ] **C10. kie's tank boss for real** ([tanks](../design/tanks.md#tank-bosses)), queued from the Roadmap 2026-10-15: the approved spike, on for everyone, on top of the boss tank build.
+- [x] **C10. kie's tank boss for real** ([tanks](../design/tanks.md#tank-bosses)), queued from the Roadmap 2026-10-15: the approved spike, on for everyone, on top of the boss tank build.
   - [x] Mission one's boss tank fights as kie's (`KieBoss`, tuning in `Content.KieTank`): each charged shot is the next of weasels (three lobbed, they scurry and pop), hologram copies (two copies shuffle in with the real one and move and fire with it; only the real one can be hurt, and the first hit on it ends the trick) and a roulette that steals the special's charges or the super's charge until the tank takes a tenth of its health, when it drops them to grab back. A turn whose attack is still going is a plain shell. No `?spike=kie` any more.
   - [x] Co-op: weasels (enemy 5) and copies (enemy 6) are enemies in the snapshot; a weasel's pop hurts every soldier in reach; the disguise is a snapshot flag; the roulette rides in the boss's network object, and each screen steals from and gives back to its own soldier. A death with health left (a weasel popping, a copy glitching out) shows no points.
   - [x] Verify locally: each input backend, 275 of 275 EditMode tests. (The Fusion assembly is checked by CI: `NetBoss` gains three fields.)
-  - [ ] Verify in CI: build, deploy and the co-op tests (the boss round).
+  - [x] Verify in CI: run 38730830083 (with the pilot round on top) built, deployed and passed both co-op rounds, the boss round included (2026-10-15). Smoke-tested live with no `?spike=`: weasels, copies, the roulette. On the Roadmap for review.
   - Known gap: each soldier's dropped loot shows only on their own screen.
 
 ## Done recently
