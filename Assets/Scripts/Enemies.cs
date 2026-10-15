@@ -9,6 +9,12 @@ namespace PooketSlug
         public int NetId = -1;   // its NetIds id: the enemy's identity in co-op; -1 stays local
         public bool Dying;
         protected float DyingTime, Anim;
+        /// <summary>Damage soaked in from droplets that hasn't added up to a whole point yet (tones2's jet).</summary>
+        public float Soak;
+        /// <summary>Seconds left showing the poison of toxic mud.</summary>
+        public float PoisonTimer;
+        /// <summary>A spike's look for this enemy (the hologram goons), or null for the plain one.</summary>
+        public HoloLook Look;
         protected const float Gravity = Tuning.Physics.Gravity, MaxFall = Tuning.Physics.MaxFall;
         Vector2 m_NetPos;
         bool m_NetPlaced;
@@ -20,6 +26,8 @@ namespace PooketSlug
         }
 
         public int Score => Def.Score;
+        /// <summary>Seconds since it started dying.</summary>
+        public float DyingSeconds => DyingTime;
 
         public bool Shootable => !Dying && !Removed;
         /// <summary>Nearest soldier (local or remote), refreshed every authoritative tick.</summary>
@@ -40,6 +48,7 @@ namespace PooketSlug
 
         public void FlashHit()
         {
+            Look?.OnHit();
             FlashTimer = 0.07f;
             Sfx.Play(Sfx.Hit, 0.5f);
         }
@@ -54,9 +63,15 @@ namespace PooketSlug
         {
             FlashTimer -= dt;
             Anim += dt;
+            PoisonTimer -= dt;
             if (Dying)
             {
                 DyingTime += dt;
+                if (Look != null)
+                {
+                    if (Look.TickDying(DyingTime)) Remove();
+                    return;
+                }
                 TickDying(dt);
                 return;
             }
@@ -67,6 +82,7 @@ namespace PooketSlug
             }
             Target = World.Combat.NearestAvatar(Pos);
             TickAlive(dt);
+            Shove = Vector2.MoveTowards(Shove, Vector2.zero, 10f * dt);
             if (Pos.x < World.View.Left - 4f) Remove(); // left behind
         }
 
@@ -125,7 +141,7 @@ namespace PooketSlug
         public override void Render()
         {
             base.Render();
-            if (Dying)
+            if (Dying && Look == null)
             {
                 Visual.localRotation = Quaternion.Euler(0f, 0f, Mathf.Min(90f, DyingTime * 400f) * Facing);
                 Visual.gameObject.SetActive(DyingTime < 0.6f || ((int)(DyingTime * 16f) % 2 == 0));
@@ -258,7 +274,7 @@ namespace PooketSlug
             float ty = Mathf.Clamp(Target.Pos.y + 5.2f, 6f, 9.5f) + Mathf.Sin(Anim * 3f) * 0.3f;
             Vector2 desired = new Vector2(tx - Pos.x, ty - Pos.y) * 1.5f;
             Vel = Vector2.MoveTowards(Vel, Vector2.ClampMagnitude(desired, 3.2f), 8f * dt);
-            Pos += Vel * dt;
+            Pos += (Vel + Shove) * dt;
             Facing = Vel.x >= 0f ? 1 : -1;
 
             m_BombCooldown -= dt;
@@ -284,7 +300,7 @@ namespace PooketSlug
         {
             base.Render();
             m_Sr.sprite = Flashed(Art.Drone[(int)(Anim * 20f) % 2]);
-            if (Dying)
+            if (Dying && Look == null)
             {
                 Visual.gameObject.SetActive(true);
                 Visual.localRotation = Quaternion.Euler(0f, 0f, DyingTime * 540f);

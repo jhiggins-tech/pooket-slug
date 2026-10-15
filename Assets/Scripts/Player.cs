@@ -18,20 +18,30 @@ namespace PooketSlug
         /// <summary>This frame's orders, from <see cref="GameInput"/>; the world sets them before <see cref="Tick"/>.</summary>
         public SoldierInput Input;
 
+        /// <summary>Seconds left slowed down by splashback from his own jet (tones2).</summary>
+        public float SlowTimer;
+
         float m_Coyote, m_JumpBuffer, m_FireCooldown, m_Anim, m_Muzzle, m_Invuln, m_DropThrough;
         Vector2 m_Aim = Vector2.right;
         readonly PlayerVisual m_Visual;
+        // spike kits (tones2): a primary or special that isn't a plain shot
+        readonly WaterJet m_Jet;
+        readonly RocketJump m_Rocket;
 
         public Player(World world, SoldierDef def, Vector2 feet, int skin)
             : base(world, "Player", feet, def.HalfWidth, def.StandHeight, def.MaxHp)
         {
             Def = def;
             Specials = def.StartSpecials;
-            m_Visual = new PlayerVisual(Visual, Art.PlayerSkins[skin], SortOrder.Player);
+            m_Visual = new PlayerVisual(Visual, def == SpikeContent.Tones2 ? Art.Tones2Skin : Art.PlayerSkins[skin], SortOrder.Player);
+            if (def.Primary.Behaviour == WeaponBehaviour.Jet) m_Jet = new WaterJet(this, SpikeContent.Jet);
+            if (def.Special.Behaviour == WeaponBehaviour.RocketJump) m_Rocket = new RocketJump(this, SpikeContent.Rocket);
             Grounded = true; // spawned standing on the ground (matters for the title-screen pose)
         }
 
         public bool Invulnerable => m_Invuln > 0f || Dead;
+        /// <summary>Where the soldier is aiming: forward, up, or down in the air.</summary>
+        public Vector2 Aim => m_Aim;
         public override bool IsDown => Dead;
         public int Skin { set => m_Visual.Skin = Art.PlayerSkins[value]; }
 
@@ -54,6 +64,7 @@ namespace PooketSlug
         {
             if (Dead)
             {
+                m_Jet?.Tick(dt, false);
                 DeadTime += dt;
                 Vel.y = Mathf.Max(Vel.y - Tuning.Physics.Gravity * dt, -Tuning.Physics.MaxFall);
                 Vel.x = Mathf.MoveTowards(Vel.x, 0f, 6f * dt);
@@ -67,16 +78,20 @@ namespace PooketSlug
             bool up = input.Up, down = input.Down;
 
             // --- horizontal ---
-            Crouching = Grounded && down;
+            bool rooted = m_Rocket != null && m_Rocket.Rooted; // shaking before the rocket jump
+            Crouching = Grounded && down && !rooted;
             Height = Crouching ? Def.CrouchHeight : Def.StandHeight;
-            Vel.x = moveX * (Crouching ? Def.CrawlSpeed : Def.RunSpeed);
-            if (moveX != 0f) Facing = moveX > 0f ? 1 : -1;
+            float speed = Crouching ? Def.CrawlSpeed : Def.RunSpeed;
+            if (SlowTimer > 0f) speed *= SpikeContent.Jet.SplashSlow;
+            Vel.x = rooted ? 0f : moveX * speed;
+            if (moveX != 0f && !rooted) Facing = moveX > 0f ? 1 : -1;
+            SlowTimer -= dt;
 
             // --- jumping (with coyote time + input buffering) ---
             m_Coyote = Grounded ? Tuning.Soldier.CoyoteTime : m_Coyote - dt;
             m_JumpBuffer = input.JumpPressed ? Tuning.Soldier.JumpBuffer : m_JumpBuffer - dt;
             m_DropThrough -= dt;
-            if (m_JumpBuffer > 0f && m_Coyote > 0f)
+            if (m_JumpBuffer > 0f && m_Coyote > 0f && !rooted)
             {
                 if (down && TilePhysics.OnBridge(World.Level, Pos, HalfW))
                 {
@@ -92,7 +107,8 @@ namespace PooketSlug
             }
 
             float gravity = Tuning.Physics.Gravity;
-            if (Vel.y > 0f && !input.Jump) gravity *= Tuning.Soldier.ShortHopGravity; // short hop when released
+            bool rocketing = m_Rocket != null && m_Rocket.Rising; // a rocket jump isn't cut short by letting go of JUMP
+            if (Vel.y > 0f && !input.Jump && !rocketing) gravity *= Tuning.Soldier.ShortHopGravity; // short hop when released
             Vel.y = Mathf.Max(Vel.y - gravity * dt, -Tuning.Physics.MaxFall);
             MoveWithTiles(dt, m_DropThrough > 0f);
 
@@ -108,10 +124,15 @@ namespace PooketSlug
 
             m_FireCooldown -= dt;
             bool gun = GunAmmo > 0;
+            m_Jet?.Tick(dt, input.Fire && !gun && !rooted);
             bool wantsFire = gun ? input.Fire : (input.FirePressed || input.Fire);
-            if (wantsFire && m_FireCooldown <= 0f) Fire(gun ? Gun : Def.Primary);
+            if (wantsFire && m_FireCooldown <= 0f && (gun || m_Jet == null)) Fire(gun ? Gun : Def.Primary);
 
-            if (input.SpecialPressed && Specials > 0)
+            if (m_Rocket != null)
+            {
+                m_Rocket.Tick(dt, input.SpecialPressed);
+            }
+            else if (input.SpecialPressed && Specials > 0)
             {
                 Specials--;
                 WeaponDef special = Def.Special;
@@ -125,11 +146,20 @@ namespace PooketSlug
             m_Anim += dt;
         }
 
+        /// <summary>Where shots leave the gun, in the world.</summary>
+        public Vector2 MuzzlePos
+        {
+            get
+            {
+                int aimY = m_Aim.y > 0f ? 1 : m_Aim.y < 0f ? -1 : 0;
+                Vector2 local = PlayerVisual.MuzzleLocal(aimY, Crouching);
+                return Pos + new Vector2(local.x * Facing, local.y);
+            }
+        }
+
         void Fire(WeaponDef weapon)
         {
-            int aimY = m_Aim.y > 0f ? 1 : m_Aim.y < 0f ? -1 : 0;
-            Vector2 local = PlayerVisual.MuzzleLocal(aimY, Crouching);
-            Vector2 origin = Pos + new Vector2(local.x * Facing, local.y);
+            Vector2 origin = MuzzlePos;
             Vector2 dir = m_Aim;
             if (weapon.Spread > 0f)
             {
@@ -196,7 +226,9 @@ namespace PooketSlug
         public override void Render()
         {
             base.Render();
+            if (m_Rocket != null) Go.transform.localPosition += (Vector3)m_Rocket.ShakeOffset;
             m_Visual.Apply(Pose);
+            m_Jet?.Render();
         }
     }
 }

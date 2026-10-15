@@ -25,6 +25,8 @@ namespace PooketSlug
         public readonly Spawner Spawner;
         public readonly Combat Combat;
         public readonly Scoring Scoring = new Scoring();
+        /// <summary>Droplets and puddles (spike: tones2's kit).</summary>
+        public readonly Liquids Liquids;
         /// <summary>The co-op session's side of the world; null when playing solo.</summary>
         public readonly NetSync Sync;
 
@@ -61,6 +63,7 @@ namespace PooketSlug
             View = new ScrollCamera(this);
             Spawner = new Spawner(this);
             Combat = new Combat(this);
+            Liquids = new Liquids(this);
             if (net != null) Sync = new NetSync(this);
 
             Vector2 start = Level.PlayerStart;
@@ -70,7 +73,8 @@ namespace PooketSlug
                 float x = Mathf.Max(start.x + net.LocalSkin * 1.25f, View.Left + 2f);
                 start = new Vector2(x, Level.TopSurfaceY(x));
             }
-            Player = new Player(this, Content.Trooper, start, Coop ? net.LocalSkin : 0);
+            SoldierDef soldier = Spike.Tones2 && !Coop ? SpikeContent.Tones2 : Content.Trooper; // spikes are solo only
+            Player = new Player(this, soldier, start, Coop ? net.LocalSkin : 0);
             View.Tick(0f);
             Spawner.SpawnAhead();
         }
@@ -117,7 +121,11 @@ namespace PooketSlug
         {
             Player.Render();
             foreach (RemotePlayer r in Remotes) r.Render();
-            foreach (Enemy e in Enemies) e.Render();
+            foreach (Enemy e in Enemies)
+            {
+                e.Render();
+                e.Look?.Render();
+            }
             foreach (Projectile p in Projectiles) p.Render();
             foreach (Pickup p in Pickups) p.Render();
             foreach (Entity e in Effects) e.Render();

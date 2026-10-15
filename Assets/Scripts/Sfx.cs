@@ -9,6 +9,8 @@ namespace PooketSlug
         const int Rate = 22050;
 
         public static AudioClip Shot, Heavy, EnemyShot, Cannon, Explosion, BigExplosion, Jump, Hurt, Hit, Pickup, Throw, Start, Victory, GameOver;
+        // spike sounds: tones2's kit and the hologram goons
+        public static AudioClip JetLoop, Splat, RocketRumble, RocketLaunch, Glitch, Poison;
         public static bool Muted;
 
         static AudioSource s_Source;
@@ -36,6 +38,7 @@ namespace PooketSlug
                 Start = Notes("start", 0.11f, 392, 523, 659, 784);
                 Victory = Notes("victory", 0.13f, 523, 659, 784, 1047, 784, 1047);
                 GameOver = Notes("gameOver", 0.2f, 392, 330, 262, 196);
+                if (Spike.Any) MakeSpikeSounds();
             }
             catch (Exception e)
             {
@@ -59,6 +62,41 @@ namespace PooketSlug
             else if (weapon == Content.Rifle || weapon == Content.TankGun) { clip = EnemyShot; own = 0.35f; }
             else return; // dropped bombs are silent
             Play(clip, volume >= 0f ? volume : own);
+        }
+
+        static void MakeSpikeSounds()
+        {
+            // A seamless hiss for the jet (looped; its pitch and volume follow the pressure).
+            float lp = 0f;
+            JetLoop = Make("jetLoop", 0.5f, (t, p) =>
+            {
+                lp += (Noise() - lp) * 0.35f;
+                return lp * 0.8f + Noise() * 0.12f;
+            }, loop: true);
+            Splat = Make("splat", 0.06f, (t, p) => Noise() * 0.35f * (1 - p) + Sine(Sweep(t, 0.06f, 900, 300)) * 0.15f);
+            RocketRumble = Make("rocketRumble", 0.5f, LowNoise(0.5f, 0.5f));
+            RocketLaunch = Make("rocketLaunch", 0.45f, (t, p) => Noise() * 0.45f * (1 - p) + Square(Sweep(t, 0.45f, 90, 420)) * 0.2f * (1 - p));
+            // The hologram glitching out: a bit-crushed chirp that stutters down.
+            Glitch = Make("glitch", 0.32f, (t, p) =>
+            {
+                int step = (int)(t * 60f);
+                float f = 1400f - step * 110f + (step % 3) * 300f;
+                return Square(Sweep(t, 0.32f, f, f * 0.7f)) * 0.22f * ((step % 4) == 3 ? 0.2f : 1f) + Noise() * 0.06f;
+            });
+            Poison = Make("poison", 0.12f, (t, p) => Sine(Sweep(t, 0.12f, 300, 180)) * 0.25f + Noise() * 0.08f);
+        }
+
+        /// <summary>A looping source for a continuous sound (the jet), or null without sound.</summary>
+        public static AudioSource LoopSource(GameObject host, AudioClip clip)
+        {
+            if (s_Source == null || clip == null) return null;
+            var src = host.AddComponent<AudioSource>();
+            src.playOnAwake = false;
+            src.spatialBlend = 0f;
+            src.loop = true;
+            src.clip = clip;
+            src.volume = 0f;
+            return src;
         }
 
         public static void Play(AudioClip clip, float volume = 1f)
@@ -93,7 +131,7 @@ namespace PooketSlug
             };
         }
 
-        static AudioClip Make(string name, float seconds, Func<float, float, float> sample)
+        static AudioClip Make(string name, float seconds, Func<float, float, float> sample, bool loop = false)
         {
             int n = Mathf.CeilToInt(seconds * Rate);
             var data = new float[n];
@@ -101,7 +139,7 @@ namespace PooketSlug
             for (int i = 0; i < n; i++)
             {
                 float t = i / (float)Rate, p = i / (float)n;
-                float env = Mathf.Min(1f, i / 40f) * (1f - p * 0.6f); // short attack, gentle decay
+                float env = loop ? 1f : Mathf.Min(1f, i / 40f) * (1f - p * 0.6f); // short attack, gentle decay
                 data[i] = Mathf.Clamp(sample(t, p) * env, -1f, 1f);
             }
             var clip = AudioClip.Create(name, n, 1, Rate, false);

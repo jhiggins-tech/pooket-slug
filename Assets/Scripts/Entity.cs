@@ -53,6 +53,8 @@ namespace PooketSlug
     {
         public float HalfW, Height;
         public Vector2 Vel;
+        /// <summary>A push from outside (tones2's jet) on top of the actor's own movement; it dies away.</summary>
+        public Vector2 Shove;
         public int Hp, MaxHp;
         public int Facing = 1;
         public bool Grounded;
@@ -69,6 +71,8 @@ namespace PooketSlug
         }
 
         public Rect Bounds => new Rect(Pos.x - HalfW, Pos.y, HalfW * 2f, Height);
+        /// <summary>The transform the actor's sprites hang off (flipped with facing).</summary>
+        public Transform VisualRoot => Visual;
         public Vector2 Center => new Vector2(Pos.x, Pos.y + Height * 0.5f);
 
         /// <summary>True for a soldier that is dead (or respawning), so enemies ignore it.</summary>
@@ -84,7 +88,11 @@ namespace PooketSlug
 
         protected MoveResult MoveWithTiles(float dt, bool dropThrough = false)
         {
+            float push = Shove.x;
+            Vel.x += push;
             MoveResult r = TilePhysics.Move(World.Level, ref Pos, HalfW, Height, ref Vel, dt, dropThrough);
+            if (r.HitWall) Shove.x = 0f;
+            else Vel.x -= push;
             Grounded = r.Grounded;
             return r;
         }

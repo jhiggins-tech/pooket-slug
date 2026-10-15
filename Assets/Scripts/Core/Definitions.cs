@@ -57,6 +57,10 @@ namespace PooketSlug
         Bullet,
         /// <summary>Thrown or dropped, then falls: <see cref="WeaponDef.Throw"/> plus some of the thrower's own speed.</summary>
         Lob,
+        /// <summary>A stream of droplets while FIRE is held, building pressure (spike: <see cref="JetSpec"/>).</summary>
+        Jet,
+        /// <summary>The soldier shakes, then launches upward (spike: <see cref="RocketSpec"/>).</summary>
+        RocketJump,
     }
 
     /// <summary>A weapon: what it fires, and how. Shots are replicated by weapon id.</summary>

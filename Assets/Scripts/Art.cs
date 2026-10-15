@@ -89,6 +89,8 @@ namespace PooketSlug
 
         /// <summary>[0] = player 1 (red bandana), [1] = player 2 (blue bandana).</summary>
         public static PlayerSkin[] PlayerSkins;
+        /// <summary>tones2 in his Pooket Tabks colours (spike: <see cref="Spike.Tones2"/>).</summary>
+        public static PlayerSkin Tones2Skin;
         public static Sprite[] SoldierLegsRun, RunnerLegsRun;
         public static Sprite SoldierLegsIdle, RunnerLegsJump;
         public static Sprite SoldierTorso, RunnerTorso;
@@ -100,6 +102,7 @@ namespace PooketSlug
 
         static Dictionary<char, Color32> s_Pal;
         static readonly Dictionary<Sprite, Sprite> s_Flash = new Dictionary<Sprite, Sprite>();
+        static readonly Dictionary<Sprite, Sprite> s_Holo = new Dictionary<Sprite, Sprite>();
         static bool s_Ready;
 
         public static Color32 Hex(uint rgb, byte a = 255) =>
@@ -141,6 +144,11 @@ namespace PooketSlug
 
             Vector2 feet = new Vector2(0.5f, 0f);
             PlayerSkins = new[] { BuildSkin(s_Pal), BuildSkin(player2) };
+            if (Spike.Tones2)
+                Tones2Skin = BuildSkin(Swap(new Dictionary<char, uint>
+                {
+                    { 'r', 0xff7eb6 }, { 'R', 0xc0508a }, { 'g', 0xff8c42 }, { 'G', 0xc06428 }, { 'c', 0xff5a5f }, { 'C', 0xb83c40 },
+                }));
             SoldierTorso = Part(ArtData.TorsoForward, ArtData.TorsoForwardTop, soldier);
             RunnerTorso = Part(ArtData.TorsoForward, ArtData.TorsoForwardTop, runner);
 
@@ -274,8 +282,33 @@ namespace PooketSlug
                 for (int i = 0; i < c.Px.Length; i++)
                     if (c.Px[i].a != 0) white.Px[i] = new Color32(255, 255, 255, 255);
                 s_Flash[sprite] = Sprite.Create(ToTexture(white), new Rect(0, 0, c.W, c.H), pivot, PPU, 0, SpriteMeshType.FullRect);
+                if (Spike.Holo) s_Holo[sprite] = Sprite.Create(ToTexture(Hologram(c)), new Rect(0, 0, c.W, c.H), pivot, PPU, 0, SpriteMeshType.FullRect);
             }
             return sprite;
+        }
+
+        /// <summary>
+        /// A sprite's hologram (spike: <see cref="Spike.Holo"/>): its shading in greys, scanlined, with a bright
+        /// edge. It's tinted by the renderer's colour, so each kind of goon can glow its own colour.
+        /// </summary>
+        public static Sprite Holo(Sprite s) => s != null && s_Holo.TryGetValue(s, out Sprite h) ? h : s;
+
+        static PixelCanvas Hologram(PixelCanvas c)
+        {
+            var holo = new PixelCanvas(c.W, c.H);
+            for (int y = 0; y < c.H; y++)
+                for (int x = 0; x < c.W; x++)
+                {
+                    Color32 p = c.Px[y * c.W + x];
+                    if (p.a == 0) continue;
+                    float lum = (0.3f * p.r + 0.59f * p.g + 0.11f * p.b) / 255f;
+                    float v = lum < 0.13f ? 1f : Mathf.Lerp(0.38f, 0.92f, lum); // the dark outline becomes a bright edge
+                    bool scan = y % 2 == 0;
+                    if (scan) v *= 0.62f;
+                    byte b = (byte)(v * 255f);
+                    holo.Px[y * c.W + x] = new Color32(b, b, b, scan ? (byte)170 : (byte)235);
+                }
+            return holo;
         }
 
         static void BuildExplosion()

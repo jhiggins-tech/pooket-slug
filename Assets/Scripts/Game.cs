@@ -58,6 +58,7 @@ namespace PooketSlug
         {
             string url = Application.absoluteURL;
             Log.Configure(PageQuery.Get(url, "log")); // ?log=net:debug,game:warn for this visit
+            Spike.Configure(url); // ?spike=tones2,holo for this visit (before the art and sounds, which make what spikes need)
             Art.Init();
             Sfx.Init(gameObject);
 
@@ -370,7 +371,7 @@ namespace PooketSlug
                 Playing = m_State == GameState.Playing,
                 Paused = m_Paused,
                 StateTime = m_StateTime,
-                Note = m_StartNote,
+                Note = m_StartNote ?? (m_Coop ? null : Spike.Label),
                 HiScore = m_Profile.Best(m_World.Mission),
                 Fps = Mathf.RoundToInt(m_Fps),
                 Muted = Sfx.Muted,

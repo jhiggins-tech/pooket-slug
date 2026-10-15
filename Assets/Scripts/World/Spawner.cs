@@ -38,6 +38,7 @@ namespace PooketSlug
                 default: return null;
             }
             e.NetId = id;
+            if (Spike.Holo && !w.Coop && def.Brain != EnemyBrain.Tank) e.Look = new HoloLook(e); // the goons are holograms; the tank is real
             return e;
         }
 
