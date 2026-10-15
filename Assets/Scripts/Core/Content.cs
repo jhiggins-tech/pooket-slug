@@ -53,9 +53,9 @@ namespace PooketSlug
         public static readonly PickupDef HeavyMachineGunCrate = new PickupDef(0, "Heavy machine gun crate", PickupEffect.Gun,
             "HEAVY MACHINE GUN!", new Color(1f, 0.85f, 0.3f), score: 500, gun: HeavyMachineGun);
         public static readonly PickupDef BombCrate = new PickupDef(1, "Bomb crate", PickupEffect.Specials,
-            "BOMBS +10", new Color(0.6f, 1f, 0.5f), score: 500, amount: 10);
+            "BOMBS!", new Color(0.6f, 1f, 0.5f), score: 500);
         public static readonly PickupDef Medkit = new PickupDef(2, "Medkit", PickupEffect.Heal,
-            "+2 HP", new Color(1f, 0.5f, 0.5f), score: 500, amount: 2);
+            "MEDKIT!", new Color(1f, 0.5f, 0.5f), score: 500, amount: Tuning.Crates.MedkitHearts);
         public static readonly PickupDef OneUp = new PickupDef(3, "1-up", PickupEffect.Life,
             "1UP!", new Color(0.5f, 1f, 0.6f), score: 1000, amount: 1);
 

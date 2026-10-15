@@ -73,6 +73,13 @@ C2, the refactor, is done. C1's code is written and checked locally; it goes liv
   - [x] Verify locally: each input backend, with and without the SDK, the weaver, 229 of 229 EditMode tests.
   - [ ] Verify in CI.
   - Placeholders to tune in play: the counts and timings in `Tuning.Lives`, and where 1-ups appear.
+- [ ] **C6. Medkit and bomb crate rework** ([player](../design/player.md#crates-and-power-ups)), queued from the Roadmap 2026-10-15.
+  - [x] Bomb crates stay uncapped, and each soldier has their own amount (`SoldierDef.CrateSpecials`, 10 unless a def says otherwise: about 3 for a strong special, up to 10 for a weak one). The crate says *BOMBS!*, and the soldier who got it sees *GRENADE +10*.
+  - [x] Medkits heal 2 hearts (`Tuning.Crates.MedkitHearts`) and say how many they healed, or *FULL HEALTH*.
+  - [x] The design doc's crate line says so.
+  - [x] Verify locally: each input backend, 230 of 230 EditMode tests.
+  - [ ] Verify in CI.
+  - Out of scope: the heavy machine gun crate, which becomes the gun crates later.
 
 ## Done recently
 

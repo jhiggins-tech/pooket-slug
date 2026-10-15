@@ -159,7 +159,7 @@ namespace PooketSlug
     {
         /// <summary>Gives <see cref="PickupDef.Gun"/>, which replaces the primary until its ammo runs out.</summary>
         Gun,
-        /// <summary>Adds <see cref="PickupDef.Amount"/> charges to the special.</summary>
+        /// <summary>Adds charges to the special: the soldier's own <see cref="SoldierDef.CrateSpecials"/>, with no cap.</summary>
         Specials,
         /// <summary>Heals <see cref="PickupDef.Amount"/> health.</summary>
         Heal,
@@ -222,11 +222,18 @@ namespace PooketSlug
         /// <summary>The bonus move, on a cooldown. Null for soldiers without one: their AB button doesn't show.</summary>
         public readonly WeaponDef Ability;
         public readonly float AbilityCooldown;
+        /// <summary>
+        /// Charges of the special a bomb crate adds. There's no cap, so this is how a strong special is kept in
+        /// check: about 3 for a strong one, up to 10 for a weak one (<c>docs/design/player.md</c>, Crates).
+        /// </summary>
+        public readonly int CrateSpecials;
 
         public SoldierDef(byte id, string name, float runSpeed, float crawlSpeed, float jumpVelocity, float halfWidth, float standHeight,
             float crouchHeight, int maxHp, WeaponDef primary, WeaponDef special, int startSpecials,
-            int specialMax = 0, float specialRefill = 0f, WeaponDef super = null, WeaponDef ability = null, float abilityCooldown = 0f)
+            int specialMax = 0, float specialRefill = 0f, WeaponDef super = null, WeaponDef ability = null, float abilityCooldown = 0f,
+            int crateSpecials = Tuning.Crates.DefaultSpecials)
         {
+            CrateSpecials = crateSpecials;
             SpecialMax = specialMax;
             SpecialRefill = specialRefill;
             Super = super;

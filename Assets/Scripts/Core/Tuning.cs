@@ -22,6 +22,15 @@ namespace PooketSlug
             public const float HurtInvulnerability = 1.4f;
         }
 
+        /// <summary>What crates give. Placeholders, to tune in play.</summary>
+        public static class Crates
+        {
+            /// <summary>Charges a bomb crate adds for a soldier whose def doesn't say (a weak special's amount).</summary>
+            public const int DefaultSpecials = 10;
+            /// <summary>Hearts of health a medkit heals.</summary>
+            public const int MedkitHearts = 2;
+        }
+
         /// <summary>Lives and continues, each player's own (<see cref="LifeBank"/>). Placeholders, to tune in play.</summary>
         public static class Lives
         {

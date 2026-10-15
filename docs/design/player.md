@@ -61,7 +61,7 @@ Each soldier's kit comes from their Pooket Tabks tiers:
 Pickups last for the mission, so every mission starts level.
 - **Upgrade crates** raise your primary, special or super a level (I → II → III). At level II you choose one of two forks.
 - **Gun crates** give you a crewmate's gun. It replaces your primary until it runs dry.
-- **Medkits** heal hearts. **Bomb crates** refill specials.
+- **Medkits** heal hearts. **Bomb crates** add charges to the special, with no cap. How many depends on the soldier, to keep the strong specials in check: about +3 for a strong special, up to +10 for a weak one.
 - **Drops:** goons and containers can drop crates.
 
 ## Status effects

@@ -209,8 +209,15 @@ namespace PooketSlug
             switch (def.Effect)
             {
                 case PickupEffect.Gun: player.GiveGun(def.Gun); break;
-                case PickupEffect.Specials: player.Specials += def.Amount; break;
-                case PickupEffect.Heal: player.Heal(def.Amount); break;
+                case PickupEffect.Specials:
+                    player.Specials += player.Def.CrateSpecials;
+                    player.World.Scoring.Popup(player.Def.Special.Hud + " +" + player.Def.CrateSpecials, player.Pos + Vector2.up * 2.4f, def.AnnounceColor);
+                    break;
+                case PickupEffect.Heal:
+                    int healed = Mathf.Min(def.Amount, player.MaxHp - player.Hp);
+                    player.Heal(def.Amount);
+                    player.World.Scoring.Popup(healed > 0 ? "+" + healed + (healed == 1 ? " HEART" : " HEARTS") : "FULL HEALTH", player.Pos + Vector2.up * 2.4f, def.AnnounceColor);
+                    break;
                 case PickupEffect.Life: player.GiveLife(); break;
             }
         }

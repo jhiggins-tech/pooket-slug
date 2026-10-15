@@ -65,9 +65,16 @@ namespace PooketSlug.Tests
                     Assert.IsNotNull(p.Gun, p.Name);
                     Assert.Greater(p.Gun.Ammo, 0, p.Name + ": a crate's gun replaces the primary until it runs dry");
                 }
-                else Assert.Greater(p.Amount, 0, p.Name);
+                else if (p.Effect != PickupEffect.Specials) Assert.Greater(p.Amount, 0, p.Name); // bombs: the soldier's own amount
                 Assert.IsNotEmpty(p.Announce, p.Name);
             }
+        }
+
+        [Test]
+        public void EverySoldierGetsSomethingFromABombCrate()
+        {
+            foreach (SoldierDef s in Content.Soldiers) Assert.Greater(s.CrateSpecials, 0, s.Name);
+            Assert.Greater(SpikeContent.Tones2.CrateSpecials, 0);
         }
 
         [Test]
