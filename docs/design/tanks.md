@@ -45,16 +45,16 @@ Tanks stay hidden until they matter ([progressive disclosure](README.md#progress
 
 ## The boss intro
 
-A boss tank's arrival is the mission's big moment ([story](story.md#cutscenes): a warning banner, the music changes, and the tank makes its entrance). Draft, 2026-10-15; the choices marked *to pick* are with the owner.
+A boss tank's arrival is the mission's big moment ([story](story.md#cutscenes): a warning banner, the music changes, and the tank makes its entrance). Draft, 2026-10-15, waiting for the owner's read-through.
 
 **How it plays, in order** (about three seconds; you keep control throughout, so it never feels like the game took the stick away):
 1. **The screen locks** as you step into the arena, and the mission's music cuts out.
 2. **The warning:** a siren sounds twice, the screen edges flash red, and a big flashing red **WARNING!** slams in between hazard stripes that sweep across the top and bottom of the screen, Metal Slug style (picked 2026-10-15).
 3. **The entrance:** the motor pool's blast shutter grinds open and the tank rolls out onto the arena floor. It can't be hurt and doesn't fire until it stops.
 4. **The name card:** the tank's name ("KIE'S TANK") drops in under the banner, and the announcer shouts "Here comes the tank!" (it shouts "Warning!" with the banner in step 2).
+5. **The fight:** the boss music kicks in on the tank's first shot, and its health bar fills up across the top.
 
 **The announcer** (picked 2026-10-15) is a generated voice: a gravelly arcade announcer made with text-to-speech by the vendor repository's CI from its `voice/lines.json`, so a line is changed or added by editing that file. It also calls "Mission one... start!" and "Mission complete!".
-5. **The fight:** the boss music kicks in on the tank's first shot, and its health bar fills up across the top.
 
 **The music** (picked 2026-10-15): a looping Mission one track plays through the run, and a faster, minor-key boss track takes over for the fight. Both are made in code with the chip synth the sound effects use.
 
@@ -62,13 +62,13 @@ A boss tank's arrival is the mission's big moment ([story](story.md#cutscenes): 
 
 **In co-op,** the world's authority starts the intro and both players see it together. Nobody needs to tap anything, so neither waits on the other.
 
-**When it ends:** wrecking the tank stops the boss music and plays the victory sting; the pilot round that follows keeps the boss music ([tank bosses](#tank-bosses)).
+**When it ends** (picked 2026-10-15): wrecking the tank plays a short victory sting over the boss music, which runs on through the pilot round and stops when the pilot glitches out ([freeing kie](story.md#freeing-kie)).
 
 **Settings:** the music has its own MUSIC on/off beside SOUND, so a player can keep the sound effects and lose the tune.
 
 ## The pilot round
 
-Wreck the tank and its hologram pilot jumps out to fight you on foot with the crewmate's own kit ([tank bosses](#tank-bosses), [kits](kits.md)). Draft, 2026-10-15; the choices marked *to pick* are with the owner.
+Wreck the tank and its hologram pilot jumps out to fight you on foot with the crewmate's own kit ([tank bosses](#tank-bosses), [kits](kits.md)). Draft, 2026-10-15, waiting for the owner's read-through.
 
 **Can one AI drive any kit? Yes.** Every kit is played through the same few buttons: move, aim, JUMP, FIRE, SP, SU and, for three soldiers, the ability. The game already works this way: a soldier does whatever one frame's button presses (`SoldierInput`) tell it, whether they come from a keyboard, a pad or the network. So the pilot is simply a soldier on the holograms' side, and one brain presses its buttons. Nothing about a kit has to be rewritten for the pilot to use it.
 
@@ -84,7 +84,7 @@ Wreck the tank and its hologram pilot jumps out to fight you on foot with the cr
 - **kcaj:** holds Hyperfixate on you from range; rains Unmedicated when you're in the open.
 - A few moves need a line of code in the playbook, such as kiwicore's drum solo (tap FIRE on the beat) and kie's swap (press SP again). The brain itself stays the same.
 
-**Fairness:** the pilot never sees off-screen, never reads your input ahead of time, and its kit follows the same rules as yours: charges, cooldowns, the super charging from hits. Its shots hurt you and your partner, and never the goons or itself.
+**Fairness:** the pilot never sees off-screen, never reads your input ahead of time, and its kit follows the same rules as yours (charges and cooldowns), with one difference: its super charges from its hits on you rather than from kills, since a duel has nothing else to kill (picked 2026-10-15). Its shots hurt you and your partner, and never the goons or itself.
 
 **The fight's size** (picked 2026-10-15): a boss duel. The pilot has about three times a soldier's health and its own boss bar, so the duel lasts around 30 to 45 seconds.
 

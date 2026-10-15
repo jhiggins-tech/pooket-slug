@@ -83,6 +83,7 @@ Statuses come only from the soldiers' kits: each one belongs to a particular sol
 - **Some kits help a partner:** kiwicore's drum solo heals them, ciarra's marks make their shots hit harder, and kcaj's pills never hurt them.
 - **The team super:** when both players' supers are charged, they can fire them together for a screen-clearing team super. Each pair of soldiers gets its own combo, designed first as a table of ideas, before any code.
 - **Friendly fire is off.**
+- **Two different soldiers:** both players can't pick the same soldier (owner, 2026-10-15).
 - **Your partner is always easy to find:** an arrow when they're off-screen, and a warning when their health is low or they've switched away from the game.
 
 ## What the player keeps
@@ -90,7 +91,7 @@ Statuses come only from the soldiers' kits: each one belongs to a particular sol
 - **The crew they've freed,** and whether co-op is open.
 - **Career XP,** from clearing missions, kills and freeing crewmates. Each level gives tokens to spend on looks, as in Tabks: hats, skins, tank paint, death animations, kill effects and victory poses. XP never unlocks anything else.
   - **Placeholder amounts, on Tabks' scale, to tune after playtesting:** +200 for each mission clear, +300 for each crewmate freed, and +1 for each kill. Every 600 XP earns a looks token.
-- **Rank:** the ladder from Pooket Tabks. Each stretch of a mission you beat moves you a little way up it, replays included, and you never drop down. Eight ranks are known, and the other 25 stay hidden until you reach them.
+- **Rank:** the ladder from Pooket Tabks. Each stretch of a mission you beat moves you a little way up it, replays included, and you never drop down. The first clear of Mission one is always worth a whole rung, so the first debrief ends in a rank-up (picked 2026-10-15). Eight ranks are known, and the other 25 stay hidden until you reach them.
 - **Stats** for each soldier and weapon: shots, hits, accuracy, damage dealt and taken, and kills.
 - **Best scores,** which also go on a friends leaderboard ([leaderboards](levels.md#leaderboards)).
 - **Signing in with Google** keeps all of this across phones and computers, under a display name the player picks ([when it's offered](levels.md#the-order-things-open-up)).
@@ -114,7 +115,6 @@ These are all Won't:
 
 ## Open questions
 
-- **The same soldier twice:** can both players in co-op pick the same soldier?
 - **Melee:** which soldiers get it.
 - **The team super:** each pair's combo, from the table of ideas.
 - **Career XP:** tuning the placeholder amounts after playtesting, and what looks cost in tokens.
