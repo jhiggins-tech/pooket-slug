@@ -24,7 +24,7 @@ Up: [Design](README.md)
 | garyoldmancorp | The fastest on foot, with a wheel of chance that can freeze every enemy. In beta: his real moves are designed in Tabks first |
 | kiwicore | A cap thrown like a boomerang, a drum solo that heals, and a stage dive across the goons |
 
-- **Full kits** are in [DESIGN.md](../../DESIGN.md#the-crew).
+- **Full kits** are in [the crew's kits](kits.md).
 - **Four more soldiers** (shotdownboyz, lankcity, odsey and doctorfox) come later, each with a mission.
 
 ## Controls

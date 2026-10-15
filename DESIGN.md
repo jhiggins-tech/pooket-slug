@@ -1,8 +1,10 @@
 # Pooket Slug: design
 
+> **Frozen, 2026-10-15.** This is the original brainstorm, kept as a historical record and no longer updated. The design lives in [docs/design](docs/design/README.md), the crew's kits included ([kits](docs/design/kits.md)). Where this file differs, docs/design wins.
+
 The game design for Pooket Slug, the second Pooket game: a Metal Slug-style run-and-gun starring the crew from [Pooket Tabks](https://github.com/jhiggins-tech/pooket-tabks). It records what the owner decided in a brainstorm on 14 Oct 2026 about bringing Tabks' crew, weapons, progression, ranks and stats across, and what's still open. Everything here is decided except what's marked open (mostly under [Open questions](#open-questions)).
 
-**Read this when** you're deciding what Pooket Slug is, or building any part of it.
+**Read this when** you want the history behind a decision, the Roguelite (on ice), or what was considered and not picked. For anything else, read [docs/design](docs/design/README.md).
 
 **For sign-off**, the design is also written up as four readable documents in [docs/design](docs/design/README.md): story and cutscenes, tanks, player mechanics, and maps and progression. They add progressive disclosure: the game reveals tanks, driving and co-op only as the player reaches them. They also hold the owner's later answers, and where they differ from this file, they win.
 
@@ -107,61 +109,7 @@ Tabks' statuses, with turns turned into seconds. They come only from the soldier
 - **Some kits help a partner**: Band Aid's pulses heal them, Tattoo Gun's marks boost their shots too, and Unmedicated never hurts them.
 
 ## The crew
-In Tabks' setup order. Each Tabks weapon's own rules are documented in its kit file (`src/characters/kits/` in pooket-tabks).
-
-### tones2 (id `tones`)
-- **ten-1** (primary): hold FIRE for a jet that builds from spray to a clean arc in about a second. The droplets trickle damage and push goons back, and letting go resets the pressure. Splashback stays in, without damage: point-blank on a wall or something big, it slows tones2 down for a moment.
-- **Fork at II**: Hydrant (more range and pressure) or Sprinkler (a wide fan).
-- **ten-2** (special): half a second of shaking, then a rocket jump straight up, steered in the air like a normal jump. The launch carpets the floor in toxic mud that poisons goons walking through it.
-- **ten-3** (super): a second and a half of spew that melts anything close, and he can walk while it pours out. It leaves sludge that lasts a long time (about 15 seconds) and burns goons who walk through it.
-
-### kie
-- **Weasel Pop** (primary): each press tumbles out three weasels. Where they land, they scurry under the nearest goon and pop, to Pop Goes the Weasel. It's lobbed, so it reaches behind cover, but it's weak against flyers.
-- **Fork at II**: Ferret Frenzy (more, smaller weasels) or Badger (one big one that won't stop chasing).
-- **Trollogram** (special): drop a hologram of yourself that goons shoot instead of you, and press again to swap places with it. A shot hologram blows up on everything nearby. The running joke: these are the ones that went rogue.
-- **Steal** (super): the roulette spins and kie lifts a random power-up off the toughest enemy on screen. The tougher it is, the bigger the prize: a burst of the goon's own weapon, say, or a whole crew gun off a boss tank.
-
-### kcaj
-- **Double Park** (primary): twin cones, either side of your aim.
-- **Fork at II**: Triple Scoop (a third cone) or Brain Freeze (cones slow what they hit).
-- **Hyperfixate** (special): the beam sticks to the first thing it touches and follows it while you hold the special, burning harder the longer it stays on. Meanwhile the screen edges dim, and anything else is free to shoot you.
-- **Unmedicated** (super): 120 pills rain across the whole screen, bounce twice and pop. They never hurt kcaj or a co-op partner.
-
-### torikloud (150 health)
-- **Debate** (primary): hold FIRE and a random legal word comes out, one letter per bullet. Longer words are longer bursts: SUBPOENA is 8 rounds, CERTIORARI 10.
-- **Fork at II**: Filibuster (only long words) or Objection! (every word ends in a "!" that explodes).
-- **Sonic Boom** (special): waves of sound through walls, strongest up close. They also wipe out enemy bullets in their path, and the kookaburra laughs from the clouds.
-- **Twins** (super): a twin appears, and his health is split between them (75 / 75 from full). Like the Ice Climbers, it follows a step behind and copies everything he does a beat later: running, jumping and firing (it argues in social-work words). If it falls behind, it scrambles to catch up. While it stands, the super button is Yolk Sucker, which evens out their health. As in Tabks, he's only down when both are.
-
-### ciarra
-- **Frog leaps**: the best jumper in the game; hold JUMP to leap further.
-- **Tattoo Gun** (primary): a needle SMG. Anything it hits is tattooed and takes 25% more damage from everything for a few seconds, a partner's shots included.
-- **Fork at II**: Full Sleeve (tattoos last twice as long) or Flash Sheet (three needle streams in a fan).
-- **Sew** (special): a needle and thread stitch along her aim, through walls. Anything stitched takes a hit and is pinned for two seconds.
-- **Marathon** (super): she pins on a race bib and becomes the runner, sprinting a leg along the ground over any hill, invulnerable and flattening everything in her path. A leg is about a screen wide, and she still finishes with Tabks' 50-damage blast.
-
-### larinovsky
-- **Pill Pusher** (primary): lobs a mixed handful of pills whose blasts walk across the ground, so it reaches over cover.
-- **Fork at II**: Extra Strength (bigger blasts) or Bulk Buy (twice the pills, but smaller).
-- **the Rizzler** (special): a spinning heart in shades that homes in on anything close. Whatever's in its blast is cooked and deals half damage for a few seconds.
-- **Women in Scam** (ability): for three seconds, any attack that hits you is scammed. You still take the damage, but you get rounds of that weapon to fire back: scam a boss tank and you're holding its own Tabks weapon.
-- **Take a Nap** (super): two seconds asleep, waking at full health with the special recharged. The two cats stand guard and swat away whatever comes, but each dies comically on the first hit it takes: a yowl, a puff of fur, a little halo floating off. They're back for the next nap (nine lives).
-
-### garyoldmancorp (beta)
-- **In beta here too**: stand-in shots until his real moves are designed in Tabks, where the teasers were kamp karl, the crinkler and stop the violence.
-- **Scooter**: the fastest soldier on foot. Hitting a wall at speed is a CRASH! for 5.
-- **Diced Coffee** (ability): spin the wheel. Lactose free: every enemy freezes for 3 seconds, Tabks' skipped turn in real time. Full cream: you're launched straight up, and it's gone for the mission. The chance of full cream starts at 10% and goes up 10% with every win.
-
-### kiwicore
-- **béretta M2** (primary): he throws the flat cap off his head through walls, out along his aim and back, and it hits on both passes. He can't throw again until he catches it, so up close he throws faster.
-- **Fork at II**: Spare Cap (a second cap to throw while the first is out) or Wide Brim (longer, wider loops).
-- **Band Aid** (special): the drum solo. He's stuck at the kit for four bars of the thrasher, tapping FIRE on the beat, and every hit sends a healing pulse to everyone nearby, a co-op partner included. Perfect hits heal double, up to 40% in all, and the drumstick swats goons who get too close.
-- **Shower Beers** (ability, as queued for Tabks): a shower curtain goes up round him, steam rises, a can of XXXX Gold appears in the sky, and he gets half his health back.
-- **Stage Dive** (super): he leaps into the goons and crowd-surfs across them to the thrasher, hurting everything he rides over. It could fill his Tabks tier 3 too, which is a stand-in there.
-- His Slug kit is complete, so he isn't in beta here.
-
-### Coming soon
-shotdownboyz, lankcity, odsey and doctorfox each arrive as a new mission, with their tank as its boss. Their Tabks teasers suit a platformer: lankcity's lizard walk could climb walls, and shotdownboyz's summon digger could tunnel (in boss arenas, the one place the ground breaks), with his "tank build" passive making him the one soldier who's still basically a tank.
+Moved to [docs/design/kits.md](docs/design/kits.md) on 2026-10-15.
 
 ## Progression
 - **Characters**: free the crew ([Missions](#missions)). Unlike Tabks, XP never unlocks characters.
