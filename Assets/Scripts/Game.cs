@@ -17,7 +17,7 @@ namespace PooketSlug
         }
     }
 
-    public enum GameState { Title, Settings, Online, CodeEntry, Lobby, Playing, GameOver, Victory }
+    public enum GameState { Title, Settings, Online, CodeEntry, Lobby, Cutscene, Playing, GameOver, Victory }
 
     /// <summary>
     /// Owns the camera, the current <see cref="World"/>, the online session and the player's profile, and runs
@@ -61,6 +61,12 @@ namespace PooketSlug
         bool m_IntroFull;
         string m_IntroName;
         readonly BossIntroShow.Cue[] m_IntroCues = new BossIntroShow.Cue[4];
+        // ?spike=cutscenes: the opening scene before Mission one, and a pretend partner's tap for co-op's rule
+        CutsceneView m_SceneView;
+        CutscenePlayer m_Scene;
+        readonly System.Collections.Generic.List<string> m_SceneCues = new System.Collections.Generic.List<string>();
+        float m_PartnerTapIn = -1f;
+        bool m_SceneSaidStart;
 
         /// <summary>Co-op shows only once Mission one has been beaten solo (progressive disclosure).</summary>
         bool CoopOpen => m_Profile.coop || m_Unlocked;
@@ -103,6 +109,7 @@ namespace PooketSlug
             m_World = NewWorld(m_Mission);
             m_Hud = new HudView(transform);
             m_Menu = new MenuView(transform);
+            if (Spike.Scenes) m_SceneView = new CutsceneView(transform);
             m_PageUrl = PageUrl();
             SetState(GameState.Title);
             GameInput.TouchActive = Application.isMobilePlatform; // until the player shows otherwise
@@ -178,7 +185,54 @@ namespace PooketSlug
             m_Paused = false;
             SetState(GameState.Playing);
             Sfx.Play(Sfx.Start);
-            Sfx.Say("mission-start", 0.3f);
+            if (!m_SceneSaidStart) Sfx.Say("mission-start", 0.3f); // the opening's caption card already called it
+            m_SceneSaidStart = false;
+        }
+
+        /// <summary>START on the title screen: the opening scene first, with ?spike=cutscenes, then Mission one.</summary>
+        void StartFromTitle()
+        {
+            if (m_SceneView == null)
+            {
+                StartSolo();
+                return;
+            }
+            m_Scene = new CutscenePlayer(Cutscenes.Opening, m_Profile.HasSeen(Cutscenes.Opening.Id), Spike.ScenesCoop ? 2 : 1);
+            m_SceneView.Begin(m_Scene);
+            m_PartnerTapIn = -1f;
+            m_SceneSaidStart = false;
+            SetState(GameState.Cutscene);
+        }
+
+        /// <summary>Moves the scene on: taps (yours, and the pretend partner's a moment later), SKIP, and its cues.</summary>
+        void TickScene(float dt, MenuInput keys, SoldierInput soldier)
+        {
+            bool tap = m_SceneView.TakeTap() || keys.Start || soldier.FirePressed || soldier.JumpPressed;
+            if ((m_SceneView.TakeSkip() || keys.Back) && m_Scene.Skip()) { EndScene(); return; }
+            int shot = m_Scene.Shot;
+            if (tap) m_Scene.Tap(0);
+            if (m_Scene.Players > 1)
+            {
+                if (m_Scene.HasTapped(0) && m_PartnerTapIn < 0f) m_PartnerTapIn = 1.2f;
+                if (m_PartnerTapIn >= 0f && (m_PartnerTapIn -= dt) < 0f) m_Scene.Tap(1);
+            }
+            if (m_Scene.Shot != shot || m_Scene.Done) m_PartnerTapIn = -1f;
+            m_Scene.Tick(dt, m_SceneCues);
+            foreach (string cue in m_SceneCues)
+            {
+                if (cue == "say:mission-start") m_SceneSaidStart = true;
+                m_SceneView.Cue(cue);
+            }
+            if (m_Scene.Done) EndScene();
+            else m_SceneView.Refresh();
+        }
+
+        void EndScene()
+        {
+            if (m_Profile.MarkSeen(m_Scene.Scene.Id)) m_Store.Save(m_Profile);
+            m_SceneView.Hide();
+            m_Scene = null;
+            StartSolo();
         }
 
         void Restart()
@@ -376,7 +430,7 @@ namespace PooketSlug
                         if (keys.Join) { OpenCodeEntry(""); break; }
                     }
                     if (click == MenuAction.Settings || keys.Settings) SetState(GameState.Settings);
-                    else if (click == MenuAction.Play || keys.Start || soldier.FirePressed || soldier.JumpPressed) StartSolo();
+                    else if (click == MenuAction.Play || keys.Start || soldier.FirePressed || soldier.JumpPressed) StartFromTitle();
                     break;
 
                 case GameState.Settings:
@@ -416,6 +470,10 @@ namespace PooketSlug
                     {
                         BeginCoop();
                     }
+                    break;
+
+                case GameState.Cutscene:
+                    TickScene(dt, keys, soldier);
                     break;
 
                 case GameState.Playing:
