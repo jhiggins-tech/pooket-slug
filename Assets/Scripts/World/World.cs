@@ -94,6 +94,32 @@ namespace PooketSlug
         public int TanksToCall;
         /// <summary>Our soldier called in a tank, at this spot. Nothing drives one yet, so for now it's a marker.</summary>
         public event System.Action<Vector2> TankCalled;
+
+        /// <summary>
+        /// The boss intro (<c>docs/design/tanks.md</c>): the boss woke as the soldiers stepped into its arena. True the
+        /// first time; false for the quick intro, with the tank already in place. Raised on every screen in co-op (a
+        /// follower raises it when the authority's tank wakes).
+        /// </summary>
+        public event System.Action<BossEnemy, bool> BossIntro;
+        /// <summary>The boss's first shot: its entrance is over and the fight is on.</summary>
+        public event System.Action<BossEnemy> BossFightStarted;
+        /// <summary>
+        /// Set before the boss spawns for the quick intro: the tank starts in place and skips its entrance (a restart at
+        /// the boss-door checkpoint; replays when there are any).
+        /// </summary>
+        public bool QuickBossIntro;
+
+        public void OnBossIntro(BossEnemy boss, bool firstTime)
+        {
+            Log.Game.Info(firstTime ? "Boss intro: " + boss.DisplayName : "Boss intro (quick): " + boss.DisplayName);
+            BossIntro?.Invoke(boss, firstTime);
+        }
+
+        public void OnBossFightStarted(BossEnemy boss)
+        {
+            Log.Game.Info("Boss fight on: " + boss.DisplayName);
+            BossFightStarted?.Invoke(boss);
+        }
         float m_HitStop;
 
         /// <summary>Freezes a solo game for a moment, to give a kill weight. Co-op never stops: the others keep playing.</summary>

@@ -323,5 +323,8 @@ namespace PooketSlug
         public bool Engaged;
 
         protected BossEnemy(World world, EnemyDef def, Vector2 feet) : base(world, def, feet) { }
+
+        /// <summary>What the HUD and the intro call it.</summary>
+        public virtual string DisplayName => Def.Name.ToUpperInvariant();
     }
 }

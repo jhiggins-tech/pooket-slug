@@ -19,7 +19,7 @@ namespace PooketSlug
     /// </summary>
     public sealed class TankBoss : BossEnemy
     {
-        enum State { Drive, Aim, Charge, Recoil }
+        enum State { Drive, Aim, Charge, Recoil, Entrance }
 
         static readonly Color MeterBack = new Color(0.11f, 0.08f, 0.12f, 0.85f), MeterFill = new Color(1f, 0.55f, 0.15f);
 
@@ -32,7 +32,7 @@ namespace PooketSlug
         float m_StateTime, m_Timer = 1.2f, m_DriveTo, m_Angle = 150f, m_WantAngle = 150f, m_Power, m_Charge, m_Kick, m_ServoTimer, m_ExplodeTimer;
         int m_Shots, m_SeenShots = -1;
         Vector2 m_Landing;
-        bool m_LandingSeen, m_SeenFire;
+        bool m_LandingSeen, m_SeenFire, m_FightStarted;
 
         /// <summary>A hologram copy of kie's tank: it drives and fires like the real one, but can't be hurt.</summary>
         public readonly bool Decoy;
@@ -63,6 +63,12 @@ namespace PooketSlug
                 m_Timer = World.Rng.Range(0.6f, 1.6f);
             }
             else if (Spike.Kie && !world.Coop) m_Kie = new KieBoss(world, this); // spikes are solo only
+            if (!decoy && !world.QuickBossIntro && ShutterX(world, feet.x, out float shutter))
+            {
+                // Waits out of sight in the motor pool, to roll out of its shutter when it wakes.
+                Pos = new Vector2(shutter, feet.y);
+                m_State = State.Entrance;
+            }
         }
 
         /// <summary>Rage, for kie's attacks: how much quicker it is, hurt.</summary>
@@ -75,8 +81,28 @@ namespace PooketSlug
             set => m_HomeX = value;
         }
 
+        /// <summary>The motor pool gate just short of its patrol, where it makes its entrance from.</summary>
+        static bool ShutterX(World world, float homeX, out float x)
+        {
+            x = 0f;
+            bool found = false;
+            foreach (Spawn s in world.Level.Spawns)
+                if (s.Kind == SpawnKind.MotorPool && s.Pos.x < homeX && homeX - s.Pos.x < 16f && (!found || s.Pos.x > x))
+                {
+                    x = s.Pos.x;
+                    found = true;
+                }
+            return found;
+        }
+
+        public override string DisplayName => m_Spec.Name;
+
+        /// <summary>Still rolling out: it can't be hurt and doesn't fire.</summary>
+        public bool Entering => m_State == State.Entrance;
+
         public override void Hurt(int damage)
         {
+            if (Entering) return;
             if (Decoy)
             {
                 if (Shootable) FlashHit(); // a copy only glitches
@@ -117,8 +143,9 @@ namespace PooketSlug
         {
             if (!Engaged)
             {
-                if (World.View.Right >= Pos.x + HalfW + 0.5f) Engaged = true;
-                else return;
+                if (World.View.Right < Pos.x + HalfW + 0.5f) return;
+                Engaged = true;
+                if (!Decoy) World.OnBossIntro(this, Entering);
             }
 
             float rage = Rage;
@@ -128,6 +155,14 @@ namespace PooketSlug
             Vel.x = 0f;
             switch (m_State)
             {
+                case State.Entrance:
+                    Vel.x = Mathf.Sign(m_HomeX - Pos.x) * m_Spec.EntranceSpeed;
+                    if (Mathf.Abs(m_HomeX - Pos.x) < 0.1f || m_StateTime >= m_Spec.EntranceTime)
+                    {
+                        m_Timer = 0.3f;
+                        Enter(State.Recoil);
+                    }
+                    break;
                 case State.Drive:
                     Vel.x = Mathf.Clamp(m_DriveTo - Pos.x, -1f, 1f) * m_Spec.DriveSpeed * rage;
                     if (Mathf.Abs(m_DriveTo - Pos.x) < 0.1f || m_StateTime >= m_Spec.DriveTime) Aim();
@@ -219,6 +254,7 @@ namespace PooketSlug
 
         void Fire()
         {
+            StartFight();
             if (m_Kie != null && m_Kie.Fire(Muzzle, m_Angle))
             {
                 m_LandingSeen = false;
@@ -273,6 +309,7 @@ namespace PooketSlug
             {
                 if (!m_SeenFire) Log.Net.Info("The boss tank fired on the authority's screen");
                 m_SeenFire = true;
+                StartFight();
                 Recoil();
             }
             m_SeenShots = s.Shots;
@@ -285,7 +322,20 @@ namespace PooketSlug
         }
 
         protected override int ExtraFlags => Engaged ? NetEnemyState.Engaged : 0;
-        protected override void OnSnapshot(int flags) => Engaged = (flags & NetEnemyState.Engaged) != 0;
+        protected override void OnSnapshot(int flags)
+        {
+            bool woke = !Engaged && (flags & NetEnemyState.Engaged) != 0;
+            Engaged = (flags & NetEnemyState.Engaged) != 0;
+            if (woke && !Decoy) World.OnBossIntro(this, Entering); // the authority's tank woke
+        }
+
+        /// <summary>Its first shot: the fight is on.</summary>
+        void StartFight()
+        {
+            if (m_FightStarted || Decoy) return;
+            m_FightStarted = true;
+            World.OnBossFightStarted(this);
+        }
 
         protected override void Die()
         {
@@ -318,6 +368,7 @@ namespace PooketSlug
         {
             Go.transform.localPosition = new Vector3(Snap(Pos.x), Snap(Pos.y), 0f);
             Visual.localScale = Vector3.one;
+            Visual.gameObject.SetActive(Engaged || !Entering); // in the motor pool until it wakes
             float rumble = !Dying && Mathf.Abs(Vel.x) > 0.05f && ((int)(Anim * 16f) % 2 == 0) ? 1f / Art.PPU : 0f;
             m_Hull.transform.localPosition = new Vector3(0f, rumble, 0f);
             m_Hull.sprite = Flashed(Art.TankHull);

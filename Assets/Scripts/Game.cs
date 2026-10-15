@@ -180,6 +180,7 @@ namespace PooketSlug
             if (checkpoint >= 0f)
             {
                 m_World.CheckpointX = checkpoint;
+                m_World.QuickBossIntro = true; // the second time: the tank's already in place
                 StartAt(m_World, checkpoint);
             }
             m_StartNote = null;

@@ -25,7 +25,7 @@ const ARGS = ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swif
 
 // Each check is false until it passes; result.json records them all.
 const checks = BOSS
-  ? { hostOnline: false, guestOnline: false, joined: false, played: false, bossFollowed: false, bossFired: false }
+  ? { hostOnline: false, guestOnline: false, joined: false, played: false, bossIntro: false, bossFought: false, bossFollowed: false, bossFired: false }
   : { hostOnline: false, guestOnline: false, joined: false, played: false, pickup: false, takeover: false };
 const GRANT = new RegExp(TAG + String.raw` Pickup \d+ .* goes to player`); // the master handing out a pickup
 let failure = null;
@@ -122,6 +122,8 @@ try {
       await Promise.all([shot(A, `3-boss-${i}`), shot(B, `3-boss-${i}`)]);
     }
     checks.played = ![...A.logs, ...B.logs].some(l => /\[pageerror\]|Disconnected from Photon|Session ended/.test(l));
+    checks.bossIntro = !!(await waitLog(A, /Boss intro/, 1000)) && !!(await waitLog(B, /Boss intro/, 1000));
+    checks.bossFought = !!(await waitLog(A, /Boss fight on/, 1000));
     checks.bossFollowed = !!(await waitLog(B, /Following the boss tank's turret/, 5000));
     checks.bossFired = !!(await waitLog(B, /boss tank fired on the authority's screen/, 5000));
   } else {

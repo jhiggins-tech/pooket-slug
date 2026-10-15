@@ -210,6 +210,7 @@ namespace PooketSlug
                 bool bossBar = boss != null && boss.Engaged && !boss.Removed;
                 Ui.Show(m_BossName, bossBar);
                 Ui.Show(m_BossBack, bossBar);
+                if (bossBar) m_BossName.text = boss.DisplayName;
                 if (bossBar) m_BossFill.rectTransform.sizeDelta = new Vector2(180f * Mathf.Clamp01(boss.Hp / (float)boss.MaxHp), 6f);
 
                 Ui.Show(m_Coop, info.Net != null);

@@ -223,6 +223,8 @@ jobs:
                   ("guestOnline", "B joins with the invite link"),
                   ("joined", "A sees B join"),
                   ("played", "Both fight the boss with no errors or disconnects"),
+                  ("bossIntro", "Both screens get the boss intro"),
+                  ("bossFought", "A's tank rolls out and fires"),
                   ("bossFollowed", "B's boss tank follows the turret of A's"),
                   ("bossFired", "B sees the boss tank fire in A's world"),
               ]),

@@ -32,6 +32,13 @@ namespace PooketSlug
         /// <summary>Seconds it rests after firing.</summary>
         public float RecoilTime = 0.45f;
         public float MaxRage = 1.8f;
+        /// <summary>What the HUD and the intro call it.</summary>
+        public string Name = "KIE'S TANK";
+        /// <summary>
+        /// The entrance (<c>docs/design/tanks.md</c>, The boss intro): it rolls out of the motor pool's shutter to its
+        /// patrol at this speed, taking at most this many seconds, and can't be hurt or fire until it stops.
+        /// </summary>
+        public float EntranceSpeed = 2.4f, EntranceTime = 3.5f;
 
         /// <summary>How much quicker it is at <paramref name="health"/> (0 to 1) left.</summary>
         public float Rage(float health) => Mathf.Lerp(MaxRage, 1f, Mathf.Clamp01(health));
