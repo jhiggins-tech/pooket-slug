@@ -54,6 +54,13 @@ async function waitLog(p, re, ms) {
   return null;
 }
 
+/** Hold a direction for `ms` without jumping, so nobody hops over the test crate. */
+async function walk(p, dir, ms) {
+  await p.page.keyboard.down(dir);
+  await p.page.waitForTimeout(ms);
+  await p.page.keyboard.up(dir);
+}
+
 /** Hold a direction for `ms` while tapping fire (and jumping now and then). */
 async function play(p, dir, ms) {
   const kb = p.page.keyboard;
@@ -100,6 +107,9 @@ try {
   await B.page.waitForTimeout(4000);
   await Promise.all([shot(A, '2-together'), shot(B, '2-together')]);
 
+  // Both walk onto the test crate first: play() jumps about half a second in, which is about when a soldier
+  // reaches the crate, so on a slow frame both could hop over it and the pickup check would fail.
+  await Promise.all([walk(A, 'ArrowRight', 1200), walk(B, 'ArrowRight', 1200)]);
   // both advance and shoot
   await Promise.all([play(A, 'ArrowRight', 7000), play(B, 'ArrowRight', 7000)]);
   await Promise.all([shot(A, '3-fighting'), shot(B, '3-fighting')]);
