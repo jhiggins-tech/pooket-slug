@@ -104,7 +104,7 @@ namespace PooketSlug
 
     /// <summary>
     /// tones2's ten-3, the super: a second and a half of spew that melts anything close, and leaves sludge on the
-    /// floor that burns goons who walk through it. He stands his ground while it pours out, and nothing hurts him.
+    /// floor that burns goons who walk through it. He can move while it pours out, and nothing hurts him.
     /// </summary>
     public sealed class SpewSpec
     {
@@ -114,7 +114,7 @@ namespace PooketSlug
         /// <summary>Damage each gobbet soaks in: a rifleman melts in about six.</summary>
         public float Damage = 0.5f, Push = 0.35f;
         /// <summary>How long the sludge stays, and how often it burns a goon standing in it (a point each time).</summary>
-        public float SludgeLife = 5f, BurnInterval = 0.4f;
+        public float SludgeLife = 15f, BurnInterval = 0.4f;
     }
 
     /// <summary>The spikes' own content. None of it is in <see cref="Content"/>'s tables, so none of it goes on the wire.</summary>

@@ -49,7 +49,7 @@ namespace PooketSlug
         }
 
         public bool Invulnerable => m_Invuln > 0f || Dead || Spewing;
-        /// <summary>tones2's spew is pouring out: he holds still, and nothing hurts him.</summary>
+        /// <summary>tones2's spew is pouring out: he can still move, but nothing hurts him.</summary>
         bool Spewing => m_Spew != null && m_Spew.Active;
         /// <summary>How charged a tank call-in is, 0 to 1, while SP is held with the stick down.</summary>
         public float CallInCharge => m_CallIn.Charge;
@@ -93,7 +93,7 @@ namespace PooketSlug
             bool up = input.Up, down = input.Down;
 
             // --- horizontal ---
-            bool rooted = (m_Rocket != null && m_Rocket.Rooted) || Spewing; // shaking before the rocket jump, or spewing
+            bool rooted = m_Rocket != null && m_Rocket.Rooted; // shaking before the rocket jump
             Crouching = Grounded && down && !rooted;
             Height = Crouching ? Def.CrouchHeight : Def.StandHeight;
             float speed = Crouching ? Def.CrawlSpeed : Def.RunSpeed;
@@ -139,9 +139,9 @@ namespace PooketSlug
 
             m_FireCooldown -= dt;
             bool gun = GunAmmo > 0;
-            m_Jet?.Tick(dt, input.Fire && !gun && !rooted);
+            m_Jet?.Tick(dt, input.Fire && !gun && !rooted && !Spewing);
             bool wantsFire = gun ? input.Fire : (input.FirePressed || input.Fire);
-            if (wantsFire && m_FireCooldown <= 0f && (gun || m_Jet == null) && !rooted) Fire(gun ? Gun : Def.Primary);
+            if (wantsFire && m_FireCooldown <= 0f && (gun || m_Jet == null) && !rooted && !Spewing) Fire(gun ? Gun : Def.Primary);
 
             // SP: the special, or with the stick down and a tank to call, a held call-in
             Kit.Tick(dt);

@@ -182,8 +182,8 @@ namespace PooketSlug
 
     /// <summary>
     /// Spike: tones2's ten-3, the super. A second and a half of spew along his aim that melts anything close and
-    /// leaves sludge on the floor that burns goons who walk through it (<see cref="SpewSpec"/>). He stands his
-    /// ground while it pours out, and nothing can hurt him until it's done.
+    /// leaves sludge on the floor that burns goons who walk through it (<see cref="SpewSpec"/>). He can walk and
+    /// turn while it pours out, and nothing can hurt him until it's done.
     /// </summary>
     public sealed class Spew
     {
@@ -197,7 +197,7 @@ namespace PooketSlug
             m_Spec = spec;
         }
 
-        /// <summary>Pouring out: he can't move, jump or fire, and can't be hurt.</summary>
+        /// <summary>Pouring out: he can't fire anything else, and can't be hurt.</summary>
         public bool Active => m_Left > 0f;
 
         public void Start()
@@ -219,7 +219,8 @@ namespace PooketSlug
                 m_Due -= 1f;
                 float a = Rng.Fx.Range(-m_Spec.Spread, m_Spec.Spread) * Mathf.Deg2Rad;
                 var dir = new Vector2(aim.x * Mathf.Cos(a) - aim.y * Mathf.Sin(a), aim.x * Mathf.Sin(a) + aim.y * Mathf.Cos(a));
-                w.Liquids.Spray(origin, dir * (m_Spec.Speed * Rng.Fx.Range(0.75f, 1.1f)), m_Spec.Gravity, m_Spec.Damage, m_Spec.Push, DropKind.Spew);
+                Vector2 vel = dir * (m_Spec.Speed * Rng.Fx.Range(0.75f, 1.1f)) + new Vector2(m_Player.Vel.x * 0.4f, 0f); // walking carries it along
+                w.Liquids.Spray(origin, vel, m_Spec.Gravity, m_Spec.Damage, m_Spec.Push, DropKind.Spew);
             }
             w.View.Shake(0.05f);
         }
