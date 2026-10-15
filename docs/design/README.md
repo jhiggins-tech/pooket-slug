@@ -18,6 +18,7 @@ Up: [Repository README](../../README.md)
 | [Player mechanics](player.md) | The crew, controls, kits, health and lives, crates, co-op, and what the player keeps | Signed off, 2026-10-14 |
 | [Maps, missions and progression](levels.md) | What a mission is, difficulty, how maps are built, and the order things open up in, menus included | Signed off, 2026-10-14 |
 | [The crew's kits](kits.md) | Every soldier's weapons, forks and abilities | Moved from DESIGN.md, 2026-10-15 |
+| [Team supers](team-supers.md) | The combo attack for each pair of soldiers in co-op | Draft, 2026-10-15 |
 
 ## Progressive disclosure, the thread through all four
 

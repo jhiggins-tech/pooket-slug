@@ -81,7 +81,7 @@ Statuses come only from the soldiers' kits: each one belongs to a particular sol
 - **Two phones, online.** Co-op opens once Mission one has been beaten solo ([progression](levels.md#the-order-things-open-up)), and a partner can drop in mid-mission.
 - **Lives and scores:** each player has their own, and their stats are kept separately.
 - **Some kits help a partner:** kiwicore's drum solo heals them, ciarra's marks make their shots hit harder, and kcaj's pills never hurt them.
-- **The team super:** when both players' supers are charged, they can fire them together for a screen-clearing team super. Each pair of soldiers gets its own combo, designed first as a table of ideas, before any code.
+- **The team super:** when both players' supers are charged, they can fire them together for a screen-clearing team super. Each pair of soldiers gets its own combo ([team supers](team-supers.md)).
 - **Friendly fire is off.**
 - **Two different soldiers:** both players can't pick the same soldier (owner, 2026-10-15).
 - **Your partner is always easy to find:** an arrow when they're off-screen, and a warning when their health is low or they've switched away from the game.
@@ -116,7 +116,7 @@ These are all Won't:
 ## Open questions
 
 - **Melee:** which soldiers get it.
-- **The team super:** each pair's combo, from the table of ideas.
+- **The team super:** each pair's combo, from the table in [team supers](team-supers.md).
 - **Career XP:** tuning the placeholder amounts after playtesting, and what looks cost in tokens.
 - **Rank:** where each mission splits into stages, and how many stages make a rung.
 - **Kits still to design:** the coming-soon crew's, and garyoldmancorp's real moves.
