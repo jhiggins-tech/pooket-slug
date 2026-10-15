@@ -21,28 +21,26 @@ namespace PooketSlug.Tests
         [TestCase("?spike=hits", true, false)]
         [TestCase("?spike=tank,hits", true, true)]
         [TestCase("?SPIKE=Hits,TANK", true, true)]
-        [TestCase("?spike=tones2,holo", false, false)] // tones2 and the hologram goons are in the game now: no spikes for them
+        [TestCase("?spike=tones2,holo,chip", false, false)] // tones2, the hologram goons and the 8-bit sounds are in the game now
         [TestCase("?spike=hit", false, false)]
         public void TheAddressTurnsSpikesOn(string query, bool hits, bool tank)
         {
             Spike.Configure(Page + query);
             Assert.AreEqual(hits, Spike.Hits);
             Assert.AreEqual(tank, Spike.Tank);
-            Assert.IsFalse(Spike.Chip);
             Assert.AreEqual(hits || tank, Spike.Label != null);
         }
 
         [Test]
         public void TheBannerNamesEverySpikeThatsOn()
         {
-            Spike.Configure(Page + "?spike=hits,tank,chip");
+            Spike.Configure(Page + "?spike=hits,tank");
             Assert.IsTrue(Spike.Hits && Spike.Tank);
-            Assert.AreEqual("SPIKE TEST · HIT FEEL + BOSS TANK + 8-BIT SOUND", Spike.Label);
+            Assert.AreEqual("SPIKE TEST · HIT FEEL + BOSS TANK", Spike.Label);
             Spike.Configure(Page + "?spike=hits");
             Assert.AreEqual("SPIKE TEST · HIT FEEL", Spike.Label);
-            Spike.Configure(Page + "?spike=chip");
-            Assert.IsTrue(Spike.Chip);
-            Assert.AreEqual("SPIKE TEST · 8-BIT SOUND", Spike.Label);
+            Spike.Configure(Page + "?spike=chip"); // the 8-bit sounds are the game's own now: no longer a spike
+            Assert.IsNull(Spike.Label);
         }
 
         [TestCase(-8f, 0f, 45f)]

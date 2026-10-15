@@ -4,13 +4,13 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// Spike (?spike=chip): every sound redone with Pooket Tabks' 8-bit recipes (src/audio/sfx.ts), on the
-    /// <see cref="Chip"/> synth. Each recipe below says which Tabks sound it's from; a few are cut down, because
+    /// The game's sounds: Pooket Tabks' 8-bit recipes (src/audio/sfx.ts), on the <see cref="Chip"/> synth, each
+    /// rendered once into a clip at startup. Each recipe below says which Tabks sound it's from; a few are cut down, because
     /// a machine gun fires far more often than an artillery tank.
     /// </summary>
     public static class ChipSounds
     {
-        /// <summary>Replaces the sound bank's clips with the chip versions (the spike clips too, when they're made).</summary>
+        /// <summary>Makes every clip in the sound bank (<see cref="Sfx"/>).</summary>
         public static void Make()
         {
             // ---- Shots ----
@@ -81,7 +81,7 @@ namespace PooketSlug
             MakeKitSounds();
         }
 
-        /// <summary>The other spikes' sounds, from the matching Tabks weapons (tones2 is ten's kit there).</summary>
+        /// <summary>tones2's kit and the enemies' extras, from the matching Tabks weapons (tones2 is ten's kit there).</summary>
         static void MakeKitSounds()
         {
             // ten-1's hiss and gurgle, as a seamless loop: 96 Hz and 8 Hz both fit a whole number of times in half a second.
