@@ -71,7 +71,7 @@ C2, the refactor, is done. C1's code is written and checked locally; it goes liv
   - [x] 1-ups: a new pickup (`U` in a level map; one on the high bridge in Mission one; `?test=1up` puts one by the start). A 1-up adds a spare life, up to 9, or brings an out player straight back. In co-op the authority gives it first to a partner who's out of lives; the pose carries *out of lives* and *out* bits so it knows.
   - [x] HUD: LIVES by the hearts, *DOWN! BACK IN n*, the continue countdown, and *OUT!* in co-op.
   - [x] Verify locally: each input backend, with and without the SDK, the weaver, 229 of 229 EditMode tests.
-  - [ ] Verify in CI.
+  - [x] Verify in CI: run 38699217573 built, deployed and passed the co-op test (2026-10-15).
   - Placeholders to tune in play: the counts and timings in `Tuning.Lives`, and where 1-ups appear.
 - [ ] **C6. Medkit and bomb crate rework** ([player](../design/player.md#crates-and-power-ups)), queued from the Roadmap 2026-10-15.
   - [x] Bomb crates stay uncapped, and each soldier has their own amount (`SoldierDef.CrateSpecials`, 10 unless a def says otherwise: about 3 for a strong special, up to 10 for a weak one). The crate says *BOMBS!*, and the soldier who got it sees *GRENADE +10*.
