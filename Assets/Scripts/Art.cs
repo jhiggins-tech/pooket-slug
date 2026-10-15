@@ -254,6 +254,9 @@ namespace PooketSlug
             return ToSprite(c, new Vector2(0.5f, 0f), withFlash: true);
         }
 
+        /// <summary>A sprite from rows of palette letters, as the rest of the art is made (with a hit-flash copy).</summary>
+        public static Sprite FromRows(string[] rows, Vector2 pivot, bool outline = true) => Simple(rows, pivot, outline);
+
         static Sprite Simple(string[] rows, Vector2 pivot, bool outline = true)
         {
             int w = 0;

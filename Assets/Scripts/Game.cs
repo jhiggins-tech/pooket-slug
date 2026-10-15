@@ -41,6 +41,7 @@ namespace PooketSlug
         float m_OutFor;         // seconds the game has had nobody left in it (out of lives and continues)    // ?unlock=tank: a tank can be called in each mission, for testing
         bool m_TestCrate;       // ?test=crate: a crate just ahead of the start, so the co-op test sees one handed out
         bool m_TestOneUp;       // ?test=1up: a 1-up just ahead of the start
+        bool m_TestBoss;        // ?test=boss: a solo game starts just before the boss's arena
         string m_Notice, m_StartNote;
         float m_NoticeTime, m_LeaveArmed;
 
@@ -86,6 +87,7 @@ namespace PooketSlug
             string[] tests = (PageQuery.Get(url, "test") ?? "").ToLowerInvariant().Split(',');
             m_TestCrate = Array.IndexOf(tests, "crate") >= 0;
             m_TestOneUp = Array.IndexOf(tests, "1up") >= 0;
+            m_TestBoss = Array.IndexOf(tests, "boss") >= 0;
 
             m_World = NewWorld(m_Mission);
             m_Hud = new HudView(transform);
@@ -127,7 +129,23 @@ namespace PooketSlug
                 float x = world.Level.PlayerStart.x + 4.5f;
                 world.Spawner.SpawnPickup(Content.OneUp, new Vector2(x, world.Level.TopSurfaceY(x)));
             }
+            if (m_TestBoss && net == null) StartAtBoss(world);
             return world;
+        }
+
+        /// <summary>?test=boss: puts the soldier a screen short of the boss, to try boss fights without the run there.</summary>
+        static void StartAtBoss(World world)
+        {
+            foreach (Spawn s in world.Level.Spawns)
+            {
+                if (Content.EnemyFor(s.Kind)?.Brain != EnemyBrain.Tank) continue;
+                float x = s.Pos.x - 16f;
+                world.Player.Pos = new Vector2(x, world.Level.TopSurfaceY(x));
+                world.View.JumpTo(x + Tuning.Camera.LookAhead);
+                world.View.Tick(0f);
+                world.Spawner.SpawnAhead();
+                return;
+            }
         }
 
         void SetState(GameState state)

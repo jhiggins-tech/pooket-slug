@@ -19,7 +19,7 @@ namespace PooketSlug
         /// <summary>Gameplay randomness for this play-through; cosmetic effects use <see cref="Rng.Fx"/>.</summary>
         public readonly Rng Rng = new Rng(Rng.NewSeed());
         public Player Player;
-        public TankBoss Boss;
+        public BossEnemy Boss;
 
         public readonly ScrollCamera View;
         public readonly Spawner Spawner;

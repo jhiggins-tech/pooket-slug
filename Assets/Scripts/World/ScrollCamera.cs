@@ -35,6 +35,9 @@ namespace PooketSlug
 
         public void Shake(float amount) => m_Shake = Mathf.Max(m_Shake, amount);
 
+        /// <summary>Moves straight to <paramref name="x"/>, for a test that starts partway through a level.</summary>
+        public void JumpTo(float x) => m_X = Mathf.Max(m_X, x);
+
         public void Tick(float dt)
         {
             World w = m_World;

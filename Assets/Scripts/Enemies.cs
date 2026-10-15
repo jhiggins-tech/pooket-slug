@@ -313,14 +313,21 @@ namespace PooketSlug
         }
     }
 
+    /// <summary>An end-of-level boss: it wakes when the camera reaches it, and the HUD shows its health bar while it fights.</summary>
+    public abstract class BossEnemy : Enemy
+    {
+        public bool Engaged;
+
+        protected BossEnemy(World world, EnemyDef def, Vector2 feet) : base(world, def, feet) { }
+    }
+
     /// <summary>End-of-level boss: lobs cannon shells and sweeps low machine-gun bursts (jump them).</summary>
-    public sealed class TankBoss : Enemy
+    public sealed class TankBoss : BossEnemy
     {
         readonly SpriteRenderer m_Sr;
         readonly float m_HomeX;
         float m_AttackTimer = 1.5f, m_BurstTimer, m_ExplodeTimer;
         int m_Attack, m_BurstLeft;
-        public bool Engaged;
 
         public TankBoss(World world, EnemyDef def, Vector2 feet) : base(world, def, feet)
         {

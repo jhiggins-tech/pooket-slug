@@ -206,7 +206,7 @@ namespace PooketSlug
                 Lives(p, info.Net != null);
                 HideFrom(m_Hearts, Hearts(m_Hearts, m_NewHeart, 0, p.MaxHp, p.Hp, new Vector2(8f, -24f), 13f, 12f, Color.white));
 
-                TankBoss boss = w.Boss;
+                BossEnemy boss = w.Boss;
                 bool bossBar = boss != null && boss.Engaged && !boss.Removed;
                 Ui.Show(m_BossName, bossBar);
                 Ui.Show(m_BossBack, bossBar);

@@ -10,7 +10,7 @@ namespace PooketSlug
 
         public static AudioClip Shot, Heavy, EnemyShot, Cannon, Explosion, BigExplosion, Jump, Hurt, Hit, Pickup, Throw, Start, Victory, GameOver;
         // spike sounds: tones2's kit and the hologram goons
-        public static AudioClip JetLoop, Splat, RocketRumble, RocketLaunch, Glitch, Poison, Spew, Sizzle, Thump;
+        public static AudioClip JetLoop, Splat, RocketRumble, RocketLaunch, Glitch, Poison, Spew, Sizzle, Thump, Charge, Servo;
         public static bool Muted;
 
         static AudioSource s_Source;
@@ -92,6 +92,9 @@ namespace PooketSlug
             });
             Sizzle = Make("sizzle", 0.14f, (t, p) => Noise() * 0.3f * (1 - p) * (0.5f + 0.5f * Mathf.Sin(t * 900f)));
             // A heavy hit landing: a low thud with a click on top.
+            // The boss tank charging a shot: a whine that climbs; and its turret's servo, a little ratchet.
+            Charge = Make("charge", 0.9f, (t, p) => Square(Sweep(t, 0.9f, 180, 900)) * 0.16f * (0.4f + 0.6f * p) + Noise() * 0.05f);
+            Servo = Make("servo", 0.06f, (t, p) => Square(Sweep(t, 0.06f, 320, 260)) * 0.14f * (1 - p));
             Thump = Make("thump", 0.12f, (t, p) => Sine(Sweep(t, 0.12f, 160, 50)) * 0.5f * (1 - p) + Noise() * 0.2f * Mathf.Max(0f, 1f - p * 6f));
         }
 

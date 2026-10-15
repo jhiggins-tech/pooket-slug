@@ -34,9 +34,9 @@ namespace PooketSlug.Tests
         [Test]
         public void TheBannerNamesEverySpikeThatsOn()
         {
-            Spike.Configure(Page + "?spike=tones2,holo,hits");
-            Assert.IsTrue(Spike.Hits);
-            Assert.AreEqual("SPIKE TEST · TONES2 + HOLOGRAM GOONS + HIT FEEL", Spike.Label);
+            Spike.Configure(Page + "?spike=tones2,holo,hits,tank");
+            Assert.IsTrue(Spike.Hits && Spike.Tank);
+            Assert.AreEqual("SPIKE TEST · TONES2 + HOLOGRAM GOONS + HIT FEEL + BOSS TANK", Spike.Label);
             Spike.Configure(Page + "?spike=hits");
             Assert.AreEqual("SPIKE TEST · HIT FEEL", Spike.Label);
         }
@@ -50,6 +50,38 @@ namespace PooketSlug.Tests
             Assert.LessOrEqual(gobbets, 8f, "it melts anything close");
             Assert.Less(gobbets / spew.DropsPerSecond, 0.25f, "a rifleman in the spew is gone in a blink");
             Assert.Greater(spew.SludgeLife, 0f);
+        }
+
+        [TestCase(-8f, 0f, 45f)]
+        [TestCase(-5f, -1f, 60f)]
+        [TestCase(6f, 2f, 55f)]
+        public void TheBossTanksShotLandsWhereItAimed(float dx, float dy, float lob)
+        {
+            const float g = 18f;
+            float v = BossTankSpec.PowerFor(dx, dy, lob, g);
+            Assert.IsFalse(float.IsNaN(v));
+            // fly it: at the time it crosses dx, it's at dy
+            float a = lob * UnityEngine.Mathf.Deg2Rad;
+            float t = UnityEngine.Mathf.Abs(dx) / (v * UnityEngine.Mathf.Cos(a));
+            float y = v * UnityEngine.Mathf.Sin(a) * t - 0.5f * g * t * t;
+            Assert.AreEqual(dy, y, 1e-3f);
+        }
+
+        [Test]
+        public void ATooFlatLobCantReachAHighTarget()
+        {
+            Assert.IsTrue(float.IsNaN(BossTankSpec.PowerFor(-4f, 6f, 30f, 18f)), "tan 30° × 4 is under 6: no speed gets there");
+        }
+
+        [Test]
+        public void TheBossTankGetsQuickerAsItsHurt()
+        {
+            BossTankSpec spec = SpikeContent.BossTank;
+            Assert.AreEqual(1f, spec.Rage(1f), 1e-6f);
+            Assert.AreEqual(spec.MaxRage, spec.Rage(0f), 1e-6f);
+            Assert.Greater(spec.Rage(0.5f), 1f);
+            Assert.Less(spec.Rage(0.5f), spec.MaxRage);
+            Assert.Greater(spec.MaxAngle, 90f, "it can lob over its own back");
         }
 
         [Test]
@@ -131,6 +163,7 @@ namespace PooketSlug.Tests
             CollectionAssert.DoesNotContain(Content.Weapons, SpikeContent.WaterJet);
             CollectionAssert.DoesNotContain(Content.Weapons, SpikeContent.RocketJump);
             CollectionAssert.DoesNotContain(Content.Weapons, SpikeContent.SpewWeapon);
+            CollectionAssert.DoesNotContain(Content.Weapons, SpikeContent.BossCannon);
             CollectionAssert.DoesNotContain(Content.Soldiers, SpikeContent.Tones2);
             Assert.IsNull(Content.Weapon(SpikeContent.WaterJet.Id));
             Assert.IsNull(Content.Soldier(SpikeContent.Tones2.Id));
