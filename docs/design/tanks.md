@@ -88,7 +88,7 @@ Wreck the tank and its hologram pilot jumps out to fight you on foot with the cr
 
 **The fight's size** (picked 2026-10-15): a boss duel. The pilot has about three times a soldier's health and its own boss bar, so the duel lasts around 30 to 45 seconds.
 
-**In co-op:** *to pick.* How one pilot takes on two players.
+**In co-op** (owner, 2026-10-15): one pilot with exactly the same health and moves as in solo, since missions don't change with two players ([difficulty](levels.md#difficulty)); the fight is simply easier with two. It switches targets between you: whoever is nearest, or whoever hurt it last.
 
 **When it's beaten,** the pilot glitches out like the hologram goons, and the freeing scene plays ([story](story.md#cutscenes)). The boss music keeps playing through the pilot round ([the boss intro](#the-boss-intro)).
 
