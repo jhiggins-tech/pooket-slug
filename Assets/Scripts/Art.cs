@@ -98,6 +98,7 @@ namespace PooketSlug
         public static Sprite Tank, Bullet, HeavyBullet, EnemyBullet, Shell, Grenade, Bomb, MuzzleFlash;
         static Sprite[] s_Projectiles, s_Pickups;
         public static Sprite CrateHeavy, CrateBombs, Medkit, OneUp, Flag, Pixel, Sky, Mountains, Ruins;
+        public static Sprite Watchtower, MotorPoolGate;
         public static Texture2D HeartTex, WhiteTex, DiscTex;
 
         static Dictionary<char, Color32> s_Pal;
@@ -207,6 +208,7 @@ namespace PooketSlug
             BuildExplosion();
             BuildSpark();
             BuildBackground();
+            BuildScenery();
         }
 
         static Vector2 Center => new Vector2(0.5f, 0.5f);
@@ -448,6 +450,162 @@ namespace PooketSlug
                 int half = 1 + t / 8;
                 int cx = x + Mathf.RoundToInt(lean * t);
                 for (int dx = -half; dx <= half; dx++) c.Set(cx + dx, y + t, new Color32(255, 240, 180, 26));
+            }
+        }
+
+        // ---- Scenery: big props that stand behind the action ----
+
+        static readonly Color32 Haze = Hex(0xd0a040), Panel = Hex(0x7a808e), PanelLight = Hex(0x9aa0ac);
+        static readonly Color32 PanelEdge = Hex(0x4e5260), PanelDark = Hex(0x3a3e4a), Red = Hex(0xd83838), RedLight = Hex(0xff7060);
+
+        static void BuildScenery()
+        {
+            // A steel lattice watchtower: a lit cabin, snow on the roof, a searchlight.
+            var tower = new Pen(38, 86);
+            tower.Line(8, 34, 3, 85, SteelLight);
+            tower.Line(9, 34, 4, 85, Steel);
+            tower.Line(29, 34, 34, 85, Steel);
+            tower.Line(28, 34, 33, 85, SteelLight);
+            bool flip = false;
+            for (int y = 36; y < 84; y += 8)
+            {
+                int y2 = y + 8;
+                float l0 = 8 - (y - 34) * 5 / 51f, r0 = 29 + (y - 34) * 5 / 51f;
+                float l1 = 8 - (y2 - 34) * 5 / 51f, r1 = 29 + (y2 - 34) * 5 / 51f;
+                if (flip) tower.Line((int)l0, y, (int)r1, Mathf.Min(y2, 85), SteelDark);
+                else tower.Line((int)r0, y, (int)l1, Mathf.Min(y2, 85), SteelDark);
+                tower.Line((int)l0, y, (int)r0, y, SteelDark);
+                flip = !flip;
+            }
+            for (int y = 36; y < 86; y += 3) tower.Rect(17, y, 4, 1, SteelLight); // ladder
+            tower.Rect(17, 36, 1, 50, SteelDark);
+            tower.Rect(21, 36, 1, 50, SteelDark);
+            tower.Box(3, 14, 32, 20, Steel, SteelLight, SteelDark);
+            tower.Rect(6, 18, 26, 7, Glow);
+            tower.Rect(6, 24, 26, 1, Haze);
+            tower.Rect(14, 18, 1, 7, SteelDark);
+            tower.Rect(23, 18, 1, 7, SteelDark);
+            tower.Stripes(3, 30, 32, 3, Hazard, HazardDark, 2);
+            tower.Rect(1, 11, 36, 3, SteelDark);
+            tower.Rect(1, 9, 36, 2, SnowTop);
+            foreach (int x in new[] { 4, 9, 27, 33 }) tower.Rect(x, 14, 1, 1 + x % 3, Snow);
+            tower.Box(24, 2, 9, 7, Steel, SteelLight, SteelDark);
+            tower.Rect(33, 3, 2, 5, Glow);
+            tower.Rect(27, 8, 3, 1, SteelDark);
+            tower.Rect(8, 0, 1, 9, SteelDark);
+            tower.Rect(8, 0, 1, 1, Red);
+            Watchtower = tower.ToSprite();
+
+            // The motor pool's gate (the boss door): a blast shutter in a snowy concrete wall, hazard-striped.
+            var gate = new Pen(100, 66);
+            gate.Box(0, 6, 100, 60, Panel, PanelLight, PanelEdge);
+            gate.Speck(0, 7, 100, 58, PanelDark, 0.05f, 40, Panel);
+            gate.Rect(0, 2, 100, 4, SnowTop);
+            gate.Rect(0, 6, 100, 1, SnowShade);
+            foreach (int x in new[] { 3, 11, 40, 77, 90 }) gate.Rect(x, 7, 1, 2 + x % 3, Snow);
+            gate.Stripes(10, 18, 80, 48, Hazard, HazardDark, 4);
+            gate.Rect(14, 22, 72, 44, Steel);
+            for (int y = 22; y < 66; y += 4)
+            {
+                gate.Rect(14, y, 72, 1, SteelLight);
+                gate.Rect(14, y + 3, 72, 1, SteelDark);
+            }
+            gate.Rect(14, 62, 72, 4, SteelDark);
+            gate.Rect(34, 9, 32, 8, SteelDark);
+            gate.Text(38, 10, "BAY 07", Hazard);
+            foreach (int x in new[] { 4, 92 })
+            {
+                gate.Rect(x, 20, 4, 6, Red);
+                gate.Rect(x, 20, 2, 2, RedLight);
+                gate.Rect(x, 26, 4, 2, SteelDark);
+            }
+            gate.Box(44, 52, 12, 4, SteelDark, SteelLight, SteelDark);
+            MotorPoolGate = gate.ToSprite();
+        }
+
+        /// <summary>
+        /// Draws scenery in top-down pixel coordinates, like the concept sheets, with a 1px border for the outline.
+        /// </summary>
+        sealed class Pen
+        {
+            readonly PixelCanvas m_C;
+
+            public Pen(int w, int h) => m_C = new PixelCanvas(w + 2, h + 2);
+
+            public void Set(int x, int y, Color32 c) => m_C.Set(x + 1, m_C.H - 2 - y, c);
+            Color32 Get(int x, int y) => m_C.Get(x + 1, m_C.H - 2 - y);
+
+            public void Rect(int x, int y, int w, int h, Color32 c)
+            {
+                for (int j = y; j < y + h; j++)
+                    for (int i = x; i < x + w; i++)
+                        Set(i, j, c);
+            }
+
+            public void Box(int x, int y, int w, int h, Color32 c, Color32 hi, Color32 lo)
+            {
+                Rect(x, y, w, h, c);
+                Rect(x, y, w, 1, hi);
+                Rect(x, y, 1, h, hi);
+                Rect(x, y + h - 1, w, 1, lo);
+                Rect(x + w - 1, y, 1, h, lo);
+            }
+
+            public void Line(int x0, int y0, int x1, int y1, Color32 c)
+            {
+                int dx = Mathf.Abs(x1 - x0), dy = -Mathf.Abs(y1 - y0);
+                int sx = x0 < x1 ? 1 : -1, sy = y0 < y1 ? 1 : -1, err = dx + dy;
+                while (true)
+                {
+                    Set(x0, y0, c);
+                    if (x0 == x1 && y0 == y1) break;
+                    int e2 = 2 * err;
+                    if (e2 >= dy) { err += dy; x0 += sx; }
+                    if (e2 <= dx) { err += dx; y0 += sy; }
+                }
+            }
+
+            public void Stripes(int x, int y, int w, int h, Color32 a, Color32 b, int period)
+            {
+                for (int j = 0; j < h; j++)
+                    for (int i = 0; i < w; i++)
+                        Set(x + i, y + j, ((i + j) / period) % 2 == 0 ? a : b);
+            }
+
+            /// <summary>Sprinkles <paramref name="c"/> over the pixels that are <paramref name="on"/>.</summary>
+            public void Speck(int x, int y, int w, int h, Color32 c, float density, int seed, Color32 on)
+            {
+                var rng = new System.Random(seed);
+                for (int j = y; j < y + h; j++)
+                    for (int i = x; i < x + w; i++)
+                    {
+                        Color32 at = Get(i, j);
+                        if (rng.NextDouble() < density && at.r == on.r && at.g == on.g && at.b == on.b) Set(i, j, c);
+                    }
+            }
+
+            static readonly Dictionary<char, string> s_Font = new Dictionary<char, string>
+            {
+                { 'B', "##.#.###.#.###." }, { 'A', ".#.#.####.##.#" + "#" }, { 'Y', "#.##.#.#..#..#." },
+                { '0', "####.##.##.####" }, { '7', "###..#.#..#..#." }, { ' ', "..............." },
+            };
+
+            /// <summary>Stencils text in a 3x5 pixel font.</summary>
+            public void Text(int x, int y, string s, Color32 c)
+            {
+                foreach (char ch in s)
+                {
+                    string g = s_Font[ch];
+                    for (int i = 0; i < 15; i++)
+                        if (g[i] == '#') Set(x + i % 3, y + i / 3, c);
+                    x += 4;
+                }
+            }
+
+            public Sprite ToSprite()
+            {
+                m_C.Outline(OutlineColor);
+                return Art.ToSprite(m_C, new Vector2(0.5f, 1f / m_C.H)); // feet on the ground (below the outline)
             }
         }
 

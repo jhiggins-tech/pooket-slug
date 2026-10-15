@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace PooketSlug
 {
-    public enum SpawnKind { Soldier, Runner, Drone, Tank, CrateHeavy, CrateBombs, Medkit, Flag, OneUp }
+    public enum SpawnKind { Soldier, Runner, Drone, Tank, CrateHeavy, CrateBombs, Medkit, Flag, OneUp, Watchtower, MotorPool }
 
     public struct Spawn
     {
@@ -14,7 +14,7 @@ namespace PooketSlug
     /// <summary>
     /// A mission's map, parsed (the maps themselves are in <see cref="Missions"/>). 1 tile = 1 world unit = 16 px.
     /// Row 0 of the map is the top of the level. '#' ground, '=' sandbags (solid), '-' one-way bridge; letters are
-    /// spawn markers. LevelView draws it.
+    /// spawn markers ('W' and 'M' are scenery: a watchtower, the motor pool's gate). LevelView draws it.
     /// </summary>
     public sealed class Level
     {
@@ -52,6 +52,8 @@ namespace PooketSlug
                         case '+': Spawns.Add(new Spawn { Kind = SpawnKind.Medkit, Pos = feet }); break;
                         case 'U': Spawns.Add(new Spawn { Kind = SpawnKind.OneUp, Pos = feet }); break;
                         case 'F': Spawns.Add(new Spawn { Kind = SpawnKind.Flag, Pos = feet }); break;
+                        case 'W': Spawns.Add(new Spawn { Kind = SpawnKind.Watchtower, Pos = feet }); break;
+                        case 'M': Spawns.Add(new Spawn { Kind = SpawnKind.MotorPool, Pos = feet }); break;
                     }
                 }
             }

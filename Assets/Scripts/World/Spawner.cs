@@ -76,6 +76,8 @@ namespace PooketSlug
             PickupDef pickup = Content.PickupFor(s.Kind);
             if (pickup != null) w.Pickups.Add(new Pickup(w, pickup, s.Pos) { NetId = index });
             else if (s.Kind == SpawnKind.Flag) w.Props.Add(new Prop(w, Art.Flag, s.Pos, SortOrder.Pickups));
+            else if (s.Kind == SpawnKind.Watchtower) w.Props.Add(new Prop(w, Art.Watchtower, s.Pos, SortOrder.Scenery));
+            else if (s.Kind == SpawnKind.MotorPool) w.Props.Add(new Prop(w, Art.MotorPoolGate, s.Pos, SortOrder.Scenery));
         }
 
         public void SpawnAhead()

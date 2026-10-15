@@ -4,7 +4,7 @@ namespace PooketSlug
 {
     public static class SortOrder
     {
-        public const int Sky = -100, Mountains = -90, Ruins = -80, Tiles = 0, Pickups = 5, Boss = 8;
+        public const int Sky = -100, Mountains = -90, Ruins = -80, Scenery = -10, Tiles = 0, Pickups = 5, Boss = 8;
         public const int Enemies = 10, Player = 20, Projectiles = 30, Effects = 40;
     }
 
