@@ -47,6 +47,19 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void TheCutsceneSpikeCanAddAPretendPartner()
+        {
+            Spike.Configure(Page + "?spike=cutscenes");
+            Assert.IsTrue(Spike.Scenes);
+            Assert.IsFalse(Spike.ScenesCoop);
+            Assert.AreEqual("SPIKE TEST · CUTSCENES", Spike.Label);
+            Assert.IsNull(Spike.Soldier, "you play tones2, as in the opening");
+            Spike.Configure(Page + "?spike=cutscenes-coop");
+            Assert.IsTrue(Spike.Scenes);
+            Assert.IsTrue(Spike.ScenesCoop);
+        }
+
+        [Test]
         public void TheWeaselSpikeHasYouPlayKie()
         {
             Spike.Configure(Page);
