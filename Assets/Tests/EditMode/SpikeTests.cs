@@ -47,6 +47,17 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void TheDriveSpikeGivesYouATank()
+        {
+            Spike.Configure(Page + "?spike=drive");
+            Assert.IsTrue(Spike.Drive);
+            Assert.AreEqual("SPIKE TEST · YOUR TANK", Spike.Label);
+            Assert.IsNull(Spike.Soldier, "you drive it as tones2");
+            Spike.Configure(Page + "?spike=hits");
+            Assert.IsFalse(Spike.Drive);
+        }
+
+        [Test]
         public void TheCutsceneSpikeCanAddAPretendPartner()
         {
             Spike.Configure(Page + "?spike=cutscenes");

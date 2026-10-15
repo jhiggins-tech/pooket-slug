@@ -49,12 +49,15 @@ namespace PooketSlug
         // the kit's meters: the super (SU), the special's refill (SP) and the ability (AB); and a tank call-in's charge
         readonly Text m_SuperLabel, m_AbilityLabel;
         readonly Image m_SuperBack, m_SuperFill, m_RefillFill, m_AbilityBack, m_AbilityFill, m_CallBack, m_CallFill;
+        // your tank's health while you're in it (spike: ?spike=drive)
+        readonly Text m_TankLabel;
+        readonly Image m_TankBack, m_TankFill;
         const float MeterWidth = 60f;
         const int PopupSize = 9;
         readonly List<Image> m_Hearts = new List<Image>();
         readonly List<Text> m_Popups = new List<Text>();
         int m_Points = -1, m_HiScore = -1, m_Seconds = -1, m_FpsShown = -1;
-        int m_ArmsGun = -1, m_ArmsAmmo = -1, m_ArmsSpecials = -1;
+        int m_ArmsGun = -1, m_ArmsAmmo = -1, m_ArmsSpecials = -1, m_ArmsTank = -1;
         bool m_MutedShown;
         readonly System.Func<Text> m_NewPopup, m_NewPartnerLabel, m_NewTag;
         readonly System.Func<Image> m_NewHeart, m_NewPartnerHeart; // made once: a lambda per frame would be garbage
@@ -99,6 +102,9 @@ namespace PooketSlug
             m_AbilityLabel = Ui.Label(m_Top, "Ability", Ui.TopLeft, new Vector2(8f, -67f), 8, TextAnchor.UpperLeft, Arms);
             m_AbilityLabel.text = "AB";
             m_AbilityBack = Meter(m_Top, "Ability meter", new Vector2(24f, -69f), out m_AbilityFill, CoopBlue);
+            m_TankLabel = Ui.Label(m_Top, "Tank", Ui.TopLeft, new Vector2(8f, -79f), 8, TextAnchor.UpperLeft, Arms);
+            m_TankLabel.text = "TK";
+            m_TankBack = Meter(m_Top, "Tank health", new Vector2(24f, -81f), out m_TankFill, new Color(0.55f, 0.9f, 0.45f));
             m_CallBack = Ui.Picture(m_Root, "Call-in", null, Ui.BottomLeft, Ui.Middle, Vector2.zero, new Vector2(34f, 6f), new Color(0.1f, 0.05f, 0.08f, 0.85f));
             m_CallFill = Ui.Picture(m_CallBack.rectTransform, "Charge", null, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(1f, 0f), new Vector2(0f, 4f), new Color(1f, 0.85f, 0.3f));
             m_Banner = Ui.Label(m_Root, "Banner", Ui.Middle, new Vector2(0f, 60f), 26, TextAnchor.MiddleCenter, Gold);
@@ -273,14 +279,22 @@ namespace PooketSlug
                 int secs = Mathf.FloorToInt(w.Elapsed);
                 if (secs != m_Seconds) m_Time.text = string.Format("TIME {0}:{1:00}", (m_Seconds = secs) / 60, secs % 60);
                 int gun = p.GunAmmo > 0 ? p.Gun.Id : -1;
-                if (gun != m_ArmsGun || p.GunAmmo != m_ArmsAmmo || p.Specials != m_ArmsSpecials)
+                PlayerTank tank = p.Riding;
+                int tankRounds = tank == null ? -1 : tank.Rounds.Main * 100 + tank.Rounds.Specials * 10 + tank.Rounds.Supers;
+                if (gun != m_ArmsGun || p.GunAmmo != m_ArmsAmmo || p.Specials != m_ArmsSpecials || tankRounds != m_ArmsTank)
                 {
                     m_ArmsGun = gun;
                     m_ArmsAmmo = p.GunAmmo;
                     m_ArmsSpecials = p.Specials;
+                    m_ArmsTank = tankRounds;
                     string arms = p.GunAmmo > 0 ? p.Gun.Hud + " " + p.GunAmmo : p.Def.Primary.Hud; // the font has no infinity glyph
-                    m_Arms.text = "ARMS " + arms + "   " + p.Def.Special.Hud + " " + p.Specials;
+                    m_Arms.text = tank != null
+                        ? "TANK  SHELL " + tank.Rounds.Main + "   MORTAR " + tank.Rounds.Specials + "   BARRAGE " + tank.Rounds.Supers
+                        : "ARMS " + arms + "   " + p.Def.Special.Hud + " " + p.Specials;
                 }
+                Ui.Show(m_TankLabel, tank != null);
+                Ui.Show(m_TankBack, tank != null);
+                if (tank != null) m_TankFill.rectTransform.sizeDelta = new Vector2(MeterWidth * Mathf.Clamp01(tank.Hp / (float)tank.MaxHp), 4f);
                 Kit(p);
                 Lives(p, info.Net != null);
                 HideFrom(m_Hearts, Hearts(m_Hearts, m_NewHeart, 0, p.MaxHp, p.Hp, new Vector2(8f, -24f), 13f, 12f, Color.white));
@@ -390,8 +404,9 @@ namespace PooketSlug
                 m_StickBase.rectTransform.anchoredPosition = Down(pad.StickOrigin);
                 m_StickKnob.rectTransform.anchoredPosition = Down(pad.StickKnob);
                 m_StickKnob.color = new Color(1f, 1f, 1f, pad.StickActive ? 0.7f : 0.35f);
-                if (p.Specials != m_SpecialsShown)
-                    m_ButtonLabels[(int)ArcadePad.Button.Special].text = "SP " + (m_SpecialsShown = p.Specials);
+                int specials = p.Riding != null ? p.Riding.Rounds.Specials : p.Specials;
+                if (specials != m_SpecialsShown)
+                    m_ButtonLabels[(int)ArcadePad.Button.Special].text = "SP " + (m_SpecialsShown = specials);
                 pad.AbilityVisible = p.Kit.HasAbility;
             }
             m_ButtonLabels[(int)ArcadePad.Button.Pause].text = coop ? "EXIT" : "II";

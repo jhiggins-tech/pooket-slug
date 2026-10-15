@@ -25,8 +25,15 @@ namespace PooketSlug
         /// <summary>Seconds left slowed down by splashback from his own jet (tones2).</summary>
         public float SlowTimer;
 
+        /// <summary>
+        /// The tank this soldier is driving (spike: <c>?spike=drive</c>), or null on foot. Inside, they ride along hidden
+        /// with the tank's size, so whatever would hurt them hits the tank (<see cref="PlayerTank"/>).
+        /// </summary>
+        public PlayerTank Riding { get; private set; }
+
         float m_Coyote, m_JumpBuffer, m_FireCooldown, m_Anim, m_Muzzle, m_Invuln, m_DropThrough, m_Knock;
         bool m_Fell; // this death's fall has been counted against the lives
+        bool m_LeftTank; // just popped out of a tank's hatch this frame
         readonly CallInGesture m_CallIn = new CallInGesture(Tuning.Kit.CallInTapTime, Tuning.Kit.CallInChargeTime);
         Vector2 m_Aim = Vector2.right;
         readonly PlayerVisual m_Visual;
@@ -50,7 +57,7 @@ namespace PooketSlug
             Grounded = true; // spawned standing on the ground (matters for the title-screen pose)
         }
 
-        public bool Invulnerable => m_Invuln > 0f || Dead || Spewing;
+        public bool Invulnerable => Riding != null ? Riding.Invulnerable : m_Invuln > 0f || Dead || Spewing;
         /// <summary>tones2's spew is pouring out: he can still move, but nothing hurts him.</summary>
         bool Spewing => m_Spew != null && m_Spew.Active;
         /// <summary>How charged a tank call-in is, 0 to 1, while SP is held with the stick down.</summary>
@@ -96,7 +103,14 @@ namespace PooketSlug
                 return;
             }
 
-            SoldierInput input = InputEnabled ? Input : default;
+            if (Riding != null)
+            {
+                Ride(dt);
+                return;
+            }
+
+            SoldierInput input = InputEnabled && !m_LeftTank ? Input : default; // the press that ejected doesn't jump too
+            m_LeftTank = false;
             float moveX = input.MoveX;
             bool up = input.Up, down = input.Down;
 
@@ -182,10 +196,59 @@ namespace PooketSlug
             }
             if (input.AbilityPressed && Kit.UseAbility()) FireOnce(Def.Ability);
 
+            // jump into an empty tank, or press JUMP touching one, to climb in
+            PlayerTank tank = World.Tank;
+            if (tank != null && tank.CanBoard && !tank.Removed && Bounds.Overlaps(tank.Bounds) && (input.JumpPressed || (!Grounded && Vel.y < 0f)))
+                Board(tank);
+
             m_Invuln -= dt;
             m_Muzzle -= dt;
             FlashTimer -= dt;
             m_Anim += dt;
+        }
+
+        void Board(PlayerTank tank)
+        {
+            Riding = tank;
+            m_CallIn.Reset();
+            m_Jet?.Tick(0f, false);
+            Crouching = false;
+            tank.Board();
+            Ride(0f);
+        }
+
+        /// <summary>Inside a tank: the soldier goes where it goes, with its size; the tank does the driving.</summary>
+        void Ride(float dt)
+        {
+            PlayerTank tank = Riding;
+            if (tank.Removed)
+            {
+                LeaveTank(tank.Pos + Vector2.up * tank.Height, new Vector2(0f, Def.JumpVelocity * 0.6f), Tuning.Soldier.HurtInvulnerability);
+                return;
+            }
+            Pos = tank.Pos;
+            Vel = tank.Vel;
+            Facing = tank.Facing;
+            HalfW = tank.HalfW;
+            Height = tank.Height;
+            Grounded = tank.Grounded;
+            Kit.Tick(dt);
+            m_Invuln -= dt;
+            m_Anim += dt;
+        }
+
+        /// <summary>Out of the tank's hatch (ejecting, or thrown clear of a wreck), flying up and away, briefly safe.</summary>
+        public void LeaveTank(Vector2 at, Vector2 vel, float shield)
+        {
+            if (Riding == null) return;
+            Riding = null;
+            HalfW = Def.HalfWidth;
+            Height = Def.StandHeight;
+            Pos = at;
+            Vel = vel;
+            m_Knock = 0.35f; // the pop carries them clear before the stick takes over
+            m_LeftTank = true;
+            m_Invuln = Mathf.Max(m_Invuln, shield);
         }
 
         /// <summary>Where shots leave the gun, in the world.</summary>
@@ -269,6 +332,11 @@ namespace PooketSlug
 
         public void Hurt(int damage)
         {
+            if (Riding != null)
+            {
+                Riding.Hurt(damage);
+                return;
+            }
             if (Invulnerable) return;
             Hp -= damage;
             World.HitFeel?.Hurt(this, damage);
@@ -354,6 +422,8 @@ namespace PooketSlug
 
         public override void Render()
         {
+            Go.SetActive(Riding == null);
+            if (Riding != null) return;
             base.Render();
             if (m_Rocket != null) Go.transform.localPosition += (Vector3)m_Rocket.ShakeOffset;
             m_Visual.Apply(Pose);

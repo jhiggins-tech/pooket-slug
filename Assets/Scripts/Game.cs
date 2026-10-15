@@ -134,7 +134,7 @@ namespace PooketSlug
         /// <summary>A world for <paramref name="mission"/>, shared when <paramref name="net"/> is given.</summary>
         World NewWorld(MissionDef mission, INetLink net = null)
         {
-            var world = new World(m_Camera, mission, net) { TanksToCall = m_TankUnlocked ? 1 : 0, SkipToPilot = m_TestPilot };
+            var world = new World(m_Camera, mission, net) { TanksToCall = m_TankUnlocked || (Spike.Drive && net == null) ? 1 : 0, SkipToPilot = m_TestPilot };
             world.BossIntro += OnBossIntro;
             m_IntroName = null;
             if (m_TestCrate)

@@ -73,6 +73,8 @@ namespace PooketSlug
         public static readonly BossTankSpec BossTank = new BossTankSpec();
         /// <summary>What makes the boss tank kie's: its three attacks (<see cref="KieTankSpec"/>).</summary>
         public static readonly KieTankSpec KieTank = new KieTankSpec();
+        /// <summary>How your tank drives and fights, the one you climb into or call in (spike: <c>?spike=drive</c>).</summary>
+        public static readonly PlayerTankSpec PlayerTank = new PlayerTankSpec();
 
         // ------------------------------------------------------------------ enemies
         // Ids are the byte the co-op snapshot sent for each kind before (its SpawnKind).

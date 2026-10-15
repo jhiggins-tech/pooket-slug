@@ -19,6 +19,8 @@ namespace PooketSlug
         /// <summary>Gameplay randomness for this play-through; cosmetic effects use <see cref="Rng.Fx"/>.</summary>
         public readonly Rng Rng = new Rng(Rng.NewSeed());
         public Player Player;
+        /// <summary>Spike (<c>?spike=drive</c>, or a call-in, solo): your tank, parked, driven or rolling away; null when there's none.</summary>
+        public PlayerTank Tank;
         public BossEnemy Boss;
         /// <summary>kie's hologram on the players' side (Trollogram), or null: the goons shoot it instead while it's up.</summary>
         /// <summary>kie's Trollograms (players' side) standing in the world: every goon shoots one while it's on screen.</summary>
@@ -94,6 +96,7 @@ namespace PooketSlug
             if (!Coop && Spike.Soldier != null) soldier = Spike.Soldier; // spikes are solo only
             Player = new Player(this, soldier, start, Coop ? net.LocalSkin : 0);
             if (!Coop && Spike.Steal) Player.Kit.FillSuper(); // the Steal spike starts charged, to try it at once
+            if (!Coop && Spike.Drive) Tank = PlayerTank.Park(this, start.x + Content.PlayerTank.HalfWidth + 4f); // a tank to climb into, a few steps ahead
             View.Tick(0f);
             Spawner.SpawnAhead();
         }
@@ -109,7 +112,7 @@ namespace PooketSlug
 
         /// <summary>Tanks our soldier can still call in this mission (<c>docs/design/tanks.md</c>).</summary>
         public int TanksToCall;
-        /// <summary>Our soldier called in a tank, at this spot. Nothing drives one yet, so for now it's a marker.</summary>
+        /// <summary>Our soldier called in a tank, at this spot. Solo, it drops in (<see cref="PlayerTank"/>); co-op has no tank to drive yet.</summary>
         public event System.Action<Vector2> TankCalled;
 
         /// <summary>
@@ -186,6 +189,18 @@ namespace PooketSlug
             TanksToCall--;
             Scoring.Popup("TANK INBOUND!", at + Vector2.up * 2.4f, new Color(1f, 0.85f, 0.3f));
             View.Shake(0.2f);
+            if (!Coop)
+            {
+                // it drops in just ahead of the soldier, on screen; the tank left over, if any, is gone
+                if (Tank != null)
+                {
+                    Tank.Blow();
+                    Tank.Destroy();
+                }
+                int facing = Player.Facing;
+                float x = Mathf.Clamp(at.x + facing * 2.6f, View.Left + Content.PlayerTank.HalfWidth + 0.5f, View.Right - Content.PlayerTank.HalfWidth - 0.5f);
+                Tank = PlayerTank.Drop(this, x, facing);
+            }
             TankCalled?.Invoke(at);
         }
 
@@ -203,6 +218,15 @@ namespace PooketSlug
             Sync?.Pull();
 
             Player.Input = input;
+            if (Tank != null)
+            {
+                if (!Tank.Removed) Tank.Tick(dt); // before the soldier: a driver rides where it goes
+                if (Tank.Removed && Player.Riding != Tank)
+                {
+                    Tank.Destroy();
+                    Tank = null;
+                }
+            }
             Player.Tick(dt);
             for (int i = 0; i < Remotes.Count; i++) Remotes[i].Tick(dt);
             Spawner.SpawnAhead();
@@ -231,6 +255,7 @@ namespace PooketSlug
         public void Render()
         {
             Player.Render();
+            Tank?.Render();
             foreach (RemotePlayer r in Remotes) r.Render();
             foreach (Enemy e in Enemies)
             {

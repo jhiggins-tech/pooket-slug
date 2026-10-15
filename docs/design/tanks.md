@@ -113,6 +113,8 @@ Wreck the tank and its hologram pilot jumps out to fight you on foot with the cr
 - **A wrecked tank is gone** until the next mission.
 - **Any soldier can drive any tank you've won,** so tones2 can take kcaj's tank out.
 
+**Spike** (2026-10-15, `?spike=drive`, solo): a tank parked a few steps from the start, and one call-in that drops another in beside you (the call-in now summons this tank whenever one's unlocked, solo). Jump into it, or press JUMP touching it, to climb in. Inside, the stick drives it and points the gun the eight ways, keeping the last aim when let go; FIRE shoots a shell at once, SP lobs a mortar, SU fans a barrage (5, 3 and 1, never refilled); JUMP hops it, and down and JUMP ejects. It has its own health bar (TK, under the kit's meters); every hit meant for the driver lands on it. Ejected, it rolls on and blows up on the first goon or wall; wrecked, it throws you clear and blows up. Code: `Spikes/PlayerTank.cs`, numbers `PlayerTankSpec` (`Core/PlayerTankSpec.cs`).
+
 ## Calling in a tank
 
 - **Once per mission,** hold the stick down and hold SP, and a tank you've won drops in beside you. A tap of SP still fires your special, even while you're crouching.
