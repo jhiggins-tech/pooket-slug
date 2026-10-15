@@ -33,7 +33,7 @@ Tanks stay hidden until they matter ([progressive disclosure](README.md#progress
 
 - **Each mission ends with a crewmate's tank.** A hologram of that crewmate drives it, using the crewmate's own moves, and the tank gets faster as it gets hurt.
 - **Boss tanks move and aim like artillery.** The turret swings to aim, and the big shots charge up before they fire, so you can see them coming and get out of the way.
-- **Then comes the pilot round.** Wreck the tank and its hologram pilot jumps out to fight you on foot with the crewmate's kit. It's a mirror match, and a taste of who you're about to free. Beat the pilot and it glitches out, and the real crewmate is freed.
+- **Then comes the [pilot round](#the-pilot-round).** Wreck the tank and its hologram pilot jumps out to fight you on foot with the crewmate's kit. It's a mirror match, and a taste of who you're about to free. Beat the pilot and it glitches out, and the real crewmate is freed.
 - **Replays keep the pilot round.** Only the freeing scene is skipped.
 - **Bosses fight in arenas,** the only places where blasts dig craters in the ground. If craters prove very hard to build, arenas get solid ground like everywhere else.
 - **kie's tank comes first.** It cycles through three attacks, all from kie's kit:
@@ -65,6 +65,42 @@ A boss tank's arrival is the mission's big moment ([story](story.md#cutscenes): 
 **When it ends:** wrecking the tank stops the boss music and plays the victory sting; the pilot round that follows keeps the boss music ([tank bosses](#tank-bosses)).
 
 **Settings:** the music has its own MUSIC on/off beside SOUND, so a player can keep the sound effects and lose the tune.
+
+## The pilot round
+
+Wreck the tank and its hologram pilot jumps out to fight you on foot with the crewmate's own kit ([tank bosses](#tank-bosses), [kits](kits.md)). Draft, 2026-10-15; the choices marked *to pick* are with the owner.
+
+**Can one AI drive any kit? Yes.** Every kit is played through the same few buttons: move, aim, JUMP, FIRE, SP, SU and, for three soldiers, the ability. The game already works this way: a soldier does whatever one frame's button presses (`SoldierInput`) tell it, whether they come from a keyboard, a pad or the network. So the pilot is simply a soldier on the holograms' side, and one brain presses its buttons. Nothing about a kit has to be rewritten for the pilot to use it.
+
+**The brain** is the same for every pilot:
+- It keeps to a range, faces you and aims the eight ways a player can, with a short reaction delay and a little aim error, so it reads as a person and not an aimbot.
+- It jumps your shots and grenades when it sees them coming, and jumps or drops between levels to follow you.
+- It fires in bursts with pauses between them, and every big move gets a tell (a flash and a sound) half a second before it lands, so you can see it coming, as with the tank's charged shots.
+- It gets quicker and bolder as its health falls, like the tank.
+
+**A playbook per kit** tunes the brain with a handful of settings, not new code: the range it likes, whether FIRE is held or tapped, and when to use SP, SU and the ability. For example:
+- **kie** (Mission one): lobs Weasel Pop from mid-range and over cover; drops a Trollogram when you close in, and swaps places with it when you shoot the decoy; Steal when charged, lifting your special.
+- **tones2:** closes in for the jet; rocket jumps to dodge and to get above you; spews when you're close.
+- **kcaj:** holds Hyperfixate on you from range; rains Unmedicated when you're in the open.
+- A few moves need a line of code in the playbook, such as kiwicore's drum solo (tap FIRE on the beat) and kie's swap (press SP again). The brain itself stays the same.
+
+**Fairness:** the pilot never sees off-screen, never reads your input ahead of time, and its kit follows the same rules as yours: charges, cooldowns, the super charging from hits. Its shots hurt you and your partner, and never the goons or itself.
+
+**The fight's size:** *to pick.* How much health the pilot has, and how long the duel lasts.
+
+**In co-op:** *to pick.* How one pilot takes on two players.
+
+**When it's beaten,** the pilot glitches out like the hologram goons, and the freeing scene plays ([story](story.md#cutscenes)). The boss music keeps playing through the pilot round ([the boss intro](#the-boss-intro)).
+
+**The plan to build it:**
+1. **Sides:** a soldier gets a side, players or holograms. Shots, blasts and kit effects already know whether they're hostile; the pilot's are hostile to players.
+2. **The brain** (in `Core`, so it's tested without Unity): it reads what the pilot can see (its position, yours, shots coming, its meters) and writes the pilot's `SoldierInput` for the frame. Its tests drive it against scripted players.
+3. **The playbook** for each soldier, starting with kie's.
+4. **The hologram look** the goons use, on the pilot, and its glitch-out death.
+5. **Co-op:** the world's authority runs the pilot, and the partner's game shows it like a remote player, using the soldier pose that's already sent for players.
+6. **In the mission:** the pilot round starts when the tank is wrecked, after the boss tank build and the boss intro.
+
+**What it depends on:** Mission one's pilot is kie, so kie's own kit has to be built for players first. *To pick:* the order.
 
 ## Driving a tank
 
