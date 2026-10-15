@@ -73,6 +73,17 @@ namespace PooketSlug
         /// <summary>Charges the super all the way (a spike starts with it ready, to try it at once).</summary>
         public void FillSuper() => m_Kills = SuperKills;
 
+        /// <summary>Empties the super's charge, giving back the kills it held (kie's roulette steals it).</summary>
+        public int TakeSuper()
+        {
+            int kills = m_Kills;
+            m_Kills = 0;
+            return kills;
+        }
+
+        /// <summary>Gives back a stolen charge, on top of any since, up to full.</summary>
+        public void ReturnSuper(int kills) => m_Kills = Mathf.Min(SuperKills, m_Kills + Mathf.Max(0, kills));
+
         /// <summary>Fires the super if it's charged, emptying it.</summary>
         public bool UseSuper()
         {

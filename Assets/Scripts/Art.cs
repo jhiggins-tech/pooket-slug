@@ -243,12 +243,9 @@ namespace PooketSlug
             return skin;
         }
 
-        /// <summary>White silhouette of a sprite, used for the hit flash.</summary>
         /// <summary>A pickup's sprite.</summary>
         public static Sprite PickupSprite(PickupDef def) => s_Pickups[def.Id];
 
-        /// <summary>A projectile's sprite (the content is data in Core; how it looks lives here).</summary>
-        /// <summary>A projectile's look; spike projectiles (ids past the content tables) borrow the shell's.</summary>
         /// <summary>How <paramref name="soldier"/> looks as player <paramref name="skin"/> + 1.</summary>
         public static PlayerSkin SkinFor(SoldierDef soldier, int skin)
         {
@@ -256,8 +253,10 @@ namespace PooketSlug
             return skins[Mathf.Clamp(skin, 0, skins.Length - 1)];
         }
 
+        /// <summary>A projectile's sprite (the content is data in Core; how it looks lives here). Ids past the table borrow the shell's.</summary>
         public static Sprite ProjectileSprite(ProjectileDef def) => def.Id < s_Projectiles.Length ? s_Projectiles[def.Id] : Shell;
 
+        /// <summary>White silhouette of a sprite, used for the hit flash.</summary>
         public static Sprite Flash(Sprite s) => s != null && s_Flash.TryGetValue(s, out Sprite f) ? f : s;
 
         static Dictionary<char, Color32> Swap(Dictionary<char, uint> changes)

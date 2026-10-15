@@ -68,6 +68,19 @@ namespace PooketSlug
             }
         }
 
+        /// <summary>
+        /// Takes the look off a live enemy again (kie's real tank, after its hologram trick): its own colours back and
+        /// the ghosts gone. Its sprites come back as it draws itself.
+        /// </summary>
+        public void Detach()
+        {
+            m_Enemy.VisualRoot.localPosition = Vector3.zero;
+            if (m_Parts == null) return;
+            foreach (SpriteRenderer part in m_Parts) part.color = Color.white;
+            foreach (SpriteRenderer ghost in m_Ghosts) Object.Destroy(ghost.gameObject);
+            m_Parts = null;
+        }
+
         /// <summary>Runs after the enemy has drawn itself each frame, and redraws it as a hologram.</summary>
         public void Render()
         {

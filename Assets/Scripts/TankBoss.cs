@@ -13,6 +13,9 @@ namespace PooketSlug
     /// In co-op the authority runs it. Its shells go out as enemy shots, and its turret, charge and shots go in its
     /// network object (<see cref="NetBossState"/>), so a follower's tank swings, charges, shows the marker and kicks
     /// along with it.
+    ///
+    /// With <c>?spike=kie</c> (solo) it fights as kie's tank: its charged shots cycle through weasels, hologram copies and
+    /// a roulette that steals (<see cref="KieBoss"/>). The copies are tanks of this kind too, made with <c>decoy</c>.
     /// </summary>
     public sealed class TankBoss : BossEnemy
     {
@@ -23,15 +26,20 @@ namespace PooketSlug
         readonly BossTankSpec m_Spec;
         readonly SpriteRenderer m_Hull, m_Barrel, m_MeterBack, m_MeterFill, m_Marker;
         readonly Transform m_BarrelPivot;
-        readonly float m_HomeX;
+        readonly KieBoss m_Kie;
+        float m_HomeX;
         State m_State = State.Recoil;
         float m_StateTime, m_Timer = 1.2f, m_DriveTo, m_Angle = 150f, m_WantAngle = 150f, m_Power, m_Charge, m_Kick, m_ServoTimer, m_ExplodeTimer;
         int m_Shots, m_SeenShots = -1;
         Vector2 m_Landing;
         bool m_LandingSeen, m_SeenFire;
 
-        public TankBoss(World world, EnemyDef def, Vector2 feet) : base(world, def, feet)
+        /// <summary>A hologram copy of kie's tank: it drives and fires like the real one, but can't be hurt.</summary>
+        public readonly bool Decoy;
+
+        public TankBoss(World world, EnemyDef def, Vector2 feet, bool decoy = false) : base(world, def, feet)
         {
+            Decoy = decoy;
             m_Spec = Content.BossTank;
             m_HomeX = feet.x;
             Facing = -1; // the art faces left already; keep Visual unflipped
@@ -49,6 +57,34 @@ namespace PooketSlug
             m_Marker.sprite = Art.LandingMarker;
             m_Marker.sortingOrder = SortOrder.Effects;
             m_Marker.enabled = false;
+            if (decoy)
+            {
+                Engaged = true;
+                m_Timer = World.Rng.Range(0.6f, 1.6f);
+            }
+            else if (Spike.Kie && !world.Coop) m_Kie = new KieBoss(world, this); // spikes are solo only
+        }
+
+        /// <summary>Rage, for kie's attacks: how much quicker it is, hurt.</summary>
+        public float Fury => Rage;
+
+        /// <summary>The middle of its patrol. Kie's hologram trick moves it.</summary>
+        public float HomeX
+        {
+            get => m_HomeX;
+            set => m_HomeX = value;
+        }
+
+        public override void Hurt(int damage)
+        {
+            if (Decoy)
+            {
+                if (Shootable) FlashHit(); // a copy only glitches
+                return;
+            }
+            int before = Hp;
+            base.Hurt(damage);
+            if (Hp < before) m_Kie?.OnHurt(before - Hp);
         }
 
         SpriteRenderer Bar(string name, int order, Color color)
@@ -112,7 +148,8 @@ namespace PooketSlug
 
             Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
             MoveWithTiles(dt);
-            World.Combat.DamageAvatarsTouching(Bounds, 1);
+            if (!Decoy) World.Combat.DamageAvatarsTouching(Bounds, 1);
+            m_Kie?.Tick(dt);
         }
 
         /// <summary>Turns the turret toward the angle it wants, whirring.</summary>
@@ -154,7 +191,7 @@ namespace PooketSlug
         void StartCharge()
         {
             m_Landing = Predict(Muzzle, Velocity(m_Angle, m_Power));
-            m_LandingSeen = true;
+            m_LandingSeen = m_Kie == null || m_Kie.NextLands; // kie's copies and roulette land nowhere
             Sfx.Play(Sfx.Charge, 0.5f);
             Enter(State.Charge);
         }
@@ -182,6 +219,13 @@ namespace PooketSlug
 
         void Fire()
         {
+            if (m_Kie != null && m_Kie.Fire(Muzzle, m_Angle))
+            {
+                m_LandingSeen = false;
+                m_Timer = m_Spec.RecoilTime / Rage + m_Kie.Wait;
+                Enter(State.Recoil);
+                return;
+            }
             m_Shots++;
             bool spread = m_Spec.SpreadEvery > 0 && m_Shots % m_Spec.SpreadEvery == 0;
             Vector2 muzzle = Muzzle;
@@ -245,6 +289,7 @@ namespace PooketSlug
 
         protected override void Die()
         {
+            m_Kie?.OnDie();
             base.Die();
             m_LandingSeen = false;
             World.BossDefeatedPending = true;
@@ -305,6 +350,7 @@ namespace PooketSlug
             // The landing marker blinks faster as the shot gets close.
             m_Marker.enabled = m_LandingSeen && charging && ((int)(Anim * Mathf.Lerp(6f, 20f, charge)) % 2 == 0);
             if (m_Marker.enabled) m_Marker.transform.localPosition = new Vector3(Snap(m_Landing.x) - Snap(Pos.x), Snap(m_Landing.y) - Snap(Pos.y), 0f);
+            m_Kie?.Render();
         }
     }
 }
