@@ -12,12 +12,12 @@ Up: [Design](README.md)
 
 From [co-op](player.md#co-op): when both players' supers are charged, they can fire them together for a screen-clearing team super, and each pair of soldiers has its own combo.
 
-- **Firing it:** when both supers are charged, a TEAM badge lights on both SU buttons. One player presses SU, and their partner has about three seconds to press SU too. If the partner answers, the team super goes off; if not, the first player's own super fires as usual.
+- **Firing it** (picked 2026-10-15): when both supers are charged and the pair has a combo, a TEAM button appears on both players' pads. Either player can fire it alone, and it spends both supers. SU still fires your own super as usual.
 - **What it costs:** both supers, emptied. It's stronger than the two supers fired separately, and it clears the screen of goons. Against a boss it lands a big hit but doesn't end the fight.
 - **The look:** the action freezes for a beat, and a split card slams in with both soldiers' portraits and the combo's name, Street Fighter style, while the announcer calls "TEAM SUPER!". The combo then plays out across the whole screen, mixing both kits' effects.
 - **Nobody is hurt by it:** like every co-op attack, it never hurts either player ([friendly fire is off](player.md#co-op)).
 - **Two different soldiers** are always in co-op ([player](player.md#co-op)), so every pair below is two different crewmates.
-- **Fallback:** while a pair's combo isn't built yet, the two supers simply fire together at once, each a little stronger, with the same split card reading TEAM SUPER!.
+- **No combo, no team super** (picked 2026-10-15): the TEAM button only appears for pairs whose combo is built. Other pairs fire their supers separately.
 
 ## The combos
 
@@ -56,8 +56,8 @@ Eight soldiers make 28 pairs. The pairs open up as the crew is freed: tones2 and
 
 ## Building them
 
-- **Start with Sewer Rats** (tones2 + kie), the only pair co-op has after Mission one. Build the trigger, the split card and the fallback with it.
-- **Each later combo is built when its pair can first happen,** so a combo arrives with each newly freed crewmate.
+- **Start with Sewer Rats** (tones2 + kie), the only pair co-op has after Mission one. Build the TEAM button and the split card with it.
+- **Each later combo is built when its pair can first happen** (picked 2026-10-15), so a combo arrives with each newly freed crewmate.
 - **Each combo reuses its pair's own kit pieces** (sludge, weasels, pills, waves and so on), so a combo is mostly choreography, not new weapons.
 - **In co-op,** the world's authority runs the combo, like every attack that hits goons.
 
