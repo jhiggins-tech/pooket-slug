@@ -127,6 +127,8 @@ namespace PooketSlug
         Drone,
         /// <summary>The boss: patrols its arena, lobs shells and sweeps machine-gun bursts.</summary>
         Tank,
+        /// <summary>An explosive barrel: stands still and blows up when it's destroyed.</summary>
+        Barrel,
     }
 
     /// <summary>One kind of enemy: its body, health and worth. The co-op snapshot carries its id.</summary>

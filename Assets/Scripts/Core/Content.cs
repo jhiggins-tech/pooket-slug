@@ -47,6 +47,7 @@ namespace PooketSlug
         public static readonly EnemyDef Runner = new EnemyDef(1, "Knife runner", EnemyBrain.Runner, halfWidth: 0.3f, height: 1.35f, hp: 2, score: 150);
         public static readonly EnemyDef Drone = new EnemyDef(2, "Drone", EnemyBrain.Drone, halfWidth: 0.5f, height: 0.7f, hp: 3, score: 200);
         public static readonly EnemyDef Tank = new EnemyDef(3, "Tank", EnemyBrain.Tank, halfWidth: 1.5f, height: 1.3f, hp: 45, score: 3000);
+        public static readonly EnemyDef Barrel = new EnemyDef(4, "Explosive barrel", EnemyBrain.Barrel, halfWidth: 0.38f, height: 1.1f, hp: 3, score: 100);
 
         // ------------------------------------------------------------------ pickups
 
@@ -73,7 +74,7 @@ namespace PooketSlug
 
         public static readonly IReadOnlyList<ProjectileDef> Projectiles = ById(p => p.Id, Bullet, HeavyBullet, EnemyBullet, Shell, Grenade, Bomb);
         public static readonly IReadOnlyList<WeaponDef> Weapons = ById(w => w.Id, Pistol, HeavyMachineGun, Rifle, Cannon, GrenadeThrow, DroneBomb, TankGun);
-        public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank);
+        public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank, Barrel);
         public static readonly IReadOnlyList<PickupDef> Pickups = ById(p => p.Id, HeavyMachineGunCrate, BombCrate, Medkit, OneUp);
         public static readonly IReadOnlyList<SoldierDef> Soldiers = ById(s => s.Id, Trooper);
 
@@ -111,6 +112,7 @@ namespace PooketSlug
                 case SpawnKind.Runner: return Runner;
                 case SpawnKind.Drone: return Drone;
                 case SpawnKind.Tank: return Tank;
+                case SpawnKind.Barrel: return Barrel;
                 default: return null;
             }
         }

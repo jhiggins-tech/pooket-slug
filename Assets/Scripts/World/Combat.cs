@@ -40,7 +40,7 @@ namespace PooketSlug
         /// <summary>Our soldier hit an enemy: apply it (authority) or report it to the authority.</summary>
         public void DamageEnemy(Enemy e, int damage)
         {
-            if (e.Shootable && !e.KillCredited && damage >= e.Hp)
+            if (e.Shootable && !e.KillCredited && damage >= e.Hp && e.Def.Brain != EnemyBrain.Barrel)
             {
                 e.KillCredited = true;
                 m_World.OnPlayerKill(e);

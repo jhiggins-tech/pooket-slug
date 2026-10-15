@@ -98,7 +98,11 @@ namespace PooketSlug
         public static Sprite Tank, Bullet, HeavyBullet, EnemyBullet, Shell, Grenade, Bomb, MuzzleFlash;
         static Sprite[] s_Projectiles, s_Pickups;
         public static Sprite CrateHeavy, CrateBombs, Medkit, OneUp, Flag, Pixel, Sky, Mountains, Ruins;
-        public static Sprite Watchtower, MotorPoolGate;
+        public static Sprite Watchtower, MotorPoolGate, Barrel, SteamVent, Icicles, LiftCar, LiftRails;
+        /// <summary>[0] not reached, [1] lit.</summary>
+        public static Sprite[] Checkpoint;
+        /// <summary>[0] off, [1] and [2] live (sparking).</summary>
+        public static Sprite[] LiveFence;
         public static Texture2D HeartTex, WhiteTex, DiscTex;
 
         static Dictionary<char, Color32> s_Pal;
@@ -458,6 +462,8 @@ namespace PooketSlug
 
         static readonly Color32 Haze = Hex(0xd0a040), Panel = Hex(0x7a808e), PanelLight = Hex(0x9aa0ac);
         static readonly Color32 PanelEdge = Hex(0x4e5260), PanelDark = Hex(0x3a3e4a), Red = Hex(0xd83838), RedLight = Hex(0xff7060);
+        static readonly Color32 RedDark = Hex(0x902020), White = Hex(0xffffff), Ember = Hex(0xf08830), SparkBlue = Hex(0x90f4ff);
+        static readonly Color32 HazardShade = Hex(0xb08a20), SignalGreen = Hex(0x50ff80);
 
         static void BuildScenery()
         {
@@ -522,6 +528,106 @@ namespace PooketSlug
             }
             gate.Box(44, 52, 12, 4, SteelDark, SteelLight, SteelDark);
             MotorPoolGate = gate.ToSprite();
+
+            // An explosive barrel: a red fuel drum with a hazard band and a flame diamond.
+            var barrel = new Pen(12, 18);
+            barrel.Rect(0, 3, 12, 15, Red);
+            barrel.Rect(3, 0, 6, 3, Steel);
+            barrel.Rect(4, 0, 2, 1, SteelLight);
+            barrel.Rect(1, 2, 10, 1, RedDark);
+            barrel.Rect(2, 3, 2, 15, RedLight);
+            barrel.Rect(10, 3, 1, 15, RedDark);
+            barrel.Stripes(0, 6, 12, 3, Hazard, HazardDark, 2);
+            for (int j = 0; j < 7; j++)
+            {
+                int h = 3 - Mathf.Abs(j - 3);
+                barrel.Rect(6 - h, 10 + j, 2 * h + 1, 1, White);
+            }
+            barrel.Rect(6, 12, 1, 3, Red);
+            barrel.Set(5, 13, Ember);
+            Barrel = barrel.ToSprite();
+
+            // A live fence: chain-link between posts with a high-voltage sign; sparks run over it while it's live.
+            LiveFence = new Sprite[3];
+            for (int k = 0; k < 3; k++)
+            {
+                var fence = new Pen(28, 26);
+                foreach (int x in new[] { 1, 25 }) fence.Box(x, 2, 2, 24, Steel, SteelLight, SteelDark);
+                for (int y = 4; y < 26; y++)
+                    for (int x = 3; x < 25; x++)
+                        if ((x + y) % 4 == 0 || ((x - y) % 4 + 4) % 4 == 0) fence.Set(x, y, SteelLight);
+                fence.Box(7, 10, 14, 7, Hazard, Hazard, HazardShade);
+                fence.Text(10, 11, "HV", HazardDark);
+                if (k > 0)
+                {
+                    var rng = new System.Random(20 + k);
+                    int x = k == 1 ? 4 : 22, y = k == 1 ? 4 : 20;
+                    for (int i = 0; i < 9; i++)
+                    {
+                        int nx = Mathf.Clamp(x + rng.Next(-3, 4), 0, 27), ny = Mathf.Clamp(y + rng.Next(-3, 4), 0, 25);
+                        fence.Line(x, y, nx, ny, SparkBlue);
+                        x = nx;
+                        y = ny;
+                    }
+                    fence.Rect(x - 1, y - 1, 3, 3, White);
+                }
+                LiveFence[k] = fence.ToSprite();
+            }
+
+            // A steam vent's grate, flush with the ground (the steam is particles).
+            var vent = new Pen(18, 5);
+            vent.Box(0, 0, 18, 5, Steel, SteelLight, SteelDark);
+            for (int x = 2; x < 16; x += 3) vent.Rect(x, 1, 1, 3, SteelDark);
+            SteamVent = vent.ToSprite();
+
+            // Icicles, hanging from their top edge.
+            var ice = new Pen(20, 14);
+            int[][] spikes = { new[] { 1, 13 }, new[] { 5, 9 }, new[] { 8, 12 }, new[] { 12, 7 }, new[] { 15, 11 } };
+            foreach (int[] sp in spikes)
+            {
+                for (int j = 0; j < sp[1]; j++)
+                {
+                    int w = Mathf.Max(1, Mathf.RoundToInt(4f * (1f - j / (float)sp[1])));
+                    ice.Rect(sp[0] + (4 - w) / 2, j, w, 1, Snow);
+                }
+                ice.Rect(sp[0] + 1, 0, 1, sp[1] - 3, SnowTop);
+            }
+            ice.Rect(0, 0, 20, 2, SnowTop);
+            Icicles = ice.ToSprite(new Vector2(0.5f, 1f - 1f / 16f));
+
+            // A lift's car (hanging from its top edge, which is what soldiers stand on) and its rails.
+            var car = new Pen(32, 8);
+            car.Rect(0, 0, 32, 1, SnowTop);
+            car.Stripes(0, 1, 32, 3, Hazard, HazardDark, 3);
+            car.Box(0, 4, 32, 4, Steel, SteelLight, SteelDark);
+            car.Rect(14, 4, 4, 1, Glow);
+            LiftCar = car.ToSprite(new Vector2(0.5f, 1f - 1f / 10f));
+            int railH = Lift.Rise * 16 + 24;
+            var rails = new Pen(38, railH);
+            foreach (int x in new[] { 0, 35 }) rails.Box(x, 0, 3, railH, Steel, SteelLight, SteelDark);
+            rails.Box(0, 0, 38, 4, Steel, SteelLight, SteelDark);
+            for (int y = 12; y < railH; y += 16)
+            {
+                rails.Rect(0, y, 3, 1, SteelDark);
+                rails.Rect(35, y, 3, 1, SteelDark);
+            }
+            rails.Rect(18, 4, 2, 4, SteelDark);
+            rails.Rect(0, 0, 38, 1, SnowTop);
+            LiftRails = rails.ToSprite();
+
+            // The checkpoint at the boss door: a striped post with a signal lamp, red until it's reached.
+            Checkpoint = new Sprite[2];
+            for (int k = 0; k < 2; k++)
+            {
+                var post = new Pen(16, 36);
+                post.Box(2, 30, 12, 6, Panel, PanelLight, PanelEdge);
+                post.Rect(2, 30, 12, 1, SnowTop);
+                post.Stripes(6, 8, 4, 22, Hazard, HazardDark, 3);
+                post.Box(3, 0, 10, 9, Steel, SteelLight, SteelDark);
+                post.Rect(5, 2, 6, 5, k == 1 ? SignalGreen : Red);
+                post.Rect(5, 2, 2, 2, White);
+                Checkpoint[k] = post.ToSprite();
+            }
         }
 
         /// <summary>
@@ -588,7 +694,7 @@ namespace PooketSlug
             static readonly Dictionary<char, string> s_Font = new Dictionary<char, string>
             {
                 { 'B', "##.#.###.#.###." }, { 'A', ".#.#.####.##.#" + "#" }, { 'Y', "#.##.#.#..#..#." },
-                { '0', "####.##.##.####" }, { '7', "###..#.#..#..#." }, { ' ', "..............." },
+                { '0', "####.##.##.####" }, { 'H', "#.##.####.##.#" + "#" }, { 'V', "#.##.##.##.#.#." }, { '7', "###..#.#..#..#." }, { ' ', "..............." },
             };
 
             /// <summary>Stencils text in a 3x5 pixel font.</summary>
@@ -603,10 +709,11 @@ namespace PooketSlug
                 }
             }
 
-            public Sprite ToSprite()
+            /// <summary>Outlines it and makes the sprite: by default its feet stand on the ground (below the outline).</summary>
+            public Sprite ToSprite(Vector2? pivot = null)
             {
                 m_C.Outline(OutlineColor);
-                return Art.ToSprite(m_C, new Vector2(0.5f, 1f / m_C.H)); // feet on the ground (below the outline)
+                return Art.ToSprite(m_C, pivot ?? new Vector2(0.5f, 1f / m_C.H), withFlash: true);
             }
         }
 

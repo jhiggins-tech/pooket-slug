@@ -139,13 +139,18 @@ namespace PooketSlug
             foreach (Spawn s in world.Level.Spawns)
             {
                 if (Content.EnemyFor(s.Kind)?.Brain != EnemyBrain.Tank) continue;
-                float x = s.Pos.x - 16f;
-                world.Player.Pos = new Vector2(x, world.Level.TopSurfaceY(x));
-                world.View.JumpTo(x + Tuning.Camera.LookAhead);
-                world.View.Tick(0f);
-                world.Spawner.SpawnAhead();
+                StartAt(world, s.Pos.x - 16f);
                 return;
             }
+        }
+
+        /// <summary>Puts the soldier, and the camera, at <paramref name="x"/>; what's behind is left behind.</summary>
+        static void StartAt(World world, float x)
+        {
+            world.Player.Pos = new Vector2(x, world.Level.TopSurfaceY(x));
+            world.View.JumpTo(x + Tuning.Camera.LookAhead);
+            world.View.Tick(0f);
+            world.Spawner.SpawnAhead();
         }
 
         void SetState(GameState state)
@@ -164,8 +169,15 @@ namespace PooketSlug
 
         void Restart()
         {
+            // Lost after the checkpoint at the boss door: start again there (docs/design/levels.md, Missions).
+            float checkpoint = m_State == GameState.GameOver ? m_World.CheckpointX : -1f;
             m_World.Dispose();
             m_World = NewWorld(m_Mission);
+            if (checkpoint >= 0f)
+            {
+                m_World.CheckpointX = checkpoint;
+                StartAt(m_World, checkpoint);
+            }
             m_StartNote = null;
             StartSolo();
         }

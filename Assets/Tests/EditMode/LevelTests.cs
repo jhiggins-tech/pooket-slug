@@ -64,12 +64,13 @@ namespace PooketSlug.Tests
         [Test]
         public void EachMarkerMakesItsKind()
         {
-            var spawns = new Level(new[] { "srdTHB+FUWM", "###########" }).Spawns;
+            var spawns = new Level(new[] { "srdTHB+FUWMxZVILK", "#################" }).Spawns;
             var kinds = new[]
             {
                 SpawnKind.Soldier, SpawnKind.Runner, SpawnKind.Drone, SpawnKind.Tank,
                 SpawnKind.CrateHeavy, SpawnKind.CrateBombs, SpawnKind.Medkit, SpawnKind.Flag, SpawnKind.OneUp,
-                SpawnKind.Watchtower, SpawnKind.MotorPool,
+                SpawnKind.Watchtower, SpawnKind.MotorPool, SpawnKind.Barrel, SpawnKind.LiveFence, SpawnKind.SteamVent,
+                SpawnKind.Icicles, SpawnKind.Lift, SpawnKind.Checkpoint,
             };
             Assert.AreEqual(kinds.Length, spawns.Count);
             for (int i = 0; i < kinds.Length; i++) Assert.AreEqual(kinds[i], spawns[i].Kind);

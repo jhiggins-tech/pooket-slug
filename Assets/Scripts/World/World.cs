@@ -47,6 +47,8 @@ namespace PooketSlug
         /// <summary>The mission being played; its map is <see cref="Level"/>.</summary>
         public readonly MissionDef Mission;
         public float Elapsed;
+        /// <summary>Where the checkpoint our soldier has passed stands, or -1 (see <see cref="Checkpoint"/>).</summary>
+        public float CheckpointX = -1f;
         public bool Victory, BossDefeatedPending;
         public float VictoryTime;
 
@@ -164,6 +166,7 @@ namespace PooketSlug
             for (int i = 0; i < Projectiles.Count; i++) Projectiles[i].Tick(dt);
             for (int i = 0; i < Pickups.Count; i++) Pickups[i].Tick(dt);
             for (int i = 0; i < Effects.Count; i++) Effects[i].Tick(dt);
+            for (int i = 0; i < Props.Count; i++) Props[i].Tick(dt); // scenery does nothing; hazards hurt
 
             Combat.Collide();
             Scoring.Tick(dt);
@@ -172,6 +175,7 @@ namespace PooketSlug
             Sweep(Projectiles);
             Sweep(Pickups);
             Sweep(Effects);
+            Sweep(Props);
 
             View.Tick(dt);
 

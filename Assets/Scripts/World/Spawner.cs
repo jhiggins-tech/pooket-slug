@@ -37,10 +37,12 @@ namespace PooketSlug
                 case EnemyBrain.Tank:
                     e = w.Boss = Spike.Tank && !w.Coop ? new ArtilleryTank(w, def, pos) : (BossEnemy)new TankBoss(w, def, pos); // spikes are solo only
                     break;
+                case EnemyBrain.Barrel: e = new Barrel(w, def, pos); break;
                 default: return null;
             }
             e.NetId = id;
-            if (Spike.Holo && !w.Coop && def.Brain != EnemyBrain.Tank) e.Look = new HoloLook(e); // the goons are holograms; the tank is real
+            if (Spike.Holo && !w.Coop && def.Brain != EnemyBrain.Tank && def.Brain != EnemyBrain.Barrel)
+                e.Look = new HoloLook(e); // the goons are holograms; the tank and barrels are real
             return e;
         }
 
@@ -78,6 +80,15 @@ namespace PooketSlug
             else if (s.Kind == SpawnKind.Flag) w.Props.Add(new Prop(w, Art.Flag, s.Pos, SortOrder.Pickups));
             else if (s.Kind == SpawnKind.Watchtower) w.Props.Add(new Prop(w, Art.Watchtower, s.Pos, SortOrder.Scenery));
             else if (s.Kind == SpawnKind.MotorPool) w.Props.Add(new Prop(w, Art.MotorPoolGate, s.Pos, SortOrder.Scenery));
+            else if (s.Kind == SpawnKind.LiveFence) w.Props.Add(new LiveFence(w, s.Pos));
+            else if (s.Kind == SpawnKind.SteamVent) w.Props.Add(new SteamVent(w, s.Pos));
+            else if (s.Kind == SpawnKind.Icicles) w.Props.Add(new Icicles(w, s.Pos));
+            else if (s.Kind == SpawnKind.Lift)
+            {
+                w.Props.Add(new Prop(w, Art.LiftRails, s.Pos + new Vector2(0.5f, 0f), SortOrder.Scenery));
+                w.Props.Add(new Lift(w, s.Pos));
+            }
+            else if (s.Kind == SpawnKind.Checkpoint) w.Props.Add(new Checkpoint(w, s.Pos));
         }
 
         public void SpawnAhead()
