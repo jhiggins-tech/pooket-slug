@@ -79,7 +79,7 @@ namespace PooketSlug.Tests
         [Test]
         public void UnknownCharactersAreEmpty()
         {
-            var level = new Level(new[] { "x?", "##" });
+            var level = new Level(new[] { "?%", "##" });
             Assert.AreEqual(Level.Empty, level.Get(0, 1));
             Assert.AreEqual(Level.Empty, level.Get(1, 1));
             Assert.AreEqual(0, level.Spawns.Count);
