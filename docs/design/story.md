@@ -36,7 +36,7 @@ Cutscenes are **in-engine scenes**: the game's own art, drawn in code, with spee
 - **Each lasts a few seconds.** Tap to move on. Once you've seen a scene you can skip it, but a reveal always plays the first time.
 - **There are five kinds:**
   - **Briefing**, before a mission: where you're going, and who's held there.
-  - **Boss intro:** a warning banner, the music changes, and the tank makes its entrance.
+  - **Boss intro:** a warning banner, the music changes, and the tank makes its entrance ([tanks](tanks.md#the-boss-intro)).
   - **Reveal:** the first time something new appears. It plays once, ever.
   - **Freeing:** the fake pilot glitches out, and the real crewmate appears and joins.
   - **Debrief:** the mission's tally, XP and rank, then anything newly unlocked.
