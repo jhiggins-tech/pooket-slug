@@ -19,6 +19,7 @@ There are two kinds of music: **loops**, which play under a whole stretch of the
 | **Title theme** ("Snack Run") | The title screen and every menu: missions, crew, looks, settings, the co-op lobby | Upbeat and catchy, major key. The hook the game is remembered by: a pulse melody that's easy to hum | 132 bpm | About 30 s (16 bars) |
 | **Mission one theme** ("Steel Night") | The run through the military base, from the caption card to the boss door | A snare-led military march, minor key and driving, with searchlight-sweep arpeggios. Metal Slug's base levels, on a Game Boy | 150 bpm | About 50 s: an A part and a B part, 32 bars |
 | **Boss theme** ("Tank Alert") | Every tank boss fight and its pilot round | Faster and in a minor key, as picked for the boss intro: a pounding triangle bass, alarm-like pulse stabs, double-time hi-hats | 172 bpm | About 25 s (16 bars) |
+| **Boss theme, final section** ("Tank Alert (final)") | The boss fight's second stage: the pilot round, once the tank is wrecked (asked for 2026-10-15) | The boss theme even faster: its climbing half first, a hi-hat on every sixteenth, sweeps on top | 200 bpm | About 19 s (16 bars) |
 | **Debrief** ("Debrief") | The debrief screen, under the count-ups | Laid back and pleased with itself: a swung, quiet groove that leaves room for the tally's blips and the rank-up fanfare | 100 bpm | About 20 s (8 bars) |
 | **Each later mission's theme** | That mission's run | Its own melody and feel, written with its map (Mission two is kcaj's) | Its own | About 50 s |
 
@@ -27,7 +28,7 @@ There are two kinds of music: **loops**, which play under a whole stretch of the
 | Sting | Plays | Length |
 |---|---|---|
 | **Mission start** | Under the caption card, as the announcer calls the start, leading straight into the mission theme | About 2 s |
-| **Boss victory** | When the tank is wrecked, over the boss theme, which carries on through the pilot round ([when it ends](tanks.md#the-boss-intro)) | About 2 s |
+| **Boss victory** | When the tank is wrecked, leading into the boss theme's final section for the pilot round | About 2 s |
 | **Mission complete** | As MISSION COMPLETE! lands (the freeing, or the gate on the first drive), after the boss theme stops | About 3 s |
 | **Rank up** | The RANK UP! stamp in the debrief: the chip fanfare the [first debrief](story.md#the-first-debrief) calls for | About 2 s |
 | **Game over** | When the last continue runs out: a sad descending run that ends on a buzz | About 3 s |
@@ -65,7 +66,7 @@ Everything is code: no audio files, nothing to download, and a track is a few li
 
 **Writing the notes:** Claude composes each track in the notation, then renders it to a WAV in CI so it can be heard in a browser before it goes in the game. Each track goes on the Roadmap with a listen link, like a spike.
 
-**First cut** (spike, 2026-10-15, `?spike=music`, solo only): the notation (`Core/Score.cs`), the renderer (`Core/MusicRender.cs`), the player (`Music.cs`), Mission one's theme, the boss theme and the mission start and boss victory stings (`Core/MusicTracks.cs`), hooked into the boss intro. Every track is rendered at launch for now.
+**First cut** (spike, 2026-10-15, `?spike=music`, solo only): the notation (`Core/Score.cs`), the renderer (`Core/MusicRender.cs`), the player (`Music.cs`), Mission one's theme, the boss theme and its final section, and the mission start and boss victory stings (`Core/MusicTracks.cs`), hooked into the boss intro. Every track is rendered at launch for now.
 
 **Build order:** the notation and player first, with the boss theme (the intro already waits on it), then Mission one's theme, the stings, and the title and debrief.
 

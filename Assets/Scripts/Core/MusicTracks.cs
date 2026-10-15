@@ -190,6 +190,27 @@ namespace PooketSlug
             Drums = Repeat(Repeat(AlertBeat, 7) + AlertFill, 2),
         };
 
+        // ---------------------------------------------------------------- the boss's second stage: "Tank Alert (final)"
+
+        // Every sixteenth a hat, kicks and snares on top: the last push.
+        const string FinalBeat = "k+h:1 h s+h h k+h h s+h h k+h k+h s+h h k+h h s+h s ";
+
+        /// <summary>
+        /// The boss theme's final section, for the fight's second stage (the hologram pilot on foot): the same tune,
+        /// even faster, its climbing half first, with a hat on every sixteenth and the sweeps on top. 16 bars.
+        /// </summary>
+        public static readonly MusicTrack TankAlertFinal = new MusicTrack
+        {
+            Name = "Tank Alert (final)",
+            Bpm = 200f,
+            Loop = true,
+            LeadDuty = 0.125f,
+            Lead = AlertB + AlertA,
+            Harmony = Sweeps(AlertChords) + Sweeps(AlertChords),
+            Bass = Gallops(AlertChords) + Gallops(AlertChords),
+            Drums = Repeat(Repeat(FinalBeat, 3) + AlertFill, 4),
+        };
+
         // ---------------------------------------------------------------- stings
 
         /// <summary>Under the caption card as the mission starts, leading into Mission one's theme.</summary>
@@ -216,6 +237,6 @@ namespace PooketSlug
             Drums = "s:1 s s s k:2 c:8",
         };
 
-        public static readonly MusicTrack[] All = { SteelNight, TankAlert, MissionStart, BossVictory };
+        public static readonly MusicTrack[] All = { SteelNight, TankAlert, TankAlertFinal, MissionStart, BossVictory };
     }
 }

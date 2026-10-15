@@ -304,13 +304,15 @@ namespace PooketSlug
         /// <summary>The tank's first shot: the boss music kicks in.</summary>
         void OnBossFightStarted(BossEnemy boss)
         {
-            if (MusicOn) Music.Play(MusicTracks.TankAlert);
+            if (MusicOn && Music.Playing != MusicTracks.TankAlertFinal) Music.Play(MusicTracks.TankAlert);
         }
 
-        /// <summary>The tank's wrecked: a victory sting over the boss music, which runs on through the pilot round.</summary>
+        /// <summary>The tank's wrecked: a victory sting, then the boss theme's even faster final section for the pilot round.</summary>
         void OnTankWrecked()
         {
-            if (MusicOn) Music.Sting(MusicTracks.BossVictory);
+            if (!MusicOn) return;
+            Music.Sting(MusicTracks.BossVictory);
+            Music.Play(MusicTracks.TankAlertFinal, MusicTracks.BossVictory.Seconds);
         }
 
         /// <summary>Moves the intro on, and plays the siren and the announcer's lines as they come due.</summary>

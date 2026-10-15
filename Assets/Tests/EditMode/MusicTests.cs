@@ -66,6 +66,7 @@ namespace PooketSlug.Tests
             Assert.AreEqual(32 * MusicTracks.Bar, MusicTracks.SteelNight.Steps);
             Assert.AreEqual(16 * MusicTracks.Bar, MusicTracks.TankAlert.Steps);
             Assert.Greater(MusicTracks.TankAlert.Bpm, MusicTracks.SteelNight.Bpm);
+            Assert.Greater(MusicTracks.TankAlertFinal.Bpm, MusicTracks.TankAlert.Bpm, "the second stage is faster still");
             Assert.That(MusicTracks.SteelNight.Seconds, Is.InRange(45f, 55f));
             Assert.That(MusicTracks.TankAlert.Seconds, Is.InRange(20f, 30f));
             Assert.Less(MusicTracks.MissionStart.Seconds, 3f);
