@@ -73,9 +73,10 @@ namespace PooketSlug
             foreach (Enemy e in w.Enemies)
                 if (!e.Dying && !m_SeenIds.Contains(e.NetId)) e.Remove();
 
-            if (w.Boss is TankBoss boss && !boss.Removed && Net.ReadBoss(out NetBossState bs))
+            if (w.Boss != null && !w.Boss.Removed && Net.ReadBoss(out NetBossState bs))
             {
-                if (!m_BossFollowed) Log.Net.Info("Following the boss tank's turret from the authority");
+                BossEnemy boss = w.Boss;
+                if (!m_BossFollowed) Log.Net.Info(boss is TankBoss ? "Following the boss tank's turret from the authority" : "Following the boss from the authority: " + boss.DisplayName); // the co-op test looks for the first
                 m_BossFollowed = true;
                 boss.ApplyNet(bs);
             }
@@ -131,7 +132,7 @@ namespace PooketSlug
                 if (!pk.Removed && !pk.Granted && pk.NetId >= 0)
                     m_OutgoingPickups.Add(new NetPickupState { Id = pk.NetId, Def = pk.Def, Pos = pk.Pos });
             Net.WritePickups(m_OutgoingPickups);
-            if (w.Boss is TankBoss boss && !boss.Removed) Net.WriteBoss(boss.NetState);
+            if (w.Boss != null && !w.Boss.Removed) Net.WriteBoss(w.Boss.NetState);
         }
 
         // ------------------------------------------------------------------ INetEvents (delivered by the session)

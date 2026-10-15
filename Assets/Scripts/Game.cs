@@ -42,6 +42,7 @@ namespace PooketSlug
         bool m_TestCrate;       // ?test=crate: a crate just ahead of the start, so the co-op test sees one handed out
         bool m_TestOneUp;       // ?test=1up: a 1-up just ahead of the start
         bool m_TestBoss;        // ?test=boss: a game starts just before the boss's arena (co-op too: the co-op test's boss round)
+        bool m_TestPilot;       // ?test=pilot: the same, and the tank's wrecked as it wakes, so the pilot round starts at once
         string m_Notice, m_StartNote;
         float m_NoticeTime, m_LeaveArmed;
 
@@ -96,7 +97,8 @@ namespace PooketSlug
             string[] tests = (PageQuery.Get(url, "test") ?? "").ToLowerInvariant().Split(',');
             m_TestCrate = Array.IndexOf(tests, "crate") >= 0;
             m_TestOneUp = Array.IndexOf(tests, "1up") >= 0;
-            m_TestBoss = Array.IndexOf(tests, "boss") >= 0;
+            m_TestPilot = Array.IndexOf(tests, "pilot") >= 0;
+            m_TestBoss = m_TestPilot || Array.IndexOf(tests, "boss") >= 0;
 
             m_World = NewWorld(m_Mission);
             m_Hud = new HudView(transform);
@@ -125,7 +127,7 @@ namespace PooketSlug
         /// <summary>A world for <paramref name="mission"/>, shared when <paramref name="net"/> is given.</summary>
         World NewWorld(MissionDef mission, INetLink net = null)
         {
-            var world = new World(m_Camera, mission, net) { TanksToCall = m_TankUnlocked ? 1 : 0 };
+            var world = new World(m_Camera, mission, net) { TanksToCall = m_TankUnlocked ? 1 : 0, SkipToPilot = m_TestPilot };
             world.BossIntro += OnBossIntro;
             m_IntroName = null;
             if (m_TestCrate)

@@ -85,6 +85,9 @@ namespace PooketSlug
         /// <summary>kie's tank's weasels and hologram copies (<see cref="KieTank"/>), made mid-fight.</summary>
         public static readonly EnemyDef Weasel = new EnemyDef(5, "Weasel", EnemyBrain.Weasel, halfWidth: 0.35f, height: 0.55f, hp: 1, score: 50);
         public static readonly EnemyDef TankCopy = new EnemyDef(6, "Tank copy", EnemyBrain.TankCopy, halfWidth: 1.5f, height: 1.3f, hp: 45, score: 100);
+        /// <summary>Hologram kie, who jumps out of the wrecked tank (<see cref="KiePilotSpec"/>), and the Trollogram he drops.</summary>
+        public static readonly EnemyDef Pilot = new EnemyDef(7, "Hologram kie", EnemyBrain.Pilot, halfWidth: 0.3f, height: 1.35f, hp: KieTuning.Pilot.Hp, score: 5000);
+        public static readonly EnemyDef PilotDecoy = new EnemyDef(8, "Trollogram", EnemyBrain.PilotDecoy, halfWidth: 0.3f, height: 1.35f, hp: 1, score: 100);
 
         // ------------------------------------------------------------------ pickups
 
@@ -128,7 +131,7 @@ namespace PooketSlug
         public static readonly IReadOnlyList<WeaponDef> Weapons = ById(w => w.Id, Pistol, HeavyMachineGun, Rifle, Cannon, GrenadeThrow, DroneBomb, TankGun,
             WaterJet, RocketJump, Spew, BossCannon, WeaselPop, Trollogram,
             Steal, StolenRifle, StolenKnives, StolenBombs, StolenCannon);
-        public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank, Barrel, Weasel, TankCopy);
+        public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank, Barrel, Weasel, TankCopy, Pilot, PilotDecoy);
         public static readonly IReadOnlyList<PickupDef> Pickups = ById(p => p.Id, HeavyMachineGunCrate, BombCrate, Medkit, OneUp);
         public static readonly IReadOnlyList<SoldierDef> Soldiers = ById(s => s.Id, Trooper, Tones2, Kie);
 

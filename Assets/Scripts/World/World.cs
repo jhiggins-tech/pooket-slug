@@ -112,6 +112,8 @@ namespace PooketSlug
         /// the boss-door checkpoint; replays when there are any).
         /// </summary>
         public bool QuickBossIntro;
+        /// <summary>?test=pilot: a boss tank is wrecked the moment it's ready to fight, so the pilot round starts at once.</summary>
+        public bool SkipToPilot;
 
         public void OnBossIntro(BossEnemy boss, bool firstTime)
         {
@@ -246,6 +248,20 @@ namespace PooketSlug
             return null;
         }
 
+        /// <summary>
+        /// A boss tank is wrecked: its hologram pilot jumps out to fight on foot (<c>docs/design/tanks.md</c>, The pilot
+        /// round). The authority (or a solo game) puts him in; a co-op follower gets him in the snapshot.
+        /// </summary>
+        public void OnTankWrecked(TankBoss tank)
+        {
+            Log.Game.Info("Boss tank wrecked: the pilot jumps out");
+            Scoring.Popup("TANK WRECKED!", tank.Center + Vector2.up * 1.6f, new Color(1f, 0.85f, 0.3f));
+            if (!IsAuthority) return;
+            if (Spawner.SpawnEnemy(Content.Pilot, tank.Pos + Vector2.up * 0.6f) is Pilot pilot)
+                pilot.JumpOut(Player.Pos.x < tank.Pos.x ? -1 : 1);
+        }
+
+        /// <summary>The mission's last boss is beaten (the pilot glitched out): the mission's won.</summary>
         public void OnBossDestroyed()
         {
             if (Victory) return;

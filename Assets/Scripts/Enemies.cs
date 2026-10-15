@@ -327,5 +327,11 @@ namespace PooketSlug
 
         /// <summary>What the HUD and the intro call it.</summary>
         public virtual string DisplayName => Def.Name.ToUpperInvariant();
+
+        /// <summary>Authority: what the boss's network object carries (phase 0: nothing yet).</summary>
+        public virtual NetBossState NetState => default;
+
+        /// <summary>Follower: take up the authority's boss state (each boss ignores another's phase).</summary>
+        public virtual void ApplyNet(in NetBossState s) { }
     }
 }

@@ -8,6 +8,44 @@ namespace PooketSlug
         public static readonly WeaselPopSpec Weasels = new WeaselPopSpec();
         public static readonly TrollogramSpec Trollogram = new TrollogramSpec();
         public static readonly StealSpec Steal = new StealSpec();
+        public static readonly KiePilotSpec Pilot = new KiePilotSpec();
+    }
+
+    /// <summary>
+    /// Hologram kie, the pilot who jumps out of his wrecked tank (<c>docs/design/tanks.md</c>, The pilot round): his kit
+    /// in the holograms' hands, a little softer than a player's so a duel stays readable. The brain is
+    /// <see cref="PilotBrain"/> with <see cref="PilotPlaybook.Kie"/>.
+    /// </summary>
+    public sealed class KiePilotSpec
+    {
+        /// <summary>
+        /// Its health: a boss duel of 30 to 45 seconds. "Three times a soldier's" in feel; a soldier's 5 hearts take
+        /// whole hits, while a pistol lands a point every 0.18 s, so the pilot's bar is counted in shots.
+        /// </summary>
+        public int Hp = 40;
+        /// <summary>How fast it runs and how high it jumps, next to kie himself.</summary>
+        public float RunScale = 0.85f, JumpScale = 1f;
+        /// <summary>Weasel Pop: weasels a press, seconds between presses, the most it has out at once.</summary>
+        public int WeaselsPerThrow = 2;
+        public float WeaselCooldown = 1f;
+        public int WeaselsOut = 4;
+        /// <summary>Trollogram: charges, and seconds for a spent one to come back.</summary>
+        public int Specials = 2;
+        public float SpecialRefill = 9f;
+        /// <summary>Its hologram's blast when you shoot it (on you, not on goons): reach, damage and size.</summary>
+        public float DecoyBlastRadius = 2f, DecoyBlastSize = 1.1f;
+        public int DecoyDamage = 1;
+        /// <summary>Steal charges from its hits on you, not from kills (a duel has nothing else to kill): this many hearts.</summary>
+        public int SuperHits = 3;
+        /// <summary>Seconds it's untouchable after a swap, glitching into place.</summary>
+        public float SwapShield = 0.3f;
+        /// <summary>How hard it jumps out of the wreck, and how long it can't be hurt while it does.</summary>
+        public Vector2 JumpOut = new Vector2(-3f, 15f);
+        public float JumpOutShield = 1f;
+
+        /// <summary>Its super's meter after the soldiers lost <paramref name="hearts"/> to it, from <paramref name="meter"/>.</summary>
+        public int ChargeSuper(int meter, int hearts) => Mathf.Min(SuperHits, meter + Mathf.Max(0, hearts));
+        public bool SuperReady(int meter) => meter >= SuperHits;
     }
 
     /// <summary>What kie's Steal can lift off a goon: a burst of its own weapon, or a boss tank's cannon.</summary>

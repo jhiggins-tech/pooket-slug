@@ -102,6 +102,8 @@ Wreck the tank and its hologram pilot jumps out to fight you on foot with the cr
 
 **What it depends on** (picked 2026-10-15): Mission one's pilot is kie, so kie's own kit is built for players first, and the pilot is built and tuned on it.
 
+**Built** (2026-10-15): kie's pilot is in Mission one. Wreck the tank and hologram kie jumps out; beat him and he glitches out and the mission's won (`?test=pilot` starts at the boss and wrecks the tank as it wakes). The brain and kie's playbook are `Core/PilotBrain.cs`, his numbers `KiePilotSpec` (`Core/KieTuning.cs`), and the fighter `Pilot.cs`. His health is 40, not 15: a soldier's 5 hearts take whole hits, while a pistol lands a point every 0.18 s, so his bar is counted in shots to make the 30 to 45 second duel. His kit is a little softer than a player's (two weasels a press, two Trollograms that refill), and his weasels are the tank's. In co-op he goes for whoever is nearest (or your Trollogram, if it's up).
+
 ## Driving a tank
 
 - **Climb in** to a tank you've won. It has its own health bar, separate from yours.

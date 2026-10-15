@@ -29,42 +29,18 @@ namespace PooketSlug
         readonly World m_World;
         readonly TankBoss m_Tank;
         readonly List<TankBoss> m_Copies = new List<TankBoss>();
-        readonly SpriteRenderer m_Frame, m_Icon, m_BarBack, m_BarFill;
-        float m_HomeX, m_Shown;
+        readonly KieRoulette m_Roulette;
+        float m_HomeX;
         int m_Turn;
         bool m_Disguised;
 
-        // the roulette as the authority runs it, and as every screen has seen it
-        int m_Phase, m_Damage, m_Drops, m_SeenPhase, m_SeenDrops;
-        float m_Spin, m_LocalSpin = -1f, m_Progress;
-        bool m_MarkerShown = true;
-        // what this screen's soldier lost
-        KieSteal m_Pick, m_Holding;
-        int m_Held;
 
         public KieBoss(World world, TankBoss tank)
         {
             m_World = world;
             m_Tank = tank;
             m_HomeX = tank.HomeX;
-            Transform root = tank.Go.transform; // not the tank's visual, so its hologram look leaves the wheel alone
-            m_Frame = Renderer(root, "Roulette", KieArt.Frame, SortOrder.Effects);
-            m_Icon = Renderer(root, "Roulette icon", KieArt.Special, SortOrder.Effects + 1);
-            m_BarBack = Renderer(root, "Loot bar", Art.Pixel, SortOrder.Effects);
-            m_BarBack.color = new Color(0.11f, 0.08f, 0.12f, 0.85f);
-            m_BarFill = Renderer(root, "Loot", Art.Pixel, SortOrder.Effects + 1);
-            m_BarFill.color = new Color(1f, 0.85f, 0.3f);
-        }
-
-        static SpriteRenderer Renderer(Transform parent, string name, Sprite sprite, int order)
-        {
-            var go = new GameObject(name);
-            go.transform.SetParent(parent, false);
-            SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = sprite;
-            sr.sortingOrder = order;
-            sr.enabled = false;
-            return sr;
+            m_Roulette = new KieRoulette(world, tank, 3.5f);
         }
 
         /// <summary>Authority: the copies standing with it, which fire its shells with it.</summary>
@@ -73,7 +49,7 @@ namespace PooketSlug
         /// <summary>It's wearing its hologram look among its copies.</summary>
         public bool Disguised => m_Disguised;
 
-        KieAttack Next => KieTankSpec.AttackFor(m_Turn, m_Copies.Count > 0, m_Phase != 0);
+        KieAttack Next => KieTankSpec.AttackFor(m_Turn, m_Copies.Count > 0, m_Roulette.Busy);
 
         /// <summary>Authority: the next charged shot comes down somewhere, so the landing marker means something.</summary>
         public bool NextLands => Next == KieAttack.Shell || Next == KieAttack.Weasels;
@@ -82,16 +58,19 @@ namespace PooketSlug
         public float Wait { get; private set; }
 
         /// <summary>Authority: how close it is to dropping what it stole, 0 to 1.</summary>
-        public float Progress => m_Phase == KieTankSpec.RouletteHolding ? Mathf.Clamp01(m_Damage / (float)Spec.DropDamage(m_Tank.MaxHp)) : 0f;
+        public float Progress => m_Roulette.Progress;
 
         /// <summary>Authority: times it has dropped what it stole.</summary>
-        public int Drops => m_Drops;
+        public int Drops => m_Roulette.Drops;
 
         /// <summary>Authority: the roulette for the network object, with whether the landing marker is shown.</summary>
-        public int NetState(bool markerShown) => m_Phase | (markerShown ? 0 : KieTankSpec.NoMarker);
+        public int NetState(bool markerShown) => m_Roulette.NetState(markerShown);
 
         /// <summary>Follower: whether the authority's tank shows its landing marker.</summary>
-        public static bool MarkerShown(int netState) => (netState & KieTankSpec.NoMarker) == 0;
+        public static bool MarkerShown(int netState) => KieRoulette.MarkerShown(netState);
+
+        /// <summary>Every screen: follow the roulette as the authority runs it (<see cref="KieRoulette.ApplyNet"/>).</summary>
+        public void ApplyNet(int state, float progress, int drops) => m_Roulette.ApplyNet(state, progress, drops);
 
         /// <summary>Authority: the tank's charged shot, kie's attack in its place, or false for a plain shell.</summary>
         /// <summary><paramref name="thrown"/>: it came out of the barrel (the weasels), so the tank kicks as if it fired.</summary>
@@ -111,9 +90,9 @@ namespace PooketSlug
                     Wait = 0.5f;
                     return true;
                 case KieAttack.Roulette:
-                    m_Phase = KieTankSpec.RouletteSpinning;
-                    m_Spin = 0f;
-                    Wait = Spec.SpinTime / m_Tank.Fury + 0.3f;
+                    m_Roulette.Fury = m_Tank.Fury;
+                    m_Roulette.Start();
+                    Wait = m_Roulette.SpinTime + 0.3f;
                     return true;
                 default:
                     return false;
@@ -210,164 +189,36 @@ namespace PooketSlug
             }
         }
 
-        // ------------------------------------------------------------------ the roulette
-
-        /// <summary>
-        /// Every screen: follow the roulette as the authority runs it. A spin starting picks what to take from our
-        /// soldier; holding takes it; a drop gives it back as loot to grab.
-        /// </summary>
-        public void ApplyNet(int state, float progress, int drops)
-        {
-            int phase = state & KieTankSpec.RoulettePhase;
-            m_MarkerShown = MarkerShown(state);
-            m_Progress = progress;
-            if (phase != m_SeenPhase)
-            {
-                if (phase == KieTankSpec.RouletteSpinning) StartSpin();
-                else if (phase == KieTankSpec.RouletteHolding) Steal();
-                else m_LocalSpin = -1f;
-                m_SeenPhase = phase;
-            }
-            if (drops != m_SeenDrops)
-            {
-                m_SeenDrops = drops;
-                Drop();
-            }
-        }
-
-        void StartSpin()
-        {
-            Player p = m_World.Player;
-            m_Pick = KieTankSpec.Pick(p.Specials, p.Kit.SuperCharge, Rng.Fx.Value);
-            m_LocalSpin = 0f;
-            m_World.Scoring.Popup("ROULETTE!", m_Tank.Pos + Vector2.up * 4.4f, new Color(1f, 0.6f, 0.9f));
-        }
-
-        void Steal()
-        {
-            m_LocalSpin = -1f;
-            Player p = m_World.Player;
-            if (p.IsDown) return;
-            Vector2 over = p.Pos + Vector2.up * 2.6f;
-            int amount = m_Pick == KieSteal.Special ? p.Specials : m_Pick == KieSteal.Super ? Mathf.RoundToInt(p.Kit.SuperCharge * p.Kit.SuperKills) : 0;
-            if (amount <= 0)
-            {
-                m_World.Scoring.Popup("EMPTY POCKETS!", over, new Color(0.8f, 0.8f, 0.85f));
-                return;
-            }
-            if (m_Pick == KieSteal.Special) p.Specials = 0;
-            else amount = p.Kit.TakeSuper();
-            m_Holding = m_Pick;
-            m_Held = amount;
-            m_World.Scoring.Popup(m_Pick == KieSteal.Special ? p.Def.Special.Hud + " STOLEN!" : "SUPER STOLEN!", over, new Color(1f, 0.45f, 0.8f));
-            Sfx.Play(Sfx.Glitch, 0.7f);
-            Sfx.Play(Sfx.Pickup, 0.6f);
-            // the loot streams off you into the tank
-            Vector2 to = m_Tank.Center + Vector2.up * 1.5f;
-            for (int i = 0; i < 16; i++)
-            {
-                Vector2 from = p.Center + new Vector2(Rng.Fx.Range(-0.3f, 0.3f), Rng.Fx.Range(-0.3f, 0.3f));
-                float t = Rng.Fx.Range(0.35f, 0.6f);
-                var vel = (to - from) / t + Vector2.up * Rng.Fx.Range(-1f, 3f);
-                m_World.SpawnParticle(from, vel, i % 2 == 0 ? new Color(1f, 0.45f, 0.8f) : new Color(1f, 0.85f, 0.3f), Rng.Fx.Range(1.5f, 2.5f), t);
-            }
-        }
-
-        void Drop()
-        {
-            if (m_Holding == KieSteal.Nothing) return;
-            float side = m_World.Player.Pos.x < m_Tank.Pos.x ? -1f : 1f;
-            m_World.Props.Add(new KieLoot(m_World, m_Tank.Center + Vector2.up * 1.6f, new Vector2(side * 3.5f, 9f), m_Holding, m_Held));
-            m_World.Scoring.Popup("DROPPED IT!", m_Tank.Pos + Vector2.up * 4.4f, new Color(1f, 0.85f, 0.3f));
-            Sfx.Play(Sfx.Thump, 0.8f);
-            m_Holding = KieSteal.Nothing;
-            m_Held = 0;
-        }
-
         // ------------------------------------------------------------------ the tank's side
 
         /// <summary>Each tick of the tank once it's awake (on a follower, each tick it's alive).</summary>
         public void Tick(float dt)
         {
-            m_Shown += dt;
-            if (m_LocalSpin >= 0f) m_LocalSpin += dt;
+            m_Roulette.Fury = m_Tank.Fury;
+            m_Roulette.Tick(dt);
             if (!m_World.IsAuthority) return;
-
             if (m_Copies.Count > 0)
             {
                 m_DecoyTime -= dt;
                 if (m_DecoyTime <= 0f) EndHolograms(false);
             }
-            if (m_Phase == KieTankSpec.RouletteSpinning)
-            {
-                m_Spin += dt;
-                if (m_Spin >= Spec.SpinTime / m_Tank.Fury)
-                {
-                    m_Phase = KieTankSpec.RouletteHolding;
-                    m_Damage = 0;
-                }
-            }
-            ApplyNet(NetState(true), Progress, m_Drops); // our own screen follows it like a partner's would
         }
 
         /// <summary>Authority: the real tank took <paramref name="damage"/>.</summary>
         public void OnHurt(int damage)
         {
             EndHolograms(true);
-            if (m_Phase != KieTankSpec.RouletteHolding) return;
-            m_Damage += damage;
-            if (m_Damage < Spec.DropDamage(m_Tank.MaxHp)) return;
-            m_Phase = 0;
-            m_Drops++;
-            ApplyNet(NetState(true), 0f, m_Drops);
+            m_Roulette.OnHurt(damage);
         }
 
         /// <summary>Authority: the tank is destroyed. The trick ends and anything it stole falls out.</summary>
         public void OnDie()
         {
             EndHolograms(false);
-            if (m_Phase == KieTankSpec.RouletteHolding) m_Drops++;
-            m_Phase = 0;
-            ApplyNet(0, 0f, m_Drops);
+            m_Roulette.OnDie();
         }
 
-        public void Render()
-        {
-            bool spinning = m_LocalSpin >= 0f, holding = m_Holding != KieSteal.Nothing;
-            bool shown = !m_Tank.Dying && (spinning || holding);
-            m_Frame.enabled = m_Icon.enabled = shown;
-            m_BarBack.enabled = m_BarFill.enabled = shown && holding;
-            if (!shown) return;
-
-            const float y = 3.5f;
-            float bob = holding ? Mathf.Round(Mathf.Sin(m_Shown * 4f) * 1.5f) / Art.PPU : 0f;
-            m_Frame.transform.localPosition = m_Icon.transform.localPosition = new Vector3(0f, y + bob, 0f);
-            KieSteal face;
-            if (spinning)
-            {
-                // flicks between the two, slowing, and settles on what it'll take for the last part of the spin
-                float t = m_LocalSpin / (Spec.SpinTime / m_Tank.Fury);
-                face = t > 0.8f ? m_Pick : ((int)(Mathf.Sqrt(t) * 14f) % 2 == 0 ? KieSteal.Special : KieSteal.Super);
-                if (face == KieSteal.Nothing) face = (int)(m_LocalSpin * 8f) % 2 == 0 ? KieSteal.Special : KieSteal.Super;
-                m_Frame.color = t > 0.8f && (int)(m_LocalSpin * 16f) % 2 == 0 ? Color.white : new Color(1f, 0.45f, 0.8f);
-            }
-            else
-            {
-                face = m_Holding;
-                m_Frame.color = new Color(1f, 0.45f, 0.8f);
-            }
-            m_Icon.sprite = face == KieSteal.Super ? KieArt.Super : KieArt.Special;
-            if (!holding) return;
-
-            // how close it is to dropping it
-            const float width = 18f;
-            float fill = Mathf.Round(m_Progress * (width - 2f));
-            float barY = y - 0.75f + bob;
-            m_BarBack.transform.localPosition = new Vector3(0f, barY, 0f);
-            m_BarBack.transform.localScale = new Vector3(width, 4f, 1f);
-            m_BarFill.transform.localPosition = new Vector3((-(width - 2f) * 0.5f + fill * 0.5f) / Art.PPU, barY, 0f);
-            m_BarFill.transform.localScale = new Vector3(fill, 2f, 1f);
-        }
+        public void Render() => m_Roulette.Render();
     }
 
     /// <summary>

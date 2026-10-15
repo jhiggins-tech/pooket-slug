@@ -178,6 +178,12 @@ namespace PooketSlug
                     if (m_StateTime >= m_Spec.ChargeTime / rage) Fire();
                     break;
                 case State.Recoil:
+                    if (World.SkipToPilot)
+                    {
+                        World.SkipToPilot = false; // ?test=pilot
+                        Hurt(Hp);
+                        return;
+                    }
                     m_Timer -= dt;
                     if (m_Timer <= 0f && !Target.IsDown) Drive();
                     break;
@@ -319,16 +325,16 @@ namespace PooketSlug
         // ------------------------------------------------------------------ co-op
 
         /// <summary>Authority: what its network object carries.</summary>
-        public NetBossState NetState => new NetBossState
+        public override NetBossState NetState => new NetBossState
         {
             Phase = (int)m_State + 1, Angle = m_Angle, Charge = m_Charge, Power = m_Power, Landing = m_Landing, Shots = m_Shots & 0xff,
             KieState = m_Kie.NetState(m_LandingSeen), KieProgress = m_Kie.Progress, KieDrops = m_Kie.Drops & 0xff,
         };
 
         /// <summary>Follower: take up the authority's turret, charge and shots. The shells come as enemy shots.</summary>
-        public void ApplyNet(in NetBossState s)
+        public override void ApplyNet(in NetBossState s)
         {
-            if (s.Phase == 0) return;
+            if (s.Phase == 0 || s.Phase == Pilot.NetPhase) return; // the pilot's, once he's out
             m_Kie.ApplyNet(s.KieState, s.KieProgress, s.KieDrops); // before the death check: it drops what it stole as it dies
             if (Dying) return;
             var phase = (State)(s.Phase - 1);
@@ -400,7 +406,7 @@ namespace PooketSlug
                 World.Combat.Explode(Center, 1.5f, 0, false, 1.8f);
                 World.Burst(Center, 30, new Color(0.35f, 0.4f, 0.2f));
                 Sfx.Play(Sfx.BigExplosion);
-                World.OnBossDestroyed();
+                World.OnTankWrecked(this); // and out jumps its pilot
                 Remove();
             }
         }

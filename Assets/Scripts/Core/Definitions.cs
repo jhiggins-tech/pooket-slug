@@ -139,6 +139,10 @@ namespace PooketSlug
         Weasel,
         /// <summary>A hologram copy of kie's tank: it copies the real one and can't be hurt.</summary>
         TankCopy,
+        /// <summary>A tank's hologram pilot: a soldier on the holograms' side, played by the pilot brain.</summary>
+        Pilot,
+        /// <summary>The pilot's Trollogram: a hologram of it standing still; shoot it and it blows up on you.</summary>
+        PilotDecoy,
     }
 
     /// <summary>One kind of enemy: its body, health and worth. The co-op snapshot carries its id.</summary>
