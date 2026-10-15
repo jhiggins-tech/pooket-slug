@@ -100,7 +100,7 @@ Wreck the tank and its hologram pilot jumps out to fight you on foot with the cr
 5. **Co-op:** the world's authority runs the pilot, and the partner's game shows it like a remote player, using the soldier pose that's already sent for players.
 6. **In the mission:** the pilot round starts when the tank is wrecked, after the boss tank build and the boss intro.
 
-**What it depends on:** Mission one's pilot is kie, so kie's own kit has to be built for players first. *To pick:* the order.
+**What it depends on** (picked 2026-10-15): Mission one's pilot is kie, so kie's own kit is built for players first, and the pilot is built and tuned on it.
 
 ## Driving a tank
 
