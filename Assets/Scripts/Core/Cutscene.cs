@@ -40,8 +40,8 @@ namespace PooketSlug
         {
             { "opening-1", 3.54f }, { "opening-2", 1.42f }, { "opening-3", 2.9f }, { "opening-4a", 2.96f },
             { "opening-4b", 2.5f }, { "opening-5", 2.56f }, { "opening-6", 1.76f },
-            { "motor-pool-1", 2.67f }, { "motor-pool-2", 3.26f }, { "motor-pool-3", 3.84f }, { "motor-pool-4", 2.13f },
-            { "freeing-1", 3.08f }, { "freeing-2", 2.53f }, { "freeing-3", 3.35f },
+            { "motor-pool-1", 2.67f }, { "motor-pool-2", 3.26f }, { "motor-pool-3", 3.19f }, { "motor-pool-4", 2.13f },
+            { "freeing-1", 2.7f }, { "freeing-2", 2.53f }, { "freeing-3", 4.02f },
         };
     }
 
@@ -204,7 +204,7 @@ namespace PooketSlug
                     new CutsceneLine(3.6f, Speaker.Kie, "YOURS. CALL IT WHEN YOU NEED IT."),
                 },
                 new[] { new CutsceneCue(1.2f, "rip"), new CutsceneCue(1.6f, "drone"), new CutsceneCue(2.7f, "lift"), new CutsceneCue(4.2f, "remote") }),
-            new CutsceneShot("Lights out", 7f,
+            new CutsceneShot("Lights out", 7.5f,
                 new[]
                 {
                     new CutsceneLine(0.9f, Speaker.Kie, "I'M GONNA... SIT THIS ONE OUT."),

@@ -11,7 +11,7 @@ namespace PooketSlug
         public enum Step { Drive, Aim, Fire, Special, Done }
 
         public const string DrivePrompt = "DRIVE!", AimPrompt = "AIM UP AT THE GANTRY!",
-            FirePrompt = "FIRE! SHOOT THE TOWER DOWN. ROUNDS NEVER REFILL", SpecialPrompt = "SP: MUD JUMP OVER THE WALL!";
+            FirePrompt = "FIRE! SHOOT THE TOWER DOWN. ROUNDS NEVER REFILL", SpecialPrompt = "HOLD UP-RIGHT AND SP: MUD JUMP THE WALL!";
 
         /// <summary>How far past a step's spot you can get before its prompt is dropped.</summary>
         public const float Overshoot = 10f;
