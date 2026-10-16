@@ -211,14 +211,14 @@ namespace PooketSlug
             TankCalled?.Invoke(at);
         }
 
-        /// <summary>A calm moment for a hint: our soldier on the ground and on foot, no boss up, and no goon on screen.</summary>
+        /// <summary>A calm moment for a hint: our soldier on the ground and on foot, no boss up, and no goon close.</summary>
         bool Calm()
         {
             if (Player.Dead || Player.Riding != null || !Player.Grounded || Victory) return false;
             if (Boss != null && Boss.Engaged && !Boss.Removed) return false;
-            float left = View.Left - 1f, right = View.Right + 1f;
+            float r = CallInCoach.CalmRadius;
             foreach (Enemy e in Enemies)
-                if (e.Shootable && e.Def.Brain != EnemyBrain.Barrel && e.Pos.x > left && e.Pos.x < right) return false;
+                if (e.Shootable && e.Def.Brain != EnemyBrain.Barrel && (e.Center - Player.Center).sqrMagnitude < r * r) return false;
             return true;
         }
 

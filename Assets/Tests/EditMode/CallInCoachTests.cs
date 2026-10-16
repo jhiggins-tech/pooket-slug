@@ -29,12 +29,22 @@ namespace PooketSlug.Tests
         {
             var coach = new CallInCoach(false);
             Run(coach, 10f, calm: false);
-            Assert.AreEqual(CallInCoach.Phase.Waiting, coach.State, "never in a fight");
+            Assert.AreEqual(CallInCoach.Phase.Waiting, coach.State, "not in a fight");
             Run(coach, coach.CalmFor - 0.5f);
             Run(coach, Dt, calm: false); // a goon walks on: the calm starts over
             Run(coach, coach.CalmFor - 0.5f);
             Assert.AreEqual(CallInCoach.Phase.Waiting, coach.State);
             Run(coach, 1f);
+            Assert.IsTrue(coach.Showing);
+        }
+
+        [Test]
+        public void GoonsKeepComingSoItShowsAnywayLater()
+        {
+            var coach = new CallInCoach(false);
+            Run(coach, coach.Latest - 0.5f, calm: false);
+            Assert.AreEqual(CallInCoach.Phase.Waiting, coach.State);
+            Assert.AreEqual(1, Run(coach, 1f, calm: false));
             Assert.IsTrue(coach.Showing);
         }
 
