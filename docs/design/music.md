@@ -68,6 +68,8 @@ Everything is code: no audio files, nothing to download, and a track is a few li
 
 **First cut** (spike, 2026-10-15, `?spike=music`, solo only): the notation (`Core/Score.cs`), the renderer (`Core/MusicRender.cs`), the player (`Music.cs`), Mission one's theme, the boss theme and its final section, and the mission start and boss victory stings (`Core/MusicTracks.cs`), hooked into the boss intro. Every track is rendered at launch for now.
 
+**Chip to orchestra** (spike extension, 2026-10-16): in the boss's final section, after one pass in chip, the music crossfades over four seconds to an orchestra playing the same notes, in step. None of OpenRouter's music models takes an audio reference or a melody: its two music models, Google's Lyria 3 Clip and Lyria 3 Pro, take text or an image, and its other audio models (GPT Audio) are for speech. So the orchestra plays the game's own notes instead: `Core/MusicMidi.cs` writes a track as a General MIDI file scored for strings, horns, pizzicato, contrabass, tuba and concert percussion, and the vendor repository's Orchestra workflow renders it with FluidSynth and a General MIDI soundfont, looped to the chip version's length, into `orchestra.zip`; the game's CI puts it in `Resources/Music`. A better soundfont, or a real orchestral sample library, would make it sound richer with no change to the notes. Lyria could still make a loose orchestral take from a text prompt spelling out the melody, but it wouldn't be in step with the chip version.
+
 **Build order:** the notation and player first, with the boss theme (the intro already waits on it), then Mission one's theme, the stings, and the title and debrief.
 
 ## Open questions

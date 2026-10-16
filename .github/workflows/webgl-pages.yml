@@ -89,6 +89,22 @@ jobs:
             echo "::warning::No narrator.zip on the vendor repository's narrator release: the narrator stays subtitles only."
           fi
 
+      # The boss music's final section played by an orchestra (?spike=music crossfades to it), rendered from the
+      # game's own notes by the vendor repository's CI (music/ there) and published as orchestra.zip. Without it the
+      # final section stays chip all the way.
+      - name: Fetch the orchestral music
+        env:
+          GH_TOKEN: ${{ secrets.VENDOR_PAT }}
+        run: |
+          if gh release download orchestra -R jhiggins-tech/pooket-slug-vendor -p orchestra.zip -D vendor; then
+            mkdir -p Assets/Resources/Music
+            unzip -o -q vendor/orchestra.zip '*.wav' -d Assets/Resources/Music
+            for f in Assets/Resources/Music/*.wav; do mv "$f" "${f%.wav}.bytes"; done
+            ls -l Assets/Resources/Music
+          else
+            echo "::warning::No orchestra.zip on the vendor repository's orchestra release: the boss music stays chip."
+          fi
+
       - name: Cache Unity Library
         uses: actions/cache@v5
         with:

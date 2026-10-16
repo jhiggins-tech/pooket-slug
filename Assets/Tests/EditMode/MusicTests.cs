@@ -83,5 +83,18 @@ namespace PooketSlug.Tests
             foreach (float s in samples) peak = System.Math.Max(peak, System.Math.Abs(s));
             Assert.That(peak, Is.InRange(0.05f, 1f));
         }
+    
+        [Test]
+        public void TheFinalSectionWritesAsAnOrchestralMidiFile()
+        {
+            byte[] midi = MusicMidi.Write(MusicTracks.TankAlertFinal);
+            Assert.AreEqual("MThd", System.Text.Encoding.ASCII.GetString(midi, 0, 4));
+            Assert.AreEqual(7, midi[11], "a tempo track and six parts");
+            Assert.AreEqual(480, (midi[12] << 8) | midi[13]);
+            int tracks = 0;
+            for (int i = 0; i + 4 <= midi.Length; i++)
+                if (midi[i] == 'M' && midi[i + 1] == 'T' && midi[i + 2] == 'r' && midi[i + 3] == 'k') tracks++;
+            Assert.AreEqual(7, tracks);
+        }
     }
 }

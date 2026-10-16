@@ -307,12 +307,16 @@ namespace PooketSlug
             if (MusicOn && Music.Playing != MusicTracks.TankAlertFinal) Music.Play(MusicTracks.TankAlert);
         }
 
-        /// <summary>The tank's wrecked: a victory sting, then the boss theme's even faster final section for the pilot round.</summary>
+        /// <summary>
+        /// The tank's wrecked: a victory sting, then the boss theme's even faster final section for the pilot round,
+        /// which crossfades from the chip to an orchestra playing the same notes.
+        /// </summary>
         void OnTankWrecked()
         {
             if (!MusicOn) return;
             Music.Sting(MusicTracks.BossVictory);
-            Music.Play(MusicTracks.TankAlertFinal, MusicTracks.BossVictory.Seconds);
+            // after one pass in chip, the orchestra takes over (in builds that have it: the vendor repository's CI makes it)
+            Music.Play(MusicTracks.TankAlertFinal, MusicTracks.BossVictory.Seconds, Music.Layer("tank-alert-final"), MusicTracks.TankAlertFinal.Seconds);
         }
 
         /// <summary>Moves the intro on, and plays the siren and the announcer's lines as they come due.</summary>
