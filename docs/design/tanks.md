@@ -26,7 +26,8 @@ Tabks stay hidden until they matter ([progressive disclosure](README.md#progress
 1. **Before the first tabk,** nothing mentions tabks: not the menus, the HUD, the loading screens, the controls or the web page around the game. No enemy tabks appear before then either.
 2. **The first tabk** is kie's, at the end of Mission one, with a full boss intro.
 3. **The first call-in and the first drive** come straight after kie is freed (owner, 2026-10-16): kie frees tones2's own tabk and bows out, and in Mission one's coda, a short mini-level after the boss, a prompt has you call it in, then drive it out of the base ([the coda](story.md#the-coda)).
-4. **The tabk choice** on the mission screen appears once you've won a tabk.
+4. **kie's tabk** is wrecked in the boss fight, so Mission one wins only tones2's. kie's comes back repaired once Mission two is beaten (owner, 2026-10-16).
+5. **The tabk choice** on the mission screen appears once you have two tabks to pick from: after Mission two.
 
 ## Tabk bosses
 
