@@ -333,6 +333,25 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void FreeingKiePicksUpAtTheCageWithKiesIntroFirst()
+        {
+            CutsceneDef f = Cutscenes.FreeingKie;
+            Assert.AreEqual("scene-freeing-kie", f.Id);
+            CollectionAssert.AllItemsAreUnique(new[] { Cutscenes.Opening.NetId, Cutscenes.MotorPool.NetId, f.NetId, Cutscenes.CoopTest.NetId });
+            Assert.AreEqual(4, f.Shots.Length, "the glitch-out, the design's shot 1, plays in the game itself");
+            CutsceneIntro intro = f.Shots[0].Intro;
+            Assert.AreEqual(Speaker.Kie, intro.Who);
+            Assert.AreEqual("KIE", intro.Name);
+            Assert.That(intro.At, Is.GreaterThanOrEqualTo(CutscenePlayer.BuildUp));
+            Assert.That(intro.At, Is.GreaterThan(KieTuning.Freeing.Cage), "he's out of the cage when it lands");
+            for (int i = 1; i < f.Shots.Length; i++) Assert.IsNull(f.Shots[i].Intro);
+            foreach (CutsceneShot shot in f.Shots)
+                foreach (CutsceneLine line in shot.Lines)
+                    if (line.Who == Speaker.Narrator) StringAssert.StartsWith("freeing-", line.Voice);
+            Assert.AreEqual("I'M GONNA... SIT THIS ONE OUT.", f.Shots[3].Lines[0].Text);
+        }
+
+        [Test]
         public void TheMotorPoolCantBeSkippedTheFirstTime()
         {
             var first = new CutscenePlayer(Cutscenes.MotorPool, seenBefore: false, players: 1);

@@ -39,6 +39,11 @@ namespace PooketSlug
         readonly RectTransform m_ShutterMask, m_KieTabk, m_KieTurret;
         readonly Image m_Shutter, m_ColdLight, m_KieHull;
         readonly Image[] m_Row = new Image[3], m_Junk = new Image[9], m_Steam = new Image[4], m_Lamps = new Image[3];
+        // freeing kie: the cage of light, his dazed stars, the clamp on tones2's tabk, the cargo drone and its cable,
+        // the call-in remote, and the alarm's beacon and red wash
+        readonly Image[] m_Cage = new Image[7], m_Stars = new Image[3];
+        readonly Image m_Clamp, m_Drone, m_Rotor, m_Cable, m_Remote, m_Beacon, m_Alarm;
+        readonly Text m_Zz;
         readonly Text m_Sign, m_Hint, m_Waiting, m_Subtitle;
         readonly RectTransform m_SubBand, m_BigCard;
         readonly Image m_Dim;
@@ -131,6 +136,16 @@ namespace PooketSlug
                 new Vector2(Art.TankBarrelPivot.x, Art.TankBarrelPivot.y) * Art.PPU * Px, new Vector2(Art.TankBarrel.rect.width, Art.TankBarrel.rect.height) * Px);
             Ui.Picture(m_KieTurret, "Barrel", Art.TankBarrel, Ui.Middle, Ui.Middle, Vector2.zero, new Vector2(Art.TankBarrel.rect.width, Art.TankBarrel.rect.height) * Px, Color.white);
             m_KieHull = Ui.Picture(m_KieTabk, "Hull", Art.TankHull, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), Vector2.zero, new Vector2(Art.TankHull.rect.width, Art.TankHull.rect.height) * Px, Color.white);
+            m_Clamp = Picture("Trollogram clamp", null, 0f, 0f, 30f, 6f, Cyan);
+            m_Cable = Picture("Drone cable", null, 0f, 0f, 1f, 10f, new Color(0.1f, 0.1f, 0.12f));
+            m_Drone = Picture("Cargo drone", null, 0f, 0f, 40f, 10f, new Color(0.32f, 0.35f, 0.4f));
+            m_Rotor = Picture("Rotors", null, 0f, 0f, 52f, 2f, new Color(0.75f, 0.8f, 0.85f, 0.7f));
+            for (int i = 0; i < m_Cage.Length; i++) m_Cage[i] = Picture("Cage of light", null, 0f, 0f, 1f, 1f, Cyan);
+            for (int i = 0; i < m_Stars.Length; i++) m_Stars[i] = Picture("Dazed", null, 0f, 0f, 2f, 2f, Gold);
+            m_Remote = Picture("Remote", null, 0f, 0f, 4f, 6f, new Color(0.9f, 0.3f, 0.3f));
+            m_Beacon = Picture("Alarm beacon", null, 94f, MotorFloor + 108f, 8f, 5f, new Color(1f, 0.2f, 0.15f));
+            m_Zz = Ui.Label(m_World, "Zz", Vector2.zero, Vector2.zero, 14, TextAnchor.MiddleCenter, Paper);
+            m_Zz.text = "z Z";
             m_ColdLight = Picture("Cold light", null, MotorOpenX + MotorOpenW / 2f, 0f, MotorOpenW + 30f, MotorFloor + 4f, new Color(0.7f, 0.95f, 1f, 0f));
             m_ShutterMask = Ui.Rect(m_World, "Shutter", Vector2.zero, Vector2.zero, new Vector2(MotorOpenX, MotorFloor) * Px, new Vector2(MotorOpenW, MotorOpenH) * Px);
             m_ShutterMask.pivot = Vector2.zero;
@@ -186,6 +201,8 @@ namespace PooketSlug
             m_CardText = Ui.Label(m_CardBand, "Text", Ui.Middle, Vector2.zero, 22, TextAnchor.MiddleCenter, Gold);
             m_CardText.lineSpacing = 1.1f;
 
+            m_Alarm = Ui.Picture(m_Stage, "Alarm", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, new Color(1f, 0.1f, 0.05f, 0f));
+            Stretch(m_Alarm.rectTransform);
             m_Flicker = Ui.Picture(m_Stage, "Flicker", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, new Color(0.4f, 1f, 1f, 0f));
             Stretch(m_Flicker.rectTransform);
             m_Fade = Ui.Picture(m_Stage, "Cut", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, Color.black);
@@ -290,6 +307,14 @@ namespace PooketSlug
                 case "hatch": Sfx.Play(Sfx.Thump, 0.5f); break;
                 case "slam": Sfx.Play(Sfx.Thump, 1f); Sfx.Play(Sfx.Hit, 0.5f); break;
                 case "turret": Sfx.Play(Sfx.Servo, 0.7f); break;
+                case "cage": Sfx.Play(Sfx.Charge, 0.6f); break;
+                case "kie-drop": Sfx.Play(Sfx.Thump, 0.9f); break;
+                case "snacks": Sfx.Play(Sfx.Pickup, 0.5f); break;
+                case "rip": Sfx.Play(Sfx.Glitch, 0.6f); Sfx.Play(Sfx.Hit, 0.5f); break;
+                case "drone": Sfx.Play(Sfx.RocketRumble, 0.5f); break;
+                case "lift": Sfx.Play(Sfx.Servo, 0.8f); break;
+                case "remote": Sfx.Play(Sfx.Pickup, 0.8f); break;
+                case "alarm": Sfx.Play(Sfx.Siren, 0.4f); break;
                 case CutscenePlayer.BuildUpCue: Sfx.Play(Sfx.IntroRise, 0.5f); break;
                 case CutscenePlayer.IntroCue: Sfx.Play(Sfx.Intro, 0.5f); break;
                 default:
@@ -473,9 +498,11 @@ namespace PooketSlug
         {
             m_Zoom = 1f;
             m_Look = Vector2.zero;
-            bool motorPool = m_Player.Scene == Cutscenes.MotorPool;
-            ShowMotorPool(motorPool);
+            bool motorPool = m_Player.Scene == Cutscenes.MotorPool, freeing = m_Player.Scene == Cutscenes.FreeingKie;
+            ShowMotorPool(motorPool || freeing);
+            ShowFreeing(freeing);
             if (motorPool) StageMotorPool(shot, t, now);
+            else if (freeing) StageFreeing(shot, t, now);
             else StageOpening(shot, t, now);
         }
 
@@ -637,6 +664,7 @@ namespace PooketSlug
                 if (roll < 1f) tabkX += (int)(now * 20f) % 2 * 0.5f; // its engine shakes it
             }
             m_KieTabk.anchoredPosition = new Vector2(tabkX, MotorFloor) * Px;
+            m_KieHull.color = Color.white;
             // the turret points up and away, then swings round on to tones2 once the hatch has shut
             float swing = shot == 3 ? Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((t - 1.0f) / 0.7f)) : 0f;
             m_KieTurret.localRotation = Quaternion.Euler(0f, 0f, Mathf.Lerp(-150f, 6f, swing));
@@ -656,6 +684,175 @@ namespace PooketSlug
                 float ease = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / 2.2f));
                 m_Zoom = Mathf.Lerp(1f, 1.15f, ease);
                 m_Look = new Vector2(Mathf.Lerp(0f, 20f, ease), Mathf.Lerp(0f, -12f, ease));
+            }
+        }
+
+        // ------------------------------------------------------------------ freeing kie's staging
+
+        void ShowFreeing(bool on)
+        {
+            foreach (Image i in m_Cage) Ui.Show(i, false);
+            foreach (Image i in m_Stars) Ui.Show(i, false);
+            Ui.Show(m_Clamp, false);
+            Ui.Show(m_Drone, false);
+            Ui.Show(m_Rotor, false);
+            Ui.Show(m_Cable, false);
+            Ui.Show(m_Remote, false);
+            Ui.Show(m_Beacon, on);
+            Ui.Show(m_Zz, false);
+            Ui.Show(m_Alarm, false);
+            m_Beacon.color = new Color(0.35f, 0.08f, 0.06f);
+        }
+
+        /// <summary>
+        /// The motor pool after the fight: the shutter up, kie's tabk a smoking wreck in its space, the row behind. The
+        /// real kie drops out of a cage of light, takes the snacks, frees tones2's tabk (the cargo drone hauls it out
+        /// through the roof) and hands over its remote, then sits down against his wreck and nods off as the alarms go.
+        /// </summary>
+        void StageFreeing(int shot, float t, float now)
+        {
+            const float KieAt = 100f, Tones2At = 40f;
+            m_Shutter.rectTransform.anchoredPosition = new Vector2(0f, MotorOpenH) * Px;
+            m_ColdLight.color = new Color(0.7f, 0.95f, 1f, 0.22f);
+            for (int i = 0; i < m_Lamps.Length; i++) m_Lamps[i].color = new Color(1f, 0.95f, 0.75f, 0.14f);
+            Row(now);
+            foreach (Image j in m_Junk) Ui.Show(j, false); // the Trollograms' junk went with him
+            // kie's tabk, wrecked: dark, smoking, its gun drooping
+            m_KieTabk.anchoredPosition = new Vector2(KieSpace, MotorFloor) * Px;
+            m_KieHull.color = new Color(0.4f, 0.37f, 0.36f);
+            m_KieTurret.localRotation = Quaternion.Euler(0f, 0f, 14f);
+            Steam(now);
+            for (int i = 0; i < m_Steam.Length; i++) m_Steam[i].color = new Color(0.3f, 0.3f, 0.32f, m_Steam[i].color.a);
+
+            // tones2's tabk (first in the row) wears the Trollograms' clamp until kie rips it off; then the drone takes it
+            float lift = shot == 2 ? Mathf.Clamp01((t - 2.7f) / 1.2f) : shot > 2 ? 1f : 0f;
+            Ui.Show(m_Row[0], lift < 1f);
+            m_Row[0].rectTransform.anchoredPosition = new Vector2(MotorRow[0], MotorFloor + 2f + lift * lift * 150f) * Px;
+            float rip = shot == 2 ? Mathf.Clamp01((t - 1.2f) / 0.5f) : shot > 2 ? 1f : 0f;
+            if (rip < 1f)
+            {
+                Ui.Show(m_Clamp, true);
+                m_Clamp.color = new Color(0.45f, 1f, 1f, (int)(now * 6f) % 4 == 0 ? 0.5f : 0.9f);
+                m_Clamp.rectTransform.anchoredPosition = new Vector2(MotorRow[0] - rip * 40f, MotorFloor + 12f + Mathf.Sin(rip * Mathf.PI) * 24f) * Px;
+                m_Clamp.rectTransform.localRotation = Quaternion.Euler(0f, 0f, rip * 220f);
+            }
+            if (shot == 2 && t >= 1.6f && lift < 1f)
+            {
+                // the cargo drone drops through the roof hatch, hooks it, and hauls it up and out
+                float down = Mathf.Clamp01((t - 1.6f) / 0.8f);
+                float y = Mathf.Lerp(StageH + 10f, MotorFloor + 44f, 1f - (1f - down) * (1f - down)) + lift * lift * 150f;
+                Ui.Show(m_Drone, true);
+                Ui.Show(m_Rotor, true);
+                Ui.Show(m_Cable, down >= 1f);
+                m_Drone.rectTransform.anchoredPosition = new Vector2(MotorRow[0], y) * Px;
+                m_Rotor.rectTransform.anchoredPosition = new Vector2(MotorRow[0] + ((int)(now * 20f) % 2) * 2f, y + 10f) * Px;
+                m_Cable.rectTransform.anchoredPosition = new Vector2(MotorRow[0], MotorFloor + 22f + lift * lift * 150f) * Px;
+                m_Cable.rectTransform.sizeDelta = new Vector2(1f, y - (MotorFloor + 22f + lift * lift * 150f)) * Px;
+            }
+
+            // tones2: stood back at first, then over with the snacks
+            float tx = shot == 0 ? Tones2At : shot == 1 ? Mathf.Lerp(Tones2At, 74f, Mathf.Clamp01(t / 0.7f)) : 74f;
+            Soldier(tx, MotorFloor, shot == 1 && t < 0.7f, t);
+            m_Tones2.Rt.localScale = Vector3.one;
+            Ui.Show(m_Bag, shot == 0 || shot == 1 && t < 2.2f);
+            Ui.Show(m_Cup, false);
+
+            // kie
+            Ui.Show(m_Kie.Rt, true);
+            PlayerSkin skin = Art.KieSkins[0];
+            Ui.Show(m_Kie.Legs, true);
+            m_Kie.Legs.color = m_Kie.Torso.color = Color.white;
+            m_Kie.Torso.sprite = skin.TorsoForward;
+            m_Kie.Torso.rectTransform.anchoredPosition = Vector2.zero;
+            float kx = KieAt, ky = MotorFloor;
+            bool down2 = false, walking = false;
+            int facing = -1; // at tones2
+            switch (shot)
+            {
+                case 0: // held in the cage of light, which flickers out, and he drops in a heap
+                {
+                    PilotFreeingSpec spec = KieTuning.Freeing;
+                    bool lit = spec.CageLit(t);
+                    float fall = Mathf.Clamp01((t - spec.Cage) / 0.3f);
+                    ky = MotorFloor + 10f * (1f - fall * fall);
+                    down2 = t >= spec.Cage;
+                    Cage(KieAt, lit);
+                    if (t >= spec.Cage + 0.3f) Stars(kx, ky + 22f, now);
+                    break;
+                }
+                case 1: // up off the floor, swaying, and he takes the snacks
+                    down2 = t < 1.4f;
+                    if (!down2) Stars(kx, ky + 30f, now);
+                    if (t >= 2.2f)
+                    {
+                        Ui.Show(m_Bag, true);
+                        m_Bag.rectTransform.anchoredPosition = new Vector2(kx - 7f, ky + 9f) * Px;
+                    }
+                    break;
+                case 2: // over to tones2's tabk to rip off the clamp, then back with the remote
+                    walking = t < 1.0f || t > 2.6f && t < 3.4f;
+                    kx = t < 1.0f ? Mathf.Lerp(KieAt, MotorRow[0] - 20f, t) : t < 2.6f ? MotorRow[0] - 20f : Mathf.Lerp(MotorRow[0] - 20f, 96f, Mathf.Clamp01((t - 2.6f) / 0.8f));
+                    facing = t < 2.6f ? 1 : -1;
+                    if (t >= 3.4f && t < 4.6f)
+                    {
+                        // the remote, pressed into tones2's hand
+                        float give = Mathf.Clamp01((t - 4.0f) / 0.3f);
+                        Ui.Show(m_Remote, true);
+                        m_Remote.rectTransform.anchoredPosition = new Vector2(Mathf.Lerp(kx - 8f, 84f, give), MotorFloor + 12f) * Px;
+                    }
+                    break;
+                case 3: // sits down hard against his wreck, the snacks in his lap, and nods off
+                {
+                    float sit = Mathf.Clamp01(t / 0.6f);
+                    walking = sit < 1f;
+                    kx = Mathf.Lerp(96f, KieSpace - 30f, sit);
+                    down2 = sit >= 1f;
+                    facing = 1;
+                    Ui.Show(m_Bag, down2);
+                    m_Bag.rectTransform.anchoredPosition = new Vector2(kx + 6f, ky + 5f) * Px;
+                    if (t > 2.4f)
+                    {
+                        Ui.Show(m_Zz, true);
+                        float k = (t - 2.4f) % 1.6f / 1.6f;
+                        m_Zz.rectTransform.anchoredPosition = new Vector2(kx + 6f + k * 8f, ky + 26f + k * 10f) * Px;
+                        m_Zz.color = new Color(Paper.r, Paper.g, Paper.b, 1f - k);
+                    }
+                    // the alarm: a beacon turning over the shutter, and a slow red wash (once a second: never a strobe)
+                    float pulse = 0.5f + 0.5f * Mathf.Sin(t * Mathf.PI * 2f);
+                    m_Beacon.color = Color.Lerp(new Color(0.35f, 0.08f, 0.06f), new Color(1f, 0.25f, 0.15f), pulse);
+                    Ui.Show(m_Alarm, true);
+                    m_Alarm.color = new Color(1f, 0.1f, 0.05f, 0.1f * pulse);
+                    break;
+                }
+            }
+            m_Kie.Legs.sprite = down2 ? skin.LegsCrouch : walking ? skin.LegsRun[(int)(t * 8f) % skin.LegsRun.Length] : skin.LegsIdle;
+            if (shot == 1 && !down2 || shot == 2) kx += Mathf.Round(Mathf.Sin(t * 3f) * 1.4f); // swaying, still dazed
+            m_Kie.Rt.localScale = new Vector3(facing, 1f, 1f);
+            m_Kie.At(kx, ky);
+        }
+
+        /// <summary>The cage of light round the real kie: bars and two rails, lit or out.</summary>
+        void Cage(float x, bool lit)
+        {
+            const float W = 18f, H = 30f;
+            for (int i = 0; i < m_Cage.Length; i++)
+            {
+                Ui.Show(m_Cage[i], lit);
+                if (!lit) continue;
+                bool rail = i >= 5;
+                RectTransform rt = m_Cage[i].rectTransform;
+                rt.sizeDelta = (rail ? new Vector2(W + 2f, 1f) : new Vector2(1f, H)) * Px;
+                rt.anchoredPosition = new Vector2(rail ? x : x - W / 2f + i * (W / 4f), MotorFloor + (rail && i == 6 ? H : 0f)) * Px;
+            }
+        }
+
+        void Stars(float x, float y, float now)
+        {
+            for (int i = 0; i < m_Stars.Length; i++)
+            {
+                float a = now * 4f + i * Mathf.PI * 2f / m_Stars.Length;
+                Ui.Show(m_Stars[i], true);
+                m_Stars[i].rectTransform.anchoredPosition = new Vector2(x + Mathf.Cos(a) * 7f, y + Mathf.Sin(a) * 2f) * Px;
             }
         }
 

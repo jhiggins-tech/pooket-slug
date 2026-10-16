@@ -157,6 +157,43 @@ namespace PooketSlug
                 new[] { new CutsceneCue(1.6f, "crush"), new CutsceneCue(3.9f, "card"), new CutsceneCue(4.1f, "say:mission-start") }));
 
         /// <summary>
+        /// Freeing kie, after Trollogram kie is beaten on foot. His glitch-out (the design's shot 1) plays in the game
+        /// itself (<c>Pilot</c>); the scene picks up as the cage of light flickers out and the real kie drops,
+        /// with his intro. Then the snacks, the release of tones2's tabk (the cargo drone, and its remote handed over),
+        /// and kie nodding off as the alarms start. It can be skipped once seen.
+        /// </summary>
+        public static readonly CutsceneDef FreeingKie = new CutsceneDef("scene-freeing-kie", 3,
+            new CutsceneShot("The real kie", 6.5f,
+                new[]
+                {
+                    new CutsceneLine(3.4f, Speaker.Narrator, "And out drops the real kie. Bit peaky.", "freeing-1"), // after his intro
+                    new CutsceneLine(4.4f, Speaker.Kie, "...HOW LONG WAS I IN THERE?"),
+                },
+                new[] { new CutsceneCue(0.1f, "cage"), new CutsceneCue(1.5f, "kie-drop") },
+                intro: new CutsceneIntro(3.0f, Speaker.Kie, "KIE")),
+            new CutsceneShot("The bit", 4.5f,
+                new[]
+                {
+                    new CutsceneLine(0.8f, Speaker.Tones2, "BROUGHT SNACKS."),
+                    new CutsceneLine(2.4f, Speaker.Kie, "LEGEND."),
+                },
+                new[] { new CutsceneCue(2.2f, "snacks") }),
+            new CutsceneShot("The release", 6f,
+                new[]
+                {
+                    new CutsceneLine(0.3f, Speaker.Narrator, "Then he sets tones2's tabk free.", "freeing-2"),
+                    new CutsceneLine(3.6f, Speaker.Kie, "YOURS. CALL IT WHEN YOU NEED IT."),
+                },
+                new[] { new CutsceneCue(1.2f, "rip"), new CutsceneCue(1.6f, "drone"), new CutsceneCue(2.7f, "lift"), new CutsceneCue(4.2f, "remote") }),
+            new CutsceneShot("Lights out", 5f,
+                new[]
+                {
+                    new CutsceneLine(0.9f, Speaker.Kie, "I'M GONNA... SIT THIS ONE OUT."),
+                    new CutsceneLine(3.0f, Speaker.Narrator, "kie's done for the night. tones2 isn't.", "freeing-3"),
+                },
+                new[] { new CutsceneCue(0.1f, "alarm"), new CutsceneCue(2.6f, "alarm") }));
+
+        /// <summary>
         /// A stand-in for later missions' co-op scenes, for the two-phone check (<c>?test=scene</c>, CI's co-op test):
         /// Mission one is single player only, so its own scenes never play in a co-op room. Six plain shots on the
         /// opening's stage, each held long enough that a phone tapping alone is plainly waiting.

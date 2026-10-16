@@ -423,6 +423,20 @@ namespace PooketSlug
             Team = new TeamSuperShow(this, combo, fired, Player.Def, shot.Velocity.y >= 0f ? 1 : -1);
         }
 
+        /// <summary>
+        /// Raised when Trollogram kie has glitched out, solo: the freeing scene plays, and wins the mission after it.
+        /// With nobody listening, the mission's won straight away.
+        /// </summary>
+        public event System.Action PilotFreed;
+
+        /// <summary>The pilot's glitched out, solo: on to the freeing scene (<c>docs/design/story.md</c>, Freeing kie).</summary>
+        public void OnPilotFreed()
+        {
+            Log.Game.Info("Pilot glitched out: the real kie is freed");
+            if (PilotFreed != null) PilotFreed();
+            else OnBossDestroyed();
+        }
+
         /// <summary>The mission's last boss is beaten (the pilot glitched out): the mission's won.</summary>
         public void OnBossDestroyed()
         {

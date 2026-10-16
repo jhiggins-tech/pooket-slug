@@ -64,13 +64,11 @@ namespace PooketSlug.Tests
         }
 
         [Test]
-        public void ThePilotGlitchSpikeIsItsOwn()
+        public void ThePilotGlitchIsNoLongerASpike()
         {
-            Spike.Configure(Page + "?spike=pilot-glitch");
-            Assert.IsTrue(Spike.PilotGlitch);
-            Assert.AreEqual("SPIKE TEST · PILOT GLITCH-OUT", Spike.Label);
-            Spike.Configure(Page + "?spike=pilot");
-            Assert.IsFalse(Spike.PilotGlitch);
+            Spike.Configure(Page + "?spike=pilot-glitch"); // the glitch-out and the freeing scene are the game's own now
+            Assert.IsFalse(Spike.Any);
+            Assert.IsNull(Spike.Label);
         }
 
         [Test]

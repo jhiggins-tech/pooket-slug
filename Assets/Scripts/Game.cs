@@ -171,6 +171,7 @@ namespace PooketSlug
             var world = new World(m_Camera, mission, net, Soldier) { TanksToCall = m_TankUnlocked || m_TestTank || (Spike.CallIn && net == null) ? 1 : 0, SkipToPilot = m_TestPilot, WeakPilot = m_TestWeakPilot, TestTeam = m_TestTeam };
             world.BossIntro += OnBossIntro;
             world.BossFightStarted += OnBossFightStarted;
+            world.PilotFreed += OnPilotFreed;
             world.TankWrecked += OnTankWrecked;
             m_IntroName = null;
             if (m_TestCrate)
@@ -634,6 +635,27 @@ namespace PooketSlug
         /// </summary>
         bool PlaysMotorPool => !m_Coop && m_Mission == Missions.One &&
             (m_TestReveal || !m_Profile.HasSeen(Cutscenes.MotorPool.Id) && !m_TestBoss && !m_TestTeam);
+
+        /// <summary>
+        /// Trollogram kie glitched out, solo: the freeing scene, then the mission's won. (The coda, when it's built,
+        /// comes between them.)
+        /// </summary>
+        void OnPilotFreed()
+        {
+            if (m_Coop)
+            {
+                m_World.OnBossDestroyed();
+                return;
+            }
+            float playedFor = m_StateTime;
+            PlayScene(Cutscenes.FreeingKie, false, () =>
+            {
+                m_Paused = false;
+                SetState(GameState.Playing);
+                m_StateTime = playedFor;
+                m_World.OnBossDestroyed();
+            });
+        }
 
         void StartBossIntro(BossEnemy boss, bool firstTime)
         {
