@@ -154,10 +154,10 @@ namespace PooketSlug
                 foreach (Enemy e in w.Enemies)
                 {
                     if (!e.Shootable || !Overlaps(e.Bounds, p.Pos, p.Radius)) continue;
-                    if (!p.Cosmetic && p.Def.ContactDamage)
+                    if (p.Def.ContactDamage)
                     {
-                        DamageEnemy(e, p.Damage);
-                        w.HitFeel?.Spark(p.Pos, p.Vel, p.Damage >= 2);
+                        if (!p.Cosmetic) DamageEnemy(e, p.Damage); // a partner's shot is theirs to report; here it just sparks
+                        w.HitFeel.Spark(p.Pos, p.Vel, p.Damage >= 2, ours: !p.Cosmetic);
                     }
                     p.Detonate();
                     break;
@@ -208,7 +208,7 @@ namespace PooketSlug
             w.Burst(at, Mathf.RoundToInt(6 * size), new Color(0.35f, 0.3f, 0.28f));
             Sfx.Play(Sfx.Explosion, Mathf.Clamp01(0.4f + size * 0.4f));
             w.View.Shake(0.1f * size);
-            w.HitFeel?.Blast(size);
+            w.HitFeel.Blast(size);
             if (damage <= 0) return;
             if (w.Level.Craters != null && w.Level.Craters.Dig(at, radius)) w.CraterView.Refresh();
 

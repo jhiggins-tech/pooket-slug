@@ -18,25 +18,25 @@ namespace PooketSlug.Tests
             Assert.IsNull(Spike.Label);
         }
 
-        [TestCase("?spike=hits", true)]
-        [TestCase("?SPIKE=Hits,TANK", true)]
-        [TestCase("?spike=tones2,holo,chip,tank", false)] // all four are in the game now: no spikes for them
-        [TestCase("?spike=hit", false)]
-        public void TheAddressTurnsSpikesOn(string query, bool hits)
+        [TestCase("?spike=craters", true)]
+        [TestCase("?SPIKE=Craters,TANK", true)]
+        [TestCase("?spike=tones2,holo,chip,tank,hits", false)] // all five are in the game now: no spikes for them
+        [TestCase("?spike=crater", false)]
+        public void TheAddressTurnsSpikesOn(string query, bool craters)
         {
             Spike.Configure(Page + query);
-            Assert.AreEqual(hits, Spike.Hits);
-            Assert.AreEqual(hits, Spike.Label != null);
+            Assert.AreEqual(craters, Spike.Craters);
+            Assert.AreEqual(craters, Spike.Label != null);
         }
 
         [Test]
         public void TheBannerNamesEverySpikeThatsOn()
         {
-            Spike.Configure(Page + "?spike=hits,holo");
-            Assert.IsTrue(Spike.Hits);
-            Assert.AreEqual("SPIKE TEST · HIT FEEL", Spike.Label);
-            Spike.Configure(Page + "?spike=hits");
-            Assert.AreEqual("SPIKE TEST · HIT FEEL", Spike.Label);
+            Spike.Configure(Page + "?spike=craters,holo");
+            Assert.IsTrue(Spike.Craters);
+            Assert.AreEqual("SPIKE TEST · CRATERS", Spike.Label);
+            Spike.Configure(Page + "?spike=hits"); // the hit feel is the game's own now: no longer a spike
+            Assert.IsNull(Spike.Label);
             Spike.Configure(Page + "?spike=kie"); // kie's tank is the game's own boss now: no longer a spike
             Assert.IsNull(Spike.Label);
             Spike.Configure(Page + "?spike=kie-weasels,kie-trollogram,kie-steal,steal"); // kie's kit is the game's own now

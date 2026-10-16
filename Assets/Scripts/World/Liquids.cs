@@ -169,6 +169,7 @@ namespace PooketSlug
             e.Shove = Vector2.ClampMagnitude(e.Shove + dir * m_Push, spec.MaxShove);
             Color fleck = m_Kind == DropKind.Spew ? Tones2Art.Spew : Tones2Art.Water;
             if (Rng.Fx.Value < 0.4f) World.SpawnParticle(at, new Vector2(-dir.x * Rng.Fx.Range(1f, 3f), Rng.Fx.Range(1f, 4f)), fleck, 1.5f, 0.35f);
+            World.HitFeel.Fizz(at);
             World.Liquids.Splat(0.25f);
             if (m_Kind == DropKind.Jet && e.HalfW >= 1f) SplashOff(at); // something big up close splashes back too
         }
