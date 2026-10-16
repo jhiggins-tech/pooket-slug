@@ -8,13 +8,12 @@ Up: [Build pipeline](README.md)
 
 ## Deploying
 
-- **The workflow pushes the build to the `gh-pages` branch** with `peaceiris/actions-gh-pages@v4`, using `publish_dir: build/WebGL/WebGL` and `force_orphan: true`. Each deploy is a single fresh commit with the message `Deploy <sha> from <branch>`.
+- **The workflow deploys into the `gh-pages` branch** with `tools/pages_deploy.sh`: the main line, `claude/gallant-keller-3qzp97`, into the root, and any other branch into `previews/<branch without claude/>/`, leaving the rest of the site as it was. gh-pages stays one commit with no history, pushed with a lease so builds of different branches can land at once.
 - **One-time setting:** Settings → Pages → Build and deployment → Source: **Deploy from a branch** → `gh-pages` / `(root)`.
 - **Why a branch and not `actions/deploy-pages`:** the official route deploys through the `github-pages` environment, which by default only accepts the default branch. The branch route let a `claude/**` feature branch deploy with no environment changes.
 - **Timing:**
   - The first publish after switching the Pages source took a couple of minutes, and the site returned 404 until then.
   - After that, GitHub's own "pages build and deployment" job takes about 20 s per deploy.
-- **Every successful build overwrites `gh-pages`,** whichever branch it came from. That's right for a spike. A team would want `main` at the root and branch previews in subfolders (`destination_dir` + `keep_files`). See [next steps](../next-steps.md).
 
 ## Compression
 
@@ -22,7 +21,6 @@ Up: [Build pipeline](README.md)
 - So the build script sets `PlayerSettings.WebGL.compressionFormat = Disabled` and `decompressionFallback = false`. Pages then gzips responses on the fly (`content-encoding: gzip`), and nothing has to be configured on the server.
 - Brotli plus `decompressionFallback` would probably save only another 15–20%, at the cost of decompressing in JavaScript. It isn't worth it for now.
 - Pages serves `.wasm` as `application/wasm`.
-- Measured sizes are in [numbers](numbers.md#download-size).
 
 ## The WebGL template
 

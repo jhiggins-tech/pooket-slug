@@ -17,17 +17,17 @@ Up: [Research index](AGENTS.md)
 - **A custom `buildMethod` is the control point.** One editor script creates the scene, sets PlayerSettings, stamps the commit into the version and bakes config. GameCI's `customParameters` passes anything else. → [build script](build-pipeline/unity-project.md#the-build-script)
 - **A code-only project means no hand-written Unity YAML.** Only `ProjectVersion.txt`, the manifest, scripts and one template are committed; Unity generates the rest in CI. → [unity project](build-pipeline/unity-project.md#a-code-only-project)
 - **Deploying through a `gh-pages` branch decouples deploys from `main`.** A feature branch can deploy without environment rules. → [pages](build-pipeline/github-pages.md#deploying)
-- **Turn WebGL compression off for Pages.** Pages gzips on the fly: 35.4 MB became 10.4 MB over the wire with Fusion (7.2 MB without), and 51.4 MB becomes 14.1 MB since uGUI. → [pages](build-pipeline/github-pages.md#compression), [numbers](build-pipeline/numbers.md)
+- **Turn WebGL compression off for Pages.** Pages gzips on the fly: 35.4 MB became 10.4 MB over the wire with Fusion (7.2 MB without), and 51.4 MB becomes 14.1 MB since uGUI. → [pages](build-pipeline/github-pages.md#compression)
 - **Check the GameCI image exists before pinning a Unity version,** and **pin packages to the versions bundled in the editor**, so package resolution needs no registry. → [unity project](build-pipeline/unity-project.md#version-and-editor-image)
 - **Not knowing Active Input Handling up front is fine** if input code supports both backends. → [input](build-pipeline/unity-project.md#input)
 - **IMGUI's default font lacks glyphs** such as `∞` and `→`. Only the real build showed it. → [gotchas](build-pipeline/unity-project.md#gotchas)
-- **The concurrency group is global, and each push cancels the run in flight.** → [workflow](build-pipeline/workflow.md#triggers-permissions-and-concurrency)
-- **Find out what a package really adds before reaching for stripping.** uGUI added 36% to the download, mostly UI Toolkit: the Input System brings in UI Toolkit's module, and uGUI's event system then calls into it. `Low` stripping removed 24 KB. The build's IL2CPP metadata counts the types each assembly kept. → [numbers](build-pipeline/numbers.md#what-ugui-costs)
+- **The concurrency group is per branch, and a run in flight finishes** (until 16 Oct it was global and cancelling, so with several threads pushing nothing deployed). → [workflow](build-pipeline/workflow.md#triggers-permissions-and-concurrency)
+- **Find out what a package really adds before reaching for stripping.** uGUI added 36% to the download, mostly UI Toolkit: the Input System brings in UI Toolkit's module, and uGUI's event system then calls into it. `Low` stripping removed 24 KB. The build's IL2CPP metadata counts the types each assembly kept.
 
 ## Netcode
 
-- **Use Fusion 2 Shared Mode for WebGL.** Client/Server modes aren't available there. Realtime 5 doesn't list WebGL, PUN 2 is in maintenance, and Quantum would mean a rewrite. → [choosing a stack](netcode/choosing-a-stack.md)
-- **Don't adopt a 2D platformer framework at this size.** The hand-written systems fit owner-simulated co-op better. Do adopt pooling and a real UI system. → [frameworks check](netcode/choosing-a-stack.md#are-we-reinventing-the-wheel-the-2d-frameworks-check)
+- **Use Fusion 2 Shared Mode for WebGL.** Client/Server modes aren't available there. Realtime 5 doesn't list WebGL, PUN 2 is in maintenance, and Quantum would mean a rewrite.
+- **Don't adopt a 2D platformer framework at this size.** The hand-written systems fit owner-simulated co-op better. Do adopt pooling and a real UI system.
 - **A license-restricted SDK can live in a private release.** CI fetches it with a read-only token, checks a SHA-256 and unpacks the `.unitypackage` with 50 lines of Python, before Unity starts. → [SDK in CI](netcode/sdk-in-ci.md)
 - **Fusion's weaver works in a single CI pass.** We expected to need a warm-up build and committed ProjectSettings. Instead, batch-mode Unity force-recompiles as soon as Fusion's installer adds its defines. → [defines and weaver](netcode/sdk-in-ci.md#fusions-defines-and-the-il-weaver)
 - **Network objects don't need prefabs.** Bake a code-built template and register it with `NetworkPrefabSourceStatic` under a fixed GUID. → [architecture](netcode/architecture.md#network-objects-without-prefabs)
@@ -41,8 +41,8 @@ Up: [Research index](AGENTS.md)
 - **Sessions are per region, so either fix the region or put it in the room code.** We first put it in the code (`ABCD-EU`), then fixed every game to Australia, which made codes four letters. **A mistyped code silently creates an empty room** in Shared Mode, so check for it. → [sessions](netcode/sessions.md#regions-and-room-codes)
 - **Set `AppVersion` to the build version.** Mismatched builds never meet, which is also why doc-only pushes shouldn't redeploy. → [build versions](netcode/sessions.md#build-versions)
 - **Browsers pause hidden tabs,** which freezes a co-op player. Test in two visible windows. → [hidden tabs](netcode/sessions.md#hidden-tabs)
-- **Fusion costs about 3.2 MB of download and about a minute of build time.** → [numbers](build-pipeline/numbers.md)
-- **The free 20 CCU plan is for development only.** Fusion apps qualify for the free 100 CCU commercial plan. → [free tier](netcode/choosing-a-stack.md#free-tier-and-licensing)
+- **Fusion costs about 3.2 MB of download and about a minute of build time.**
+- **The free 20 CCU plan is for development only.** Fusion apps qualify for the free 100 CCU commercial plan.
 
 ## Verification
 
@@ -60,5 +60,5 @@ Up: [Research index](AGENTS.md)
 - **Fail early and by name when a secret is missing.** A missing secret is an empty string, not an error. The `VENDOR_PAT` guard made a name mismatch a one-minute fix. → [secrets](build-pipeline/workflow.md#secrets)
 - **Print one diagnostics line from the build script.** `[PooketSlug] Fusion SDK present / IL weaver compiled / defines / AppId` answers most CI questions without reading Unity's log. → [reading logs](build-pipeline/workflow.md#reading-ci-logs)
 - **Re-run a workflow run after adding a secret.** No commit is needed.
-- **Spot-check delegated research.** The frameworks check came from a background agent; the two claims its verdicts leaned on most were checked against their sources before being relied on. → [frameworks check](netcode/choosing-a-stack.md#are-we-reinventing-the-wheel-the-2d-frameworks-check)
+- **Spot-check delegated research.** The frameworks check came from a background agent; the two claims its verdicts leaned on most were checked against their sources before being relied on.
 - **Keep docs out of the build trigger.** `**.md` and `docs/**` are path-ignored, so research never redeploys the game. → [workflow](build-pipeline/workflow.md#triggers-permissions-and-concurrency)

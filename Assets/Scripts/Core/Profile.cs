@@ -32,7 +32,7 @@ namespace PooketSlug
 
     /// <summary>
     /// What the game keeps about a player between visits. It's the local half of the record that sign-in will
-    /// keep in the cloud (<c>docs/research/roadmap/refactor-plan.md</c>, "The player record"), so nothing in it
+    /// keep in the cloud (<c>Save/CloudAccount.cs</c>), so nothing in it
     /// goes back down, and two copies merge by taking the better of each. Fields are lower case because they're
     /// the saved form.
     /// </summary>

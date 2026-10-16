@@ -16,28 +16,22 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
 | Area | State | Where |
 |---|---|---|
 | GameCI → WebGL → GitHub Pages | ✅ Live; each push redeploys in 6–8 min | [build-pipeline](build-pipeline/README.md) |
-| Online co-op (Fusion 2.1.3, Shared Mode) | ✅ Live; played by the owner on 2026-10-14 | [netcode](netcode/README.md), [test log](verification/test-log.md) |
+| Online co-op (Fusion 2.1.3, Shared Mode) | ✅ Live; played by the owner on 2026-10-14 | [netcode](netcode/README.md) |
 | Verification without a Unity license | ✅ Working toolkit, re-tested 2026-10-14 | [verification](verification/README.md) |
-| Feature roadmap | ✅ Sorted by the owner on 2026-10-14 (MoSCoW) | [roadmap](roadmap/README.md) |
-| Refactor pass | ✅ All 16 steps landed 2026-10-14, each verified in CI; some parts wait for their features | [refactor plan](roadmap/refactor-plan.md) |
+| Refactor pass | ✅ All 16 steps landed 2026-10-14; the next round is on the Roadmap (rf-*) | |
 | Automated tests | ✅ EditMode tests before each build, and the two-player co-op test after each deploy | [EditMode tests](verification/edit-mode-tests.md), [browser tests](verification/browser-tests.md) |
-| "Sign in with Google" spike | ⏳ Reusing the Cardmaster Firebase project. Database rules for the player record and a friends board are live (merged into Cardmaster and deployed). Waiting on the owner: the console steps and the repository variables | [accounts](accounts/README.md), [todo](todo.md) |
+| "Sign in with Google" spike | ⏳ Reusing the Cardmaster Firebase project. Database rules for the player record and a friends board are live (merged into Cardmaster and deployed). Waiting on the owner: the console steps and the repository variables | [accounts](accounts/README.md), todo |
 
-**Live build:** https://jhiggins-tech.github.io/pooket-slug/ · **What's next:** [todo.md](todo.md) · **Game design:** [docs/design](../design/README.md) (the one source; [DESIGN.md](../../DESIGN.md) is the frozen brainstorm)
+**Live build:** https://jhiggins-tech.github.io/pooket-slug/ · **What's next:** [the Roadmap](https://claude.ai/artifact/1AWnQDGtUmiKMnjPgcbru9) · **Game design:** [docs/design](../design/README.md) (the one source; its [history](../design/history.md) keeps the Roguelite and ideas not picked)
 
 ## Contents
 
 - [lessons-learned.md](lessons-learned.md): the findings in one page, each linked to its evidence. It replaces the old root-level `LEARNED-LESSONS.md`.
-- [recipe.md](recipe.md): the minimum steps to reproduce the pipeline, then add Fusion co-op.
-- [todo.md](todo.md): **the working checklist**: the owner's and Claude's items, in order, with what each one waits on.
-- [next-steps.md](next-steps.md): longer-term ideas for the pipeline, code and gameplay.
 - [build-pipeline/](build-pipeline/README.md): how a push becomes a playable page.
   - [workflow.md](build-pipeline/workflow.md): every workflow step, secrets, caching, concurrency, reading CI logs.
   - [unity-project.md](build-pipeline/unity-project.md): the Unity version and image, the code-only project, packages and modules, input, `WebGLBuild.cs`.
   - [github-pages.md](build-pipeline/github-pages.md): deploying, compression, the WebGL template, caching.
-  - [numbers.md](build-pipeline/numbers.md): build times and download sizes per run, before and after Fusion.
 - [netcode/](netcode/README.md): online two-player co-op with Photon Fusion 2.
-  - [choosing-a-stack.md](netcode/choosing-a-stack.md): Photon's SDKs compared, the 2D frameworks check, the free tier and licensing.
   - [sdk-in-ci.md](netcode/sdk-in-ci.md): the private SDK release, unpacking without Unity, Fusion's defines and weaver, upgrading.
   - [architecture.md](netcode/architecture.md): authority, replicated state, RPCs, prefab-less network objects, the sync loop, host migration.
   - [sessions.md](netcode/sessions.md): hosting, room codes, joining, quick match, failures, console logs, testing by hand.
@@ -46,15 +40,10 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
   - [fusion-weaver.md](verification/fusion-weaver.md): running Fusion's IL weaver outside Unity.
   - [edit-mode-tests.md](verification/edit-mode-tests.md): the Core assembly's NUnit tests, how CI and you run them, and the bugs they caught on purpose.
   - [browser-tests.md](verification/browser-tests.md): Playwright smoke and two-browser co-op tests, and the sandbox's network limits.
-  - [test-log.md](verification/test-log.md): what was tested, when, how, and the result.
   - [tools/](verification/tools/README.md): the scripts (`extract-unity.sh`, `compile_unity.py`, `weave.sh`, `run_tests.py`, `smoke.mjs`, …). The two-player test, `tools/coop.mjs`, runs in CI.
 - [accounts/](accounts/README.md): the "Sign in with Google" spike: Google's button plus Firebase over REST (in the shared Cardmaster project) to keep stats and progression per player, with no server.
   - [gcloud-setup.md](accounts/gcloud-setup.md): the console changes, the values to hand back, the trade-offs of sharing, and the separate-project alternative.
   - [database-rules.md](accounts/database-rules.md): this game's section of the shared database rules: the player record, how the game writes it, the tests, and running them in the sandbox.
-- [roadmap/](roadmap/README.md): what to build next. The game design itself is in [docs/design](../design/README.md); [DESIGN.md](../../DESIGN.md) at the repository root is the frozen brainstorm.
-  - [feature-candidates.csv](roadmap/feature-candidates.csv): 176 candidate mechanics and engineering items, with a MoSCoW column for the owner.
-  - [refactor-candidates.md](roadmap/refactor-candidates.md): maintainability work, mapped to the features it unlocks.
-  - [refactor-plan.md](roadmap/refactor-plan.md): the proposed refactor, ordered by the MoSCoW results and the design, with the decisions it needs.
 
 ## Quick facts
 
@@ -75,6 +64,5 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
 - **Put each fact in one leaf document,** and link to it from elsewhere instead of repeating it.
 - **Date your measurements and cite CI run IDs,** so they can be checked.
 - **When you add a document,** add it to its topic `README.md` and to the contents above.
-- **Record test results** in [test-log.md](verification/test-log.md).
 - **Never paste Photon SDK code, secret values, or private-repo code here.** This repository is public, and the SDK is licensed.
-- **Never name the hidden ranks.** Of the rank ladder's 33 ranks, only Bronze, Silver, Gold, Platinum, Diamond, Master, Grandmaster and Champion may be named. Don't name or describe the other 25 in docs, tests or commit messages ([the owner's rule](../../DESIGN.md#ranks)).
+- **Never name the hidden ranks.** Of the rank ladder's 33 ranks, only Bronze, Silver, Gold, Platinum, Diamond, Master, Grandmaster and Champion may be named. Don't name or describe the other 25 in docs, tests or commit messages (the owner's rule).
