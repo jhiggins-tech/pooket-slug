@@ -439,8 +439,10 @@ namespace PooketSlug
 
             Figure who = FigureFor(line.Who);
             Vector2 at = who.Head + new Vector2(0f, 16f);
-            float half = w / 2f + 4f;
-            at.x = Mathf.Clamp(at.x, half, StageW * Px - half);
+            // kept on screen, where the shot's camera has it (its bubble shrinks with the zoom, so it's in world units)
+            float zoom = m_World.localScale.x, half = w / 2f + 4f, view = StageW * Px / 2f / zoom;
+            float middle = StageW * Px / 2f - m_World.anchoredPosition.x / zoom;
+            at.x = Mathf.Clamp(at.x, middle - view + half, middle + view - half);
             if (glitchy && (int)(now * 12f) % 5 == 0) at.x += 2f; // the holograms' bubbles glitch too
             b.Rt.anchoredPosition = at;
             b.Tail.rectTransform.anchoredPosition = new Vector2(Mathf.Clamp(who.Head.x - at.x, -w / 2f + 8f, w / 2f - 8f), 0f);
