@@ -129,6 +129,9 @@ namespace PooketSlug
         public CodaCoach CodaCoach;
         /// <summary>The motor pool's back gate has opened: the coda's on (<c>docs/design/story.md</c>, The coda).</summary>
         public bool CodaOpen;
+        /// <summary>The coda's goons hold back until tones2 is in the tabk, or walks on without it.</summary>
+        public bool CodaUnderway;
+        public const float CodaWalkOn = 8f;
         /// <summary>The back gate, once it's been placed.</summary>
         public BackGate BackGate;
         /// <summary>Raised when the base's last gate goes down, just before the mission's won.</summary>
@@ -302,6 +305,8 @@ namespace PooketSlug
                 CodaCoach.Tick(driving, t?.Pos.x ?? Player.Pos.x, driving && Mathf.Abs(t.Vel.x) > 0.1f, driving && t.Aim.y > 0.3f,
                     driving && t.Rounds.Main < Content.PlayerTank.MainShots, driving && t.Rounds.Specials < Content.PlayerTank.Specials);
             }
+            if (CodaOpen && !CodaUnderway && ((Tank != null && Tank.Occupied && Player.Riding == Tank) || Player.Pos.x > Level.CodaX + CodaWalkOn))
+                CodaUnderway = true;
             Spawner.SpawnAhead();
 
             for (int i = 0; i < Enemies.Count; i++)

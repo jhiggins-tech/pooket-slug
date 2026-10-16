@@ -131,7 +131,10 @@ namespace PooketSlug
                 Ids.CatchUp(w.Net.NextNetId);
             }
             // nothing past the back gate comes in until the coda opens (the gate itself, just past it, does)
-            while (m_Next < level.Spawns.Count && level.Spawns[m_Next].Pos.x < Mathf.Min(w.View.Right + Tuning.Camera.SpawnAhead, level.ScrollLimit + 1f))
+            // and once it's open, its goons wait till tones2 is in the tabk, so calling it in isn't a fight
+            float ahead = Mathf.Min(w.View.Right + Tuning.Camera.SpawnAhead, level.ScrollLimit + 1f);
+            if (w.CodaOpen && !w.CodaUnderway) ahead = Mathf.Min(ahead, level.CodaX + 4f);
+            while (m_Next < level.Spawns.Count && level.Spawns[m_Next].Pos.x < ahead)
             {
                 int index = m_Next++;
                 Spawn s = level.Spawns[index];
