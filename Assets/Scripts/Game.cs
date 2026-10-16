@@ -163,7 +163,7 @@ namespace PooketSlug
         /// <summary>A world for <paramref name="mission"/>, shared when <paramref name="net"/> is given.</summary>
         World NewWorld(MissionDef mission, INetLink net = null)
         {
-            var world = new World(m_Camera, mission, net, Soldier) { TanksToCall = m_TankUnlocked || m_TestTank ? 1 : 0, SkipToPilot = m_TestPilot, WeakPilot = m_TestWeakPilot, TestTeam = m_TestTeam };
+            var world = new World(m_Camera, mission, net, Soldier) { TanksToCall = m_TankUnlocked || m_TestTank || (Spike.CallIn && net == null) ? 1 : 0, SkipToPilot = m_TestPilot, WeakPilot = m_TestWeakPilot, TestTeam = m_TestTeam };
             world.BossIntro += OnBossIntro;
             world.BossFightStarted += OnBossFightStarted;
             world.TankWrecked += OnTankWrecked;
@@ -181,6 +181,7 @@ namespace PooketSlug
                 world.Spawner.SpawnPickup(Content.OneUp, new Vector2(x, world.Level.TopSurfaceY(x)));
             }
             if (m_TestBoss) StartAtBoss(world);
+            if (Spike.CallIn && net == null) world.CallInCoach = new CallInCoach(false); // every visit, so it can be tried again
             if (m_TestTank) world.ParkTank(world.Player.Pos.x + Content.PlayerTank.HalfWidth + 4f); // each player's own, a few steps ahead
             return world;
         }

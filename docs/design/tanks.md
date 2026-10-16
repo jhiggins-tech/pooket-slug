@@ -125,6 +125,8 @@ Wreck the tabk and its Trollogram pilot jumps out to fight you on foot with the 
 - **Choose which tabk** on the mission screen, before you start.
 - **In co-op, each player calls their own,** so both of you can have a tabk out at once.
 
+**Built so far:** the call-in drops your real tabk ([driving a tabk](#driving-a-tabk)) for anyone who has one to call, solo and co-op; until tabks are won in play, only `?unlock=tank` or `?test=tank` give one. **Spike** (2026-10-16, `?spike=callin`, solo): plays as if kie's tabk were won. You have one call-in, and at the first calm moment (a few seconds in, no goons on screen, on foot and on the ground) a blinking hint says HOLD DOWN + SP TO CALL YOUR TABK, until you start a call or for six seconds. In the spike it shows every visit; for real it shows once (the `CallInHinted` event is where the game marks it seen). A called-in tabk blinks a landing marker on the ground where it will land. Code: `Core/CallInCoach.cs`, `World.CallInCoach`, the hint in `HudView`, the marker in `PlayerTank`. Open: when real players get the call-in (after beating Mission one, or with Mission two), and the tabk choice on the mission screen, which waits for a second tabk.
+
 ## Not planned
 
 - **Won't:** flying vehicles, submarines and animal mounts.

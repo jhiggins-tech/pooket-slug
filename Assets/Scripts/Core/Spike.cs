@@ -7,14 +7,14 @@ namespace PooketSlug
     /// Spike tests: small throwaway experiments switched on from the page address, so they ride along in the
     /// normal build without changing the game anyone else plays. <c>?spike=craters</c> turns on
     /// blasts digging craters in the boss arena, <c>?spike=music</c> the music's first cut, <c>?spike=cutscenes</c> the opening scene
-    /// before Mission one, <c>?spike=pilot-glitch</c> hologram kie's big glitch-out and the real kie freed (<c>cutscenes-coop</c> adds a pretend partner who has to tap too). Spikes are solo only: a
+    /// before Mission one, <c>?spike=pilot-glitch</c> hologram kie's big glitch-out and the real kie freed, <c>?spike=callin</c> a tabk to call in as if kie's were won (<c>cutscenes-coop</c> adds a pretend partner who has to tap too). Spikes are solo only: a
     /// co-op game ignores them.
     /// </summary>
     public static class Spike
     {
         public const string CratersKey = "craters", MusicKey = "music";
         public const string CutscenesKey = "cutscenes", CutscenesCoopKey = "cutscenes-coop", NarratorKey = "narrator";
-        public const string PilotGlitchKey = "pilot-glitch";
+        public const string PilotGlitchKey = "pilot-glitch", CallInKey = "callin";
 
         /// <summary>Blasts dig craters in the boss arena (<see cref="CraterGround"/>).</summary>
         public static bool Craters;
@@ -37,7 +37,13 @@ namespace PooketSlug
         /// <summary>Hologram kie's big glitch-out when he's beaten, and the real kie freed (<see cref="PilotFreeingSpec"/>).</summary>
         public static bool PilotGlitch;
 
-        public static bool Any => Craters || Music || Scenes || PilotGlitch;
+        /// <summary>
+        /// The tabk call-in as if kie's tabk were won: one to call in, the hint showing how at the first calm moment
+        /// (<see cref="CallInCoach"/>, every visit), and a marker where it'll land.
+        /// </summary>
+        public static bool CallIn;
+
+        public static bool Any => Craters || Music || Scenes || PilotGlitch || CallIn;
 
         /// <summary>Reads <c>?spike=</c> from the page address.</summary>
         public static void Configure(string url)
@@ -50,6 +56,7 @@ namespace PooketSlug
             Scenes = ScenesCoop || Narrator || Array.IndexOf(keys, CutscenesKey) >= 0;
             Voice = PageQuery.Get(url, "voice")?.Trim().ToLowerInvariant();
             PilotGlitch = Array.IndexOf(keys, PilotGlitchKey) >= 0;
+            CallIn = Array.IndexOf(keys, CallInKey) >= 0;
         }
 
         /// <summary>What the start banner says, or null when no spike is on.</summary>
@@ -64,6 +71,7 @@ namespace PooketSlug
                 if (Narrator) parts.Add("NARRATOR");
                 else if (Scenes) parts.Add("CUTSCENES");
                 if (PilotGlitch) parts.Add("PILOT GLITCH-OUT");
+                if (CallIn) parts.Add("TABK CALL-IN");
                 return "SPIKE TEST · " + string.Join(" + ", parts);
             }
         }

@@ -54,6 +54,16 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void TheCallInSpikeIsItsOwn()
+        {
+            Spike.Configure(Page + "?spike=callin");
+            Assert.IsTrue(Spike.CallIn);
+            Assert.AreEqual("SPIKE TEST · TABK CALL-IN", Spike.Label);
+            Spike.Configure(Page + "?spike=call");
+            Assert.IsFalse(Spike.CallIn);
+        }
+
+        [Test]
         public void ThePilotGlitchSpikeIsItsOwn()
         {
             Spike.Configure(Page + "?spike=pilot-glitch");

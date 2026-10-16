@@ -35,6 +35,9 @@ namespace PooketSlug
         public readonly TankFuel Fuel = new TankFuel(Content.PlayerTank);
 
         readonly TankLook m_Look;
+        /// <summary>Where a called-in tank will land, blinking on the ground while it drops.</summary>
+        readonly SpriteRenderer m_Marker;
+        readonly float m_LandY;
         Vector2 m_Aim;
         float m_BarrelAngle, m_FireCooldown, m_Grace, m_Runaway, m_Muzzle, m_Hint;
         bool m_SaidEmpty, m_SaidDry;
@@ -47,7 +50,15 @@ namespace PooketSlug
             m_Aim = new Vector2(facing, 0f);
             m_BarrelAngle = TankAim.Angle(m_Aim);
             m_Look = new TankLook(Go.transform, SortOrder.Player + 1);
-            if (mode == State.Dropping) Vel = new Vector2(0f, -Spec.DropSpeed);
+            if (mode != State.Dropping) return;
+            Vel = new Vector2(0f, -Spec.DropSpeed);
+            m_LandY = world.Level.TopSurfaceY(feet.x);
+            var marker = new GameObject("Landing marker");
+            marker.transform.SetParent(Go.transform, false);
+            m_Marker = marker.AddComponent<SpriteRenderer>();
+            m_Marker.sprite = Art.LandingMarker;
+            m_Marker.color = new Color(1f, 0.85f, 0.3f);
+            m_Marker.sortingOrder = SortOrder.Effects;
         }
 
         /// <summary>An empty tank, parked on the ground at <paramref name="x"/>, facing right.</summary>
@@ -317,6 +328,12 @@ namespace PooketSlug
             base.Render();
             bool blink = Mode == State.Runaway && (int)(m_Runaway * 12f) % 2 == 0;
             m_Look.Apply(Vector2.zero, Facing, m_BarrelAngle, FlashTimer > 0f, m_Muzzle > 0f, blink);
+            if (m_Marker != null)
+            {
+                bool shown = Mode == State.Dropping && (int)(Time.time * 8f) % 2 == 0;
+                if (m_Marker.enabled != shown) m_Marker.enabled = shown;
+                m_Marker.transform.localPosition = new Vector3(0f, m_LandY - Pos.y + 0.05f, 0f);
+            }
         }
     }
 }
