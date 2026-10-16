@@ -27,6 +27,7 @@ namespace PooketSlug
 
         NetworkRunner m_Runner;
         readonly NetReplication m_Replication = new NetReplication();
+        readonly MasterWatch m_MasterWatch = new MasterWatch();
 
         public NetState State { get; private set; }
         public string Status { get; private set; } = "";
@@ -172,6 +173,20 @@ namespace PooketSlug
             }
             if (!m_Runner.IsRunning) return;
             m_Replication.Tick(m_Runner);
+            WatchMaster();
+        }
+
+        /// <summary>
+        /// A host whose phone went to the background stops the shared world for everyone until Photon times them out:
+        /// once their beat has stopped, ask to run it ourselves (<see cref="MasterWatch"/>).
+        /// </summary>
+        void WatchMaster()
+        {
+            PlayerRef master = m_Runner.GetMasterClient();
+            bool canTakeOver = m_Replication.Ready && !m_Runner.IsSharedModeMasterClient;
+            if (!m_MasterWatch.Tick(Time.unscaledDeltaTime, master.PlayerId, m_Replication.BeatOf(master), canTakeOver)) return;
+            Log.Net.Info($"{master} has been quiet for {m_MasterWatch.Quiet:0.0} s: asking to run the shared world");
+            m_Runner.RequestMasterClientReassign();
         }
 
         void Fail(string why) => Clear(NetState.Failed, why);

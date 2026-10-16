@@ -3,5 +3,7 @@
     "PooketSlug.Net",
     "Assembly-CSharp",
     "Assembly-CSharp-firstpass"
-  ]
+  ],
+  "AllowMasterClientReassignRequest": true,
+  "MasterClientRequestReassignThreshold": 2.0
 }

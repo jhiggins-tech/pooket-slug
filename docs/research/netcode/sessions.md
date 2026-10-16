@@ -110,6 +110,7 @@ Fusion and Photon log with their own prefixes, for example `[Fusion] StartGame F
 
 - **Browsers pause `requestAnimationFrame` in hidden tabs,** and Unity WebGL's main loop runs on it.
 - **A backgrounded player freezes,** and after a timeout Photon drops them. If that player was the master, the other inherits the world.
+- **A frozen host doesn't freeze the game for long** (rooms, 2026-10-16). Every player's `PlayerNet` carries a beat that changes four times a second while their game runs. When the master's beat stops for 2 s, the partner asks Photon for the master client (`NetworkRunner.RequestMasterClientReassign`, [`MasterWatch`](../../../Assets/Scripts/Core/Handover.cs)), and Photon agrees once the master's connection has been idle for `MasterClientRequestReassignThreshold` (2 s, opted into in `NetworkProjectConfig.fusion`). The shared world, a master-client object, moves with it. A host who comes back follows the partner's world. CI's handover round freezes the host's page to check it.
 - **Test with two visible windows side by side, or two devices.** Not two tabs in one window.
 
 ## Testing by hand

@@ -64,6 +64,9 @@ namespace PooketSlug
                 Log.Net.Info(m_WasAuthority ? "This client now runs the shared world" : "Another client runs the shared world");
             }
 
+            // Our beat, so the others can tell our game is still running (MasterWatch).
+            if (m_Local != null) m_Local.NetBeat = (byte)PartnerBeacon.BeatAt(Time.unscaledTime);
+
             // Two soldiers in the same colours (both picked "red" while joining together): the higher id switches.
             if (m_Local != null)
             {
@@ -88,6 +91,14 @@ namespace PooketSlug
         {
             m_Players.Remove(p);
             if (m_Local == p) m_Local = null;
+        }
+
+        /// <summary>The beat of <paramref name="player"/>'s soldier, or -1 when they have none.</summary>
+        internal int BeatOf(PlayerRef player)
+        {
+            foreach (PlayerNet p in m_Players)
+                if (p.Object != null && p.Object.IsValid && p.Object.StateAuthority == player) return p.Beat;
+            return -1;
         }
 
         internal void OnWorldSpawned(WorldNet w) => m_Shared = w;

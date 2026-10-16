@@ -22,6 +22,7 @@ namespace PooketSlug
         [Networked] public byte NetDen { get; set; }  // Den.Flags while in the den (the lobby), 0 once playing
         [Networked] public int NetScene { get; set; } // CutsceneSync.Pack() while in a co-op cutscene, else 0
         [Networked] public int NetScore { get; set; } // their own points, from their kills
+        [Networked] public byte NetBeat { get; set; } // PartnerBeacon.BeatAt: changes four times a second while their game runs (MasterWatch)
 
         bool Live => Object != null && Object.IsValid;
 
@@ -39,6 +40,8 @@ namespace PooketSlug
         public int DenFlags => Live ? NetDen : 0;
         public int SceneTaps => Live ? NetScene : 0;
         public bool Playing => Live && NetRound > 0;
+        /// <summary>Their beat (<see cref="MasterWatch"/>), -1 once they've gone.</summary>
+        public int Beat => Live ? NetBeat : -1;
 
         public override void Spawned() => NetSession.Instance?.Replication.OnPlayerSpawned(this);
 

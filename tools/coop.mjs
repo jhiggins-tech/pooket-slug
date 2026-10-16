@@ -6,6 +6,10 @@
 //   dropin mode:         spike drop-in: A starts alone and fights its way in, then B joins the mission under way. B
 //                        must drop in partway with its own lives and a score of its own at 0, both play on, and
 //                        (reported, not required: kills aren't certain) each sees the other's own score. Nobody leaves.
+//   handover mode:       rooms: as code mode, then A's page is frozen (as a phone does to a game sent to the
+//                        background) while both play. B must notice A's beat stop, ask Photon for the shared world and
+//                        run it, well before Photon would time A out, and play on. Then A comes back (reported, not
+//                        required: it may have been timed out by then) and should follow B's world.
 //   scene mode:          as code mode, but both sit down in the den together and start at once, with ?test=scene, so
 //                        a stand-in scene plays on both phones (Mission one is single player only, so its own scenes
 //                        never play in co-op): both tap through it, and it must move on for both, together, each shot
@@ -22,7 +26,7 @@ const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PW_PATH || 'playwright');
 
 const [base, out, mode = 'code'] = process.argv.slice(2);
-const BOSS = mode === 'boss', SCENE = mode === 'scene', DROPIN = mode === 'dropin';
+const BOSS = mode === 'boss', SCENE = mode === 'scene', DROPIN = mode === 'dropin', HANDOVER = mode === 'handover';
 const url = base + (base.includes('?') ? '&' : '?') + 'unlock=coop&test=' + (BOSS ? 'boss' : SCENE ? 'crate,scene' : 'crate') + (DROPIN ? '&spike=dropin,partner' : '');
 fs.mkdirSync(out, { recursive: true });
 const T0 = Date.now();
@@ -31,7 +35,9 @@ const TAG = String.raw`\[PooketSlug(?:/\w+)?\]`; // "[PooketSlug/Net] …" (olde
 const ARGS = ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--autoplay-policy=no-user-gesture-required'];
 
 // Each check is false until it passes; result.json records them all.
-const checks = DROPIN
+const checks = HANDOVER
+  ? { hostOnline: false, guestOnline: false, joined: false, played: false, asked: false, tookOver: false, quick: false, playedOn: false }
+  : DROPIN
   ? { hostOnline: false, guestOnline: false, joined: false, droppedIn: false, played: false }
   : BOSS
   ? { hostOnline: false, guestOnline: false, joined: false, played: false, bossIntro: false, bossFought: false, bossFollowed: false, bossFired: false }
@@ -182,6 +188,31 @@ try {
     await Promise.all([play(A, 'ArrowRight', 4000), play(B, 'ArrowRight', 4000)]);
     await Promise.all([shot(A, '4-playing'), shot(B, '4-playing')]);
     checks.played = ![...A.logs, ...B.logs].some(l => /\[pageerror\]|Disconnected from Photon|Session ended/.test(l));
+  } else if (HANDOVER) {
+    await Promise.all([play(A, 'ArrowRight', 5000), play(B, 'ArrowRight', 5000)]);
+    checks.played = ![...A.logs, ...B.logs].some(l => /\[pageerror\]|Disconnected from Photon|Session ended/.test(l));
+    // A's phone sends the game to the background: its page stops running, but its connection stays open
+    const cdp = await A.page.context().newCDPSession(A.page);
+    const frozeAt = Date.now();
+    await cdp.send('Page.setWebLifecycleState', { state: 'frozen' });
+    console.log(`${t()} A frozen`);
+    const playing = play(B, 'ArrowRight', 12000);
+    const asked = await waitLog(B, /quiet for .* asking to run the shared world/, 15000);
+    checks.asked = !!asked;
+    const took = await waitLog(B, /now runs the shared world/, 20000);
+    checks.tookOver = !!took;
+    const secs = took ? (Date.now() - frozeAt) / 1000 : null;
+    checks.quick = secs !== null && secs < 10; // Photon would only time A out after about 10 s
+    console.log(`${t()} handover: ${took ? `B runs the shared world, ${secs.toFixed(1)} s after A froze` : 'NO'}`);
+    await playing;
+    await shot(B, '3-alone');
+    checks.playedOn = !B.logs.some(l => /\[pageerror\]|Disconnected from Photon|Session ended/.test(l));
+    await cdp.send('Page.setWebLifecycleState', { state: 'active' });
+    console.log(`${t()} A back`);
+    const back = await waitLog(A, /Another client runs the shared world/, 15000);
+    console.log(`${t()} A back: ${back ? 'follows B\'s world' : A.logs.some(l => /Session ended|Disconnected/.test(l)) ? 'timed out by Photon' : 'no word'}`);
+    await Promise.all([play(A, 'ArrowRight', 4000), play(B, 'ArrowRight', 4000)]);
+    await Promise.all([shot(A, '4-back'), shot(B, '4-back')]);
   } else if (DROPIN) {
     const line = await waitLog(B, /Dropped in to a mission under way/, 15000);
     checks.droppedIn = !!line;
