@@ -143,7 +143,7 @@ The second reveal: your tabk, called in and driven ([reveals](#reveals-are-story
 1. **"DRIVE"** with the stick (or arrows), shown until you've moved.
 2. **"AIM"**: a few goons on a gantry above; the gun points the same eight ways you aim on foot.
 3. **"FIRE"**: a guard post in the way; shoot it down. The tabk's rounds counter appears for the first time (5 main shots, 3 specials, 1 super), with a note that rounds never refill ([driving a tabk](tanks.md#driving-a-tabk)).
-4. **"SP"**: a wall of goons behind sandbags; the special clears it.
+4. **"SP"**: a wall of goons behind a sandbag nest blocks the road; the mud jump hops the tabk over it, leaving the goons behind it in the mud ([tones2's tabk](tanks.md#tones2s-tabk)).
 5. **The gate:** you smash through it and out onto the road, the snow, the searchlights and a few last explosions behind you. The caption card slams in, and the announcer calls "Mission complete!".
 
 **Tuned to the tabk:** a full tank of fuel gets you through, and the run is beatable on foot if the tabk is wrecked, just harder. Lose your last life in the coda and the continue restarts you at its start, not at the boss.
