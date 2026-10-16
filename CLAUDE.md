@@ -78,9 +78,16 @@ Each file starts with a summary comment saying what it's for.
   orchestral music are WAVs CI fetches from vendor releases into `Resources` (`.bytes`, made into clips in code).
 
 ## Recipes
-**Add a cutscene**: a `CutsceneDef` in `Cutscenes` (and in `Cutscenes.All`), cues from `Cues` (a new cue: its
-constant in `Cues` and what it does in `CutsceneView`; `CueTests` holds every cue to having an effect), narrator
+**Add a cutscene**: a `CutsceneDef` in `Cutscenes` (and in `Cutscenes.All`), cues from `Cues` (`CueTests` holds
+every cue to having an effect), narrator
 lines in the vendor repo's `voice/narration.json` and their lengths in `NarratorClips`, then where it plays in `Game`.
+
+**Add a weapon**: its `WeaponDef` (and `ProjectileDef`, if it fires one) in `Content`, with the next unused id
+(ids ride the network: never change or reuse one), its sprite in `Art` / `ArtData` (keyed by the projectile's id),
+its sound in `Sfx` / `ChipSounds`, and the kit that fires it.
+
+**Add a sound cue to a scene or the boss intro**: its constant in `Cues`, and what it does where it's staged
+(`CutsceneView`, or `BossIntroShow` for the intro).
 
 **Add a mission**: a `MissionDef` in `Missions` (map rows: `Level.cs` says what each character is), its spawns,
 and where it opens (`Profile`, `MissionBoard`).
