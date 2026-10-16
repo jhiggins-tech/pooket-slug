@@ -15,6 +15,8 @@ namespace PooketSlug
         public string Note;
         public int HiScore, Fps;
         public bool Muted;
+        /// <summary>A move's demo is playing (<c>?demo=</c>): the build line and frame rate stay out of the recording.</summary>
+        public bool Demo;
         /// <summary>Co-op: the session, or null in a solo game.</summary>
         public INetSession Net;
         public string PageUrl;
@@ -331,6 +333,8 @@ namespace PooketSlug
         public void Refresh(World w, Camera cam, in HudInfo info)
         {
             Player p = w.Player;
+            Ui.Show(m_Build, !info.Demo);
+            Ui.Show(m_Fps, !info.Demo);
             Ui.Show(m_Top, info.InGame);
             if (info.InGame)
             {

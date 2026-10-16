@@ -913,6 +913,7 @@ namespace PooketSlug
                 InGame = m_State == GameState.Playing || m_State == GameState.GameOver || m_State == GameState.Victory,
                 Playing = m_State == GameState.Playing,
                 Paused = m_Paused,
+                Demo = m_State == GameState.Demo,
                 StateTime = m_StateTime,
                 Note = m_StartNote ?? (m_Coop ? null : Spike.Label),
                 HiScore = m_Profile.Best(m_World.Mission),

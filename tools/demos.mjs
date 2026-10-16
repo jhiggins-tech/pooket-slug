@@ -79,8 +79,8 @@ for (const d of demos) {
   if (d.end === undefined || seen.has(d.id)) continue; // ?demo=all loops: keep each move's first full run
   seen.add(d.id);
   const real = (d.end - d.start) / 1000;
-  // a little off each end: the console's timestamps are a frame or two off the recording's
-  const from = (d.start - T0) / 1000 + 0.1, length = Math.max(0.5, real - 0.2);
+  // a little off each end: the console's timestamps lag the recording, so a cut right at the start shows the last demo
+  const from = (d.start - T0) / 1000 + 0.3, length = Math.max(0.5, real - 0.45);
   const speed = d.seconds / real; // game seconds per recorded second: under 1 on a machine too slow to draw 30 frames a second
   const file = path.join(out, `${d.id}.mp4`);
   execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-ss', from.toFixed(3), '-t', length.toFixed(3), '-i', webm,
