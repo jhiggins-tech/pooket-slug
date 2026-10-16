@@ -36,24 +36,11 @@ namespace PooketSlug
         // online co-op
         INetSession m_Net;      // null when the build has no Photon SDK or AppId
         bool m_Coop;            // m_World is the shared co-op world
-        bool m_Unlocked;        // ?unlock=coop: co-op is open for this visit, for testing
-        bool m_TankUnlocked, m_CrewUnlocked; // ?unlock=crew: the CREW pick is open for this visit, for testing
-        float m_OutFor;         // seconds the game has had nobody left in it (out of lives and continues)    // ?unlock=tank: a tank can be called in each mission, for testing
-        bool m_TestCrate;       // ?test=crate: a crate just ahead of the start, so the co-op test sees one handed out
-        bool m_TestTank;        // ?test=tank: a tank of your own parked just ahead of the start, and one call-in
-        bool m_TestOneUp;       // ?test=1up: a 1-up just ahead of the start
-        bool m_TestCrew;        // ?test=crew: two of the crew plays on the title screen (once a visit), as if Mission one were just beaten
+        float m_OutFor;         // seconds the game has had nobody left in it (out of lives and continues)
+        LaunchFlags m_Flags;    // ?unlock=, ?test= and the rest, read once in Awake
+        bool m_TestCrew;        // ?test=crew, until two of the crew has played (once a visit)
         CrewReveal m_Reveal;
         CrewRevealView m_RevealView;
-        bool m_TestDebrief;     // ?test=debrief: the mission's won as it starts, so the debrief shows (as if it's the first)
-        bool m_TestCoda;        // ?test=coda: a game starts at the coda, the tabk run after the boss, with its prompts
-        bool m_TestKcajTank;    // ?test=kcajtank: the boss is kcaj's tabk (Mission two's), starting at the boss
-        bool m_TestBoss;        // ?test=boss: a game starts just before the boss's arena (co-op too: the co-op test's boss round)
-        bool m_TestPilot;       // ?test=pilot: the same, and the tank's wrecked as it wakes, so the pilot round starts at once
-        bool m_TestTeam;        // ?test=team: solo, a stand-in partner and both supers charged, to try TEAM
-        bool m_TestScene;       // ?test=scene: in co-op, starting together from the den plays a stand-in scene on both phones
-        bool m_TestReveal;      // ?test=reveal: the motor pool reveal plays even if it's been seen (with boss: ?test=boss,reveal)
-        bool m_TestWeakPilot;   // ?test=pilot,weak: and the pilot goes down a few seconds in (or to one shot), to see what beating him does
         string m_Notice, m_StartNote;
         float m_NoticeTime, m_LeaveArmed;
 
@@ -102,18 +89,20 @@ namespace PooketSlug
         bool m_DemoStarted, m_DemoRecording; // the first time through ?demo=all, the page records each demo for CI
 
         /// <summary>Co-op shows only once Mission one has been beaten solo (progressive disclosure).</summary>
-        bool CoopOpen => m_Profile.coop || m_Unlocked;
+        bool CoopOpen => m_Profile.coop || m_Flags.UnlockCoop;
         /// <summary>The crew opens with co-op, once Mission one is beaten solo (<c>?unlock=crew</c> opens it for testing).</summary>
-        bool CrewOpen => CoopOpen || m_CrewUnlocked;
+        bool CrewOpen => CoopOpen || m_Flags.UnlockCrew;
         /// <summary>Who can be picked: the crewmates freed so far (any <c>?unlock=</c> frees them all, for testing).</summary>
-        System.Collections.Generic.IReadOnlyList<SoldierDef> Freed => Crew.Freed(m_Profile, m_Unlocked || m_CrewUnlocked);
+        System.Collections.Generic.IReadOnlyList<SoldierDef> Freed => Crew.Freed(m_Profile, m_Flags.UnlockCoop || m_Flags.UnlockCrew);
         SoldierDef Soldier => Crew.Pick(m_Options.Crew, Freed);
         bool CoopReady => m_Net != null && CoopOpen;
 
         void Awake()
         {
             string url = Application.absoluteURL;
-            Log.Configure(PageQuery.Get(url, "log")); // ?log=net:debug,game:warn for this visit
+            m_Flags = LaunchFlags.Read(url);
+            m_TestCrew = m_Flags.Crew;
+            Log.Configure(m_Flags.LogLevels); // ?log=net:debug,game:warn for this visit
             Spike.Configure(url); // ?spike=hits for this visit (before the art and sounds, which make what spikes need)
             Art.Init();
             Sfx.Init(gameObject);
@@ -137,25 +126,6 @@ namespace PooketSlug
             m_Account.CloudProfile += OnCloudProfile;
             m_Store = new CloudProfileStore(new LocalProfileStore(), m_Account);
             m_Profile = m_Store.Load();
-            string[] unlocks = (PageQuery.Get(url, "unlock") ?? "").ToLowerInvariant().Split(',');
-            m_Unlocked = Array.IndexOf(unlocks, Reveals.Coop) >= 0;
-            m_TankUnlocked = Array.IndexOf(unlocks, Reveals.Tank) >= 0;
-            m_CrewUnlocked = Array.IndexOf(unlocks, "crew") >= 0;
-            string[] tests = (PageQuery.Get(url, "test") ?? "").ToLowerInvariant().Split(',');
-            m_TestCrate = Array.IndexOf(tests, "crate") >= 0;
-            m_TestTank = Array.IndexOf(tests, "tank") >= 0;
-            m_TestOneUp = Array.IndexOf(tests, "1up") >= 0;
-            m_TestPilot = Array.IndexOf(tests, "pilot") >= 0;
-            m_TestWeakPilot = m_TestPilot && Array.IndexOf(tests, "weak") >= 0;
-            m_TestTeam = Array.IndexOf(tests, "team") >= 0;
-            m_TestKcajTank = Array.IndexOf(tests, "kcajtank") >= 0;
-            m_TestBoss = m_TestPilot || m_TestKcajTank || Array.IndexOf(tests, "boss") >= 0;
-            m_TestReveal = Array.IndexOf(tests, "reveal") >= 0;
-            m_TestCoda = Array.IndexOf(tests, "coda") >= 0;
-            m_TestDebrief = Array.IndexOf(tests, "debrief") >= 0;
-            m_TestCrew = Array.IndexOf(tests, "crew") >= 0;
-            m_Unlocked |= m_TestCrew;
-            m_TestScene = Array.IndexOf(tests, "scene") >= 0;
 
             m_World = NewWorld(m_Mission);
             m_Hud = new HudView(transform);
@@ -170,9 +140,9 @@ namespace PooketSlug
             SetState(GameState.Title);
             GameInput.TouchActive = Application.isMobilePlatform; // until the player shows otherwise
 
-            if (StartDemos(PageQuery.Get(url, "demo"))) return; // a demo is all this visit plays
+            if (StartDemos(m_Flags.Demo)) return; // a demo is all this visit plays
             if (NetSessions.Factory != null && NetConfig.Configured) m_Net = NetSessions.Factory(gameObject);
-            string invite = RoomFromUrl(url);
+            string invite = m_Flags.Room;
             if (m_Net != null && !string.IsNullOrEmpty(invite))
             {
                 if (CoopOpen)
@@ -191,28 +161,28 @@ namespace PooketSlug
         /// <summary>A world for <paramref name="mission"/>, shared when <paramref name="net"/> is given.</summary>
         World NewWorld(MissionDef mission, INetLink net = null)
         {
-            var world = new World(m_Camera, mission, net, Soldier) { TanksToCall = m_TankUnlocked || m_TestTank ? 1 : 0, SkipToPilot = m_TestPilot, WeakPilot = m_TestWeakPilot, TestTeam = m_TestTeam, KcajTank = m_TestKcajTank };
+            var world = new World(m_Camera, mission, net, Soldier) { TanksToCall = m_Flags.UnlockTank || m_Flags.Tank ? 1 : 0, SkipToPilot = m_Flags.Pilot, WeakPilot = m_Flags.WeakPilot, TestTeam = m_Flags.Team, KcajTank = m_Flags.KcajTank };
             world.BossIntro += OnBossIntro;
             world.BossFightStarted += OnBossFightStarted;
             world.PilotFreed += OnPilotFreed;
             world.TankWrecked += OnTankWrecked;
             world.CodaCleared += OnCodaCleared;
             m_IntroName = null;
-            if (m_TestCrate)
+            if (m_Flags.Crate)
             {
                 // Just past where a joining partner appears (1.25 ahead of the start), so whoever runs first takes
                 // it before any jump. Only the authority places it; a follower gets it from the snapshot.
                 float x = world.Level.PlayerStart.x + 2.75f;
                 world.Spawner.SpawnPickup(Content.HeavyMachineGunCrate, new Vector2(x, world.Level.TopSurfaceY(x)));
             }
-            if (m_TestOneUp)
+            if (m_Flags.OneUp)
             {
                 float x = world.Level.PlayerStart.x + 4.5f;
                 world.Spawner.SpawnPickup(Content.OneUp, new Vector2(x, world.Level.TopSurfaceY(x)));
             }
-            if (m_TestBoss) StartAtBoss(world);
-            if (m_TestCoda && net == null) StartAtCoda(world, true);
-            if (m_TestTank) world.ParkTank(world.Player.Pos.x + Content.PlayerTank.HalfWidth + 4f); // each player's own, a few steps ahead
+            if (m_Flags.Boss) StartAtBoss(world);
+            if (m_Flags.Coda && net == null) StartAtCoda(world, true);
+            if (m_Flags.Tank) world.ParkTank(world.Player.Pos.x + Content.PlayerTank.HalfWidth + 4f); // each player's own, a few steps ahead
             return world;
         }
 
@@ -267,7 +237,7 @@ namespace PooketSlug
             Sfx.Play(Sfx.Start);
             if (!m_SceneSaidStart) Sfx.Say("mission-start", 0.3f); // the opening's caption card already called it
             m_SceneSaidStart = false;
-            if (m_TestDebrief) m_World.OnBossDestroyed();
+            if (m_Flags.Debrief) m_World.OnBossDestroyed();
             if (Spike.Music)
             {
                 Music.Silence();
@@ -280,7 +250,7 @@ namespace PooketSlug
         void StartFromTitle()
         {
             // ?test=boss, pilot and team are for trying something at once: they start without the opening
-            if (m_Mission == Missions.One && !m_TestBoss && !m_TestTeam && !m_TestCoda && !m_TestDebrief) PlayScene(Cutscenes.Opening, false, StartSolo);
+            if (m_Mission == Missions.One && !m_Flags.Boss && !m_Flags.Team && !m_Flags.Coda && !m_Flags.Debrief) PlayScene(Cutscenes.Opening, false, StartSolo);
             else StartSolo();
         }
 
@@ -563,7 +533,7 @@ namespace PooketSlug
             {
                 // Mission one is single player only, so its scenes never play in a co-op room; ?test=scene plays a
                 // stand-in on both phones when starting together, to check the two-phone sync
-                if (m_TestScene && partner.InDenNow) PlayScene(Cutscenes.CoopTest, true, BeginCoop);
+                if (m_Flags.Scene && partner.InDenNow) PlayScene(Cutscenes.CoopTest, true, BeginCoop);
                 else BeginCoop();
             }
             else
@@ -775,7 +745,7 @@ namespace PooketSlug
         /// opens only once Mission one's beaten, so it's been seen by then). Test starts skip it, unless ?test=reveal.
         /// </summary>
         bool PlaysMotorPool => !m_Coop && m_Mission == Missions.One &&
-            (m_TestReveal || !m_Profile.HasSeen(Cutscenes.MotorPool.Id) && !m_TestBoss && !m_TestTeam);
+            (m_Flags.Reveal || !m_Profile.HasSeen(Cutscenes.MotorPool.Id) && !m_Flags.Boss && !m_Flags.Team);
 
         /// <summary>
         /// Trollogram kie glitched out, solo: the freeing scene, then the mission's won. (The coda, when it's built,
@@ -942,7 +912,6 @@ namespace PooketSlug
             m_NoticeTime = Time.unscaledTime;
         }
 
-        static string RoomFromUrl(string url) => PageQuery.Get(url, "room")?.Trim().ToUpperInvariant();
 
         static string PageUrl() => PageQuery.Base(Application.absoluteURL);
 
@@ -1244,7 +1213,7 @@ namespace PooketSlug
             int best = m_Profile.Best(m_World.Mission), clears = m_Profile.Clears(m_World.Mission);
             m_Profile.RecordRun(m_World.Mission, m_Coop ? Setting.Normal : m_Setting, m_World.Scoring.Points, won, solo: !m_Coop);
             m_CoopJustOpened = !wasOpen && m_Profile.coop;
-            if (won && !m_Coop) Debrief(best, firstClear: clears == 0 || m_TestDebrief);
+            if (won && !m_Coop) Debrief(best, firstClear: clears == 0 || m_Flags.Debrief);
             m_Store.Save(m_Profile);
         }
 
@@ -1267,7 +1236,7 @@ namespace PooketSlug
                 Lives = w.Player.Lives.Lives, Continues = w.Player.Lives.Continues,
                 Xp = Progression.XpFor(true, Crew.FreedBy(w.Mission)?.Name, w.Kills),
                 XpBefore = m_Profile.xp, ClimbBefore = m_Profile.rank,
-                First = !m_Profile.HasSeen(DebriefSeen) || m_TestDebrief,
+                First = !m_Profile.HasSeen(DebriefSeen) || m_Flags.Debrief,
                 OfferSignIn = m_Account.Available && !m_Account.SignedIn,
             };
             int climb = Progression.ClimbFor(true, firstClear);

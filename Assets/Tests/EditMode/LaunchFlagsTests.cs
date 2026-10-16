@@ -1,0 +1,95 @@
+using NUnit.Framework;
+
+namespace PooketSlug.Tests
+{
+    public class LaunchFlagsTests
+    {
+        const string Page = "https://jhiggins-tech.github.io/pooket-slug/index.html";
+
+        [Test]
+        public void APlainVisitAsksForNothing()
+        {
+            LaunchFlags f = LaunchFlags.Read(Page);
+            Assert.IsFalse(f.UnlockCoop || f.UnlockTank || f.UnlockCrew);
+            Assert.IsFalse(f.Crate || f.Tank || f.OneUp || f.Crew || f.Debrief || f.Coda || f.KcajTank || f.Boss);
+            Assert.IsFalse(f.Pilot || f.WeakPilot || f.Team || f.Scene || f.Reveal);
+            Assert.IsNull(f.Demo);
+            Assert.IsNull(f.Room);
+            Assert.IsNull(f.LogLevels);
+        }
+
+        [Test]
+        public void SeveralTestsAtOnceIgnoringCase()
+        {
+            LaunchFlags f = LaunchFlags.Read(Page + "?test=Boss,REVEAL");
+            Assert.IsTrue(f.Boss);
+            Assert.IsTrue(f.Reveal);
+            Assert.IsFalse(f.Pilot);
+        }
+
+        [TestCase("crate")] [TestCase("tank")] [TestCase("1up")] [TestCase("debrief")] [TestCase("coda")]
+        [TestCase("team")] [TestCase("scene")] [TestCase("reveal")] [TestCase("crew")]
+        public void EachTestHasItsFlag(string test)
+        {
+            LaunchFlags f = LaunchFlags.Read(Page + "?test=" + test);
+            bool[] on = { f.Crate, f.Tank, f.OneUp, f.Debrief, f.Coda, f.Team, f.Scene, f.Reveal, f.Crew };
+            string[] names = { "crate", "tank", "1up", "debrief", "coda", "team", "scene", "reveal", "crew" };
+            for (int i = 0; i < names.Length; i++) Assert.AreEqual(names[i] == test, on[i], names[i]);
+            Assert.IsFalse(f.Boss, "none of these starts at the boss");
+        }
+
+        [Test]
+        public void ThePilotAndKcajsTabkStartAtTheBoss()
+        {
+            Assert.IsTrue(LaunchFlags.Read(Page + "?test=pilot").Boss);
+            Assert.IsTrue(LaunchFlags.Read(Page + "?test=kcajtank").Boss);
+            Assert.IsFalse(LaunchFlags.Read(Page + "?test=kcajtank").Pilot);
+        }
+
+        [Test]
+        public void AWeakPilotNeedsThePilot()
+        {
+            Assert.IsTrue(LaunchFlags.Read(Page + "?test=pilot,weak").WeakPilot);
+            Assert.IsFalse(LaunchFlags.Read(Page + "?test=weak").WeakPilot);
+        }
+
+        [Test]
+        public void UnlocksAreTheirOwn()
+        {
+            LaunchFlags f = LaunchFlags.Read(Page + "?unlock=tank,crew");
+            Assert.IsTrue(f.UnlockTank);
+            Assert.IsTrue(f.UnlockCrew);
+            Assert.IsFalse(f.UnlockCoop);
+            Assert.IsTrue(LaunchFlags.Read(Page + "?unlock=coop").UnlockCoop);
+        }
+
+        [Test]
+        public void TheCrewTestOpensCoop()
+        {
+            LaunchFlags f = LaunchFlags.Read(Page + "?test=crew");
+            Assert.IsTrue(f.Crew);
+            Assert.IsTrue(f.UnlockCoop, "two of the crew plays as if Mission one were just beaten");
+        }
+
+        [Test]
+        public void TheRoomIsTrimmedAndUpperCase()
+        {
+            Assert.AreEqual("ABCD", LaunchFlags.Read(Page + "?room=%20abcd%20").Room);
+        }
+
+        [Test]
+        public void DemoAndLogPassThrough()
+        {
+            LaunchFlags f = LaunchFlags.Read(Page + "?demo=all&log=net:debug,game:warn");
+            Assert.AreEqual("all", f.Demo);
+            Assert.AreEqual("net:debug,game:warn", f.LogLevels);
+        }
+
+        [Test]
+        public void SpikesAreNotLaunchFlags()
+        {
+            LaunchFlags f = LaunchFlags.Read(Page + "?spike=boss,crate");
+            Assert.IsFalse(f.Boss || f.Crate, "?spike= is Spike's, not ?test=");
+        }
+    }
+}
