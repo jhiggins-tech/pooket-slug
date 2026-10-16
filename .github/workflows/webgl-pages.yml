@@ -362,7 +362,7 @@ jobs:
       - name: Host, join, play, and hand over the world
         run: node tools/coop.mjs http://127.0.0.1:8000/index.html coop-test code
 
-      - name: Fight the boss together
+      - name: Fight the boss together (a stand-in, as Mission one is solo only)
         if: success() || failure()
         run: node tools/coop.mjs http://127.0.0.1:8000/index.html coop-test/boss boss
 
