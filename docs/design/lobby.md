@@ -95,7 +95,7 @@ Sample bits (placeholders):
 - **Picks show on both phones.** Each seat has a P1 or P2 tag in the player's colour. A crewmate your partner is sitting as is taken: their station dims and tapping them does nothing (two players can't pick the same soldier, [co-op](player.md#co-op)). If you both tap the same one at the same moment, the host's pick wins and the guest's is undone.
 - **Ready up:** each player taps READY, and their soldier presses START: that controller's light goes green on the console. When both seats are filled and ready, the two soldiers do a little bit together on the couch (a fist bump, or a pair's own move if their team super is built: [team supers](team-supers.md)).
 - **When both are ready,** the TV counts down 3, 2, 1 and the camera zooms into the screen, into the briefing. Either player tapping UNREADY during the countdown stops it.
-- **The host picks the mission** on the mission board, from Mission two on: Mission one is single player only, so it isn't on the co-op board. Changing it puts both players back to not ready, so nobody is carried into a mission they didn't agree to.
+- **The host picks the mission** on the mission board. Mission one stays on it, but it's single player only: picking it closes player two's seat and turns off spectating (owner, 2026-10-16). Changing it puts both players back to not ready, so nobody is carried into a mission they didn't agree to.
 - **The room code and invite** are on the TV: tap it to copy the link ([online](levels.md#online-once-its-open)).
 - **Spectators** don't come into the den: the TV shows how many are watching ("2 WATCHING").
 - **A partner who drops in mid-mission** still gets the den first, to pick a soldier. READY drops them straight into the mission.
