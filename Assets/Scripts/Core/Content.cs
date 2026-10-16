@@ -195,7 +195,7 @@ namespace PooketSlug
         {
             switch (kind)
             {
-                case SpawnKind.Soldier: return Rifleman;
+                case SpawnKind.Rifleman: return Rifleman;
                 case SpawnKind.Runner: return Runner;
                 case SpawnKind.Drone: return Drone;
                 case SpawnKind.Tank: return Tank;

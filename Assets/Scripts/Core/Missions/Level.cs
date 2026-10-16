@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace PooketSlug
 {
-    public enum SpawnKind { Soldier, Runner, Drone, Tank, CrateHeavy, CrateBombs, Medkit, Flag, OneUp, Watchtower, MotorPool, Barrel, LiveFence, SteamVent, Icicles, Lift, Checkpoint, BackGate, ToppleTower, ExitGate }
+    public enum SpawnKind { Rifleman, Runner, Drone, Tank, CrateHeavy, CrateBombs, Medkit, Flag, OneUp, TowerScenery, MotorPool, Barrel, LiveFence, SteamVent, Icicles, Lift, Checkpoint, BackGate, ToppleTower, ExitGate }
 
     public struct Spawn
     {
@@ -58,7 +58,7 @@ namespace PooketSlug
                     switch (ch)
                     {
                         case 'P': PlayerStart = feet; break;
-                        case 's': Spawns.Add(new Spawn { Kind = SpawnKind.Soldier, Pos = feet }); break;
+                        case 's': Spawns.Add(new Spawn { Kind = SpawnKind.Rifleman, Pos = feet }); break;
                         case 'r': Spawns.Add(new Spawn { Kind = SpawnKind.Runner, Pos = feet }); break;
                         case 'd': Spawns.Add(new Spawn { Kind = SpawnKind.Drone, Pos = feet }); break;
                         case 'T': Spawns.Add(new Spawn { Kind = SpawnKind.Tank, Pos = feet }); break;
@@ -67,7 +67,7 @@ namespace PooketSlug
                         case '+': Spawns.Add(new Spawn { Kind = SpawnKind.Medkit, Pos = feet }); break;
                         case 'U': Spawns.Add(new Spawn { Kind = SpawnKind.OneUp, Pos = feet }); break;
                         case 'F': Spawns.Add(new Spawn { Kind = SpawnKind.Flag, Pos = feet }); break;
-                        case 'W': Spawns.Add(new Spawn { Kind = SpawnKind.Watchtower, Pos = feet }); break;
+                        case 'W': Spawns.Add(new Spawn { Kind = SpawnKind.TowerScenery, Pos = feet }); break;
                         case 'M': Spawns.Add(new Spawn { Kind = SpawnKind.MotorPool, Pos = feet }); break;
                         case 'x': Spawns.Add(new Spawn { Kind = SpawnKind.Barrel, Pos = feet }); break;
                         case 'Z': Spawns.Add(new Spawn { Kind = SpawnKind.LiveFence, Pos = feet }); break;

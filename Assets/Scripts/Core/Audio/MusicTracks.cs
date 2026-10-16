@@ -4,7 +4,7 @@ namespace PooketSlug
 {
     /// <summary>
     /// A piece of music for the chip synth (<c>docs/design/music.md</c>): its tempo and four parts in the
-    /// <see cref="Score"/> notation, for the four Game Boy voices. A loop repeats with no seam (every part the same
+    /// <see cref="Notation"/> notation, for the four Game Boy voices. A loop repeats with no seam (every part the same
     /// whole number of bars); a sting plays once.
     /// </summary>
     public sealed class MusicTrack
@@ -19,7 +19,7 @@ namespace PooketSlug
         /// <summary>Seconds per step (a sixteenth note).</summary>
         public float Step => 60f / Bpm / 4f;
         /// <summary>The longest part, in steps.</summary>
-        public int Steps => System.Math.Max(System.Math.Max(Score.Steps(Lead), Score.Steps(Harmony)), System.Math.Max(Score.Steps(Bass), Score.Steps(Drums)));
+        public int Steps => System.Math.Max(System.Math.Max(Notation.Steps(Lead), Notation.Steps(Harmony)), System.Math.Max(Notation.Steps(Bass), Notation.Steps(Drums)));
         public float Seconds => Steps * Step;
     }
 

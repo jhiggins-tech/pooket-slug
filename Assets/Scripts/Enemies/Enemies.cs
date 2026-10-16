@@ -167,12 +167,12 @@ namespace PooketSlug
     }
 
     /// <summary>Rifleman: advances, stops at range and fires level shots (crouch to dodge).</summary>
-    public sealed class Soldier : Enemy
+    public sealed class Rifleman : Enemy
     {
         readonly SpriteRenderer m_Legs, m_Torso, m_Flash;
         float m_Cooldown, m_Muzzle;
 
-        public Soldier(World world, EnemyDef def, Vector2 feet) : base(world, def, feet)
+        public Rifleman(World world, EnemyDef def, Vector2 feet) : base(world, def, feet)
         {
             m_Legs = AddRenderer(Visual, "Legs", Art.SoldierLegsIdle, SortOrder.Enemies);
             m_Torso = AddRenderer(Visual, "Torso", Art.SoldierTorso, SortOrder.Enemies + 1);

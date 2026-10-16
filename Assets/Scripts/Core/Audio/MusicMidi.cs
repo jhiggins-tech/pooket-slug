@@ -23,12 +23,12 @@ namespace PooketSlug
         public static byte[] Write(MusicTrack track)
         {
             var tracks = new List<List<Event>> { TempoTrack(track) };
-            tracks.Add(Part(Score.Read(track.Lead), 0, 48, 0, 100, 0.95f));    // string ensemble
-            tracks.Add(Part(Score.Read(track.Lead), 1, 60, -12, 80, 0.95f));   // french horns
-            tracks.Add(Part(Score.Read(track.Harmony), 2, 45, 0, 70, 0.6f));   // pizzicato strings
-            tracks.Add(Part(Score.Read(track.Bass), 3, 43, 0, 95, 0.85f));     // contrabass
-            tracks.Add(Part(Score.Read(track.Bass), 4, 58, 0, 70, 0.6f));      // tuba
-            tracks.Add(Percussion(Score.Read(track.Drums)));
+            tracks.Add(Part(Notation.Read(track.Lead), 0, 48, 0, 100, 0.95f));    // string ensemble
+            tracks.Add(Part(Notation.Read(track.Lead), 1, 60, -12, 80, 0.95f));   // french horns
+            tracks.Add(Part(Notation.Read(track.Harmony), 2, 45, 0, 70, 0.6f));   // pizzicato strings
+            tracks.Add(Part(Notation.Read(track.Bass), 3, 43, 0, 95, 0.85f));     // contrabass
+            tracks.Add(Part(Notation.Read(track.Bass), 4, 58, 0, 70, 0.6f));      // tuba
+            tracks.Add(Percussion(Notation.Read(track.Drums)));
 
             using (var ms = new MemoryStream())
             {
@@ -52,10 +52,10 @@ namespace PooketSlug
             };
         }
 
-        static List<Event> Part(List<Score.Note> notes, int channel, int program, int shift, int velocity, float gate)
+        static List<Event> Part(List<Notation.Note> notes, int channel, int program, int shift, int velocity, float gate)
         {
             var events = new List<Event> { new Event { Tick = 0, Bytes = new byte[] { (byte)(0xC0 | channel), (byte)program } } };
-            foreach (Score.Note n in notes)
+            foreach (Notation.Note n in notes)
             {
                 int on = n.At * TicksPerStep, off = on + System.Math.Max(1, (int)(n.Len * TicksPerStep * gate));
                 foreach (int p in n.Pitches)
@@ -68,10 +68,10 @@ namespace PooketSlug
             return events;
         }
 
-        static List<Event> Percussion(List<Score.Note> notes)
+        static List<Event> Percussion(List<Notation.Note> notes)
         {
             var events = new List<Event>();
-            foreach (Score.Note n in notes)
+            foreach (Notation.Note n in notes)
             {
                 int on = n.At * TicksPerStep;
                 foreach (char d in n.Drums)
