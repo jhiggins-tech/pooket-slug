@@ -477,6 +477,8 @@ namespace PooketSlug
                         o.Crew = Crew.Next(Soldier.Id).Id;
                         ChangeOptions(o);
                         Sfx.Play(Sfx.Pickup, 0.5f);
+                        m_World.Dispose(); // the title's world again, with the new pick standing in it
+                        m_World = NewWorld(m_Mission);
                     }
                     else if (click == MenuAction.Play || keys.Start || soldier.FirePressed || soldier.JumpPressed) StartFromTitle();
                     break;
