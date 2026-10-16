@@ -120,7 +120,7 @@ Wreck the tabk and its Trollogram pilot jumps out to fight you on foot with the 
 
 ## tones2's tabk
 
-The first tabk you win, freed by kie at the end of Mission one and called in for the first time in [the coda](story.md#the-coda). Draft, 2026-10-16: the guns are the owner's pick; the rest are Claude's defaults, to review.
+The first tabk you win, freed by kie at the end of Mission one and called in for the first time in [the coda](story.md#the-coda). Draft, 2026-10-16: the guns and single player are the owner's picks; the rest are Claude's defaults, to review.
 
 - **Its own guns** (owner, 2026-10-16): each crewmate's tabk fires tabk-sized versions of their kit, as in Pooket Tabks, where the tank is the kit. Rounds stay 5, 3 and 1, never refilled, and the controls stay the same ([driving a tabk](#driving-a-tabk)).
   - **Water cannon** (FIRE, 5 rounds): ten-1 at full pressure from the start. Each round is a one-second blast of jet along the aim that hits hard and shoves goons back a long way. Off a wall point-blank it splashes back, harmless, as on foot.
@@ -129,7 +129,7 @@ The first tabk you win, freed by kie at the end of Mission one and called in for
 - **Paint:** his Pooket Tabks colours (red, with orange and pink), on the hull and the turret, so it's plainly his next to kie's.
 - **Its name** on screen while you drive it: TONES2'S TABK, over its rounds (WATER 5, MUD 3, SPEW 1).
 - **The rest is shared** with every tabk: health, fuel, speed, the hop, squashing goons, eject and the runaway.
-- **In co-op**, while tones2's is the only tabk won, the partner calls in a second copy of it, paler, the way a partner's soldier is drawn (default, asked 2026-10-16).
+- **One player:** Mission one is single player only (owner, 2026-10-16), so the coda never has two tabks. Open: what a co-op partner calls in during Mission two, before kie's tabk is back.
 - **The cargo drone** that lowers it is the crew's own, in tones2's paint, and every call-in uses it ([freeing kie](story.md#freeing-kie)). Its look is still to draw.
 
 ## Calling in a tabk
