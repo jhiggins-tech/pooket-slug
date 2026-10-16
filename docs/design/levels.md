@@ -70,7 +70,7 @@ The game shows only what the player has already met. Nothing on the title screen
 | Online | Hidden | Host, join, quick match, browse, watch | |
 | Crew | tones2, with no crew screen | The crew screen: tones2 and kie | One more per mission |
 | Tabks | Never mentioned | tones2's tabk, and the call-in | One more per mission |
-| Missions | Mission one | Replays, hard settings, the next mission | One more per crewmate |
+| Missions | Mission one | Replays, the next mission | One more per crewmate, and hard settings from Mission two on |
 | Progress | High score | XP, rank, looks, leaderboard | Hidden ranks appear as you reach them |
 
 **Invite links respect the order.** Suppose a friend who hasn't beaten Mission one opens your invite link. The game tells them co-op opens after Mission one, and starts it for them, so nothing ahead of them is spoiled.
