@@ -127,7 +127,7 @@ The freeing scene, after Trollogram kie is beaten on foot ([the pilot round](tan
 
 Then straight into [the coda](#the-coda), every time: the coda is part of Mission one. In co-op, the partner's soldier stands beside tones2 throughout, and goes on into the coda with him.
 
-**How the release is done** is a placeholder (the cargo drone and the remote) until the owner picks one; it's what makes the call-in drop from the sky in every later mission.
+**How the release is done** (owner, 2026-10-16): the cargo drone hauls the tabk out, and kie hands over its remote. It's what makes every call-in drop from the sky.
 
 **Spike** (2026-10-16, `?spike=pilot-glitch`, solo): shots 1 and 2 in the game, without the scene around them. Beaten, Trollogram kie freezes mid-taunt ("WAIT, I WAS WINN-") and the boss music cuts dead; he glitches harder and harder for about a second, then tears apart like the goons, bigger and slower. Where he stood, a cyan cage of light flickers out, the real kie drops to the floor in his own colours, sits there dazed with stars round his head and says his line, and the mission's won. The numbers are `PilotFreeingSpec` (`Core/KieTuning.cs`), the look `HoloLook.Big` and `FreedKie` (`Pilot.cs`). `?test=pilot,weak` starts at the tabk, and the pilot goes down on his own a few seconds after he jumps out.
 
