@@ -240,7 +240,7 @@ jobs:
         if: always() && steps.tests.outcome != 'skipped'
         run: |
           # to the log as well as the summary, so a failure can be read from the job's log alone
-          python3 - | tee -a "$GITHUB_STEP_SUMMARY" <<'EOF'
+          python3 - <<'EOF' | tee -a "$GITHUB_STEP_SUMMARY"
           import glob, xml.etree.ElementTree as ET
           files = sorted(glob.glob('test-results/*.xml'))
           if not files:
