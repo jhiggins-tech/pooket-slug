@@ -4,6 +4,8 @@ Where you pick your soldier and ready up, solo and in co-op: the inside of the c
 
 **Status:** approved by the owner, 2026-10-16 (second pass): the owner liked the first ("the bits feel good. I like the writing") and asked for the big screen, a GameCube-style console, and picking by sitting on the couch. First pass from the owner's note on the Roadmap: "The lobby should be the interior of the gaming den base, every playable character has a station and occupies it once they become playable. Small animation cycles of them interacting with their stations or with other players on the screen, sometimes with funny dialogue". All the lines are placeholders for the owner to rewrite in the crew's own voice.
 
+**Built:** the den itself is in the game (2026-10-16, [todo C13](../research/todo.md)): the room, tones2's and kie's stations, the bits, picking on the couch, READY and the zoom, and the co-op seats and countdown. Not yet: the first-visit and move-in beats, the couch fist bump, spectators and the invite on the TV, and the host changing the mission.
+
 **Read this when** you're building the lobby, the crew screen, or a new crewmate's station.
 
 Up: [Design](README.md)

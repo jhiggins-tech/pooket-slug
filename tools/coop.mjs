@@ -80,6 +80,15 @@ async function play(p, dir, ms) {
   if (dir) await kb.up(dir);
 }
 
+/** Once online, the den (the lobby) opens: Enter sits whoever's free on the couch and presses START. */
+async function denStart(p) {
+  if (!(await waitLog(p, new RegExp(TAG + ' Den open: Coop'), 90000))) throw new Error(`${p.name} never reached the den`);
+  await p.page.waitForTimeout(500);
+  await shot(p, 'den');
+  await p.page.keyboard.press('Enter');
+  if (!(await waitLog(p, new RegExp(TAG + ' Den START'), 15000))) throw new Error(`${p.name} pressed START in the den but it never started`);
+}
+
 const A = await player('A');
 const B = await player('B');
 try {
@@ -100,6 +109,7 @@ try {
     joinUrl = url + (url.includes('?') ? '&' : '?') + 'room=' + code;
   }
   if (!checks.hostOnline) throw new Error('A never got online');
+  await denStart(A);
   await A.page.waitForTimeout(3000);
   await shot(A, '1-online');
 
@@ -108,6 +118,7 @@ try {
   await B.page.keyboard.press(mode === 'quick' ? 'q' : 'Enter');
   if (!(await waitLog(B, new RegExp(TAG + ' Online '), 90000))) throw new Error('B never got online');
   checks.guestOnline = true;
+  await denStart(B);
   if (!(await waitLog(A, new RegExp(TAG + ' .* joined'), 30000))) throw new Error('A never saw B join');
   checks.joined = true;
   await B.page.waitForTimeout(4000);

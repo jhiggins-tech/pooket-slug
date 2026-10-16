@@ -17,7 +17,7 @@ namespace PooketSlug
         }
     }
 
-    public enum GameState { Title, Settings, Online, CodeEntry, Lobby, Cutscene, Playing, GameOver, Victory, Demo }
+    public enum GameState { Title, Settings, Online, CodeEntry, Lobby, Den, Cutscene, Playing, GameOver, Victory, Demo }
 
     /// <summary>
     /// Owns the camera, the current <see cref="World"/>, the online session and the player's profile, and runs
@@ -70,6 +70,9 @@ namespace PooketSlug
         readonly System.Collections.Generic.List<string> m_SceneCues = new System.Collections.Generic.List<string>();
         float m_PartnerTapIn = -1f;
         bool m_SceneSaidStart;
+        // the lobby, the crew's gaming den (docs/design/lobby.md): once the crew's open, START, CREW and co-op go through it
+        DenView m_DenView;
+        Den m_Den;
         // the ⓘ kit screen, over the title (the crew pick) or the pause menu: whose kit, and the move whose demo plays
         bool m_KitOpen, m_KitFromTitle;
         SoldierDef m_KitSoldier;
@@ -132,6 +135,7 @@ namespace PooketSlug
             m_Hud = new HudView(transform);
             m_Menu = new MenuView(transform);
             if (Spike.Scenes) m_SceneView = new CutsceneView(transform);
+            m_DenView = new DenView(transform);
             m_PageUrl = PageUrl();
             string folder = PageQuery.Folder(url);
             m_DemoFolder = folder.Length > 0 ? folder + "demos/" : null;
@@ -310,6 +314,121 @@ namespace PooketSlug
             if (m_Account.SignedIn)
                 return string.IsNullOrEmpty(m_Account.Name) ? "SIGNED IN · PROGRESS SAVES ONLINE" : "SIGNED IN AS " + m_Account.Name.ToUpperInvariant() + " · PROGRESS SAVES ONLINE";
             return "SIGN IN AT THE TOP RIGHT TO SAVE YOUR PROGRESS ONLINE";
+        }
+
+        // ------------------------------------------------------------------ the den
+
+        /// <summary>Opens the den: to start a solo mission, to look round the crew, or a co-op room's lobby.</summary>
+        void OpenDen(DenMode mode)
+        {
+            m_Den = new Den(mode, Crew.Freed, Soldier);
+            m_DenView.Begin(m_Den, DenInfoNow());
+            SetState(GameState.Den);
+            Log.Game.Info("Den open: " + mode + ", on the couch: " + (m_Den.Pick?.Name ?? "nobody"));
+        }
+
+        DenInfo DenInfoNow()
+        {
+            bool coop = m_Den.Mode == DenMode.Coop;
+            MissionDef mission = coop ? Missions.ByNetId(m_Net.Link.Mission) ?? m_Mission : m_Mission;
+            return new DenInfo
+            {
+                Mission = m_Den.Mode == DenMode.Crew ? null : mission.Name.ToUpperInvariant(),
+                Room = coop ? m_Net.RoomCode : null,
+                CanHost = CoopReady && m_Den.Mode == DenMode.Solo,
+                Skin = coop ? m_Net.Link.LocalSkin : 0,
+            };
+        }
+
+        /// <summary>The den's buttons and keys: a crewmate tapped (or Special for the next), READY (Enter, fire), the kit, hosting, BACK.</summary>
+        void TickDen(MenuInput keys, SoldierInput soldier)
+        {
+            bool coop = m_Den.Mode == DenMode.Coop;
+            if (coop && !CoopAlive()) return;
+            if (m_DenView.TakeBack() || keys.Back)
+            {
+                Log.Game.Info("Den left");
+                if (coop) m_Net.Leave();
+                m_World.Dispose(); // the title's world again, with whoever's on the couch standing in it
+                m_World = NewWorld(m_Mission);
+                SetState(GameState.Title);
+                return;
+            }
+            if (m_DenView.TakeKit() || soldier.AbilityPressed)
+            {
+                OpenKit(m_Den.Pick ?? Soldier, fromTitle: false);
+                return;
+            }
+            if ((m_DenView.TakeHost() || keys.Host) && CoopReady && m_Den.Mode == DenMode.Solo)
+            {
+                Log.Game.Info("Den: hosting from the couch");
+                GoOnline(m_Net.Host);
+                return;
+            }
+            SoldierDef tapped = m_DenView.TakePick();
+            if (tapped == null && soldier.SpecialPressed) tapped = m_Den.NextFree();
+            if (tapped != null && tapped != m_Den.Pick)
+            {
+                if (m_Den.TryPick(tapped)) Log.Game.Info("Den pick: " + tapped.Name);
+                else Sfx.Play(Sfx.Thump, 0.3f); // taken, or too late
+            }
+            if (m_DenView.TakeReady() || keys.Start || soldier.FirePressed || soldier.JumpPressed)
+            {
+                if (m_Den.ToggleReady())
+                {
+                    Sfx.Play(Sfx.Pickup, m_Den.Ready ? 0.7f : 0.3f);
+                    Log.Game.Info("Den " + (m_Den.Ready ? "ready: " : "unready: ") + m_Den.Pick.Name);
+                }
+            }
+            if (m_Den.Pick != null && m_Den.Pick != Soldier)
+            {
+                Options o = m_Options; // the title and the next den remember who's on the couch
+                o.Crew = m_Den.Pick.Id;
+                ChangeOptions(o);
+            }
+        }
+
+        /// <summary>Moves the den on each frame: the partner's seat and flags in, ours out, the countdown, the zoom, and the mission once it's done.</summary>
+        void MoveDen(float dt)
+        {
+            bool coop = m_Den.Mode == DenMode.Coop && m_Net != null && m_Net.Ready;
+            DenPartner partner = default;
+            bool authority = true;
+            if (coop)
+            {
+                authority = m_Net.Link.IsAuthority;
+                System.Collections.Generic.IReadOnlyList<IAvatarLink> partners = m_Net.Link.Partners;
+                if (partners.Count > 0)
+                {
+                    IAvatarLink p = partners[0];
+                    partner = new DenPartner { Flags = p.DenFlags, Playing = p.Playing };
+                    if (partner.Seated || partner.Playing) partner.Soldier = p.Soldier; // otherwise it's whoever they played last
+                }
+            }
+            bool zooming = m_Den.Zoom >= 0f;
+            m_Den.Tick(dt, partner, authority);
+            if (m_Den.TakeUndone())
+            {
+                m_DenView.Note("YOUR MATE GOT THERE FIRST: PICK SOMEONE ELSE");
+                Sfx.Play(Sfx.Glitch, 0.4f);
+                Log.Game.Info("Den pick undone: the partner has it");
+            }
+            if (!zooming && m_Den.Zoom >= 0f)
+            {
+                Sfx.Play(Sfx.Start, 0.6f);
+                Log.Game.Info("Den START: " + m_Den.Pick.Name + (coop && partner.Present ? ", partner " + (partner.Playing ? "playing" : "in the den") : ""));
+            }
+            if (coop) m_Net.Link.SendDen(m_Den.Pick, m_Den.Flags);
+            m_DenView.Refresh(dt, m_Den, DenInfoNow());
+            if (!m_Den.Go || m_KitOpen) return;
+            m_DenView.Hide();
+            if (m_Den.Mode == DenMode.Coop) BeginCoop();
+            else
+            {
+                m_World.Dispose(); // the soldier on the couch plays
+                m_World = NewWorld(m_Mission);
+                StartFromTitle();
+            }
         }
 
         // ------------------------------------------------------------------ the ⓘ kit screen
@@ -609,16 +728,12 @@ namespace PooketSlug
                         if (keys.Join) { OpenCodeEntry(""); break; }
                     }
                     if (click == MenuAction.Settings || keys.Settings) SetState(GameState.Settings);
-                    else if (CrewOpen && (click == MenuAction.Crew || soldier.SpecialPressed))
+                    else if (CrewOpen && (click == MenuAction.Crew || soldier.SpecialPressed)) OpenDen(DenMode.Crew);
+                    else if (click == MenuAction.Play || keys.Start || soldier.FirePressed || soldier.JumpPressed)
                     {
-                        Options o = m_Options;
-                        o.Crew = Crew.Next(Soldier.Id).Id;
-                        ChangeOptions(o);
-                        Sfx.Play(Sfx.Pickup, 0.5f);
-                        m_World.Dispose(); // the title's world again, with the new pick standing in it
-                        m_World = NewWorld(m_Mission);
+                        if (CrewOpen) OpenDen(DenMode.Solo);
+                        else StartFromTitle(); // before the crew's freed, tones2 is all there is: straight in
                     }
-                    else if (click == MenuAction.Play || keys.Start || soldier.FirePressed || soldier.JumpPressed) StartFromTitle();
                     break;
 
                 case GameState.Settings:
@@ -656,8 +771,12 @@ namespace PooketSlug
                     }
                     else if (m_Net.Ready)
                     {
-                        BeginCoop();
+                        OpenDen(DenMode.Coop);
                     }
+                    break;
+
+                case GameState.Den:
+                    TickDen(keys, soldier);
                     break;
 
                 case GameState.Cutscene:
@@ -734,6 +853,8 @@ namespace PooketSlug
                     break;
             }
 
+            if (m_State == GameState.Den) MoveDen(dt); // over the kit screen too
+            else if (m_DenView.Showing) m_DenView.Hide();
             m_World.Render();
             m_Hud.Refresh(m_World, m_Camera, new HudInfo
             {

@@ -16,7 +16,7 @@ namespace PooketSlug
         BossNet m_Boss;
         PlayerNet m_Local;
         readonly List<PlayerNet> m_Players = new List<PlayerNet>();
-        readonly List<IAvatarLink> m_Remotes = new List<IAvatarLink>();
+        readonly List<IAvatarLink> m_Remotes = new List<IAvatarLink>(), m_Partners = new List<IAvatarLink>();
         bool m_SpawnedWorld, m_SpawnedBoss, m_WasAuthority;
 
         /// <summary>Receives the session's events; null outside co-op play.</summary>
@@ -121,6 +121,17 @@ namespace PooketSlug
                 foreach (PlayerNet p in m_Players)
                     if (p != m_Local && p.PlayingRound == round) m_Remotes.Add(p);
                 return m_Remotes;
+            }
+        }
+
+        public IReadOnlyList<IAvatarLink> Partners
+        {
+            get
+            {
+                m_Partners.Clear();
+                foreach (PlayerNet p in m_Players)
+                    if (p != m_Local && p.Object != null && p.Object.IsValid) m_Partners.Add(p);
+                return m_Partners;
             }
         }
 
@@ -257,6 +268,15 @@ namespace PooketSlug
             m_Local.NetTank = tankFlags;
             m_Local.NetTankPos = tankPos;
             m_Local.NetRound = (Events != null ? Events.Round : Round) + 1;
+            m_Local.NetDen = 0;
+        }
+
+        public void SendDen(SoldierDef soldier, int flags)
+        {
+            if (m_Local == null || !m_Local.Object.IsValid) return;
+            if (soldier != null) m_Local.NetSoldier = soldier.Id;
+            m_Local.NetDen = (byte)flags;
+            m_Local.NetRound = 0; // not playing: partners in a mission don't draw us
         }
 
         public void SendShot(in ShotEvent shot)
