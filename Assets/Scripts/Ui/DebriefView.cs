@@ -17,7 +17,7 @@ namespace PooketSlug
 
         readonly RectTransform m_Root, m_Panel, m_XpBlock, m_RankBlock, m_Bubble, m_Stamp;
         readonly Text[] m_Rows = new Text[RowNames.Length], m_Values = new Text[RowNames.Length];
-        readonly Text m_NewBest, m_XpTotal, m_XpParts, m_RankName, m_RankLine, m_BubbleText, m_SignIn, m_Hint, m_Opened, m_StampText;
+        readonly Text m_NewBest, m_XpTotal, m_XpParts, m_RankName, m_RankLine, m_BubbleText, m_SignIn, m_Hint, m_StampText;
         readonly Image m_XpFill, m_RankFill, m_BadgeOuter, m_BadgeInner;
         readonly Image[] m_Tones2 = new Image[2], m_Kie = new Image[2];
         readonly Button m_Continue;
@@ -89,8 +89,6 @@ namespace PooketSlug
             key.text = "ENTER";
             m_Hint = Ui.Label(m_Panel, "Hint", Ui.Middle, new Vector2(60f, -142f), 9, TextAnchor.MiddleCenter, Dim);
             m_Hint.text = "TAP TO GO ON";
-            m_Opened = Ui.Label(m_Panel, "Opened", Ui.Middle, new Vector2(60f, -168f), 9, TextAnchor.MiddleCenter, new Color(0.6f, 0.9f, 1f));
-            m_Opened.text = "CO-OP IS OPEN: PLAY ONLINE WITH A FRIEND FROM THE MENU";
             Hide();
         }
 
@@ -116,13 +114,12 @@ namespace PooketSlug
 
         public bool Showing => m_Player != null;
 
-        public void Show(DebriefPlayer player, bool coopOpened)
+        public void Show(DebriefPlayer player)
         {
             m_Player = player;
             m_Tapped = m_Leave = m_RankSounded = false;
             m_Blips = 0;
             Ui.Show(m_Root, true);
-            Ui.Show(m_Opened, coopOpened);
             PlayerSkin tones2 = Art.SkinFor(Content.Tones2, 0), kie = Art.SkinFor(Content.Kie, 0);
             m_Tones2[0].sprite = tones2.LegsIdle;
             m_Tones2[1].sprite = tones2.TorsoForward;

@@ -975,8 +975,7 @@ namespace PooketSlug
                     else if (m_World.Victory && m_World.VictoryTime > 1f) EndRun(GameState.Victory);
                     break;
 
-                case GameState.Victory when m_Debrief != null:
-                    m_World.Tick(dt, soldier);
+                case GameState.Victory when m_Debrief != null: // the world holds still behind it, so nothing can hurt tones2
                     TickDebrief(dt, keys, soldier);
                     break;
 
@@ -1131,7 +1130,7 @@ namespace PooketSlug
             m_Profile.MarkSeen(DebriefSeen);
             Log.Game.Info("Debrief: " + result.XpGained + " XP, " + climb + " stages up the ladder" + (result.RankedUp ? ", a rank up" : ""));
             m_Debrief = new DebriefPlayer(result);
-            m_DebriefView.Show(m_Debrief, m_CoopJustOpened);
+            m_DebriefView.Show(m_Debrief);
         }
 
         /// <summary>The debrief: taps fill each part and move on; CONTINUE goes to the title screen.</summary>
