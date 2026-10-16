@@ -110,18 +110,18 @@ namespace PooketSlug.Tests
                                  "4.2-4.55 card move 176 14 176 0 in\n2.2 kie holds cup -7 9\nkie at 100\n");
             Assert.IsEmpty(s.Problems, string.Join("; ", s.Problems));
             var stage = new ShotStage(s.Def.Shots[0]);
-            Assert.AreEqual(new Vector2(56f, 0f), stage.Where("tones2", 1f, 0f));
-            Assert.AreEqual(new Vector2(50f, 9f), stage.Where("bag", 1f, 0f), "in his hand");
-            Assert.AreEqual(new Vector2(66f, 6f), stage.Where("bag", 2.3f, 0f), "dropping");
-            Assert.AreEqual(new Vector2(66f, 0f), stage.Where("bag", 7f, 0f), "and it stays where it fell");
+            Near(new Vector2(56f, 0f), stage.Where("tones2", 1f, 0f));
+            Near(new Vector2(50f, 9f), stage.Where("bag", 1f, 0f), "in his hand");
+            Near(new Vector2(66f, 6f), stage.Where("bag", 2.3f, 0f), "dropping");
+            Near(new Vector2(66f, 0f), stage.Where("bag", 7f, 0f), "and it stays where it fell");
             Assert.AreEqual(110f, stage.Where("tones2", 5.8f, 0f).x, 0.01f, "halfway over");
             Assert.IsTrue(stage.Walking("tones2", 5.8f));
             Assert.AreEqual("run", stage.Pose("tones2", 5.8f));
             Assert.AreEqual("idle", stage.Pose("tones2", 6.3f));
             Assert.AreEqual(164f, stage.Where("tones2", 7f, 0f).x);
             Assert.AreEqual(14f - 14f * 0.25f, stage.Where("card", 4.2f + 0.35f / 2f, 0f).y, 0.01f, "easing in: a quarter of the way at halfway");
-            Assert.AreEqual(new Vector2(65f, 13f), stage.Where("cup", 1f, 0f), "tones2's");
-            Assert.AreEqual(new Vector2(93f, 9f), stage.Where("cup", 3f, 0f), "then kie's");
+            Near(new Vector2(65f, 13f), stage.Where("cup", 1f, 0f), "tones2's");
+            Near(new Vector2(93f, 9f), stage.Where("cup", 3f, 0f), "then kie's");
         }
 
         [Test]
@@ -136,11 +136,11 @@ namespace PooketSlug.Tests
             Assert.AreEqual(Staging.Warm, stage.Colour("window", 1.3f, 0f), "a blink of the old colour");
             Assert.AreEqual(Staging.Cyan, stage.Colour("window", 1.3f, 1f / 14f), "then the new");
             Assert.AreEqual(Staging.Cyan, stage.Colour("window", 2f, 0f));
-            Assert.AreEqual(new Vector2(0.35f, 1f), stage.Size("door", 1f));
+            Near(new Vector2(0.35f, 1f), stage.Size("door", 1f));
             Assert.AreEqual(-9f, stage.Turn("door", 1f));
             stage.Camera(1f, out float zoom, out Vector2 look);
             Assert.AreEqual(1.1f, zoom, 0.001f);
-            Assert.AreEqual(new Vector2(10f, -5f), look);
+            Near(new Vector2(10f, -5f), look);
             stage.Camera(5f, out zoom, out look);
             Assert.AreEqual(1.2f, zoom, 0.001f);
             Assert.IsTrue(stage.Lit("spark", 1f, 0f));
@@ -201,6 +201,10 @@ namespace PooketSlug.Tests
             Assert.IsTrue(Staging.TryColour("#ff800080", out c));
             Assert.AreEqual(128f / 255f, c.a, 0.001f);
         }
+
+        /// <summary>Two places the same to within float rounding (Unity's Vector2.Equals is exact).</summary>
+        static void Near(Vector2 expected, Vector2 actual, string message = null) =>
+            Assert.Less((expected - actual).magnitude, 0.001f, (message ?? "") + ": expected " + expected + ", was " + actual);
 
         [Test]
         public void TheHashIsPinned()

@@ -29,8 +29,8 @@ namespace UnityEngine
         public static bool operator !=(Vector2 a, Vector2 b) => !(a == b);
         public static implicit operator Vector2(Vector3 v) => new Vector2(v.x, v.y);
         public static implicit operator Vector3(Vector2 v) => new Vector3(v.x, v.y, 0);
-        public bool Equals(Vector2 o) => this == o;
-        public override bool Equals(object o) => o is Vector2 v && this == v;
+        public bool Equals(Vector2 o) => x.Equals(o.x) && y.Equals(o.y); // exact, as Unity's is
+        public override bool Equals(object o) => o is Vector2 v && Equals(v);
         public override int GetHashCode() => x.GetHashCode() ^ (y.GetHashCode() << 2);
         public static float Distance(Vector2 a, Vector2 b) => (a - b).magnitude;
         public static float Dot(Vector2 a, Vector2 b) => a.x * b.x + a.y * b.y;
