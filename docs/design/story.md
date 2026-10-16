@@ -206,7 +206,7 @@ kcaj's mission, at the Brain Freeze creamery ([the map](levels.md#mission-two-th
 
 ### The briefing
 
-Played when Mission two starts from the den, about 24 seconds, four shots; it can be skipped once seen. **Waiting on the owner:** whether kcaj's string board briefs the mission (a card in the Design thread). The shots below are that version; if not, shots 2 and 3 become a plain close-up of a creamery delivery docket found in the empty motor pool, with the same lines.
+Played when Mission two starts from the den, about 24 seconds, four shots; it can be skipped once seen. kcaj's string board briefs it (owner, 2026-10-16): it stays up in his dark corner of the den before he's freed ([the lobby](lobby.md)).
 
 | # | Shot | What happens | Narrator, bubbles and text | Time |
 |---|---|---|---|---|
@@ -259,4 +259,3 @@ The second time you meet something, it's quick: a tabk you've already fought onl
 
 - **Mission order after kcaj**, which sets the order of the story.
 - **Each mission's story after Mission two:** its briefing, and how its crewmate's freeing plays out.
-- **Mission two's briefing:** whether kcaj's string board in the den is the briefing (asked, 2026-10-16).
