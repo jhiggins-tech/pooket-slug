@@ -2,21 +2,22 @@
 
 Where you pick your soldier and ready up, solo and in co-op: the inside of the crew's hangout, with a station for every freed crewmate, who lives there between missions.
 
-**Status:** draft, 2026-10-16, from the owner's note on the Roadmap: "The lobby should be the interior of the gaming den base, every playable character has a station and occupies it once they become playable. Small animation cycles of them interacting with their stations or with other players on the screen, sometimes with funny dialogue". All the lines are placeholders for the owner to rewrite in the crew's own voice.
+**Status:** second pass, 2026-10-16: the owner liked the first ("the bits feel good. I like the writing") and asked for the big screen, a GameCube-style console, and picking by sitting on the couch. First pass from the owner's note on the Roadmap: "The lobby should be the interior of the gaming den base, every playable character has a station and occupies it once they become playable. Small animation cycles of them interacting with their stations or with other players on the screen, sometimes with funny dialogue". All the lines are placeholders for the owner to rewrite in the crew's own voice.
 
 **Read this when** you're building the lobby, the crew screen, or a new crewmate's station.
 
 Up: [Design](README.md)
 
-Concept: `concepts/lobby/den-lobby.png` in the project's files.
+Concept: `concepts/lobby/den-lobby.png` in the project's files (second pass; the first is `den-lobby-v1.png`).
 
 ## The room
 
 - **It's the hangout from [the opening](story.md#the-opening-scene),** the garage with the hand-painted POOKET sign, now cleaned up and lived in. The raid's cyan scorch marks are still on the walls, painted over badly. It's warm where Mission one is cold: lamp light, string lights, screens glowing.
 - **One phone screen, side-on, in two floors:** the ground floor and a loft up a ladder, four stations on each. It fits a landscape phone without scrolling, so every soldier is one tap away.
-- **The way out is the roller door** on the right, with hazard stripes painted on the floor in front of it. Walking onto the stripes is how a soldier gets ready. When a mission starts, the door rolls up on the night outside.
+- **The heart of the room is the big screen and the couch.** A big TV on the ground floor, a GameCube-style console under it (a little purple cube with a carry handle, unbranded) and two controllers on long cables, lying on the couch's two seats. The couch is where the players sit: **sitting on it is how you pick your soldier** ([below](#picking-a-soldier-and-getting-ready)).
+- **The way out is the roller door** on the right. Crew come and go through it (a freed crewmate moving in, a partner arriving), and it's where BACK walks you out.
 - **The mission board** hangs beside the door: a corkboard with the chosen mission's card pinned to it. Tapping it opens the mission screen.
-- **The middle of the ground floor is the couch and the big TV,** where the gaming setup from the opening sits again. The TV is the room's screen for anything the lobby has to say: the room code, who's watching, the countdown.
+- **The TV is the room's screen** for anything the lobby has to say: the console's start screen with the chosen mission, the room code, who's watching, the countdown. It's the gaming setup from the opening, plugged back in.
 - **Thumbs stay clear:** READY sits bottom right, BACK top left, and no station's tap area reaches into the bottom corners ([controls](player.md#controls)).
 
 ### Who lives where
@@ -25,7 +26,7 @@ Each station is built from the soldier's kit ([kits](kits.md)), so it shows what
 
 | Floor | Crewmate | Station | Idle cycles |
 |---|---|---|---|
-| Ground | **tones2** | The couch and the big TV, with a slushie machine beside it | Plays the console, leaning into turns; slurps the slushie and gets brain freeze; sprays the slushie machine clean with a bit of ten-1 |
+| Ground | **tones2** | A beanbag and a slushie machine beside the couch (the couch itself is everyone's: it's where the players sit) | Slurps the slushie and gets brain freeze; sprays the slushie machine clean with a bit of ten-1; leans over the back of the couch to watch the TV |
 | Ground | **kie** | A workbench with the Trollogram projector, half taken apart, and a weasel hutch | Tinkers with the projector, which flickers a tiny hologram kie that waves at him (he unplugs it fast); a weasel pops out of the hutch and back in |
 | Ground | **kiwicore** | A drum kit by the wall, a shower cubicle in the corner and a fridge of XXXX Gold | A short drum fill with a cymbal grab; throws his flat cap across the room and catches it; steam rises from the shower and a can floats down |
 | Ground | **garyoldmancorp** | A coffee cart with a spinning prize wheel, his scooter parked on a ramp by the door | Spins the coffee wheel and waits; scoots a lap of the ground floor and stops a hair from the wall (one time in four: CRASH!) |
@@ -73,25 +74,30 @@ Sample bits (placeholders):
 
 ## Picking a soldier and getting ready
 
+**The couch is the soldier pick.** It has two seats, each with a controller on it: the left for player one, the right for player two. Whoever sits in a seat is that player's soldier, and the controller in their hands is the sign they're in.
+
 ### Solo
 
-1. **MISSIONS → a mission → the den.** The chosen mission is pinned on the board. (CREW opens the den too, with no mission, to look around, check a crewmate's stats and looks, and pick who you'll play next.)
-2. **Tap a station to pick that crewmate.** They stop what they're doing, stand up, and do a short pick pose (a ten-1 spray, a weasel pop, a cap throw) while their name card slides up from the bottom: the name, their colours, and the ⓘ for their kit. It's a small cousin of the [character intro](story.md#character-intros), with no slow-mo and no flash. The last soldier you played is picked when the den opens.
-3. **READY:** your soldier grabs their gear and walks to the stripes by the roller door. READY becomes UNREADY.
-4. **Solo, ready means go:** the door rolls up, and it's into the mission's briefing.
+1. **MISSIONS → a mission → the den.** The console's start screen on the TV shows the chosen mission. (CREW opens the den too, with no mission, to look around, check a crewmate's stats and looks, and pick who you'll play next.)
+2. **Tap a crewmate to pick them.** They stop what they're doing and head for the couch: ground-floor crew walk over, and loft crew vault the railing and drop down with a thud. They flop into the left seat, grab the controller, and their name card slides up from the bottom (the name, their colours and the ⓘ for their kit), a small cousin of the [character intro](story.md#character-intros) with no slow-mo and no flash. The last soldier you played is already on the couch when the den opens.
+3. **Changing your mind:** tap another crewmate. The one on the couch hands over the controller with a shrug and goes back to their station, and the new pick takes the seat.
+4. **While you sit there,** your soldier fidgets with the controller, and the crew's bits carry on around them. Unpicked crew can wander over and lean on the back of the couch for a bit (tones2: "MOVE OVER").
+5. **The empty seat is the way to bring a mate,** once co-op is open: tap the second controller to host a room, and the room code goes up on the TV ([co-op](#co-op)). You can sit and wait there for a second player.
+6. **READY:** your soldier presses START. The controller's light on the console goes green, the TV's start screen flashes, and the camera zooms into the TV, straight into the mission's briefing.
 
 ### Co-op
 
 - **Each phone shows its own den,** built from its own player's progress: your freed crew, your looks. Both players have beaten Mission one, because co-op isn't open before then.
-- **Your partner walks in.** When someone joins the room, their soldier walks in through the roller door with a name tag in their player colour, and waves. If you haven't freed that crewmate yet, they're a visitor: they stand by the door and don't take a station.
-- **Picks show on both phones.** Each player's soldier has a coloured ring underfoot and a P1 or P2 tag. A soldier your partner has picked is taken: their station dims and tapping it does nothing (two players can't pick the same soldier, [co-op](player.md#co-op)). If you both tap the same one at the same moment, the host's pick wins and the guest's is undone.
-- **Ready up:** each player's soldier walks to the stripes when they tap READY. The two soldiers stand side by side, and if both are at the door they do a little bit together (a fist bump, or a pair's own move if their team super is built: [team supers](team-supers.md)).
-- **When both are ready,** the TV counts down 3, 2, 1, the door rolls up, and it's into the briefing. Either player tapping UNREADY during the countdown stops it.
-- **The host picks the mission** on the board. Changing it puts both players back to not ready, so nobody is carried into a mission they didn't agree to.
+- **The host is player one,** on the left seat. Player two's seat stays empty, controller lying on the cushion, until someone joins.
+- **Your partner arrives.** When someone joins the room, their pick comes to the second seat: if it's a crewmate in your den, they jump down from their station (or walk over) and take it; if you haven't freed that crewmate yet, they walk in through the roller door as a visitor and sit down. Either way they grab the second controller and wave at the first.
+- **Picks show on both phones.** Each seat has a P1 or P2 tag in the player's colour. A crewmate your partner is sitting as is taken: their station dims and tapping them does nothing (two players can't pick the same soldier, [co-op](player.md#co-op)). If you both tap the same one at the same moment, the host's pick wins and the guest's is undone.
+- **Ready up:** each player taps READY, and their soldier presses START: that controller's light goes green on the console. When both seats are filled and ready, the two soldiers do a little bit together on the couch (a fist bump, or a pair's own move if their team super is built: [team supers](team-supers.md)).
+- **When both are ready,** the TV counts down 3, 2, 1 and the camera zooms into the screen, into the briefing. Either player tapping UNREADY during the countdown stops it.
+- **The host picks the mission** on the mission board. Changing it puts both players back to not ready, so nobody is carried into a mission they didn't agree to.
 - **The room code and invite** are on the TV: tap it to copy the link ([online](levels.md#online-once-its-open)).
 - **Spectators** don't come into the den: the TV shows how many are watching ("2 WATCHING").
 - **A partner who drops in mid-mission** still gets the den first, to pick a soldier. READY drops them straight into the mission.
-- **Leaving:** BACK walks your soldier out of the side door, and on your partner's phone they wave and leave.
+- **Leaving:** BACK gets your soldier up off the couch and out of the roller door; on your partner's phone they wave and leave, and the seat's controller drops back onto the cushion.
 
 ## What the engine needs
 
