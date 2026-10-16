@@ -9,6 +9,34 @@ namespace PooketSlug
         public static readonly TrollogramSpec Trollogram = new TrollogramSpec();
         public static readonly StealSpec Steal = new StealSpec();
         public static readonly KiePilotSpec Pilot = new KiePilotSpec();
+        public static readonly PilotFreeingSpec Freeing = new PilotFreeingSpec();
+    }
+
+    /// <summary>
+    /// Hologram kie beaten, the big glitch-out and the real kie freed (<c>docs/design/story.md</c>, Freeing kie, shots 1
+    /// and 2; the <c>?spike=pilot-glitch</c> spike): he freezes mid-taunt and the boss music cuts, he tears apart like
+    /// the goons but bigger, a cage of light flickers out where he stood, and the real kie drops to the floor, dazed.
+    /// </summary>
+    public sealed class PilotFreeingSpec
+    {
+        /// <summary>Frozen mid-taunt, glitching harder and harder, before he tears apart (seconds).</summary>
+        public float Freeze = 1.3f;
+        /// <summary>His tear-apart is the goons' this many times as long, its bands thrown this many pixels (the goons': 5).</summary>
+        public float Stretch = 2.4f, TearPx = 12f;
+        /// <summary>The cage of light flickers this long before it's out and he drops.</summary>
+        public float Cage = 1.5f;
+        /// <summary>Dazed on the floor this long, saying his line, before the mission's won.</summary>
+        public float Dazed = 2.6f;
+
+        /// <summary>Is the cage lit <paramref name="t"/> seconds in: steady, then stuttering faster and faster, then out.</summary>
+        public bool CageLit(float t)
+        {
+            if (t < 0f || t >= Cage) return false;
+            float k = t / Cage;
+            if (k < 0.3f) return true;
+            int step = (int)(t * Mathf.Lerp(8f, 30f, k));
+            return step % (k < 0.7f ? 4 : 2) != 0;
+        }
     }
 
     /// <summary>

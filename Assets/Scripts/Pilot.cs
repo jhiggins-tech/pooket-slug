@@ -262,12 +262,23 @@ namespace PooketSlug
             m_Roulette.OnDie();
             if (m_Decoy != null && m_Decoy.Up) m_Decoy.SwitchOff();
             base.Die();
+            if (!Glitches) return;
+            // the big glitch-out: frozen mid-taunt, the music cut, then torn apart (story.md, Freeing kie)
+            PilotFreeingSpec spec = KieTuning.Freeing;
+            Look?.Big(spec.Freeze, spec.Stretch, spec.TearPx);
+            World.BossMusicOff = true;
+            World.Scoring.Popup("WAIT, I WAS WINN-", Center + Vector2.up * 1.2f, new Color(0.45f, 1f, 1f));
+            World.View.Shake(0.15f);
         }
 
-        /// <summary>Glitched out: the mission's won.</summary>
+        /// <summary>The spike's big glitch-out and freeing: solo only, like every spike.</summary>
+        bool Glitches => Spike.PilotGlitch && !World.Coop;
+
+        /// <summary>Glitched out: the mission's won (with the spike, once the real kie is freed).</summary>
         public override void Destroy()
         {
-            if (Dying) World.OnBossDestroyed();
+            if (Dying && Glitches) World.Props.Add(new FreedKie(World, Pos, Facing));
+            else if (Dying) World.OnBossDestroyed();
             base.Destroy();
         }
 
@@ -391,6 +402,104 @@ namespace PooketSlug
             m_Pose.Facing = Facing;
             m_Pose.Anim = 0f;
             m_Visual.Apply(m_Pose);
+        }
+    }
+
+    /// <summary>
+    /// The real kie, freed where his hologram glitched out (<c>?spike=pilot-glitch</c>; <c>docs/design/story.md</c>,
+    /// Freeing kie, shot 2): a cyan cage of light flickers out around him, he drops to the floor in his own colours,
+    /// sits there dazed with his line, and then the mission's won (<see cref="PilotFreeingSpec"/>).
+    /// </summary>
+    public sealed class FreedKie : Actor
+    {
+        static readonly Color Cyan = new Color(0.45f, 1f, 1f);
+        const int Bars = 5, CageW = 18, CageH = 30; // pixels
+
+        readonly PlayerVisual m_Visual;
+        readonly SpriteRenderer[] m_Cage = new SpriteRenderer[Bars + 2];
+        float m_Time, m_Landed = -1f;
+        bool m_Said, m_Done;
+
+        static PilotFreeingSpec Spec => KieTuning.Freeing;
+
+        public FreedKie(World world, Vector2 feet, int facing)
+            : base(world, "Freed kie", feet, Content.Kie.HalfWidth, Content.Kie.StandHeight, 1)
+        {
+            Facing = facing;
+            m_Visual = new PlayerVisual(Visual, Art.SkinFor(Content.Kie, 0), SortOrder.Player - 2);
+            for (int i = 0; i < m_Cage.Length; i++)
+            {
+                m_Cage[i] = AddRenderer(Go.transform, "Cage", Art.Pixel, SortOrder.Effects);
+                m_Cage[i].color = Cyan;
+                bool rail = i >= Bars; // the top and bottom rails; the rest stand up
+                m_Cage[i].transform.localScale = rail ? new Vector3(CageW + 2, 1f, 1f) : new Vector3(1f, CageH, 1f);
+                float x = rail ? 0f : (i - (Bars - 1) * 0.5f) * (CageW / (float)(Bars - 1));
+                float y = rail ? (i == Bars ? 0f : CageH) : CageH * 0.5f;
+                m_Cage[i].transform.localPosition = new Vector3(x, y, 0f) / Art.PPU;
+            }
+            Sfx.Play(Sfx.Charge, 0.7f);
+            world.Burst(feet + Vector2.up * 0.8f, 16, Cyan);
+        }
+
+        public override void Tick(float dt)
+        {
+            m_Time += dt;
+            if (m_Time < Spec.Cage) return; // held in the cage of light
+            if (m_Landed < 0f)
+            {
+                Vel.x = 0f;
+                Vel.y = Mathf.Max(Vel.y - Tuning.Physics.Gravity * dt, -Tuning.Physics.MaxFall);
+                MoveWithTiles(dt);
+                if (Grounded)
+                {
+                    m_Landed = m_Time;
+                    Sfx.Play(Sfx.Thump, 0.9f);
+                    World.View.Shake(0.08f);
+                }
+                else if (Pos.y < -2f) m_Landed = m_Time; // over a pit: he's freed all the same
+                return;
+            }
+            float since = m_Time - m_Landed;
+            if (since > 0.6f && !m_Said)
+            {
+                m_Said = true;
+                World.Scoring.Popup("...HOW LONG WAS I IN THERE?", Center + Vector2.up * 1.1f, Color.white);
+            }
+            // dazed: little stars round his head
+            if (Rng.Fx.Value < dt * 6f)
+            {
+                float a = m_Time * 5f;
+                World.SpawnParticle(Pos + new Vector2(Mathf.Cos(a) * 0.35f, Height + 0.15f), new Vector2(-Mathf.Sin(a), 0.4f),
+                    new Color(1f, 0.9f, 0.3f), 1f, 0.4f);
+            }
+            if (since >= Spec.Dazed && !m_Done)
+            {
+                m_Done = true;
+                World.OnBossDestroyed();
+            }
+        }
+
+        public override void Render()
+        {
+            base.Render();
+            bool lit = Spec.CageLit(m_Time);
+            foreach (SpriteRenderer bar in m_Cage)
+            {
+                bar.enabled = lit;
+                bar.color = new Color(Cyan.r, Cyan.g, Cyan.b, 0.55f + 0.35f * Mathf.Sin(m_Time * 20f));
+            }
+            float since = m_Landed < 0f ? 0f : m_Time - m_Landed;
+            var pose = new AvatarPose
+            {
+                Facing = Facing,
+                Grounded = m_Landed >= 0f || m_Time < Spec.Cage,
+                Crouching = m_Landed >= 0f && since < Spec.Dazed - 0.6f, // in a heap, then up
+                Anim = m_Time,
+                Flash = m_Time < 0.12f, // a flash as he appears
+            };
+            m_Visual.Apply(pose);
+            // swaying a little while he's dazed
+            Visual.localPosition = m_Landed >= 0f ? new Vector3(Mathf.Round(Mathf.Sin(m_Time * 3f) * 1.4f) / Art.PPU, 0f, 0f) : Vector3.zero;
         }
     }
 }

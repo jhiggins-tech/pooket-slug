@@ -124,6 +124,8 @@ The freeing scene, after hologram kie is beaten on foot ([the pilot round](tanks
 
 Then straight into the first drive, the first time; on a replay, into the debrief. In co-op, the partner's soldier stands beside tones2 throughout.
 
+**Spike** (2026-10-16, `?spike=pilot-glitch`, solo): shots 1 and 2 in the game, without the scene around them. Beaten, hologram kie freezes mid-taunt ("WAIT, I WAS WINN-") and the boss music cuts dead; he glitches harder and harder for about a second, then tears apart like the goons, bigger and slower. Where he stood, a cyan cage of light flickers out, the real kie drops to the floor in his own colours, sits there dazed with stars round his head and says his line, and the mission's won. The numbers are `PilotFreeingSpec` (`Core/KieTuning.cs`), the look `HoloLook.Big` and `FreedKie` (`Pilot.cs`). `?test=pilot,weak` starts at the tank with the pilot on one point of health.
+
 ## The first drive
 
 The second reveal: you can drive a tank ([reveals](#reveals-are-story-beats)). It plays once, ever, straight after freeing kie. Draft, 2026-10-15. A short scene, then a short playable drive that ends the mission. The drive teaches the controls by doing, one prompt at a time, each shown only until you've done it once.
