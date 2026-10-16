@@ -28,5 +28,4 @@ Recommended order before pushing a C# change:
 - [fusion-weaver.md](fusion-weaver.md): driving Fusion's `ILPostProcessor` from a small .NET harness, and inspecting the woven output.
 - [edit-mode-tests.md](edit-mode-tests.md): the Core assembly's NUnit tests, how CI and you run them, and the bugs they caught on purpose.
 - [browser-tests.md](browser-tests.md): the Playwright smoke and co-op tests, software WebGL, and the cloud sandbox's network limits.
-- [test-log.md](test-log.md): what was tested, when, how, and the result.
 - [tools/](tools/README.md): the scripts.

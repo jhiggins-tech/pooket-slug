@@ -9,11 +9,11 @@ Up: [Build pipeline](README.md)
 ## Triggers, permissions and concurrency
 
 - **Triggers:**
-  - Pushes to `main` and `claude/**`, and manual dispatch.
+  - Pushes to `main` and `claude/**`, branch deletions, and manual dispatch. A plan job decides what a push builds: the main line deploys to the root, other branches to a preview folder (spikes, `claude/spike-*`, without the demos and co-op tests), and a commit the main line already has builds nothing.
   - `paths-ignore` skips pushes that only touch `**.md` or `docs/**`. A doc change never redeploys the game, and a redeploy changes the build version, which [splits co-op players](../netcode/sessions.md#build-versions).
-- **`permissions: contents: write`:** needed by `peaceiris/actions-gh-pages` to push the `gh-pages` branch.
-- **Concurrency:** `group: webgl-pages` with `cancel-in-progress: false` (since 2026-10-16), so a build in flight always finishes and deploys; pushes that land meanwhile queue, and only the newest of them runs next.
-  - The group is **global**: a build for any branch waits for any other. With `cancel-in-progress: true`, as before, several threads pushing to the same branch kept cancelling each other and nothing deployed for over an hour.
+- **`permissions: contents: write`:** needed to push the `gh-pages` branch.
+- **Concurrency:** a group per branch (`webgl-pages-<branch>`) with `cancel-in-progress: false`, so branches build side by side, and within a branch a build in flight always finishes and deploys; pushes that land meanwhile queue, and only the newest of them runs next.
+  - Until 16 Oct the group was global, and with `cancel-in-progress: true` several threads pushing to the same branch kept cancelling each other and nothing deployed for over an hour.
 
 ## Secrets
 
@@ -105,7 +105,7 @@ After the build, the job serves it on `127.0.0.1:8000` and runs [`tools/demos.mj
 
 ### 8. Deploy to `gh-pages`
 
-`peaceiris/actions-gh-pages@v4` with `force_orphan: true`: each deploy is a single fresh commit on `gh-pages`. See [GitHub Pages](github-pages.md#deploying).
+`tools/pages_deploy.sh` swaps the build into its own place (the root, or `previews/<slug>/`), drops previews whose branch is gone, and pushes `gh-pages` as a single fresh commit, leased against the one it started from. See [GitHub Pages](github-pages.md#deploying).
 
 ### 9. Summary
 
@@ -135,7 +135,7 @@ A second job, `coop-test`, runs after the build on every push. It tests co-op on
   - v4.4.0, which the `v4` tag now points to, is a thin wrapper around the `game-ci/cli` binary, fetched at `latest`.
   - Our first test run used `v4` with `coverageEnabled: false`. The action passed `--no-coverageEnabled`, CLI v0.1.72 rejected it as an unknown argument, and the step failed before Unity started (run 38578138923).
 - **Node 24 majors:** `actions/cache@v5`, `actions/upload-artifact@v6`, `actions/download-artifact@v8` and `actions/setup-node@v7` are already on Node 24.
-- **Third-party actions are pinned by tag, not SHA.** See [next steps](../next-steps.md).
+- **Third-party actions are pinned by tag, not SHA.**
 
 ## Reading CI logs
 

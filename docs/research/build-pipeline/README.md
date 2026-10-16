@@ -20,7 +20,7 @@ GitHub Actions: .github/workflows/webgl-pages.yml   (two jobs on ubuntu-latest)
         └─ Unity -executeMethod PooketSlug.EditorTools.WebGLBuild.Build
              bake the Photon AppId, create the scene, set PlayerSettings, BuildPlayer(WebGL)
    7. Upload the build as an artifact
-   8. Push build/WebGL/WebGL to the gh-pages branch (orphan commit)
+   8. Deploy build/WebGL/WebGL into the gh-pages branch: the site root for the main line, previews/<branch>/ for others
    then, in a second job:
    9. Two-player co-op test          two headless browsers against the new build
    │
@@ -28,7 +28,7 @@ GitHub Actions: .github/workflows/webgl-pages.yml   (two jobs on ubuntu-latest)
 GitHub Pages serves gh-pages at https://jhiggins-tech.github.io/pooket-slug/
 ```
 
-A push to `claude/**` or `main` is live in about 6 to 8 minutes. See [numbers](numbers.md).
+A main-line push is live, and any other branch's preview is up, in about 15 to 20 minutes.
 
 ## Key decisions
 
@@ -46,7 +46,6 @@ A push to `claude/**` or `main` is live in about 6 to 8 minutes. See [numbers](n
 - [workflow.md](workflow.md): every workflow step and why it's there, plus secrets, caching, concurrency and reading CI logs.
 - [unity-project.md](unity-project.md): the Unity version and image, the code-only project, packages and modules, input handling and `WebGLBuild.cs`.
 - [github-pages.md](github-pages.md): deploying, compression, the WebGL template, and what browsers download.
-- [numbers.md](numbers.md): build times and download sizes for each measured run, before and after Fusion.
 
 Source files:
 - [`.github/workflows/webgl-pages.yml`](../../../.github/workflows/webgl-pages.yml)

@@ -8,7 +8,7 @@ Up: [Netcode](README.md)
 
 ## The constraint
 
-Photon's license forbids redistributing the SDK ([licensing](choosing-a-stack.md#free-tier-and-licensing)), and this repository is public. So the SDK must never be committed. Only the compiled game is published.
+Photon's license forbids redistributing the SDK, and this repository is public. So the SDK must never be committed. Only the compiled game is published.
 
 ## Options considered
 
@@ -112,7 +112,7 @@ What else the installer does:
 
 ## The AppId
 
-- **The AppId reaches the game through a JSON file the build writes.** The workflow passes `-photonAppId ${{ secrets.PHOTON_APP_ID }}` (and optionally `-photonRegion`) in `customParameters`. The build script writes `Assets/Resources/pooket-net.json`, which [`NetConfig.cs`](../../../Assets/Scripts/Net/NetConfig.cs) loads at runtime.
+- **The AppId reaches the game through a JSON file the build writes.** The workflow passes `-photonAppId ${{ secrets.PHOTON_APP_ID }}` (and optionally `-photonRegion`) in `customParameters`. The build script writes `Assets/Resources/pooket-net.json`, which `NetConfig.cs` loads at runtime.
 - **The session copies it into Fusion's settings.** [`NetSession`](../../../Assets/Scripts/Net/NetSession.cs) copies Fusion's global app settings (when they exist), sets `AppIdFusion`, `AppVersion` and `FixedRegion`, and passes them to `StartGame` as `CustomPhotonAppSettings`.
 - **Without an AppId the game still builds.** The title screen says *Online co-op is off in this build (no Photon AppId)*.
 
