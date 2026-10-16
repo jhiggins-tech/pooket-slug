@@ -84,7 +84,7 @@ namespace PooketSlug
     /// <summary>Builds every sprite in the game procedurally at startup (no imported assets).</summary>
     public static class Art
     {
-        public const float PPU = 16f;
+        public const float PPU = Tuning.Pixels.PerUnit;
         public static readonly Color32 OutlineColor = Hex(0x1c1420);
 
         /// <summary>[0] = player 1 (red bandana), [1] = player 2 (blue bandana).</summary>

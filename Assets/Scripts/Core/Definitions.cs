@@ -250,9 +250,11 @@ namespace PooketSlug
         /// </summary>
         public readonly int CrateSpecials;
 
-        public SoldierDef(byte id, string name, float runSpeed, float crawlSpeed, float jumpVelocity, float halfWidth, float standHeight,
-            float crouchHeight, int maxHp, WeaponDef primary, WeaponDef special, int startSpecials,
-            int specialMax = 0, float specialRefill = 0f, WeaponDef super = null, WeaponDef ability = null, float abilityCooldown = 0f,
+        public SoldierDef(byte id, string name, WeaponDef primary, WeaponDef special, int startSpecials,
+            float runSpeed = Tuning.Soldier.RunSpeed, float crawlSpeed = Tuning.Soldier.CrawlSpeed,
+            float jumpVelocity = Tuning.Soldier.JumpVelocity, float halfWidth = Tuning.Soldier.HalfWidth,
+            float standHeight = Tuning.Soldier.StandHeight, float crouchHeight = Tuning.Soldier.CrouchHeight,
+            int maxHp = Tuning.Soldier.MaxHp, int specialMax = 0, float specialRefill = 0f, WeaponDef super = null, WeaponDef ability = null, float abilityCooldown = 0f,
             int crateSpecials = Tuning.Crates.DefaultSpecials)
         {
             CrateSpecials = crateSpecials;

@@ -53,7 +53,7 @@ namespace PooketSlug
 
         /// <summary>The barrel turns to the aim this fast (degrees per second), for the look only: shots go along the aim at once.</summary>
         public float BarrelTurn = 900f;
-        public float BarrelLength = 20f / 16f;
+        public float BarrelLength = 20f / Tuning.Pixels.PerUnit;
 
         /// <summary>A called-in tank drops from above the screen this fast, and its landing blasts what's under it.</summary>
         public float DropSpeed = 14f;

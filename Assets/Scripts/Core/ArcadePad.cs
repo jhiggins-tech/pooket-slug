@@ -45,7 +45,7 @@ namespace PooketSlug
         int m_StickFinger = -1;
         Vector2 m_Origin, m_Thumb;
 
-        public ArcadePad() => Layout(Tuning.Hud.Height * 16f / 9f);
+        public ArcadePad() => Layout(Tuning.Hud.Width);
 
         /// <summary>The stick and the soldier's buttons are on screen and answer touches.</summary>
         public bool Visible { get; set; }
