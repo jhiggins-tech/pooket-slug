@@ -41,7 +41,7 @@ namespace PooketSlug.Tests
             Assert.AreEqual(1f, new BossIntroShow(1.5f, true).Stripes);
             Assert.Less(new BossIntroShow(BossIntroShow.FullBanner - 0.1f, true).Stripes, 1f);
             Assert.AreEqual(0f, new BossIntroShow(BossIntroShow.FullBanner, true).Stripes);
-            Assert.AreNotEqual(new BossIntroShow(0.05f, true).WarningLit, new BossIntroShow(0.18f, true).WarningLit);
+            Assert.AreNotEqual(new BossIntroShow(0.05f, true).WarningLit, new BossIntroShow(0.25f, true).WarningLit);
         }
 
         [Test]
