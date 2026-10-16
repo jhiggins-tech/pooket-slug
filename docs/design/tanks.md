@@ -118,6 +118,20 @@ Wreck the tabk and its Trollogram pilot jumps out to fight you on foot with the 
 
 **Built** (2026-10-16, on for everyone; the spike was 2026-10-15): your tabk is part of the game, solo and co-op. As with everything tabk, it shows only once a tabk's been won (progressive disclosure); to try it, `?test=tank` parks one beside each player at the boss checkpoint and gives one call-in, and `?unlock=tank` gives the call-in alone. Jump into it, or press JUMP touching it, to climb in. Inside, the stick drives it and points the gun the eight ways, keeping the last aim when let go; FIRE shoots a shell at once, SP lobs a mortar, SU fans a barrage (5, 3 and 1, never refilled); JUMP hops it, and down and JUMP ejects. It has its own health bar (TK, under the kit's meters) and a fuel bar (FU, under that: 18 seconds of driving, up from the spike's 12; a hop burns half a second; dry, it stays put but still aims and fires). Driving (or landing) on a goon on foot squashes it: soldiers, runners, drones and weasels, never barrels, tabks or the pilot; that's the payoff for the fuel. Every hit meant for the driver lands on the tabk. Ejected, it rolls on and blows up on the first goon or wall; wrecked, it throws you clear and blows up. In co-op each player's tabk runs on their own screen, like their soldier: its pose travels with the soldier's replicated state, a partner sees it drive, aim, fire and blow up, and enemy shots stop on it; its shells go as the player's shots (weapons 18 and 19) and squashed goons as their hits. Code: `PlayerTank.cs`, `TankLook.cs` (the look, shared with a partner's copy in `RemotePlayer.cs`), numbers `PlayerTankSpec` and `TankPose` (`Core/PlayerTankSpec.cs`).
 
+## tones2's tabk
+
+The first tabk you win, freed by kie at the end of Mission one and called in for the first time in [the coda](story.md#the-coda). Draft, 2026-10-16: the guns are the owner's pick; the rest are Claude's defaults, to review.
+
+- **Its own guns** (owner, 2026-10-16): each crewmate's tabk fires tabk-sized versions of their kit, as in Pooket Tabks, where the tank is the kit. Rounds stay 5, 3 and 1, never refilled, and the controls stay the same ([driving a tabk](#driving-a-tabk)).
+  - **Water cannon** (FIRE, 5 rounds): ten-1 at full pressure from the start. Each round is a one-second blast of jet along the aim that hits hard and shoves goons back a long way. Off a wall point-blank it splashes back, harmless, as on foot.
+  - **Mud bomb** (SP, 3 rounds): ten-2's mud, lobbed. It bursts into a wide carpet of toxic mud that poisons goons walking through it. In the coda it's what clears the goons behind sandbags.
+  - **Spew** (SU, 1 round): ten-3, tabk-sized. Two seconds of spew along the aim that melts anything close and leaves a long trail of sludge. He can drive while it pours.
+- **Paint:** his Pooket Tabks colours (red, with orange and pink), on the hull and the turret, so it's plainly his next to kie's.
+- **Its name** on screen while you drive it: TONES2'S TABK, over its rounds (WATER 5, MUD 3, SPEW 1).
+- **The rest is shared** with every tabk: health, fuel, speed, the hop, squashing goons, eject and the runaway.
+- **In co-op**, while tones2's is the only tabk won, the partner calls in a second copy of it, paler, the way a partner's soldier is drawn (default, asked 2026-10-16).
+- **The cargo drone** that lowers it is the crew's own, in tones2's paint, and every call-in uses it ([freeing kie](story.md#freeing-kie)). Its look is still to draw.
+
 ## Calling in a tabk
 
 - **Once per mission,** hold the stick down and hold SP, and a tabk you've won drops in beside you, with a full tabk of fuel. A tap of SP still fires your special, even while you're crouching.
