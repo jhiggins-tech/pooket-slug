@@ -73,6 +73,22 @@ jobs:
             echo "::warning::No announcer.zip on the vendor repository's announcer release: the announcer stays quiet in this build."
           fi
 
+      # The cutscene narrator's lines, in the narrator's voice (voice F from the narrator voice spike), made by the vendor
+      # repository's Narration workflow (voice/narration.json there) and published as narration.zip: <line>.wav for each
+      # line. Without them the narrator is subtitles only.
+      - name: Fetch the narrator's lines
+        env:
+          GH_TOKEN: ${{ secrets.VENDOR_PAT }}
+        run: |
+          if gh release download narration -R jhiggins-tech/pooket-slug-vendor -p narration.zip -D vendor; then
+            mkdir -p Assets/Resources/Narration
+            unzip -o -q vendor/narration.zip '*.wav' -x sample.wav -d Assets/Resources/Narration
+            for f in Assets/Resources/Narration/*.wav; do mv "$f" "${f%.wav}.bytes"; done
+            ls -l Assets/Resources/Narration
+          else
+            echo "::warning::No narration.zip on the vendor repository's narration release: the narrator is subtitles only."
+          fi
+
       # The narrator voice spike's candidate voices (?spike=narrator), made the same way (voice/narrator.json there)
       # and published as narrator.zip: <voice>/<line>.wav for each candidate, and candidates.json naming them.
       # Without them the narrator stays subtitles only.

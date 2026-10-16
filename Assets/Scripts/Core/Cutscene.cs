@@ -111,10 +111,10 @@ namespace PooketSlug
             new CutsceneShot("Outside the hangout", 5f,
                 new[]
                 {
-                    new CutsceneLine(0.4f, Speaker.Narrator, "Friday night. tones2's back from the snack run.", "opening-1"),
+                    new CutsceneLine(1.3f, Speaker.Narrator, "Friday night. tones2's back from the snack run.", "opening-1"), // after his intro
                     new CutsceneLine(3.2f, Speaker.Tones2, "SNACKS ARE HERE LADS"),
                 },
-                intro: new CutsceneIntro(1.4f, Speaker.Tones2, "TONES2")),
+                intro: new CutsceneIntro(1.0f, Speaker.Tones2, "TONES2")),
             new CutsceneShot("The door", 4.5f,
                 new[]
                 {

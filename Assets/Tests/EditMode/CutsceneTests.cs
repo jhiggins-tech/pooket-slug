@@ -56,7 +56,7 @@ namespace PooketSlug.Tests
             var p = new CutscenePlayer(Cutscenes.Opening, seenBefore: false);
             var lines = new List<CutsceneLine>();
             Assert.IsNull(p.Narration);
-            Run(p, 0.5f);
+            RunTo(p, 0, 1.35f);
             Assert.AreEqual("Friday night. tones2's back from the snack run.", p.Narration);
             Assert.AreEqual(0, p.Showing(lines), "no bubble for the narrator");
             while (p.Shot < 3) Run(p, 0.1f);

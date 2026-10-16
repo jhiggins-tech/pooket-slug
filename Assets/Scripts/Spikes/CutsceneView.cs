@@ -218,7 +218,7 @@ namespace PooketSlug
 
         public void Hide()
         {
-            if (m_Voices != null) Sfx.Hush();
+            Sfx.Hush();
             m_Player = null;
             Ui.Show(m_Root, false);
         }
@@ -346,10 +346,19 @@ namespace PooketSlug
             m_IntroBand.localScale = new Vector3(size * zoomOut, size, 1f);
         }
 
-        /// <summary>?spike=narrator: reads each narrator line as it comes up, and the voice button tries the next voice.</summary>
+        /// <summary>
+        /// The narrator reads each of their lines as it comes up, with its subtitle. With ?spike=narrator, it's in the
+        /// candidate voice picked, and the voice button tries the next.
+        /// </summary>
         void Voice(string line)
         {
-            if (m_VoiceButton == null) return;
+            if (m_VoiceButton == null)
+            {
+                if (line == m_LastSaid) return;
+                m_LastSaid = line;
+                if (line != null) Sfx.Narrate(line);
+                return;
+            }
             Ui.Show(m_VoiceButton, true);
             string label = m_Voices != null ? m_Voices.Label : "NARRATOR: NO VOICE";
             if (m_VoiceLabel.text != label)

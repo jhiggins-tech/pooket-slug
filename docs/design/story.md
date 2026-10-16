@@ -40,7 +40,7 @@ Cutscenes are **in-engine scenes**: the game's own art, drawn in code, with spee
   - **Reveal:** the first time something new appears. It plays once, ever.
   - **Freeing:** the fake pilot glitches out, and the real crewmate appears and joins.
   - **Debrief:** the mission's tally, XP and rank, then anything newly unlocked.
-- **A narrator tells each scene,** in subtitles along the bottom of the screen, so what's happening is never left to guesswork. The owner asked for this after trying the first cut of the opening, 2026-10-15. Subtitles are text only for now; a voice comes from the narrator voice spike, generated like the announcer's.
+- **A narrator tells each scene,** in subtitles along the bottom of the screen and out loud, so what's happening is never left to guesswork. The owner asked for this after trying the first cut of the opening, 2026-10-15. The voice is a camp, softly spoken, Louis Theroux-style documentary narrator (voice F from the narrator voice spike, MiniMax, picked by the owner 2026-10-16), generated like the announcer's by the vendor repository's Narration workflow from its `voice/narration.json`. A line made once is kept, so a new or changed line is the only one made again.
 - **Sound:** there's a music track for each mission, and one for bosses. The crew talk in speech bubbles, and an arcade announcer calls the big moments ("Mission complete!"), in a generated voice ([tanks](tanks.md#the-boss-intro)).
 - **In co-op,** scenes play for both players, and a scene ends once both have tapped. A partner who hasn't seen it gets to watch it.
 - **Every character gets an intro the first time they're on screen** (canonical, the owner, 2026-10-16). The first time a character appears in the story's timeline, the camera crash-zooms onto them, their name slams up big ("TONES2"), time goes slow-mo, and a big musical hit plays. It's part of that scene, so it plays whenever the scene does, and never anywhere else. [Who gets theirs where](#character-intros) is set below, and each scene's design names its intro.
@@ -76,7 +76,7 @@ The first cutscene, and Mission one's briefing ([the plot](#the-plot), step 1). 
 | 5 | **The keycard** | A close-up: the room dims and the card slides up big enough to read, flickering like the holograms do. It says MILITARY BASE, NORTH GATE, ACCESS: ALL AREAS. | Narrator: "A pass for the military base, up on the hill." · tones2: "THAT'S WHERE THEY TOOK THEM." | 5 s |
 | 6 | **Heading out** | Out of the window, searchlights sweep the sky over a hill in the distance. tones2 finishes the slushie in one go, crushes the cup, and walks out to the right. The caption card slams in, and the announcer calls it as the mission starts. | Narrator: "So tones2 goes in alone." · tones2: "RIGHT." · Card: "MISSION 1 · THE MILITARY BASE · FIND THE CREW" · Announcer: "Mission one... start!" | 6 s |
 
-**Character intro:** tones2, in shot 1, about 1.4 seconds in, as he strolls in with the snacks ([character intros](#character-intros)). The shot holds about 1.5 seconds longer for it.
+**Character intro:** tones2, in shot 1, a second in, as he strolls in with the snacks ([character intros](#character-intros)): it's the first thing the game shows, and the narrator's first line follows it. The shot holds about 1.5 seconds longer for it.
 
 **What it teaches:** the holograms are the enemy and they glitch out when beaten (shot 4, using the goon death), tones2 sprays water (the jet), and the keycard's close-up and the narrator make it plain that the base is where the crew went.
 

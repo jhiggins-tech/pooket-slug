@@ -84,6 +84,13 @@ namespace PooketSlug
         public static void Say(string id, float delay = 0f) => Speak("Voice/" + id, 0.9f, delay);
 
         /// <summary>
+        /// The cutscene narrator reads line <paramref name="id"/> (a <see cref="CutsceneLine.Voice"/>), from
+        /// <c>Resources/Narration/&lt;id&gt;.bytes</c>: the narrator's own voice (voice F from the narrator voice spike), made by
+        /// the vendor repository's Narration workflow and fetched like the announcer's.
+        /// </summary>
+        public static void Narrate(string id) => Speak("Narration/" + id, 1f, 0f);
+
+        /// <summary>
         /// The cutscene narrator reads line <paramref name="id"/> in candidate voice <paramref name="voice"/> (the narrator
         /// voice spike), from <c>Resources/Narrator/&lt;voice&gt;/&lt;id&gt;.bytes</c>, fetched like the announcer's.
         /// </summary>
