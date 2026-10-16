@@ -4,7 +4,7 @@ What we built, how it's shaped, and where the detail lives. Online co-op went li
 
 **Read this when** you're touching anything networked, adding a feature that two players must see the same way, or choosing what to change for 3–4 players or versus play.
 
-Up: [Research index](../AGENTS.md)
+Up: [Research index](../README.md)
 
 ## What exists
 

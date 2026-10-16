@@ -1,32 +1,14 @@
-# Pooket Slug research: start here
+# Pooket Slug research
 
-Research notes and a reference guide for the pooket-slug spike. It covers a Unity 6.3 WebGL game built by GameCI on GitHub Actions and published to GitHub Pages, with online two-player co-op on Photon Fusion 2. This file is the table of contents: read it first, then open only what your task needs.
+How the pipeline, the netcode, sign-in and the checks work, and what was tried and measured on the way. The code map, the working rules and the recipes are in the root [CLAUDE.md](../../CLAUDE.md); the game design is [docs/design](../design/README.md).
 
-## How these docs are organised
+Every document opens with a summary, a **Read this when** line and an **Up** link. **The code is the source of truth;** these docs explain why it is the way it is.
 
-They use **progressive disclosure**:
-1. **This file:** what exists, the current status, and where to look.
-2. **Topic overviews** (`<topic>/README.md`): one page per topic, enough to work at a high level.
-3. **Leaf documents:** the detail, opened only when a task needs it.
-
-Every document opens with a summary, a **Read this when** line and an **Up** link. It links to its neighbours and to the source files it describes. **The code is the source of truth;** these docs explain why it is the way it is, and what was tried and measured.
-
-## Status (2026-10-14)
-
-| Area | State | Where |
-|---|---|---|
-| GameCI → WebGL → GitHub Pages | ✅ Live; each push redeploys in 6–8 min | [build-pipeline](build-pipeline/README.md) |
-| Online co-op (Fusion 2.1.3, Shared Mode) | ✅ Live; played by the owner on 2026-10-14 | [netcode](netcode/README.md) |
-| Verification without a Unity license | ✅ Working toolkit, re-tested 2026-10-14 | [verification](verification/README.md) |
-| Refactor pass | ✅ All 16 steps landed 2026-10-14; the next round is on the Roadmap (rf-*) | |
-| Automated tests | ✅ EditMode tests before each build, and the two-player co-op test after each deploy | [EditMode tests](verification/edit-mode-tests.md), [browser tests](verification/browser-tests.md) |
-| "Sign in with Google" spike | ⏳ Reusing the Cardmaster Firebase project. Database rules for the player record and a friends board are live (merged into Cardmaster and deployed). Waiting on the owner: the console steps and the repository variables | [accounts](accounts/README.md), todo |
-
-**Live build:** https://jhiggins-tech.github.io/pooket-slug/ · **What's next:** [the Roadmap](https://claude.ai/artifact/1AWnQDGtUmiKMnjPgcbru9) · **Game design:** [docs/design](../design/README.md) (the one source; its [history](../design/history.md) keeps the Roguelite and ideas not picked)
+**Live build:** https://jhiggins-tech.github.io/pooket-slug/ · **What's next:** [the Roadmap](https://claude.ai/artifact/1AWnQDGtUmiKMnjPgcbru9)
 
 ## Contents
 
-- [lessons-learned.md](lessons-learned.md): the findings in one page, each linked to its evidence. It replaces the old root-level `LEARNED-LESSONS.md`.
+- [lessons-learned.md](lessons-learned.md): the findings in one page, each linked to its evidence.
 - [build-pipeline/](build-pipeline/README.md): how a push becomes a playable page.
   - [workflow.md](build-pipeline/workflow.md): every workflow step, secrets, caching, concurrency, reading CI logs.
   - [unity-project.md](build-pipeline/unity-project.md): the Unity version and image, the code-only project, packages and modules, input, `WebGLBuild.cs`.
@@ -64,5 +46,3 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
 - **Put each fact in one leaf document,** and link to it from elsewhere instead of repeating it.
 - **Date your measurements and cite CI run IDs,** so they can be checked.
 - **When you add a document,** add it to its topic `README.md` and to the contents above.
-- **Never paste Photon SDK code, secret values, or private-repo code here.** This repository is public, and the SDK is licensed.
-- **Never name the hidden ranks.** Of the rank ladder's 33 ranks, only Bronze, Silver, Gold, Platinum, Diamond, Master, Grandmaster and Champion may be named. Don't name or describe the other 25 in docs, tests or commit messages (the owner's rule).

@@ -4,7 +4,7 @@ There's no Unity install or license outside CI, and a CI round trip costs 6–8 
 
 **Read this when** you're about to push C# or networking changes, upgrading Unity or an SDK, or deciding how to test something.
 
-Up: [Research index](../AGENTS.md)
+Up: [Research index](../README.md)
 
 | Technique | Catches | Cost | Doc |
 |---|---|---|---|
