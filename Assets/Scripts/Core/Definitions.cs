@@ -57,11 +57,11 @@ namespace PooketSlug
         Bullet,
         /// <summary>Thrown or dropped, then falls: <see cref="WeaponDef.Throw"/> plus some of the thrower's own speed.</summary>
         Lob,
-        /// <summary>A stream of droplets while FIRE is held, building pressure (spike: <see cref="JetSpec"/>).</summary>
+        /// <summary>A stream of droplets while FIRE is held, building pressure (<see cref="JetSpec"/>).</summary>
         Jet,
-        /// <summary>The soldier shakes, then launches upward (spike: <see cref="RocketSpec"/>).</summary>
+        /// <summary>The soldier shakes, then launches upward (<see cref="RocketSpec"/>).</summary>
         RocketJump,
-        /// <summary>A short-range spew that leaves burning sludge (spike: <see cref="SpewSpec"/>).</summary>
+        /// <summary>A short-range spew that leaves burning sludge (<see cref="SpewSpec"/>).</summary>
         Spew,
         /// <summary>kie's Weasel Pop: a press tumbles out weasels that hunt goons along the ground and pop (<see cref="WeaselPopSpec"/>).</summary>
         Weasels,

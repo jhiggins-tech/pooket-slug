@@ -302,7 +302,6 @@ namespace PooketSlug
             m_Tapped = new bool[System.Math.Max(1, players)];
         }
 
-        public int Players => m_Tapped.Length;
         public CutsceneShot Current => Done ? null : Scene.Shots[Shot];
 
         /// <summary>How far into the build-up to the coming intro (0 to 1), or 0 if there's none building.</summary>

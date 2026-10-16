@@ -58,20 +58,10 @@ namespace PooketSlug.Tests
         {
             Spike.Configure(Page + "?spike=kcaj");
             Assert.IsTrue(Spike.Kcaj);
-            Assert.IsFalse(Spike.Craters || Spike.Music || Spike.CallIn || Spike.Partner);
+            Assert.IsFalse(Spike.Craters || Spike.Music || Spike.Partner);
             Assert.AreEqual("SPIKE TEST · KCAJ: HYPERFIXATE + UNMEDICATED", Spike.Label);
             Spike.Configure(Page);
             Assert.IsFalse(Spike.Kcaj);
-        }
-
-        [Test]
-        public void TheCallInSpikeIsItsOwn()
-        {
-            Spike.Configure(Page + "?spike=callin");
-            Assert.IsTrue(Spike.CallIn);
-            Assert.AreEqual("SPIKE TEST · TABK CALL-IN", Spike.Label);
-            Spike.Configure(Page + "?spike=call");
-            Assert.IsFalse(Spike.CallIn);
         }
 
         [Test]
@@ -80,6 +70,14 @@ namespace PooketSlug.Tests
             Spike.Configure(Page + "?spike=partner");
             Assert.IsTrue(Spike.Partner);
             Assert.AreEqual("SPIKE TEST · PARTNER ARROW", Spike.Label);
+        }
+
+        [Test]
+        public void TheCallInIsNoLongerASpike()
+        {
+            Spike.Configure(Page + "?spike=callin"); // the coda brings tones2's tabk in for real now
+            Assert.IsFalse(Spike.Any);
+            Assert.IsNull(Spike.Label);
         }
 
         [Test]

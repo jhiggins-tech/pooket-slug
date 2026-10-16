@@ -25,7 +25,6 @@ namespace PooketSlug
         // as the authority runs it, and as every screen has seen it
         int m_Phase, m_Damage, m_Drops, m_SeenPhase, m_SeenDrops;
         float m_Spin, m_LocalSpin = -1f, m_Progress, m_Fury = 1f;
-        bool m_MarkerShown = true;
         // what this screen's soldier lost
         KieSteal m_Pick, m_Holding;
         int m_Held;
@@ -94,7 +93,6 @@ namespace PooketSlug
         public void ApplyNet(int state, float progress, int drops)
         {
             int phase = state & KieTankSpec.RoulettePhase;
-            m_MarkerShown = MarkerShown(state);
             m_Progress = progress;
             if (phase != m_SeenPhase)
             {
@@ -109,9 +107,6 @@ namespace PooketSlug
                 Drop();
             }
         }
-
-        /// <summary>A follower's last word on whether the landing marker shows.</summary>
-        public bool Marker => m_MarkerShown;
 
         Vector2 Over => m_Host.Pos + Vector2.up * (m_Height + 0.9f);
 
