@@ -85,6 +85,8 @@ namespace PooketSlug
         public static readonly BossTankSpec BossTank = new BossTankSpec();
         /// <summary>What makes the boss tank kie's: its three attacks (<see cref="KieTankSpec"/>).</summary>
         public static readonly KieTankSpec KieTank = new KieTankSpec();
+        /// <summary>kcaj's tabk's sweep and rain (<see cref="KcajTankSpec"/>), Mission two's boss.</summary>
+        public static readonly KcajTankSpec KcajTank = new KcajTankSpec();
         /// <summary>How your tank drives and fights, the one you climb into or call in.</summary>
         public static readonly PlayerTankSpec PlayerTank = new PlayerTankSpec();
 

@@ -196,7 +196,7 @@ namespace PooketSlug
                         ? new Vector3(depth * Art.PPU, view.height * Art.PPU, 1f)
                         : new Vector3(view.width * Art.PPU, depth * Art.PPU, 1f);
                     Color c = sr.color;
-                    c.a = dim * 0.35f;
+                    c.a = dim * 0.5f;
                     sr.color = c;
                 }
             }
@@ -213,8 +213,7 @@ namespace PooketSlug
         readonly Player m_Player;
         readonly UnmedicatedSpec m_Spec;
         readonly PillRain m_Rain;
-        readonly SpriteRenderer[] m_Sprites;
-        readonly float[] m_Spin;
+        readonly PillView m_View;
         readonly System.Func<float, float, bool> m_OnGoon;
 
         public KcajPills(Player player, UnmedicatedSpec spec)
@@ -223,20 +222,7 @@ namespace PooketSlug
             m_Spec = spec;
             m_Rain = new PillRain(spec);
             m_OnGoon = OnGoon;
-            m_Sprites = new SpriteRenderer[m_Rain.Capacity];
-            m_Spin = new float[m_Rain.Capacity];
-            var root = new GameObject("Unmedicated").transform;
-            root.SetParent(player.World.Root, false);
-            for (int i = 0; i < m_Sprites.Length; i++)
-            {
-                var go = new GameObject("Pill");
-                go.transform.SetParent(root, false);
-                var sr = go.AddComponent<SpriteRenderer>();
-                sr.sprite = KcajArt.Pills[i % KcajArt.Pills.Length];
-                sr.sortingOrder = SortOrder.Projectiles;
-                sr.enabled = false;
-                m_Sprites[i] = sr;
-            }
+            m_View = new PillView(player.World.Root, m_Rain.Capacity, 1f);
         }
 
         /// <summary>Pills are still falling or bouncing.</summary>
@@ -256,7 +242,6 @@ namespace PooketSlug
         {
             Rect view = m_Player.World.View.Rect;
             m_Rain.Start(m_Player.World.Rng, view.xMin, view.xMax, view.yMax);
-            for (int i = 0; i < m_Spin.Length; i++) m_Spin[i] = Rng.Fx.Range(-720f, 720f);
             Raining = true;
             Sfx.Play(Sfx.Thump, 0.8f);
         }
@@ -298,20 +283,48 @@ namespace PooketSlug
                 w.HitFeel.Fizz(at);
             }
             // m_Spec.HurtsSoldiers is false: the crew are never touched.
-            for (int i = 0; i < 3; i++)
-                w.SpawnParticle(at, new Vector2(Rng.Fx.Range(-3f, 3f), Rng.Fx.Range(1f, 4f)), KcajArt.PillColours[i % KcajArt.PillColours.Length], 1.5f, 0.3f);
+            KcajArt.Pop(w, at, 3);
         }
 
-        public void Render()
+        public void Render() => m_View.Render(m_Rain, Raining);
+    }
+
+    /// <summary>A rain's pills on screen: a pool of sprites, one a pill, placed each frame from the <see cref="PillRain"/>.</summary>
+    public sealed class PillView
+    {
+        readonly SpriteRenderer[] m_Sprites;
+        readonly float[] m_Spin;
+
+        public PillView(Transform parent, int count, float scale)
+        {
+            m_Sprites = new SpriteRenderer[count];
+            m_Spin = new float[count];
+            var root = new GameObject("Pills").transform;
+            root.SetParent(parent, false);
+            for (int i = 0; i < count; i++)
+            {
+                var go = new GameObject("Pill");
+                go.transform.SetParent(root, false);
+                go.transform.localScale = new Vector3(scale, scale, 1f);
+                var sr = go.AddComponent<SpriteRenderer>();
+                sr.sprite = KcajArt.Pills[i % KcajArt.Pills.Length];
+                sr.sortingOrder = SortOrder.Projectiles;
+                sr.enabled = false;
+                m_Sprites[i] = sr;
+                m_Spin[i] = Rng.Fx.Range(-720f, 720f);
+            }
+        }
+
+        public void Render(PillRain rain, bool raining)
         {
             float t = Time.time;
             for (int i = 0; i < m_Sprites.Length; i++)
             {
                 SpriteRenderer sr = m_Sprites[i];
-                bool show = Raining && m_Rain.IsLive(i);
+                bool show = raining && rain.IsLive(i);
                 if (sr.enabled != show) sr.enabled = show;
                 if (!show) continue;
-                Vector2 at = m_Rain.Position(i);
+                Vector2 at = rain.Position(i);
                 Transform tr = sr.transform;
                 tr.position = new Vector3(Entity.Snap(at.x), Entity.Snap(at.y), 0f);
                 tr.rotation = Quaternion.Euler(0f, 0f, Mathf.Round(t * m_Spin[i] / 45f) * 45f); // tumbling, in eighths so the pixels stay crisp
@@ -329,6 +342,13 @@ namespace PooketSlug
         };
 
         static Sprite[] s_Pills;
+
+        /// <summary>A pill popping: a puff in its colours.</summary>
+        public static void Pop(World w, Vector2 at, int flecks)
+        {
+            for (int i = 0; i < flecks; i++)
+                w.SpawnParticle(at, new Vector2(Rng.Fx.Range(-3f, 3f), Rng.Fx.Range(1f, 4f)), PillColours[i % PillColours.Length], 1.5f, 0.3f);
+        }
 
         /// <summary>Capsules, half a colour and half white, one for each colour.</summary>
         public static Sprite[] Pills

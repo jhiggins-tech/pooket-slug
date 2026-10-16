@@ -12,6 +12,8 @@ namespace PooketSlug
         // kie's kit
         public static AudioClip WeaselThrow, WeaselTune, TrollDrop, TrollSwap;
         public static bool Muted;
+        /// <summary>The settings' volumes, as gains: the game's sounds, and the recorded voices (<see cref="Options.Gain"/>).</summary>
+        public static float EffectsVolume = 1f, VoicesVolume = 1f;
 
         static AudioSource s_Source, s_Voice;
         static readonly System.Collections.Generic.Dictionary<string, AudioClip> s_Lines = new System.Collections.Generic.Dictionary<string, AudioClip>();
@@ -72,8 +74,8 @@ namespace PooketSlug
 
         public static void Play(AudioClip clip, float volume = 1f)
         {
-            if (Muted || s_Source == null || clip == null) return;
-            s_Source.PlayOneShot(clip, volume);
+            if (Muted || s_Source == null || clip == null || EffectsVolume <= 0f) return;
+            s_Source.PlayOneShot(clip, volume * EffectsVolume);
         }
 
         /// <summary>
@@ -123,7 +125,7 @@ namespace PooketSlug
             if (clip == null) return;
             s_Voice.Stop();
             s_Voice.clip = clip;
-            s_Voice.volume = volume;
+            s_Voice.volume = volume * VoicesVolume;
             s_Voice.PlayDelayed(delay);
         }
 

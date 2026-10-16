@@ -70,7 +70,8 @@ namespace PooketSlug
             int best = setting == Setting.Hard ? card.HardBest : card.Best;
             int clears = setting == Setting.Hard ? card.HardClears : card.Clears;
             if (clears == 0) return best > 0 ? "BEST " + best.ToString("N0", CultureInfo.InvariantCulture) + " · NOT CLEARED YET" : "NOT CLEARED YET";
-            return "BEST " + best.ToString("N0", CultureInfo.InvariantCulture) + " · CLEARED " + (clears == 1 ? "ONCE" : clears + " TIMES");
+            string cleared = "CLEARED " + (clears == 1 ? "ONCE" : clears + " TIMES");
+            return best > 0 ? "BEST " + best.ToString("N0", CultureInfo.InvariantCulture) + " · " + cleared : cleared;
         }
     }
 }

@@ -160,6 +160,8 @@ namespace PooketSlug
         public bool SkipToPilot;
         /// <summary>Testing (<c>?test=pilot,weak</c>): the pilot jumps out on one point of health, and goes down on his own a few seconds in.</summary>
         public bool WeakPilot;
+        /// <summary>The boss tabk is kcaj's (<see cref="KcajBoss"/>), Mission two's, in whatever arena this is (<c>?test=kcajtank</c>).</summary>
+        public bool KcajTank;
 
         public void OnBossIntro(BossEnemy boss, bool firstTime)
         {

@@ -47,7 +47,9 @@ namespace PooketSlug
         /// <summary>The authority's melee/contact damage, applied by the client that owns this soldier.</summary>
         public void Hurt(int damage)
         {
-            if (Live) RPC_Hurt((byte)Mathf.Clamp(damage, 0, 255));
+            if (!Live) return;
+            RPC_Hurt((byte)Mathf.Clamp(damage, 0, 255));
+            WireMeter.Out.Count(WireKind.Hurt);
         }
 
         [Rpc(RpcSources.All, RpcTargets.StateAuthority)]

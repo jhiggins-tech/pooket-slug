@@ -292,27 +292,27 @@ namespace PooketSlug
 
         public void SendShot(in ShotEvent shot)
         {
-            if (m_Local != null && m_Local.Object.IsValid) m_Local.RPC_Shot(shot.Weapon.Id, shot.Origin, shot.Velocity);
+            if (m_Local != null && m_Local.Object.IsValid) { m_Local.RPC_Shot(shot.Weapon.Id, shot.Origin, shot.Velocity); WireMeter.Out.Count(WireKind.Shot); }
         }
 
         public void SendEnemyShot(in ShotEvent shot)
         {
-            if (IsAuthority) m_Shared.RPC_EnemyShot(shot.Weapon.Id, shot.Origin, shot.Velocity);
+            if (IsAuthority) { m_Shared.RPC_EnemyShot(shot.Weapon.Id, shot.Origin, shot.Velocity); WireMeter.Out.Count(WireKind.EnemyShot); }
         }
 
         public void ReportHit(in HitReport hit)
         {
-            if (SharedValid) m_Shared.RPC_Hit((short)hit.EnemyId, (byte)Mathf.Clamp(hit.Damage, 0, 255));
+            if (SharedValid) { m_Shared.RPC_Hit((short)hit.EnemyId, (byte)Mathf.Clamp(hit.Damage, 0, 255)); WireMeter.Out.Count(WireKind.Hit); }
         }
 
         public void ClaimPickup(int id)
         {
-            if (SharedValid) m_Shared.RPC_Claim((short)id);
+            if (SharedValid) { m_Shared.RPC_Claim((short)id); WireMeter.Out.Count(WireKind.Claim); }
         }
 
         public void GrantPickup(int id, PickupDef def, int playerId)
         {
-            if (IsAuthority) m_Shared.RPC_Granted((short)id, def.Id, playerId);
+            if (IsAuthority) { m_Shared.RPC_Granted((short)id, def.Id, playerId); WireMeter.Out.Count(WireKind.Grant); }
         }
 
         public void RequestRestart()

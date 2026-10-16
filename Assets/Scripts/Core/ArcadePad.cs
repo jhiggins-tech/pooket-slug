@@ -56,6 +56,8 @@ namespace PooketSlug
         /// <summary>A team super can be fired (<see cref="TeamSupers"/>), so its button (TEAM) shows.</summary>
         public bool TeamVisible { get; set; }
         public float Width { get; private set; }
+        /// <summary>Swapped round for the left-handed: the stick on the right, the buttons on the left (pause stays top right).</summary>
+        public bool LeftHanded { get; private set; }
         /// <summary>Where the stick rests when no thumb is on it.</summary>
         public Vector2 StickHome { get; private set; }
         public bool StickActive => m_StickFinger >= 0;
@@ -70,24 +72,29 @@ namespace PooketSlug
         public bool Shown(Button b) => b == Button.Pause ? PauseVisible : b == Button.Ability ? Visible && AbilityVisible
             : b == Button.Team ? Visible && TeamVisible : Visible;
 
-        /// <summary>Places the stick and the buttons on a screen this many HUD units wide.</summary>
-        public void Layout(float width)
+        /// <summary>Places the stick and the buttons on a screen this many HUD units wide, mirrored if <paramref name="leftHanded"/>.</summary>
+        public void Layout(float width, bool leftHanded = false)
         {
             Width = width;
+            LeftHanded = leftHanded;
             float h = Tuning.Hud.Height;
-            StickHome = new Vector2(78f, h - 78f);
+            StickHome = new Vector2(X(78f), h - 78f);
             Place(Button.Fire, width - 64f, h - 72f, 32f);
             Place(Button.Jump, width - 146f, h - 46f, 26f);
             Place(Button.Special, width - 120f, h - 132f, 22f);
             Place(Button.Super, width - 46f, h - 152f, 20f);
             Place(Button.Ability, width - 198f, h - 118f, 18f);
-            Place(Button.Pause, width - 22f, 60f, 13f);
+            m_Center[(int)Button.Pause] = new Vector2(width - 22f, 60f); // top right either way, clear of both thumbs
+            m_Radius[(int)Button.Pause] = 13f;
             Place(Button.Team, width - 62f, h - 208f, 22f);
         }
 
+        /// <summary>An x measured from the left, as it is for the right-handed, or mirrored for the left-handed.</summary>
+        float X(float x) => LeftHanded ? Width - x : x;
+
         void Place(Button b, float x, float y, float radius)
         {
-            m_Center[(int)b] = new Vector2(x, y);
+            m_Center[(int)b] = new Vector2(X(x), y);
             m_Radius[(int)b] = radius;
         }
 
@@ -152,7 +159,7 @@ namespace PooketSlug
                 return Role.Pause;
             }
             if (!Visible) return Role.Ignore; // a menu's button, say: the finger does nothing here until it lifts
-            if (!StickActive && f.Pos.x < Width * 0.5f)
+            if (!StickActive && (LeftHanded ? f.Pos.x > Width * 0.5f : f.Pos.x < Width * 0.5f))
             {
                 m_StickFinger = f.Id;
                 m_Origin = m_Thumb = f.Pos;

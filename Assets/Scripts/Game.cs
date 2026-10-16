@@ -47,6 +47,7 @@ namespace PooketSlug
         CrewRevealView m_RevealView;
         bool m_TestDebrief;     // ?test=debrief: the mission's won as it starts, so the debrief shows (as if it's the first)
         bool m_TestCoda;        // ?test=coda: a game starts at the coda, the tabk run after the boss, with its prompts
+        bool m_TestKcajTank;    // ?test=kcajtank: the boss is kcaj's tabk (Mission two's), starting at the boss
         bool m_TestBoss;        // ?test=boss: a game starts just before the boss's arena (co-op too: the co-op test's boss round)
         bool m_TestPilot;       // ?test=pilot: the same, and the tank's wrecked as it wakes, so the pilot round starts at once
         bool m_TestTeam;        // ?test=team: solo, a stand-in partner and both supers charged, to try TEAM
@@ -145,7 +146,8 @@ namespace PooketSlug
             m_TestPilot = Array.IndexOf(tests, "pilot") >= 0;
             m_TestWeakPilot = m_TestPilot && Array.IndexOf(tests, "weak") >= 0;
             m_TestTeam = Array.IndexOf(tests, "team") >= 0;
-            m_TestBoss = m_TestPilot || Array.IndexOf(tests, "boss") >= 0;
+            m_TestKcajTank = Array.IndexOf(tests, "kcajtank") >= 0;
+            m_TestBoss = m_TestPilot || m_TestKcajTank || Array.IndexOf(tests, "boss") >= 0;
             m_TestReveal = Array.IndexOf(tests, "reveal") >= 0;
             m_TestCoda = Array.IndexOf(tests, "coda") >= 0;
             m_TestDebrief = Array.IndexOf(tests, "debrief") >= 0;
@@ -187,7 +189,7 @@ namespace PooketSlug
         /// <summary>A world for <paramref name="mission"/>, shared when <paramref name="net"/> is given.</summary>
         World NewWorld(MissionDef mission, INetLink net = null)
         {
-            var world = new World(m_Camera, mission, net, Soldier) { TanksToCall = m_TankUnlocked || m_TestTank || (Spike.CallIn && net == null) ? 1 : 0, SkipToPilot = m_TestPilot, WeakPilot = m_TestWeakPilot, TestTeam = m_TestTeam };
+            var world = new World(m_Camera, mission, net, Soldier) { TanksToCall = m_TankUnlocked || m_TestTank || (Spike.CallIn && net == null) ? 1 : 0, SkipToPilot = m_TestPilot, WeakPilot = m_TestWeakPilot, TestTeam = m_TestTeam, KcajTank = m_TestKcajTank };
             world.BossIntro += OnBossIntro;
             world.BossFightStarted += OnBossFightStarted;
             world.PilotFreed += OnPilotFreed;
@@ -853,6 +855,8 @@ namespace PooketSlug
         {
             Sfx.Muted = !m_Options.Sound;
             Music.Muted = !m_Options.Sound;
+            Sfx.EffectsVolume = Options.Gain(m_Options.Effects);
+            Sfx.VoicesVolume = Options.Gain(m_Options.Voices);
             ScrollCamera.Shaking = m_Options.Shake;
         }
 
@@ -1006,6 +1010,26 @@ namespace PooketSlug
                     {
                         Options o = m_Options;
                         o.Shake = !o.Shake;
+                        ChangeOptions(o);
+                    }
+                    else if (click == MenuAction.Effects)
+                    {
+                        Options o = m_Options;
+                        o.Effects = Options.Next(o.Effects);
+                        ChangeOptions(o);
+                        Sfx.Play(Sfx.Pickup, 0.8f); // a taste of the new level
+                    }
+                    else if (click == MenuAction.Voices)
+                    {
+                        Options o = m_Options;
+                        o.Voices = Options.Next(o.Voices);
+                        ChangeOptions(o);
+                        Sfx.Say("mission-start"); // a taste of the new level
+                    }
+                    else if (click == MenuAction.LeftHanded)
+                    {
+                        Options o = m_Options;
+                        o.LeftHanded = !o.LeftHanded;
                         ChangeOptions(o);
                     }
                     else if (click == MenuAction.Back || keys.Back || keys.Settings) SetState(GameState.Title);
@@ -1204,7 +1228,7 @@ namespace PooketSlug
         void UpdatePad()
         {
             ArcadePad pad = GameInput.Pad;
-            pad.Layout(Screen.width * Tuning.Hud.Height / Mathf.Max(1, Screen.height));
+            pad.Layout(Screen.width * Tuning.Hud.Height / Mathf.Max(1, Screen.height), m_Options.LeftHanded);
             bool touch = GameInput.TouchActive;
             bool playing = m_State == GameState.Playing;
             pad.Visible = touch && playing && !m_Paused;

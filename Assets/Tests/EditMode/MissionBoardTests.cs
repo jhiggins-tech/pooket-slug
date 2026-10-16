@@ -87,6 +87,8 @@ namespace PooketSlug.Tests
             Assert.AreEqual(900, p.Best(Later, Setting.Hard));
             var card = new MissionCard { Mission = Later, Best = 100, Clears = 1, HardBest = 900, HardClears = 1 };
             Assert.AreEqual("BEST 900 · CLEARED ONCE", MissionBoard.RecordLine(card, Setting.Hard));
+            card.Best = 0;
+            Assert.AreEqual("CLEARED ONCE", MissionBoard.RecordLine(card, Setting.Normal), "no best of nothing");
         }
 
         [Test]

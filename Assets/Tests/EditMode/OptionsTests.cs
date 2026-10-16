@@ -50,5 +50,39 @@ namespace PooketSlug.Tests
             Assert.AreSame(Content.Tones2, Crew.Next(Content.Kie.Id));
             Assert.AreSame(Content.Tones2, Crew.Pick(Content.Trooper.Id, true), "the trooper isn't one of the crew");
         }
+
+        [Test]
+        public void VolumesAndTheLeftHandedPad_StartAtTheirDefaults_InAnOldSave()
+        {
+            Options old = Options.FromBits(Options.FromBits(0).Bits | 2); // shake off, as an older build stored it
+            Assert.AreEqual(Volume.High, old.Effects);
+            Assert.AreEqual(Volume.High, old.Voices);
+            Assert.IsFalse(old.LeftHanded);
+            Assert.IsFalse(old.Shake);
+        }
+
+        [Test]
+        public void VolumesAndTheLeftHandedPad_SurviveBeingStored()
+        {
+            foreach (Volume fx in new[] { Volume.High, Volume.Mid, Volume.Low, Volume.Off })
+                foreach (Volume voices in new[] { Volume.High, Volume.Off })
+                {
+                    var o = new Options { Sound = true, Shake = false, Effects = fx, Voices = voices, LeftHanded = fx == Volume.Low, Crew = Content.Kie.Id };
+                    Assert.AreEqual(o, Options.FromBits(o.Bits), fx + " / " + voices);
+                }
+        }
+
+        [Test]
+        public void AVolumeButton_StepsQuieterThenWrapsRound()
+        {
+            Assert.AreEqual(Volume.Mid, Options.Next(Volume.High));
+            Assert.AreEqual(Volume.Low, Options.Next(Volume.Mid));
+            Assert.AreEqual(Volume.Off, Options.Next(Volume.Low));
+            Assert.AreEqual(Volume.High, Options.Next(Volume.Off));
+            Assert.AreEqual("EFFECTS  MID", Options.Label("EFFECTS", Volume.Mid));
+            Assert.AreEqual(1f, Options.Gain(Volume.High));
+            Assert.AreEqual(0f, Options.Gain(Volume.Off));
+            Assert.Greater(Options.Gain(Volume.Mid), Options.Gain(Volume.Low));
+        }
     }
 }

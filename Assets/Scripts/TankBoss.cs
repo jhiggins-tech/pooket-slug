@@ -17,6 +17,8 @@ namespace PooketSlug
     /// It's kie's tank: its charged shots cycle through weasels, hologram copies and a roulette that steals
     /// (<see cref="KieBoss"/>). The copies are tanks of this kind too (<see cref="Content.TankCopy"/>, made with
     /// <c>decoy</c>): they stand where kie's trick put them and copy the real one's every move, turret, charge and shot.
+    /// With <see cref="World.KcajTank"/> it's kcaj's instead (<see cref="KcajBoss"/>): a floor sweep and a pill rain.
+    /// Whose it is, is its kit (<see cref="IBossKit"/>).
     /// </summary>
     public sealed class TankBoss : BossEnemy
     {
@@ -27,7 +29,7 @@ namespace PooketSlug
         readonly BossTankSpec m_Spec;
         readonly SpriteRenderer m_Hull, m_Barrel, m_MeterBack, m_MeterFill, m_Marker;
         readonly Transform m_BarrelPivot;
-        readonly KieBoss m_Kie;
+        readonly IBossKit m_Kie; // the crewmate's attacks: kie's, or kcaj's
         float m_HomeX;
         State m_State = State.Recoil;
         float m_StateTime, m_Timer = 1.2f, m_DriveTo, m_Angle = 150f, m_WantAngle = 150f, m_Power, m_Charge, m_Kick, m_ServoTimer, m_ExplodeTimer;
@@ -59,7 +61,7 @@ namespace PooketSlug
             m_Marker.sortingOrder = SortOrder.Effects;
             m_Marker.enabled = false;
             if (decoy) Engaged = true;
-            else m_Kie = new KieBoss(world, this); // on every screen in co-op: the roulette and the disguise are drawn on each
+            else m_Kie = world.KcajTank ? new KcajBoss(world, this) : new KieBoss(world, this); // on every screen in co-op: the roulette and the disguise are drawn on each
             if (!decoy && !world.QuickBossIntro && ShutterX(world, feet.x, out float shutter))
             {
                 // Waits out of sight in the motor pool, to roll out of its shutter when it wakes.
@@ -92,7 +94,7 @@ namespace PooketSlug
             return found;
         }
 
-        public override string DisplayName => m_Spec.Name;
+        public override string DisplayName => m_Kie != null ? m_Kie.Name : m_Spec.Name;
 
         /// <summary>Puts it straight in place, its roll-out done: the motor pool reveal was its entrance.</summary>
         public void SkipEntrance()
@@ -129,8 +131,14 @@ namespace PooketSlug
 
         float Rage => m_Spec.Rage(Hp / (float)MaxHp);
 
+        /// <summary>Points the turret at <paramref name="angle"/> at once (kcaj's sweep drags its beam with it).</summary>
+        public void AimTurret(float angle) => m_Angle = m_WantAngle = angle;
+
+        /// <summary>Where the turret turns, in the world.</summary>
+        public Vector2 TurretPivot => Pos + Art.TankBarrelPivot;
+
         /// <summary>Where the barrel's tip is, in the world, at its current angle.</summary>
-        Vector2 Muzzle
+        public Vector2 Muzzle
         {
             get
             {
@@ -353,7 +361,7 @@ namespace PooketSlug
             m_Charge = s.Charge;
             m_Power = s.Power;
             m_Landing = s.Landing;
-            m_LandingSeen = phase == State.Charge && KieBoss.MarkerShown(s.KieState);
+            m_LandingSeen = phase == State.Charge && m_Kie.ShowsMarker(s.KieState);
             if (m_SeenShots >= 0 && s.Shots != m_SeenShots)
             {
                 if (!m_SeenFire) Log.Net.Info("The boss tank fired on the authority's screen");
