@@ -88,7 +88,7 @@ for attempt in 1 2 3 4 5 6; do
     } > "$site/previews/index.html"
   fi
 
-  git -C "$site" add -A
+  git -C "$site" add -A --sparse # a sparse checkout (the light jobs' tools-only one) would refuse paths outside it
   tree=$(git -C "$site" write-tree)
   if [ "$tree" = "$(git rev-parse "$base^{tree}")" ]; then
     echo "gh-pages already has this."
