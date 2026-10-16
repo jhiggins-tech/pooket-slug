@@ -3,9 +3,10 @@
 //   quick mode:          both press Q (quick match).
 //   boss mode:           as code mode, but both start at the boss (?test=boss) and fight it: B must see the boss
 //                        tank's turret and shots from A's world. Nobody leaves.
-//   scene mode:          as code mode, but both sit down in the den together and start at once, so Mission one's
-//                        opening plays on both phones: both tap through it, and it must move on for both, together,
-//                        well before its own timer would (docs/design/story.md, Cutscenes). Nobody leaves.
+//   scene mode:          as code mode, but both sit down in the den together and start at once, with ?test=scene, so
+//                        a stand-in scene plays on both phones (Mission one is single player only, so its own scenes
+//                        never play in co-op): both tap through it, and it must move on for both, together, each shot
+//                        on their taps (docs/design/story.md, Cutscenes). Nobody leaves.
 // Then (code and quick) both play for a while, A leaves (Esc Esc), and B should take over the shared world.
 // Both open the game with ?unlock=coop, since a new browser hides co-op until Mission one is beaten solo, and with
 // ?test=crate, which puts a crate just ahead of the start: one of them must be handed it by A's world.
@@ -19,7 +20,7 @@ const { chromium } = require(process.env.PW_PATH || 'playwright');
 
 const [base, out, mode = 'code'] = process.argv.slice(2);
 const BOSS = mode === 'boss', SCENE = mode === 'scene';
-const url = base + (base.includes('?') ? '&' : '?') + 'unlock=coop&test=' + (BOSS ? 'boss' : 'crate');
+const url = base + (base.includes('?') ? '&' : '?') + 'unlock=coop&test=' + (BOSS ? 'boss' : SCENE ? 'crate,scene' : 'crate');
 fs.mkdirSync(out, { recursive: true });
 const T0 = Date.now();
 const t = () => ((Date.now() - T0) / 1000).toFixed(1).padStart(6);
@@ -101,10 +102,10 @@ async function denOpen(p) {
 /** Seconds into the run that a log line was written (each line starts with it). */
 const at = line => parseFloat(line);
 
-/** Taps (fire) every so often until the opening's over on this phone, or `ms` passes. */
+/** Taps (fire) every so often until the scene's over on this phone, or `ms` passes. */
 async function tapThrough(p, ms) {
   const end = Date.now() + ms;
-  while (Date.now() < end && !p.logs.some(l => /Cutscene over: scene-opening/.test(l))) {
+  while (Date.now() < end && !p.logs.some(l => /Cutscene over: scene-coop-test/.test(l))) {
     // held a while: a slow runner draws a few frames a second, and a quicker press can fall between two
     await p.page.keyboard.down('x'); await p.page.waitForTimeout(250); await p.page.keyboard.up('x');
     await p.page.waitForTimeout(350);
@@ -154,9 +155,9 @@ try {
   await Promise.all([shot(A, '2-together'), shot(B, '2-together')]);
 
   if (SCENE) {
-    const start = [await waitLog(A, /Cutscene: scene-opening, with a partner/, 30000), await waitLog(B, /Cutscene: scene-opening, with a partner/, 30000)];
+    const start = [await waitLog(A, /Cutscene: scene-coop-test, with a partner/, 30000), await waitLog(B, /Cutscene: scene-coop-test, with a partner/, 30000)];
     checks.bothInScene = start.every(Boolean);
-    if (!checks.bothInScene) throw new Error('the opening never played on both phones');
+    if (!checks.bothInScene) throw new Error('the scene never played on both phones');
     await A.page.waitForTimeout(1000);
     // A taps alone first: B's phone must show it, and nobody moves on yet
     await A.page.keyboard.down('x'); await A.page.waitForTimeout(80); await A.page.keyboard.up('x');
@@ -164,14 +165,14 @@ try {
     await Promise.all([shot(A, '3-a-tapped'), shot(B, '3-a-tapped')]);
     checks.waited = !A.logs.some(l => /Cutscene shot 2/.test(l)) && !B.logs.some(l => /Cutscene shot 2/.test(l));
     await Promise.all([tapThrough(A, 30000), tapThrough(B, 30000)]);
-    const over = [await waitLog(A, /Cutscene over: scene-opening/, 5000), await waitLog(B, /Cutscene over: scene-opening/, 5000)];
+    const over = [await waitLog(A, /Cutscene over: scene-coop-test/, 5000), await waitLog(B, /Cutscene over: scene-coop-test/, 5000)];
     const began = Math.max(...start.map(at));
     // CI's runner plays slower than real time, so the clock can't say whether taps did it: the game logs each
     // shot that moved on with time left. Of the five moves, four or more should be tapped on (a tap can land in the intro).
     const tapped = p => p.logs.filter(l => /Cutscene shot \d+ of \d+, tapped on/.test(l)).length;
     checks.tappedThrough = over.every(Boolean) && tapped(A) >= 4 && tapped(B) >= 4;
     checks.together = over.every(Boolean) && Math.abs(at(over[0]) - at(over[1])) < 4;
-    console.log(`${t()} the opening took ${over.map(l => l ? (at(l) - began).toFixed(1) + ' s' : 'forever').join(' and ')}`);
+    console.log(`${t()} the scene took ${over.map(l => l ? (at(l) - began).toFixed(1) + ' s' : 'forever').join(' and ')}`);
     await Promise.all([play(A, 'ArrowRight', 4000), play(B, 'ArrowRight', 4000)]);
     await Promise.all([shot(A, '4-playing'), shot(B, '4-playing')]);
     checks.played = ![...A.logs, ...B.logs].some(l => /\[pageerror\]|Disconnected from Photon|Session ended/.test(l));

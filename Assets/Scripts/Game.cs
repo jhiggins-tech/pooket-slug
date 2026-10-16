@@ -45,6 +45,8 @@ namespace PooketSlug
         bool m_TestBoss;        // ?test=boss: a game starts just before the boss's arena (co-op too: the co-op test's boss round)
         bool m_TestPilot;       // ?test=pilot: the same, and the tank's wrecked as it wakes, so the pilot round starts at once
         bool m_TestTeam;        // ?test=team: solo, a stand-in partner and both supers charged, to try TEAM
+        bool m_TestScene;       // ?test=scene: in co-op, starting together from the den plays a stand-in scene on both phones
+        bool m_TestReveal;      // ?test=reveal: the motor pool reveal plays even if it's been seen (with boss: ?test=boss,reveal)
         bool m_TestWeakPilot;   // ?test=pilot,weak: and the pilot goes down a few seconds in (or to one shot), to see what beating him does
         string m_Notice, m_StartNote;
         float m_NoticeTime, m_LeaveArmed;
@@ -131,6 +133,8 @@ namespace PooketSlug
             m_TestWeakPilot = m_TestPilot && Array.IndexOf(tests, "weak") >= 0;
             m_TestTeam = Array.IndexOf(tests, "team") >= 0;
             m_TestBoss = m_TestPilot || Array.IndexOf(tests, "boss") >= 0;
+            m_TestReveal = Array.IndexOf(tests, "reveal") >= 0;
+            m_TestScene = Array.IndexOf(tests, "scene") >= 0;
 
             m_World = NewWorld(m_Mission);
             m_Hud = new HudView(transform);
@@ -471,9 +475,9 @@ namespace PooketSlug
             m_DenView.Hide();
             if (m_Den.Mode == DenMode.Coop)
             {
-                // starting together: Mission one's opening plays on both phones first
-                MissionDef mission = Missions.ByNetId(m_Net.Link.Mission) ?? m_Mission;
-                if (mission == Missions.One && partner.InDenNow) PlayScene(Cutscenes.Opening, true, BeginCoop);
+                // Mission one is single player only, so its scenes never play in a co-op room; ?test=scene plays a
+                // stand-in on both phones when starting together, to check the two-phone sync
+                if (m_TestScene && partner.InDenNow) PlayScene(Cutscenes.CoopTest, true, BeginCoop);
                 else BeginCoop();
             }
             else
@@ -606,6 +610,31 @@ namespace PooketSlug
         void OnBossIntro(BossEnemy boss, bool firstTime)
         {
             if (MusicOn) Music.Stop(); // the screen locks and the mission's music cuts out (docs/design/tanks.md)
+            if (firstTime && boss is TankBoss tank && PlaysMotorPool)
+            {
+                // The first time: the motor pool reveal is the tabk's entrance, so after it the tabk's in place and the
+                // intro goes straight to the banner, the name card and the music (docs/design/story.md).
+                PlayScene(Cutscenes.MotorPool, false, () =>
+                {
+                    tank.SkipEntrance();
+                    m_Paused = false;
+                    SetState(GameState.Playing);
+                    StartBossIntro(boss, true);
+                });
+                return;
+            }
+            StartBossIntro(boss, firstTime);
+        }
+
+        /// <summary>
+        /// The motor pool reveal plays once, ever: the first time tones2 reaches Mission one's motor pool, solo (co-op
+        /// opens only once Mission one's beaten, so it's been seen by then). Test starts skip it, unless ?test=reveal.
+        /// </summary>
+        bool PlaysMotorPool => !m_Coop && m_Mission == Missions.One &&
+            (m_TestReveal || !m_Profile.HasSeen(Cutscenes.MotorPool.Id) && !m_TestBoss && !m_TestTeam);
+
+        void StartBossIntro(BossEnemy boss, bool firstTime)
+        {
             m_IntroT = -0.001f; // just before 0, so the first cues fire on the next tick
             m_IntroFull = firstTime;
             m_IntroName = boss.DisplayName;

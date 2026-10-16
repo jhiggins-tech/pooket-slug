@@ -155,6 +155,50 @@ namespace PooketSlug
                     new CutsceneLine(3.9f, Speaker.Caption, "MISSION 1 · THE MILITARY BASE\nFIND THE CREW"),
                 },
                 new[] { new CutsceneCue(1.6f, "crush"), new CutsceneCue(3.9f, "card"), new CutsceneCue(4.1f, "say:mission-start") }));
+
+        /// <summary>
+        /// A stand-in for later missions' co-op scenes, for the two-phone check (<c>?test=scene</c>, CI's co-op test):
+        /// Mission one is single player only, so its own scenes never play in a co-op room. Six plain shots on the
+        /// opening's stage, each held long enough that a phone tapping alone is plainly waiting.
+        /// </summary>
+        public static readonly CutsceneDef CoopTest = new CutsceneDef("scene-coop-test", 63,
+            new CutsceneShot("Test shot 1", 6f, new[] { new CutsceneLine(0.3f, Speaker.Tones2, "TEST SHOT 1 OF 6: TAP TOGETHER") }),
+            new CutsceneShot("Test shot 2", 6f, new[] { new CutsceneLine(0.3f, Speaker.Tones2, "TEST SHOT 2 OF 6: TAP TOGETHER") }),
+            new CutsceneShot("Test shot 3", 6f, new[] { new CutsceneLine(0.3f, Speaker.Tones2, "TEST SHOT 3 OF 6: TAP TOGETHER") }),
+            new CutsceneShot("Test shot 4", 6f, new[] { new CutsceneLine(0.3f, Speaker.Tones2, "TEST SHOT 4 OF 6: TAP TOGETHER") }),
+            new CutsceneShot("Test shot 5", 6f, new[] { new CutsceneLine(0.3f, Speaker.Tones2, "TEST SHOT 5 OF 6: TAP TOGETHER") }),
+            new CutsceneShot("Test shot 6", 6f, new[] { new CutsceneLine(0.3f, Speaker.Tones2, "TEST SHOT 6 OF 6: TAP TOGETHER") }));
+
+        /// <summary>
+        /// The motor pool reveal: the first-ever reveal, that tabks exist. It plays once, ever, the first time tones2
+        /// reaches the motor pool, and it's kie's tabk's entrance: the boss intro after it skips the roll-out and goes
+        /// straight to the banner and the name card. Trollogram kie gets his intro as he pops up in the hatch.
+        /// </summary>
+        public static readonly CutsceneDef MotorPool = new CutsceneDef("scene-motor-pool", 2,
+            new CutsceneShot("The shutter", 4.5f,
+                new[] { new CutsceneLine(0.8f, Speaker.Narrator, "Behind the shutter: the base's motor pool.", "motor-pool-1") },
+                new[] { new CutsceneCue(0.2f, "shutter"), new CutsceneCue(2.6f, "hum") }),
+            new CutsceneShot("The tabks", 5.5f,
+                new[]
+                {
+                    new CutsceneLine(0.4f, Speaker.Narrator, "And parked inside, all in a row: the crew's tabks.", "motor-pool-2"),
+                    new CutsceneLine(3.2f, Speaker.Tones2, "...ARE THOSE OURS?"),
+                }),
+            new CutsceneShot("kie's tabk", 8f,
+                new[]
+                {
+                    new CutsceneLine(4.8f, Speaker.Narrator, "That's kie. Or something wearing his face.", "motor-pool-3"), // after his intro
+                    new CutsceneLine(5.9f, Speaker.Hologram, "HEY TONES. WANNA RACE?"),
+                },
+                new[] { new CutsceneCue(0.2f, "engine"), new CutsceneCue(2.1f, "hatch"), new CutsceneCue(2.4f, "static") },
+                intro: new CutsceneIntro(4.5f, Speaker.Hologram, "TROLLO-KIE")),
+            new CutsceneShot("Hatch shut", 4.5f,
+                new[]
+                {
+                    new CutsceneLine(0.3f, Speaker.Narrator, "kie has never once offered to race.", "motor-pool-4"),
+                    new CutsceneLine(2.6f, Speaker.Tones2, "THAT'S NOT KIE."),
+                },
+                new[] { new CutsceneCue(0.5f, "slam"), new CutsceneCue(1.0f, "turret") }));
     }
 
     /// <summary>

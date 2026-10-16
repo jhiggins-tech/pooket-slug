@@ -8,7 +8,8 @@ namespace PooketSlug
     /// The cutscenes (<c>docs/design/story.md</c>, Cutscenes): draws a <see cref="CutscenePlayer"/>'s scene in uGUI, over
     /// the game. It's the game's own sprites on painted backdrops, with speech bubbles, a caption card, a SKIP button once
     /// the scene's been seen, and in co-op a line saying who's still to tap. The staging (where everyone stands and
-    /// moves) is written per shot for the opening, its test case (<c>docs/design/story.md</c>, The opening scene).
+    /// moves) is written per shot for each scene: the opening (<c>docs/design/story.md</c>, The opening scene) and the
+    /// motor pool reveal (The motor pool reveal).
     /// <para>
     /// The stage is 320 x 180 art pixels drawn at 2x, so the soldiers are the size they are in the game, and it's
     /// letterboxed on screens of other shapes.
@@ -18,6 +19,12 @@ namespace PooketSlug
     {
         const float Px = 2f; // HUD units per art pixel
         const int StageW = 320, StageH = 180, Street = 26, Floor = 22;
+        // the motor pool: its floor, the shutter's opening, and where the row's tabks park (the first space is kie's)
+        const float MotorFloor = 18f, MotorOpenX = 100f, MotorOpenW = 216f, MotorOpenH = 100f;
+        static readonly float[] MotorRow = { 186f, 236f, 286f };
+        const float KieSpace = 136f;
+        // the crew's paint on the parked tabks: tones2's pink, then two others
+        static readonly Color[] RowPaint = { new Color(1f, 0.62f, 0.8f), new Color(0.6f, 0.78f, 1f), new Color(1f, 0.9f, 0.5f) };
 
         static readonly Color Ink = new Color(0.1f, 0.07f, 0.1f), Paper = new Color(1f, 0.98f, 0.92f);
         static readonly Color Cyan = new Color(0.45f, 1f, 1f), Warm = new Color(1f, 0.78f, 0.38f), Gold = new Color(1f, 0.85f, 0.3f);
@@ -26,7 +33,11 @@ namespace PooketSlug
         readonly RectTransform m_Root, m_Stage, m_World;
         readonly Image m_Fade, m_Flicker, m_Back, m_Window, m_Door, m_DoorGap, m_Bag, m_Cup, m_Card, m_Spark;
         readonly Image[] m_Snow = new Image[36], m_Chips = new Image[10], m_Jet = new Image[8], m_Beams = new Image[2];
-        readonly Figure m_Tones2, m_Goon;
+        readonly Figure m_Tones2, m_Goon, m_Kie;
+        // the motor pool: its shutter, the crew's tabks in a row, and kie's rolling in with Trollogram kie in the hatch
+        readonly RectTransform m_ShutterMask, m_KieTabk, m_KieTurret;
+        readonly Image m_Shutter, m_ColdLight, m_KieHull;
+        readonly Image[] m_Row = new Image[3], m_Junk = new Image[9], m_Steam = new Image[4], m_Lamps = new Image[3];
         readonly Text m_Sign, m_Hint, m_Waiting, m_Subtitle;
         readonly RectTransform m_SubBand, m_BigCard;
         readonly Image m_Dim;
@@ -41,7 +52,10 @@ namespace PooketSlug
         string m_LastSaid, m_WaitingNote;
         readonly List<Bubble> m_Bubbles = new List<Bubble>();
         readonly List<CutsceneLine> m_Lines = new List<CutsceneLine>();
-        static Sprite s_Street, s_Room, s_White;
+        static Sprite s_Street, s_Room, s_MotorPool, s_Slats, s_White;
+        // the camera between intros: how far in, and the world point (from its middle, art pixels) it centres on
+        float m_Zoom = 1f;
+        Vector2 m_Look;
 
         CutscenePlayer m_Player;
         float m_FlickerUntil, m_GoonDiedAt = -1f;
@@ -101,6 +115,28 @@ namespace PooketSlug
                 m_Beams[i] = Picture("Searchlight", null, 267f + i * 10f, 111f, 3f, 36f, new Color(1f, 1f, 0.8f, 0.35f));
                 m_Beams[i].rectTransform.pivot = new Vector2(0.5f, 0f);
             }
+
+            // the motor pool: lamps over the row, the row itself, the cold light the shutter lets out, and the shutter
+            for (int i = 0; i < m_Lamps.Length; i++)
+            {
+                m_Lamps[i] = Picture("Work light", null, MotorRow[i] + 6f, MotorFloor + 6f, 46f, 74f, new Color(1f, 0.95f, 0.75f, 0.12f));
+            }
+            for (int i = 0; i < m_Row.Length; i++) m_Row[i] = Picture("Tabk", Art.Tank, 0f, 0f, Art.Tank.rect.width, Art.Tank.rect.height, Color.white);
+            for (int i = 0; i < m_Junk.Length; i++) m_Junk[i] = Picture("Trollogram junk", null, 0f, 0f, 3f, 2f, Cyan);
+            for (int i = 0; i < m_Steam.Length; i++) m_Steam[i] = Picture("Steam", null, 0f, 0f, 5f, 5f, new Color(0.85f, 0.88f, 0.95f, 0.5f));
+            m_Kie = new Figure(m_World, "Trollogram kie");
+            m_KieTabk = Ui.Rect(m_World, "kie's tabk", Vector2.zero, new Vector2(0.5f, 0f), Vector2.zero, Vector2.zero);
+            m_KieTurret = Ui.Rect(m_KieTabk, "Turret", new Vector2(0.5f, 0f), new Vector2(Art.TankBarrel.pivot.x / Art.TankBarrel.rect.width, 0.5f),
+                new Vector2(Art.TankBarrelPivot.x, Art.TankBarrelPivot.y) * Art.PPU * Px, new Vector2(Art.TankBarrel.rect.width, Art.TankBarrel.rect.height) * Px);
+            Ui.Picture(m_KieTurret, "Barrel", Art.TankBarrel, Ui.Middle, Ui.Middle, Vector2.zero, new Vector2(Art.TankBarrel.rect.width, Art.TankBarrel.rect.height) * Px, Color.white);
+            m_KieHull = Ui.Picture(m_KieTabk, "Hull", Art.TankHull, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), Vector2.zero, new Vector2(Art.TankHull.rect.width, Art.TankHull.rect.height) * Px, Color.white);
+            m_ColdLight = Picture("Cold light", null, MotorOpenX + MotorOpenW / 2f, 0f, MotorOpenW + 30f, MotorFloor + 4f, new Color(0.7f, 0.95f, 1f, 0f));
+            m_ShutterMask = Ui.Rect(m_World, "Shutter", Vector2.zero, Vector2.zero, new Vector2(MotorOpenX, MotorFloor) * Px, new Vector2(MotorOpenW, MotorOpenH) * Px);
+            m_ShutterMask.pivot = Vector2.zero;
+            m_ShutterMask.anchoredPosition = new Vector2(MotorOpenX, MotorFloor) * Px;
+            m_ShutterMask.gameObject.AddComponent<RectMask2D>();
+            m_Shutter = Ui.Picture(m_ShutterMask, "Slats", White, Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(MotorOpenW, MotorOpenH) * Px, Color.white);
+            m_Shutter.rectTransform.pivot = Vector2.zero;
 
             m_Spark = Picture("Spark", null, 128f, 52f, 6f, 6f, Gold);
             for (int i = 0; i < m_Chips.Length; i++) m_Chips[i] = Picture("Chip", null, 0f, 0f, 3f, 2f, new Color(1f, 0.82f, 0.3f));
@@ -198,7 +234,14 @@ namespace PooketSlug
             {
                 s_Street = Backdrop(DrawStreet);
                 s_Room = Backdrop(DrawRoom);
+                s_MotorPool = Backdrop(DrawMotorPool);
+                var slats = new PixelCanvas((int)MotorOpenW, (int)MotorOpenH);
+                DrawShutter(slats);
+                s_Slats = Sprite.Create(Art.ToTexture(slats), new Rect(0, 0, MotorOpenW, MotorOpenH), Vector2.zero, 1f);
+                m_Shutter.sprite = s_Slats;
             }
+            m_Zoom = 1f;
+            m_Look = Vector2.zero;
             Ui.Show(m_Root, true);
         }
 
@@ -240,6 +283,12 @@ namespace PooketSlug
                 case "card-up": Sfx.Play(Sfx.Pickup, 0.9f); break;
                 case "crush": Sfx.Play(Sfx.Hit, 0.7f); break;
                 case "card": Sfx.Play(Sfx.Thump, 1f); break;
+                case "shutter": Sfx.Play(Sfx.Servo, 0.8f); Sfx.Play(Sfx.RocketRumble, 0.35f); break;
+                case "hum": Sfx.Play(Sfx.Charge, 0.25f); break;
+                case "engine": Sfx.Play(Sfx.RocketRumble, 0.7f); break;
+                case "hatch": Sfx.Play(Sfx.Thump, 0.5f); break;
+                case "slam": Sfx.Play(Sfx.Thump, 1f); Sfx.Play(Sfx.Hit, 0.5f); break;
+                case "turret": Sfx.Play(Sfx.Servo, 0.7f); break;
                 case CutscenePlayer.BuildUpCue: Sfx.Play(Sfx.IntroRise, 0.5f); break;
                 case CutscenePlayer.IntroCue: Sfx.Play(Sfx.Intro, 0.5f); break;
                 default:
@@ -312,7 +361,7 @@ namespace PooketSlug
             bool on = p.Introducing && intro != null;
             float build = p.BuildingUp;
             Ui.Show(m_IntroBand, on);
-            Figure who = intro != null && (intro.Who == Speaker.Goon || intro.Who == Speaker.Hologram) ? m_Goon : m_Tones2;
+            Figure who = intro != null ? FigureFor(intro.Who) : m_Tones2;
             Vector2 half = new Vector2(StageW, StageH) * Px / 2f;
             Vector2 focus = who.Rt.anchoredPosition + new Vector2(0f, 16f * Px) - half; // their middle, from the world's centre
             if (!on)
@@ -320,8 +369,16 @@ namespace PooketSlug
                 // the build-up: a slow creep in on them (they stay put on screen), a darkening, and a shake at the peak
                 float creep = Mathf.Lerp(1f, Creep, build * build);
                 Vector2 shake = build > 0.8f ? new Vector2(Mathf.Sin(m_Clock * 90f), Mathf.Cos(m_Clock * 70f)) * (build - 0.8f) * 10f : Vector2.zero;
+                if (build <= 0f)
+                {
+                    // the shot's own camera: centred on m_Look, m_Zoom in
+                    m_World.localScale = new Vector3(m_Zoom, m_Zoom, 1f);
+                    m_World.anchoredPosition = -m_Look * Px * m_Zoom;
+                    m_Flash.color = new Color(0f, 0f, 0.05f, 0f);
+                    return;
+                }
                 m_World.localScale = new Vector3(creep, creep, 1f);
-                m_World.anchoredPosition = build > 0f ? focus - focus * creep + shake : Vector2.zero;
+                m_World.anchoredPosition = focus - focus * creep + shake;
                 m_Flash.color = new Color(0f, 0f, 0.05f, 0.3f * build * build);
                 return;
             }
@@ -352,6 +409,19 @@ namespace PooketSlug
         /// <summary>In co-op: a line saying what the scene's waiting on, over the usual one, or null for that.</summary>
         public void Waiting(string note) => m_WaitingNote = note;
 
+        /// <summary>Who a line or an intro belongs to on this scene's stage.</summary>
+        Figure FigureFor(Speaker who)
+        {
+            bool motorPool = m_Player != null && m_Player.Scene == Cutscenes.MotorPool;
+            switch (who)
+            {
+                case Speaker.Goon: return m_Goon;
+                case Speaker.Hologram: return motorPool ? m_Kie : m_Goon;
+                case Speaker.Kie: return m_Kie;
+                default: return m_Tones2;
+            }
+        }
+
         void ShowBubble(int i, CutsceneLine line, float now)
         {
             while (m_Bubbles.Count <= i) m_Bubbles.Add(NewBubble());
@@ -364,7 +434,7 @@ namespace PooketSlug
             float w = b.Text.preferredWidth + 16f;
             b.Rt.sizeDelta = new Vector2(w, 22f);
 
-            Figure who = line.Who == Speaker.Goon ? m_Goon : m_Tones2;
+            Figure who = FigureFor(line.Who);
             Vector2 at = who.Head + new Vector2(0f, 16f);
             float half = w / 2f + 4f;
             at.x = Mathf.Clamp(at.x, half, StageW * Px - half);
@@ -395,6 +465,16 @@ namespace PooketSlug
         // ------------------------------------------------------------------ the opening's staging
 
         void Stage(int shot, float t, float now)
+        {
+            m_Zoom = 1f;
+            m_Look = Vector2.zero;
+            bool motorPool = m_Player.Scene == Cutscenes.MotorPool;
+            ShowMotorPool(motorPool);
+            if (motorPool) StageMotorPool(shot, t, now);
+            else StageOpening(shot, t, now);
+        }
+
+        void StageOpening(int shot, float t, float now)
         {
             bool street = shot <= 1;
             m_Back.sprite = street ? s_Street : s_Room;
@@ -490,6 +570,133 @@ namespace PooketSlug
                     break;
                 }
             }
+        }
+
+        // ------------------------------------------------------------------ the motor pool reveal's staging
+
+        /// <summary>Shows the motor pool's own things, or hides them (and the opening's) for the other scene.</summary>
+        void ShowMotorPool(bool on)
+        {
+            Ui.Show(m_ShutterMask, on);
+            Ui.Show(m_ColdLight, on);
+            Ui.Show(m_KieTabk, on);
+            Ui.Show(m_Kie.Rt, false);
+            foreach (Image i in m_Row) Ui.Show(i, on);
+            foreach (Image i in m_Lamps) Ui.Show(i, on);
+            foreach (Image i in m_Junk) Ui.Show(i, false);
+            foreach (Image i in m_Steam) Ui.Show(i, false);
+            if (!on) return;
+            m_Back.sprite = s_MotorPool;
+            Ui.Show(m_Sign, false);
+            Ui.Show(m_Window, false);
+            Ui.Show(m_Door, false);
+            Ui.Show(m_DoorGap, false);
+            for (int i = 0; i < m_Snow.Length; i++) Snow(i, m_Clock, false);
+            Ui.Show(m_Goon.Rt, false);
+            Ui.Show(m_Card, false);
+            Ui.Show(m_Dim, false);
+            Ui.Show(m_BigCard, false);
+            Ui.Show(m_Spark, false);
+            foreach (Image j in m_Jet) Ui.Show(j, false);
+            foreach (Image b in m_Beams) Ui.Show(b, false);
+            foreach (Image c in m_Chips) Ui.Show(c, false);
+            Ui.Show(m_Bag, false);
+            Ui.Show(m_Cup, false);
+            Ui.Show(m_Tones2.Rt, true);
+        }
+
+        void StageMotorPool(int shot, float t, float now)
+        {
+            // the shutter: down at first, grinding up through shot 1, and up from then on
+            float up = shot == 0 ? Mathf.Clamp01((t - 0.4f) / 2.6f) : 1f;
+            float grind = shot == 0 && up > 0f && up < 1f ? ((int)(now * 16f) % 2) * 1f : 0f; // it judders as it goes
+            m_Shutter.rectTransform.anchoredPosition = new Vector2(0f, (up * MotorOpenH + grind)) * Px;
+            m_ColdLight.color = new Color(0.7f, 0.95f, 1f, 0.22f * up);
+            for (int i = 0; i < m_Lamps.Length; i++)
+            {
+                bool flick = (int)(now * 11f + i * 5) % 17 == 0; // a work light stutters now and then
+                m_Lamps[i].color = new Color(1f, 0.95f, 0.75f, up * (flick ? 0.05f : 0.14f));
+            }
+            Row(now);
+
+            // kie's space at the front: steaming paint scuffs until his tabk rolls back into it in shot 3
+            if (shot <= 1 || shot == 2 && t < 1.8f) Steam(now);
+
+            // kie's tabk: out of sight, then rolling in from the right into its space in shot 3, the hatch popping
+            Ui.Show(m_KieTabk, shot >= 2);
+            float tabkX = KieSpace;
+            if (shot == 2)
+            {
+                float roll = Mathf.Clamp01((t - 0.2f) / 1.8f);
+                tabkX = Mathf.Lerp(352f, KieSpace, 1f - (1f - roll) * (1f - roll));
+                if (roll < 1f) tabkX += (int)(now * 20f) % 2 * 0.5f; // its engine shakes it
+            }
+            m_KieTabk.anchoredPosition = new Vector2(tabkX, MotorFloor) * Px;
+            // the turret points up and away, then swings round on to tones2 once the hatch has shut
+            float swing = shot == 3 ? Mathf.SmoothStep(0f, 1f, Mathf.Clamp01((t - 1.0f) / 0.7f)) : 0f;
+            m_KieTurret.localRotation = Quaternion.Euler(0f, 0f, Mathf.Lerp(-150f, 6f, swing));
+
+            // Trollogram kie: up out of the hatch in shot 3, flickering cyan; back down and the hatch slams in shot 4
+            float rise = shot == 2 ? Mathf.Clamp01((t - 2.1f) / 0.3f) : shot == 3 ? 1f - Mathf.Clamp01((t - 0.2f) / 0.25f) : 0f;
+            if (rise > 0f) Trollo(tabkX, rise, now);
+
+            // tones2: in from the left in shot 1, then stood watching
+            float x = shot == 0 ? Mathf.Lerp(-14f, 58f, Mathf.Clamp01(t / 1.8f)) : 58f;
+            Soldier(x, MotorFloor, shot == 0 && t < 1.8f, t);
+            m_Tones2.Rt.localScale = Vector3.one;
+
+            // shot 2's camera eases right and in, on the row
+            if (shot == 1)
+            {
+                float ease = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(t / 2.2f));
+                m_Zoom = Mathf.Lerp(1f, 1.15f, ease);
+                m_Look = new Vector2(Mathf.Lerp(0f, 20f, ease), Mathf.Lerp(0f, -12f, ease));
+            }
+        }
+
+        /// <summary>The crew's tabks parked in a row under the work lights, in their paint, with Trollogram junk all over them.</summary>
+        void Row(float now)
+        {
+            for (int i = 0; i < m_Row.Length; i++)
+            {
+                m_Row[i].color = RowPaint[i];
+                m_Row[i].rectTransform.anchoredPosition = new Vector2(MotorRow[i], MotorFloor + 2f) * Px;
+            }
+            for (int i = 0; i < m_Junk.Length; i++)
+            {
+                float x = MotorRow[i % m_Row.Length] - 14f + (i * 11 % 26);
+                float y = MotorFloor + 8f + (i * 7 % 13);
+                bool lit = (int)(now * 8f + i * 3) % 6 != 0;
+                Ui.Show(m_Junk[i], true);
+                m_Junk[i].color = new Color(0.45f, 1f, 1f, lit ? 0.9f : 0.25f);
+                m_Junk[i].rectTransform.anchoredPosition = new Vector2(x, y) * Px;
+            }
+        }
+
+        void Steam(float now)
+        {
+            for (int i = 0; i < m_Steam.Length; i++)
+            {
+                float k = (now * 0.5f + i / (float)m_Steam.Length) % 1f;
+                Ui.Show(m_Steam[i], true);
+                m_Steam[i].color = new Color(0.85f, 0.88f, 0.95f, 0.45f * (1f - k));
+                m_Steam[i].rectTransform.anchoredPosition = new Vector2(KieSpace - 12f + i * 8f + Mathf.Sin(now * 2f + i) * 2f, MotorFloor + k * 22f) * Px;
+            }
+        }
+
+        /// <summary>Trollogram kie in his tabk's hatch: kie, but cyan, flickering and grinning; <paramref name="rise"/> 0..1 is how far up he is.</summary>
+        void Trollo(float tabkX, float rise, float now)
+        {
+            Ui.Show(m_Kie.Rt, true);
+            PlayerSkin skin = Art.KieSkins[0];
+            m_Kie.Legs.sprite = skin.LegsIdle;
+            m_Kie.Torso.sprite = skin.TorsoForward;
+            Ui.Show(m_Kie.Legs, false); // he's stood in the hatch: only his top half shows
+            bool flick = (int)(now * 30f) % 9 == 0;
+            m_Kie.Torso.color = new Color(0.45f, 1f, 1f, flick ? 0.35f : 0.85f);
+            float jitter = (int)(now * 20f) % 7 == 0 ? 1f : 0f;
+            m_Kie.Rt.localScale = new Vector3(-1f, 1f, 1f); // faces left, at tones2
+            m_Kie.At(tabkX + 4f + jitter, MotorFloor + Mathf.Lerp(-2f, 12f, rise));
         }
 
         void Soldier(float x, float y, bool walking, float t, bool spraying = false)
@@ -617,6 +824,49 @@ namespace PooketSlug
             c.Rect(110, Street, 2, 70, Art.Hex(0x22242e));
             c.Rect(106, Street + 68, 10, 3, Art.Hex(0x22242e));
             c.Circle(111, Street + 66, 2.5f, Art.Hex(0xffe6a0));
+        }
+
+        /// <summary>The motor pool, from outside: the base's wall at night, and the big opening the shutter covers, with the bay behind it.</summary>
+        static void DrawMotorPool(PixelCanvas c)
+        {
+            int floor = (int)MotorFloor, ox = (int)MotorOpenX, ow = (int)MotorOpenW, oh = (int)MotorOpenH;
+            Sky(c, 0x0b0f24, 0x1d2448);
+            var rng = new System.Random(11);
+            for (int i = 0; i < 50; i++) c.Set(rng.Next(StageW), 140 + rng.Next(StageH - 140), Art.Hex(0xc8d0ff, (byte)(120 + rng.Next(120))));
+            // the base's wall: steel panels, rivets
+            c.Rect(0, floor, StageW, 128, Art.Hex(0x2c3442));
+            for (int x = 0; x < StageW; x += 32) c.Rect(x, floor, 1, 128, Art.Hex(0x232a36));
+            for (int y = floor + 20; y < floor + 128; y += 26)
+                for (int x = 6; x < StageW; x += 16) c.Set(x, y, Art.Hex(0x4a5466));
+            c.Rect(0, floor + 126, StageW, 4, Art.Hex(0x1c222c));
+            // the bay behind the shutter: dark, with a back wall, a gantry and the lamps' fittings
+            c.Rect(ox - 6, floor, ow + 12, oh + 8, Art.Hex(0x1a1e26)); // the frame
+            c.Rect(ox, floor, ow, oh, Art.Hex(0x101318));
+            for (int x = ox + 4; x < ox + ow; x += 24) c.Rect(x, floor + 10, 1, oh - 10, Art.Hex(0x161a22));
+            c.Rect(ox, floor + oh - 14, ow, 3, Art.Hex(0x242a34)); // the gantry
+            for (int x = ox + 6; x < ox + ow; x += 10) c.Rect(x, floor + oh - 11, 1, 6, Art.Hex(0x242a34));
+            foreach (float rx in MotorRow) c.Rect((int)rx + 2, floor + oh - 14, 8, 3, Art.Hex(0x5a5a50));
+            // cables snaking over the bay floor, and the paint of the parking spaces
+            for (int x = ox; x < ox + ow; x++) c.Set(x, floor + 3 + (int)(System.Math.Sin(x * 0.11) * 1.5), Art.Hex(0x0a0c10));
+            for (int x = ox + 12; x < ox + ow; x += 50) c.Rect(x, floor, 2, 2, Art.Hex(0xc8b040));
+            // hazard stripes over the opening
+            for (int x = ox - 6; x < ox + ow + 6; x++)
+                c.Rect(x, floor + oh + 8, 1, 6, ((x - ox) / 5) % 2 == 0 ? Art.Hex(0xe0b020) : Art.Hex(0x1a1a1a));
+            c.Rect(14, floor + 54, 40, 8, Art.Hex(0x1a1e26)); // a sign plate by the door
+            c.Rect(16, floor + 56, 36, 4, Art.Hex(0xc0a030));
+            // the apron outside
+            c.Rect(0, 0, StageW, floor, Art.Hex(0x30343e));
+            c.Rect(0, floor - 1, StageW, 1, Art.Hex(0x4c5262));
+            for (int x = 4; x < StageW; x += 26) c.Rect(x, 6, 14, 2, Art.Hex(0x4a4a3c));
+        }
+
+        /// <summary>The motor pool's blast shutter: steel slats with a hazard edge along the bottom.</summary>
+        static void DrawShutter(PixelCanvas c)
+        {
+            c.Rect(0, 0, c.W, c.H, Art.Hex(0x5b5f66));
+            for (int y = 3; y < c.H; y += 6) c.Rect(0, y, c.W, 1, Art.Hex(0x45484e));
+            for (int y = 0; y < c.H; y += 6) c.Rect(0, y + 1, c.W, 1, Art.Hex(0x6c717a));
+            for (int x = 0; x < c.W; x++) c.Rect(x, 0, 1, 4, (x / 6) % 2 == 0 ? Art.Hex(0xe0b020) : Art.Hex(0x1a1a1a));
         }
 
         static void DrawRoom(PixelCanvas c)

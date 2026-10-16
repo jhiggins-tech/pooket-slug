@@ -291,6 +291,59 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void TheMotorPoolRevealIsFourShotsWithTrolloKiesIntroInTheThird()
+        {
+            CutsceneDef m = Cutscenes.MotorPool;
+            Assert.AreEqual("scene-motor-pool", m.Id);
+            Assert.AreNotEqual(Cutscenes.Opening.NetId, m.NetId, "each scene has its own number for a partner's phone");
+            Assert.AreEqual(4, m.Shots.Length);
+            Assert.That(m.Seconds, Is.InRange(15f, 25f));
+            for (int i = 0; i < m.Shots.Length; i++)
+            {
+                CutsceneShot shot = m.Shots[i];
+                Assert.AreEqual(i == 2, shot.Intro != null, shot.Name);
+                bool narrated = false;
+                foreach (CutsceneLine line in shot.Lines)
+                {
+                    if (line.Who != Speaker.Narrator) continue;
+                    narrated = true;
+                    StringAssert.StartsWith("motor-pool-", line.Voice, "every narrator line is recorded");
+                }
+                Assert.IsTrue(narrated, shot.Name + " has the narrator");
+            }
+            CutsceneIntro intro = m.Shots[2].Intro;
+            Assert.AreEqual(Speaker.Hologram, intro.Who);
+            Assert.AreEqual("TROLLO-KIE", intro.Name);
+            Assert.That(intro.At, Is.GreaterThanOrEqualTo(CutscenePlayer.BuildUp), "he's on screen through the build-up");
+            foreach (CutsceneLine line in m.Shots[2].Lines) Assert.Greater(line.At, intro.At, "his lines come after his intro");
+        }
+
+        [Test]
+        public void TheCoopStandInIsItsOwnSceneWithNothingToRecord()
+        {
+            CutsceneDef c = Cutscenes.CoopTest;
+            Assert.AreEqual(6, c.Shots.Length, "CI's two-phone check counts the moves between them");
+            Assert.AreNotEqual(Cutscenes.Opening.NetId, c.NetId);
+            Assert.AreNotEqual(Cutscenes.MotorPool.NetId, c.NetId);
+            foreach (CutsceneShot shot in c.Shots)
+            {
+                Assert.IsNull(shot.Intro);
+                foreach (CutsceneLine line in shot.Lines) Assert.IsNull(line.Voice);
+            }
+        }
+
+        [Test]
+        public void TheMotorPoolCantBeSkippedTheFirstTime()
+        {
+            var first = new CutscenePlayer(Cutscenes.MotorPool, seenBefore: false, players: 1);
+            Assert.IsFalse(first.CanSkip);
+            Assert.IsFalse(first.Skip());
+            var again = new CutscenePlayer(Cutscenes.MotorPool, seenBefore: true, players: 1);
+            Assert.IsTrue(again.Skip());
+            Assert.IsTrue(again.Done);
+        }
+
+        [Test]
         public void ThePhoneThatEndsFirstLetsTheOtherFinish()
         {
             // b tapped the last shot first; a's tap ended it on a's phone in the same frame, so a's tap never went
