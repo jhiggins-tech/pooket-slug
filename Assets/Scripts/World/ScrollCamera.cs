@@ -58,21 +58,15 @@ namespace PooketSlug
             }
             else if (w.IsAuthority)
             {
-                // Follow the leading soldier, but never push the trailing one off the left edge.
-                float lead = float.MinValue, trail = float.MaxValue;
-                if (!player.IsDown)
-                {
-                    lead = trail = player.Pos.x;
-                }
+                // Follow the leading soldier, but never push the trailing one off the left edge (ScrollHold). A downed
+                // soldier doesn't hold it, nor (spike coop-camera) does one who's switched away.
+                var hold = new ScrollHold();
+                if (!player.IsDown) hold.Add(player.Pos.x);
                 foreach (RemotePlayer r in w.Remotes)
+                    if (!r.IsDown && !(Spike.Partner && r.Away)) hold.Add(r.Pos.x);
+                if (hold.Any)
                 {
-                    if (r.IsDown) continue;
-                    lead = Mathf.Max(lead, r.Pos.x);
-                    trail = Mathf.Min(trail, r.Pos.x);
-                }
-                if (lead > float.MinValue)
-                {
-                    float desired = Mathf.Min(lead + Tuning.Camera.LookAhead, trail - Tuning.Coop.TrailMargin + h);
+                    float desired = hold.Desired(h);
                     if (desired > m_X) m_X = Mathf.Min(desired, m_X + step);
                 }
             }

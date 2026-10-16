@@ -6,13 +6,13 @@ namespace PooketSlug
     /// <summary>
     /// Spike tests: small throwaway experiments switched on from the page address, so they ride along in the
     /// normal build without changing the game anyone else plays. <c>?spike=craters</c> turns on
-    /// blasts digging craters in the boss arena, <c>?spike=music</c> the music's first cut, <c>?spike=callin</c> a tabk to call in as if tones2's were won. Spikes are solo only: a
-    /// co-op game ignores them.
+    /// blasts digging craters in the boss arena, <c>?spike=music</c> the music's first cut, <c>?spike=callin</c> a tabk to call in as if tones2's were won, <c>?spike=partner</c> the partner arrow
+    /// and warnings. Spikes are solo only (a co-op game ignores them), except the partner one, which is about co-op.
     /// </summary>
     public static class Spike
     {
         public const string CratersKey = "craters", MusicKey = "music";
-        public const string CallInKey = "callin";
+        public const string CallInKey = "callin", PartnerKey = "partner";
 
         /// <summary>Blasts dig craters in the boss arena (<see cref="CraterGround"/>).</summary>
         public static bool Craters;
@@ -26,7 +26,14 @@ namespace PooketSlug
         /// </summary>
         public static bool CallIn;
 
-        public static bool Any => Craters || Music || CallIn;
+        /// <summary>
+        /// Spike coop-camera (<see cref="PartnerBeacon"/>): an arrow to a partner who's off screen, warnings when their health
+        /// is low or they've switched away, and an away partner no longer holds the camera back. It works in co-op, and
+        /// a solo game gets a pretend partner (<see cref="PartnerGhost"/>) to try it with.
+        /// </summary>
+        public static bool Partner;
+
+        public static bool Any => Craters || Music || CallIn || Partner;
 
         /// <summary>Reads <c>?spike=</c> from the page address.</summary>
         public static void Configure(string url)
@@ -35,6 +42,7 @@ namespace PooketSlug
             Craters = Array.IndexOf(keys, CratersKey) >= 0;
             Music = Array.IndexOf(keys, MusicKey) >= 0;
             CallIn = Array.IndexOf(keys, CallInKey) >= 0;
+            Partner = Array.IndexOf(keys, PartnerKey) >= 0;
         }
 
         /// <summary>What the start banner says, or null when no spike is on.</summary>
@@ -47,6 +55,7 @@ namespace PooketSlug
                 if (Craters) parts.Add("CRATERS");
                 if (Music) parts.Add("MUSIC");
                 if (CallIn) parts.Add("TABK CALL-IN");
+                if (Partner) parts.Add("PARTNER ARROW");
                 return "SPIKE TEST · " + string.Join(" + ", parts);
             }
         }

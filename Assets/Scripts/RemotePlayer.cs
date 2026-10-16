@@ -13,6 +13,7 @@ namespace PooketSlug
         readonly PlayerVisual m_Visual;
         readonly Tones2Copy m_Tones2; // their liquids, as harmless copies
         AvatarPose m_Pose;
+        readonly Presence m_Presence = new Presence();
         float m_Anim, m_DeadTime;
         bool m_Placed;
         readonly TankLook m_Tank;
@@ -42,11 +43,16 @@ namespace PooketSlug
         public bool Gone => m_Pose.Gone;
         /// <summary>Their super is charged (for a team super).</summary>
         public bool SuperReady => m_Pose.SuperReady && !m_Pose.Dead;
+        /// <summary>They've switched away from the game, or it has stopped running on their phone (<see cref="Presence"/>).</summary>
+        public bool Away => m_Presence.Away;
+        /// <summary>Their health is low (<see cref="PartnerBeacon.IsLow"/>).</summary>
+        public bool LowHealth => !m_Pose.Dead && PartnerBeacon.IsLow(Hp, MaxHp);
 
         public override void Tick(float dt)
         {
             m_Pose = AvatarPose.Unpack(Link.PoseFlags, m_Anim, m_DeadTime);
             m_Anim += dt;
+            m_Presence.Tick(dt, m_Pose);
             m_DeadTime = m_Pose.Dead ? m_DeadTime + dt : 0f;
             Facing = m_Pose.Facing;
             Height = m_Pose.Crouching ? Link.Soldier.CrouchHeight : Link.Soldier.StandHeight;

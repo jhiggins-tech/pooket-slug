@@ -17,12 +17,28 @@ namespace PooketSlug
         public static readonly Color Shade = new Color(0.08f, 0.05f, 0.08f, 0.9f);
 
         static Font s_Font;
-        static Sprite s_Disc, s_Heart;
+        static Sprite s_Disc, s_Heart, s_Arrow;
 
         /// <summary>Unity's built-in font, the one IMGUI used.</summary>
         public static Font Font => s_Font != null ? s_Font : s_Font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
         public static Sprite Disc => s_Disc != null ? s_Disc : s_Disc = ToSprite(Art.DiscTex);
         public static Sprite Heart => s_Heart != null ? s_Heart : s_Heart = ToSprite(Art.HeartTex);
+
+        /// <summary>A solid arrowhead pointing right (the partner arrow, spike coop-camera).</summary>
+        public static Sprite Arrow => s_Arrow != null ? s_Arrow : s_Arrow = ToSprite(ArrowTex());
+
+        static Texture2D ArrowTex()
+        {
+            const int size = 16;
+            var tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp };
+            var px = new Color32[size * size];
+            for (int y = 0; y < size; y++)
+                for (int x = 0; x < size; x++)
+                    px[y * size + x] = x >= 2 && Mathf.Abs(y - 7.5f) <= (15 - x) * 0.55f ? new Color32(255, 255, 255, 255) : new Color32(0, 0, 0, 0);
+            tex.SetPixels32(px);
+            tex.Apply();
+            return tex;
+        }
 
         static Sprite ToSprite(Texture2D tex) =>
             Sprite.Create(tex, new Rect(0f, 0f, tex.width, tex.height), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);

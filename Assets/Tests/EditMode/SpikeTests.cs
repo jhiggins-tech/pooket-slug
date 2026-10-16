@@ -64,6 +64,14 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void ThePartnerArrowIsASpike()
+        {
+            Spike.Configure(Page + "?spike=partner");
+            Assert.IsTrue(Spike.Partner);
+            Assert.AreEqual("SPIKE TEST · PARTNER ARROW", Spike.Label);
+        }
+
+        [Test]
         public void ThePilotGlitchIsNoLongerASpike()
         {
             Spike.Configure(Page + "?spike=pilot-glitch"); // the glitch-out and the freeing scene are the game's own now
