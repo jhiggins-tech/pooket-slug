@@ -89,22 +89,6 @@ jobs:
             echo "::warning::No narration.zip on the vendor repository's narration release: the narrator is subtitles only."
           fi
 
-      # The narrator voice spike's candidate voices (?spike=narrator), made the same way (voice/narrator.json there)
-      # and published as narrator.zip: <voice>/<line>.wav for each candidate, and candidates.json naming them.
-      # Without them the narrator stays subtitles only.
-      - name: Fetch the narrator's candidate voices
-        env:
-          GH_TOKEN: ${{ secrets.VENDOR_PAT }}
-        run: |
-          if gh release download narrator -R jhiggins-tech/pooket-slug-vendor -p narrator.zip -D vendor; then
-            mkdir -p Assets/Resources/Narrator
-            unzip -o -q vendor/narrator.zip '*/*.wav' candidates.json -x '*/sample.wav' -d Assets/Resources/Narrator
-            find Assets/Resources/Narrator -name '*.wav' -exec sh -c 'mv "$1" "${1%.wav}.bytes"' _ {} \;
-            ls -lR Assets/Resources/Narrator
-          else
-            echo "::warning::No narrator.zip on the vendor repository's narrator release: the narrator stays subtitles only."
-          fi
-
       # The boss music's final section played by an orchestra (?spike=music crossfades to it), rendered from the
       # game's own notes by the vendor repository's CI (music/ there) and published as orchestra.zip. Without it the
       # final section stays chip all the way.
@@ -316,6 +300,10 @@ jobs:
         if: success() || failure()
         run: node tools/coop.mjs http://127.0.0.1:8000/index.html coop-test/boss boss
 
+      - name: Watch the opening together
+        if: success() || failure()
+        run: node tools/coop.mjs http://127.0.0.1:8000/index.html coop-test/scene scene
+
       - name: Summary
         if: always()
         run: |
@@ -339,6 +327,16 @@ jobs:
                   ("bossFought", "A's tank rolls out and fires"),
                   ("bossFollowed", "B's boss tank follows the turret of A's"),
                   ("bossFired", "B sees the boss tank fire in A's world"),
+              ]),
+              ("Two-player opening scene", "coop-test/scene/result.json", [
+                  ("hostOnline", "A hosts a room"),
+                  ("guestOnline", "B joins with the invite link"),
+                  ("joined", "A sees B join"),
+                  ("bothInScene", "Starting together, the opening plays on both phones"),
+                  ("waited", "A tapping alone moves neither phone on"),
+                  ("tappedThrough", "Both tapping moves it on, well before its own timer"),
+                  ("together", "It ends on both phones together"),
+                  ("played", "Both play on with no errors or disconnects"),
               ]),
           ]
           for title, path, checks in runs:

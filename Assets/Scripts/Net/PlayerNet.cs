@@ -20,6 +20,7 @@ namespace PooketSlug
         [Networked] public int NetTank { get; set; }  // TankPose.Pack(): their tank, 0 for none
         [Networked] public Vector2 NetTankPos { get; set; }
         [Networked] public byte NetDen { get; set; }  // Den.Flags while in the den (the lobby), 0 once playing
+        [Networked] public int NetScene { get; set; } // CutsceneSync.Pack() while in a co-op cutscene, else 0
 
         bool Live => Object != null && Object.IsValid;
 
@@ -34,6 +35,7 @@ namespace PooketSlug
         public int PlayingRound => Live ? NetRound - 1 : -1;
         public int PlayerId => Live ? Object.StateAuthority.PlayerId : -1;
         public int DenFlags => Live ? NetDen : 0;
+        public int SceneTaps => Live ? NetScene : 0;
         public bool Playing => Live && NetRound > 0;
 
         public override void Spawned() => NetSession.Instance?.Replication.OnPlayerSpawned(this);

@@ -139,6 +139,8 @@ namespace PooketSlug
         void SendAvatar(SoldierDef soldier, Vector2 pos, Vector2 vel, int poseFlags, int hp, int tankFlags, Vector2 tankPos);
         /// <summary>Where we are in the den: who's on our seat of the couch (null for nobody) and <see cref="Den.Flags"/>.</summary>
         void SendDen(SoldierDef soldier, int flags);
+        /// <summary>Our taps in a co-op cutscene (<see cref="CutsceneSync.Pack"/>); 0 when we're in none.</summary>
+        void SendScene(int taps);
         void SendShot(in ShotEvent shot);
     }
 
@@ -200,6 +202,8 @@ namespace PooketSlug
         int PlayerId { get; }
         /// <summary>Where they are in the den (<see cref="Den.Flags"/>); 0 once they're playing.</summary>
         int DenFlags { get; }
+        /// <summary>Their taps in a co-op cutscene (<see cref="CutsceneSync"/>), 0 when they're in none.</summary>
+        int SceneTaps { get; }
         /// <summary>They're in a mission (any round), not in the den.</summary>
         bool Playing { get; }
         /// <summary>Asks the owning client to apply damage to its soldier.</summary>

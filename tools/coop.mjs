@@ -3,6 +3,9 @@
 //   quick mode:          both press Q (quick match).
 //   boss mode:           as code mode, but both start at the boss (?test=boss) and fight it: B must see the boss
 //                        tank's turret and shots from A's world. Nobody leaves.
+//   scene mode:          as code mode, but both sit down in the den together and start at once, so Mission one's
+//                        opening plays on both phones: both tap through it, and it must move on for both, together,
+//                        well before its own timer would (docs/design/story.md, Cutscenes). Nobody leaves.
 // Then (code and quick) both play for a while, A leaves (Esc Esc), and B should take over the shared world.
 // Both open the game with ?unlock=coop, since a new browser hides co-op until Mission one is beaten solo, and with
 // ?test=crate, which puts a crate just ahead of the start: one of them must be handed it by A's world.
@@ -15,7 +18,7 @@ const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PW_PATH || 'playwright');
 
 const [base, out, mode = 'code'] = process.argv.slice(2);
-const BOSS = mode === 'boss';
+const BOSS = mode === 'boss', SCENE = mode === 'scene';
 const url = base + (base.includes('?') ? '&' : '?') + 'unlock=coop&test=' + (BOSS ? 'boss' : 'crate');
 fs.mkdirSync(out, { recursive: true });
 const T0 = Date.now();
@@ -26,7 +29,9 @@ const ARGS = ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swif
 // Each check is false until it passes; result.json records them all.
 const checks = BOSS
   ? { hostOnline: false, guestOnline: false, joined: false, played: false, bossIntro: false, bossFought: false, bossFollowed: false, bossFired: false }
-  : { hostOnline: false, guestOnline: false, joined: false, played: false, pickup: false, takeover: false };
+  : SCENE
+    ? { hostOnline: false, guestOnline: false, joined: false, bothInScene: false, waited: false, tappedThrough: false, together: false, played: false }
+    : { hostOnline: false, guestOnline: false, joined: false, played: false, pickup: false, takeover: false };
 const GRANT = new RegExp(TAG + String.raw` Pickup \d+ .* goes to player`); // the master handing out a pickup
 let failure = null;
 
@@ -82,11 +87,27 @@ async function play(p, dir, ms) {
 
 /** Once online, the den (the lobby) opens: Enter sits whoever's free on the couch and presses START. */
 async function denStart(p) {
+  await denOpen(p);
+  await p.page.keyboard.press('Enter');
+  if (!(await waitLog(p, new RegExp(TAG + ' Den START'), 15000))) throw new Error(`${p.name} pressed START in the den but it never started`);
+}
+
+async function denOpen(p) {
   if (!(await waitLog(p, new RegExp(TAG + ' Den open: Coop'), 90000))) throw new Error(`${p.name} never reached the den`);
   await p.page.waitForTimeout(500);
   await shot(p, 'den');
-  await p.page.keyboard.press('Enter');
-  if (!(await waitLog(p, new RegExp(TAG + ' Den START'), 15000))) throw new Error(`${p.name} pressed START in the den but it never started`);
+}
+
+/** Seconds into the run that a log line was written (each line starts with it). */
+const at = line => parseFloat(line);
+
+/** Taps (fire) every so often until the opening's over on this phone, or `ms` passes. */
+async function tapThrough(p, ms) {
+  const end = Date.now() + ms;
+  while (Date.now() < end && !p.logs.some(l => /Cutscene over: scene-opening/.test(l))) {
+    await p.page.keyboard.down('x'); await p.page.waitForTimeout(80); await p.page.keyboard.up('x');
+    await p.page.waitForTimeout(450);
+  }
 }
 
 const A = await player('A');
@@ -109,8 +130,11 @@ try {
     joinUrl = url + (url.includes('?') ? '&' : '?') + 'room=' + code;
   }
   if (!checks.hostOnline) throw new Error('A never got online');
-  await denStart(A);
-  await A.page.waitForTimeout(3000);
+  if (SCENE) await denOpen(A); // A waits in the den for B, so they start together
+  else {
+    await denStart(A);
+    await A.page.waitForTimeout(3000);
+  }
   await shot(A, '1-online');
 
   await load(B, joinUrl);
@@ -118,13 +142,36 @@ try {
   await B.page.keyboard.press(mode === 'quick' ? 'q' : 'Enter');
   if (!(await waitLog(B, new RegExp(TAG + ' Online '), 90000))) throw new Error('B never got online');
   checks.guestOnline = true;
-  await denStart(B);
+  if (SCENE) {
+    await denOpen(B);
+    await B.page.waitForTimeout(1500);
+    await Promise.all([A.page.keyboard.press('Enter'), B.page.keyboard.press('Enter')]); // both sit down and press START
+  } else await denStart(B);
   if (!(await waitLog(A, new RegExp(TAG + ' .* joined'), 30000))) throw new Error('A never saw B join');
   checks.joined = true;
   await B.page.waitForTimeout(4000);
   await Promise.all([shot(A, '2-together'), shot(B, '2-together')]);
 
-  if (BOSS) {
+  if (SCENE) {
+    const start = [await waitLog(A, /Cutscene: scene-opening, with a partner/, 30000), await waitLog(B, /Cutscene: scene-opening, with a partner/, 30000)];
+    checks.bothInScene = start.every(Boolean);
+    if (!checks.bothInScene) throw new Error('the opening never played on both phones');
+    await A.page.waitForTimeout(1000);
+    // A taps alone first: B's phone must show it, and nobody moves on yet
+    await A.page.keyboard.down('x'); await A.page.waitForTimeout(80); await A.page.keyboard.up('x');
+    await A.page.waitForTimeout(1500);
+    await Promise.all([shot(A, '3-a-tapped'), shot(B, '3-a-tapped')]);
+    checks.waited = !A.logs.some(l => /Cutscene shot 2/.test(l)) && !B.logs.some(l => /Cutscene shot 2/.test(l));
+    await Promise.all([tapThrough(A, 30000), tapThrough(B, 30000)]);
+    const over = [await waitLog(A, /Cutscene over: scene-opening/, 5000), await waitLog(B, /Cutscene over: scene-opening/, 5000)];
+    const began = Math.max(...start.map(at));
+    checks.tappedThrough = over.every(Boolean) && over.every(l => at(l) - began < 28); // its own timer takes about 38 s
+    checks.together = over.every(Boolean) && Math.abs(at(over[0]) - at(over[1])) < 4;
+    console.log(`${t()} the opening took ${over.map(l => l ? (at(l) - began).toFixed(1) + ' s' : 'forever').join(' and ')}`);
+    await Promise.all([play(A, 'ArrowRight', 4000), play(B, 'ArrowRight', 4000)]);
+    await Promise.all([shot(A, '4-playing'), shot(B, '4-playing')]);
+    checks.played = ![...A.logs, ...B.logs].some(l => /\[pageerror\]|Disconnected from Photon|Session ended/.test(l));
+  } else if (BOSS) {
     // Both walk up past the gate, far enough for the camera to show the whole tank (it wakes then), and fight
     // from there. B's tank follows A's (its network object) and fires when A's does.
     await Promise.all([walk(A, 'ArrowRight', 3000), walk(B, 'ArrowRight', 3000)]);

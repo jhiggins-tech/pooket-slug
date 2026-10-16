@@ -279,6 +279,11 @@ namespace PooketSlug
             m_Local.NetRound = 0; // not playing: partners in a mission don't draw us
         }
 
+        public void SendScene(int taps)
+        {
+            if (m_Local != null && m_Local.Object.IsValid) m_Local.NetScene = taps;
+        }
+
         public void SendShot(in ShotEvent shot)
         {
             if (m_Local != null && m_Local.Object.IsValid) m_Local.RPC_Shot(shot.Weapon.Id, shot.Origin, shot.Velocity);

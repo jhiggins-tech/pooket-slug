@@ -42,7 +42,7 @@ Cutscenes are **in-engine scenes**: the game's own art, drawn in code, with spee
   - **Debrief:** the mission's tally, XP and rank, then anything newly unlocked.
 - **A narrator tells each scene,** in subtitles along the bottom of the screen and out loud (turned well down, to sit with the game's sounds), so what's happening is never left to guesswork. The owner asked for this after trying the first cut of the opening, 2026-10-15. The voice is a camp, softly spoken, Louis Theroux-style documentary narrator (voice F from the narrator voice spike, MiniMax, picked by the owner 2026-10-16), generated like the announcer's by the vendor repository's Narration workflow from its `voice/narration.json`. A line made once is kept, so a new or changed line is the only one made again.
 - **Sound:** there's a music track for each mission, and one for bosses. The crew talk in speech bubbles, and an arcade announcer calls the big moments ("Mission complete!"), in a generated voice ([tabks](tanks.md#the-boss-intro)).
-- **In co-op,** scenes play for both players, and a scene ends once both have tapped. A partner who hasn't seen it gets to watch it.
+- **In co-op,** scenes play for both players, on both phones, and a shot moves on early only once both have tapped (the timer still moves it on for both). A line says who's being waited for. A scene seen before skips only once both players have pressed SKIP, so a partner who hasn't seen it gets to watch it; a partner who leaves holds nobody up. A scene plays in co-op when the players start together from the den; someone joining a game already under way drops straight in.
 - **Every character gets an intro the first time they're on screen** (canonical, the owner, 2026-10-16). The first time a character appears in the story's timeline, the camera crash-zooms onto them, their name slams up big ("TONES2"), time goes slow-mo, and a big musical hit plays. It's part of that scene, so it plays whenever the scene does, and never anywhere else. [Who gets theirs where](#character-intros) is set below, and each scene's design names its intro.
 
 ### Character intros
@@ -90,7 +90,7 @@ The first cutscene, and Mission one's briefing ([the plot](#the-plot), step 1). 
 
 **Sound:** tones2's intro build-up and hit in shot 1, quiet street ambience in shots 1 to 3, a static crackle on the cyan flicker, the jet and the glitch-out in shot 4, and the mission music kicks in with the caption card ([the boss intro](tanks.md#the-boss-intro) sets out the music).
 
-**In co-op:** Mission one is solo the first time, so this scene first plays solo. On a co-op replay it plays for both players, and ends once both have tapped, or by itself ([cutscenes](#cutscenes)).
+**In co-op:** Mission one is solo the first time, so this scene first plays solo. On a co-op replay it plays for both players when they start together from the den, moving on as both tap, or by itself ([cutscenes](#cutscenes)). Someone hosting alone, or joining a game under way, goes straight in.
 
 **What the cutscene engine needs from it:** a character intro (crash zoom, name, slow-mo and musical hit), a backdrop (the street, then the room), placed props (door, couch, setup, keycard), the soldier and a goon moving along simple paths, a goon dying the goon's way, speech bubbles anchored above a character, a close-up insert, the narrator's subtitles, a caption card, and a timer with tap-to-advance and SKIP.
 

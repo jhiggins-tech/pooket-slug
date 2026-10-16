@@ -97,11 +97,6 @@ namespace PooketSlug
         /// </summary>
         public static void Narrate(string id) => Speak("Narration/" + id, NarratorVolume, 0f);
 
-        /// <summary>
-        /// The cutscene narrator reads line <paramref name="id"/> in candidate voice <paramref name="voice"/> (the narrator
-        /// voice spike), from <c>Resources/Narrator/&lt;voice&gt;/&lt;id&gt;.bytes</c>, fetched like the announcer's.
-        /// </summary>
-        public static void Narrate(string voice, string id) => Speak("Narrator/" + voice + "/" + id, NarratorVolume, 0f);
 
         /// <summary>Plays a recorded line (a WAV kept as .bytes), cutting off any still playing. Quiet if it isn't in the build.</summary>
         static void Speak(string path, float volume, float delay)

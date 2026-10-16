@@ -64,12 +64,13 @@ namespace PooketSlug
         bool m_IntroFull;
         string m_IntroName;
         readonly BossIntroShow.Cue[] m_IntroCues = new BossIntroShow.Cue[4];
-        // ?spike=cutscenes: the opening scene before Mission one, and a pretend partner's tap for co-op's rule
+        // the cutscene playing (docs/design/story.md, Cutscenes), what comes after it, and in co-op our taps to send
         CutsceneView m_SceneView;
         CutscenePlayer m_Scene;
         readonly System.Collections.Generic.List<string> m_SceneCues = new System.Collections.Generic.List<string>();
-        float m_PartnerTapIn = -1f;
-        bool m_SceneSaidStart;
+        Action m_AfterScene;
+        bool m_SceneCoop, m_SceneSkip, m_SceneSaidStart;
+        int m_SceneRound, m_SceneTapped;
         // the lobby, the crew's gaming den (docs/design/lobby.md): once the crew's open, START, CREW and co-op go through it
         DenView m_DenView;
         Den m_Den;
@@ -134,7 +135,7 @@ namespace PooketSlug
             m_World = NewWorld(m_Mission);
             m_Hud = new HudView(transform);
             m_Menu = new MenuView(transform);
-            if (Spike.Scenes) m_SceneView = new CutsceneView(transform);
+            m_SceneView = new CutsceneView(transform);
             m_DenView = new DenView(transform);
             m_PageUrl = PageUrl();
             string folder = PageQuery.Folder(url);
@@ -155,7 +156,7 @@ namespace PooketSlug
                 {
                     // Invite links respect the order: co-op waits until Mission one is beaten, so start that.
                     m_StartNote = "CO-OP OPENS ONCE YOU'VE BEATEN THIS MISSION";
-                    StartSolo();
+                    StartFromTitle();
                 }
             }
         }
@@ -228,40 +229,65 @@ namespace PooketSlug
             }
         }
 
-        /// <summary>START on the title screen: the opening scene first, with ?spike=cutscenes, then Mission one.</summary>
+        /// <summary>START on the title screen, or a solo START in the den: Mission one plays its opening scene first.</summary>
         void StartFromTitle()
         {
-            if (m_SceneView == null)
-            {
-                StartSolo();
-                return;
-            }
-            m_Scene = new CutscenePlayer(Cutscenes.Opening, m_Profile.HasSeen(Cutscenes.Opening.Id), Spike.ScenesCoop ? 2 : 1);
-            m_SceneView.Begin(m_Scene);
-            m_PartnerTapIn = -1f;
-            m_SceneSaidStart = false;
-            SetState(GameState.Cutscene);
+            if (m_Mission == Missions.One) PlayScene(Cutscenes.Opening, false, StartSolo);
+            else StartSolo();
         }
 
-        /// <summary>Moves the scene on: taps (yours, and the pretend partner's a moment later), SKIP, and its cues.</summary>
+        /// <summary>
+        /// Plays <paramref name="scene"/> (<c>docs/design/story.md</c>, Cutscenes), then <paramref name="after"/>. In co-op
+        /// both phones play it, and a shot moves on early once both have tapped (<see cref="CutsceneSync"/>).
+        /// </summary>
+        void PlayScene(CutsceneDef scene, bool coop, Action after)
+        {
+            m_Scene = new CutscenePlayer(scene, m_Profile.HasSeen(scene.Id), coop ? 2 : 1);
+            m_SceneCoop = coop;
+            m_SceneRound = coop ? m_Net.Link.Round : 0;
+            m_SceneTapped = -1;
+            m_SceneSkip = false;
+            m_SceneSaidStart = false;
+            m_AfterScene = after;
+            m_SceneView.Begin(m_Scene);
+            SetState(GameState.Cutscene);
+            Log.Game.Info("Cutscene: " + scene.Id + (coop ? ", with a partner" : "") + (m_Scene.CanSkip ? ", seen before" : ""));
+        }
+
+        /// <summary>Moves the scene on: taps (and in co-op the partner's), SKIP, and its cues.</summary>
         void TickScene(float dt, MenuInput keys, SoldierInput soldier)
         {
+            if (m_SceneCoop && !CoopAlive()) return;
             bool tap = m_SceneView.TakeTap() || keys.Start || soldier.FirePressed || soldier.JumpPressed;
-            if ((m_SceneView.TakeSkip() || keys.Back) && m_Scene.Skip()) { EndScene(); return; }
-            int shot = m_Scene.Shot;
-            if (tap) m_Scene.Tap(0);
-            if (m_Scene.Players > 1)
+            bool skip = m_SceneView.TakeSkip() || keys.Back;
+            if (skip && !m_SceneCoop && m_Scene.Skip())
             {
-                if (m_Scene.HasTapped(0) && m_PartnerTapIn < 0f) m_PartnerTapIn = 1.2f;
-                if (m_PartnerTapIn >= 0f && (m_PartnerTapIn -= dt) < 0f) m_Scene.Tap(1);
+                EndScene();
+                return;
             }
-            if (m_Scene.Shot != shot || m_Scene.Done || !m_Scene.HasTapped(0)) m_PartnerTapIn = -1f; // moved on, or jumped to an intro
+            if (skip && m_SceneCoop && m_Scene.CanSkip) m_SceneSkip = true; // it skips once the partner asks too
+            int beat = m_Scene.Beat, shot = m_Scene.Shot;
+            if (tap && (m_Scene.Tap(0) || m_Scene.HasTapped(0))) m_SceneTapped = Math.Max(m_SceneTapped, beat);
+            if (m_SceneCoop)
+            {
+                System.Collections.Generic.IReadOnlyList<IAvatarLink> partners = m_Net.Link.Partners;
+                bool here = partners.Count > 0;
+                bool partnerSkips = CutsceneSync.Apply(m_Scene, here, here ? partners[0].SceneTaps : 0, m_SceneRound);
+                if (m_SceneSkip && partnerSkips && m_Scene.Skip())
+                {
+                    EndScene();
+                    return;
+                }
+                m_Net.Link.SendScene(CutsceneSync.Pack(m_SceneRound, m_Scene.Scene.NetId, m_SceneTapped, m_SceneSkip));
+                m_SceneView.Waiting(m_SceneSkip ? "SKIPPING ONCE YOUR PARTNER DOES" : null);
+            }
             m_Scene.Tick(dt, m_SceneCues);
             foreach (string cue in m_SceneCues)
             {
                 if (cue == "say:mission-start") m_SceneSaidStart = true;
                 m_SceneView.Cue(cue);
             }
+            if (m_Scene.Shot != shot && !m_Scene.Done) Log.Game.Info("Cutscene shot " + (m_Scene.Shot + 1) + " of " + m_Scene.Scene.Shots.Length);
             if (m_Scene.Done) EndScene();
             else m_SceneView.Refresh();
         }
@@ -269,9 +295,20 @@ namespace PooketSlug
         void EndScene()
         {
             if (m_Profile.MarkSeen(m_Scene.Scene.Id)) m_Store.Save(m_Profile);
+            Log.Game.Info("Cutscene over: " + m_Scene.Scene.Id + (m_Scene.Skipped ? ", skipped" : ""));
+            if (m_SceneCoop) m_Net.Link.SendScene(0);
+            DropScene();
+            Action after = m_AfterScene;
+            m_AfterScene = null;
+            after?.Invoke();
+        }
+
+        void DropScene()
+        {
+            if (m_Scene == null) return;
             m_SceneView.Hide();
             m_Scene = null;
-            StartSolo();
+            m_SceneCoop = false;
         }
 
         void Restart()
@@ -423,7 +460,13 @@ namespace PooketSlug
             m_DenView.Refresh(dt, m_Den, DenInfoNow());
             if (!m_Den.Go || m_KitOpen) return;
             m_DenView.Hide();
-            if (m_Den.Mode == DenMode.Coop) BeginCoop();
+            if (m_Den.Mode == DenMode.Coop)
+            {
+                // starting together: Mission one's opening plays on both phones first
+                MissionDef mission = Missions.ByNetId(m_Net.Link.Mission) ?? m_Mission;
+                if (mission == Missions.One && partner.InDenNow) PlayScene(Cutscenes.Opening, true, BeginCoop);
+                else BeginCoop();
+            }
             else
             {
                 m_World.Dispose(); // the soldier on the couch plays
@@ -650,11 +693,14 @@ namespace PooketSlug
             m_StartNote = null;
             SetState(GameState.Playing);
             Sfx.Play(Sfx.Start);
-            Sfx.Say("mission-start", 0.3f);
+            if (!m_SceneSaidStart) Sfx.Say("mission-start", 0.3f); // the opening's caption card already called it
+            m_SceneSaidStart = false;
         }
 
         void EndCoop(string notice)
         {
+            DropScene();
+            m_AfterScene = null;
             m_Net.Events = null;
             m_Coop = false;
             m_World.Dispose();

@@ -230,5 +230,91 @@ namespace PooketSlug.Tests
             Run(p, CutscenePlayer.BuildUp + 0.05f);
             Assert.IsTrue(p.Introducing);
         }
+    
+        [Test]
+        public void TheBeatOnlyGoesUpThroughTheScene()
+        {
+            var p = new CutscenePlayer(Cutscenes.Opening, seenBefore: false);
+            int last = p.Beat, steps = 0;
+            Assert.AreEqual(0, last, "before tones2's build-up");
+            for (int i = 0; i < 60 * 45 && !p.Done; i++)
+            {
+                p.Tick(1f / 60f);
+                Assert.GreaterOrEqual(p.Beat, last);
+                if (p.Beat != last) steps++;
+                last = p.Beat;
+            }
+            Assert.AreEqual(Cutscenes.Opening.Shots.Length * 3, p.Beat, "done");
+            Assert.AreEqual(Cutscenes.Opening.Shots.Length + 2, steps, "every shot, and the opening's build-up and intro");
+        }
+
+        [Test]
+        public void ACoopPartnersTapsTravelAsOneNumber()
+        {
+            int sent = CutsceneSync.Pack(7, Cutscenes.Opening.NetId, 4, false);
+            Assert.AreNotEqual(0, sent);
+            Assert.IsTrue(CutsceneSync.Read(sent, 7, Cutscenes.Opening.NetId, out int tapped, out bool skip));
+            Assert.AreEqual(4, tapped);
+            Assert.IsFalse(skip);
+            Assert.IsTrue(CutsceneSync.Read(CutsceneSync.Pack(7, 1, -1, false), 7, 1, out tapped, out _));
+            Assert.AreEqual(-1, tapped, "not tapped yet");
+            Assert.IsTrue(CutsceneSync.Read(CutsceneSync.Pack(7, 1, 2, true), 7, 1, out _, out skip));
+            Assert.IsTrue(skip);
+            Assert.IsFalse(CutsceneSync.Read(sent, 8, Cutscenes.Opening.NetId, out _, out _), "last round's taps don't count");
+            Assert.IsFalse(CutsceneSync.Read(sent, 7, 2, out _, out _), "nor another scene's");
+            Assert.IsFalse(CutsceneSync.Read(0, 7, 1, out _, out _), "nor nothing");
+        }
+
+        [Test]
+        public void TwoPhonesMoveOnTogetherWhenBothHaveTapped()
+        {
+            var a = new CutscenePlayer(Cutscenes.Opening, seenBefore: false, players: 2);
+            var b = new CutscenePlayer(Cutscenes.Opening, seenBefore: false, players: 2);
+            int aTapped = -1, bTapped = -1;
+            RunTo(a, 1, 0.5f);
+            RunTo(b, 1, 0.5f);
+
+            int beat = a.Beat;
+            Assert.IsFalse(a.Tap(0));
+            aTapped = beat;
+            CutsceneSync.Apply(b, true, CutsceneSync.Pack(3, 1, aTapped, false), 3);
+            Assert.IsTrue(b.Waiting, "b's phone shows a has tapped");
+            Assert.AreEqual(1, b.Shot);
+            Assert.IsTrue(b.Tap(0), "and b's tap moves it on");
+            bTapped = beat;
+            Assert.AreEqual(2, b.Shot);
+            CutsceneSync.Apply(a, true, CutsceneSync.Pack(3, 1, bTapped, false), 3);
+            Assert.AreEqual(2, a.Shot, "a's phone follows");
+            CutsceneSync.Apply(a, true, CutsceneSync.Pack(3, 1, bTapped, false), 3);
+            Assert.AreEqual(2, a.Shot, "b's old tap doesn't count for the next shot");
+            Assert.IsFalse(a.HasTapped(1));
+        }
+
+        [Test]
+        public void ATapBeforeTheIntroWaitsForThePartnerThenJumpsBothToTheBuildUp()
+        {
+            var a = new CutscenePlayer(Cutscenes.Opening, seenBefore: false, players: 2);
+            Run(a, 0.5f);
+            int beat = a.Beat;
+            Assert.IsFalse(a.Tap(0));
+            Assert.IsTrue(CutsceneSync.Apply(a, true, CutsceneSync.Pack(1, 1, beat, false), 1) == false);
+            Assert.AreEqual(Cutscenes.Opening.Shots[0].Intro.At - CutscenePlayer.BuildUp, a.T, "both tapped: on to the build-up");
+            Assert.AreEqual(1, a.Beat);
+            CutsceneSync.Apply(a, true, CutsceneSync.Pack(1, 1, beat, false), 1);
+            Assert.IsFalse(a.HasTapped(1), "the tap before the build-up doesn't count in it");
+        }
+
+        [Test]
+        public void ASkipNeedsBothAndALeavingPartnerHoldsNobodyUp()
+        {
+            var a = new CutscenePlayer(Cutscenes.Opening, seenBefore: true, players: 2);
+            Assert.IsFalse(CutsceneSync.Apply(a, true, CutsceneSync.Pack(1, 1, -1, false), 1), "they haven't asked to skip");
+            Assert.IsTrue(CutsceneSync.Apply(a, true, CutsceneSync.Pack(1, 1, -1, true), 1), "now they have");
+            Run(a, 0.5f);
+            a.Tap(0);
+            Assert.AreEqual(0, a.Shot);
+            Assert.IsTrue(CutsceneSync.Apply(a, false, 0, 1), "gone: their say doesn't hold up a skip");
+            Assert.IsTrue(a.T >= Cutscenes.Opening.Shots[0].Intro.At - CutscenePlayer.BuildUp, "nor a tap");
+        }
     }
 }

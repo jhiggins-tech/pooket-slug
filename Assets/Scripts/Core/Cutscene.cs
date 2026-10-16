@@ -78,15 +78,20 @@ namespace PooketSlug
         }
     }
 
-    /// <summary>A scene: its shots, and the id it's remembered by once seen (<see cref="Profile.seen"/>).</summary>
+    /// <summary>
+    /// A scene: its shots, the id it's remembered by once seen (<see cref="Profile.seen"/>), and a small number that
+    /// names it to a co-op partner's phone (<see cref="CutsceneSync"/>).
+    /// </summary>
     public sealed class CutsceneDef
     {
         public readonly string Id;
+        public readonly int NetId;
         public readonly CutsceneShot[] Shots;
 
-        public CutsceneDef(string id, params CutsceneShot[] shots)
+        public CutsceneDef(string id, int netId, params CutsceneShot[] shots)
         {
             Id = id;
+            NetId = netId;
             Shots = shots;
         }
 
@@ -108,7 +113,7 @@ namespace PooketSlug
         /// The opening: the snack run and the raided hangout, which doubles as Mission one's briefing. The narrator
         /// tells it in subtitles (a voice comes later), and the keycard gets a close-up so it's clear where it sends you.
         /// </summary>
-        public static readonly CutsceneDef Opening = new CutsceneDef("scene-opening",
+        public static readonly CutsceneDef Opening = new CutsceneDef("scene-opening", 1,
             new CutsceneShot("Outside the hangout", 8f,
                 new[]
                 {
@@ -205,6 +210,22 @@ namespace PooketSlug
                 CutsceneIntro intro = Current?.Intro;
                 if (intro == null || m_Intro != IntroState.Due) return 0f;
                 return UnityEngine.Mathf.Clamp01((T - (intro.At - BuildUp)) / BuildUp);
+            }
+        }
+
+        /// <summary>
+        /// Where the scene is, as a number that only goes up: three beats a shot (before its intro's build-up, in the
+        /// build-up or the intro, and after it; a shot with no intro is always on its last). A tap ends the beat it's
+        /// made in, so a co-op partner's phone can tell which beat they've tapped through (<see cref="CutsceneSync"/>).
+        /// </summary>
+        public int Beat
+        {
+            get
+            {
+                if (Done) return Scene.Shots.Length * 3;
+                CutsceneIntro intro = Current.Intro;
+                int stage = intro == null || m_Intro == IntroState.Over ? 2 : m_Intro == IntroState.Playing || T >= intro.At - BuildUp ? 1 : 0;
+                return Shot * 3 + stage;
             }
         }
 
@@ -330,6 +351,56 @@ namespace PooketSlug
                 Shot = Scene.Shots.Length - 1;
                 Done = true;
             }
+        }
+    }
+
+    /// <summary>
+    /// A co-op scene's taps, kept in step over two phones (<c>docs/design/story.md</c>, Cutscenes: a shot moves on early
+    /// once both have tapped, and a scene seen before is skipped once both want to). Each phone sends one number: the
+    /// round and the scene it's in, the last <see cref="CutscenePlayer.Beat"/> it tapped through, and whether it's asked
+    /// to skip. Each plays the scene by its own clock, so the timer still moves it on for both.
+    /// </summary>
+    public static class CutsceneSync
+    {
+        const int BeatBits = 10, SceneBits = 8, RoundBits = 12, SkipBeat = (1 << BeatBits) - 1;
+
+        /// <summary>The number to send. <paramref name="tapped"/> is the last beat tapped through, -1 for none yet.</summary>
+        public static int Pack(int round, int scene, int tapped, bool skip)
+        {
+            int beat = skip ? SkipBeat : System.Math.Max(0, System.Math.Min(SkipBeat - 1, tapped + 1));
+            return ((round & ((1 << RoundBits) - 1)) << (BeatBits + SceneBits)) | ((scene & ((1 << SceneBits) - 1)) << BeatBits) | beat;
+        }
+
+        /// <summary>
+        /// Reads a partner's number, if it's about this <paramref name="round"/>'s <paramref name="scene"/> (0, sent
+        /// before they started it, never is): the last beat they tapped through (-1 for none), and whether they want to skip.
+        /// </summary>
+        public static bool Read(int value, int round, int scene, out int tapped, out bool skip)
+        {
+            tapped = -1;
+            skip = false;
+            if (value == 0 || value != (Pack(round, scene, -1, false) | (value & ((1 << BeatBits) - 1)))) return false;
+            int beat = value & SkipBeat;
+            skip = beat == SkipBeat;
+            tapped = skip ? int.MaxValue : beat - 1;
+            return true;
+        }
+
+        /// <summary>
+        /// Plays a partner's number into <paramref name="player"/> (player 1): they've tapped the beat it's on, or are
+        /// past it. With no partner there (they left), nobody's waited for. True if they've asked to skip.
+        /// </summary>
+        public static bool Apply(CutscenePlayer player, bool partnerHere, int value, int round)
+        {
+            if (player.Done) return false;
+            if (!partnerHere)
+            {
+                player.Tap(1);
+                return true;
+            }
+            if (!Read(value, round, player.Scene.NetId, out int tapped, out bool skip)) return false;
+            if (tapped >= player.Beat) player.Tap(1);
+            return skip;
         }
     }
 }

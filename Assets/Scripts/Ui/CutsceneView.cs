@@ -5,8 +5,8 @@ using UnityEngine.UI;
 namespace PooketSlug
 {
     /// <summary>
-    /// The cutscenes spike (<c>?spike=cutscenes</c>): draws a <see cref="CutscenePlayer"/>'s scene in uGUI, over the
-    /// game. It's the game's own sprites on painted backdrops, with speech bubbles, a caption card, a SKIP button once
+    /// The cutscenes (<c>docs/design/story.md</c>, Cutscenes): draws a <see cref="CutscenePlayer"/>'s scene in uGUI, over
+    /// the game. It's the game's own sprites on painted backdrops, with speech bubbles, a caption card, a SKIP button once
     /// the scene's been seen, and in co-op a line saying who's still to tap. The staging (where everyone stands and
     /// moves) is written per shot for the opening, its test case (<c>docs/design/story.md</c>, The opening scene).
     /// <para>
@@ -38,12 +38,7 @@ namespace PooketSlug
         readonly Text m_IntroName;
         readonly Image m_Flash;
         float m_Clock, m_LastNow;
-        // ?spike=narrator: the candidate voices, and a button to switch between them
-        readonly NarratorVoices m_Voices;
-        readonly Button m_VoiceButton;
-        readonly Text m_VoiceLabel;
-        string m_LastSaid;
-        bool m_VoicePressed;
+        string m_LastSaid, m_WaitingNote;
         readonly List<Bubble> m_Bubbles = new List<Bubble>();
         readonly List<CutsceneLine> m_Lines = new List<CutsceneLine>();
         static Sprite s_Street, s_Room, s_White;
@@ -173,15 +168,6 @@ namespace PooketSlug
             m_Skip = Ui.Button(m_Stage, "SKIP", new Vector2(StageW * Px / 2f - 42f, StageH * Px / 2f - 20f), new Vector2(64f, 22f), () => m_SkipPressed = true, out Text skipKey);
             skipKey.text = "ESC";
 
-            if (Spike.Narrator)
-            {
-                m_Voices = NarratorVoices.Load(Spike.Voice);
-                m_VoiceButton = Ui.Button(m_Stage, "VOICE", new Vector2(-StageW * Px / 2f + 130f, StageH * Px / 2f - 20f), new Vector2(244f, 22f), () => m_VoicePressed = true, out Text voiceKey);
-                voiceKey.text = m_Voices != null ? "TAP TO TRY THE NEXT VOICE" : "NO VOICES IN THIS BUILD: SUBTITLES ONLY";
-                m_VoiceLabel = m_VoiceButton.GetComponentInChildren<Text>();
-                m_VoiceLabel.fontSize = 10;
-            }
-
             Ui.Show(m_Root, false);
         }
 
@@ -204,8 +190,8 @@ namespace PooketSlug
             m_Player = player;
             m_GoonDiedAt = -1f;
             m_FlickerUntil = 0f;
-            m_Tapped = m_SkipPressed = m_VoicePressed = false;
-            m_LastSaid = null;
+            m_Tapped = m_SkipPressed = false;
+            m_LastSaid = m_WaitingNote = null;
             m_Clock = 0f;
             m_LastNow = Time.unscaledTime;
             if (s_Street == null)
@@ -308,8 +294,9 @@ namespace PooketSlug
 
             Ui.Show(m_Skip, p.CanSkip);
             Ui.Show(m_Hint, !p.CanSkip && !p.Waiting && p.Shot == 0 && t > 1.2f);
-            Ui.Show(m_Waiting, p.Waiting);
-            if (p.Waiting) m_Waiting.text = p.HasTapped(0) ? "WAITING FOR YOUR PARTNER" : "YOUR PARTNER'S READY: TAP TO GO ON";
+            Ui.Show(m_Waiting, p.Waiting || m_WaitingNote != null);
+            if (m_WaitingNote != null) m_Waiting.text = m_WaitingNote;
+            else if (p.Waiting) m_Waiting.text = p.HasTapped(0) ? "WAITING FOR YOUR PARTNER" : "YOUR PARTNER'S READY: TAP TO GO ON";
         }
 
         /// <summary>
@@ -354,38 +341,16 @@ namespace PooketSlug
             m_IntroBand.localScale = new Vector3(size * zoomOut, size, 1f);
         }
 
-        /// <summary>
-        /// The narrator reads each of their lines as it comes up, with its subtitle. With ?spike=narrator, it's in the
-        /// candidate voice picked, and the voice button tries the next.
-        /// </summary>
+        /// <summary>The narrator reads each of their lines as it comes up, with its subtitle.</summary>
         void Voice(string line)
         {
-            if (m_VoiceButton == null)
-            {
-                if (line == m_LastSaid) return;
-                m_LastSaid = line;
-                if (line != null) Sfx.Narrate(line);
-                return;
-            }
-            Ui.Show(m_VoiceButton, true);
-            string label = m_Voices != null ? m_Voices.Label : "NARRATOR: NO VOICE";
-            if (m_VoiceLabel.text != label)
-            {
-                m_VoiceLabel.text = label;
-                m_VoiceLabel.fontSize = 10;
-                while (m_VoiceLabel.fontSize > 7 && m_VoiceLabel.preferredWidth > 236f) m_VoiceLabel.fontSize--; // a long name shrinks to fit
-            }
-            if (m_Voices == null) return;
-            if (m_VoicePressed)
-            {
-                m_VoicePressed = false;
-                m_Voices.Next();
-                m_LastSaid = null; // say the line up now again, in the new voice
-            }
             if (line == m_LastSaid) return;
             m_LastSaid = line;
-            m_Voices.Say(line);
+            if (line != null) Sfx.Narrate(line);
         }
+
+        /// <summary>In co-op: a line saying what the scene's waiting on, over the usual one, or null for that.</summary>
+        public void Waiting(string note) => m_WaitingNote = note;
 
         void ShowBubble(int i, CutsceneLine line, float now)
         {

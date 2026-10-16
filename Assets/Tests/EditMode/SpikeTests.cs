@@ -86,30 +86,6 @@ namespace PooketSlug.Tests
         }
 
         [Test]
-        public void TheCutsceneSpikeCanAddAPretendPartner()
-        {
-            Spike.Configure(Page + "?spike=cutscenes");
-            Assert.IsTrue(Spike.Scenes);
-            Assert.IsFalse(Spike.ScenesCoop);
-            Assert.AreEqual("SPIKE TEST · CUTSCENES", Spike.Label);
-            Spike.Configure(Page + "?spike=cutscenes-coop");
-            Assert.IsTrue(Spike.Scenes);
-            Assert.IsTrue(Spike.ScenesCoop);
-        }
-
-        [Test]
-        public void TheNarratorSpikePlaysTheSceneInTheVoiceAsked()
-        {
-            Spike.Configure(Page + "?spike=narrator&voice=C");
-            Assert.IsTrue(Spike.Narrator);
-            Assert.IsTrue(Spike.Scenes, "the narrator needs the scene");
-            Assert.AreEqual("c", Spike.Voice);
-            Assert.AreEqual("SPIKE TEST · NARRATOR", Spike.Label);
-            Spike.Configure(Page + "?spike=narrator");
-            Assert.IsNull(Spike.Voice);
-        }
-
-        [Test]
         public void ChipMidiNotesMatchTabks()
         {
             Assert.AreEqual(440f, Chip.Midi(69), 0.01f);
