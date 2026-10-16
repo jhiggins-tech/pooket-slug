@@ -90,7 +90,7 @@ The first cutscene, and Mission one's briefing ([the plot](#the-plot), step 1). 
 
 **Sound:** tones2's intro build-up and hit in shot 1, quiet street ambience in shots 1 to 3, a static crackle on the cyan flicker, the jet and the glitch-out in shot 4, and the mission music kicks in with the caption card ([the boss intro](tanks.md#the-boss-intro) sets out the music).
 
-**In co-op:** Mission one is solo the first time, so this scene first plays solo. On a co-op replay it plays for both players when they start together from the den, moving on as both tap, or by itself ([cutscenes](#cutscenes)). Someone hosting alone, or joining a game under way, goes straight in.
+**Always solo:** Mission one is single player only ([Mission one](levels.md#mission-one-the-military-base)), so this scene only ever plays for one player.
 
 **What the cutscene engine needs from it:** a character intro (crash zoom, name, slow-mo and musical hit), a backdrop (the street, then the room), placed props (door, couch, setup, keycard), the soldier and a goon moving along simple paths, a goon dying the goon's way, speech bubbles anchored above a character, a close-up insert, the narrator's subtitles, a caption card, and a timer with tap-to-advance and SKIP.
 
@@ -125,7 +125,7 @@ The freeing scene, after Trollogram kie is beaten on foot ([the pilot round](tan
 
 **kie bows out** (owner, 2026-10-16): he's spent, and sits out the rest of Mission one; tones2 finishes it alone, with his tabk. kie is back, rested, for [two of the crew](#two-of-the-crew).
 
-Then straight into [the coda](#the-coda), every time: the coda is part of Mission one. In co-op, the partner's soldier stands beside tones2 throughout, and goes on into the coda with him.
+Then straight into [the coda](#the-coda), every time: the coda is part of Mission one, which is always solo.
 
 **How the release is done** (owner, 2026-10-16): the cargo drone hauls the tabk out, and kie hands over its remote. It's what makes every call-in drop from the sky.
 
@@ -146,7 +146,7 @@ The second reveal: your tabk, called in and driven ([reveals](#reveals-are-story
 
 **Tuned to the tabk:** a full tank of fuel gets you through, and the run is beatable on foot if the tabk is wrecked, just harder. Lose your last life in the coda and the continue restarts you at its start, not at the boss.
 
-**Co-op and replays:** on a replay there are no prompts. In co-op each player calls in their own tabk ([calling in](tanks.md#calling-in-a-tabk)), since Mission one has been beaten by then. Eject and the super are left for later missions to teach.
+**Replays:** there are no prompts. Like all of Mission one, the coda is single player only, so it only ever has tones2's one tabk in it. Eject and the super are left for later missions to teach.
 
 ## The first debrief
 
@@ -162,7 +162,7 @@ On a replay, the debrief is the same screen without the first-time lines and the
 
 ## Two of the crew
 
-The third reveal: co-op exists ([reveals](#reveals-are-story-beats)). It plays once, ever, the first time the title screen loads after Mission one is beaten solo, which is usually straight after [the first debrief](#the-first-debrief). If the game is closed during the debrief, it plays the next time the title screen loads. Draft, 2026-10-15. About 8 seconds, four shots, played on the title screen itself: the title is the stage, so the menu grows in front of the player. A tap moves on; it can't be skipped, but it's short.
+The third reveal: co-op exists ([reveals](#reveals-are-story-beats)). It plays once, ever, the first time the title screen loads after Mission one is beaten, which is usually straight after [the first debrief](#the-first-debrief). If the game is closed during the debrief, it plays the next time the title screen loads. Draft, 2026-10-15. About 8 seconds, four shots, played on the title screen itself: the title is the stage, so the menu grows in front of the player. A tap moves on; it can't be skipped, but it's short.
 
 | # | Shot | What happens | Bubbles and text | Time |
 |---|---|---|---|---|
@@ -172,14 +172,14 @@ The third reveal: co-op exists ([reveals](#reveals-are-story-beats)). It plays o
 | 4 | **kie's line** | kie leans on the CO-OP button and points out at the player. It pulses once, and control comes back. | kie: "TWO OF US NOW. BRING A MATE." | 2 s |
 
 **What each new button opens** ([what the player sees](levels.md#what-the-player-sees-and-when)):
-- **MISSIONS:** the mission screen, with Mission one's replay and its hard setting, and kcaj's mission.
+- **MISSIONS:** the mission screen, with Mission one's replay and kcaj's mission.
 - **CO-OP:** online play on two phones: host a room, join with a code, quick match, browse rooms, or watch a game ([online](levels.md#online-once-its-open)).
 - **CREW:** the crew screen, with tones2 and kie.
 
 **What it teaches without a word:** kie is a second soldier now, and the second soldier is a second player. The scene says "co-op" only through the button and kie's line, so nothing is explained in text.
 
 **Where it never plays:**
-- **In co-op.** Mission one is always first beaten solo, so this scene is always solo.
+- **In co-op.** Mission one is single player only, so this scene is always solo.
 - **For a friend who opens an invite link before beating Mission one.** They're started on Mission one ([invite links](levels.md#what-the-player-sees-and-when)), and see this scene once they've beaten it themselves.
 
 **Signed in or not:** whether it's been seen is kept with the rest of the player's progress, so a player who signs in on a new phone doesn't see it again.
@@ -194,7 +194,7 @@ The game hides what's coming ([progressive disclosure](README.md#progressive-dis
 |---|---|---|
 | Tabks exist | The motor pool, at the end of Mission one | kie's tabk rolls out, with its boss intro |
 | Your tabk: calling it in and driving it | The coda, straight after kie is freed | kie frees tones2's own tabk and bows out; you call it in and blast your way out of the base |
-| Co-op exists | Once Mission one has been beaten solo | [Two of the crew](#two-of-the-crew): the menu grows, and kie's first line sets it up |
+| Co-op exists | Once Mission one has been beaten | [Two of the crew](#two-of-the-crew): the menu grows, and kie's first line sets it up |
 | Each new crewmate | The end of their mission | The freeing scene |
 | XP and rank | The first debrief | The first XP, and the first step up the ladder |
 

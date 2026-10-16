@@ -20,7 +20,7 @@ Up: [Design](README.md)
 - **Metal Slug played straight:** sandbags and watchtowers, ending at the motor pool, where the stolen tabks are parked.
 - **The look: a steel base at night** (picked 2026-10-15). Snow on concrete and steel, hazard stripes, searchlights, live fences and steam vents, with the motor pool's blast shutter as the boss door. The cold palette makes the Trollogram goons and the fire stand out. The concept sheets are in the project's files, under concepts/m1-map.
 - **About five minutes long.**
-- **Solo, as tones2,** straight in with no tutorial.
+- **Single player only** (owner, 2026-10-16), as tones2, straight in with no tutorial. It's the game's prelude: beating it opens the lobby and co-op, so it is never played with two, replays included. It isn't on the co-op mission board.
 - **Goons:** riflemen (crouch under their shots), knife runners and bomb-dropping drones, all as flickering Trollograms.
 - **The boss** is kie's tabk, then Trollogram kie ([tabks](tanks.md#tabk-bosses)).
 - **Two reveals:** the first tabk, then your own. Freed, kie frees tones2's tabk and bows out, and in the coda, a short explosive mini-level after the boss, you call it in and drive it out of the base ([the coda](story.md#the-coda), owner 2026-10-16).
@@ -30,7 +30,7 @@ Up: [Design](README.md)
 
 - **Missions don't change with two players.** The same mission is simply easier with two.
 - **The late missions get too hard for one player,** so beating them needs co-op.
-- **Every cleared mission gets a hard setting,** tuned for two players, which also needs co-op.
+- **Every cleared mission from Mission two on gets a hard setting,** tuned for two players, which also needs co-op. Mission one, solo only, has none (default, asked 2026-10-16).
 
 ## Building a map
 
@@ -51,10 +51,10 @@ Up: [Design](README.md)
 ## The order things open up
 
 1. **First launch:** the title screen offers Start, which begins Mission one, plus settings and a small sign-in button. Returning players on a new device can sign in straight away and keep their progress.
-2. **Mission one,** played solo. The first tabk, the first call-in and the first drive happen here.
-3. **Once Mission one has been beaten solo:**
+2. **Mission one,** single player only, the prelude. The first tabk, the first call-in and the first drive happen here.
+3. **Once Mission one has been beaten:**
    - **Co-op appears** in the menu: host a room, join with a code, quick match, browse rooms, or watch a game.
-   - **The mission screen** appears, with replays, Mission one's hard setting, and kcaj's mission.
+   - **The mission screen** appears, with replays and kcaj's mission.
    - **The crew screen** appears, with tones2 and kie: it's the gaming den ([the lobby](lobby.md)).
    - **The debrief** shows XP and rank for the first time, and offers sign-in to players who haven't.
 4. **Each later mission** frees another crewmate, adds their tabk to call in, and opens its map for replays and its hard setting.

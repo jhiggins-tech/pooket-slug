@@ -78,7 +78,7 @@ Statuses come only from the soldiers' kits: each one belongs to a particular sol
 
 ## Co-op
 
-- **Two phones, online.** Co-op opens once Mission one has been beaten solo ([progression](levels.md#the-order-things-open-up)), and a partner can drop in mid-mission.
+- **Two phones, online.** Co-op opens once Mission one has been beaten (it's single player only, the prelude) ([progression](levels.md#the-order-things-open-up)), and a partner can drop in mid-mission.
 - **Lives and scores:** each player has their own, and their stats are kept separately.
 - **Some kits help a partner:** kiwicore's drum solo heals them, ciarra's marks make their shots hit harder, and kcaj's pills never hurt them.
 - **The team super:** when both players' supers are charged, they can fire them together for a team super: a short animation, and then every enemy on screen dies (owner, 2026-10-15). Each pair of soldiers gets its own combo ([team supers](team-supers.md)).
