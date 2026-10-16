@@ -149,16 +149,21 @@ namespace PooketSlug
                     (0.6f, 0.7f, DemoKeys.Super), (2.2f, 4.6f, DemoKeys.Fire))),
         };
 
-        /// <summary>Every soldier's moves, the ones the crew can pick first.</summary>
-        public static readonly IReadOnlyList<MoveGuide> All = Concat(Tones2, Kie);
-
-        /// <summary>A soldier's moves, in the order of their buttons; empty for a soldier with no guide.</summary>
-        public static IReadOnlyList<MoveGuide> For(SoldierDef soldier)
+        /// <summary>Every crewmate's moves, in crew order (<see cref="Crew.All"/>).</summary>
+        public static IReadOnlyList<MoveGuide> All
         {
-            if (soldier == Content.Tones2) return Tones2;
-            if (soldier == Content.Kie) return Kie;
-            return Array.Empty<MoveGuide>();
+            get
+            {
+                if (s_All != null) return s_All;
+                var all = new List<MoveGuide>();
+                foreach (CrewMember m in Crew.All) all.AddRange(m.Moves);
+                return s_All = all;
+            }
         }
+        static IReadOnlyList<MoveGuide> s_All;
+
+        /// <summary>A soldier's moves, in the order of their buttons (<see cref="CrewMember.Moves"/>); empty for one who isn't crew.</summary>
+        public static IReadOnlyList<MoveGuide> For(SoldierDef soldier) => Crew.Of(soldier)?.Moves ?? Array.Empty<MoveGuide>();
 
         /// <summary>The move with this demo id (<see cref="MoveGuide.DemoId"/>), or null.</summary>
         public static MoveGuide Find(string demoId)
@@ -178,13 +183,6 @@ namespace PooketSlug
                 case KitSlot.Super: return "SU";
                 default: return "AB";
             }
-        }
-
-        static MoveGuide[] Concat(params IReadOnlyList<MoveGuide>[] lists)
-        {
-            var all = new List<MoveGuide>();
-            foreach (IReadOnlyList<MoveGuide> l in lists) all.AddRange(l);
-            return all.ToArray();
         }
     }
 }

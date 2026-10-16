@@ -8,7 +8,7 @@ namespace PooketSlug.Tests
         [Test]
         public void EverySoldierTheCrewCanPickHasEveryMoveExplained()
         {
-            foreach (SoldierDef s in Crew.Freed)
+            foreach (SoldierDef s in Crew.Freed(null, everyone: true))
             {
                 IReadOnlyList<MoveGuide> moves = KitGuide.For(s);
                 var slots = new List<KitSlot>();

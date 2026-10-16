@@ -794,7 +794,7 @@ namespace PooketSlug
 
             // kie
             Ui.Show(m_Kie.Rt, true);
-            PlayerSkin skin = Art.KieSkins[0];
+            PlayerSkin skin = Art.SkinFor(Content.Kie, 0);
             Ui.Show(m_Kie.Legs, true);
             m_Kie.Legs.color = m_Kie.Torso.color = Color.white;
             m_Kie.Torso.sprite = skin.TorsoForward;
@@ -925,7 +925,7 @@ namespace PooketSlug
         void Trollo(float tabkX, float rise, float now)
         {
             Ui.Show(m_Kie.Rt, true);
-            PlayerSkin skin = Art.KieSkins[0];
+            PlayerSkin skin = Art.SkinFor(Content.Kie, 0);
             m_Kie.Legs.sprite = skin.LegsIdle;
             m_Kie.Torso.sprite = skin.TorsoForward;
             Ui.Show(m_Kie.Legs, false); // he's stood in the hatch: only his top half shows
@@ -938,7 +938,7 @@ namespace PooketSlug
 
         void Soldier(float x, float y, bool walking, float t, bool spraying = false)
         {
-            PlayerSkin skin = Art.Tones2Skins[0];
+            PlayerSkin skin = Art.SkinFor(Content.Tones2, 0);
             m_Tones2.Legs.sprite = walking ? skin.LegsRun[(int)(t * 10f) % skin.LegsRun.Length] : skin.LegsIdle;
             m_Tones2.Torso.sprite = skin.TorsoForward;
             m_Tones2.At(x, y);

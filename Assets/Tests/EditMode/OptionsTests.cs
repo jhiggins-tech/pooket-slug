@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace PooketSlug.Tests
@@ -33,22 +34,16 @@ namespace PooketSlug.Tests
         [Test]
         public void TheCrewPickIsKeptWithTheSettings()
         {
+            IReadOnlyList<SoldierDef> both = new[] { Content.Tones2, Content.Kie }, alone = new[] { Content.Tones2 };
             var o = Options.Default;
-            Assert.AreSame(Content.Tones2, Crew.Pick(o.Crew, true), "never picked: tones2");
+            Assert.AreSame(Content.Tones2, Crew.Pick(o.Crew, both), "never picked: tones2");
             o.Crew = Content.Kie.Id;
             Options back = Options.FromBits(o.Bits);
             Assert.AreEqual(Content.Kie.Id, back.Crew);
             Assert.IsTrue(back.Sound && back.Shake);
-            Assert.AreSame(Content.Kie, Crew.Pick(back.Crew, true));
-            Assert.AreSame(Content.Tones2, Crew.Pick(back.Crew, false), "the crew isn't open yet: tones2");
-        }
-
-        [Test]
-        public void CrewCyclesThroughTheFreed()
-        {
-            Assert.AreSame(Content.Kie, Crew.Next(Content.Tones2.Id));
-            Assert.AreSame(Content.Tones2, Crew.Next(Content.Kie.Id));
-            Assert.AreSame(Content.Tones2, Crew.Pick(Content.Trooper.Id, true), "the trooper isn't one of the crew");
+            Assert.AreSame(Content.Kie, Crew.Pick(back.Crew, both));
+            Assert.AreSame(Content.Tones2, Crew.Pick(back.Crew, alone), "kie isn't freed yet: tones2");
+            Assert.AreSame(Content.Tones2, Crew.Pick(Content.Trooper.Id, both), "the trooper isn't one of the crew");
         }
 
         [Test]

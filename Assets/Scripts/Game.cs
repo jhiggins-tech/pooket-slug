@@ -105,7 +105,9 @@ namespace PooketSlug
         bool CoopOpen => m_Profile.coop || m_Unlocked;
         /// <summary>The crew opens with co-op, once Mission one is beaten solo (<c>?unlock=crew</c> opens it for testing).</summary>
         bool CrewOpen => CoopOpen || m_CrewUnlocked;
-        SoldierDef Soldier => Crew.Pick(m_Options.Crew, CrewOpen);
+        /// <summary>Who can be picked: the crewmates freed so far (any <c>?unlock=</c> frees them all, for testing).</summary>
+        System.Collections.Generic.IReadOnlyList<SoldierDef> Freed => Crew.Freed(m_Profile, m_Unlocked || m_CrewUnlocked);
+        SoldierDef Soldier => Crew.Pick(m_Options.Crew, Freed);
         bool CoopReady => m_Net != null && CoopOpen;
 
         void Awake()
@@ -450,7 +452,7 @@ namespace PooketSlug
         /// <summary>Opens the den: to start a solo mission, to look round the crew, or a co-op room's lobby.</summary>
         void OpenDen(DenMode mode)
         {
-            m_Den = new Den(mode, Crew.Freed, Soldier);
+            m_Den = new Den(mode, Freed, Soldier);
             m_DenView.Begin(m_Den, DenInfoNow());
             SetState(GameState.Den);
             Log.Game.Info("Den open: " + mode + ", on the couch: " + (m_Den.Pick?.Name ?? "nobody"));
@@ -1264,7 +1266,7 @@ namespace PooketSlug
                 Seconds = Mathf.FloorToInt(w.Elapsed), Kills = w.Kills,
                 Accuracy = w.ShotsFired > 0 ? Mathf.Clamp01(w.ShotsHit / (float)w.ShotsFired) : -1f,
                 Lives = w.Player.Lives.Lives, Continues = w.Player.Lives.Continues,
-                Xp = Progression.XpFor(true, w.Mission == Missions.One ? Content.Kie.Name : null, w.Kills),
+                Xp = Progression.XpFor(true, Crew.FreedBy(w.Mission)?.Name, w.Kills),
                 XpBefore = m_Profile.xp, ClimbBefore = m_Profile.rank,
                 First = !m_Profile.HasSeen(DebriefSeen) || m_TestDebrief,
                 OfferSignIn = m_Account.Available && !m_Account.SignedIn,

@@ -89,10 +89,8 @@ namespace PooketSlug
 
         /// <summary>[0] = player 1 (red bandana), [1] = player 2 (blue bandana).</summary>
         public static PlayerSkin[] PlayerSkins;
-        /// <summary>tones2 in his Pooket Tabks colours: [0] player 1 (pink bandana), [1] player 2 (blue bandana).</summary>
-        public static PlayerSkin[] Tones2Skins;
-        /// <summary>kie in his Pooket Tabks colours (blue, green and teal): [0] player 1, [1] player 2 (a paler blue).</summary>
-        public static PlayerSkin[] KieSkins;
+        /// <summary>Each crewmate in their paint (<see cref="CrewMember.Paint"/>): [0] player 1, [1] player 2.</summary>
+        static readonly Dictionary<SoldierDef, PlayerSkin[]> s_CrewSkins = new Dictionary<SoldierDef, PlayerSkin[]>();
         public static Sprite[] SoldierLegsRun, RunnerLegsRun;
         public static Sprite SoldierLegsIdle, RunnerLegsJump;
         public static Sprite SoldierTorso, RunnerTorso;
@@ -151,28 +149,12 @@ namespace PooketSlug
 
             Vector2 feet = new Vector2(0.5f, 0f);
             PlayerSkins = new[] { BuildSkin(s_Pal), BuildSkin(player2) };
-            Tones2Skins = new[]
+            foreach (CrewMember m in Crew.All)
             {
-                BuildSkin(Swap(new Dictionary<char, uint>
-                {
-                    { 'r', 0xff7eb6 }, { 'R', 0xc0508a }, { 'g', 0xff8c42 }, { 'G', 0xc06428 }, { 'c', 0xff5a5f }, { 'C', 0xb83c40 },
-                })),
-                BuildSkin(Swap(new Dictionary<char, uint>
-                {
-                    { 'r', 0x3a9ae8 }, { 'R', 0x22609c }, { 'g', 0xff8c42 }, { 'G', 0xc06428 }, { 'c', 0xff5a5f }, { 'C', 0xb83c40 },
-                })),
-            };
-            KieSkins = new[]
-            {
-                BuildSkin(Swap(new Dictionary<char, uint>
-                {
-                    { 'r', 0x4ea8ff }, { 'R', 0x2a70c0 }, { 'g', 0x46d27a }, { 'G', 0x2a9050 }, { 'c', 0x2dd4bf }, { 'C', 0x1a9488 },
-                })),
-                BuildSkin(Swap(new Dictionary<char, uint>
-                {
-                    { 'r', 0xa8d8ff }, { 'R', 0x6898c8 }, { 'g', 0x46d27a }, { 'G', 0x2a9050 }, { 'c', 0x2dd4bf }, { 'C', 0x1a9488 },
-                })),
-            };
+                var skins = new PlayerSkin[m.Paint.Count];
+                for (int k = 0; k < skins.Length; k++) skins[k] = BuildSkin(Swap(m.Paint[k]));
+                s_CrewSkins[m.Soldier] = skins;
+            }
             SoldierTorso = Part(ArtData.TorsoForward, ArtData.TorsoForwardTop, soldier);
             RunnerTorso = Part(ArtData.TorsoForward, ArtData.TorsoForwardTop, runner);
 
@@ -266,7 +248,7 @@ namespace PooketSlug
         /// <summary>How <paramref name="soldier"/> looks as player <paramref name="skin"/> + 1.</summary>
         public static PlayerSkin SkinFor(SoldierDef soldier, int skin)
         {
-            PlayerSkin[] skins = soldier == Content.Tones2 ? Tones2Skins : soldier == Content.Kie ? KieSkins : PlayerSkins;
+            if (soldier == null || !s_CrewSkins.TryGetValue(soldier, out PlayerSkin[] skins)) skins = PlayerSkins;
             return skins[Mathf.Clamp(skin, 0, skins.Length - 1)];
         }
 
@@ -276,7 +258,7 @@ namespace PooketSlug
         /// <summary>White silhouette of a sprite, used for the hit flash.</summary>
         public static Sprite Flash(Sprite s) => s != null && s_Flash.TryGetValue(s, out Sprite f) ? f : s;
 
-        static Dictionary<char, Color32> Swap(Dictionary<char, uint> changes)
+        static Dictionary<char, Color32> Swap(IReadOnlyDictionary<char, uint> changes)
         {
             var pal = new Dictionary<char, Color32>(s_Pal);
             foreach (var kv in changes) pal[kv.Key] = Hex(kv.Value);

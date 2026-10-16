@@ -249,8 +249,7 @@ namespace PooketSlug
         }
 
         /// <summary>A soldier's colour on the team card.</summary>
-        static Color CardColour(SoldierDef s) => s == Content.Tones2 ? new Color(1f, 0.72f, 0.1f, 0.95f)
-            : s == Content.Kie ? new Color(0.25f, 0.85f, 0.8f, 0.95f) : new Color(0.6f, 0.6f, 0.65f, 0.95f);
+        static Color CardColour(SoldierDef s) => Crew.Of(s)?.Card ?? new Color(0.6f, 0.6f, 0.65f, 0.95f);
 
         /// <summary>
         /// A team super's split card, while the action's frozen: the presser slams in from the left, the partner from
