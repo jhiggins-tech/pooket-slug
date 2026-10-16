@@ -120,7 +120,7 @@ Wreck the tabk and its Trollogram pilot jumps out to fight you on foot with the 
 
 ## tones2's tabk
 
-The first tabk you win, freed by kie at the end of Mission one and called in for the first time in [the coda](story.md#the-coda). Draft, 2026-10-16: the guns and single player are the owner's picks; the rest are Claude's defaults, to review.
+The first tabk you win, freed by kie at the end of Mission one and called in for the first time in [the coda](story.md#the-coda). Draft, 2026-10-16: the guns, ten-1 and ten-2, the paint and single player are the owner's picks; ten-3's numbers, the name and the drone are Claude's defaults, to review.
 
 - **Its own guns** (owner, 2026-10-16): each crewmate's tabk fires tabk-sized versions of their kit, as in Pooket Tabks, where the tank is the kit. Rounds stay 5, 3 and 1, never refilled, and the controls stay the same ([driving a tabk](#driving-a-tabk)).
   - **ten-1, the water cannon** (FIRE, 5 rounds; owner, 2026-10-16): one round is one spray cycle, as in Pooket Tabks. Press FIRE and the pressure builds in spurts from a wide, weak spray to a clean, hard arc, holds there for a moment, then eases off (about three seconds in all), and you aim it as it goes. The full-pressure arc does the real damage and shoves goons back a long way. Off a wall point-blank it splashes back, harmless, as on foot.
