@@ -35,7 +35,8 @@ kcaj's mission (picked by the owner, 2026-10-16, from three concepts; the sheets
 - **Hazards:** conveyor belts that carry you and the goons, nitrogen vents that freeze whoever walks through them for a moment, and scoop droppers overhead.
 - **Breakables:** boxes of cones that drop items, and nitrogen tanks that explode.
 - **The boss door** is the cold store: it fogs open and the tabk rolls out of the mist. The boss is kcaj's tabk, then Trollogram kcaj ([tabks](tanks.md#tabk-bosses)).
-- **The story side** (why the Trollograms are here, the briefing and the freeing) is in [the story](story.md) once Story and lore write it in.
+- **Story beats on the map:** Trollogram projectors behind frosted glass (shoot one and the goons near it flicker out), a goon frozen solid riding a conveyor, and a fogged freezer corridor before the cold store. The tabk wears a cone on its antenna.
+- **The story side** (why the Trollograms are here, the briefing and the freeing): [Mission two: the creamery](story.md#mission-two-the-creamery).
 
 ## Difficulty
 
