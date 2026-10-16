@@ -1,5 +1,12 @@
 name: WebGL build → GitHub Pages
 
+# One site on the gh-pages branch, many builds (the pipeline agreed in the workflow review, 16 Oct):
+# - the main line, claude/gallant-keller-3qzp97, deploys the game to the root, with every check;
+# - every other branch deploys a preview to previews/<branch without claude/>/ (its item's Try it link), with every
+#   check too, except spike branches (claude/spike-<name>), which skip the kit demos and the co-op tests;
+# - a branch whose commit the main line already has builds nothing (a mirror of the main line, or a merged branch);
+# - a deleted branch's preview goes at the next deploy (tools/pages_deploy.sh), or at once by the delete trigger once
+#   this file is on the default branch (GitHub runs delete triggers from there only).
 on:
   push:
     branches:
@@ -8,21 +15,59 @@ on:
     paths-ignore: # docs never change the game, and a redeploy changes the build version co-op players must share
       - '**.md'
       - 'docs/**'
+  delete:
   workflow_dispatch:
 
 permissions:
-  contents: write # peaceiris/actions-gh-pages pushes the build to the gh-pages branch
+  contents: write # the deploy pushes the build to the gh-pages branch
 
-# A run under way finishes (and deploys) before the next starts; of the pushes that land meanwhile, only the newest
-# waits its turn. Cancelling the run under way instead (as it did until 2026-10-16) meant that with several threads
-# pushing to the same branch, nothing ever got as far as deploying.
+env:
+  MAIN_LINE: claude/gallant-keller-3qzp97
+
+# Each branch has its own queue, so branches build side by side. Within a branch, a run under way finishes (and
+# deploys) before the next starts; of the pushes that land meanwhile, only the newest waits its turn. Cancelling the
+# run under way instead (as it did until 2026-10-16) meant that with several threads pushing to the same branch,
+# nothing ever got as far as deploying.
 concurrency:
-  group: webgl-pages
+  group: webgl-pages-${{ github.event_name == 'delete' && 'prune' || github.ref_name }}
   cancel-in-progress: false
 
 jobs:
+  # What this push builds and where it goes.
+  plan:
+    name: Plan the build
+    if: github.event_name != 'delete'
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.plan.outputs.build }}
+      light: ${{ steps.plan.outputs.light }}
+      slug: ${{ steps.plan.outputs.slug }}
+    steps:
+      - name: Main line, preview or spike
+        id: plan
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          slug=$(echo "$GITHUB_REF_NAME" | sed -e 's#^claude/##' -e 's/[^A-Za-z0-9-]/-/g' | tr 'A-Z' 'a-z')
+          light=false; build=true
+          if [ "$GITHUB_REF_NAME" = "$MAIN_LINE" ]; then
+            slug=; echo "### Main line: deploys to the live game" >> "$GITHUB_STEP_SUMMARY"
+          else
+            case $slug in spike-*) light=true ;; esac
+            status=$(gh api "repos/$GITHUB_REPOSITORY/compare/$MAIN_LINE...$GITHUB_SHA" --jq .status || echo unknown)
+            if [ "$status" = identical ] || [ "$status" = behind ]; then
+              build=false
+              echo "### Nothing to preview: the main line already has \`${GITHUB_SHA::7}\`" >> "$GITHUB_STEP_SUMMARY"
+            else
+              echo "### Preview: previews/$slug/$([ $light = true ] && echo ' (spike: no demos or co-op tests)')" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          fi
+          { echo "build=$build"; echo "light=$light"; echo "slug=$slug"; } >> "$GITHUB_OUTPUT"
+
   build-and-deploy:
     name: Build WebGL with GameCI and deploy
+    needs: plan
+    if: needs.plan.outputs.build == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -186,12 +231,14 @@ jobs:
       # clips always match the build they ship with. If recording fails, the build still deploys, and the kit screen
       # says there's no demo yet.
       - name: Set up Node
+        if: needs.plan.outputs.light != 'true'
         uses: actions/setup-node@v7
         with:
           node-version: 22
 
       - name: Record the kit screen's demos
         id: demos
+        if: needs.plan.outputs.light != 'true'
         continue-on-error: true
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
@@ -236,34 +283,50 @@ jobs:
           path: build/WebGL/WebGL
           if-no-files-found: error
 
+      # Into the root for the main line, into previews/<slug>/ for any other branch, leaving the rest of the site be.
       - name: Deploy to gh-pages branch
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: build/WebGL/WebGL
-          publish_branch: gh-pages
-          force_orphan: true
-          user_name: github-actions[bot]
-          user_email: 41898282+github-actions[bot]@users.noreply.github.com
-          full_commit_message: Deploy ${{ github.sha }} from ${{ github.ref_name }}
+        env:
+          SLUG: ${{ needs.plan.outputs.slug }}
+        run: |
+          if [ -z "$SLUG" ]; then tools/pages_deploy.sh main build/WebGL/WebGL
+          else tools/pages_deploy.sh preview "$SLUG" build/WebGL/WebGL; fi
 
       - name: Summary
+        env:
+          SLUG: ${{ needs.plan.outputs.slug }}
         run: |
+          site="https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/"
           {
             echo "### Pooket Slug WebGL build"
             echo ""
             echo "- Commit: \`${GITHUB_SHA::7}\` on \`${GITHUB_REF_NAME}\`"
             echo "- Unity: \`$(sed -n 's/^m_EditorVersion: //p' ProjectSettings/ProjectVersion.txt)\`"
             echo "- Build size: $(du -sh build/WebGL/WebGL | cut -f1)"
-            echo "- Live: https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/"
+            if [ -z "$SLUG" ]; then echo "- Live: $site"; else echo "- Preview: ${site}previews/$SLUG/ (all previews: ${site}previews/)"; fi
           } >> "$GITHUB_STEP_SUMMARY"
+
+  # A deleted branch's preview goes now rather than at the next deploy. GitHub runs delete triggers only from the
+  # default branch's copy of this file.
+  prune-previews:
+    name: Remove deleted branches' previews
+    if: github.event_name == 'delete' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          sparse-checkout: tools
+
+      - name: Prune
+        run: tools/pages_deploy.sh prune
 
   # Two players in two headless browsers, against the build just made: A hosts, B joins by invite link,
   # both play, then A leaves and B must take over the shared world. GitHub's runners can open the
   # WebSockets Photon needs (the cloud sandbox can't), so this is where co-op gets tested on every push.
   coop-test:
     name: Two-player co-op test
-    needs: build-and-deploy
+    needs: [plan, build-and-deploy]
+    if: needs.plan.outputs.light != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

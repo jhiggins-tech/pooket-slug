@@ -67,7 +67,7 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
 | Netcode | Photon Fusion 2.1.3 Stable (build 2390), Shared Mode, 2 players |
 | Repository secrets | `UNITY_LICENSE`, `UNITY_EMAIL`, `UNITY_PASSWORD`, `VENDOR_PAT`, `PHOTON_APP_ID` |
 | Private SDK storage | Release `fusion-2.1.3` in `jhiggins-tech/pooket-slug-vendor` |
-| Working branch | `claude/gallant-keller-3qzp97`; every successful build deploys to `gh-pages` |
+| Branches | Main line `claude/gallant-keller-3qzp97` deploys to the root of `gh-pages`; other branches to `previews/<branch without claude/>/` (README, Pipeline) |
 | Build triggers | Pushes to `main` / `claude/**`, except pushes that only touch `**.md` or `docs/**` |
 
 ## Keeping these docs useful

@@ -36,7 +36,9 @@ Fusion's Shared Mode is the topology Fusion supports for WebGL. There is no host
 3. Restores the cached `Library/` folder.
 4. Runs **`game-ci/unity-builder@v4`** with `targetPlatform: WebGL` and the custom build method `PooketSlug.EditorTools.WebGLBuild.Build`. The Unity version comes from `ProjectSettings/ProjectVersion.txt`. The Photon AppId is passed as `-photonAppId`, and the build bakes it into `Resources/pooket-net.json`.
 5. Uploads the build as a workflow artifact.
-6. Pushes the build to the **`gh-pages`** branch with `peaceiris/actions-gh-pages`.
+6. Records the ⓘ kit screen's demo clips, then deploys with `tools/pages_deploy.sh` to the **`gh-pages`** branch, and runs the two-player co-op tests against the build.
+
+Where a build goes depends on its branch. The main line, `claude/gallant-keller-3qzp97`, deploys the game to the site's root. Every other branch deploys a preview to `previews/<branch without claude/>/`, e.g. https://jhiggins-tech.github.io/pooket-slug/previews/sandbox-mode/, and https://jhiggins-tech.github.io/pooket-slug/previews/ lists them. Each branch has its own queue, so branches build side by side. Spike branches (`claude/spike-<name>`) skip the demos and the co-op tests. A branch whose commit the main line already has builds nothing, and a deleted branch's preview is removed at the next deploy.
 
 The build script (`Assets/Editor/WebGLBuild.cs`) does the following:
 
