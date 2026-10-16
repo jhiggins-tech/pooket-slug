@@ -379,6 +379,10 @@ jobs:
         if: success() || failure()
         run: node tools/coop.mjs http://127.0.0.1:8000/index.html coop-test/handover handover
 
+      - name: Browse rooms, join one and watch one (three phones)
+        if: success() || failure()
+        run: node tools/coop.mjs http://127.0.0.1:8000/index.html coop-test/watch watch
+
       - name: Summary
         if: always()
         run: |
@@ -430,6 +434,16 @@ jobs:
                   ("tookOver", "B runs the shared world"),
                   ("quick", "Within 10 s of A freezing, before Photon would time A out"),
                   ("playedOn", "B plays on with no errors or disconnects"),
+              ]),
+              ("Room browser and watching", "coop-test/watch/result.json", [
+                  ("hostOnline", "A quick-matches and opens a listed room"),
+                  ("listed", "B sees it in the room browser and picks JOIN"),
+                  ("browsedIn", "B gets in"),
+                  ("joined", "A sees B join"),
+                  ("watcherIn", "C finds it full in the browser and gets in to watch"),
+                  ("watching", "C follows the game with no soldier of its own"),
+                  ("counted", "A's room counts C watching"),
+                  ("played", "Nobody has errors or disconnects"),
               ]),
           ]
           for title, path, checks in runs:

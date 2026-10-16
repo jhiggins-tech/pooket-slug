@@ -11,6 +11,10 @@
 //                        background) while both play. B must notice A's beat stop, ask Photon for the shared world and
 //                        run it, well before Photon would time A out, and play on. Then A comes back (reported, not
 //                        required: it may have been timed out by then) and should follow B's world.
+//   watch mode:          rooms: A quick-matches (opening a listed room), B finds it in the room browser (R) and joins
+//                        it (ENTER, the first row), both play, and C finds it full in the browser and watches it: C
+//                        must follow the game with no soldier of its own, and A's room must count C watching. Nobody
+//                        leaves.
 //   scene mode:          as code mode, but both sit down in the den together and start at once, with ?test=scene, so
 //                        a stand-in scene plays on both phones (Mission one is single player only, so its own scenes
 //                        never play in co-op): both tap through it, and it must move on for both, together, each shot
@@ -27,7 +31,7 @@ const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PW_PATH || 'playwright');
 
 const [base, out, mode = 'code'] = process.argv.slice(2);
-const BOSS = mode === 'boss', SCENE = mode === 'scene', DROPIN = mode === 'dropin', HANDOVER = mode === 'handover';
+const BOSS = mode === 'boss', SCENE = mode === 'scene', DROPIN = mode === 'dropin', HANDOVER = mode === 'handover', WATCH = mode === 'watch';
 const url = base + (base.includes('?') ? '&' : '?') + 'unlock=coop&test=' + (BOSS ? 'boss' : SCENE ? 'crate,scene' : 'crate') + (DROPIN ? '&spike=dropin,partner' : '');
 fs.mkdirSync(out, { recursive: true });
 const T0 = Date.now();
@@ -36,7 +40,9 @@ const TAG = String.raw`\[PooketSlug(?:/\w+)?\]`; // "[PooketSlug/Net] …" (olde
 const ARGS = ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--autoplay-policy=no-user-gesture-required'];
 
 // Each check is false until it passes; result.json records them all.
-const checks = HANDOVER
+const checks = WATCH
+  ? { hostOnline: false, listed: false, browsedIn: false, joined: false, played: false, watcherIn: false, watching: false, counted: false }
+  : HANDOVER
   ? { hostOnline: false, guestOnline: false, joined: false, played: false, asked: false, tookOver: false, quick: false, playedOn: false }
   : DROPIN
   ? { hostOnline: false, guestOnline: false, joined: false, droppedIn: false, played: false }
@@ -125,9 +131,58 @@ async function tapThrough(p, ms) {
   }
 }
 
+/** The room browser: R on the title opens it, and it starts looking through the listed rooms. */
+async function openBrowser(p) {
+  await p.page.keyboard.press('r');
+  if (!(await waitLog(p, new RegExp(TAG + ' Room browser open'), 10000))) throw new Error(`${p.name} never opened the room browser`);
+  await p.page.waitForTimeout(3000);
+}
+
 const A = await player('A');
 const B = await player('B');
+const C = WATCH ? await player('C') : null;
 try {
+  if (WATCH) {
+    await load(A, url);
+    await A.page.keyboard.press('q'); // no rooms yet: quick match opens a listed one
+    const line = await waitLog(A, new RegExp(TAG + ' Online .*room ([A-Z]{4}) \\(listed\\)'), 90000);
+    checks.hostOnline = !!line;
+    if (!line) throw new Error('A never opened a listed room');
+    const code = line.match(/room ([A-Z]{4})/)[1];
+    console.log(`${t()} A opened ${code}, listed`);
+    await denStart(A);
+    await A.page.waitForTimeout(2000);
+
+    const pick = async (p, verb) => {
+      await openBrowser(p);
+      for (let i = 0; i < 12; i++) {
+        await p.page.keyboard.press('Enter');
+        const took = await waitLog(p, new RegExp(TAG + ` Room browser: ${verb} ${code}`), 2000);
+        if (took) return true;
+      }
+      return false;
+    };
+    await load(B, url);
+    checks.listed = await pick(B, 'JOIN');
+    await shot(B, '1-browser');
+    if (!checks.listed) throw new Error(`B never saw ${code} to join in the room browser`);
+    checks.browsedIn = !!(await waitLog(B, new RegExp(TAG + ` Online .*room ${code}`), 60000));
+    await denStart(B);
+    checks.joined = !!(await waitLog(A, new RegExp(TAG + ' .* joined'), 30000));
+    await Promise.all([play(A, 'ArrowRight', 5000), play(B, 'ArrowRight', 5000)]);
+
+    await load(C, url);
+    const watched = await pick(C, 'WATCH');
+    await shot(C, '1-browser');
+    if (!watched) throw new Error(`C never saw ${code} to watch in the room browser`);
+    checks.watcherIn = !!(await waitLog(C, new RegExp(TAG + ` Online .*room ${code}, watching`), 60000));
+    checks.watching = !!(await waitLog(C, new RegExp(TAG + ` Watching room ${code}`), 20000));
+    await Promise.all([play(A, 'ArrowRight', 6000), play(B, 'ArrowRight', 6000)]);
+    await Promise.all([shot(A, '2-watched'), shot(B, '2-watched'), shot(C, '2-watching')]);
+    checks.counted = !!(await waitLog(A, new RegExp(TAG + ` 1 watching room ${code}`), 10000));
+    checks.played = ![...A.logs, ...B.logs, ...C.logs].some(l => /\[pageerror\]|Disconnected from Photon|Session ended/.test(l));
+    throw null; // done: on to the results
+  }
   await load(A, url);
   await shot(A, '0-title');
 
@@ -282,12 +337,14 @@ try {
     await Promise.all([shot(A, '5-left'), shot(B, '5-alone')]);
   }
 } catch (e) {
+  if (e !== null) {
   failure = e.message;
   console.log(`${t()} FAILED: ${e.message}`);
   await Promise.all([shot(A, 'x-fail').catch(() => {}), shot(B, 'x-fail').catch(() => {})]);
+  }
 } finally {
   const keep = l => !/\[debug\]/.test(l);
-  const all = [...A.logs, ...B.logs].filter(keep).sort((a, b) => parseFloat(a) - parseFloat(b));
+  const all = [...A.logs, ...B.logs, ...(C ? C.logs : [])].filter(keep).sort((a, b) => parseFloat(a) - parseFloat(b));
   fs.writeFileSync(`${out}/console.log`, all.join('\n') + '\n');
   console.log(all.filter(l => /PooketSlug|error|exception|warn|Fusion|Photon/i.test(l)).slice(-120).join('\n'));
   const ok = !failure && Object.values(checks).every(Boolean);
@@ -296,5 +353,6 @@ try {
   console.log(`${t()} result: ${ok ? 'PASS' : 'FAIL'} ${JSON.stringify(checks)}, ${pickups} pickup(s) given out`);
   await A.browser.close();
   await B.browser.close();
+  if (C) await C.browser.close();
   if (!ok) process.exitCode = 1;
 }

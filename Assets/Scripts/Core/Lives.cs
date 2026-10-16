@@ -58,6 +58,15 @@ namespace PooketSlug
             return Fall.Out;
         }
 
+        /// <summary>Out for good, with no offer: someone watching a room has no soldier in play (rooms).</summary>
+        public void Retire()
+        {
+            Lives = 0;
+            Continues = 0;
+            OfferLeft = 0f;
+            Now = State.Out;
+        }
+
         /// <summary>Counts the offer down. True on the frame it runs out.</summary>
         public bool Tick(float dt)
         {

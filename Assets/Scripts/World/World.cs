@@ -116,6 +116,15 @@ namespace PooketSlug
         public CraterView CraterView;
 
         public bool Coop => Net != null;
+        /// <summary>Rooms: we're watching a co-op game, with no soldier of our own in play (<see cref="Spectate"/>).</summary>
+        public bool Spectating { get; private set; }
+
+        /// <summary>Makes this a watcher's world: our soldier is out of it for good, and the camera follows the room's.</summary>
+        public void Spectate()
+        {
+            Spectating = true;
+            Player.Spectate();
+        }
         /// <summary>Runs enemies, pickups and score: always offline, the master client in co-op.</summary>
         public bool IsAuthority => Net == null || Net.IsAuthority;
 

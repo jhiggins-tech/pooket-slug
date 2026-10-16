@@ -44,6 +44,12 @@ namespace PooketSlug
         /// <summary>Rooms the browser shows at once.</summary>
         public const int MaxRows = 4;
 
+        /// <summary>
+        /// Whether a hosted room starts listed, and whether its host can switch that in the den. Jack's call (pending):
+        /// the host chooses, starting invite only.
+        /// </summary>
+        public const bool HostListed = false, HostChooses = true;
+
         /// <summary>The session property keys (short: they go to everyone browsing).</summary>
         public const string MissionKey = "m", SoldiersKey = "n", WatchingKey = "w", UnderWayKey = "g", HostKey = "h", OpenKey = "o";
 

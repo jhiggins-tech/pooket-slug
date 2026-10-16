@@ -398,6 +398,7 @@ namespace PooketSlug
             now.Watching = Watchers;
             if (m_ListingSent && now.Mission == m_Listed.Mission && now.Soldiers == m_Listed.Soldiers && now.Watching == m_Listed.Watching &&
                 now.UnderWay == m_Listed.UnderWay && now.Host == m_Listed.Host) return;
+            if (m_ListingSent && now.Watching != m_Listed.Watching) Log.Net.Info($"{now.Watching} watching room {now.Name}");
             m_Listed = now;
             m_ListingSent = true;
             m_Runner.SessionInfo.UpdateCustomProperties(Properties(now));
