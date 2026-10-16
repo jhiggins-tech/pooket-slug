@@ -161,7 +161,7 @@ namespace PooketSlug.Tests
         }
 
         [TestCase(-1)]
-        [TestCase(18)]
+        [TestCase(20)]
         [TestCase(255)]
         public void AnUnknownWeaponIdFindsNothing(int id)
         {
