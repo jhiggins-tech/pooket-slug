@@ -21,6 +21,12 @@ namespace PooketSlug
             Ids = new NetIds(world.Level.Spawns.Count);
         }
 
+        /// <summary>
+        /// Enemies and pickups placed before this x are left out: a restart at the coda's checkpoint doesn't bring the
+        /// boss back (<c>docs/design/story.md</c>, The coda).
+        /// </summary>
+        public float SkipBefore = -1f;
+
         /// <summary>How far through the level's spawns the authority has got; the next index to place.</summary>
         public int Next => m_Next;
 
@@ -44,10 +50,13 @@ namespace PooketSlug
                     e = w.Boss = new Pilot(w, def, pos);
                     break;
                 case EnemyBrain.PilotDecoy: e = new PilotDecoy(w, def, pos); break;
+                case EnemyBrain.ToppleTower: e = new ToppleTower(w, def, pos); break;
+                case EnemyBrain.ExitGate: e = new ExitGate(w, def, pos); break;
                 default: return null;
             }
             e.NetId = id;
-            if (def.Brain != EnemyBrain.Tank && def.Brain != EnemyBrain.Barrel && def.Brain != EnemyBrain.Weasel)
+            if (def.Brain != EnemyBrain.Tank && def.Brain != EnemyBrain.Barrel && def.Brain != EnemyBrain.Weasel &&
+                def.Brain != EnemyBrain.ToppleTower && def.Brain != EnemyBrain.ExitGate)
                 e.Look = new HoloLook(e); // the goons, kie's tank copies and its pilot are holograms (on every screen in co-op); the tank, barrels and weasels are real
             return e;
         }
@@ -95,6 +104,7 @@ namespace PooketSlug
                 w.Props.Add(new Lift(w, s.Pos));
             }
             else if (s.Kind == SpawnKind.Checkpoint) w.Props.Add(new Checkpoint(w, s.Pos));
+            else if (s.Kind == SpawnKind.BackGate) w.Props.Add(w.BackGate = new BackGate(w, s.Pos));
         }
 
         public void SpawnAhead()
@@ -120,11 +130,13 @@ namespace PooketSlug
                 m_Next = Mathf.Max(m_Next, Mathf.Max(m_NextStatic, w.Net.NextSpawn));
                 Ids.CatchUp(w.Net.NextNetId);
             }
-            while (m_Next < level.Spawns.Count && level.Spawns[m_Next].Pos.x < w.View.Right + Tuning.Camera.SpawnAhead)
+            // nothing past the back gate comes in until the coda opens (the gate itself, just past it, does)
+            while (m_Next < level.Spawns.Count && level.Spawns[m_Next].Pos.x < Mathf.Min(w.View.Right + Tuning.Camera.SpawnAhead, level.ScrollLimit + 1f))
             {
                 int index = m_Next++;
                 Spawn s = level.Spawns[index];
                 EnemyDef enemy = Content.EnemyFor(s.Kind);
+                if (s.Pos.x < SkipBefore && (enemy != null || Content.PickupFor(s.Kind) != null)) continue;
                 if (enemy != null) w.Enemies.Add(CreateEnemy(enemy, s.Pos, index));
                 else SpawnStatic(s, index);
             }

@@ -145,6 +145,10 @@ namespace PooketSlug
         Pilot,
         /// <summary>The pilot's Trollogram: a hologram of it standing still; shoot it and it blows up on you.</summary>
         PilotDecoy,
+        /// <summary>The coda's watchtower: stands in the road until it's shot down, then topples over onto the goons ahead.</summary>
+        ToppleTower,
+        /// <summary>The base's last gate, at the end of the coda: shoot it or ram it, and the mission's won.</summary>
+        ExitGate,
     }
 
     /// <summary>One kind of enemy: its body, health and worth. The co-op snapshot carries its id.</summary>

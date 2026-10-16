@@ -42,6 +42,7 @@ namespace PooketSlug
         bool m_TestCrate;       // ?test=crate: a crate just ahead of the start, so the co-op test sees one handed out
         bool m_TestTank;        // ?test=tank: a tank of your own parked just ahead of the start, and one call-in
         bool m_TestOneUp;       // ?test=1up: a 1-up just ahead of the start
+        bool m_TestCoda;        // ?test=coda: a game starts at the coda, the tabk run after the boss, with its prompts
         bool m_TestBoss;        // ?test=boss: a game starts just before the boss's arena (co-op too: the co-op test's boss round)
         bool m_TestPilot;       // ?test=pilot: the same, and the tank's wrecked as it wakes, so the pilot round starts at once
         bool m_TestTeam;        // ?test=team: solo, a stand-in partner and both supers charged, to try TEAM
@@ -134,6 +135,7 @@ namespace PooketSlug
             m_TestTeam = Array.IndexOf(tests, "team") >= 0;
             m_TestBoss = m_TestPilot || Array.IndexOf(tests, "boss") >= 0;
             m_TestReveal = Array.IndexOf(tests, "reveal") >= 0;
+            m_TestCoda = Array.IndexOf(tests, "coda") >= 0;
             m_TestScene = Array.IndexOf(tests, "scene") >= 0;
 
             m_World = NewWorld(m_Mission);
@@ -173,6 +175,7 @@ namespace PooketSlug
             world.BossFightStarted += OnBossFightStarted;
             world.PilotFreed += OnPilotFreed;
             world.TankWrecked += OnTankWrecked;
+            world.CodaCleared += OnCodaCleared;
             m_IntroName = null;
             if (m_TestCrate)
             {
@@ -187,6 +190,7 @@ namespace PooketSlug
                 world.Spawner.SpawnPickup(Content.OneUp, new Vector2(x, world.Level.TopSurfaceY(x)));
             }
             if (m_TestBoss) StartAtBoss(world);
+            if (m_TestCoda && net == null) StartAtCoda(world, true);
             if (Spike.CallIn && net == null) world.CallInCoach = new CallInCoach(false); // every visit, so it can be tried again
             if (m_TestTank) world.ParkTank(world.Player.Pos.x + Content.PlayerTank.HalfWidth + 4f); // each player's own, a few steps ahead
             return world;
@@ -201,6 +205,22 @@ namespace PooketSlug
                 StartAt(world, s.Pos.x - 16f);
                 return;
             }
+        }
+
+        /// <summary>Profile key: the coda's been cleared once, so its prompts don't show again.</summary>
+        const string CodaSeen = "coda";
+
+        /// <summary>
+        /// Starts at the coda: the back gate's open, the boss is left out, and there's a tabk to call
+        /// (a restart at its checkpoint, or <c>?test=coda</c>).
+        /// </summary>
+        static void StartAtCoda(World world, bool prompts)
+        {
+            float x = world.Level.CodaX;
+            if (x < 0f) return;
+            world.Spawner.SkipBefore = x;
+            world.OpenCoda(prompts, restart: true);
+            StartAt(world, x + 2f);
         }
 
         /// <summary>Puts the soldier, and the camera, at <paramref name="x"/>; what's behind is left behind.</summary>
@@ -238,7 +258,7 @@ namespace PooketSlug
         void StartFromTitle()
         {
             // ?test=boss, pilot and team are for trying something at once: they start without the opening
-            if (m_Mission == Missions.One && !m_TestBoss && !m_TestTeam) PlayScene(Cutscenes.Opening, false, StartSolo);
+            if (m_Mission == Missions.One && !m_TestBoss && !m_TestTeam && !m_TestCoda) PlayScene(Cutscenes.Opening, false, StartSolo);
             else StartSolo();
         }
 
@@ -329,7 +349,13 @@ namespace PooketSlug
             float checkpoint = m_State == GameState.GameOver ? m_World.CheckpointX : -1f;
             m_World.Dispose();
             m_World = NewWorld(m_Mission);
-            if (checkpoint >= 0f)
+            if (checkpoint >= 0f && m_World.Level.CodaX >= 0f && checkpoint >= m_World.Level.CodaX)
+            {
+                // lost in the coda: start again at its start, not at the boss (docs/design/story.md, The coda)
+                StartAtCoda(m_World, !m_Profile.HasSeen(CodaSeen));
+                m_World.CheckpointX = checkpoint;
+            }
+            else if (checkpoint >= 0f)
             {
                 m_World.CheckpointX = checkpoint;
                 m_World.QuickBossIntro = true; // the second time: the tank's already in place
@@ -653,8 +679,16 @@ namespace PooketSlug
                 m_Paused = false;
                 SetState(GameState.Playing);
                 m_StateTime = playedFor;
-                m_World.OnBossDestroyed();
+                // on into the coda: the back gate opens, and the run out of the base with tones2's tabk
+                m_World.OpenCoda(!m_Profile.HasSeen(CodaSeen));
+                if (MusicOn) Music.Play(MusicTracks.TankAlert);
             });
+        }
+
+        /// <summary>The coda's last gate is down: its prompts have been seen.</summary>
+        void OnCodaCleared()
+        {
+            if (m_Profile.MarkSeen(CodaSeen)) m_Store.Save(m_Profile);
         }
 
         void StartBossIntro(BossEnemy boss, bool firstTime)

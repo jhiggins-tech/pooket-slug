@@ -51,6 +51,7 @@ namespace PooketSlug
         readonly Image m_TeamBand, m_TeamLeft, m_TeamRight, m_TeamLeftPic, m_TeamRightPic;
         readonly Text m_TeamTitle, m_TeamName, m_TeamLeftName, m_TeamRightName;
         SoldierDef m_TeamShownLeft;
+        const string CallInPrompt = "HOLD DOWN + SP TO CALL YOUR TABK";
         readonly Text m_Score, m_Arms, m_Hi, m_Time, m_BossName, m_Build, m_Fps, m_Banner, m_Note, m_Coach;
         readonly Image m_BossBack, m_BossFill;
         // the kit's meters: the super (SU), the special's refill (SP) and the ability (AB); and a tank call-in's charge
@@ -129,7 +130,7 @@ namespace PooketSlug
             m_IntroName = Ui.Label(m_Root, "Boss name", Ui.Middle, new Vector2(0f, 2f), 18, TextAnchor.MiddleCenter, Color.white);
             m_Note = Ui.Label(m_Root, "Note", Ui.Middle, new Vector2(0f, 32f), 12, TextAnchor.MiddleCenter, CoopBlue);
             m_Coach = Ui.Label(m_Root, "Call-in hint", Ui.Middle, new Vector2(0f, 46f), 14, TextAnchor.MiddleCenter, Gold);
-            m_Coach.text = "HOLD DOWN + SP TO CALL YOUR TABK";
+            m_Coach.text = CallInPrompt;
             m_TeamCard = Ui.Fill(m_Root, "Team card");
             m_TeamBand = Ui.Picture(m_TeamCard, "Band", null, Ui.Middle, Ui.Middle, Vector2.zero, new Vector2(2000f, 110f), new Color(0.06f, 0.04f, 0.08f, 0.85f));
             m_TeamLeft = Ui.Picture(m_TeamCard, "Left", null, Ui.Middle, new Vector2(1f, 0.5f), Vector2.zero, new Vector2(220f, 100f), Color.white);
@@ -393,7 +394,10 @@ namespace PooketSlug
                 m_Banner.fontSize = w.Victory ? 28 : 26;
             }
             // the call-in prompt, the first time, until you call: blinking so it's seen
-            Ui.Show(m_Coach, info.Playing && !banner && w.CallInCoach != null && w.CallInCoach.Showing && Time.unscaledTime % 0.8f < 0.55f);
+            // then the coda's, teaching the tabk one thing at a time
+            string coach = w.CallInCoach != null && w.CallInCoach.Showing ? CallInPrompt : w.CodaCoach?.Prompt;
+            if (coach != null && m_Coach.text != coach) m_Coach.text = coach;
+            Ui.Show(m_Coach, info.Playing && !banner && coach != null && Time.unscaledTime % 0.8f < 0.55f);
             bool note = banner && !w.Victory && info.Note != null;
             Ui.Show(m_Note, note);
             if (note) m_Note.text = info.Note;

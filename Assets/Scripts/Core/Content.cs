@@ -102,6 +102,9 @@ namespace PooketSlug
         /// <summary>Hologram kie, who jumps out of the wrecked tank (<see cref="KiePilotSpec"/>), and the Trollogram he drops.</summary>
         public static readonly EnemyDef Pilot = new EnemyDef(7, "Trollogram kie", EnemyBrain.Pilot, halfWidth: 0.3f, height: 1.35f, hp: KieTuning.Pilot.Hp, score: 5000);
         public static readonly EnemyDef PilotDecoy = new EnemyDef(8, "Trollogram", EnemyBrain.PilotDecoy, halfWidth: 0.3f, height: 1.35f, hp: 1, score: 100);
+        /// <summary>The coda's watchtower and the base's last gate (<c>docs/design/story.md</c>, The coda).</summary>
+        public static readonly EnemyDef ToppleTower = new EnemyDef(9, "Watchtower", EnemyBrain.ToppleTower, halfWidth: 1.1f, height: 5.2f, hp: 14, score: 1000);
+        public static readonly EnemyDef ExitGate = new EnemyDef(10, "Last gate", EnemyBrain.ExitGate, halfWidth: 1.0f, height: 4f, hp: 24, score: 2000);
 
         // ------------------------------------------------------------------ pickups
 
@@ -146,7 +149,7 @@ namespace PooketSlug
         public static readonly IReadOnlyList<WeaponDef> Weapons = ById(w => w.Id, Pistol, HeavyMachineGun, Rifle, Cannon, GrenadeThrow, DroneBomb, TankGun,
             WaterJet, RocketJump, Spew, BossCannon, WeaselPop, Trollogram,
             Steal, StolenRifle, StolenKnives, StolenBombs, StolenCannon, PlayerTankCannon, PlayerTankMortar, TeamSuper);
-        public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank, Barrel, Weasel, TankCopy, Pilot, PilotDecoy);
+        public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank, Barrel, Weasel, TankCopy, Pilot, PilotDecoy, ToppleTower, ExitGate);
         public static readonly IReadOnlyList<PickupDef> Pickups = ById(p => p.Id, HeavyMachineGunCrate, BombCrate, Medkit, OneUp);
         public static readonly IReadOnlyList<SoldierDef> Soldiers = ById(s => s.Id, Trooper, Tones2, Kie);
 
@@ -198,6 +201,8 @@ namespace PooketSlug
                 case SpawnKind.Drone: return Drone;
                 case SpawnKind.Tank: return Tank;
                 case SpawnKind.Barrel: return Barrel;
+                case SpawnKind.ToppleTower: return ToppleTower;
+                case SpawnKind.ExitGate: return ExitGate;
                 default: return null;
             }
         }

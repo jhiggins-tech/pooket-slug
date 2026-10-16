@@ -81,11 +81,11 @@ namespace PooketSlug
             Level = mission.Load();
             if (Spike.Craters && net == null) // spikes are solo only
             {
-                // the boss arena, from the last checkpoint to the end of the map, is diggable ground
-                int arena = Level.Width;
+                // the boss arena, from the last checkpoint before the back gate to the gate (or the map's end), is diggable ground
+                int end = Mathf.FloorToInt(Level.ScrollLimit), arena = end;
                 foreach (Spawn s in Level.Spawns)
-                    if (s.Kind == SpawnKind.Checkpoint) arena = Mathf.FloorToInt(s.Pos.x);
-                if (arena < Level.Width) Level.Craters = new CraterGround(Level, arena, Level.Width);
+                    if (s.Kind == SpawnKind.Checkpoint && s.Pos.x < end) arena = Mathf.FloorToInt(s.Pos.x);
+                if (arena < end) Level.Craters = new CraterGround(Level, arena, end);
             }
             LevelView.Create(Level, Root, Level.Craters?.X0 ?? int.MaxValue);
             if (Level.Craters != null) CraterView = new CraterView(Level, Level.Craters, Root);
@@ -123,6 +123,14 @@ namespace PooketSlug
         public event System.Action<Vector2> TankCalled;
         /// <summary>The prompt that shows how to call a tank in, the first time; null when it's been seen (<see cref="CallInCoach"/>).</summary>
         public CallInCoach CallInCoach;
+        /// <summary>The coda's tabk prompts, the first time it's played; null otherwise (<see cref="CodaCoach"/>).</summary>
+        public CodaCoach CodaCoach;
+        /// <summary>The motor pool's back gate has opened: the coda's on (<c>docs/design/story.md</c>, The coda).</summary>
+        public bool CodaOpen;
+        /// <summary>The back gate, once it's been placed.</summary>
+        public BackGate BackGate;
+        /// <summary>Raised when the base's last gate goes down, just before the mission's won.</summary>
+        public event System.Action CodaCleared;
         /// <summary>The call-in prompt went up just now: the game marks it seen.</summary>
         public event System.Action CallInHinted;
 
@@ -284,6 +292,13 @@ namespace PooketSlug
             for (int i = 0; i < Remotes.Count; i++) Remotes[i].Tick(dt);
             if (CallInCoach != null && CallInCoach.Tick(dt, TanksToCall > 0 && !Player.Dead, Player.CallInCharge > 0f))
                 CallInHinted?.Invoke();
+            if (CodaCoach != null)
+            {
+                PlayerTank t = Tank;
+                bool driving = t != null && t.Occupied && Player.Riding == t;
+                CodaCoach.Tick(driving, t?.Pos.x ?? Player.Pos.x, driving && Mathf.Abs(t.Vel.x) > 0.1f, driving && t.Aim.y > 0.3f,
+                    driving && t.Rounds.Main < Content.PlayerTank.MainShots, driving && t.Rounds.Specials < Content.PlayerTank.Specials);
+            }
             Spawner.SpawnAhead();
 
             for (int i = 0; i < Enemies.Count; i++)
@@ -435,6 +450,57 @@ namespace PooketSlug
             Log.Game.Info("Pilot glitched out: the real kie is freed");
             if (PilotFreed != null) PilotFreed();
             else OnBossDestroyed();
+        }
+
+        /// <summary>
+        /// kie's freed: the alarms go, the motor pool's back gate grinds open, and the coda starts, with a tabk to call
+        /// (<c>docs/design/story.md</c>, The coda). With <paramref name="prompts"/>, the first time, the call-in and the
+        /// tabk's controls are taught as you go. On a map without a coda, the mission's won.
+        /// </summary>
+        public void OpenCoda(bool prompts, bool restart = false)
+        {
+            if (Level.CodaX < 0f)
+            {
+                OnBossDestroyed();
+                return;
+            }
+            if (CodaOpen) return;
+            CodaOpen = true;
+            Level.OpenCoda();
+            BackGate?.Open();
+            BossMusicOff = false;
+            Player.InputEnabled = true;
+            TanksToCall = Mathf.Max(TanksToCall, 1);
+            if (prompts)
+            {
+                CallInCoach = new CallInCoach(false) { Delay = restart ? 1.5f : 1.2f };
+                // each prompt shows once its part of the road is in view: the gantry, the watchtower, the sandbag wall
+                float tower = Level.CodaX + 32f, wall = Level.CodaX + 50f;
+                foreach (Spawn s in Level.Spawns)
+                    if (s.Kind == SpawnKind.ToppleTower) tower = s.Pos.x;
+                for (int x = Mathf.CeilToInt(tower); x < Level.Width; x++)
+                    if (Level.Get(x, Mathf.FloorToInt(Level.TopSurfaceY(x)) - 1) == Level.Block)
+                    {
+                        wall = x;
+                        break;
+                    }
+                CodaCoach = new CodaCoach(tower - 22f, tower - 9f, wall - 9f);
+            }
+            if (!restart)
+            {
+                Scoring.Popup("THE ALARMS ARE GOING!", Player.Pos + Vector2.up * 2.6f, new Color(1f, 0.45f, 0.4f));
+                Props.Add(new SleepingKie(this, new Vector2(Level.CodaX - 3.5f, Level.TopSurfaceY(Level.CodaX - 3.5f))));
+            }
+            Log.Game.Info("The coda's open");
+        }
+
+        /// <summary>The base's last gate is down: out onto the road, and the mission's won.</summary>
+        public void OnCodaCleared()
+        {
+            Log.Game.Info("The last gate's down: Mission complete");
+            CodaCoach = null;
+            CodaCleared?.Invoke();
+            OnBossDestroyed();
         }
 
         /// <summary>The mission's last boss is beaten (the pilot glitched out): the mission's won.</summary>

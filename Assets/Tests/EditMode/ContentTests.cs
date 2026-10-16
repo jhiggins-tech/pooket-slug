@@ -142,7 +142,7 @@ namespace PooketSlug.Tests
         }
 
         [TestCase(-1)]
-        [TestCase(9)]
+        [TestCase(11)]
         public void AnUnknownEnemyIdFindsNothing(int id)
         {
             Assert.IsNull(Content.Enemy(id));
