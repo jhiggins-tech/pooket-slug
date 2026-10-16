@@ -157,6 +157,10 @@ namespace PooketSlug
                 voiceKey.text = m_Voices != null ? "TAP TO TRY THE NEXT VOICE" : "NO VOICES IN THIS BUILD: SUBTITLES ONLY";
                 m_VoiceLabel = m_VoiceButton.GetComponentInChildren<Text>();
                 m_VoiceLabel.fontSize = 10;
+                // a long voice name shrinks to fit rather than running off the button
+                m_VoiceLabel.resizeTextForBestFit = true;
+                m_VoiceLabel.resizeTextMinSize = 7;
+                m_VoiceLabel.resizeTextMaxSize = 10;
             }
 
             Ui.Show(m_Root, false);
