@@ -11,11 +11,10 @@ namespace PooketSlug
     public sealed class CrewRevealView
     {
         const float StandBeside = 1.4f, WalkSeconds = 1.6f;
-        static readonly Color Paper = new Color(0.97f, 0.95f, 0.88f), Ink = new Color(0.11f, 0.08f, 0.13f);
 
         readonly Transform m_Parent;
-        readonly RectTransform m_Root, m_Bubble;
-        readonly Text m_BubbleText;
+        readonly RectTransform m_Root;
+        readonly SpeechBubble m_Bubble; // the stage's (StageKit), over the title's world
         Transform m_Kie;
         PlayerVisual m_Visual;
         bool m_Tapped;
@@ -32,12 +31,7 @@ namespace PooketSlug
             catcher.raycastTarget = true;
             catcher.gameObject.AddComponent<Button>().onClick.AddListener(() => m_Tapped = true); // a tap anywhere
 
-            m_Bubble = Ui.Rect(m_Root, "Bubble", Ui.Middle, new Vector2(0.5f, 0f), Vector2.zero, new Vector2(150f, 30f));
-            m_Bubble.gameObject.AddComponent<Image>().color = Paper;
-            m_Bubble.gameObject.AddComponent<Outline>().effectColor = Ink;
-            m_BubbleText = Ui.Label(m_Bubble, "Text", Ui.Middle, Vector2.zero, 10, TextAnchor.MiddleCenter, Ink);
-            m_BubbleText.rectTransform.sizeDelta = new Vector2(140f, 26f);
-            m_BubbleText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            m_Bubble = new SpeechBubble(m_Root, Ui.Middle, new Vector2(150f, 30f));
             Ui.Show(m_Root, false);
         }
 
@@ -56,7 +50,7 @@ namespace PooketSlug
             m_Visual = new PlayerVisual(m_Kie, Art.SkinFor(Content.Kie, 0), SortOrder.Player - 1);
             m_Kie.position = new Vector3(m_From, m_Y, 0f);
             Ui.Show(m_Root, true);
-            Ui.Show(m_Bubble, false);
+            m_Bubble.Hide();
         }
 
         public void End()
@@ -95,12 +89,11 @@ namespace PooketSlug
             m_Visual.Apply(new AvatarPose { Facing = -1, Grounded = true, Running = walking, Anim = m_Anim, AimY = reveal.Now == CrewReveal.Shot.KiesLine ? 1 : 0 });
 
             string line = reveal.Line;
-            Ui.Show(m_Bubble, line != null);
+            m_Bubble.Say(line);
             if (line == null) return;
-            if (m_BubbleText.text != line) m_BubbleText.text = line;
             Vector3 screen = camera.WorldToScreenPoint(new Vector3(x, m_Y + 2.3f, 0f));
             if (RectTransformUtility.ScreenPointToLocalPointInRectangle(m_Root, screen, null, out Vector2 local))
-                m_Bubble.anchoredPosition = new Vector2(Mathf.Max(local.x, -m_Root.rect.width * 0.5f + 80f), local.y);
+                m_Bubble.Place(new Vector2(Mathf.Max(local.x, -m_Root.rect.width * 0.5f + 80f), local.y), local.x);
         }
     }
 }
