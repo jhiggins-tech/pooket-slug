@@ -1,6 +1,6 @@
 # Sessions and matchmaking
 
-How players find each other and what happens when things go wrong: hosting, room codes, joining, quick match, build versions, failure messages, console logs, and how to test it by hand. The code is in [`NetSession.cs`](../../../Assets/Scripts/Net/NetSession.cs) (sessions) and [`Game.cs`](../../../Assets/Scripts/Game.cs) (the screens).
+How players find each other and what happens when things go wrong: hosting, room codes, joining, quick match, build versions, failure messages, console logs, and how to test it by hand. The code is in [`NetSession.cs`](../../../Assets/Scripts/Net/NetSession.cs) (sessions) and [`Game.cs`](../../../Assets/Scripts/Game/Game.cs) (the screens).
 
 **Read this when** you're changing the lobby or matchmaking, a player can't join, or you're about to test co-op.
 
@@ -41,7 +41,7 @@ runner.StartGame(new StartGameArgs {
 
 - **Every game is in one Photon region: Australia (`au`),** the owner's choice (NET-05). Hosting, joining and quick match all set `FixedRegion` to `NetConfig.Region`. A build can name another region with `-photonRegion` (`pooket-net.json`); the workflow doesn't pass one.
 - **Photon sessions exist per region,** so a fixed region is what lets a code be just a name: everyone looks in the same place.
-- **Hosting picks a 4-letter session name** from `ABCDEFGHJKLMNPQRSTUVWXYZ` (no I or O), and that name is the code, for example `ABCD`. [`InviteCode`](../../../Assets/Scripts/Core/InviteCode.cs) makes and parses the codes, and has [tests](../verification/edit-mode-tests.md).
+- **Hosting picks a 4-letter session name** from `ABCDEFGHJKLMNPQRSTUVWXYZ` (no I or O), and that name is the code, for example `ABCD`. [`InviteCode`](../../../Assets/Scripts/Core/Lobby/InviteCode.cs) makes and parses the codes, and has [tests](../verification/edit-mode-tests.md).
 - **Older codes still parse.** Until 2026-10-14 each code carried its region, as in `ABCD-EU`; the suffix is now ignored.
 - **Players far from Australia get more lag.** That's the cost of one region.
 - **The invite link is the page URL plus `?room=CODE`.** The game reads it from `Application.absoluteURL`, so opening the link prefills the join box.
@@ -100,9 +100,9 @@ Open the browser's developer console. Lines starting with `[PooketSlug/Net]` tra
 [PooketSlug/Net] Disconnected from Photon: <NetDisconnectReason>
 ```
 
-- **Channels:** `Net` for the session, `Game` and `Audio` for the rest ([`Log.cs`](../../../Assets/Scripts/Core/Log.cs)). Builds before 2026-10-14 printed a plain `[PooketSlug]` prefix.
+- **Channels:** `Net` for the session, `Game` and `Audio` for the rest ([`Log.cs`](../../../Assets/Scripts/Core/Platform/Log.cs)). Builds before 2026-10-14 printed a plain `[PooketSlug]` prefix.
 - **Turning them up or down:** add `?log=net:debug` to the page address, or `?log=all:warn` for quiet. The levels are `debug`, `info` (the default), `warn`, `error` and `off`.
-- **`?log=game:debug` also reports the entity pools** each time one's use doubles, from 64: `[PooketSlug/Game] Projectile pool: 128 used, 11 made` ([`EntityPool.cs`](../../../Assets/Scripts/EntityPool.cs)).
+- **`?log=game:debug` also reports the entity pools** each time one's use doubles, from 64: `[PooketSlug/Game] Projectile pool: 128 used, 11 made` ([`EntityPool.cs`](../../../Assets/Scripts/World/EntityPool.cs)).
 
 Fusion and Photon log with their own prefixes, for example `[Fusion] StartGame Failed: …`, and WebSocket errors come from the browser.
 

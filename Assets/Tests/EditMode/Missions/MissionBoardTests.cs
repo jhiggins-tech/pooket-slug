@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace PooketSlug.Tests
 {
-    /// <summary>The mission screen (Core/MissionBoard.cs, docs/design/levels.md, Missions): replays and the hard setting.</summary>
+    /// <summary>The mission screen (Core/Missions/MissionBoard.cs, docs/design/levels.md, Missions): replays and the hard setting.</summary>
     public class MissionBoardTests
     {
         static readonly MissionDef Later = new MissionDef("mission-test", 200, "MISSION X", "A TEST MAP", new[] { "#" });

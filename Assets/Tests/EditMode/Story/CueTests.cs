@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace PooketSlug.Tests
 {
-    /// <summary>The cutscene cues (Core/Cues.cs): every cue a scene names does something.</summary>
+    /// <summary>The cutscene cues (Core/Story/Cues.cs): every cue a scene names does something.</summary>
     public class CueTests
     {
         static IEnumerable<string> SceneCues()

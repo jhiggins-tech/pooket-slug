@@ -29,7 +29,7 @@ Known trade-off: clients trust each other. A modified client could claim hits or
 
 ## The boundary between game and netcode
 
-- **Gameplay code never sees a Fusion type.** [`NetContracts.cs`](../../../Assets/Scripts/Core/NetContracts.cs), in the Core assembly, defines what it needs, using only Core types:
+- **Gameplay code never sees a Fusion type.** [`NetContracts.cs`](../../../Assets/Scripts/Core/Platform/NetContracts.cs), in the Core assembly, defines what it needs, using only Core types:
   - `INetLink` is used by `World`. It's made of three smaller interfaces: `ISessionView` (authority, skin, round), `ISoldierChannel` (our soldier out, remote soldiers in) and `IWorldChannel` (the shared state and the events about it).
   - `INetEvents` is the other direction: what the session tells the world. `NetSync` implements it, and the session holds it while a co-op world is playing.
   - Each event is a typed payload: `ShotEvent` (a weapon, origin and velocity), `HitReport`, `PickupGrant`, and damage as a plain number.
@@ -68,7 +68,7 @@ Sizes come from the woven assembly, where Fusion's weaver records them in words 
 | `Enemies` (`NetworkArray<NetEnemy>`, capacity 24) | `NetEnemy`: `Ref` (the enemy's id + 1, 0 = empty), `Kind` (the `EnemyDef` id), `Flags` (dying, facing, moving, engaged, grounded), `Hp`, `Pos`. 6 words each |
 | `Pickups` (`NetworkArray<NetPickup>`, capacity 16) | `NetPickup`: `Ref` (the pickup's id + 1, 0 = empty), `Kind` (the `PickupDef` id), `Pos`. 4 words each. A pickup leaves the table when the master gives it to someone |
 
-- **An enemy's or pickup's identity comes from [`NetIds`](../../../Assets/Scripts/Core/NetIds.cs).** A level spawn's id is its index in `Level.Spawns`, which every client knows without a message. Anything spawned mid-game gets the ids after those (`Spawner.SpawnEnemy`, `Spawner.SpawnPickup`), from `NextNetId`, which a new master continues from. The snapshot carries the id, so followers make the enemy or pickup on first sight.
+- **An enemy's or pickup's identity comes from [`NetIds`](../../../Assets/Scripts/Core/Platform/NetIds.cs).** A level spawn's id is its index in `Level.Spawns`, which every client knows without a message. Anything spawned mid-game gets the ids after those (`Spawner.SpawnEnemy`, `Spawner.SpawnPickup`), from `NextNetId`, which a new master continues from. The snapshot carries the id, so followers make the enemy or pickup on first sight.
 - **The tables hold what's live, not the whole level.** A slot frees when its enemy is gone or its pickup is given out, so a mission can have any number of each. The sizes are in `NetLimits` (Core). If more are live than fit, the newest wait until older ones are gone. Pickups never despawn, so a [test](../verification/edit-mode-tests.md) checks that all of Mission one's fit at once.
 - **Followers remember what they collected,** so a snapshot that arrives late doesn't bring a pickup back. A pickup that leaves the table before its grant arrives is collected then (the state beat the message).
 - **Bosses and the tanks you ride will be network objects of their own** (refactor plan, step 10). They wait for those features.

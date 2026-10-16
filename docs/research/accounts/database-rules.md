@@ -45,7 +45,7 @@ Each player has one record at `pooketSlug/players/{uid}`. Only they read and wri
 
 ## Writing it from the game
 
-This is the plan for the save code. The local half is written: the [`Profile`](../../../Assets/Scripts/Core/Profile.cs) record, its merge, and a local store behind `IProfileStore` (refactor plan step 15).
+This is the plan for the save code. The local half is written: the [`Profile`](../../../Assets/Scripts/Core/Lobby/Profile.cs) record, its merge, and a local store behind `IProfileStore` (refactor plan step 15).
 - **On sign-in:** `GET pooketSlug/players/{uid}.json?auth=<Firebase ID token>`. It returns `null` until the first save. Keep its `rev`.
 - **Merging:** take the better of each, as `Profile.Merge` does: the higher numbers, both copies' list entries, co-op if either has it, and the earlier `first`. Clears take the higher count, not the sum, since the same clears may be on both copies.
 - **First save:** `PUT` the whole record, with `rev` 1 and with `first` and `ts` both set to `{".sv": "timestamp"}`.

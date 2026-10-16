@@ -18,7 +18,7 @@ sign-in for cloud saves. Mission one is solo and teaches the game; beating it op
 - **Words players read**: "tabk", never tank, and "Trollogram", never hologram (code identifiers stay as they are).
   kie is said "k-eye".
 - **Hidden ranks**: of the 33 ranks, only Bronze, Silver, Gold, Platinum, Diamond, Master, Grandmaster and Champion
-  may be named. Never name or describe the other 25 outside `Assets/Scripts/Core/Ranks.cs`: not in docs, tests,
+  may be named. Never name or describe the other 25 outside `Assets/Scripts/Core/Lobby/Ranks.cs`: not in docs, tests,
   comments or commit messages.
 - **Public repository**: never commit Photon SDK code (licensed; CI unpacks it from the private vendor repo),
   secrets or private-repo code.
@@ -37,7 +37,7 @@ $T/weave.sh ...                           # Fusion's IL weaver over the game ass
 python3 -I $T/run_tests.py ...            # the EditMode tests outside Unity
 ```
 github.io is blocked from cloud sessions: to smoke-test a deploy, fetch the `gh-pages` branch and serve it locally
-(`smoke.mjs`, `touch.mjs`; `tools/coop.mjs` is the two-browser co-op test CI runs). New `.cs` files need a `.meta`
+(`smoke.mjs`, `touch.mjs`; `tools/coop.mjs` is the two-browser co-op test CI runs). New `.cs` files go in the folder for what they're about (Core's tests in the matching test folder) and need a `.meta`, as does a new folder
 (`tools/new_meta.py`).
 
 ## Map
@@ -46,16 +46,22 @@ Each file starts with a summary comment saying what it's for.
 
 | Where | What |
 |---|---|
-| `Core/` (assembly `PooketSlug.Core`, no references) | The rules, as plain C#, tested: `Content.cs` (soldiers, weapons, enemies, pickups as definitions with stable ids), `Definitions.cs`, `Tuning.cs` (shared feel numbers), `<name>Tuning.cs` / `*Spec.cs` (one crew member's or thing's numbers), `Controls.cs` (the kit's meters), `ArcadePad.cs` (the touch pad's logic), `Level.cs` + `Missions.cs` (maps as text), `TilePhysics.cs`, `Lives.cs`, `Debrief.cs` (XP), `Ranks.cs`, `Profile.cs` (what's saved, reveals), `Crew.cs` (who you play), `Cutscene.cs` + `Cues.cs` (scenes as data, and the cue ids), `MusicTracks.cs` / `Score.cs` / `Chip.cs` (the chip music and synth), `NetContracts.cs` / `NetIds.cs` / `InviteCode.cs` (co-op's interfaces and ids), `Spike.cs` (`?spike=` flags), `LaunchFlags.cs` (`?test=`, `?unlock=` and the rest), `PageQuery.cs` (the page address), `Rng.cs`, `Log.cs` |
-| `Game.cs` | `Bootstrap` and `Game`: the state machine (`GameState`: Title, Settings, Online, Lobby, Den, Cutscene, Playing, GameOver, Victory, Demo), the launch flags, menus to world |
-| `World/` | One play-through (`World.cs`), rebuilt on restart, split by concern: `ScrollCamera`, `Spawner`, `Combat` (shots, hits, who owns damage), `Scoring`, `NetSync` (the world's side of co-op), `Hazards`, `Liquids` (tones2's), `Coda` |
-| top level | Entities and looks: `Entity` / `EntityPool`, `Player` (your soldier), `RemotePlayer` (your partner's), `Enemies`, `Projectile`, `TankBoss` + `BossKit` (`KieBoss`, `KcajBoss`), `Pilot`, `PlayerTank` + `TankLook`, kits (`Tones2Kit`, `KieKit`, `KcajKit`, `KieRoulette`, `Weasels`), `TeamSuperShow`, `HitFeel`, `HoloLook`, `Art` + `ArtData` (ASCII pixel art), `Sfx` + `ChipSounds`, `Music` |
+| `Core/` (assembly `PooketSlug.Core`, no references) | The rules, as plain C#, tested. At its root: `Content.cs` (soldiers, weapons, enemies, pickups as definitions with stable ids), `Definitions.cs`, `Tuning.cs` (shared numbers). Then, mirroring the game's folders: `Crew/` (`Crew.cs`: who you play; `<name>Tuning.cs` and specs, `Controls.cs`: the kit's meters, `KitGuide`, `TeamSuper`, `Lives`, `AvatarPose`), `Bosses/` (the boss tabks' specs, `PilotBrain`, `BossIntroShow`, `CraterGround`), `Tabks/` (`PlayerTankSpec`, `CallInCoach`), `Missions/` (`Level.cs` + `Missions.cs`: maps as text, `MissionBoard`, `CodaCoach`), `Story/` (`Cutscene.cs` + `Cues.cs`: scenes as data and the cue ids, `CrewReveal`), `Lobby/` (`Den`, `Debrief`: XP, `Ranks`, `Profile`: what's saved and reveals, `Options`, `InviteCode`), `Audio/` (`MusicTracks` / `Score` / `Chip`: the chip music and synth, `Wav`, `MusicMidi`), `Input/` (`ArcadePad`: the touch pad's logic, `SoldierInput`), `World/` (`TilePhysics`), `Platform/` (`LaunchFlags`: `?test=`, `?unlock=` and the rest, `Spike.cs`: `?spike=` flags, `PageQuery`, `Sandbox` + `Knobs` + `SetupText`, `NetContracts` / `NetIds` / `NetConfig`: co-op's interfaces and ids, `Rng`, `Log`) |
+| `Game/` | `Game.cs`: `Bootstrap` and `Game`, the state machine (`GameState`: Title, Settings, Online, Lobby, Den, Cutscene, Playing, GameOver, Victory, Demo), the launch flags, menus to world |
+| `World/` | One play-through (`World.cs`), rebuilt on restart, split by concern: `ScrollCamera`, `Spawner`, `Combat` (shots, hits, who owns damage), `Scoring`, `NetSync` (the world's side of co-op), `Hazards`, `Liquids` (tones2's); and what every play-through is made of: `Entity` / `EntityPool`, `Projectile`, `HitFeel`, `LevelView` |
+| `Crew/` | `Shared/` (`Player`: your soldier, `RemotePlayer`: your partner's, `PlayerVisual`, `TeamSuperShow`), then one folder per crew member: `Tones2/` (kit, art, tabk guns), `Kie/` (kit, roulette), `Kcaj/` (kit) |
+| `Enemies/` | `Enemies` (the goons), `HoloLook` (Trollogram goons), `Weasels`, `Pilot` |
+| `Bosses/` | `TankBoss` (the artillery boss tabk) + `BossKit` (a crew member's attacks on it: `KieBoss`, `KcajBoss`), `CraterView` (the diggable arena spike) |
+| `Tabks/` | `PlayerTank` (your tabk) + `TankLook`, `TabkKit` (a crew member's tabk) |
+| `Missions/One/` | Mission one's own pieces: `Coda` (the coda's props) |
+| `Stage/` | `StageKit`: the shared stage for cutscenes, the den and the debrief |
+| `Art/`, `Audio/` | `Art` + `ArtData` (ASCII pixel art); `Sfx` + `ChipSounds`, `Music` |
 | `Ui/` | uGUI built in code (`Ui.cs`): `HudView`, `MenuView`, `DenView` (the lobby), `CutsceneView`, `DebriefView`, `CrewRevealView`, `DemoClip` |
 | `Input/` | Keyboard, gamepad and touch into one `SoldierInput` a frame |
 | `Net/` (assembly `PooketSlug.Net`) | Photon Fusion 2, Shared Mode: `NetSession` (host, join, quick match), `NetReplication` (`PlayerNet`, `WorldNet`, `BossNet`), `NetPrefabs` (network objects built in code) |
-| `Save/` | `LocalProfileStore` / `OptionsStore` (PlayerPrefs), `CloudAccount` (sign-in and cloud saves through the page's `pooket-auth.js`) |
+| `Save/` | `LocalProfileStore` / `OptionsStore` (PlayerPrefs), `CloudAccount` (sign-in and cloud saves through the page's `pooket-auth.js`), `SiteFile` (a text file fetched from beside the game) |
 | `Assets/Editor/WebGLBuild.cs` | The build: the scene, the WebGL template (`Assets/WebGLTemplates/PooketSlug`), the commit and secrets baked in |
-| `Assets/Tests/EditMode/` | NUnit tests against Core, run by CI before every build |
+| `Assets/Tests/EditMode/` | NUnit tests against Core, in the same folders as Core, run by CI before every build |
 | `tools/` | `pages_deploy.sh` (the gh-pages deploy), `coop.mjs` (co-op tests), `demos.mjs` (kit demo clips), `unpack_unitypackage.py`, `new_meta.py` |
 | `docs/design/` | The game design. `docs/research/`: how the pipeline, netcode, accounts and verification work, and [lessons learned](docs/research/lessons-learned.md) |
 
@@ -68,7 +74,7 @@ Each file starts with a summary comment saying what it's for.
   the room's master client runs the shared world (enemies, the boss, pickups, scroll). The others report their hits.
   World talks to the network only through `INetLink`. Things share ids by rule (`NetIds`: a level spawn's id is its
   index). Only identical builds match, so each preview is its own co-op world.
-- **Cutscenes** are data (`Cutscenes` in `Core/Cutscene.cs`: shots, lines, cues), staged by `CutsceneView`. The
+- **Cutscenes** are data (`Cutscenes` in `Core/Story/Cutscene.cs`: shots, lines, cues), staged by `CutsceneView`. The
   narrator's audio is made in the vendor repository (`voice/narration.json`) and fetched by CI; `NarratorClips`
   holds each line's length.
 - **Launch flags**, read once as the game starts: `?spike=` (spikes, `Spike.cs`) and the rest into `LaunchFlags` (Core, tested): `?test=` (crate, tank, 1up, pilot,
@@ -92,14 +98,14 @@ place on the `Cue` timeline in `BossIntroShow`. Either way its sound goes in `Sf
 **Add a mission**: a `MissionDef` in `Missions` (map rows: `Level.cs` says what each character is), its spawns,
 and where it opens (`Profile`, `MissionBoard`).
 
-**Add a crew member**: a `SoldierDef` in `Content` (stable id), their numbers in `Core/<name>Tuning.cs` with tests,
-their kit as a `<Name>Kit.cs`, art in `ArtData`, sounds in `Sfx` / `ChipSounds`, their place in `Crew`, their kit
+**Add a crew member**: a `SoldierDef` in `Content` (stable id), their numbers in `Core/Crew/<Name>Tuning.cs` with tests,
+their kit in `Crew/<Name>/`, art in `ArtData`, sounds in `Sfx` / `ChipSounds`, their place in `Crew`, their kit
 screen demos (`KitGuide`), team supers (`TeamSuper`), and their boss tabk if they have one (`BossKit`).
 
 **Add a spike**: a key in `Spike.cs` (solo only unless it says otherwise), on branch `claude/spike-<name>`. Its
 preview link with `?spike=<key>` is the Try it link.
 
-**Change what crosses the network**: the structs in `Net/` and `Core/NetContracts.cs`; content ids never change or
+**Change what crosses the network**: the structs in `Net/` and `Core/Platform/NetContracts.cs`; content ids never change or
 get reused (the tests pin them).
 
 ## Invariants and gotchas
