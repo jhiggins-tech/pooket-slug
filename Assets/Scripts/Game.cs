@@ -415,7 +415,8 @@ namespace PooketSlug
                 if (m_Den.TryPick(tapped)) Log.Game.Info("Den pick: " + tapped.Name);
                 else Sfx.Play(Sfx.Thump, 0.3f); // taken, or too late
             }
-            if (m_DenView.TakeReady() || keys.Start || soldier.FirePressed || soldier.JumpPressed)
+            bool keyReady = m_StateTime > 0.3f && (keys.Start || soldier.FirePressed || soldier.JumpPressed); // not the START that opened the den
+            if (m_DenView.TakeReady() || keyReady)
             {
                 if (m_Den.ToggleReady())
                 {

@@ -149,6 +149,7 @@ namespace PooketSlug
             m_TvCount = WorldLabel("TV countdown", TvCentre.x, TvCentre.y, 30, TextAnchor.MiddleCenter, Gold);
             m_Board = WorldLabel("Mission board", 250f, 70f, 6, TextAnchor.MiddleCenter, Ink);
             m_Board.GetComponent<Shadow>().enabled = false;
+            WorldLabel("POOKET sign", 299f, 97f, 9, TextAnchor.MiddleCenter, Gold).text = "POOKET";
             for (int i = 0; i < 2; i++)
             {
                 m_Lights[i] = Picture("Port light", 66f + i * 8f, Floor + 12f, 2f, 2f, Color.black);
@@ -186,11 +187,11 @@ namespace PooketSlug
             Vector2 half = new Vector2(StageW, StageH) * Px / 2f;
             m_Back2 = Ui.Button(m_Stage, "BACK", new Vector2(-half.x + 40f, half.y - 18f), new Vector2(64f, 22f), () => m_BackPressed = true, out Text backKey);
             backKey.text = "ESC";
-            m_Ready = Ui.Button(m_Stage, "READY", new Vector2(half.x - 56f, -half.y + 22f), new Vector2(96f, 30f), () => m_ReadyPressed = true, out Text readyKey);
+            m_Ready = Ui.Button(m_Stage, "READY", new Vector2(half.x - 56f, -half.y + 32f), new Vector2(96f, 30f), () => m_ReadyPressed = true, out Text readyKey);
             readyKey.text = "ENTER";
             m_ReadyLabel = m_Ready.GetComponentInChildren<Text>();
             m_ReadyLabel.fontSize = 16;
-            m_Card = Ui.Rect(m_Stage, "Name card", Ui.Middle, Ui.Middle, new Vector2(-half.x + 70f, -half.y + 20f), new Vector2(124f, 28f));
+            m_Card = Ui.Rect(m_Stage, "Name card", Ui.Middle, Ui.Middle, new Vector2(-half.x + 70f, -half.y + 30f), new Vector2(124f, 28f));
             var card = m_Card.gameObject.AddComponent<Image>();
             card.color = new Color(0.06f, 0.04f, 0.08f, 0.88f);
             card.raycastTarget = false;
@@ -198,7 +199,7 @@ namespace PooketSlug
             m_KitButton = Ui.Button(m_Card, "i", new Vector2(46f, 0f), new Vector2(22f, 22f), () => m_KitPressed = true, out Text kitKey);
             m_KitButton.GetComponent<Image>().sprite = Ui.Disc;
             m_KitButton.GetComponentInChildren<Text>().fontStyle = FontStyle.BoldAndItalic;
-            kitKey.text = "V";
+            kitKey.text = "B";
             Vector2 p2 = new Vector2(SeatX[1] - StageW / 2f, SeatY + 9f - StageH / 2f) * Px;
             m_HostPad = Ui.Button(m_Stage, "+ MATE", p2, new Vector2(52f, 16f), () => m_HostPressed = true, out Text hostKey);
             m_HostPad.GetComponentInChildren<Text>().fontSize = 9;
@@ -640,10 +641,10 @@ namespace PooketSlug
                 Ui.Show(m_Tags[seat], filled && (den.Mode == DenMode.Coop || seat == 0));
                 m_Tags[seat].color = PlayerColours[mine ? info.Skin : 1 - info.Skin];
             }
-            string l1 = den.Ready ? "●" : den.Pick != null ? "○" : "-";
-            string l2 = partnerSeat ? (den.Partner.Ready ? "●" : "○") : "-";
+            string l1 = den.Ready ? "READY" : den.Pick != null ? "IN" : "--"; // the console font has no dots
+            string l2 = partnerSeat ? (den.Partner.Ready ? "READY" : "IN") : "--";
             string mineTag = "P" + (den.Seat + 1), theirTag = "P" + (2 - den.Seat);
-            m_TvLights.text = den.Mode == DenMode.Crew ? "" : den.Seat == 0 ? $"{mineTag} {l1}   {theirTag} {l2}   {StartLine(den)}" : $"{theirTag} {l2}   {mineTag} {l1}   {StartLine(den)}";
+            m_TvLights.text = den.Mode == DenMode.Crew ? "" : den.Seat == 0 ? $"{mineTag} {l1}   {theirTag} {l2}\n{StartLine(den)}" : $"{theirTag} {l2}   {mineTag} {l1}\n{StartLine(den)}";
         }
 
         bool VisitorOn(int seat) => m_VisitorActor != null && m_VisitorActor.Seat == seat;
