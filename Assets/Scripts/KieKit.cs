@@ -3,8 +3,15 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// Spike (<c>?spike=kie-weasels</c>, solo only): kie's kit for a player. So far Weasel Pop: each press of FIRE
-    /// tumbles out three weasels (<see cref="WeaselPopSpec"/>) that hunt goons along the ground and pop under them.
+    /// kie's kit for a player (<c>docs/design/kits.md</c>, numbers in <see cref="KieTuning"/>): Weasel Pop (here, and
+    /// <see cref="PopWeasel"/>), Trollogram (<see cref="Trollogram"/>, <see cref="TrollDecoy"/>) and Steal
+    /// (<see cref="StealRoulette"/>).
+    /// <para>
+    /// Co-op: weasels and holograms go to the partner as shot events (<see cref="Combat.FirePlayerShot"/>'s channel).
+    /// The partner's screen throws harmless copies of the weasels (only the thrower's do damage, as with shots), and
+    /// keeps copies of the holograms so its goons shoot them too (<see cref="TrollEvent"/>). Steal lifts a weapon on
+    /// the thrower's own screen; its shots go out like any gun's.
+    /// </para>
     /// </summary>
     public static class KieKit
     {
@@ -13,9 +20,58 @@ namespace PooketSlug
         {
             WeaselPopSpec spec = KieTuning.Weasels;
             if (PopWeasel.Out(w) + spec.Count > spec.MaxOut) return false;
-            foreach (Vector2 v in spec.Volley(aim, carry)) w.Props.Add(new PopWeasel(w, muzzle, v));
+            foreach (Vector2 v in spec.Volley(aim, carry))
+            {
+                w.Props.Add(new PopWeasel(w, muzzle, v));
+                w.Net?.SendShot(new ShotEvent(Content.WeaselPop, muzzle, v));
+            }
             Sfx.Play(Sfx.WeaselThrow, 0.7f);
             return true;
+        }
+
+        /// <summary>The partner threw a weasel: a harmless copy of it here.</summary>
+        public static void CopyWeasel(World w, in ShotEvent shot)
+        {
+            w.Props.Add(new PopWeasel(w, shot.Origin, shot.Velocity, cosmetic: true));
+            Sfx.Play(Sfx.WeaselThrow, 0.35f);
+        }
+
+        /// <summary>Tells the partner what happened to one of our holograms, or to one of theirs here.</summary>
+        public static void Send(World w, TrollEvent e, TrollDecoy d) =>
+            w.Net?.SendShot(new ShotEvent(Content.Trollogram, d.Pos, TrollNet.Pack(e, d.Id, d.Facing, d.Crouching)));
+
+        /// <summary>The partner's hologram dropped, moved, blew up or switched off; or a goon hit ours on their screen.</summary>
+        public static void OnTrollEvent(World w, in ShotEvent shot)
+        {
+            TrollEvent e = TrollNet.Unpack(shot.Velocity, out int id, out int facing, out bool crouching);
+            if (e == TrollEvent.None) return;
+            TrollDecoy d = null;
+            foreach (TrollDecoy x in w.Decoys)
+                if (x.Id == id && x.Mine == (e == TrollEvent.HitYours) && x.Up) d = x;
+            switch (e)
+            {
+                case TrollEvent.Drop:
+                    if (d != null) return;
+                    RemotePlayer owner = null;
+                    foreach (RemotePlayer r in w.Remotes)
+                        if (r.Link.Soldier.Special.Behaviour == WeaponBehaviour.Trollogram) owner = r;
+                    var pose = new AvatarPose { Facing = facing, Crouching = crouching, Grounded = true };
+                    var copy = new TrollDecoy(w, shot.Origin, pose, Content.Kie, owner != null ? owner.Link.Skin : 1, id, mine: false);
+                    w.Decoys.Add(copy);
+                    w.Props.Add(copy);
+                    Sfx.Play(Sfx.TrollDrop, 0.4f);
+                    break;
+                case TrollEvent.Moved:
+                    d?.SwapTo(shot.Origin, new AvatarPose { Facing = facing, Crouching = crouching, Grounded = true });
+                    break;
+                case TrollEvent.Blown:
+                case TrollEvent.HitYours:
+                    d?.Blow();
+                    break;
+                case TrollEvent.Off:
+                    d?.SwitchOff();
+                    break;
+            }
         }
     }
 
@@ -26,6 +82,8 @@ namespace PooketSlug
     /// </summary>
     public sealed class PopWeasel : Actor
     {
+        /// <summary>A partner's weasel, copied on our screen: it pops harmlessly (theirs does the damage).</summary>
+        public readonly bool Cosmetic;
         static float s_TuneAt = -99f;
         static World s_TuneWorld;
 
@@ -33,8 +91,9 @@ namespace PooketSlug
         float m_Time, m_Fuse;
         bool m_Landed;
 
-        public PopWeasel(World world, Vector2 at, Vector2 vel) : base(world, "Weasel", at, 0.3f, 0.5f, 1)
+        public PopWeasel(World world, Vector2 at, Vector2 vel, bool cosmetic = false) : base(world, "Weasel", at, 0.3f, 0.5f, 1)
         {
+            Cosmetic = cosmetic;
             Vel = vel;
             Facing = vel.x >= 0f ? 1 : -1;
             m_Sr = AddRenderer(Visual, "Body", KieArt.Weasel[0], SortOrder.Player - 1);
@@ -45,7 +104,7 @@ namespace PooketSlug
         {
             int n = 0;
             foreach (Entity e in w.Props)
-                if (e is PopWeasel && !e.Removed) n++;
+                if (e is PopWeasel pw && !pw.Removed && !pw.Cosmetic) n++;
             return n;
         }
 
@@ -117,7 +176,7 @@ namespace PooketSlug
         void Pop()
         {
             WeaselPopSpec spec = KieTuning.Weasels;
-            World.Combat.Explode(Center, spec.BlastRadius, spec.Damage, false, spec.BlastSize);
+            World.Combat.Explode(Center, spec.BlastRadius, Cosmetic ? 0 : spec.Damage, false, spec.BlastSize);
             World.Burst(Center, 6, new Color(0.69f, 0.44f, 0.22f)); // a puff of fur
             if (s_TuneWorld != World || World.Elapsed - s_TuneAt >= spec.TuneGap)
             {
@@ -147,7 +206,7 @@ namespace PooketSlug
 namespace PooketSlug
 {
     /// <summary>
-    /// Spike (<c>?spike=kie-trollogram</c>): kie's special for a player. A tap of SP drops a hologram of him where he
+    /// kie's special for a player. A tap of SP drops a hologram of him where he
     /// stands (a charge, up to three at once); the goons shoot them instead of him while they're on screen. Holding SP
     /// swaps him with the one furthest away (free). The first thing that hits one blows it up on every goon nearby
     /// (<see cref="TrollogramSpec"/>).
@@ -156,6 +215,7 @@ namespace PooketSlug
     {
         readonly Player m_Player;
         float m_SinceSwap = 99f, m_Held = -1f;
+        int m_NextId;
 
         public Trollogram(Player player) => m_Player = player;
 
@@ -205,9 +265,10 @@ namespace PooketSlug
             {
                 case TrollAction.Drop:
                     p.Specials--;
-                    var decoy = new TrollDecoy(w, p.Pos, p.Pose, p.Def);
+                    var decoy = new TrollDecoy(w, p.Pos, p.Pose, p.Def, w.Coop ? w.Net.LocalSkin : 0, m_NextId++ & 255, mine: true);
                     w.Decoys.Add(decoy);
                     w.Props.Add(decoy);
+                    KieKit.Send(w, TrollEvent.Drop, decoy);
                     Sfx.Play(Sfx.TrollDrop, 0.8f);
                     w.Scoring.Popup("TROLLOGRAM!", p.Pos + Vector2.up * 2.2f, TrollDecoy.Tint);
                     break;
@@ -222,6 +283,7 @@ namespace PooketSlug
                     p.Vel = Vector2.zero;
                     p.Shield(KieTuning.Trollogram.SwapShield);
                     far.SwapTo(was, p.Pose);
+                    KieKit.Send(w, TrollEvent.Moved, far);
                     w.Burst(p.Center, 10, TrollDecoy.Tint);
                     w.Burst(far.Center, 10, TrollDecoy.Tint);
                     Sfx.Play(Sfx.TrollSwap, 0.8f);
@@ -245,17 +307,28 @@ namespace PooketSlug
         float m_Time, m_Gone = -1f;
         Vector2 m_Jitter;
 
-        public TrollDecoy(World world, Vector2 feet, AvatarPose pose, SoldierDef def) : base(world, "Trollogram", feet, def.HalfWidth, def.StandHeight, 1)
+        readonly SoldierDef m_Def;
+
+        /// <summary>Ours (true), or a copy of the partner's; and its number among its owner's, for co-op.</summary>
+        public readonly bool Mine;
+        public readonly int Id;
+
+        public TrollDecoy(World world, Vector2 feet, AvatarPose pose, SoldierDef def, int skin, int id, bool mine) : base(world, "Trollogram", feet, def.HalfWidth, def.StandHeight, 1)
         {
+            m_Def = def;
+            Mine = mine;
+            Id = id;
             m_Pose = Still(pose);
             Facing = pose.Facing;
             Height = pose.Crouching ? def.CrouchHeight : def.StandHeight;
-            m_Visual = new PlayerVisual(Visual, Art.SkinFor(def, 0), SortOrder.Player - 2);
+            m_Visual = new PlayerVisual(Visual, Art.SkinFor(def, skin), SortOrder.Player - 2);
             m_Parts = Visual.GetComponentsInChildren<SpriteRenderer>(true);
         }
 
         /// <summary>Standing, not yet blown up or switched off.</summary>
         public bool Up => m_Gone < 0f && !Removed;
+
+        public bool Crouching => m_Pose.Crouching;
 
         /// <summary>Is the pose it holds: frozen mid-whatever, never firing or blinking.</summary>
         static AvatarPose Still(AvatarPose p)
@@ -275,16 +348,25 @@ namespace PooketSlug
             Vel = Vector2.zero;
             m_Pose = Still(pose);
             Facing = pose.Facing;
+            Height = pose.Crouching ? m_Def.CrouchHeight : m_Def.StandHeight;
         }
 
         /// <summary>Something hostile hit it: it blows up on every goon nearby.</summary>
+        /// Its damage is dealt on its owner's screen only; a partner's copy tells the owner it was hit.
         public void Blow()
         {
             if (!Up) return;
             TrollogramSpec spec = KieTuning.Trollogram;
-            World.Combat.Explode(Center, spec.BlastRadius, spec.Damage, false, spec.BlastSize);
+            World.Combat.Explode(Center, spec.BlastRadius, Mine ? spec.Damage : 0, false, spec.BlastSize);
             World.Scoring.Popup("TROLLED!", Center + Vector2.up * 1.4f, Tint);
+            KieKit.Send(World, Mine ? TrollEvent.Blown : TrollEvent.HitYours, this);
             GoOut();
+        }
+
+        /// <summary>Switches off without a blast (the partner's, when theirs did).</summary>
+        public void SwitchOff()
+        {
+            if (Up) GoOut();
         }
 
         void GoOut()
@@ -303,7 +385,11 @@ namespace PooketSlug
                 if (m_Gone >= 0.45f) Remove();
                 return;
             }
-            if (m_Time >= KieTuning.Trollogram.Life) GoOut();
+            if (m_Time >= KieTuning.Trollogram.Life)
+            {
+                if (Mine) KieKit.Send(World, TrollEvent.Off, this);
+                GoOut();
+            }
             // it stands where it was dropped, falling if the floor wasn't under it (dropped mid-jump)
             Vel.x = 0f;
             Vel.y = Mathf.Max(Vel.y - Tuning.Physics.Gravity * dt, -Tuning.Physics.MaxFall);
@@ -347,7 +433,7 @@ namespace PooketSlug
 namespace PooketSlug
 {
     /// <summary>
-    /// Spike (<c>?spike=kie-steal</c>): kie's super for a player. SU spins a roulette over the toughest enemy on screen,
+    /// kie's super for a player. SU spins a roulette over the toughest enemy on screen,
     /// and kie lifts a weapon off it: a burst of a goon's own weapon, or a boss tank's whole cannon (<see cref="StealSpec"/>).
     /// The loot streams off it into kie and takes his primary's place until its ammo runs out.
     /// </summary>

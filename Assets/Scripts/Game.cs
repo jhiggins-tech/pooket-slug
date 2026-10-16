@@ -37,7 +37,7 @@ namespace PooketSlug
         INetSession m_Net;      // null when the build has no Photon SDK or AppId
         bool m_Coop;            // m_World is the shared co-op world
         bool m_Unlocked;        // ?unlock=coop: co-op is open for this visit, for testing
-        bool m_TankUnlocked;
+        bool m_TankUnlocked, m_CrewUnlocked; // ?unlock=crew: the CREW pick is open for this visit, for testing
         float m_OutFor;         // seconds the game has had nobody left in it (out of lives and continues)    // ?unlock=tank: a tank can be called in each mission, for testing
         bool m_TestCrate;       // ?test=crate: a crate just ahead of the start, so the co-op test sees one handed out
         bool m_TestOneUp;       // ?test=1up: a 1-up just ahead of the start
@@ -70,6 +70,9 @@ namespace PooketSlug
 
         /// <summary>Co-op shows only once Mission one has been beaten solo (progressive disclosure).</summary>
         bool CoopOpen => m_Profile.coop || m_Unlocked;
+        /// <summary>The crew opens with co-op, once Mission one is beaten solo (<c>?unlock=crew</c> opens it for testing).</summary>
+        bool CrewOpen => CoopOpen || m_CrewUnlocked;
+        SoldierDef Soldier => Crew.Pick(m_Options.Crew, CrewOpen);
         bool CoopReady => m_Net != null && CoopOpen;
 
         void Awake()
@@ -102,6 +105,7 @@ namespace PooketSlug
             string[] unlocks = (PageQuery.Get(url, "unlock") ?? "").ToLowerInvariant().Split(',');
             m_Unlocked = Array.IndexOf(unlocks, Reveals.Coop) >= 0;
             m_TankUnlocked = Array.IndexOf(unlocks, Reveals.Tank) >= 0;
+            m_CrewUnlocked = Array.IndexOf(unlocks, "crew") >= 0;
             string[] tests = (PageQuery.Get(url, "test") ?? "").ToLowerInvariant().Split(',');
             m_TestCrate = Array.IndexOf(tests, "crate") >= 0;
             m_TestOneUp = Array.IndexOf(tests, "1up") >= 0;
@@ -136,7 +140,7 @@ namespace PooketSlug
         /// <summary>A world for <paramref name="mission"/>, shared when <paramref name="net"/> is given.</summary>
         World NewWorld(MissionDef mission, INetLink net = null)
         {
-            var world = new World(m_Camera, mission, net) { TanksToCall = m_TankUnlocked || (Spike.Drive && net == null) ? 1 : 0, SkipToPilot = m_TestPilot };
+            var world = new World(m_Camera, mission, net, Soldier) { TanksToCall = m_TankUnlocked || (Spike.Drive && net == null) ? 1 : 0, SkipToPilot = m_TestPilot };
             world.BossIntro += OnBossIntro;
             world.BossFightStarted += OnBossFightStarted;
             world.TankWrecked += OnTankWrecked;
@@ -467,6 +471,13 @@ namespace PooketSlug
                         if (keys.Join) { OpenCodeEntry(""); break; }
                     }
                     if (click == MenuAction.Settings || keys.Settings) SetState(GameState.Settings);
+                    else if (CrewOpen && (click == MenuAction.Crew || soldier.SpecialPressed))
+                    {
+                        Options o = m_Options;
+                        o.Crew = Crew.Next(Soldier.Id).Id;
+                        ChangeOptions(o);
+                        Sfx.Play(Sfx.Pickup, 0.5f);
+                    }
                     else if (click == MenuAction.Play || keys.Start || soldier.FirePressed || soldier.JumpPressed) StartFromTitle();
                     break;
 
@@ -607,6 +618,8 @@ namespace PooketSlug
                 Online = m_Net != null,
                 OnlineOff = m_Net == null && NetSessions.Factory != null,
                 CoopOpen = CoopOpen,
+                CrewOpen = CrewOpen,
+                Crew = Soldier.Name.ToUpperInvariant(),
                 CoopNew = CoopOpen && !m_Profile.HasSeen(Reveals.Coop),
                 CoopJustOpened = m_CoopJustOpened,
                 InCoop = m_Coop,

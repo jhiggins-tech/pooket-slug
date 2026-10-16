@@ -39,9 +39,8 @@ namespace PooketSlug.Tests
             Assert.AreEqual("SPIKE TEST · HIT FEEL", Spike.Label);
             Spike.Configure(Page + "?spike=kie"); // kie's tank is the game's own boss now: no longer a spike
             Assert.IsNull(Spike.Label);
-            Spike.Configure(Page + "?spike=kie-weasels");
-            Assert.IsTrue(Spike.Weasels);
-            Assert.AreEqual("SPIKE TEST · WEASEL POP", Spike.Label);
+            Spike.Configure(Page + "?spike=kie-weasels,kie-trollogram,kie-steal,steal"); // kie's kit is the game's own now
+            Assert.IsNull(Spike.Label);
             Spike.Configure(Page + "?spike=chip"); // the 8-bit sounds are the game's own now: no longer a spike
             Assert.IsNull(Spike.Label);
         }
@@ -52,7 +51,6 @@ namespace PooketSlug.Tests
             Spike.Configure(Page + "?spike=drive");
             Assert.IsTrue(Spike.Drive);
             Assert.AreEqual("SPIKE TEST · YOUR TANK", Spike.Label);
-            Assert.IsNull(Spike.Soldier, "you drive it as tones2");
             Spike.Configure(Page + "?spike=hits");
             Assert.IsFalse(Spike.Drive);
         }
@@ -64,7 +62,6 @@ namespace PooketSlug.Tests
             Assert.IsTrue(Spike.Scenes);
             Assert.IsFalse(Spike.ScenesCoop);
             Assert.AreEqual("SPIKE TEST · CUTSCENES", Spike.Label);
-            Assert.IsNull(Spike.Soldier, "you play tones2, as in the opening");
             Spike.Configure(Page + "?spike=cutscenes-coop");
             Assert.IsTrue(Spike.Scenes);
             Assert.IsTrue(Spike.ScenesCoop);
@@ -80,18 +77,6 @@ namespace PooketSlug.Tests
             Assert.AreEqual("SPIKE TEST · NARRATOR", Spike.Label);
             Spike.Configure(Page + "?spike=narrator");
             Assert.IsNull(Spike.Voice);
-        }
-
-        [Test]
-        public void TheWeaselSpikeHasYouPlayKie()
-        {
-            Spike.Configure(Page);
-            Assert.IsNull(Spike.Soldier);
-            Spike.Configure(Page + "?spike=kie-weasels");
-            Assert.AreSame(Content.Kie, Spike.Soldier);
-            Spike.Configure(Page + "?spike=kie-trollogram");
-            Assert.AreSame(Content.Kie, Spike.Soldier);
-            Assert.AreEqual("SPIKE TEST · TROLLOGRAM", Spike.Label);
         }
 
         [Test]

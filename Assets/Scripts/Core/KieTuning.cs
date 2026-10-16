@@ -140,6 +140,39 @@ namespace PooketSlug
         public static bool Draws(bool up, float x, float left, float right) => up && x >= left && x <= right;
     }
 
+    /// <summary>
+    /// Co-op: what happened to one of a player's Trollograms, sent to the partner as a shot event (weapon
+    /// <see cref="Content.Trollogram"/>, the hologram's feet as its origin, and this packed into its velocity). Each
+    /// screen keeps a copy of the partner's holograms, so the goons shoot them on every screen.
+    /// </summary>
+    public enum TrollEvent
+    {
+        None,
+        /// <summary>The sender dropped a hologram, or swapped with one (it now stands at the origin).</summary>
+        Drop, Moved,
+        /// <summary>The sender's hologram blew up, or switched off.</summary>
+        Blown, Off,
+        /// <summary>A goon hit the receiver's hologram on the sender's screen: blow it up (with its damage) there.</summary>
+        HitYours,
+    }
+
+    /// <summary>Packs a <see cref="TrollEvent"/> into a shot event's velocity, and back: exact in a float.</summary>
+    public static class TrollNet
+    {
+        public static Vector2 Pack(TrollEvent e, int id, int facing, bool crouching) =>
+            new Vector2((int)e, (id & 255) * 4 + (facing > 0 ? 1 : 0) + (crouching ? 2 : 0));
+
+        public static TrollEvent Unpack(Vector2 v, out int id, out int facing, out bool crouching)
+        {
+            int bits = Mathf.RoundToInt(v.y);
+            id = bits >> 2;
+            facing = (bits & 1) != 0 ? 1 : -1;
+            crouching = (bits & 2) != 0;
+            int e = Mathf.RoundToInt(v.x);
+            return e > (int)TrollEvent.None && e <= (int)TrollEvent.HitYours ? (TrollEvent)e : TrollEvent.None;
+        }
+    }
+
     /// <summary>What a press of SP does with Trollogram (<see cref="TrollogramSpec.OnSpecial"/>).</summary>
     public enum TrollAction { Nothing, Drop, Swap, Wait }
 

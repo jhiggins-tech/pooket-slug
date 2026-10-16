@@ -180,5 +180,25 @@ namespace PooketSlug.Tests
             Assert.IsTrue(Troll.HoldSwaps(Troll.HoldToSwap));
             Assert.Greater(Troll.MaxUp, 1, "several at once");
         }
+
+        [TestCase(TrollEvent.Drop, 0, 1, false)]
+        [TestCase(TrollEvent.Moved, 37, -1, true)]
+        [TestCase(TrollEvent.HitYours, 255, 1, true)]
+        [TestCase(TrollEvent.Off, 3, -1, false)]
+        public void HologramEventsSurviveTheTripToThePartner(TrollEvent e, int id, int facing, bool crouching)
+        {
+            Vector2 v = TrollNet.Pack(e, id, facing, crouching);
+            Assert.AreEqual(e, TrollNet.Unpack(v, out int gotId, out int gotFacing, out bool gotCrouch));
+            Assert.AreEqual(id, gotId);
+            Assert.AreEqual(facing, gotFacing);
+            Assert.AreEqual(crouching, gotCrouch);
+        }
+
+        [Test]
+        public void AnUnknownHologramEventIsIgnored()
+        {
+            Assert.AreEqual(TrollEvent.None, TrollNet.Unpack(new Vector2(99f, 4f), out _, out _, out _));
+            Assert.AreEqual(TrollEvent.None, TrollNet.Unpack(Vector2.zero, out _, out _, out _));
+        }
     }
 }

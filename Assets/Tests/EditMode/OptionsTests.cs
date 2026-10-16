@@ -29,5 +29,26 @@ namespace PooketSlug.Tests
             Assert.AreEqual("SOUND  ON", Options.Label("SOUND", true));
             Assert.AreEqual("SCREEN SHAKE  OFF", Options.Label("SCREEN SHAKE", false));
         }
+
+        [Test]
+        public void TheCrewPickIsKeptWithTheSettings()
+        {
+            var o = Options.Default;
+            Assert.AreSame(Content.Tones2, Crew.Pick(o.Crew, true), "never picked: tones2");
+            o.Crew = Content.Kie.Id;
+            Options back = Options.FromBits(o.Bits);
+            Assert.AreEqual(Content.Kie.Id, back.Crew);
+            Assert.IsTrue(back.Sound && back.Shake);
+            Assert.AreSame(Content.Kie, Crew.Pick(back.Crew, true));
+            Assert.AreSame(Content.Tones2, Crew.Pick(back.Crew, false), "the crew isn't open yet: tones2");
+        }
+
+        [Test]
+        public void CrewCyclesThroughTheFreed()
+        {
+            Assert.AreSame(Content.Kie, Crew.Next(Content.Tones2.Id));
+            Assert.AreSame(Content.Tones2, Crew.Next(Content.Kie.Id));
+            Assert.AreSame(Content.Tones2, Crew.Pick(Content.Trooper.Id, true), "the trooper isn't one of the crew");
+        }
     }
 }

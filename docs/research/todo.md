@@ -112,6 +112,13 @@ C2, the refactor, is done. C1's code is written and checked locally; it goes liv
   - [x] Verify in CI: run 38730830083 (with the pilot round on top) built, deployed and passed both co-op rounds, the boss round included (2026-10-15). Smoke-tested live with no `?spike=`: weasels, copies, the roulette. On the Roadmap for review.
   - Known gap: each soldier's dropped loot shows only on their own screen.
 
+- [ ] **C12. kie's kit for real** ([kits](../design/kits.md)), queued from the Roadmap 2026-10-16: the three approved spikes, on for everyone, with the owner's review notes.
+  - [x] Weasel Pop (weasels only work on screen: one that leaves it is gone, and only goons on screen are hunted), Trollogram (tap SP for up to three holograms, which every goon shoots first while on screen; hold SP to swap with the furthest) and Steal. No `?spike=kie-*` any more (`KieKit.cs` out of `Spikes/`).
+  - [x] Picking kie: a CREW button on the title (tones2 / kie, C on a keyboard) once Mission one is beaten, like co-op; `?unlock=crew` opens it for testing (`Crew`, kept in `Options`). Asked the owner which way he wants it.
+  - [x] Co-op: weasels and holograms go to the partner as shot events. Their screen throws harmless copies of the weasels, and keeps copies of the holograms so its goons shoot them too; a goon hitting a copy tells the owner, whose hologram blows with its damage (`TrollEvent`). Partners may both play kie until the co-op lobby.
+  - [x] Verify locally: each input backend, 356 of 356 EditMode tests.
+  - [ ] Verify in CI and smoke-test the deployed build.
+
 ## Done recently
 
 - [x] GameCI → WebGL → GitHub Pages pipeline, live. Solo game played by the owner.

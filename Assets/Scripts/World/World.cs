@@ -57,7 +57,8 @@ namespace PooketSlug
         public bool Victory, BossDefeatedPending;
         public float VictoryTime;
 
-        public World(Camera camera, MissionDef mission, INetLink net = null)
+        /// <param name="soldier">Who our soldier is (the title's CREW pick); tones2 when not given.</param>
+        public World(Camera camera, MissionDef mission, INetLink net = null, SoldierDef soldier = null)
         {
             Camera = camera;
             Mission = mission;
@@ -92,10 +93,7 @@ namespace PooketSlug
                 float x = Mathf.Max(start.x + net.LocalSkin * 1.25f, View.Left + 2f);
                 start = new Vector2(x, Level.TopSurfaceY(x));
             }
-            SoldierDef soldier = Content.Tones2; // everyone is tones2 until the crew screen (docs/design/levels.md)
-            if (!Coop && Spike.Soldier != null) soldier = Spike.Soldier; // spikes are solo only
-            Player = new Player(this, soldier, start, Coop ? net.LocalSkin : 0);
-            if (!Coop && Spike.Steal) Player.Kit.FillSuper(); // the Steal spike starts charged, to try it at once
+            Player = new Player(this, soldier ?? Content.Tones2, start, Coop ? net.LocalSkin : 0); // tones2 until the crew opens (Crew)
             if (!Coop && Spike.Drive) Tank = PlayerTank.Park(this, start.x + Content.PlayerTank.HalfWidth + 4f); // a tank to climb into, a few steps ahead
             View.Tick(0f);
             Spawner.SpawnAhead();

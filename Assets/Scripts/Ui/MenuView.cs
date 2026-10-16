@@ -8,7 +8,7 @@ namespace PooketSlug
     public enum MenuScreen { None, Title, Settings, Online, Join, Connecting, Paused, GameOver, Victory }
 
     /// <summary>What a menu button (or its key) asks the game to do.</summary>
-    public enum MenuAction { None, Play, Settings, Sound, Shake, Online, Host, Join, Quick, Submit, Back, Resume, Restart, Menu }
+    public enum MenuAction { None, Play, Settings, Crew, Sound, Shake, Online, Host, Join, Quick, Submit, Back, Resume, Restart, Menu }
 
     /// <summary>What the menus show, gathered by <see cref="Game"/> each frame.</summary>
     public struct MenuInfo
@@ -23,6 +23,9 @@ namespace PooketSlug
         public bool OnlineOff;
         /// <summary>Co-op is open to this player (progressive disclosure).</summary>
         public bool CoopOpen;
+        /// <summary>The crew is open (the CREW pick shows), and who's picked.</summary>
+        public bool CrewOpen;
+        public string Crew;
         /// <summary>Co-op has opened, and its menu hasn't been visited yet.</summary>
         public bool CoopNew;
         /// <summary>This win opened co-op.</summary>
@@ -52,6 +55,8 @@ namespace PooketSlug
         readonly Image m_Dim;
         readonly RectTransform m_Title, m_Settings, m_Online, m_Join, m_Connecting, m_Paused, m_GameOver, m_Victory;
         readonly Text m_Hint, m_Controls1, m_Controls2, m_Controls3, m_OnlineOff, m_SoundLabel, m_ShakeLabel, m_Account, m_Notice, m_NewBadge, m_Status, m_Score, m_Result, m_Opened;
+        readonly Button m_SettingsButton, m_Crew;
+        readonly Text m_CrewKey, m_CrewLabel;
         readonly Button m_Play, m_Coop, m_Retry, m_GameOverMenu, m_Again, m_SecondVictory;
         readonly Text m_PlayKey, m_SettingsKey, m_SoundKey, m_ShakeKey, m_SettingsBackKey, m_CoopKey, m_HostKey, m_JoinKey, m_QuickKey, m_OnlineBackKey, m_SubmitKey, m_JoinBackKey, m_CancelKey;
         readonly Text m_ResumeKey, m_RestartKey, m_MenuKey, m_RetryKey, m_GameOverMenuKey, m_AgainKey, m_SecondKey, m_SecondLabel;
@@ -84,7 +89,9 @@ namespace PooketSlug
             m_Hint = Line(m_Title, 34f, 10, Keys);
             m_Play = Ui.Button(m_Title, "START", new Vector2(0f, -4f), Wide, () => Click(MenuAction.Play), out m_PlayKey);
             m_Coop = Ui.Button(m_Title, "CO-OP", new Vector2(85f, -4f), Narrow, () => Click(MenuAction.Online), out m_CoopKey);
-            Ui.Button(m_Title, "SETTINGS", new Vector2(0f, -48f), Narrow, () => Click(MenuAction.Settings), out m_SettingsKey);
+            m_SettingsButton = Ui.Button(m_Title, "SETTINGS", new Vector2(0f, -48f), Narrow, () => Click(MenuAction.Settings), out m_SettingsKey);
+            m_Crew = Ui.Button(m_Title, "CREW", new Vector2(-85f, -48f), Narrow, () => Click(MenuAction.Crew), out m_CrewKey);
+            m_CrewLabel = Label(m_Crew);
             m_NewBadge = Ui.Label(m_Coop.GetComponent<RectTransform>(), "New", Ui.TopRight, new Vector2(6f, 7f), 9, TextAnchor.MiddleCenter, Gold);
             m_NewBadge.text = "NEW!";
             m_OnlineOff = Line(m_Title, -90f, 9, new Color(1f, 1f, 1f, 0.6f));
@@ -185,6 +192,10 @@ namespace PooketSlug
                     Key(m_PlayKey, keys, "ENTER");
                     Key(m_CoopKey, keys, "H HOST · J JOIN · Q QUICK");
                     Key(m_SettingsKey, keys, "O");
+                    Ui.Show(m_Crew, info.CrewOpen);
+                    m_SettingsButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(info.CrewOpen ? 85f : 0f, -48f);
+                    if (info.CrewOpen) m_CrewLabel.text = "CREW: " + info.Crew;
+                    Key(m_CrewKey, keys, "C");
                     Ui.Show(m_OnlineOff, info.OnlineOff && info.CoopOpen);
                     Ui.Show(m_Account, info.Account != null);
                     if (info.Account != null && m_Account.text != info.Account) m_Account.text = info.Account;
