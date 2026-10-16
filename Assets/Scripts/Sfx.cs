@@ -8,7 +8,7 @@ namespace PooketSlug
     {
         public static AudioClip Siren, Shot, Heavy, EnemyShot, Cannon, Explosion, BigExplosion, Jump, Hurt, Hit, Pickup, Throw, Start, Victory, GameOver;
         // tones2's kit, and the extras (the hologram goons, the boss tank)
-        public static AudioClip Intro, JetLoop, Splat, RocketRumble, RocketLaunch, Glitch, Poison, Spew, Sizzle, Thump, Charge, Servo;
+        public static AudioClip IntroRise, Intro, JetLoop, Splat, RocketRumble, RocketLaunch, Glitch, Poison, Spew, Sizzle, Thump, Charge, Servo;
         // kie's kit
         public static AudioClip WeaselThrow, WeaselTune, TrollDrop, TrollSwap;
         public static bool Muted;
@@ -81,20 +81,26 @@ namespace PooketSlug
         /// playing. The lines are made by the vendor repository's CI and fetched into <c>Resources/Voice</c> by the
         /// game's (as <c>&lt;id&gt;.bytes</c>, so Unity leaves them as plain WAV bytes); a build without them stays quiet here.
         /// </summary>
-        public static void Say(string id, float delay = 0f) => Speak("Voice/" + id, 0.9f, delay);
+        public static void Say(string id, float delay = 0f) => Speak("Voice/" + id, AnnouncerVolume, delay);
+
+        /// <summary>
+        /// The recorded voices' levels. They're made peaking near full scale, far hotter than the chip sounds, so they're
+        /// turned well down to sit with them (the owner found the opening blaring at 75% in headphones, 2026-10-16).
+        /// </summary>
+        const float AnnouncerVolume = 0.5f, NarratorVolume = 0.38f;
 
         /// <summary>
         /// The cutscene narrator reads line <paramref name="id"/> (a <see cref="CutsceneLine.Voice"/>), from
         /// <c>Resources/Narration/&lt;id&gt;.bytes</c>: the narrator's own voice (voice F from the narrator voice spike), made by
         /// the vendor repository's Narration workflow and fetched like the announcer's.
         /// </summary>
-        public static void Narrate(string id) => Speak("Narration/" + id, 1f, 0f);
+        public static void Narrate(string id) => Speak("Narration/" + id, NarratorVolume, 0f);
 
         /// <summary>
         /// The cutscene narrator reads line <paramref name="id"/> in candidate voice <paramref name="voice"/> (the narrator
         /// voice spike), from <c>Resources/Narrator/&lt;voice&gt;/&lt;id&gt;.bytes</c>, fetched like the announcer's.
         /// </summary>
-        public static void Narrate(string voice, string id) => Speak("Narrator/" + voice + "/" + id, 1f, 0f);
+        public static void Narrate(string voice, string id) => Speak("Narrator/" + voice + "/" + id, NarratorVolume, 0f);
 
         /// <summary>Plays a recorded line (a WAV kept as .bytes), cutting off any still playing. Quiet if it isn't in the build.</summary>
         static void Speak(string path, float volume, float delay)

@@ -40,9 +40,10 @@ namespace PooketSlug
     }
 
     /// <summary>
-    /// A character's intro, the first time they're on screen in the story (<c>docs/design/story.md</c>, Cutscenes): at
-    /// <see cref="At"/> seconds into the shot the camera crash-zooms onto <see cref="Who"/>, their name slams up big,
-    /// time goes slow-mo, and a musical hit plays.
+    /// A character's intro, the first time they're on screen in the story (<c>docs/design/story.md</c>, Character
+    /// intros): it builds up for <see cref="CutscenePlayer.BuildUp"/> seconds first (a riser, and the camera creeping in),
+    /// then at <see cref="At"/> seconds into the shot it lands: the camera crash-zooms onto <see cref="Who"/>, their name
+    /// slams up big, time goes slow-mo, and a musical hit plays.
     /// </summary>
     public sealed class CutsceneIntro
     {
@@ -108,13 +109,14 @@ namespace PooketSlug
         /// tells it in subtitles (a voice comes later), and the keycard gets a close-up so it's clear where it sends you.
         /// </summary>
         public static readonly CutsceneDef Opening = new CutsceneDef("scene-opening",
-            new CutsceneShot("Outside the hangout", 5f,
+            new CutsceneShot("Outside the hangout", 8f,
                 new[]
                 {
-                    new CutsceneLine(1.3f, Speaker.Narrator, "Friday night. tones2's back from the snack run.", "opening-1"), // after his intro
-                    new CutsceneLine(3.2f, Speaker.Tones2, "SNACKS ARE HERE LADS"),
+                    new CutsceneLine(4.3f, Speaker.Narrator, "Friday night. tones2's back from the snack run.", "opening-1"), // after his intro
+                    new CutsceneLine(6.4f, Speaker.Tones2, "SNACKS ARE HERE LADS"),
                 },
-                intro: new CutsceneIntro(1.0f, Speaker.Tones2, "TONES2")),
+                // he walks on for a few seconds, the build-up starts at 1.5 s, and it lands at 4 s
+                intro: new CutsceneIntro(4.0f, Speaker.Tones2, "TONES2")),
             new CutsceneShot("The door", 4.5f,
                 new[]
                 {
@@ -165,8 +167,10 @@ namespace PooketSlug
         public const float TapGuard = 0.3f;
         /// <summary>How long a character's intro holds, in real seconds, and how slow the shot runs meanwhile.</summary>
         public const float IntroSeconds = 1.8f, SlowMo = 0.15f;
-        /// <summary>The cue that comes due as an intro starts: the musical hit.</summary>
-        public const string IntroCue = "intro";
+        /// <summary>How long an intro builds up before it lands, in shot seconds (the shot runs at full speed till then).</summary>
+        public const float BuildUp = 2.5f;
+        /// <summary>The cues that come due as an intro's build-up starts (the riser) and as it lands (the musical hit).</summary>
+        public const string BuildUpCue = "intro-build", IntroCue = "intro";
 
         public readonly CutsceneDef Scene;
         public readonly bool CanSkip;
@@ -193,6 +197,17 @@ namespace PooketSlug
         public int Players => m_Tapped.Length;
         public CutsceneShot Current => Done ? null : Scene.Shots[Shot];
 
+        /// <summary>How far into the build-up to the coming intro (0 to 1), or 0 if there's none building.</summary>
+        public float BuildingUp
+        {
+            get
+            {
+                CutsceneIntro intro = Current?.Intro;
+                if (intro == null || m_Intro != IntroState.Due) return 0f;
+                return UnityEngine.Mathf.Clamp01((T - (intro.At - BuildUp)) / BuildUp);
+            }
+        }
+
         /// <summary>A character's intro is playing now: the crash zoom, their name, and slow-mo.</summary>
         public bool Introducing => !Done && m_Intro == IntroState.Playing;
 
@@ -216,7 +231,7 @@ namespace PooketSlug
 
         /// <summary>
         /// <paramref name="player"/> tapped to move on. True if that moved the scene on: to the next shot, or to the
-        /// character intro still to come in this one.
+        /// build-up of the character intro still to come in this one.
         /// </summary>
         public bool Tap(int player)
         {
@@ -227,9 +242,10 @@ namespace PooketSlug
             CutsceneIntro intro = Current.Intro;
             if (intro != null && m_Intro == IntroState.Due)
             {
-                // a character's intro is never tapped past: the tap jumps to it instead
-                T = intro.At;
+                // a character's intro is never tapped past: the tap jumps to its build-up instead, and does nothing in it
                 for (int i = 0; i < m_Tapped.Length; i++) m_Tapped[i] = false;
+                if (T >= intro.At - BuildUp) return false;
+                T = intro.At - BuildUp;
                 return true;
             }
             Next();
@@ -263,6 +279,7 @@ namespace PooketSlug
             foreach (CutsceneCue cue in Current.Cues)
                 if (cue.At >= from && cue.At < T) due?.Add(cue.Id);
             CutsceneIntro intro = Current.Intro;
+            if (intro != null && m_Intro == IntroState.Due && from < intro.At - BuildUp && T >= intro.At - BuildUp) due?.Add(BuildUpCue);
             if (intro != null && m_Intro == IntroState.Due && T >= intro.At)
             {
                 m_Intro = IntroState.Playing;
