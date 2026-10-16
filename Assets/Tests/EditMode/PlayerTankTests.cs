@@ -62,6 +62,30 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void DrivingBurnsFuelAndADryTankStaysPut()
+        {
+            var fuel = new TankFuel(new PlayerTankSpec { Fuel = 2f });
+            Assert.AreEqual(1f, fuel.Fraction, 1e-4f, "every tank arrives full");
+            Assert.IsTrue(fuel.Burn(1.5f));
+            Assert.AreEqual(0.25f, fuel.Fraction, 1e-4f);
+            Assert.IsTrue(fuel.Burn(1f), "the last of it still moves the tank");
+            Assert.IsTrue(fuel.Empty);
+            Assert.AreEqual(0f, fuel.Left);
+            Assert.IsFalse(fuel.Burn(0.1f), "dry: no more driving, and nothing refills it");
+            Assert.IsFalse(fuel.Burn(0f));
+        }
+
+        [Test]
+        public void EachTankHasItsOwnFullTank()
+        {
+            var spec = new PlayerTankSpec();
+            var first = new TankFuel(spec);
+            first.Burn(spec.Fuel);
+            Assert.IsTrue(first.Empty);
+            Assert.IsFalse(new TankFuel(spec).Empty, "a called-in tank comes full");
+        }
+
+        [Test]
         public void YourTankIsItsOwnThingNotTheBoss()
         {
             Assert.IsNotNull(Content.PlayerTank);

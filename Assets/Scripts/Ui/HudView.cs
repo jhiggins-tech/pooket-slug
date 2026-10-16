@@ -50,8 +50,8 @@ namespace PooketSlug
         readonly Text m_SuperLabel, m_AbilityLabel;
         readonly Image m_SuperBack, m_SuperFill, m_RefillFill, m_AbilityBack, m_AbilityFill, m_CallBack, m_CallFill;
         // your tank's health while you're in it (spike: ?spike=drive)
-        readonly Text m_TankLabel;
-        readonly Image m_TankBack, m_TankFill;
+        readonly Text m_TankLabel, m_FuelLabel;
+        readonly Image m_TankBack, m_TankFill, m_FuelBack, m_FuelFill;
         const float MeterWidth = 60f;
         const int PopupSize = 9;
         readonly List<Image> m_Hearts = new List<Image>();
@@ -105,6 +105,9 @@ namespace PooketSlug
             m_TankLabel = Ui.Label(m_Top, "Tank", Ui.TopLeft, new Vector2(8f, -79f), 8, TextAnchor.UpperLeft, Arms);
             m_TankLabel.text = "TK";
             m_TankBack = Meter(m_Top, "Tank health", new Vector2(24f, -81f), out m_TankFill, new Color(0.55f, 0.9f, 0.45f));
+            m_FuelLabel = Ui.Label(m_Top, "Fuel", Ui.TopLeft, new Vector2(8f, -91f), 8, TextAnchor.UpperLeft, Arms);
+            m_FuelLabel.text = "FU";
+            m_FuelBack = Meter(m_Top, "Tank fuel", new Vector2(24f, -93f), out m_FuelFill, new Color(1f, 0.6f, 0.2f));
             m_CallBack = Ui.Picture(m_Root, "Call-in", null, Ui.BottomLeft, Ui.Middle, Vector2.zero, new Vector2(34f, 6f), new Color(0.1f, 0.05f, 0.08f, 0.85f));
             m_CallFill = Ui.Picture(m_CallBack.rectTransform, "Charge", null, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(1f, 0f), new Vector2(0f, 4f), new Color(1f, 0.85f, 0.3f));
             m_Banner = Ui.Label(m_Root, "Banner", Ui.Middle, new Vector2(0f, 60f), 26, TextAnchor.MiddleCenter, Gold);
@@ -294,7 +297,15 @@ namespace PooketSlug
                 }
                 Ui.Show(m_TankLabel, tank != null);
                 Ui.Show(m_TankBack, tank != null);
-                if (tank != null) m_TankFill.rectTransform.sizeDelta = new Vector2(MeterWidth * Mathf.Clamp01(tank.Hp / (float)tank.MaxHp), 4f);
+                Ui.Show(m_FuelLabel, tank != null);
+                Ui.Show(m_FuelBack, tank != null);
+                if (tank != null)
+                {
+                    m_TankFill.rectTransform.sizeDelta = new Vector2(MeterWidth * Mathf.Clamp01(tank.Hp / (float)tank.MaxHp), 4f);
+                    m_FuelFill.rectTransform.sizeDelta = new Vector2(MeterWidth * tank.Fuel.Fraction, 4f);
+                    // a dry tank's label blinks
+                    m_FuelLabel.color = tank.Fuel.Empty && (int)(Time.unscaledTime * 4f) % 2 == 0 ? Hurt : Arms;
+                }
                 Kit(p);
                 Lives(p, info.Net != null);
                 HideFrom(m_Hearts, Hearts(m_Hearts, m_NewHeart, 0, p.MaxHp, p.Hp, new Vector2(8f, -24f), 13f, 12f, Color.white));

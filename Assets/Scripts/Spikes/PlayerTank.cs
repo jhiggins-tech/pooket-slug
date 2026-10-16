@@ -8,7 +8,8 @@ namespace PooketSlug
     ///
     /// Jump into an empty tank (or press JUMP touching it) to climb in. Inside, the stick drives it and points the gun
     /// the eight ways (<see cref="TankAim"/>), FIRE shoots a shell at once, SP lobs a mortar and SU fans a barrage;
-    /// its rounds never refill (<see cref="TankRounds"/>). JUMP hops it; down and JUMP ejects. Ejected, the empty
+    /// its rounds never refill (<see cref="TankRounds"/>). JUMP hops it; down and JUMP ejects. Driving and hopping burn
+    /// fuel (<see cref="TankFuel"/>), which never refills: a dry tank stays put but still aims and fires, until you eject. Ejected, the empty
     /// tank rolls on and blows up on the first goon or wall; wrecked, it throws its driver clear and blows up. Either
     /// way it's gone.
     ///
@@ -33,12 +34,13 @@ namespace PooketSlug
 
         public State Mode { get; private set; }
         public readonly TankRounds Rounds = new TankRounds(Content.PlayerTank);
+        public readonly TankFuel Fuel = new TankFuel(Content.PlayerTank);
 
         readonly SpriteRenderer m_Hull, m_Barrel;
         readonly Transform m_BarrelPivot;
         Vector2 m_Aim;
         float m_BarrelAngle, m_FireCooldown, m_Grace, m_Runaway, m_Muzzle, m_Hint;
-        bool m_SaidEmpty;
+        bool m_SaidEmpty, m_SaidDry;
 
         PlayerTank(World world, Vector2 feet, int facing, State mode)
             : base(world, "Player tank", feet, Content.PlayerTank.HalfWidth, Content.PlayerTank.Height, Content.PlayerTank.Hp)
@@ -134,13 +136,21 @@ namespace PooketSlug
                 return;
             }
 
+            // fuel: driving burns it; dry, the tank stays put (it still aims and fires)
             float moveX = input.MoveX;
-            Vel.x = moveX * Spec.DriveSpeed;
-            if (moveX != 0f) Facing = moveX > 0f ? 1 : -1;
-            if (input.JumpPressed && Grounded)
+            bool drives = moveX != 0f && Fuel.Burn(dt);
+            Vel.x = drives ? moveX * Spec.DriveSpeed : 0f;
+            if (drives) Facing = moveX > 0f ? 1 : -1;
+            if (input.JumpPressed && Grounded && Fuel.Burn(Spec.HopFuel))
             {
                 Vel.y = Spec.HopVelocity;
                 Sfx.Play(Sfx.Jump, 0.7f);
+            }
+            if (Fuel.Empty && !m_SaidDry)
+            {
+                m_SaidDry = true;
+                World.Scoring.Popup("OUT OF FUEL!", Pos + Vector2.up * 2.4f, new Color(1f, 0.6f, 0.4f));
+                Sfx.Play(Sfx.Servo, 0.7f);
             }
             Gravity(dt);
             MoveWithTiles(dt);

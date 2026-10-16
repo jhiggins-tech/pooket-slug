@@ -19,6 +19,13 @@ namespace PooketSlug
         /// <summary>JUMP hops it, up a step or over a goon (an open question in the design: tune or drop in play).</summary>
         public float HopVelocity = 12f;
         public float HalfWidth = 1.35f, Height = 1.3f;
+        /// <summary>
+        /// Seconds of driving in a full tank, as in Pooket Tabks: each tank arrives full and never refuels. Dry, it
+        /// can't drive or hop, but can still aim and fire; ejecting is the way out (<see cref="TankFuel"/>).
+        /// </summary>
+        public float Fuel = 12f;
+        /// <summary>Seconds of fuel a hop burns.</summary>
+        public float HopFuel = 0.5f;
 
         /// <summary>Rounds for the whole ride: they never refill.</summary>
         public int MainShots = 5, Specials = 3, Supers = 1;
@@ -71,6 +78,34 @@ namespace PooketSlug
 
         /// <summary>The aim as an angle in degrees, 0 to the right, counterclockwise.</summary>
         public static float Angle(Vector2 aim) => Mathf.Atan2(aim.y, aim.x) * Mathf.Rad2Deg;
+    }
+
+    /// <summary>A tank's fuel (<see cref="PlayerTankSpec.Fuel"/>): driving burns it, nothing refills it, and dry, the tank stays put.</summary>
+    public sealed class TankFuel
+    {
+        public readonly float Max;
+        public float Left { get; private set; }
+
+        public TankFuel(PlayerTankSpec spec)
+        {
+            Max = Mathf.Max(0.01f, spec.Fuel);
+            Left = Max;
+        }
+
+        public bool Empty => Left <= 0f;
+        /// <summary>How full, 0 to 1.</summary>
+        public float Fraction => Mathf.Clamp01(Left / Max);
+
+        /// <summary>
+        /// Burns <paramref name="seconds"/> of fuel, if there's any left. False when the tank is already dry; the last of
+        /// it still moves the tank, so a tank never stalls short of its full drive.
+        /// </summary>
+        public bool Burn(float seconds)
+        {
+            if (Empty) return false;
+            Left = Mathf.Max(0f, Left - Mathf.Max(0f, seconds));
+            return true;
+        }
     }
 
     /// <summary>A tank's rounds for the ride (<see cref="PlayerTankSpec"/>): spent one at a time, never refilled.</summary>
