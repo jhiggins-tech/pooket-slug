@@ -86,8 +86,8 @@ lines in the vendor repo's `voice/narration.json` and their lengths in `Narrator
 (ids ride the network: never change or reuse one), its sprite in `Art` / `ArtData` (keyed by the projectile's id),
 its sound in `Sfx` / `ChipSounds`, and the kit that fires it.
 
-**Add a sound cue to a scene or the boss intro**: its constant in `Cues`, and what it does where it's staged
-(`CutsceneView`, or `BossIntroShow` for the intro).
+**Add a sound cue**: in a scene, its constant in `Cues` and what it does in `CutsceneView`; in the boss intro, its
+place on the `Cue` timeline in `BossIntroShow`. Either way its sound goes in `Sfx` / `ChipSounds`.
 
 **Add a mission**: a `MissionDef` in `Missions` (map rows: `Level.cs` says what each character is), its spawns,
 and where it opens (`Profile`, `MissionBoard`).
