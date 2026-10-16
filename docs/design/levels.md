@@ -30,7 +30,7 @@ Up: [Design](README.md)
 
 - **Missions don't change with two players.** The same mission is simply easier with two.
 - **The late missions get too hard for one player,** so beating them needs co-op.
-- **Every cleared mission from Mission two on gets a hard setting,** tuned for two players, which also needs co-op. Mission one, solo only, has none (default, asked 2026-10-16).
+- **Every cleared mission from Mission two on gets a hard setting,** tuned for two players, which also needs co-op. Mission one, solo only, has none (owner, 2026-10-16).
 
 ## Building a map
 
