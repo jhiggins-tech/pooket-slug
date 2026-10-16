@@ -119,10 +119,11 @@ C2, the refactor, is done. C1's code is written and checked locally; it goes liv
   - [x] Verify locally: each input backend, 356 of 356 EditMode tests.
   - [x] Verify in CI and smoke-test the deployed build (9ab7e7f, 2026-10-16): CREW on the title picks kie, who plays with weasels and Trollograms. The smoke test caught START keeping tones2 (the title's world was built once); a pick now rebuilds it. On the Roadmap for review. Co-op is unit-tested only so far (the hologram events), not yet played on two phones.
 
-- [ ] **C13. The lobby for real** ([lobby](../design/lobby.md)), queued from the Roadmap 2026-10-16: the gaming den, from the approved second pass.
+- [x] **C13. The lobby for real** ([lobby](../design/lobby.md)), queued from the Roadmap 2026-10-16: the gaming den, from the approved second pass.
   - [x] `Den` (Core, pure): the couch is the pick (the last soldier played is already sat there), READY presses START, zoom into the TV; co-op: each phone runs its own den, the host is P1 on the left, a 3-2-1 countdown once both seats are ready, the host wins a tie and a partner in the mission keeps their soldier. `DenBits`: the bits, never the same twice running. 11 tests.
   - [x] `DenView`: the den painted side-on (couch, big TV, the cube console and its cables, the loft and ladder, the roller door, the mission board), tones2's slushie corner and kie's bench and hutch with their idle loops, the six other corners wrecked and dark; tap a crewmate to sit them down (loft crew drop down), the name card with ⓘ, the empty second controller hosts a room, a partner's crewmate you haven't freed walks in as a visitor.
   - [x] Wired in: START (and CREW, with no mission) go through the den once the crew's open; co-op goes Online → den → mission, with the den's flags on each player's soldier (`NetDen`; `NetRound` 0 while in the den). `tools/coop.mjs` presses Enter in each den.
+  - [x] Verify in CI and live (6c6438d, 2026-10-16): built and deployed; the co-op test's host-and-join and boss rounds both go through the den and pass. Played live with `?unlock=crew`: swap to kie, the idle loops and a bit, READY into the opening. The smoke test caught the TV's missing dot glyphs and the buttons' keys cut off at the bottom; fixed. Approved by the owner.
   - Not in this pass: the first-visit and move-in beats, the couch fist bump, spectators on the TV, the host changing the mission, copying the invite from the TV.
 
 ## Done recently
