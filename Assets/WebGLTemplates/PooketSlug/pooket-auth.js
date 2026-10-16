@@ -180,6 +180,8 @@
     return {
       version: rec.version || 1,
       coop: rec.coop === true,
+      xp: typeof rec.xp === "number" ? Math.max(0, rec.xp | 0) : 0,
+      rank: typeof rec.rank === "number" ? Math.max(0, rec.rank | 0) : 0,
       missions: missions,
       seen: Object.keys(rec.seen || {}),
       first: typeof rec.first === "number" ? rec.first : 0,
@@ -189,7 +191,8 @@
 
   /** The fields of the record the game owns, from its profile. Lists the rules would refuse are left out. */
   function fromProfile(p) {
-    var fields = { version: Math.max(1, Math.min(1000, p.version | 0)), coop: p.coop === true };
+    var fields = { version: Math.max(1, Math.min(1000, p.version | 0)), coop: p.coop === true,
+      xp: Math.min(1000000000, Math.max(0, p.xp | 0)), rank: Math.min(1000, Math.max(0, p.rank | 0)) };
     var missions = {};
     (p.missions || []).forEach(function (r) {
       var setting = SETTINGS[r.setting];
@@ -266,9 +269,7 @@
     var name = playerName();
     if (cloud.rev === 0) {
       // The first save makes the whole record.
-      fields.xp = 0;
       fields.tokens = 0;
-      fields.rank = 0;
       fields.first = SERVER_TIME;
       if (name) fields.name = name;
       r = await db("PUT", recordPath(), fields);

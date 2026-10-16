@@ -154,6 +154,7 @@ namespace PooketSlug
                 foreach (Enemy e in w.Enemies)
                 {
                     if (!e.Shootable || !Overlaps(e.Bounds, p.Pos, p.Radius)) continue;
+                    if (!p.Cosmetic) w.ShotsHit++;
                     if (p.Def.ContactDamage)
                     {
                         if (!p.Cosmetic) DamageEnemy(e, p.Damage); // a partner's shot is theirs to report; here it just sparks

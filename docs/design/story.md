@@ -164,6 +164,8 @@ Mission one's debrief, the first time: the tally, then XP and rank are revealed 
 
 On a replay, the debrief is the same screen without the first-time lines and the sign-in step, and with any new looks tokens shown.
 
+**Built** (2026-10-16, `Core/Debrief.cs`, `Ui/DebriefView.cs`): after every solo win, `?test=debrief` to try it. XP is placeholder: 200 for the clear, 300 for kie freed, 1 a kill. Rank is the record's stages beaten: a first clear climbs one rung (4 stages), a replay one stage, using the ladder ported from Pooket Tabks (`Core/Ranks.cs`). The sign-in step shows on every debrief while the player is signed out, since step 4 says it asks again. Looks tokens aren't in yet.
+
 ## Two of the crew
 
 The third reveal: co-op exists ([reveals](#reveals-are-story-beats)). It plays once, ever, the first time the title screen loads after Mission one is beaten, which is usually straight after [the first debrief](#the-first-debrief). If the game is closed during the debrief, it plays the next time the title screen loads. Draft, 2026-10-15. About 8 seconds, four shots, played on the title screen itself: the title is the stage, so the menu grows in front of the player. A tap moves on; it can't be skipped, but it's short.

@@ -55,6 +55,8 @@ namespace PooketSlug
         /// <summary>The mission being played; its map is <see cref="Level"/>.</summary>
         public readonly MissionDef Mission;
         public float Elapsed;
+        /// <summary>For the debrief's tally: our soldier's kills, and shots fired and landed (bullets, shells and drops).</summary>
+        public int Kills, ShotsFired, ShotsHit;
         /// <summary>Where the checkpoint our soldier has passed stands, or -1 (see <see cref="Checkpoint"/>).</summary>
         public float CheckpointX = -1f;
         public bool Victory, BossDefeatedPending;
@@ -176,6 +178,7 @@ namespace PooketSlug
         /// <summary>Our soldier killed an enemy: it charges the super, and lands with a hit-stop.</summary>
         public void OnPlayerKill(Enemy e)
         {
+            Kills++;
             Player.Kit.AddKill();
             HitFeel.Kill(e);
             HitStop(e.MaxHp >= Tuning.Impact.BigHp ? Tuning.Impact.BigKillStop : Tuning.Impact.KillStop);
@@ -518,6 +521,7 @@ namespace PooketSlug
 
         public Projectile SpawnProjectile(ProjectileDef def, Vector2 pos, Vector2 vel, bool hostile, bool cosmetic = false)
         {
+            if (!hostile && !cosmetic) ShotsFired++;
             Projectile p = m_ProjectilePool.Get();
             p.Launch(def, pos, vel, hostile, cosmetic);
             Projectiles.Add(p);

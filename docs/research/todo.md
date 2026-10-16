@@ -39,7 +39,8 @@ C2, the refactor, is done. C1's code is written and checked locally; it goes liv
   - [x] Bridge: `PooketAuth.jslib` (`PS_AuthInit`, `PS_Save`, `PS_SignOut`) and the `PooketAuth` receiver, `CloudAccount`.
   - [x] Game: `CloudProfileStore` saves to this browser and, when signed in, the cloud; the cloud's copy is merged in on sign-in and after a refused save. The title screen says who's signed in.
   - [x] Build: `-googleClientId` / `-firebaseApiKey` / `-firebaseDbUrl` from the repository variables. `WebGLBuild` writes them to `pooket-config.js` next to the page, so `WriteNetConfig` is untouched.
-  - [ ] Not yet: the friends board, and XP, rank, crew, cosmetics and the tally (the game doesn't have them yet; the first save writes zeros, and later saves leave them alone).
+  - [x] XP and rank (stages beaten) save with the record since the debrief (2026-10-16); both only ever go up.
+  - [ ] Not yet: the friends board, and crew, cosmetics and the tally (the game doesn't have them yet; the first save writes zeros, and later saves leave them alone).
   - [ ] Verify:
     - [x] compile locally (no errors or warnings, each input backend)
     - [x] drive the page against the database emulator with the live rules ([`auth-page.mjs`](verification/tools/auth-page.mjs): 22 of 22)

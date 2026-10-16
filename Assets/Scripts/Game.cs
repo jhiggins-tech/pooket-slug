@@ -42,6 +42,7 @@ namespace PooketSlug
         bool m_TestCrate;       // ?test=crate: a crate just ahead of the start, so the co-op test sees one handed out
         bool m_TestTank;        // ?test=tank: a tank of your own parked just ahead of the start, and one call-in
         bool m_TestOneUp;       // ?test=1up: a 1-up just ahead of the start
+        bool m_TestDebrief;     // ?test=debrief: the mission's won as it starts, so the debrief shows (as if it's the first)
         bool m_TestCoda;        // ?test=coda: a game starts at the coda, the tabk run after the boss, with its prompts
         bool m_TestBoss;        // ?test=boss: a game starts just before the boss's arena (co-op too: the co-op test's boss round)
         bool m_TestPilot;       // ?test=pilot: the same, and the tank's wrecked as it wakes, so the pilot round starts at once
@@ -60,6 +61,8 @@ namespace PooketSlug
         Options m_Options;
         Profile m_Profile;
         bool m_CoopJustOpened; // this run's win opened co-op
+        DebriefPlayer m_Debrief; // a won solo run's debrief, while it's up
+        DebriefView m_DebriefView;
         MissionDef m_Mission = Missions.One; // the mission a solo game plays; a shared game plays the host's
         string m_PageUrl;      // the page's address without its query, for invite links
         // the boss intro under way (docs/design/tanks.md): seconds since it began, whether it's the full one, and the name card
@@ -136,12 +139,14 @@ namespace PooketSlug
             m_TestBoss = m_TestPilot || Array.IndexOf(tests, "boss") >= 0;
             m_TestReveal = Array.IndexOf(tests, "reveal") >= 0;
             m_TestCoda = Array.IndexOf(tests, "coda") >= 0;
+            m_TestDebrief = Array.IndexOf(tests, "debrief") >= 0;
             m_TestScene = Array.IndexOf(tests, "scene") >= 0;
 
             m_World = NewWorld(m_Mission);
             m_Hud = new HudView(transform);
             m_Menu = new MenuView(transform);
             m_SceneView = new CutsceneView(transform);
+            m_DebriefView = new DebriefView(transform);
             m_DenView = new DenView(transform);
             m_PageUrl = PageUrl();
             string folder = PageQuery.Folder(url);
@@ -246,6 +251,7 @@ namespace PooketSlug
             Sfx.Play(Sfx.Start);
             if (!m_SceneSaidStart) Sfx.Say("mission-start", 0.3f); // the opening's caption card already called it
             m_SceneSaidStart = false;
+            if (m_TestDebrief) m_World.OnBossDestroyed();
             if (Spike.Music)
             {
                 Music.Silence();
@@ -258,7 +264,7 @@ namespace PooketSlug
         void StartFromTitle()
         {
             // ?test=boss, pilot and team are for trying something at once: they start without the opening
-            if (m_Mission == Missions.One && !m_TestBoss && !m_TestTeam && !m_TestCoda) PlayScene(Cutscenes.Opening, false, StartSolo);
+            if (m_Mission == Missions.One && !m_TestBoss && !m_TestTeam && !m_TestCoda && !m_TestDebrief) PlayScene(Cutscenes.Opening, false, StartSolo);
             else StartSolo();
         }
 
@@ -969,6 +975,11 @@ namespace PooketSlug
                     else if (m_World.Victory && m_World.VictoryTime > 1f) EndRun(GameState.Victory);
                     break;
 
+                case GameState.Victory when m_Debrief != null:
+                    m_World.Tick(dt, soldier);
+                    TickDebrief(dt, keys, soldier);
+                    break;
+
                 case GameState.GameOver:
                 case GameState.Victory:
                     bool ready = m_StateTime > 1.2f; // so a button mashed at the end doesn't skip the screen
@@ -1043,7 +1054,8 @@ namespace PooketSlug
             });
 
             // The sign-in button sits over the game, on the title screen and settings only.
-            bool account = (m_State == GameState.Title || m_State == GameState.Settings) && !m_KitOpen;
+            bool account = (m_State == GameState.Title || m_State == GameState.Settings) && !m_KitOpen ||
+                           m_Debrief != null && (m_Debrief.Now == DebriefPlayer.Part.SignIn || m_Debrief.Now == DebriefPlayer.Part.Continue) && m_Debrief.Result.OfferSignIn;
             if (account != m_AccountShown)
             {
                 m_AccountShown = account;
@@ -1063,7 +1075,7 @@ namespace PooketSlug
                 case GameState.Lobby: return MenuScreen.Connecting;
                 case GameState.Playing: return m_Paused ? MenuScreen.Paused : MenuScreen.None;
                 case GameState.GameOver: return MenuScreen.GameOver;
-                case GameState.Victory: return MenuScreen.Victory;
+                case GameState.Victory: return m_Debrief != null ? MenuScreen.None : MenuScreen.Victory;
                 default: return MenuScreen.None;
             }
         }
@@ -1083,10 +1095,65 @@ namespace PooketSlug
         {
             SetState(state);
             if (state == GameState.GameOver) Music.Silence();
-            bool wasOpen = m_Profile.coop;
-            m_Profile.RecordRun(m_World.Mission, Setting.Normal, m_World.Scoring.Points, won: state == GameState.Victory, solo: !m_Coop);
+            bool wasOpen = m_Profile.coop, won = state == GameState.Victory;
+            int best = m_Profile.Best(m_World.Mission), clears = m_Profile.Clears(m_World.Mission);
+            m_Profile.RecordRun(m_World.Mission, Setting.Normal, m_World.Scoring.Points, won, solo: !m_Coop);
             m_CoopJustOpened = !wasOpen && m_Profile.coop;
+            if (won && !m_Coop) Debrief(best, firstClear: clears == 0 || m_TestDebrief);
             m_Store.Save(m_Profile);
+        }
+
+        /// <summary>Profile key: the first debrief's been shown (kie's lines are for that one).</summary>
+        const string DebriefSeen = "debrief";
+
+        /// <summary>
+        /// A won solo run: its XP and rank go on the profile, and the debrief shows them (docs/design/story.md, The
+        /// first debrief). Co-op wins keep the plain victory screen for now.
+        /// </summary>
+        void Debrief(int bestBefore, bool firstClear)
+        {
+            World w = m_World;
+            int score = w.Scoring.Points;
+            var result = new DebriefResult
+            {
+                Score = score, Best = Math.Max(bestBefore, score), NewBest = score > bestBefore && bestBefore > 0,
+                Seconds = Mathf.FloorToInt(w.Elapsed), Kills = w.Kills,
+                Accuracy = w.ShotsFired > 0 ? Mathf.Clamp01(w.ShotsHit / (float)w.ShotsFired) : -1f,
+                Lives = w.Player.Lives.Lives, Continues = w.Player.Lives.Continues,
+                Xp = Progression.XpFor(true, w.Mission == Missions.One ? Content.Kie.Name : null, w.Kills),
+                XpBefore = m_Profile.xp, ClimbBefore = m_Profile.rank,
+                First = !m_Profile.HasSeen(DebriefSeen) || m_TestDebrief,
+                OfferSignIn = m_Account.Available && !m_Account.SignedIn,
+            };
+            int climb = Progression.ClimbFor(true, firstClear);
+            result.ClimbAfter = result.ClimbBefore + climb;
+            m_Profile.Award(result.XpGained, climb);
+            m_Profile.MarkSeen(DebriefSeen);
+            Log.Game.Info("Debrief: " + result.XpGained + " XP, " + climb + " stages up the ladder" + (result.RankedUp ? ", a rank up" : ""));
+            m_Debrief = new DebriefPlayer(result);
+            m_DebriefView.Show(m_Debrief, m_CoopJustOpened);
+        }
+
+        /// <summary>The debrief: taps fill each part and move on; CONTINUE goes to the title screen.</summary>
+        void TickDebrief(float dt, MenuInput keys, SoldierInput soldier)
+        {
+            bool tap = m_DebriefView.TakeTap() || keys.Start || soldier.FirePressed || soldier.JumpPressed;
+            bool leave = m_DebriefView.TakeLeave() || (m_Debrief.Now == DebriefPlayer.Part.Continue && m_StateTime > 1.2f && (tap || keys.Back));
+            if (leave)
+            {
+                CloseDebrief();
+                ToTitle();
+                return;
+            }
+            m_Debrief.Tick(dt);
+            if (tap) m_Debrief.Tap();
+            m_DebriefView.Refresh();
+        }
+
+        void CloseDebrief()
+        {
+            m_Debrief = null;
+            m_DebriefView.Hide();
         }
     }
 }

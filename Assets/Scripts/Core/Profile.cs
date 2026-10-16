@@ -45,6 +45,10 @@ namespace PooketSlug
         public List<MissionRecord> missions = new List<MissionRecord>();
         /// <summary>Reveals already shown, so each plays once (progressive disclosure).</summary>
         public List<string> seen = new List<string>();
+        /// <summary>Career XP (<see cref="Progression"/>).</summary>
+        public int xp;
+        /// <summary>Stages beaten: how far up the rank ladder (<see cref="Progression.RankAt"/>). Never goes down.</summary>
+        public int rank;
         /// <summary>First played and last saved, in Unix milliseconds; 0 until the first save.</summary>
         public long first, ts;
 
@@ -76,6 +80,13 @@ namespace PooketSlug
             if (won && solo && mission == Missions.One) coop = true;
         }
 
+        /// <summary>Adds a run's XP, and its climb up the rank ladder.</summary>
+        public void Award(int xpGained, int stages)
+        {
+            xp += Math.Max(0, xpGained);
+            rank += Math.Max(0, stages);
+        }
+
         public bool HasSeen(string reveal) => seen.Contains(reveal);
 
         /// <summary>Marks a reveal as shown. False if it already had been.</summary>
@@ -93,6 +104,8 @@ namespace PooketSlug
             other.Repair();
             version = Math.Max(version, other.version);
             coop |= other.coop;
+            xp = Math.Max(xp, other.xp); // the same runs may be on both, so never add them up
+            rank = Math.Max(rank, other.rank);
             foreach (MissionRecord theirs in other.missions)
             {
                 int i = Find(theirs.mission, theirs.setting);

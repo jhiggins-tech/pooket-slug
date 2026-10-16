@@ -26,6 +26,7 @@ namespace PooketSlug
             if (m_Drops == null) m_Drops = new EntityPool<Droplet>(() => new Droplet(m_World), 128);
             Droplet d = m_Drops.Get();
             d.Launch(pos, vel, gravity, damage, push, kind, cosmetic);
+            if (!cosmetic && kind != DropKind.Splash) m_World.ShotsFired++;
             m_World.Effects.Add(d);
         }
 
@@ -158,6 +159,7 @@ namespace PooketSlug
         void Soak(Enemy e, Vector2 at)
         {
             Remove();
+            World.ShotsHit++;
             e.Soak += m_Damage;
             while (e.Soak >= 1f && e.Shootable)
             {
