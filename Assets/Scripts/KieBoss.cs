@@ -22,7 +22,7 @@ namespace PooketSlug
     /// drops its own soldier's loot, so the wheel takes from everyone at once.
     /// </para>
     /// </summary>
-    public sealed class KieBoss
+    public sealed class KieBoss : IBossKit
     {
         static KieTankSpec Spec => Content.KieTank;
 
@@ -68,6 +68,9 @@ namespace PooketSlug
 
         /// <summary>Follower: whether the authority's tank shows its landing marker.</summary>
         public static bool MarkerShown(int netState) => KieRoulette.MarkerShown(netState);
+        public bool ShowsMarker(int netState) => MarkerShown(netState);
+
+        public string Name => Content.BossTank.Name;
 
         /// <summary>Every screen: follow the roulette as the authority runs it (<see cref="KieRoulette.ApplyNet"/>).</summary>
         public void ApplyNet(int state, float progress, int drops) => m_Roulette.ApplyNet(state, progress, drops);
