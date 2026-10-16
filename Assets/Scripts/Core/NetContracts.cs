@@ -142,6 +142,8 @@ namespace PooketSlug
         /// <summary>Our taps in a co-op cutscene (<see cref="CutsceneSync.Pack"/>); 0 when we're in none.</summary>
         void SendScene(int taps);
         void SendShot(in ShotEvent shot);
+        /// <summary>Our own points: the kills our soldier made (the shared score is everyone's, <see cref="IWorldChannel.Score"/>).</summary>
+        void SendScore(int points);
     }
 
     /// <summary>The shared world: written by the authority, read by everyone else, plus the events about it.</summary>
@@ -194,6 +196,8 @@ namespace PooketSlug
         Vector2 Vel { get; }
         int PoseFlags { get; }
         int Hp { get; }
+        /// <summary>Their own points (<see cref="ISoldierChannel.SendScore"/>).</summary>
+        int Score { get; }
         int Skin { get; }
         /// <summary>Their tank (<see cref="TankPose"/>, packed; 0 for none) and where it is.</summary>
         int TankFlags { get; }

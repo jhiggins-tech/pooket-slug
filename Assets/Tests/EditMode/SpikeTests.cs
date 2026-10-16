@@ -54,6 +54,17 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void KcajsSpikeIsItsOwn()
+        {
+            Spike.Configure(Page + "?spike=kcaj");
+            Assert.IsTrue(Spike.Kcaj);
+            Assert.IsFalse(Spike.Craters || Spike.Music || Spike.CallIn || Spike.Partner);
+            Assert.AreEqual("SPIKE TEST · KCAJ: HYPERFIXATE + UNMEDICATED", Spike.Label);
+            Spike.Configure(Page);
+            Assert.IsFalse(Spike.Kcaj);
+        }
+
+        [Test]
         public void TheCallInSpikeIsItsOwn()
         {
             Spike.Configure(Page + "?spike=callin");
@@ -61,6 +72,14 @@ namespace PooketSlug.Tests
             Assert.AreEqual("SPIKE TEST · TABK CALL-IN", Spike.Label);
             Spike.Configure(Page + "?spike=call");
             Assert.IsFalse(Spike.CallIn);
+        }
+
+        [Test]
+        public void ThePartnerArrowIsASpike()
+        {
+            Spike.Configure(Page + "?spike=partner");
+            Assert.IsTrue(Spike.Partner);
+            Assert.AreEqual("SPIKE TEST · PARTNER ARROW", Spike.Label);
         }
 
         [Test]

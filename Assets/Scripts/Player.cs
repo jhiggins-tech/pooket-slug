@@ -45,6 +45,9 @@ namespace PooketSlug
         readonly Spew m_Spew;
         // kie's kit (spike)
         readonly Trollogram m_Troll;
+        // kcaj's special and super, borrowed by whoever's playing (?spike=kcaj, solo)
+        readonly KcajBeam m_Beam;
+        readonly KcajPills m_Pills;
 
         public Player(World world, SoldierDef def, Vector2 feet, int skin)
             : base(world, "Player", feet, def.HalfWidth, def.StandHeight, def.MaxHp)
@@ -52,10 +55,17 @@ namespace PooketSlug
             Def = def;
             Kit = new KitMeters(def.StartSpecials, def.SpecialMax, def.SpecialRefill, Tuning.Kit.SuperKills, def.Ability != null ? def.AbilityCooldown : 0f);
             m_Visual = new PlayerVisual(Visual, Art.SkinFor(def, skin), SortOrder.Player);
+            bool kcaj = Spike.Kcaj && world.Net == null; // spikes are solo only
             if (def.Primary.Behaviour == WeaponBehaviour.Jet) m_Jet = new WaterJet(this, Tones2Tuning.Jet);
-            if (def.Special.Behaviour == WeaponBehaviour.RocketJump) m_Rocket = new RocketJump(this, Tones2Tuning.Rocket);
-            if (def.Super != null && def.Super.Behaviour == WeaponBehaviour.Spew) m_Spew = new Spew(this, Tones2Tuning.Spew);
-            if (def.Special.Behaviour == WeaponBehaviour.Trollogram) m_Troll = new Trollogram(this);
+            if (!kcaj && def.Special.Behaviour == WeaponBehaviour.RocketJump) m_Rocket = new RocketJump(this, Tones2Tuning.Rocket);
+            if (!kcaj && def.Super != null && def.Super.Behaviour == WeaponBehaviour.Spew) m_Spew = new Spew(this, Tones2Tuning.Spew);
+            if (!kcaj && def.Special.Behaviour == WeaponBehaviour.Trollogram) m_Troll = new Trollogram(this);
+            if (kcaj)
+            {
+                m_Beam = new KcajBeam(this, KcajTuning.Beam);
+                m_Pills = new KcajPills(this, KcajTuning.Pills);
+                while (!Kit.SuperReady) Kit.AddKill(); // the super's ready from the start, to try it
+            }
             Grounded = true; // spawned standing on the ground (matters for the title-screen pose)
         }
 
@@ -94,8 +104,10 @@ namespace PooketSlug
 
         public override void Tick(float dt)
         {
+            m_Pills?.Tick(dt); // the rain carries on whatever happens to him
             if (Dead)
             {
+                m_Beam?.Cancel();
                 m_CallIn.Reset();
                 m_Jet?.Tick(dt, false);
                 DeadTime += dt;
@@ -119,20 +131,22 @@ namespace PooketSlug
 
             // --- horizontal ---
             bool rooted = m_Rocket != null && m_Rocket.Rooted; // shaking before the rocket jump
+            bool fixated = m_Beam != null && m_Beam.Locked; // kcaj's beam is stuck on something: he only shuffles
             Crouching = Grounded && down && !rooted;
             Height = Crouching ? Def.CrouchHeight : Def.StandHeight;
             float speed = Crouching ? Def.CrawlSpeed : Def.RunSpeed;
             if (SlowTimer > 0f) speed *= Tones2Tuning.Jet.SplashSlow;
+            if (fixated) speed *= KcajTuning.Beam.WalkScale;
             if (m_Knock > 0f) m_Knock -= dt; // knocked back: the push carries on for a moment
             else Vel.x = rooted ? 0f : moveX * speed;
-            if (moveX != 0f && !rooted && m_Knock <= 0f) Facing = moveX > 0f ? 1 : -1;
+            if (moveX != 0f && !rooted && !fixated && m_Knock <= 0f) Facing = moveX > 0f ? 1 : -1;
             SlowTimer -= dt;
 
             // --- jumping (with coyote time + input buffering) ---
             m_Coyote = Grounded ? Tuning.Soldier.CoyoteTime : m_Coyote - dt;
             m_JumpBuffer = input.JumpPressed ? Tuning.Soldier.JumpBuffer : m_JumpBuffer - dt;
             m_DropThrough -= dt;
-            if (m_JumpBuffer > 0f && m_Coyote > 0f && !rooted)
+            if (m_JumpBuffer > 0f && m_Coyote > 0f && !rooted && !fixated)
             {
                 if (down && TilePhysics.OnBridge(World.Level, Pos, HalfW))
                 {
@@ -164,9 +178,9 @@ namespace PooketSlug
 
             m_FireCooldown -= dt;
             bool gun = GunAmmo > 0;
-            m_Jet?.Tick(dt, input.Fire && !gun && !rooted && !Spewing);
+            m_Jet?.Tick(dt, input.Fire && !gun && !rooted && !Spewing && !fixated);
             bool wantsFire = gun ? input.Fire : (input.FirePressed || input.Fire);
-            if (wantsFire && m_FireCooldown <= 0f && (gun || m_Jet == null) && !rooted && !Spewing) Fire(gun ? Gun : Def.Primary);
+            if (wantsFire && m_FireCooldown <= 0f && (gun || m_Jet == null) && !rooted && !Spewing && !fixated) Fire(gun ? Gun : Def.Primary);
 
             // SP: the special, or with the stick down and a tank to call, a held call-in
             Kit.Tick(dt);
@@ -174,7 +188,11 @@ namespace PooketSlug
             bool special = sp == CallInGesture.Result.FireSpecial;
             if (sp == CallInGesture.Result.Called) World.CallTank(Pos);
             else if (sp == CallInGesture.Result.Cancelled) Sfx.Play(Sfx.Hurt, 0.25f);
-            if (m_Rocket != null)
+            if (m_Beam != null)
+            {
+                m_Beam.Tick(dt, special, input.Special);
+            }
+            else if (m_Rocket != null)
             {
                 m_Rocket.Tick(dt, special && !Spewing);
             }
@@ -191,7 +209,15 @@ namespace PooketSlug
 
             if (input.SuperPressed && Kit.SuperReady)
             {
-                if (Def.Super != null && Def.Super.Behaviour == WeaponBehaviour.Steal)
+                if (m_Pills != null)
+                {
+                    if (!m_Pills.Raining && Kit.UseSuper())
+                    {
+                        World.Scoring.Popup("UNMEDICATED!", Pos + Vector2.up * 2.2f, KcajArt.Beam);
+                        m_Pills.Start();
+                    }
+                }
+                else if (Def.Super != null && Def.Super.Behaviour == WeaponBehaviour.Steal)
                 {
                     if (StealRoulette.Start(World, this)) Kit.UseSuper(); // nobody to rob: the super isn't spent
                 }
@@ -213,6 +239,7 @@ namespace PooketSlug
 
         void Board(PlayerTank tank)
         {
+            m_Beam?.Cancel();
             Riding = tank;
             m_CallIn.Reset();
             m_Jet?.Tick(0f, false);
@@ -427,6 +454,8 @@ namespace PooketSlug
         public override void Render()
         {
             Go.SetActive(Riding == null);
+            m_Pills?.Render();
+            m_Beam?.Render();
             if (Riding != null) return;
             base.Render();
             if (m_Rocket != null) Go.transform.localPosition += (Vector3)m_Rocket.ShakeOffset;

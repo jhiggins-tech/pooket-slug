@@ -3,6 +3,9 @@
 //   quick mode:          both press Q (quick match).
 //   boss mode:           as code mode, but both start at the boss (?test=boss) and fight it: B must see the boss
 //                        tank's turret and shots from A's world. Nobody leaves.
+//   dropin mode:         spike drop-in: A starts alone and fights its way in, then B joins the mission under way. B
+//                        must drop in partway with its own lives and a score of its own at 0, both play on, and
+//                        (reported, not required: kills aren't certain) each sees the other's own score. Nobody leaves.
 //   scene mode:          as code mode, but both sit down in the den together and start at once, with ?test=scene, so
 //                        a stand-in scene plays on both phones (Mission one is single player only, so its own scenes
 //                        never play in co-op): both tap through it, and it must move on for both, together, each shot
@@ -19,8 +22,8 @@ const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PW_PATH || 'playwright');
 
 const [base, out, mode = 'code'] = process.argv.slice(2);
-const BOSS = mode === 'boss', SCENE = mode === 'scene';
-const url = base + (base.includes('?') ? '&' : '?') + 'unlock=coop&test=' + (BOSS ? 'boss' : SCENE ? 'crate,scene' : 'crate');
+const BOSS = mode === 'boss', SCENE = mode === 'scene', DROPIN = mode === 'dropin';
+const url = base + (base.includes('?') ? '&' : '?') + 'unlock=coop&test=' + (BOSS ? 'boss' : SCENE ? 'crate,scene' : 'crate') + (DROPIN ? '&spike=dropin,partner' : '');
 fs.mkdirSync(out, { recursive: true });
 const T0 = Date.now();
 const t = () => ((Date.now() - T0) / 1000).toFixed(1).padStart(6);
@@ -28,7 +31,9 @@ const TAG = String.raw`\[PooketSlug(?:/\w+)?\]`; // "[PooketSlug/Net] …" (olde
 const ARGS = ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--autoplay-policy=no-user-gesture-required'];
 
 // Each check is false until it passes; result.json records them all.
-const checks = BOSS
+const checks = DROPIN
+  ? { hostOnline: false, guestOnline: false, joined: false, droppedIn: false, played: false }
+  : BOSS
   ? { hostOnline: false, guestOnline: false, joined: false, played: false, bossIntro: false, bossFought: false, bossFollowed: false, bossFired: false }
   : SCENE
     ? { hostOnline: false, guestOnline: false, joined: false, bothInScene: false, waited: false, tappedThrough: false, together: false, played: false }
@@ -136,6 +141,7 @@ try {
   else {
     await denStart(A);
     await A.page.waitForTimeout(3000);
+    if (DROPIN) await play(A, 'ArrowRight', 20000); // well into the mission before B turns up
   }
   await shot(A, '1-online');
 
@@ -176,6 +182,17 @@ try {
     await Promise.all([play(A, 'ArrowRight', 4000), play(B, 'ArrowRight', 4000)]);
     await Promise.all([shot(A, '4-playing'), shot(B, '4-playing')]);
     checks.played = ![...A.logs, ...B.logs].some(l => /\[pageerror\]|Disconnected from Photon|Session ended/.test(l));
+  } else if (DROPIN) {
+    const line = await waitLog(B, /Dropped in to a mission under way/, 15000);
+    checks.droppedIn = !!line;
+    console.log(`${t()} drop-in: ${line ? line.replace(/^.*Dropped in/, 'dropped in') : 'NO'}`);
+    await Promise.all([play(A, 'ArrowRight', 8000), play(B, 'ArrowRight', 8000)]);
+    await Promise.all([shot(A, '3-dropped-in'), shot(B, '3-dropped-in')]);
+    await Promise.all([play(A, null, 6000), play(B, null, 6000)]);
+    await Promise.all([shot(A, '4-own-scores'), shot(B, '4-own-scores')]);
+    checks.played = ![...A.logs, ...B.logs].some(l => /\[pageerror\]|Disconnected from Photon|Session ended/.test(l));
+    const scored = p => p.logs.some(l => /First points of our own/.test(l)), seen = p => p.logs.some(l => /own score: \d+/.test(l));
+    console.log(`${t()} own scores: A scored ${scored(A)}, B saw it ${seen(B)}; B scored ${scored(B)}, A saw it ${seen(A)}`);
   } else if (BOSS) {
     // Both walk up past the gate, far enough for the camera to show the whole tank (it wakes then), and fight
     // from there. B's tank follows A's (its network object) and fires when A's does.

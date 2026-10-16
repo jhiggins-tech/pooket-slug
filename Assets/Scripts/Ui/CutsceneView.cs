@@ -287,40 +287,42 @@ namespace PooketSlug
             return s;
         }
 
-        /// <summary>Plays the sounds and the one-off staging for cues that just came due.</summary>
+        /// <summary>Plays the sounds and the one-off staging for cues that just came due (<see cref="Cues"/>).</summary>
         public void Cue(string id)
         {
-            switch (id)
+            if (Cues.TryEffect(id, out CueEffect e))
             {
-                case "door": Sfx.Play(Sfx.Thump, 0.7f); break;
-                case "static": Sfx.Play(Sfx.Glitch, 0.4f); m_FlickerUntil = m_Clock + FlickerFor; break;
-                case "drop": Sfx.Play(Sfx.Splat, 0.6f); break;
-                case "goon": Sfx.Play(Sfx.Glitch, 0.5f); break;
-                case "jet": Sfx.Play(Sfx.Splat, 0.8f); break;
-                case "glitch": Sfx.Play(Sfx.Glitch, 0.7f); m_GoonDiedAt = m_Player.T; break;
-                case "card-drop": Sfx.Play(Sfx.Pickup, 0.6f); break;
-                case "card-up": Sfx.Play(Sfx.Pickup, 0.9f); break;
-                case "crush": Sfx.Play(Sfx.Hit, 0.7f); break;
-                case "card": Sfx.Play(Sfx.Thump, 1f); break;
-                case "shutter": Sfx.Play(Sfx.Servo, 0.8f); Sfx.Play(Sfx.RocketRumble, 0.35f); break;
-                case "hum": Sfx.Play(Sfx.Charge, 0.25f); break;
-                case "engine": Sfx.Play(Sfx.RocketRumble, 0.7f); break;
-                case "hatch": Sfx.Play(Sfx.Thump, 0.5f); break;
-                case "slam": Sfx.Play(Sfx.Thump, 1f); Sfx.Play(Sfx.Hit, 0.5f); break;
-                case "turret": Sfx.Play(Sfx.Servo, 0.7f); break;
-                case "cage": Sfx.Play(Sfx.Charge, 0.6f); break;
-                case "kie-drop": Sfx.Play(Sfx.Thump, 0.9f); break;
-                case "snacks": Sfx.Play(Sfx.Pickup, 0.5f); break;
-                case "rip": Sfx.Play(Sfx.Glitch, 0.6f); Sfx.Play(Sfx.Hit, 0.5f); break;
-                case "drone": Sfx.Play(Sfx.RocketRumble, 0.5f); break;
-                case "lift": Sfx.Play(Sfx.Servo, 0.8f); break;
-                case "remote": Sfx.Play(Sfx.Pickup, 0.8f); break;
-                case "alarm": Sfx.Play(Sfx.Siren, 0.4f); break;
-                case CutscenePlayer.BuildUpCue: Sfx.Play(Sfx.IntroRise, 0.5f); break;
-                case CutscenePlayer.IntroCue: Sfx.Play(Sfx.Intro, 0.5f); break;
-                default:
-                    if (id.StartsWith("say:")) Sfx.Say(id.Substring(4));
-                    break;
+                Play(e.Sound, e.Volume);
+                Play(e.Sound2, e.Volume2);
+                if ((e.Staging & CueStaging.Flicker) != 0) m_FlickerUntil = m_Clock + FlickerFor;
+                if ((e.Staging & CueStaging.GoonGlitches) != 0) m_GoonDiedAt = m_Player.T;
+            }
+            else if (Cues.SaidLine(id) is string line) Sfx.Say(line);
+            else Log.Game.Warn("Cutscene cue with nothing to do: " + id);
+        }
+
+        static void Play(CueSound sound, float volume)
+        {
+            AudioClip clip = ClipOf(sound);
+            if (clip != null) Sfx.Play(clip, volume);
+        }
+
+        static AudioClip ClipOf(CueSound sound)
+        {
+            switch (sound)
+            {
+                case CueSound.Thump: return Sfx.Thump;
+                case CueSound.Glitch: return Sfx.Glitch;
+                case CueSound.Splat: return Sfx.Splat;
+                case CueSound.Pickup: return Sfx.Pickup;
+                case CueSound.Hit: return Sfx.Hit;
+                case CueSound.Servo: return Sfx.Servo;
+                case CueSound.RocketRumble: return Sfx.RocketRumble;
+                case CueSound.Charge: return Sfx.Charge;
+                case CueSound.Siren: return Sfx.Siren;
+                case CueSound.IntroRise: return Sfx.IntroRise;
+                case CueSound.Intro: return Sfx.Intro;
+                default: return null;
             }
         }
 

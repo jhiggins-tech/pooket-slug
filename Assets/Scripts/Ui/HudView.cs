@@ -64,7 +64,7 @@ namespace PooketSlug
         const int PopupSize = 9;
         readonly List<Image> m_Hearts = new List<Image>();
         readonly List<Text> m_Popups = new List<Text>();
-        int m_Points = -1, m_HiScore = -1, m_Seconds = -1, m_FpsShown = -1;
+        int m_Points = -1, m_OwnShown = -1, m_HiScore = -1, m_Seconds = -1, m_FpsShown = -1;
         int m_ArmsGun = -1, m_ArmsAmmo = -1, m_ArmsSpecials = -1, m_ArmsTank = -1;
         bool m_MutedShown;
         readonly System.Func<Text> m_NewPopup, m_NewPartnerLabel, m_NewTag;
@@ -77,6 +77,14 @@ namespace PooketSlug
         readonly List<Text> m_PartnerLabels = new List<Text>(), m_Tags = new List<Text>();
         readonly List<Image> m_PartnerHearts = new List<Image>();
         string m_StatusKey;
+
+        // the partner beacon (spike coop-camera): an arrow to a partner who's off screen, and their warnings
+        static readonly Color Low = new Color(1f, 0.3f, 0.25f), AwayGrey = new Color(0.75f, 0.75f, 0.8f);
+        readonly RectTransform m_Beacons;
+        readonly List<Image> m_Arrows = new List<Image>(), m_GhostMarks = new List<Image>();
+        readonly List<Text> m_ArrowLabels = new List<Text>(), m_Warnings = new List<Text>();
+        readonly System.Func<Image> m_NewArrow, m_NewGhostMark;
+        readonly System.Func<Text> m_NewArrowLabel, m_NewWarning;
 
         // touch pad
         readonly RectTransform m_Pad;
@@ -155,6 +163,12 @@ namespace PooketSlug
             m_DownNote = Ui.Label(m_Top, "Down note", Ui.Middle, new Vector2(0f, 10f), 10, TextAnchor.MiddleCenter, Color.white);
             m_Lives = Ui.Label(m_Top, "Lives", Ui.TopLeft, new Vector2(78f, -22f), 10, TextAnchor.UpperLeft, Arms);
             m_Leave = Ui.Label(m_Coop, "Leave", Ui.Middle, new Vector2(0f, -16f), 12, TextAnchor.MiddleCenter, Color.white);
+
+            m_Beacons = Ui.Fill(m_Top, "Partner beacon");
+            m_NewArrow = () => Ui.Picture(m_Beacons, "Arrow", Ui.Arrow, Ui.BottomLeft, Ui.Middle, Vector2.zero, new Vector2(18f, 18f), Color.white);
+            m_NewGhostMark = () => Ui.Picture(m_Beacons, "Pretend partner", Ui.Disc, Ui.BottomLeft, new Vector2(0.5f, 0f), Vector2.zero, new Vector2(14f, 22f), new Color(0.45f, 0.72f, 1f, 0.55f));
+            m_NewArrowLabel = () => Ui.Label(m_Beacons, "Arrow label", Ui.BottomLeft, Vector2.zero, 8, TextAnchor.MiddleCenter, Color.white);
+            m_NewWarning = () => Ui.Label(m_Beacons, "Warning", Ui.BottomLeft, Vector2.zero, 8, TextAnchor.MiddleCenter, Low);
 
             m_Build = Ui.Label(m_Root, "Build", Ui.BottomLeft, new Vector2(6f, 14f), 8, TextAnchor.UpperLeft, Faint);
             m_Build.text = "v" + Application.version + " · Unity " + Application.unityVersion + " · built with GameCI";
@@ -340,7 +354,14 @@ namespace PooketSlug
             if (info.InGame)
             {
                 int points = w.Scoring.Points;
-                if (points != m_Points) m_Score.text = "SCORE " + (m_Points = points).ToString("000000");
+                bool own = Spike.DropIn && info.Net != null; // spike drop-in: our own points beside the shared score
+                int ownPoints = own ? w.OwnPoints : -1;
+                if (points != m_Points || ownPoints != m_OwnShown)
+                {
+                    m_Points = points;
+                    m_OwnShown = ownPoints;
+                    m_Score.text = own ? "SCORE " + DropIn.Points(points) + "  YOU " + DropIn.Points(w.OwnPoints) : "SCORE " + points.ToString("000000");
+                }
                 int hi = Mathf.Max(info.HiScore, points);
                 if (hi != m_HiScore) m_Hi.text = "HI " + (m_HiScore = hi).ToString("000000");
                 int secs = Mathf.FloorToInt(w.Elapsed);
@@ -383,6 +404,8 @@ namespace PooketSlug
 
                 Ui.Show(m_Coop, info.Net != null);
                 if (info.Net != null) Coop(w, cam, info);
+                Ui.Show(m_Beacons, Spike.Partner);
+                if (Spike.Partner) Beacons(w, cam, info);
             }
 
             bool starting = info.StateTime < (info.Note != null ? 4f : 2.2f) && !info.Paused;
@@ -429,7 +452,7 @@ namespace PooketSlug
 
                 Text tag = Pooled(m_Tags, row, m_NewTag);
                 tag.rectTransform.anchoredPosition = Ui.FromScreen(cam.WorldToScreenPoint(new Vector3(r.Pos.x, r.Pos.y + 1.9f, 0f)));
-                tag.text = name;
+                tag.text = Spike.DropIn ? name + "  " + DropIn.Points(r.Link.Score) : name;
                 tag.color = SkinColors[skin];
                 row++;
             }
@@ -456,6 +479,86 @@ namespace PooketSlug
 
             Ui.Show(m_Leave, info.LeaveArmed);
             if (info.LeaveArmed) m_Leave.text = GameInput.TouchActive ? "TAP EXIT AGAIN TO LEAVE THE GAME" : "PRESS ESC AGAIN TO LEAVE THE GAME";
+        }
+
+        /// <summary>
+        /// Spike coop-camera: each partner off screen gets an arrow at the edge pointing at them, with how far off they are;
+        /// one on screen gets their warnings under their tag. Alone, a pretend partner (<see cref="PartnerGhost"/>) stands in.
+        /// </summary>
+        void Beacons(World w, Camera cam, in HudInfo info)
+        {
+            float halfH = Tuning.Camera.ViewHeight * 0.5f, halfW = w.View.HalfWidth;
+            Vector3 c = cam.transform.position;
+            var view = new Rect(c.x - halfW, c.y - halfH, 2f * halfW, 2f * halfH);
+            int n = 0, ghosts = 0;
+            if (info.Net != null)
+            {
+                foreach (RemotePlayer r in w.Remotes)
+                {
+                    int skin = Mathf.Clamp(r.Link.Skin, 0, 1);
+                    Beacon(cam, view, n++, r.Pos, r.Height, skin == 0 ? "P1" : "P2", SkinColors[skin], r.LowHealth, r.Away);
+                }
+            }
+            else if (info.Playing)
+            {
+                PartnerGhost.State g = PartnerGhost.At(w.Elapsed, w.Player.Pos, halfW);
+                bool low = PartnerBeacon.IsLow(g.Hp, g.MaxHp);
+                if (Beacon(cam, view, n++, g.Pos, 1.6f, "P2", SkinColors[1], low, g.Away))
+                {
+                    // on screen: a stand-in for the soldier, and its tag
+                    Image mark = Pooled(m_GhostMarks, ghosts++, m_NewGhostMark);
+                    mark.rectTransform.anchoredPosition = Ui.FromScreen(cam.WorldToScreenPoint(new Vector3(g.Pos.x, g.Pos.y, 0f)));
+                    Text tag = Pooled(m_ArrowLabels, n - 1, m_NewArrowLabel);
+                    tag.rectTransform.anchoredPosition = Ui.FromScreen(cam.WorldToScreenPoint(new Vector3(g.Pos.x, g.Pos.y + 1.9f, 0f)));
+                    tag.text = "P2 (PRETEND)";
+                    tag.color = SkinColors[1];
+                }
+            }
+            HideFrom(m_GhostMarks, ghosts);
+            HideFrom(m_Arrows, n);
+            HideFrom(m_ArrowLabels, n);
+            HideFrom(m_Warnings, n);
+        }
+
+        /// <summary>One partner's beacon, slot <paramref name="i"/>. Returns true when they're on screen.</summary>
+        bool Beacon(Camera cam, Rect view, int i, Vector2 feet, float height, string name, Color colour, bool low, bool away)
+        {
+            bool on = PartnerBeacon.OnScreen(view, feet, height);
+            bool blink = (int)(Time.unscaledTime * 4f) % 2 == 0;
+            Image arrow = Pooled(m_Arrows, i, m_NewArrow);
+            Text label = Pooled(m_ArrowLabels, i, m_NewArrowLabel);
+            Text warning = Pooled(m_Warnings, i, m_NewWarning);
+            Vector2 at; // where the warning goes, on the HUD
+            if (on)
+            {
+                Ui.Show(arrow, false);
+                Ui.Show(label, false); // their own tag is already over them
+                at = Ui.FromScreen(cam.WorldToScreenPoint(new Vector3(feet.x, feet.y + height + 1.0f, 0f)));
+            }
+            else
+            {
+                Vector2 edge = PartnerBeacon.EdgePoint(view, feet + Vector2.up * (height * 0.5f), out float angle);
+                Vector2 hud = Ui.FromScreen(cam.WorldToScreenPoint(new Vector3(edge.x, edge.y, 0f)));
+                arrow.rectTransform.anchoredPosition = hud;
+                arrow.rectTransform.localEulerAngles = new Vector3(0f, 0f, angle);
+                arrow.color = low && blink ? Low : away ? AwayGrey : colour;
+                // the label sits just inside the arrow, toward the middle of the screen
+                Vector2 inward = -new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
+                Vector2 spot = hud + inward * 22f;
+                label.rectTransform.anchoredPosition = spot;
+                label.text = name + "  " + PartnerBeacon.Metres(view, feet) + "M";
+                label.color = colour;
+                at = spot + new Vector2(0f, -10f);
+            }
+            string words = away && low ? "AWAY · LOW HEALTH" : away ? "AWAY" : low ? "LOW HEALTH" : null;
+            Ui.Show(warning, words != null && (!low || blink || away));
+            if (words != null)
+            {
+                if (warning.text != words) warning.text = words;
+                warning.color = low && blink ? Low : away ? AwayGrey : Low;
+                warning.rectTransform.anchoredPosition = at;
+            }
+            return on;
         }
 
         /// <summary>Score and pickup popups, floating where they happened in the world.</summary>

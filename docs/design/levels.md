@@ -14,6 +14,7 @@ Up: [Design](README.md)
 - **Every mission has the same shape:** a run through the map, then the boss arena. The crewmate's tabk comes first, then its Trollogram pilot ([tabks](tanks.md#tabk-bosses)). Freeing the crewmate ends the fight. Mission one then has a short coda, a tabk run out of the base ([the coda](story.md#the-coda)), and the debrief follows.
 - **A checkpoint at the boss door.** Lose the boss fight and you restart at the arena, not at the start of the run.
 - **Replays:** you can play any mission you've cleared again, for score, XP, rank and stats. Your best score and your clears are kept for each mission.
+- **The mission screen** opens from MISSIONS on the title and from the den's mission board: a card for each mission reached (its number, where it's set, best score and clears, and SOLO ONLY on Mission one), then the next mission's card, COMING SOON until it's built. A mission is reached once the one before it is cleared, so nothing further on shows. From the title PLAY goes on to the den; from the board, PICK puts the mission on it. A card's hard setting shows once it's open (a cleared mission from Mission two on, in co-op). **Built** 2026-10-16 (`Core/MissionBoard.cs`, `MenuView.RefreshMissions`); not yet: the host's pick in a co-op room, so hard can't be reached until then.
 
 ## Mission one: the military base
 
@@ -70,7 +71,7 @@ The game shows only what the player has already met. Nothing on the title screen
 | Online | Hidden | Host, join, quick match, browse, watch | |
 | Crew | tones2, with no crew screen | The crew screen: tones2 and kie | One more per mission |
 | Tabks | Never mentioned | tones2's tabk, and the call-in | One more per mission |
-| Missions | Mission one | Replays, hard settings, the next mission | One more per crewmate |
+| Missions | Mission one | Replays, the next mission | One more per crewmate, and hard settings from Mission two on |
 | Progress | High score | XP, rank, looks, leaderboard | Hidden ranks appear as you reach them |
 
 **Invite links respect the order.** Suppose a friend who hasn't beaten Mission one opens your invite link. The game tells them co-op opens after Mission one, and starts it for them, so nothing ahead of them is spoiled.

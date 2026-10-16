@@ -19,6 +19,7 @@ namespace PooketSlug
         readonly HashSet<int> m_GonePickups = new HashSet<int>();  // collected here: a late snapshot mustn't bring them back
         readonly HashSet<int> m_SeenIds = new HashSet<int>();
         readonly HashSet<int> m_DeadIds = new HashSet<int>();
+        readonly HashSet<int> m_PartnerScored = new HashSet<int>();
         bool m_BossFollowed;
 
         public NetSync(World world) => m_World = world;
@@ -46,6 +47,8 @@ namespace PooketSlug
                 if (!known) remotes.Add(new RemotePlayer(w, links[j]));
             }
             w.Player.Skin = Net.LocalSkin;
+            foreach (RemotePlayer r in remotes)
+                if (r.Link.Score > 0 && m_PartnerScored.Add(r.Link.PlayerId)) Log.Net.Info($"Player {r.Link.PlayerId}'s own score: {r.Link.Score}"); // the drop-in round looks for it
 
             if (w.IsAuthority) return;
 
@@ -118,8 +121,13 @@ namespace PooketSlug
             PlayerTank tank = w.Tank != null && !w.Tank.Removed ? w.Tank : null;
             TankPose tankPose = tank != null ? tank.Pose : default;
             tankPose.Blown = w.TanksBlown;
-            Net.SendAvatar(w.Player.Def, w.Player.Pos, w.Player.Vel, w.Player.Pose.Pack(), w.Player.Hp, tankPose.Pack(),
+            // with the pose, whether we're here: our page's focus, and a beat that only changes while the game runs
+            AvatarPose pose = w.Player.Pose;
+            pose.Away = !Application.isFocused;
+            pose.Beat = PartnerBeacon.BeatAt(Time.unscaledTime);
+            Net.SendAvatar(w.Player.Def, w.Player.Pos, w.Player.Vel, pose.Pack(), w.Player.Hp, tankPose.Pack(),
                 tank != null ? tank.Pos : w.LastTankPos);
+            Net.SendScore(w.OwnPoints);
             if (!w.IsAuthority) return;
             Net.Mission = w.Mission.NetId;
             Net.CamX = w.View.X;

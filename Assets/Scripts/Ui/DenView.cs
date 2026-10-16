@@ -127,7 +127,7 @@ namespace PooketSlug
         bool m_BitSaidHolo;
 
         SoldierDef m_Picked;
-        bool m_ReadyPressed, m_BackPressed, m_KitPressed, m_HostPressed;
+        bool m_ReadyPressed, m_BackPressed, m_KitPressed, m_HostPressed, m_BoardPressed;
 
         public DenView(Transform parent)
         {
@@ -177,6 +177,14 @@ namespace PooketSlug
                 b.onClick.AddListener(() => m_Picked = s.Soldier);
                 m_StationTaps.Add(b);
             }
+
+            // the mission board, over the stations: a tap opens the mission screen
+            RectTransform board = Ui.Rect(m_World, "Tap mission board", Vector2.zero, Vector2.zero, new Vector2(234f, 54f) * Px, new Vector2(32f, 30f) * Px);
+            board.gameObject.AddComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
+            var boardTap = board.gameObject.AddComponent<Button>();
+            boardTap.transition = Selectable.Transition.None;
+            boardTap.navigation = new Navigation { mode = Navigation.Mode.None };
+            boardTap.onClick.AddListener(() => m_BoardPressed = true);
 
             m_Visitor = new Figure(m_World, "Visitor");
             m_Dim = Ui.Picture(m_Stage, "Fade", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, new Color(0f, 0f, 0f, 0f));
@@ -261,7 +269,7 @@ namespace PooketSlug
             m_NextBit = Mathf.Lerp(DenBits.MinGap, DenBits.MaxGap, (float)m_Rng.NextDouble()) * 0.5f; // the first comes sooner
             m_Clock = 0f;
             m_Picked = null;
-            m_ReadyPressed = m_BackPressed = m_KitPressed = m_HostPressed = false;
+            m_ReadyPressed = m_BackPressed = m_KitPressed = m_HostPressed = m_BoardPressed = false;
             m_World.localScale = Vector3.one;
             m_World.anchoredPosition = Vector2.zero;
             Ui.Show(m_Root, true);
@@ -292,6 +300,8 @@ namespace PooketSlug
         public bool TakeBack() => Take(ref m_BackPressed);
         public bool TakeKit() => Take(ref m_KitPressed);
         public bool TakeHost() => Take(ref m_HostPressed);
+        /// <summary>The mission board was tapped: it opens the mission screen.</summary>
+        public bool TakeBoard() => Take(ref m_BoardPressed);
 
         static bool Take(ref bool flag)
         {

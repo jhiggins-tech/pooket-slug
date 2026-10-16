@@ -13,6 +13,8 @@ namespace PooketSlug
         const int JetBit = 1 << 13, PressureShift = 14, PressureMask = 7 << PressureShift, SpewBit = 1 << 17, RootedBit = 1 << 18;
         // the super's charged, so a partner's pad can show TEAM (team supers)
         const int SuperReadyBit = 1 << 19;
+        // presence (spike coop-camera): the page has lost focus, and a beat that ticks while the game runs
+        const int AwayBit = 1 << 20, BeatShift = 21, BeatMask = 3 << BeatShift;
 
         public int Facing;  // 1 = right, -1 = left
         public int AimY;    // 1 = up, -1 = down, 0 = forward
@@ -27,6 +29,13 @@ namespace PooketSlug
         public bool Jetting, Spewing, Rooted;
         /// <summary>The super is charged: with the partner's too, a team super can be fired.</summary>
         public bool SuperReady;
+        /// <summary>The player's page has lost focus (they've switched to another window or app).</summary>
+        public bool Away;
+        /// <summary>
+        /// Counts 0 to 3 while the game runs (<see cref="PartnerBeacon.BeatAt"/>); a beat that stops changing means their
+        /// game has stopped, as a phone's does in the background (<see cref="Presence"/>).
+        /// </summary>
+        public int Beat;
         public float Pressure;
         public float Anim, DeadTime;
 
@@ -36,7 +45,8 @@ namespace PooketSlug
             (Dead ? DeadBit : 0) | (Muzzle ? MuzzleBit : 0) | (Blink ? BlinkBit : 0) | (Flash ? FlashBit : 0) |
             (Diagonal && AimY != 0 ? DiagonalBit : 0) | (Out ? OutBit : 0) | (Gone ? GoneBit : 0) |
             (Jetting ? JetBit | (Mathf.Clamp(Mathf.RoundToInt(Pressure * 7f), 0, 7) << PressureShift) : 0) |
-            (Spewing ? SpewBit : 0) | (Rooted ? RootedBit : 0) | (SuperReady ? SuperReadyBit : 0);
+            (Spewing ? SpewBit : 0) | (Rooted ? RootedBit : 0) | (SuperReady ? SuperReadyBit : 0) |
+            (Away ? AwayBit : 0) | ((Beat & 3) << BeatShift);
 
         /// <summary>Unpacks replicated flags; animation clocks are kept locally by the caller.</summary>
         public static AvatarPose Unpack(int flags, float anim, float deadTime) => new AvatarPose
@@ -58,6 +68,8 @@ namespace PooketSlug
             Spewing = (flags & SpewBit) != 0,
             Rooted = (flags & RootedBit) != 0,
             SuperReady = (flags & SuperReadyBit) != 0,
+            Away = (flags & AwayBit) != 0,
+            Beat = (flags & BeatMask) >> BeatShift,
             Anim = anim,
             DeadTime = deadTime,
         };

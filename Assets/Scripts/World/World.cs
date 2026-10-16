@@ -57,6 +57,8 @@ namespace PooketSlug
         public float Elapsed;
         /// <summary>For the debrief's tally: our soldier's kills, and shots fired and landed (bullets, shells and drops).</summary>
         public int Kills, ShotsFired, ShotsHit;
+        /// <summary>Points for our own soldier's kills; in co-op, the shared score is everyone's (spike drop-in).</summary>
+        public int OwnPoints;
         /// <summary>Where the checkpoint our soldier has passed stands, or -1 (see <see cref="Checkpoint"/>).</summary>
         public float CheckpointX = -1f;
         public bool Victory, BossDefeatedPending;
@@ -182,6 +184,8 @@ namespace PooketSlug
         public void OnPlayerKill(Enemy e)
         {
             Kills++;
+            if (OwnPoints == 0 && e.Score > 0 && Coop) Log.Net.Info("First points of our own: " + e.Score); // the co-op test's drop-in round looks for it
+            OwnPoints += e.Score;
             Player.Kit.AddKill();
             HitFeel.Kill(e);
             HitStop(e.MaxHp >= Tuning.Impact.BigHp ? Tuning.Impact.BigKillStop : Tuning.Impact.KillStop);
