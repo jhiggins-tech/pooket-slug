@@ -19,6 +19,8 @@ namespace PooketSlug
         public float DeadTime;
         public bool Crouching;
         public bool InputEnabled = true;
+        /// <summary>Nothing hurts them: a move's demo (<see cref="DemoScript"/>), where the goons' shots would only get in the way.</summary>
+        public bool NoDamage;
         /// <summary>This frame's orders, from <see cref="GameInput"/>; the world sets them before <see cref="Tick"/>.</summary>
         public SoldierInput Input;
 
@@ -337,7 +339,7 @@ namespace PooketSlug
                 Riding.Hurt(damage);
                 return;
             }
-            if (Invulnerable) return;
+            if (Invulnerable || NoDamage) return;
             Hp -= damage;
             World.HitFeel?.Hurt(this, damage);
             FlashTimer = 0.08f;

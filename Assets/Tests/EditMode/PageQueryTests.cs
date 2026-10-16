@@ -43,5 +43,15 @@ namespace PooketSlug.Tests
         {
             Assert.AreEqual(expected, PageQuery.Base(url));
         }
+
+        [TestCase(Page + "?demo=kie-super", "https://jhiggins-tech.github.io/pooket-slug/")]
+        [TestCase("https://jhiggins-tech.github.io/pooket-slug/?a=b/c", "https://jhiggins-tech.github.io/pooket-slug/")]
+        [TestCase("http://127.0.0.1:8000/index.html#x/y", "http://127.0.0.1:8000/")]
+        [TestCase("", "")]
+        [TestCase(null, "")]
+        public void FolderIsWhereThePageIs(string url, string expected)
+        {
+            Assert.AreEqual(expected, PageQuery.Folder(url));
+        }
     }
 }

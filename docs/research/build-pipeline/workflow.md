@@ -96,6 +96,10 @@ Four steps run the [EditMode tests](../verification/edit-mode-tests.md) before t
 - **Build path:** GameCI adds `-customBuildPath` (`build/WebGL/WebGL`) and `-buildTarget`.
 - **Exit code:** the build method exits `0` on success and `101` on failure, which fails the step.
 
+### 6b. The kit screen's demos
+
+After the build, the job serves it on `127.0.0.1:8000` and runs [`tools/demos.mjs`](../../../tools/demos.mjs): headless Chromium opens `?demo=all`, the game plays every move's scripted scene in turn ([`KitGuide.cs`](../../../Assets/Scripts/Core/KitGuide.cs)) on a fixed 30 fps step, and Chromium records the page. The script cuts a clip for each move at the times the game logged, speeds it back up to real time (SwiftShader draws slower than 30 fps), crops it to the canvas and encodes it with ffmpeg (installed by the step) as 640×360 H.264. The clips go into the build's `demos/` before it's uploaded and deployed, so they always match the build; they're also uploaded as the `kit-demos` artifact, with `demos.json` and the console log. The step has `continue-on-error`: without clips the build still deploys, and the kit screen says there's no demo yet. Added 2026-10-16.
+
 ### 7. Upload build artifact
 
 `actions/upload-artifact@v6` uploads `build/WebGL/WebGL` as `PooketSlug-WebGL`. Set `if-no-files-found: error`.

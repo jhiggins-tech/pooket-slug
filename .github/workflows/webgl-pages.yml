@@ -194,6 +194,54 @@ jobs:
           customParameters: -buildSha ${{ github.sha }} -photonAppId ${{ secrets.PHOTON_APP_ID }} -googleClientId ${{ vars.GOOGLE_CLIENT_ID || secrets.GOOGLE_CLIENT_ID }} -firebaseApiKey ${{ vars.FIREBASE_API_KEY || secrets.FIREBASE_API_KEY }} -firebaseDbUrl ${{ vars.FIREBASE_DB_URL || secrets.FIREBASE_DB_URL }}
           versioning: None
 
+      # The ⓘ kit screen's demo clips: the build just made plays each move's scripted scene (?demo=all, KitGuide.cs) in
+      # headless Chromium, which records it, and tools/demos.mjs cuts it into a clip for each move in demos/, so the
+      # clips always match the build they ship with. If recording fails, the build still deploys, and the kit screen
+      # says there's no demo yet.
+      - name: Set up Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Record the kit screen's demos
+        id: demos
+        continue-on-error: true
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
+          npm install --no-save --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
+          python3 -m http.server 8000 --bind 127.0.0.1 --directory build/WebGL/WebGL > demo-server.log 2>&1 &
+          for i in $(seq 30); do curl -fsS -o /dev/null http://127.0.0.1:8000/index.html && break; sleep 1; done
+          node tools/demos.mjs http://127.0.0.1:8000/index.html demos
+          sudo mkdir -p build/WebGL/WebGL/demos
+          sudo cp demos/*.mp4 build/WebGL/WebGL/demos/
+          ls -l build/WebGL/WebGL/demos
+
+      - name: Demos summary
+        if: always() && steps.demos.outcome != 'skipped'
+        run: |
+          python3 - >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          import json
+          try:
+              demos = json.load(open('demos/demos.json'))
+          except Exception:
+              print("### Kit demos: not recorded\n\nThe recording step's log says why; the kit screen says there's no demo yet.")
+              raise SystemExit
+          print(f"### Kit demos: {len(demos)} recorded\n")
+          print("| Move | Game seconds | Recorded in | Size |")
+          print("|---|---|---|---|")
+          for d in demos:
+              print(f"| `{d['id']}` | {d['gameSeconds']} s | {d['recordedSeconds']} s | {d['bytes'] // 1024} KB |")
+          EOF
+
+      - name: Upload the demos
+        if: always() && steps.demos.outcome != 'skipped'
+        uses: actions/upload-artifact@v6
+        with:
+          name: kit-demos
+          path: demos
+          if-no-files-found: ignore
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v6
         with:

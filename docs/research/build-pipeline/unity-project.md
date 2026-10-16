@@ -64,6 +64,7 @@ The cost:
 | `com.unity.modules.animation` | Fusion's editor scripts (`Animator` tooling) |
 | `com.unity.modules.unitywebrequest` | Photon Realtime's `PhotonPing.cs` and Fusion's editor |
 | `com.unity.modules.imageconversion` | Fusion's editor (`Texture2D.LoadImage`) |
+| `com.unity.modules.video` | The ⓘ kit screen's demo clips (`VideoPlayer` into a render texture, [`DemoClip.cs`](../../../Assets/Scripts/Ui/DemoClip.cs)), added 2026-10-16. On WebGL it plays them through the browser's own video element |
 | `com.unity.test-framework` 1.6.0 | The EditMode tests. It's built into the editor (a core package), so it needs no registry fetch, and it brings `com.unity.ext.nunit` |
 | `com.unity.nuget.mono-cecil` 1.11.6 | Fusion's IL weaver. This is the version bundled with the editor. Listing it also stops Fusion's installer from calling `Client.Add("com.unity.nuget.mono-cecil@1.10.2")` mid-build ([SDK in CI](../netcode/sdk-in-ci.md#fusions-defines-and-the-il-weaver)) |
 

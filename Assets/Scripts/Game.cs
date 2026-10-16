@@ -17,7 +17,7 @@ namespace PooketSlug
         }
     }
 
-    public enum GameState { Title, Settings, Online, CodeEntry, Lobby, Cutscene, Playing, GameOver, Victory }
+    public enum GameState { Title, Settings, Online, CodeEntry, Lobby, Cutscene, Playing, GameOver, Victory, Demo }
 
     /// <summary>
     /// Owns the camera, the current <see cref="World"/>, the online session and the player's profile, and runs
@@ -67,6 +67,16 @@ namespace PooketSlug
         readonly System.Collections.Generic.List<string> m_SceneCues = new System.Collections.Generic.List<string>();
         float m_PartnerTapIn = -1f;
         bool m_SceneSaidStart;
+        // the ⓘ kit screen, over the title (the crew pick) or the pause menu: whose kit, and the move whose demo plays
+        bool m_KitOpen, m_KitFromTitle;
+        SoldierDef m_KitSoldier;
+        int m_KitMove;
+        string m_DemoFolder; // where the demo clips are served: demos/ beside the page (null in the editor)
+        // ?demo=: moves' demos played in the game, in turn, for CI to record (tools/demos.mjs)
+        System.Collections.Generic.IReadOnlyList<MoveGuide> m_Demos;
+        int m_DemoIndex, m_DemoFrames;
+        float m_DemoT, m_DemoWait;
+        bool m_DemoStarted;
 
         /// <summary>Co-op shows only once Mission one has been beaten solo (progressive disclosure).</summary>
         bool CoopOpen => m_Profile.coop || m_Unlocked;
@@ -117,9 +127,12 @@ namespace PooketSlug
             m_Menu = new MenuView(transform);
             if (Spike.Scenes) m_SceneView = new CutsceneView(transform);
             m_PageUrl = PageUrl();
+            string folder = PageQuery.Folder(url);
+            m_DemoFolder = folder.Length > 0 ? folder + "demos/" : null;
             SetState(GameState.Title);
             GameInput.TouchActive = Application.isMobilePlatform; // until the player shows otherwise
 
+            if (StartDemos(PageQuery.Get(url, "demo"))) return; // a demo is all this visit plays
             if (NetSessions.Factory != null && NetConfig.Configured) m_Net = NetSessions.Factory(gameObject);
             string invite = RoomFromUrl(url);
             if (m_Net != null && !string.IsNullOrEmpty(invite))
@@ -292,6 +305,118 @@ namespace PooketSlug
             return "SIGN IN AT THE TOP RIGHT TO SAVE YOUR PROGRESS ONLINE";
         }
 
+        // ------------------------------------------------------------------ the ⓘ kit screen
+
+        /// <summary>Opens the kit screen on <paramref name="soldier"/>'s moves, the first one's demo playing.</summary>
+        void OpenKit(SoldierDef soldier, bool fromTitle)
+        {
+            m_KitOpen = true;
+            m_KitFromTitle = fromTitle;
+            m_KitSoldier = soldier;
+            m_KitMove = 0;
+            Sfx.Play(Sfx.Pickup, 0.4f);
+        }
+
+        /// <summary>The kit screen's buttons: a move (or its own button, so FIRE shows FIRE's), the crew pick, and back.</summary>
+        void TickKit(MenuAction click, MenuInput keys, SoldierInput soldier)
+        {
+            System.Collections.Generic.IReadOnlyList<MoveGuide> moves = KitGuide.For(m_KitSoldier);
+            int pick = -1;
+            if (click >= MenuAction.Move1 && click <= MenuAction.Move4) pick = click - MenuAction.Move1;
+            else if (soldier.FirePressed) pick = SlotIndex(moves, KitSlot.Fire);
+            else if (soldier.SpecialPressed) pick = SlotIndex(moves, KitSlot.Special);
+            else if (soldier.SuperPressed) pick = SlotIndex(moves, KitSlot.Super);
+            else if (soldier.AbilityPressed) pick = SlotIndex(moves, KitSlot.Ability);
+            if (pick >= 0 && pick < moves.Count && pick != m_KitMove)
+            {
+                m_KitMove = pick;
+                Sfx.Play(Sfx.Pickup, 0.3f);
+            }
+            if (click == MenuAction.Crew && m_KitFromTitle && CrewOpen)
+            {
+                Options o = m_Options;
+                o.Crew = Crew.Next(Soldier.Id).Id;
+                ChangeOptions(o);
+                m_KitSoldier = Soldier;
+                m_KitMove = 0;
+                Sfx.Play(Sfx.Pickup, 0.5f);
+            }
+            if (click == MenuAction.Back || keys.Back || keys.Settings || keys.Start) m_KitOpen = false;
+        }
+
+        static int SlotIndex(System.Collections.Generic.IReadOnlyList<MoveGuide> moves, KitSlot slot)
+        {
+            for (int i = 0; i < moves.Count; i++)
+                if (moves[i].Slot == slot) return i;
+            return -1;
+        }
+
+        // ------------------------------------------------------------------ ?demo: the moves' demos
+
+        /// <summary>
+        /// <c>?demo=tones2-fire</c> plays that move's demo over and over; <c>?demo=all</c> plays every move's in turn, as
+        /// CI records them (<c>tools/demos.mjs</c>); <c>?demo=list</c> just logs their names. False for no demo.
+        /// </summary>
+        bool StartDemos(string demo)
+        {
+            if (string.IsNullOrEmpty(demo)) return false;
+            var ids = new System.Collections.Generic.List<string>();
+            foreach (MoveGuide m in KitGuide.All) ids.Add(m.DemoId);
+            Log.Game.Info("Demos: " + string.Join(",", ids));
+            if (string.Equals(demo, "all", StringComparison.OrdinalIgnoreCase)) m_Demos = KitGuide.All;
+            else if (KitGuide.Find(demo) is MoveGuide one) m_Demos = new[] { one };
+            else
+            {
+                if (!string.Equals(demo, "list", StringComparison.OrdinalIgnoreCase)) Log.Game.Warn("No demo called " + demo);
+                return false;
+            }
+            BeginDemo(0);
+            return true;
+        }
+
+        /// <summary>A fresh world for a demo: its little map, its soldier, who nothing hurts, with the super charged if it's needed.</summary>
+        void BeginDemo(int index)
+        {
+            m_DemoIndex = index;
+            MoveGuide move = m_Demos[index];
+            m_World.Dispose();
+            m_World = new World(m_Camera, new MissionDef("demo", byte.MaxValue, "DEMO", move.Demo.Map), null, move.Soldier);
+            m_World.Player.NoDamage = true;
+            if (move.Demo.SuperReady)
+                for (int i = 0; i < Tuning.Kit.SuperKills; i++) m_World.Player.Kit.AddKill();
+            m_DemoT = 0f;
+            m_DemoFrames = 0;
+            m_World.Render();
+            SetState(GameState.Demo);
+            if (m_DemoStarted) Log.Game.Info("Demo start: " + move.DemoId);
+        }
+
+        /// <summary>
+        /// One frame of a demo, on a fixed step (so a slow machine records it in slow motion, and the recorder speeds it
+        /// back up). The first waits for Enter or a tap (one demo on its own starts by itself after two seconds), so the page
+        /// has finished loading.
+        /// </summary>
+        void TickDemo(MenuInput keys, SoldierInput soldier)
+        {
+            MoveGuide move = m_Demos[m_DemoIndex];
+            if (!m_DemoStarted)
+            {
+                m_DemoWait += Time.unscaledDeltaTime;
+                bool waited = m_Demos.Count == 1 && m_DemoWait > 2f; // ?demo=all (CI's recorder) waits for its Enter
+                if (!keys.Start && !soldier.FirePressed && !waited) return;
+                m_DemoStarted = true;
+                Log.Game.Info("Demo start: " + move.DemoId);
+            }
+            const float dt = 1f / DemoScript.Fps;
+            m_DemoT += dt;
+            m_DemoFrames++;
+            m_World.Tick(dt, move.Demo.InputAt(m_DemoT, dt));
+            if (m_DemoT < move.Demo.Seconds) return;
+            Log.Game.Info("Demo end: " + move.DemoId + " (" + m_DemoFrames + " frames, " + (m_DemoFrames / DemoScript.Fps).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + " s)");
+            if (m_DemoIndex == m_Demos.Count - 1 && m_Demos.Count > 1) Log.Game.Info("Demos done");
+            BeginDemo((m_DemoIndex + 1) % m_Demos.Count);
+        }
+
         // ------------------------------------------------------------------ the boss intro
 
         /// <summary>?spike=music, which is solo only.</summary>
@@ -459,9 +584,15 @@ namespace PooketSlug
                 ChangeOptions(o);
             }
 
-            switch (m_State)
+            if (m_KitOpen) TickKit(click, keys, soldier);
+            else switch (m_State)
             {
+                case GameState.Demo:
+                    TickDemo(keys, soldier);
+                    break;
+
                 case GameState.Title:
+                    if (click == MenuAction.Kit || soldier.AbilityPressed) { OpenKit(Soldier, fromTitle: true); break; }
                     if (CoopReady)
                     {
                         // J doubles as fire, so the online keys are checked first
@@ -550,7 +681,8 @@ namespace PooketSlug
                     }
                     if (m_Paused)
                     {
-                        if (click == MenuAction.Resume || keys.Pause || keys.PadPause || keys.Start) m_Paused = false;
+                        if (click == MenuAction.Kit || soldier.AbilityPressed) OpenKit(m_World.Player.Def, fromTitle: false);
+                        else if (click == MenuAction.Resume || keys.Pause || keys.PadPause || keys.Start) m_Paused = false;
                         else if (click == MenuAction.Restart || keys.Restart) Restart();
                         else if (click == MenuAction.Menu || keys.Back) ToTitle();
                         break;
@@ -629,10 +761,15 @@ namespace PooketSlug
                 Seconds = Mathf.FloorToInt(m_World.Elapsed),
                 Account = AccountLine(),
                 Options = m_Options,
+                Kit = m_KitOpen ? KitGuide.For(m_KitSoldier) : null,
+                KitMove = m_KitMove,
+                KitSoldier = m_KitOpen ? m_KitSoldier.Name.ToUpperInvariant() : null,
+                KitCrew = m_KitFromTitle && CrewOpen,
+                DemoFolder = m_DemoFolder,
             });
 
             // The sign-in button sits over the game, on the title screen and settings only.
-            bool account = m_State == GameState.Title || m_State == GameState.Settings;
+            bool account = (m_State == GameState.Title || m_State == GameState.Settings) && !m_KitOpen;
             if (account != m_AccountShown)
             {
                 m_AccountShown = account;
@@ -642,6 +779,7 @@ namespace PooketSlug
 
         MenuScreen MenuScreenNow()
         {
+            if (m_KitOpen) return MenuScreen.Kit;
             switch (m_State)
             {
                 case GameState.Title: return MenuScreen.Title;

@@ -29,5 +29,13 @@ namespace PooketSlug
             int cut = url.IndexOfAny(new[] { '?', '#' });
             return cut < 0 ? url : url.Substring(0, cut);
         }
+
+        /// <summary>The folder the page is in, ending in '/': where files served beside it are (e.g. <c>demos/</c>).</summary>
+        public static string Folder(string url)
+        {
+            string page = Base(url);
+            int slash = page.LastIndexOf('/');
+            return slash < 0 ? "" : page.Substring(0, slash + 1);
+        }
     }
 }
