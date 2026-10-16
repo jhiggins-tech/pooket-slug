@@ -148,7 +148,7 @@ namespace PooketSlug
             Drums = Repeat(Repeat(MarchBeat, 7) + MarchFill, 4),
         };
 
-        // ---------------------------------------------------------------- the boss: "Tank Alert"
+        // ---------------------------------------------------------------- the boss: "Tabk Alert"
 
         const string AlertBeat = "k:2 h:1 h s:2 h:1 h k:1 k h:1 h s:2 h:1 s ";
         const string AlertFill = "s:1 s s s k:2 s:1 s k:2 s:1 s s s c:2 ";
@@ -190,7 +190,7 @@ namespace PooketSlug
             Drums = Repeat(Repeat(AlertBeat, 7) + AlertFill, 2),
         };
 
-        // ---------------------------------------------------------------- the boss's second stage: "Tank Alert (final)"
+        // ---------------------------------------------------------------- the boss's second stage: "Tabk Alert (final)"
 
         // Every sixteenth a hat, kicks and snares on top: the last push.
         const string FinalBeat = "k+h:1 h s+h h k+h h s+h h k+h k+h s+h h k+h h s+h s ";
