@@ -38,18 +38,17 @@ namespace PooketSlug
         public string Account;
         /// <summary>The settings, as the settings screen shows them.</summary>
         public Options Options;
-        /// <summary>The kit screen: whose kit (their name), their moves, the one whose demo plays, and whether the crew pick shows.</summary>
+        /// <summary>The kit screen: whose kit (their name), their moves, and the one whose demo plays.</summary>
         public string KitSoldier;
         public System.Collections.Generic.IReadOnlyList<MoveGuide> Kit;
         public int KitMove;
-        public bool KitCrew;
         /// <summary>Where the demo clips are (<c>&lt;id&gt;.mp4</c>), or null when this build can't fetch them.</summary>
         public string DemoFolder;
     }
 
     /// <summary>
     /// The menus in uGUI: title, settings, online co-op, join, connecting, pause, game over, victory and the ⓘ kit screen
-    /// (from the title's crew pick, and the pause menu), which plays a demo of each move. Buttons work by
+    /// (from the den's couch pick, and the pause menu), which plays a demo of each move. Buttons work by
     /// click and tap; each also has a key, which <see cref="Game"/> reads, shown under it on a keyboard. Only
     /// what the player has met is shown: co-op appears once Mission one is beaten solo.
     /// </summary>
@@ -69,10 +68,9 @@ namespace PooketSlug
         readonly Text m_PlayKey, m_SettingsKey, m_SoundKey, m_ShakeKey, m_SettingsBackKey, m_CoopKey, m_HostKey, m_JoinKey, m_QuickKey, m_OnlineBackKey, m_SubmitKey, m_JoinBackKey, m_CancelKey;
         readonly Text m_ResumeKey, m_RestartKey, m_MenuKey, m_RetryKey, m_GameOverMenuKey, m_AgainKey, m_SecondKey, m_SecondLabel;
         readonly InputField m_Code;
-        // the kit screen, and the title's and pause menu's ways into it
+        // the kit screen (from the den's couch pick, and the pause menu)
         readonly RectTransform m_Kit;
-        readonly Button m_KitInfo, m_KitButton, m_KitCrew, m_KitBack;
-        readonly Text m_KitInfoKey, m_KitButtonKey, m_PauseKitKey, m_KitTitle, m_KitText, m_KitCrewLabel, m_KitBackKey;
+        readonly Text m_PauseKitKey, m_KitTitle, m_KitText, m_KitBackKey;
         readonly Button[] m_Moves = new Button[4];
         readonly Text[] m_MoveLabels = new Text[4], m_MoveKeys = new Text[4];
         readonly DemoClip m_Clip;
@@ -107,11 +105,6 @@ namespace PooketSlug
             m_SettingsButton = Ui.Button(m_Title, "SETTINGS", new Vector2(0f, -48f), Narrow, () => Click(MenuAction.Settings), out m_SettingsKey);
             m_Crew = Ui.Button(m_Title, "CREW", new Vector2(-85f, -48f), Narrow, () => Click(MenuAction.Crew), out m_CrewKey);
             m_CrewLabel = Label(m_Crew);
-            // the kit screen: a round i beside the crew pick, or YOUR KIT before there's a crew
-            m_KitInfo = Ui.Button(m_Title, "i", new Vector2(-128f, -48f), new Vector2(26f, 26f), () => Click(MenuAction.Kit), out m_KitInfoKey);
-            m_KitInfo.GetComponent<Image>().sprite = Ui.Disc;
-            Label(m_KitInfo).fontStyle = FontStyle.BoldAndItalic;
-            m_KitButton = Ui.Button(m_Title, "YOUR KIT", new Vector2(-62f, -48f), Narrow, () => Click(MenuAction.Kit), out m_KitButtonKey);
             m_NewBadge = Ui.Label(m_Coop.GetComponent<RectTransform>(), "New", Ui.TopRight, new Vector2(6f, 7f), 9, TextAnchor.MiddleCenter, Gold);
             m_NewBadge.text = "NEW!";
             m_OnlineOff = Line(m_Title, -90f, 9, new Color(1f, 1f, 1f, 0.6f));
@@ -199,9 +192,7 @@ namespace PooketSlug
             m_KitText = Ui.Label(m_Kit, "Move text", Ui.Middle, new Vector2(70f, -40f), 10, TextAnchor.UpperCenter, Color.white);
             m_KitText.horizontalOverflow = HorizontalWrapMode.Wrap;
             m_KitText.rectTransform.sizeDelta = new Vector2(300f, 60f);
-            m_KitCrew = Ui.Button(m_Kit, "CREW", new Vector2(-62f, -122f), Wide, () => Click(MenuAction.Crew), out _);
-            m_KitCrewLabel = Label(m_KitCrew);
-            m_KitBack = Ui.Button(m_Kit, "BACK", new Vector2(62f, -122f), Narrow, () => Click(MenuAction.Back), out m_KitBackKey);
+            Ui.Button(m_Kit, "BACK", new Vector2(0f, -122f), Narrow, () => Click(MenuAction.Back), out m_KitBackKey);
 
             Show(MenuScreen.None);
         }
@@ -239,12 +230,7 @@ namespace PooketSlug
                     Key(m_CoopKey, keys, "H HOST · J JOIN · Q QUICK");
                     Key(m_SettingsKey, keys, "O");
                     Ui.Show(m_Crew, info.CrewOpen);
-                    Ui.Show(m_KitInfo, info.CrewOpen);
-                    Ui.Show(m_KitButton, !info.CrewOpen);
-                    m_Crew.GetComponent<RectTransform>().anchoredPosition = new Vector2(-55f, -48f);
-                    m_SettingsButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(info.CrewOpen ? 85f : 62f, -48f);
-                    Key(m_KitInfoKey, keys, "I");
-                    Key(m_KitButtonKey, keys, "I");
+                    m_SettingsButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(info.CrewOpen ? 85f : 0f, -48f);
                     if (info.CrewOpen) m_CrewLabel.text = "CREW: " + info.Crew;
                     Key(m_CrewKey, keys, "C");
                     Ui.Show(m_OnlineOff, info.OnlineOff && info.CoopOpen);
@@ -367,9 +353,6 @@ namespace PooketSlug
             string text = shownMove?.Text ?? "";
             if (m_KitText.text != text) m_KitText.text = text;
             m_Clip.Play(shownMove == null || info.DemoFolder == null ? null : info.DemoFolder + shownMove.DemoId + ".mp4");
-            Ui.Show(m_KitCrew, info.KitCrew);
-            if (info.KitCrew) m_KitCrewLabel.text = "CREW: " + info.KitSoldier;
-            m_KitBack.GetComponent<RectTransform>().anchoredPosition = new Vector2(info.KitCrew ? 62f : 0f, -122f);
             Key(m_KitBackKey, keys, "ESC");
         }
 

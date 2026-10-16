@@ -100,7 +100,7 @@ Statuses come only from the soldiers' kits: each one belongs to a particular sol
 
 The game shows only what the player has already met:
 - **Mission one starts with move, jump, fire and the special.** Each button is labelled, and an ⓘ screen covers the kit, as in Tabks. There's no tutorial.
-  - The ⓘ screen opens from the crew pick on the title screen (the round **i** beside CREW, or YOUR KIT before there's a crew) and from the pause menu (owner, 2026-10-16: part of the character pick). Each move has a short demo clip, recorded from the game itself with goons reacting, which plays while it's picked.
+  - The ⓘ screen opens from the den's couch pick (the lobby's character pick; owner, 2026-10-16: not from the title screen) and from the pause menu. Each move has a short demo clip, recorded from the game itself with goons reacting, which plays while it's picked.
 - **The super button lights up the first time it's charged,** with a one-off prompt.
 - **The ability button only appears for soldiers who have one.**
 - **The crew screen appears once there's a second soldier to pick.** It's the gaming den, where each freed crewmate has a station ([the lobby](lobby.md)).

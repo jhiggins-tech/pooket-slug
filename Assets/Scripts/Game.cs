@@ -74,8 +74,8 @@ namespace PooketSlug
         // the lobby, the crew's gaming den (docs/design/lobby.md): once the crew's open, START, CREW and co-op go through it
         DenView m_DenView;
         Den m_Den;
-        // the ⓘ kit screen, over the title (the crew pick) or the pause menu: whose kit, and the move whose demo plays
-        bool m_KitOpen, m_KitFromTitle;
+        // the ⓘ kit screen, over the den (the couch pick) or the pause menu: whose kit, and the move whose demo plays
+        bool m_KitOpen;
         SoldierDef m_KitSoldier;
         int m_KitMove;
         string m_DemoFolder; // where the demo clips are served: demos/ beside the page (null in the editor)
@@ -401,7 +401,7 @@ namespace PooketSlug
             }
             if (m_DenView.TakeKit() || soldier.AbilityPressed)
             {
-                OpenKit(m_Den.Pick ?? Soldier, fromTitle: false);
+                OpenKit(m_Den.Pick ?? Soldier);
                 return;
             }
             if ((m_DenView.TakeHost() || keys.Host) && CoopReady && m_Den.Mode == DenMode.Solo)
@@ -486,16 +486,15 @@ namespace PooketSlug
         // ------------------------------------------------------------------ the ⓘ kit screen
 
         /// <summary>Opens the kit screen on <paramref name="soldier"/>'s moves, the first one's demo playing.</summary>
-        void OpenKit(SoldierDef soldier, bool fromTitle)
+        void OpenKit(SoldierDef soldier)
         {
             m_KitOpen = true;
-            m_KitFromTitle = fromTitle;
             m_KitSoldier = soldier;
             m_KitMove = 0;
             Sfx.Play(Sfx.Pickup, 0.4f);
         }
 
-        /// <summary>The kit screen's buttons: a move (or its own button, so FIRE shows FIRE's), the crew pick, and back.</summary>
+        /// <summary>The kit screen's buttons: a move (or its own button, so FIRE shows FIRE's), and back.</summary>
         void TickKit(MenuAction click, MenuInput keys, SoldierInput soldier)
         {
             System.Collections.Generic.IReadOnlyList<MoveGuide> moves = KitGuide.For(m_KitSoldier);
@@ -509,15 +508,6 @@ namespace PooketSlug
             {
                 m_KitMove = pick;
                 Sfx.Play(Sfx.Pickup, 0.3f);
-            }
-            if (click == MenuAction.Crew && m_KitFromTitle && CrewOpen)
-            {
-                Options o = m_Options;
-                o.Crew = Crew.Next(Soldier.Id).Id;
-                ChangeOptions(o);
-                m_KitSoldier = Soldier;
-                m_KitMove = 0;
-                Sfx.Play(Sfx.Pickup, 0.5f);
             }
             if (click == MenuAction.Back || keys.Back || keys.Settings || keys.Start) m_KitOpen = false;
         }
@@ -785,7 +775,6 @@ namespace PooketSlug
                     break;
 
                 case GameState.Title:
-                    if (click == MenuAction.Kit || soldier.AbilityPressed) { OpenKit(Soldier, fromTitle: true); break; }
                     if (CoopReady)
                     {
                         // J doubles as fire, so the online keys are checked first
@@ -876,7 +865,7 @@ namespace PooketSlug
                     }
                     if (m_Paused)
                     {
-                        if (click == MenuAction.Kit || soldier.AbilityPressed) OpenKit(m_World.Player.Def, fromTitle: false);
+                        if (click == MenuAction.Kit || soldier.AbilityPressed) OpenKit(m_World.Player.Def);
                         else if (click == MenuAction.Resume || keys.Pause || keys.PadPause || keys.Start) m_Paused = false;
                         else if (click == MenuAction.Restart || keys.Restart) Restart();
                         else if (click == MenuAction.Menu || keys.Back) ToTitle();
@@ -962,7 +951,6 @@ namespace PooketSlug
                 Kit = m_KitOpen ? KitGuide.For(m_KitSoldier) : null,
                 KitMove = m_KitMove,
                 KitSoldier = m_KitOpen ? m_KitSoldier.Name.ToUpperInvariant() : null,
-                KitCrew = m_KitFromTitle && CrewOpen,
                 DemoFolder = m_DemoFolder,
             });
 
