@@ -1,25 +1,27 @@
 using UnityEngine;
 using UnityEngine.UI;
+using static PooketSlug.StageKit;
 
 namespace PooketSlug
 {
     /// <summary>
     /// The debrief screen (<c>docs/design/story.md</c>, The first debrief): the crew stand to one side and the numbers
     /// count up on the other. The tally, then the XP bar, then the rank badge with its RANK UP! stamp, then the
-    /// sign-in offer for players who aren't signed in, then CONTINUE. <see cref="DebriefPlayer"/> keeps the time.
+    /// sign-in offer for players who aren't signed in, then CONTINUE. <see cref="DebriefPlayer"/> keeps the time. The
+    /// crew, their bubble and the colours are the stage's (<see cref="StageKit"/>), bigger.
     /// </summary>
     public sealed class DebriefView
     {
         const float Scale = 2.5f, RowGap = 15f;
-        static readonly Color Gold = new Color(1f, 0.85f, 0.3f), Dim = new Color(1f, 1f, 1f, 0.6f), Green = new Color(0.45f, 1f, 0.6f);
-        static readonly Color Paper = new Color(0.97f, 0.95f, 0.88f), Ink = new Color(0.11f, 0.08f, 0.13f);
+        static readonly Color Dim = new Color(1f, 1f, 1f, 0.6f), Green = new Color(0.45f, 1f, 0.6f);
         static readonly string[] RowNames = { "SCORE", "BEST", "TIME", "GOONS", "ACCURACY", "LIVES LEFT", "CONTINUES LEFT" };
 
-        readonly RectTransform m_Root, m_Panel, m_XpBlock, m_RankBlock, m_Bubble, m_Stamp;
+        readonly RectTransform m_Root, m_Panel, m_XpBlock, m_RankBlock, m_Stamp;
+        readonly SpeechBubble m_Bubble;
         readonly Text[] m_Rows = new Text[RowNames.Length], m_Values = new Text[RowNames.Length];
-        readonly Text m_NewBest, m_XpTotal, m_XpParts, m_RankName, m_RankLine, m_BubbleText, m_SignIn, m_Hint, m_StampText;
+        readonly Text m_NewBest, m_XpTotal, m_XpParts, m_RankName, m_RankLine, m_SignIn, m_Hint, m_StampText;
         readonly Image m_XpFill, m_RankFill, m_BadgeOuter, m_BadgeInner;
-        readonly Image[] m_Tones2 = new Image[2], m_Kie = new Image[2];
+        readonly StageFigure m_Tones2, m_Kie;
         readonly Button m_Continue;
         DebriefPlayer m_Player;
         bool m_Tapped, m_Leave, m_RankSounded;
@@ -38,15 +40,13 @@ namespace PooketSlug
             Ui.Label(m_Panel, "Title", Ui.Middle, new Vector2(40f, 145f), 26, TextAnchor.MiddleCenter, Gold).text = "MISSION COMPLETE!";
 
             // the crew, to one side
-            Figure(m_Tones2, new Vector2(-235f, -40f));
-            Figure(m_Kie, new Vector2(-170f, -40f));
-            m_Bubble = Ui.Rect(m_Panel, "Bubble", Ui.Middle, new Vector2(0.5f, 0f), new Vector2(-170f, 50f), new Vector2(150f, 34f));
-            var back = m_Bubble.gameObject.AddComponent<Image>();
-            back.color = Paper;
-            m_Bubble.gameObject.AddComponent<Outline>().effectColor = Ink;
-            m_BubbleText = Ui.Label(m_Bubble, "Text", Ui.Middle, Vector2.zero, 10, TextAnchor.MiddleCenter, Ink);
-            m_BubbleText.rectTransform.sizeDelta = new Vector2(140f, 30f);
-            m_BubbleText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            m_Tones2 = new StageFigure(m_Panel, "tones2", Ui.Middle, Scale);
+            m_Tones2.Rt.anchoredPosition = new Vector2(-235f, -40f);
+            m_Kie = new StageFigure(m_Panel, "kie", Ui.Middle, Scale);
+            m_Kie.Rt.anchoredPosition = new Vector2(-170f, -40f);
+            m_Kie.Rt.localScale = new Vector3(-1f, 1f, 1f); // facing tones2
+            m_Bubble = new SpeechBubble(m_Panel, Ui.Middle, new Vector2(150f, 34f));
+            m_Bubble.Place(new Vector2(-170f, 50f), -170f);
 
             // the tally
             for (int i = 0; i < RowNames.Length; i++)
@@ -92,24 +92,10 @@ namespace PooketSlug
             Hide();
         }
 
-        void Figure(Image[] parts, Vector2 at)
-        {
-            Vector2 size = new Vector2(24f, 32f) * Scale;
-            parts[0] = Ui.Picture(m_Panel, "Legs", null, Ui.Middle, new Vector2(0.5f, 0f), at, size, Color.white);
-            parts[1] = Ui.Picture(m_Panel, "Torso", null, Ui.Middle, new Vector2(0.5f, 0f), at, size, Color.white);
-        }
-
         static void Bar(RectTransform parent, Vector2 at, Vector2 size, out Image fill)
         {
             Ui.Picture(parent, "Bar", null, Ui.Middle, Ui.Middle, at, size + new Vector2(2f, 2f), new Color(0f, 0f, 0f, 0.7f));
             fill = Ui.Picture(parent, "Fill", null, Ui.Middle, new Vector2(0f, 0.5f), at - new Vector2(size.x / 2f, 0f), size, Gold);
-        }
-
-        static void Stretch(RectTransform rt)
-        {
-            rt.anchorMin = Vector2.zero;
-            rt.anchorMax = Vector2.one;
-            rt.sizeDelta = Vector2.zero;
         }
 
         public bool Showing => m_Player != null;
@@ -121,11 +107,8 @@ namespace PooketSlug
             m_Blips = 0;
             Ui.Show(m_Root, true);
             PlayerSkin tones2 = Art.SkinFor(Content.Tones2, 0), kie = Art.SkinFor(Content.Kie, 0);
-            m_Tones2[0].sprite = tones2.LegsIdle;
-            m_Tones2[1].sprite = tones2.TorsoForward;
-            m_Kie[0].sprite = kie.LegsIdle;
-            m_Kie[1].sprite = kie.TorsoForward;
-            foreach (Image i in m_Kie) i.rectTransform.localScale = new Vector3(-1f, 1f, 1f); // facing tones2
+            m_Tones2.Stand(tones2);
+            m_Kie.Stand(kie);
             Refresh();
         }
 
@@ -228,8 +211,7 @@ namespace PooketSlug
             string say = null;
             if (r.First && p.Now == DebriefPlayer.Part.Xp) say = "YOU GET XP FOR THAT.";
             if (p.Now == DebriefPlayer.Part.SignIn) say = "SIGN IN SO THIS DOESN'T VANISH.";
-            Ui.Show(m_Bubble, say != null);
-            if (say != null) m_BubbleText.text = say;
+            m_Bubble.Say(say);
 
             Ui.Show(m_SignIn, p.Now == DebriefPlayer.Part.SignIn || (p.Now == DebriefPlayer.Part.Continue && r.OfferSignIn));
             bool end = p.Now == DebriefPlayer.Part.Continue;

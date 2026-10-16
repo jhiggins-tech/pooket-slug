@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using static PooketSlug.StageKit;
 
 namespace PooketSlug
 {
@@ -11,15 +12,14 @@ namespace PooketSlug
     /// moves) is written per shot for each scene: the opening (<c>docs/design/story.md</c>, The opening scene) and the
     /// motor pool reveal (The motor pool reveal).
     /// <para>
-    /// The stage is 320 x 180 art pixels drawn at 2x, so the soldiers are the size they are in the game, and it's
-    /// letterboxed on screens of other shapes.
+    /// The stage is <see cref="StageKit"/>'s, shared with the den and the debrief: 320 x 180 art pixels drawn at 2x, so
+    /// the soldiers are the size they are in the game, and letterboxed on screens of other shapes.
     /// </para>
     /// </summary>
     public sealed class CutsceneView
     {
-        const float Px = 2f; // HUD units per art pixel
         const float FlickerFor = 0.3f; // the Trollograms' static pulse over the whole stage: one, fading
-        const int StageW = 320, StageH = 180, Street = 26, Floor = 22;
+        const int Street = 26;
         // the motor pool: its floor, the shutter's opening, and where the row's tabks park (the first space is kie's)
         const float MotorFloor = 18f, MotorOpenX = 100f, MotorOpenW = 216f, MotorOpenH = 100f;
         static readonly float[] MotorRow = { 186f, 236f, 286f };
@@ -27,14 +27,13 @@ namespace PooketSlug
         // the crew's paint on the parked tabks: tones2's pink, then two others
         static readonly Color[] RowPaint = { new Color(1f, 0.62f, 0.8f), new Color(0.6f, 0.78f, 1f), new Color(1f, 0.9f, 0.5f) };
 
-        static readonly Color Ink = new Color(0.1f, 0.07f, 0.1f), Paper = new Color(1f, 0.98f, 0.92f);
-        static readonly Color Cyan = new Color(0.45f, 1f, 1f), Warm = new Color(1f, 0.78f, 0.38f), Gold = new Color(1f, 0.85f, 0.3f);
+        static readonly Color Warm = new Color(1f, 0.78f, 0.38f);
         static readonly Color Water = new Color(0.45f, 0.75f, 1f);
 
         readonly RectTransform m_Root, m_Stage, m_World;
         readonly Image m_Fade, m_Flicker, m_Back, m_Window, m_Door, m_DoorGap, m_Bag, m_Cup, m_Card, m_Spark;
         readonly Image[] m_Snow = new Image[36], m_Chips = new Image[10], m_Jet = new Image[8], m_Beams = new Image[2];
-        readonly Figure m_Tones2, m_Goon, m_Kie;
+        readonly StageFigure m_Tones2, m_Goon, m_Kie;
         // the motor pool: its shutter, the crew's tabks in a row, and kie's rolling in with Trollogram kie in the hatch
         readonly RectTransform m_ShutterMask, m_KieTabk, m_KieTurret;
         readonly Image m_Shutter, m_ColdLight, m_KieHull;
@@ -56,10 +55,10 @@ namespace PooketSlug
         readonly Image m_Flash;
         float m_Clock, m_LastNow;
         string m_LastSaid, m_WaitingNote;
-        readonly List<Bubble> m_Bubbles = new List<Bubble>();
+        readonly List<SpeechBubble> m_Bubbles = new List<SpeechBubble>();
         readonly List<Rect> m_Placed = new List<Rect>(); // this frame's bubbles so far, so the next doesn't sit on them
         readonly List<CutsceneLine> m_Lines = new List<CutsceneLine>();
-        static Sprite s_Street, s_Room, s_MotorPool, s_Slats, s_White;
+        static Sprite s_Street, s_Room, s_MotorPool, s_Slats;
         // the camera between intros: how far in, and the world point (from its middle, art pixels) it centres on
         float m_Zoom = 1f;
         Vector2 m_Look;
@@ -68,49 +67,20 @@ namespace PooketSlug
         float m_FlickerUntil, m_GoonDiedAt = -1f;
         bool m_Tapped, m_SkipPressed;
 
-        /// <summary>A soldier drawn from its legs and torso, as in the game.</summary>
-        sealed class Figure
-        {
-            public readonly RectTransform Rt;
-            public readonly Image Legs, Torso;
-
-            public Figure(RectTransform stage, string name)
-            {
-                Rt = Ui.Rect(stage, name, Vector2.zero, new Vector2(0.5f, 0f), Vector2.zero, new Vector2(24f, 32f) * Px);
-                Legs = Ui.Picture(Rt, "Legs", null, Ui.Middle, Ui.Middle, Vector2.zero, new Vector2(24f, 32f) * Px, Color.white);
-                Torso = Ui.Picture(Rt, "Torso", null, Ui.Middle, Ui.Middle, Vector2.zero, new Vector2(24f, 32f) * Px, Color.white);
-            }
-
-            public void At(float x, float y) => Rt.anchoredPosition = new Vector2(x, y) * Px;
-            public Vector2 Head => Rt.anchoredPosition + new Vector2(0f, 30f * Px);
-        }
-
-        sealed class Bubble
-        {
-            public RectTransform Rt;
-            public Image Back, Tail;
-            public Text Text;
-        }
-
         public CutsceneView(Transform parent)
         {
             m_Root = Ui.Canvas(parent, "Cutscene", 20);
             m_Root.gameObject.AddComponent<GraphicRaycaster>(); // taps and SKIP (the menus' event system serves it)
-            Image black = Ui.Picture(m_Root, "Letterbox", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, Color.black);
-            Stretch(black.rectTransform);
+            Image black = Build(m_Root, out m_Stage, out m_World);
             black.raycastTarget = true;
             var tap = black.gameObject.AddComponent<Button>();
             tap.transition = Selectable.Transition.None;
             tap.navigation = new Navigation { mode = Navigation.Mode.None };
             tap.onClick.AddListener(() => m_Tapped = true);
 
-            m_Stage = Ui.Rect(m_Root, "Stage", Ui.Middle, Ui.Middle, Vector2.zero, new Vector2(StageW, StageH) * Px);
-            m_Stage.gameObject.AddComponent<RectMask2D>();
             // everything in the scene sits in the world, which the camera's crash zoom moves; what's over it (subtitles,
             // the caption card, buttons) sits on the stage
-            m_World = Ui.Rect(m_Stage, "World", Ui.Middle, Ui.Middle, Vector2.zero, new Vector2(StageW, StageH) * Px);
-            m_Back = Picture("Backdrop", null, 0f, 0f, StageW, StageH, Color.white);
-            m_Back.rectTransform.pivot = Vector2.zero;
+            m_Back = BackdropImage(m_World);
             m_Window = Picture("Window glow", null, 262f, Street + 38f, 28f, 20f, Warm);
             m_Sign = Ui.Label(m_World, "Sign", Vector2.zero, new Vector2(232f, 110f) * Px, 20, TextAnchor.MiddleCenter, new Color(1f, 0.55f, 0.2f));
             m_Sign.text = "POOKET";
@@ -131,7 +101,7 @@ namespace PooketSlug
             for (int i = 0; i < m_Row.Length; i++) m_Row[i] = Picture("Tabk", Art.Tank, 0f, 0f, Art.Tank.rect.width, Art.Tank.rect.height, Color.white);
             for (int i = 0; i < m_Junk.Length; i++) m_Junk[i] = Picture("Trollogram junk", null, 0f, 0f, 3f, 2f, Cyan);
             for (int i = 0; i < m_Steam.Length; i++) m_Steam[i] = Picture("Steam", null, 0f, 0f, 5f, 5f, new Color(0.85f, 0.88f, 0.95f, 0.5f));
-            m_Kie = new Figure(m_World, "Trollogram kie");
+            m_Kie = new StageFigure(m_World, "Trollogram kie");
             m_KieTabk = Ui.Rect(m_World, "kie's tabk", Vector2.zero, new Vector2(0.5f, 0f), Vector2.zero, Vector2.zero);
             m_KieTurret = Ui.Rect(m_KieTabk, "Turret", new Vector2(0.5f, 0f), new Vector2(Art.TankBarrel.pivot.x / Art.TankBarrel.rect.width, 0.5f),
                 new Vector2(Art.TankBarrelPivot.x, Art.TankBarrelPivot.y) * Art.PPU * Px, new Vector2(Art.TankBarrel.rect.width, Art.TankBarrel.rect.height) * Px);
@@ -157,9 +127,9 @@ namespace PooketSlug
 
             m_Spark = Picture("Spark", null, 128f, 52f, 6f, 6f, Gold);
             for (int i = 0; i < m_Chips.Length; i++) m_Chips[i] = Picture("Chip", null, 0f, 0f, 3f, 2f, new Color(1f, 0.82f, 0.3f));
-            m_Goon = new Figure(m_World, "Goon");
+            m_Goon = new StageFigure(m_World, "Goon");
             m_Goon.Rt.localScale = new Vector3(-1f, 1f, 1f); // faces left, at tones2
-            m_Tones2 = new Figure(m_World, "tones2");
+            m_Tones2 = new StageFigure(m_World, "tones2");
             m_Bag = Picture("Snacks", null, 0f, 0f, 9f, 11f, new Color(0.95f, 0.3f, 0.35f));
             m_Cup = Picture("Slushie", null, 0f, 0f, 6f, 12f, new Color(0.55f, 0.35f, 0.95f));
             m_Card = Picture("Keycard", null, 0f, 0f, 8f, 5f, Cyan);
@@ -171,7 +141,7 @@ namespace PooketSlug
             Stretch(m_Flash.rectTransform);
             m_IntroBand = Ui.Rect(m_Stage, "Intro", Ui.Middle, Ui.Middle, new Vector2(StageW * Px * 0.2f, 28f), new Vector2(StageW * Px * 0.62f, 74f));
             var introBack = m_IntroBand.gameObject.AddComponent<Image>();
-            introBack.color = new Color(0.06f, 0.04f, 0.08f, 0.9f);
+            introBack.color = Band;
             introBack.raycastTarget = false;
             m_IntroBand.localRotation = Quaternion.Euler(0f, 0f, 6f);
             Ui.Picture(m_IntroBand, "Edge", White, new Vector2(0.5f, 0f), new Vector2(0.5f, 1f), Vector2.zero, new Vector2(StageW * Px * 0.62f, 5f), Gold);
@@ -197,7 +167,7 @@ namespace PooketSlug
 
             m_CardBand = Ui.Rect(m_Stage, "Caption card", Ui.Middle, Ui.Middle, new Vector2(0f, 10f), new Vector2(StageW * Px + 20f, 76f));
             var band = m_CardBand.gameObject.AddComponent<Image>();
-            band.color = new Color(0.06f, 0.04f, 0.08f, 0.92f);
+            band.color = Band;
             band.raycastTarget = false; // a tap on the card still moves on
             m_CardText = Ui.Label(m_CardBand, "Text", Ui.Middle, Vector2.zero, 22, TextAnchor.MiddleCenter, Gold);
             m_CardText.lineSpacing = 1.1f;
@@ -226,17 +196,7 @@ namespace PooketSlug
             Ui.Show(m_Root, false);
         }
 
-        Image Picture(string name, Sprite sprite, float x, float y, float w, float h, Color color) =>
-            Ui.Picture(m_World, name, sprite != null ? sprite : White, Vector2.zero, new Vector2(0.5f, 0f), new Vector2(x, y) * Px, new Vector2(w, h) * Px, color);
-
-        static void Stretch(RectTransform rt)
-        {
-            rt.anchorMin = Vector2.zero;
-            rt.anchorMax = Vector2.one;
-            rt.sizeDelta = Vector2.zero;
-        }
-
-        static Sprite White => s_White != null ? s_White : s_White = Sprite.Create(Art.WhiteTex, new Rect(0f, 0f, Art.WhiteTex.width, Art.WhiteTex.height), new Vector2(0.5f, 0.5f), 100f);
+        Image Picture(string name, Sprite sprite, float x, float y, float w, float h, Color color) => StageKit.Picture(m_World, name, sprite, x, y, w, h, color);
 
         public bool Showing => m_Root.gameObject.activeSelf;
 
@@ -393,7 +353,7 @@ namespace PooketSlug
             bool on = p.Introducing && intro != null;
             float build = p.BuildingUp;
             Ui.Show(m_IntroBand, on);
-            Figure who = intro != null ? FigureFor(intro.Who) : m_Tones2;
+            StageFigure who = intro != null ? FigureFor(intro.Who) : m_Tones2;
             Vector2 half = new Vector2(StageW, StageH) * Px / 2f;
             Vector2 focus = who.Rt.anchoredPosition + new Vector2(0f, 16f * Px) - half; // their middle, from the world's centre
             if (!on)
@@ -442,7 +402,7 @@ namespace PooketSlug
         public void Waiting(string note) => m_WaitingNote = note;
 
         /// <summary>Who a line or an intro belongs to on this scene's stage.</summary>
-        Figure FigureFor(Speaker who)
+        StageFigure FigureFor(Speaker who)
         {
             bool motorPool = m_Player != null && m_Player.Scene == Cutscenes.MotorPool;
             switch (who)
@@ -456,17 +416,12 @@ namespace PooketSlug
 
         void ShowBubble(int i, CutsceneLine line, float now)
         {
-            while (m_Bubbles.Count <= i) m_Bubbles.Add(NewBubble());
-            Bubble b = m_Bubbles[i];
-            Ui.Show(b.Rt, true);
+            while (m_Bubbles.Count <= i) m_Bubbles.Add(new SpeechBubble(m_World, Vector2.zero));
+            SpeechBubble b = m_Bubbles[i];
             bool glitchy = line.Who == Speaker.Goon || line.Who == Speaker.Hologram;
-            b.Text.text = line.Text;
-            b.Text.color = glitchy ? Cyan : Ink;
-            b.Back.color = b.Tail.color = glitchy ? new Color(0.05f, 0.12f, 0.16f, 0.95f) : Paper;
-            float w = b.Text.preferredWidth + 16f;
-            b.Rt.sizeDelta = new Vector2(w, 22f);
+            float w = glitchy ? b.Say(line.Text, Cyan, new Color(0.05f, 0.12f, 0.16f, 0.95f)) : b.Say(line.Text);
 
-            Figure who = FigureFor(line.Who);
+            StageFigure who = FigureFor(line.Who);
             Vector2 at = who.Head + new Vector2(0f, 16f);
             // kept on screen, where the shot's camera has it (its bubble shrinks with the zoom, so it's in world units)
             float zoom = m_World.localScale.x, half = w / 2f + 4f, view = StageW * Px / 2f / zoom;
@@ -478,11 +433,10 @@ namespace PooketSlug
             at.y = Stack(at.x, at.y, w, top);
             m_Placed.Add(new Rect(at.x - w / 2f, at.y, w, BubbleH));
             if (glitchy && (int)(now * 12f) % 5 == 0) at.x += 2f; // the holograms' bubbles glitch too
-            b.Rt.anchoredPosition = at;
-            b.Tail.rectTransform.anchoredPosition = new Vector2(Mathf.Clamp(who.Head.x - at.x, -w / 2f + 8f, w / 2f - 8f), 0f);
+            b.Place(at, who.Head.x);
         }
 
-        const float BubbleH = 22f, BubbleGap = 4f;
+        const float BubbleH = SpeechBubble.Height, BubbleGap = 4f;
 
         /// <summary>The height for a bubble at <paramref name="x"/> that clears every bubble already placed this frame.</summary>
         float Stack(float x, float y, float w, float top)
@@ -506,25 +460,6 @@ namespace PooketSlug
                 if (Mathf.Abs(x - r.center.x) < (w + r.width) / 2f + BubbleGap && Mathf.Abs(y - r.y) < BubbleH + BubbleGap)
                     return false;
             return true;
-        }
-
-        Bubble NewBubble()
-        {
-            var b = new Bubble();
-            b.Rt = Ui.Rect(m_World, "Bubble", Vector2.zero, new Vector2(0.5f, 0f), Vector2.zero, new Vector2(40f, 22f));
-            b.Tail = Ui.Picture(b.Rt, "Tail", White, new Vector2(0.5f, 0f), Ui.Middle, Vector2.zero, new Vector2(8f, 8f), Paper);
-            b.Tail.rectTransform.localRotation = Quaternion.Euler(0f, 0f, 45f);
-            b.Back = b.Rt.gameObject.AddComponent<Image>();
-            b.Back.sprite = White;
-            b.Back.raycastTarget = false;
-            var outline = b.Rt.gameObject.AddComponent<Outline>();
-            outline.effectColor = Ink;
-            outline.effectDistance = new Vector2(1.5f, -1.5f);
-            b.Text = Ui.Label(b.Rt, "Line", Ui.Middle, Vector2.zero, 11, TextAnchor.MiddleCenter, Ink);
-            b.Text.GetComponent<Shadow>().enabled = false;
-            b.Tail.transform.SetAsFirstSibling();
-            b.Rt.SetAsLastSibling();
-            return b;
         }
 
         // ------------------------------------------------------------------ the opening's staging
@@ -1018,20 +953,6 @@ namespace PooketSlug
         }
 
         // ------------------------------------------------------------------ the painted backdrops
-
-        static Sprite Backdrop(System.Action<PixelCanvas> draw)
-        {
-            var c = new PixelCanvas(StageW, StageH);
-            draw(c);
-            return Sprite.Create(Art.ToTexture(c), new Rect(0, 0, StageW, StageH), Vector2.zero, 1f);
-        }
-
-        static void Sky(PixelCanvas c, uint top, uint bottom)
-        {
-            Color32 a = Art.Hex(top), b = Art.Hex(bottom);
-            for (int y = 0; y < StageH; y++)
-                c.Rect(0, y, StageW, 1, Color32.Lerp(b, a, y / (float)StageH));
-        }
 
         static void DrawStreet(PixelCanvas c)
         {

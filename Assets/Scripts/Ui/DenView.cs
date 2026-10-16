@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using static PooketSlug.StageKit;
 
 namespace PooketSlug
 {
@@ -22,18 +23,16 @@ namespace PooketSlug
     /// two floors, with a station for each crewmate: freed ones live at theirs and run little idle loops, and the rest stay
     /// wrecked and dark from the raid. Tapping a crewmate sits them on the couch with a controller (<see cref="Den"/>);
     /// READY presses START, and the camera zooms into the TV. Every so often two of the crew do a bit with speech bubbles
-    /// (<see cref="DenBits"/>). The stage is 320 x 180 art pixels at 2x, like the cutscenes, letterboxed on other shapes.
+    /// (<see cref="DenBits"/>). The stage is <see cref="StageKit"/>'s, shared with the cutscenes: 320 x 180 art pixels at 2x, letterboxed on other shapes.
     /// </summary>
     public sealed class DenView
     {
-        const float Px = 2f;
-        const int StageW = 320, StageH = 180, Floor = 22, Loft = 100;
+        const int Loft = 100;
         const float SeatY = Floor + 12f, WalkSpeed = 46f;
         static readonly float[] SeatX = { 101f, 131f };
         static readonly Vector2 TvCentre = new Vector2(116f, 69f);
 
-        static readonly Color Ink = new Color(0.1f, 0.07f, 0.1f), Paper = new Color(1f, 0.98f, 0.92f);
-        static readonly Color Gold = new Color(1f, 0.85f, 0.3f), Cyan = new Color(0.45f, 1f, 1f), Pad = new Color(0.42f, 0.31f, 0.69f);
+        static readonly Color Pad = new Color(0.42f, 0.31f, 0.69f);
         static readonly Color[] PlayerColours = { new Color(1f, 0.35f, 0.37f), new Color(0.31f, 0.66f, 1f) };
 
         /// <summary>A station: whose it is, which floor, where it spans, and where they stand at it.</summary>
@@ -69,22 +68,22 @@ namespace PooketSlug
             new Station("larinovsky", null, true, 196, 256, 226f),
         };
 
-        /// <summary>A soldier drawn from its legs and torso, as in the game; sitting, the torso drops and the legs fold.</summary>
+        /// <summary>A crewmate's figure (<see cref="StageFigure"/>), with a controller for the couch and tones2's slushie; sitting, the torso drops and the legs fold.</summary>
         sealed class Figure
         {
-            public readonly RectTransform Rt;
-            public readonly Image Legs, Torso, Controller, Cup;
+            public readonly StageFigure Body;
+            public readonly Image Controller, Cup;
+            public RectTransform Rt => Body.Rt;
+            public Image Legs => Body.Legs;
+            public Image Torso => Body.Torso;
 
             public Figure(RectTransform world, string name)
             {
-                Rt = Ui.Rect(world, name, Vector2.zero, new Vector2(0.5f, 0f), Vector2.zero, new Vector2(24f, 32f) * Px);
-                Legs = Ui.Picture(Rt, "Legs", null, Ui.Middle, Ui.Middle, Vector2.zero, new Vector2(24f, 32f) * Px, Color.white);
-                Torso = Ui.Picture(Rt, "Torso", null, Ui.Middle, Ui.Middle, Vector2.zero, new Vector2(24f, 32f) * Px, Color.white);
+                Body = new StageFigure(world, name);
                 Controller = Ui.Picture(Rt, "Controller", null, Ui.Middle, Ui.Middle, new Vector2(5f, -6f) * Px, new Vector2(5f, 3f) * Px, Pad);
                 Cup = Ui.Picture(Rt, "Slushie", null, Ui.Middle, Ui.Middle, new Vector2(6f, 0f) * Px, new Vector2(3f, 5f) * Px, new Color(0.55f, 0.35f, 0.95f));
             }
 
-            public Vector2 Head => Rt.anchoredPosition + new Vector2(0f, 30f * Px);
         }
 
         enum Doing { Station, Walking, Seated, Bit, Away }
@@ -112,13 +111,12 @@ namespace PooketSlug
         readonly Text m_ReadyLabel, m_CardName;
         readonly RectTransform m_Card;
         readonly List<Button> m_StationTaps = new List<Button>();
-        readonly List<(RectTransform rt, Image back, Image tail, Text text)> m_Bubbles = new List<(RectTransform, Image, Image, Text)>();
+        readonly List<SpeechBubble> m_Bubbles = new List<SpeechBubble>();
         readonly List<Actor> m_Actors = new List<Actor>();
         readonly Figure m_Visitor;
         Actor m_VisitorActor;
         Sprite m_Backdrop;
         string m_BackdropKey;
-        static Sprite s_White;
 
         readonly System.Random m_Rng = new System.Random();
         DenBit m_Bit, m_LastBit;
@@ -133,14 +131,8 @@ namespace PooketSlug
         {
             m_Root = Ui.Canvas(parent, "Den", 8); // under the menus (10), so the ⓘ kit screen and notices show over it
             m_Root.gameObject.AddComponent<GraphicRaycaster>();
-            Image black = Ui.Picture(m_Root, "Letterbox", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, Color.black);
-            Stretch(black.rectTransform);
-
-            m_Stage = Ui.Rect(m_Root, "Stage", Ui.Middle, Ui.Middle, Vector2.zero, new Vector2(StageW, StageH) * Px);
-            m_Stage.gameObject.AddComponent<RectMask2D>();
-            m_World = Ui.Rect(m_Stage, "World", Ui.Middle, Ui.Middle, Vector2.zero, new Vector2(StageW, StageH) * Px);
-            m_Back = Picture("Backdrop", 0f, 0f, StageW, StageH, Color.white);
-            m_Back.rectTransform.pivot = Vector2.zero;
+            Build(m_Root, out m_Stage, out m_World);
+            m_Back = BackdropImage(m_World);
 
             // the TV: the console's start screen, the room, both controllers' lights, the countdown
             m_TvTitle = WorldLabel("TV title", 89f, 82f, 10, TextAnchor.UpperLeft, Gold);
@@ -201,7 +193,7 @@ namespace PooketSlug
             m_ReadyLabel.fontSize = 16;
             m_Card = Ui.Rect(m_Stage, "Name card", Ui.Middle, Ui.Middle, new Vector2(-half.x + 70f, -half.y + 30f), new Vector2(124f, 28f));
             var card = m_Card.gameObject.AddComponent<Image>();
-            card.color = new Color(0.06f, 0.04f, 0.08f, 0.88f);
+            card.color = Band;
             card.raycastTarget = false;
             m_CardName = Ui.Label(m_Card, "Name", new Vector2(0f, 0.5f), new Vector2(10f, 0f), 14, TextAnchor.MiddleLeft, Gold);
             m_KitButton = Ui.Button(m_Card, "i", new Vector2(46f, 0f), new Vector2(22f, 22f), () => m_KitPressed = true, out Text kitKey);
@@ -218,20 +210,9 @@ namespace PooketSlug
             Ui.Show(m_Root, false);
         }
 
-        static Sprite White => s_White != null ? s_White : s_White = Sprite.Create(Art.WhiteTex, new Rect(0f, 0f, Art.WhiteTex.width, Art.WhiteTex.height), new Vector2(0.5f, 0.5f), 100f);
+        Image Picture(string name, float x, float y, float w, float h, Color color) => StageKit.Picture(m_World, name, null, x, y, w, h, color);
 
-        Image Picture(string name, float x, float y, float w, float h, Color color) =>
-            Ui.Picture(m_World, name, White, Vector2.zero, new Vector2(0.5f, 0f), new Vector2(x, y) * Px, new Vector2(w, h) * Px, color);
-
-        Text WorldLabel(string name, float x, float y, int size, TextAnchor align, Color color) =>
-            Ui.Label(m_World, name, Vector2.zero, new Vector2(x, y) * Px, size, align, color);
-
-        static void Stretch(RectTransform rt)
-        {
-            rt.anchorMin = Vector2.zero;
-            rt.anchorMax = Vector2.one;
-            rt.sizeDelta = Vector2.zero;
-        }
+        Text WorldLabel(string name, float x, float y, int size, TextAnchor align, Color color) => Label(m_World, name, x, y, size, align, color);
 
         public bool Showing => m_Root.gameObject.activeSelf;
 
@@ -242,9 +223,7 @@ namespace PooketSlug
             if (m_BackdropKey != key)
             {
                 m_BackdropKey = key;
-                var c = new PixelCanvas(StageW, StageH);
-                Draw(c, den.Crew);
-                m_Backdrop = Sprite.Create(Art.ToTexture(c), new Rect(0, 0, StageW, StageH), Vector2.zero, 1f);
+                m_Backdrop = Backdrop(c => Draw(c, den.Crew));
                 m_Back.sprite = m_Backdrop;
             }
             foreach (Actor a in m_Actors) Object.Destroy(a.Fig.Rt.gameObject);
@@ -595,40 +574,20 @@ namespace PooketSlug
 
         void Bubble(int i, string text, Actor who)
         {
-            while (m_Bubbles.Count <= i)
-            {
-                RectTransform rt = Ui.Rect(m_World, "Bubble", Vector2.zero, new Vector2(0.5f, 0f), Vector2.zero, new Vector2(40f, 22f));
-                Image tail = Ui.Picture(rt, "Tail", White, new Vector2(0.5f, 0f), Ui.Middle, Vector2.zero, new Vector2(8f, 8f), Paper);
-                tail.rectTransform.localRotation = Quaternion.Euler(0f, 0f, 45f);
-                var back = rt.gameObject.AddComponent<Image>();
-                back.sprite = White;
-                back.color = Paper;
-                back.raycastTarget = false;
-                var outline = rt.gameObject.AddComponent<Outline>();
-                outline.effectColor = Ink;
-                outline.effectDistance = new Vector2(1.5f, -1.5f);
-                Text t = Ui.Label(rt, "Line", Ui.Middle, Vector2.zero, 11, TextAnchor.MiddleCenter, Ink);
-                t.GetComponent<Shadow>().enabled = false;
-                tail.transform.SetAsFirstSibling();
-                m_Bubbles.Add((rt, back, tail, t));
-            }
-            var b = m_Bubbles[i];
-            b.rt.SetAsLastSibling();
-            Ui.Show(b.rt, true);
-            b.text.text = text;
-            float w = b.text.preferredWidth + 16f;
-            b.rt.sizeDelta = new Vector2(w, 22f);
+            while (m_Bubbles.Count <= i) m_Bubbles.Add(new SpeechBubble(m_World, Vector2.zero));
+            SpeechBubble b = m_Bubbles[i];
+            b.Rt.SetAsLastSibling();
+            float w = b.Say(text);
             Vector2 head = new Vector2(who.X, (who.Doing == Doing.Seated ? SeatY - 5f : who.Y) + 30f) * Px;
             Vector2 at = head + new Vector2(0f, 16f);
             float half = w / 2f + 4f;
             at.x = Mathf.Clamp(at.x, half, StageW * Px - half);
-            b.rt.anchoredPosition = at;
-            b.tail.rectTransform.anchoredPosition = new Vector2(Mathf.Clamp(head.x - at.x, -w / 2f + 8f, w / 2f - 8f), 0f);
+            b.Place(at, head.x);
         }
 
         void HideBubbles(int from)
         {
-            for (int i = from; i < m_Bubbles.Count; i++) Ui.Show(m_Bubbles[i].rt, false);
+            for (int i = from; i < m_Bubbles.Count; i++) m_Bubbles[i].Hide();
         }
 
         // ------------------------------------------------------------------ the TV, the console and the buttons
