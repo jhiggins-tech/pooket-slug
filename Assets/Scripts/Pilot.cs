@@ -86,6 +86,12 @@ namespace PooketSlug
             ChargeSuper();
             m_Roulette.Fury = 1f + PilotSpec.Rage(Health);
 
+            if (World.WeakPilot && Anim > 3f)
+            {
+                Hp = 0; // ?test=pilot,weak: he goes down on his own a few seconds in, to see what beating him does
+                Die();
+                return;
+            }
             SoldierInput input = m_Brain.Tick(dt, View());
             if (m_Brain.Telling && !m_Telling) Sfx.Play(Sfx.Charge, 0.6f); // the tell: a flash and a sound
             m_Telling = m_Brain.Telling;

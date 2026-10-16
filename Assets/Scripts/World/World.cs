@@ -139,7 +139,7 @@ namespace PooketSlug
         public bool QuickBossIntro;
         /// <summary>?test=pilot: a boss tank is wrecked the moment it's ready to fight, so the pilot round starts at once.</summary>
         public bool SkipToPilot;
-        /// <summary>Testing (<c>?test=pilot,weak</c>): the pilot jumps out on one point of health.</summary>
+        /// <summary>Testing (<c>?test=pilot,weak</c>): the pilot jumps out on one point of health, and goes down on his own a few seconds in.</summary>
         public bool WeakPilot;
 
         public void OnBossIntro(BossEnemy boss, bool firstTime)
