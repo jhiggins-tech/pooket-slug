@@ -57,6 +57,7 @@ namespace PooketSlug
         float m_Clock, m_LastNow;
         string m_LastSaid, m_WaitingNote;
         readonly List<Bubble> m_Bubbles = new List<Bubble>();
+        readonly List<Rect> m_Placed = new List<Rect>(); // this frame's bubbles so far, so the next doesn't sit on them
         readonly List<CutsceneLine> m_Lines = new List<CutsceneLine>();
         static Sprite s_Street, s_Room, s_MotorPool, s_Slats, s_White;
         // the camera between intros: how far in, and the world point (from its middle, art pixels) it centres on
@@ -347,6 +348,7 @@ namespace PooketSlug
             p.Showing(m_Lines);
             int bubbles = 0;
             bool card = false;
+            m_Placed.Clear();
             foreach (CutsceneLine line in m_Lines)
             {
                 if (line.Who == Speaker.Caption)
@@ -468,6 +470,17 @@ namespace PooketSlug
             float zoom = m_World.localScale.x, half = w / 2f + 4f, view = StageW * Px / 2f / zoom;
             float middle = StageW * Px / 2f - m_World.anchoredPosition.x / zoom;
             at.x = Mathf.Clamp(at.x, middle - view + half, middle + view - half);
+            // two people talking close together: the later bubble goes above the earlier one
+            for (int k = 0; k < m_Placed.Count; k++)
+            {
+                Rect r = m_Placed[k];
+                if (Mathf.Abs(at.x - r.center.x) < (w + r.width) / 2f + 4f && Mathf.Abs(at.y - r.y) < 24f)
+                {
+                    at.y = r.y + 26f;
+                    k = -1; // and check it again against them all
+                }
+            }
+            m_Placed.Add(new Rect(at.x - w / 2f, at.y, w, 22f));
             if (glitchy && (int)(now * 12f) % 5 == 0) at.x += 2f; // the holograms' bubbles glitch too
             b.Rt.anchoredPosition = at;
             b.Tail.rectTransform.anchoredPosition = new Vector2(Mathf.Clamp(who.Head.x - at.x, -w / 2f + 8f, w / 2f - 8f), 0f);
