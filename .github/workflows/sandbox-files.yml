@@ -1,0 +1,50 @@
+name: Sandbox setups → GitHub Pages
+
+# The sandbox's setups (sandbox/*.txt, docs/sandbox.md) go live without a build: a push that changes them copies the
+# folder to sandbox/ beside the game, the live game's for the main line and a branch's own preview's for any other,
+# in a couple of minutes. The full build (webgl-pages.yml) ignores these files, and carries them in its own deploy.
+on:
+  push:
+    branches:
+      - 'claude/**'
+    paths:
+      - 'sandbox/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write # the deploy pushes to the gh-pages branch
+
+env:
+  MAIN_LINE: claude/gallant-keller-3qzp97
+
+concurrency:
+  group: sandbox-files-${{ github.ref_name }}
+  cancel-in-progress: true # only the newest setups matter
+
+jobs:
+  publish:
+    name: Publish the sandbox's setups
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          sparse-checkout: |
+            tools
+            sandbox
+
+      - name: Deploy to gh-pages branch
+        run: |
+          slug=-
+          if [ "$GITHUB_REF_NAME" != "$MAIN_LINE" ]; then
+            slug=$(echo "$GITHUB_REF_NAME" | sed -e 's#^claude/##' -e 's/[^A-Za-z0-9-]/-/g' | tr 'A-Z' 'a-z')
+          fi
+          mkdir -p "$RUNNER_TEMP/sandbox"
+          cp sandbox/*.txt "$RUNNER_TEMP/sandbox/" 2>/dev/null || true
+          tools/pages_deploy.sh files "$slug" "$RUNNER_TEMP/sandbox" sandbox | tee "$RUNNER_TEMP/deploy.log"
+          {
+            echo "### Sandbox setups published"
+            echo ""
+            grep '^Files: ' "$RUNNER_TEMP/deploy.log" | sed 's/^Files: /- /' || true
+            for f in sandbox/*.txt; do [ -e "$f" ] && echo "- \`?sandbox=$(basename "$f" .txt)\`"; done
+          } >> "$GITHUB_STEP_SUMMARY"

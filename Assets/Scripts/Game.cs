@@ -100,6 +100,11 @@ namespace PooketSlug
         int m_DemoIndex, m_DemoFrames;
         float m_DemoT, m_DemoWait;
         bool m_DemoStarted, m_DemoRecording; // the first time through ?demo=all, the page records each demo for CI
+        /// <summary>The sandbox this visit plays (<c>?sandbox=</c>), or null; set once its file's loaded.</summary>
+        SandboxSetup m_Sandbox;
+        bool m_SandboxLoading;
+        int m_SandboxFrames; // a scripted take's frames so far, on the demos' fixed step
+        int m_SandboxSpecials; // the most specials the soldier's had, which cheat specials keeps them at
 
         /// <summary>Co-op shows only once Mission one has been beaten solo (progressive disclosure).</summary>
         bool CoopOpen => m_Profile.coop || m_Unlocked;
@@ -171,6 +176,7 @@ namespace PooketSlug
             GameInput.TouchActive = Application.isMobilePlatform; // until the player shows otherwise
 
             if (StartDemos(PageQuery.Get(url, "demo"))) return; // a demo is all this visit plays
+            if (StartSandbox(PageQuery.Get(url, "sandbox"), url)) return; // and so is a sandbox: solo, and never recorded
             if (NetSessions.Factory != null && NetConfig.Configured) m_Net = NetSessions.Factory(gameObject);
             string invite = RoomFromUrl(url);
             if (m_Net != null && !string.IsNullOrEmpty(invite))
@@ -191,6 +197,7 @@ namespace PooketSlug
         /// <summary>A world for <paramref name="mission"/>, shared when <paramref name="net"/> is given.</summary>
         World NewWorld(MissionDef mission, INetLink net = null)
         {
+            if (m_Sandbox != null) return SandboxWorld();
             var world = new World(m_Camera, mission, net, Soldier) { TanksToCall = m_TankUnlocked || m_TestTank || (Spike.CallIn && net == null) ? 1 : 0, SkipToPilot = m_TestPilot, WeakPilot = m_TestWeakPilot, TestTeam = m_TestTeam, KcajTank = m_TestKcajTank };
             world.BossIntro += OnBossIntro;
             world.BossFightStarted += OnBossFightStarted;
@@ -281,7 +288,7 @@ namespace PooketSlug
         void StartFromTitle()
         {
             // ?test=boss, pilot and team are for trying something at once: they start without the opening
-            if (m_Mission == Missions.One && !m_TestBoss && !m_TestTeam && !m_TestCoda && !m_TestDebrief) PlayScene(Cutscenes.Opening, false, StartSolo);
+            if (m_Mission == Missions.One && m_Sandbox == null && !m_TestBoss && !m_TestTeam && !m_TestCoda && !m_TestDebrief) PlayScene(Cutscenes.Opening, false, StartSolo);
             else StartSolo();
         }
 
@@ -423,6 +430,13 @@ namespace PooketSlug
         /// <summary>Back to the title screen from a solo game.</summary>
         void ToTitle()
         {
+            if (m_Sandbox != null)
+            {
+                // a sandbox visit plays only the sandbox (its tuning stays turned): MENU starts it again
+                m_Paused = false;
+                Restart();
+                return;
+            }
             m_World.Dispose();
             m_World = NewWorld(m_Mission);
             m_Paused = false;
@@ -745,6 +759,115 @@ namespace PooketSlug
             BeginDemo((m_DemoIndex + 1) % m_Demos.Count);
         }
 
+        // ------------------------------------------------------------------ ?sandbox: a world from a link
+
+        /// <summary>
+        /// <c>?sandbox=</c> (<see cref="SandboxSetup"/>, <c>docs/sandbox.md</c>): the setup itself, in setup lines
+        /// (<c>?sandbox=soldier kie;ground P...s...T</c>), or the name of a file published beside the game
+        /// (<c>?sandbox=boss</c> reads <c>sandbox/boss.txt</c>). <c>?sandbox=knobs</c> logs every knob there is, then
+        /// plays the default. False for no sandbox.
+        /// </summary>
+        bool StartSandbox(string sandbox, string url)
+        {
+            if (sandbox == null) return false;
+            if (string.Equals(sandbox, "knobs", StringComparison.OrdinalIgnoreCase))
+            {
+                Log.Game.Info("Sandbox knobs:\n" + string.Join("\n", Knobs.All()));
+                sandbox = "";
+            }
+            if (sandbox.Length > 0 && SetupText.IsName(sandbox))
+            {
+                string file = SetupText.FileUrl(url, "sandbox", sandbox);
+                if (file == null)
+                {
+                    BeginSandbox(SandboxSetup.Failed("sandbox files only load on the site"));
+                    return true;
+                }
+                m_SandboxLoading = true;
+                Log.Game.Info("Sandbox: loading " + file);
+                StartCoroutine(SiteFile.Fetch(file, (text, error) =>
+                {
+                    m_SandboxLoading = false;
+                    BeginSandbox(text != null ? SandboxSetup.Read(text) : SandboxSetup.Failed("couldn't load sandbox/" + sandbox.ToLowerInvariant() + ".txt: " + error));
+                }));
+                return true;
+            }
+            BeginSandbox(SandboxSetup.Read(sandbox));
+            return true;
+        }
+
+        void BeginSandbox(SandboxSetup setup)
+        {
+            m_Sandbox = setup;
+            setup.ApplyTunes(); // before the world, which reads them as it's built
+            m_Mission = setup.Mission;
+            Log.Game.Info("Sandbox: " + setup.Soldier.Name + ", " + setup.Mission.Map.Length + " rows" +
+                          (setup.Script != null ? ", a scripted take of " + setup.Script.Seconds + " s" : "") +
+                          ", tuned: " + string.Join(", ", setup.Tunes));
+            foreach (string problem in setup.Problems) Log.Game.Warn("Sandbox: " + problem);
+            m_World.Dispose();
+            m_World = NewWorld(m_Mission);
+            StartSolo();
+        }
+
+        /// <summary>What the start banner says in a sandbox: SANDBOX and any problem; nothing in a clean scripted take, which is being recorded.</summary>
+        string SandboxNote => m_Sandbox.Script != null && m_Sandbox.Problems.Count == 0 ? null : m_Sandbox.Label;
+
+        /// <summary>The sandbox's world: its map and soldier, its boss, cheats and start, wired for play but never for the profile.</summary>
+        World SandboxWorld()
+        {
+            SandboxSetup s = m_Sandbox;
+            var world = new World(m_Camera, s.Mission, null, s.Soldier)
+            {
+                TanksToCall = s.Tank ? 99 : 0,
+                SkipToPilot = s.Boss == SandboxBoss.Pilot || s.Boss == SandboxBoss.WeakPilot,
+                WeakPilot = s.Boss == SandboxBoss.WeakPilot,
+                KcajTank = s.Boss == SandboxBoss.Kcaj,
+            };
+            world.BossIntro += OnBossIntro;
+            world.BossFightStarted += OnBossFightStarted;
+            world.PilotFreed += OnPilotFreed;
+            world.TankWrecked += OnTankWrecked;
+            m_IntroName = null;
+            world.Player.NoDamage = s.Invincible;
+            if (s.Super) world.Player.Kit.FillSuper();
+            if (s.At == "boss") StartAtBoss(world);
+            else if (s.At == "coda") StartAtCoda(world, false);
+            else if (s.AtX >= 0f) StartAt(world, s.AtX);
+            m_SandboxFrames = 0;
+            m_SandboxSpecials = 0;
+            return world;
+        }
+
+        /// <summary>
+        /// One frame of a sandbox: played, or its scripted take on the demos' fixed step, starting again once it's run
+        /// its length; then the cheats top up. True if it started again (the frame's over).
+        /// </summary>
+        bool TickSandbox(float dt, SoldierInput soldier)
+        {
+            SandboxSetup s = m_Sandbox;
+            if (s.Script != null)
+            {
+                m_SandboxFrames++;
+                m_World.Tick(1f / DemoScript.Fps, s.Script.InputAt(m_SandboxFrames));
+                if (m_SandboxFrames / DemoScript.Fps >= s.Script.Seconds)
+                {
+                    Restart();
+                    return true;
+                }
+            }
+            else m_World.Tick(dt, soldier);
+            Player p = m_World.Player;
+            if (s.Super) p.Kit.FillSuper();
+            if (s.Specials)
+            {
+                // full: as many as it's had (each kit has its own count: tones2's rocket charges, kie's specials)
+                m_SandboxSpecials = Mathf.Max(m_SandboxSpecials, p.Specials);
+                p.Specials = m_SandboxSpecials;
+            }
+            return false;
+        }
+
         // ------------------------------------------------------------------ the boss intro
 
         /// <summary>?spike=music, which is solo only.</summary>
@@ -775,7 +898,7 @@ namespace PooketSlug
         /// The motor pool reveal plays once, ever: the first time tones2 reaches Mission one's motor pool, solo (co-op
         /// opens only once Mission one's beaten, so it's been seen by then). Test starts skip it, unless ?test=reveal.
         /// </summary>
-        bool PlaysMotorPool => !m_Coop && m_Mission == Missions.One &&
+        bool PlaysMotorPool => !m_Coop && m_Sandbox == null && m_Mission == Missions.One &&
             (m_TestReveal || !m_Profile.HasSeen(Cutscenes.MotorPool.Id) && !m_TestBoss && !m_TestTeam);
 
         /// <summary>
@@ -784,7 +907,7 @@ namespace PooketSlug
         /// </summary>
         void OnPilotFreed()
         {
-            if (m_Coop)
+            if (m_Coop || m_Sandbox != null) // a sandbox skips the scene too
             {
                 m_World.OnBossDestroyed();
                 return;
@@ -975,7 +1098,8 @@ namespace PooketSlug
                 ChangeOptions(o);
             }
 
-            if (m_KitOpen) TickKit(click, keys, soldier);
+            if (m_SandboxLoading) { } // the title shows behind until the sandbox's file is in
+            else if (m_KitOpen) TickKit(click, keys, soldier);
             else if (m_BoardOpen) TickBoard(click, keys, soldier);
             else switch (m_State)
             {
@@ -1109,7 +1233,11 @@ namespace PooketSlug
                     if (keys.Restart) { Restart(); break; }
                     if (keys.Pause || keys.PadPause || keys.Back || (keys.Start && m_StateTime > 0.2f)) { m_Paused = true; break; }
 
-                    m_World.Tick(dt, soldier);
+                    if (m_Sandbox != null)
+                    {
+                        if (TickSandbox(dt, soldier)) break;
+                    }
+                    else m_World.Tick(dt, soldier);
                     if (MusicOn && (m_World.Victory || m_World.BossMusicOff) && Music.Playing != null) Music.Stop(fade: !m_World.BossMusicOff); // the pilot glitched out (cut dead by his big glitch-out)
                     m_OutFor = m_World.Player.Lives.IsOut ? m_OutFor + dt : 0f;
                     if (m_OutFor > Tuning.Lives.GameOverDelay) EndRun(GameState.GameOver);
@@ -1156,9 +1284,9 @@ namespace PooketSlug
                 InGame = m_State == GameState.Playing || m_State == GameState.GameOver || m_State == GameState.Victory,
                 Playing = m_State == GameState.Playing,
                 Paused = m_Paused,
-                Demo = m_State == GameState.Demo,
+                Demo = m_State == GameState.Demo || m_Sandbox?.Script != null, // a scripted take is recorded the same way
                 StateTime = m_StateTime,
-                Note = m_StartNote ?? (m_Coop ? null : Spike.Label),
+                Note = m_StartNote ?? (m_Coop ? null : m_Sandbox != null ? SandboxNote : Spike.Label),
                 HiScore = m_Profile.Best(m_World.Mission),
                 Fps = Mathf.RoundToInt(m_Fps),
                 Muted = Sfx.Muted,
@@ -1241,6 +1369,7 @@ namespace PooketSlug
         {
             SetState(state);
             if (state == GameState.GameOver) Music.Silence();
+            if (m_Sandbox != null) return; // nothing a sandbox does goes on the profile
             bool wasOpen = m_Profile.coop, won = state == GameState.Victory;
             int best = m_Profile.Best(m_World.Mission), clears = m_Profile.Clears(m_World.Mission);
             m_Profile.RecordRun(m_World.Mission, m_Coop ? Setting.Normal : m_Setting, m_World.Scoring.Points, won, solo: !m_Coop);
