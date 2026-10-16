@@ -79,6 +79,7 @@ namespace PooketSlug
     /// One of kie's weasels, on the players' side. It tumbles where it's thrown, then scurries under the nearest goon
     /// on the ground in reach and pops; with nothing to hunt it runs on and pops when its fuse runs out. It touches a
     /// goon on the way down: it pops there. Goons can't shoot it. The first pop in a while plays Pop Goes the Weasel.
+    /// It moves and looks like his tabk's weasels (<see cref="WeaselBody"/>).
     /// </summary>
     public sealed class PopWeasel : Actor
     {
@@ -122,15 +123,13 @@ namespace PooketSlug
             Enemy prey = Prey(spec);
             if (!m_Landed)
             {
-                Vel.y = Mathf.Max(Vel.y - spec.Gravity * dt, -Tuning.Physics.MaxFall);
-                MoveResult r = MoveWithTiles(dt);
-                if (r.HitWall) Vel.x = 0f;
+                bool down = WeaselBody.Tumble(this, dt, spec.Gravity);
                 if (prey != null && prey.Bounds.Overlaps(Bounds))
                 {
                     Pop();
                     return;
                 }
-                if (Grounded) m_Landed = true;
+                if (down) m_Landed = true;
                 else if (m_Time >= spec.AirTime) Pop();
                 return;
             }
@@ -146,10 +145,7 @@ namespace PooketSlug
                     return;
                 }
             }
-            Vel.x = Facing * spec.ScurrySpeed;
-            Vel.y = Mathf.Max(Vel.y - Tuning.Physics.Gravity * dt, -Tuning.Physics.MaxFall);
-            MoveResult m = MoveWithTiles(dt);
-            if (m.HitWall && Grounded) Vel.y = 10f; // hops up steps
+            WeaselBody.Scurry(this, dt, spec.ScurrySpeed);
             if (m_Fuse >= spec.Fuse) Pop();
         }
 
@@ -191,10 +187,8 @@ namespace PooketSlug
         public override void Render()
         {
             base.Render();
-            bool running = m_Landed && Grounded && Mathf.Abs(Vel.x) > 0.1f;
-            m_Sr.sprite = KieArt.Weasel[running && (int)(m_Time * 16f) % 2 == 1 ? 1 : 0];
-            // tumbles in the air; blinks as its fuse runs out
-            Visual.localRotation = m_Landed ? Quaternion.identity : Quaternion.Euler(0f, 0f, m_Time * -720f * Facing);
+            m_Sr.sprite = WeaselBody.Pose(this, m_Landed, m_Time);
+            // blinks as its fuse runs out
             Blink(m_Sr, m_Landed ? KieTuning.Weasels.Fuse - m_Fuse : 1f);
         }
 

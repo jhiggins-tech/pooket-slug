@@ -86,7 +86,7 @@ namespace PooketSlug
 
         protected Sprite Flashed(Sprite s) => FlashTimer > 0f ? Art.Flash(s) : s;
 
-        protected MoveResult MoveWithTiles(float dt, bool dropThrough = false)
+        protected internal MoveResult MoveWithTiles(float dt, bool dropThrough = false)
         {
             float push = Shove.x;
             Vel.x += push;

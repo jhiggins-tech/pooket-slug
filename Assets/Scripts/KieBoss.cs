@@ -226,6 +226,7 @@ namespace PooketSlug
 
     /// <summary>
     /// One of kie's weasels. Thrown from the tank, it lands, scurries at the nearest soldier and pops; shoot it first.
+    /// It moves and looks like kie's own (<see cref="WeaselBody"/>).
     /// In co-op the authority runs it; its pop hurts every soldier in reach, and a follower plays the pop when the
     /// snapshot says it's gone (a shot one, with no health left, makes a small harmless one).
     /// </summary>
@@ -254,22 +255,13 @@ namespace PooketSlug
             KieTankSpec spec = Content.KieTank;
             if (!m_Landed)
             {
-                Vel.y = Mathf.Max(Vel.y - spec.WeaselGravity * dt, -MaxFall);
-                MoveWithTiles(dt);
-                if (Grounded) m_Landed = true;
+                m_Landed = WeaselBody.Tumble(this, dt, spec.WeaselGravity);
                 return;
             }
 
             m_Fuse += dt;
-            Vel.x = 0f;
-            if (!Target.IsDown)
-            {
-                FaceTarget();
-                Vel.x = Facing * m_Speed;
-            }
-            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
-            MoveResult r = MoveWithTiles(dt);
-            if (r.HitWall && Grounded) Vel.y = 10f;
+            if (!Target.IsDown) FaceTarget();
+            WeaselBody.Scurry(this, dt, Target.IsDown ? 0f : m_Speed);
             bool close = !Target.IsDown && (Target.Center - Center).sqrMagnitude < spec.WeaselReach * spec.WeaselReach;
             if (close || m_Fuse >= spec.WeaselFuse) Pop();
         }
@@ -298,12 +290,8 @@ namespace PooketSlug
         {
             base.Render();
             Visual.gameObject.SetActive(!Dying);
-            bool landed = m_Landed || (!World.IsAuthority && Grounded);
-            if (!World.IsAuthority && Grounded) m_Landed = true;
-            bool running = landed && Grounded && Mathf.Abs(Vel.x) > 0.1f;
-            m_Sr.sprite = Flashed(KieArt.Weasel[running && (int)(Anim * 16f) % 2 == 1 ? 1 : 0]);
-            // a weasel in the air tumbles
-            Visual.localRotation = landed ? Quaternion.identity : Quaternion.Euler(0f, 0f, Anim * -720f * Facing);
+            if (!World.IsAuthority && Grounded) m_Landed = true; // a follower sees it land in the snapshot
+            m_Sr.sprite = Flashed(WeaselBody.Pose(this, m_Landed, Anim));
         }
     }
 
