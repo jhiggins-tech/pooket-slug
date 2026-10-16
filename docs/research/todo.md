@@ -126,6 +126,12 @@ C2, the refactor, is done. C1's code is written and checked locally; it goes liv
   - [x] Verify in CI and live (6c6438d, 2026-10-16): built and deployed; the co-op test's host-and-join and boss rounds both go through the den and pass. Played live with `?unlock=crew`: swap to kie, the idle loops and a bit, READY into the opening. The smoke test caught the TV's missing dot glyphs and the buttons' keys cut off at the bottom; fixed. Approved by the owner.
   - Not in this pass: the first-visit and move-in beats, the couch fist bump, spectators on the TV, the host changing the mission, copying the invite from the TV.
 
+- [x] **C14. The ⓘ kit screen** ([player](../design/player.md)), queued from the Roadmap 2026-10-16: each move's button, name, what it does and a demo clip.
+  - [x] `KitGuide` (Core): every move's words and a scripted demo scene with goons (map plus the keys held, counted in frames); `?demo=<id>|all|list` plays them on a fixed step. Tests for coverage, ids and maps.
+  - [x] Clips: the game records its own canvas per demo (`PooketDemo.jslib`), CI's `tools/demos.mjs` turns them into 640x360 H.264 in `demos/`, played by a `VideoPlayer` (`Ui/DemoClip.cs`). CI builds now finish instead of being cancelled by the next push.
+  - [x] Opens from the den's couch pick (the i on the card, or B) and the pause menu; off the title screen (owner, 2026-10-16). Before kie is freed there's no den, so it's the pause menu only.
+  - [x] Verify in CI and live (112f2e5, 2026-10-16): built, six clips recorded and deployed; the kit screen opened from the den with its clip playing. Approved by the owner.
+
 ## Done recently
 
 - [x] GameCI → WebGL → GitHub Pages pipeline, live. Solo game played by the owner.
