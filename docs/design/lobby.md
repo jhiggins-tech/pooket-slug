@@ -39,7 +39,7 @@ Each station is built from the soldier's kit ([kits](kits.md)), so it shows what
 ### Filling the den as crew are freed
 
 - **A freed crewmate moves in.** The first visit after a freeing plays a short move-in beat (about 3 seconds, tap to skip): the new crewmate walks in through the roller door, looks round their corner, and the station lights up with a chip clunk. tones2 or kie says hi from the couch.
-- **Until then, their corner is wrecked and dark:** the raid's mess, a tarp, no lights, no name. Nothing in it says who it belongs to. (The owner is choosing between this and leaving the corner out until they're freed: a question card in the Roadmap thread.)
+- **Until then, their corner is wrecked and dark:** the raid's mess, a tarp, no lights, no name. Nothing in it says who it belongs to. (Picked by the owner, 2026-10-16.)
 - **The coming-soon crew have no corner at all.** When the first of them arrives, the den grows: the camera pans right through a knocked-through wall into a second room for the next four. The game never shows that wall as a door until then.
 - **Looks follow into the den:** a crewmate's hat and skin show at their station, so the den is also where you see what you've bought.
 
@@ -102,6 +102,5 @@ Sample bits (placeholders):
 
 ## Open questions
 
-- **Wrecked corners or none** for crewmates not yet freed (asked 2026-10-16).
 - **The bits and lines:** the owner's rewrite in the crew's voice, and which pairs get bits.
 - **Which floor each crewmate lives on,** and whether stations can be rearranged as a look.
