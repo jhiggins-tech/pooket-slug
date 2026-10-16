@@ -42,6 +42,9 @@ namespace PooketSlug
         bool m_TestCrate;       // ?test=crate: a crate just ahead of the start, so the co-op test sees one handed out
         bool m_TestTank;        // ?test=tank: a tank of your own parked just ahead of the start, and one call-in
         bool m_TestOneUp;       // ?test=1up: a 1-up just ahead of the start
+        bool m_TestCrew;        // ?test=crew: two of the crew plays on the title screen (once a visit), as if Mission one were just beaten
+        CrewReveal m_Reveal;
+        CrewRevealView m_RevealView;
         bool m_TestDebrief;     // ?test=debrief: the mission's won as it starts, so the debrief shows (as if it's the first)
         bool m_TestCoda;        // ?test=coda: a game starts at the coda, the tabk run after the boss, with its prompts
         bool m_TestBoss;        // ?test=boss: a game starts just before the boss's arena (co-op too: the co-op test's boss round)
@@ -140,6 +143,8 @@ namespace PooketSlug
             m_TestReveal = Array.IndexOf(tests, "reveal") >= 0;
             m_TestCoda = Array.IndexOf(tests, "coda") >= 0;
             m_TestDebrief = Array.IndexOf(tests, "debrief") >= 0;
+            m_TestCrew = Array.IndexOf(tests, "crew") >= 0;
+            m_Unlocked |= m_TestCrew;
             m_TestScene = Array.IndexOf(tests, "scene") >= 0;
 
             m_World = NewWorld(m_Mission);
@@ -147,6 +152,7 @@ namespace PooketSlug
             m_Menu = new MenuView(transform);
             m_SceneView = new CutsceneView(transform);
             m_DebriefView = new DebriefView(transform);
+            m_RevealView = new CrewRevealView(transform);
             m_DenView = new DenView(transform);
             m_PageUrl = PageUrl();
             string folder = PageQuery.Folder(url);
@@ -239,6 +245,7 @@ namespace PooketSlug
 
         void SetState(GameState state)
         {
+            if (state != GameState.Title) m_RevealView?.End(); // kie leaves with the title screen
             m_State = state;
             m_StateTime = 0f;
             m_OutFor = 0f;
@@ -369,6 +376,38 @@ namespace PooketSlug
             }
             m_StartNote = null;
             StartSolo();
+        }
+
+        // ------------------------------------------------------------------ two of the crew
+
+        /// <summary>Two of the crew plays once, ever, the first time the title loads after Mission one's beaten solo.</summary>
+        bool CrewRevealDue => !m_Coop && !m_RevealView.Showing &&
+                              (m_TestCrew || m_Profile.coop && !m_Profile.HasSeen(Reveals.TwoOfTheCrew));
+
+        void BeginCrewReveal()
+        {
+            m_Reveal = new CrewReveal();
+            m_RevealView.Begin(m_World);
+        }
+
+        void TickCrewReveal(float dt, MenuInput keys, SoldierInput soldier)
+        {
+            if (m_RevealView.TakeTap() || keys.Start || soldier.FirePressed || soldier.JumpPressed) m_Reveal.Tap();
+            CrewReveal.Shot was = m_Reveal.Now;
+            bool wasCracked = !m_Reveal.OldStart;
+            if (m_Reveal.Tick(dt)) Sfx.Play(Sfx.Thump, 0.9f); // each new button's clunk
+            if (!wasCracked && !m_Reveal.OldStart) Sfx.Play(Sfx.Hit, 0.8f); // START splits
+            if (m_Reveal.Now != was && m_Reveal.Now == CrewReveal.Shot.KiesLine) Sfx.Play(Sfx.Pickup, 0.5f);
+            if (!m_Reveal.Done)
+            {
+                m_RevealView.Refresh(m_Reveal, m_Camera, dt);
+                return;
+            }
+            m_RevealView.Finish(); // kie stays, stood by tones2, until the title's left
+            m_Reveal = null;
+            m_TestCrew = false; // once a visit
+            if (m_Profile.MarkSeen(Reveals.TwoOfTheCrew)) m_Store.Save(m_Profile);
+            Log.Game.Info("Two of the crew: the menu's grown");
         }
 
         /// <summary>Back to the title screen from a solo game.</summary>
@@ -869,6 +908,12 @@ namespace PooketSlug
                     break;
 
                 case GameState.Title:
+                    if (m_Reveal == null && CrewRevealDue) BeginCrewReveal();
+                    if (m_Reveal != null)
+                    {
+                        TickCrewReveal(dt, keys, soldier);
+                        break;
+                    }
                     if (CoopReady)
                     {
                         // J doubles as fire, so the online keys are checked first
@@ -1039,6 +1084,7 @@ namespace PooketSlug
                 Crew = Soldier.Name.ToUpperInvariant(),
                 CoopNew = CoopOpen && !m_Profile.HasSeen(Reveals.Coop),
                 CoopJustOpened = m_CoopJustOpened,
+                Reveal = m_Reveal,
                 InCoop = m_Coop,
                 Notice = m_Notice != null && Time.unscaledTime - m_NoticeTime < 8f ? m_Notice : null,
                 Status = m_Net?.Status,

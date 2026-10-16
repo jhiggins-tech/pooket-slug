@@ -28,6 +28,8 @@ namespace PooketSlug
         public string Crew;
         /// <summary>Co-op has opened, and its menu hasn't been visited yet.</summary>
         public bool CoopNew;
+        /// <summary>Two of the crew is playing on the title screen: the menu grows as it says (null when not).</summary>
+        public CrewReveal Reveal;
         /// <summary>This win opened co-op.</summary>
         public bool CoopJustOpened;
         /// <summary>A shared game is on (the victory screen's second button leaves it).</summary>
@@ -222,15 +224,10 @@ namespace PooketSlug
                     Dim(new Color(0f, 0f, 0f, 0.35f));
                     m_Hint.text = info.Touch ? "LEFT THUMB RUNS · RIGHT THUMB FIRES AND JUMPS · MORE IN SETTINGS"
                         : "MOVE  Arrows      JUMP  Z      FIRE  X      MORE IN SETTINGS";
-                    bool coop = info.Online && info.CoopOpen;
-                    Ui.Show(m_Coop, coop);
-                    m_Play.GetComponent<RectTransform>().anchoredPosition = new Vector2(coop ? -85f : 0f, -4f);
-                    Ui.Show(m_NewBadge, info.CoopNew && (int)(Time.unscaledTime * 2.5f) % 2 == 0);
+                    LayOutTitle(info);
                     Key(m_PlayKey, keys, "ENTER");
                     Key(m_CoopKey, keys, "H HOST · J JOIN · Q QUICK");
                     Key(m_SettingsKey, keys, "O");
-                    Ui.Show(m_Crew, info.CrewOpen);
-                    m_SettingsButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(info.CrewOpen ? 85f : 0f, -48f);
                     if (info.CrewOpen) m_CrewLabel.text = "CREW: " + info.Crew;
                     Key(m_CrewKey, keys, "C");
                     Ui.Show(m_OnlineOff, info.OnlineOff && info.CoopOpen);
@@ -371,6 +368,50 @@ namespace PooketSlug
         void Click(MenuAction action) => m_Clicked = action;
 
         void Dim(Color color) => m_Dim.color = color;
+
+        /// <summary>
+        /// The title's buttons. Before Mission one's beaten: START, with SETTINGS under it. Once the crew's open, the
+        /// menu has grown (<c>docs/design/story.md</c>, Two of the crew): MISSIONS, CO-OP and CREW in a row, SETTINGS
+        /// still under. While that scene plays, START cracks and the new buttons drop in one at a time.
+        /// </summary>
+        void LayOutTitle(in MenuInfo info)
+        {
+            const float RowY = -4f, Gap = 125f, DropFrom = 70f;
+            CrewReveal reveal = info.Reveal;
+            bool grown = info.CrewOpen && (reveal == null || !reveal.OldStart);
+            var play = m_Play.GetComponent<RectTransform>();
+            Label(m_Play).text = grown ? "MISSIONS" : "START";
+            play.sizeDelta = grown ? Narrow : Wide;
+            m_SettingsButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, -48f);
+            Ui.Show(m_NewBadge, reveal == null && info.CoopNew && (int)(Time.unscaledTime * 2.5f) % 2 == 0);
+            if (!grown)
+            {
+                // the old title (and, as the menu starts to grow, START shaking as it cracks)
+                float shake = reveal != null && reveal.Now == CrewReveal.Shot.MenuGrows ? Mathf.Sin(reveal.T * 70f) * 2.5f : 0f;
+                play.anchoredPosition = new Vector2(shake, RowY);
+                play.localRotation = Quaternion.Euler(0f, 0f, shake);
+                Ui.Show(m_Play, true);
+                Ui.Show(m_Coop, false);
+                Ui.Show(m_Crew, false);
+                return;
+            }
+            play.localRotation = Quaternion.identity;
+            bool coop = info.Online && info.CoopOpen;
+            Button[] row = { m_Play, coop ? m_Coop : null, m_Crew };
+            if (!coop) Ui.Show(m_Coop, false);
+            int count = coop ? 3 : 2, slot = 0;
+            for (int i = 0; i < row.Length; i++)
+            {
+                if (row[i] == null) continue;
+                float drop = reveal != null ? reveal.Drop(i) : 1f;
+                Ui.Show(row[i], drop > 0f);
+                var rt = row[i].GetComponent<RectTransform>();
+                rt.anchoredPosition = new Vector2((slot - (count - 1) * 0.5f) * Gap, RowY + (1f - drop) * (1f - drop) * DropFrom);
+                float pulse = reveal != null && i == 1 && reveal.Now == CrewReveal.Shot.KiesLine && reveal.T < 0.5f ? Mathf.Sin(reveal.T / 0.5f * Mathf.PI) * 0.15f : 0f;
+                rt.localScale = new Vector3(1f + pulse, 1f + pulse, 1f);
+                slot++;
+            }
+        }
 
         static Text Label(Button button) => button.transform.Find("Label").GetComponent<Text>();
 

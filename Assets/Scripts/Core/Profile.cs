@@ -13,6 +13,8 @@ namespace PooketSlug
         public const string Coop = "coop";
         /// <summary>A tank can be called in. Until tanks arrive, only <c>?unlock=tank</c> opens it, for testing.</summary>
         public const string Tank = "tank";
+        /// <summary>Two of the crew has played: kie walked in and the title menu grew (<c>docs/design/story.md</c>).</summary>
+        public const string TwoOfTheCrew = "two-of-the-crew";
     }
 
     /// <summary>A mission's record at one setting.</summary>

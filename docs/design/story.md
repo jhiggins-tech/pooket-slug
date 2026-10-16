@@ -192,6 +192,8 @@ The third reveal: co-op exists ([reveals](#reveals-are-story-beats)). It plays o
 
 **What the engine needs from it:** the title screen as a cutscene stage, with the crew's sprites standing on it; menu buttons that can animate in; and the unlock state that the [menu-grows spike](levels.md#what-the-player-sees-and-when) adds, saying Mission one has been beaten. The lines are placeholders for the owner to rewrite in the crew's own voice.
 
+**Built** (2026-10-16, `Core/CrewReveal.cs`, `Ui/CrewRevealView.cs`, `MenuView.LayOutTitle`): `?test=crew` to try it. kie walks in through the title's own world and stays beside tones2 until the title's left. START shakes, splits with a hit, and MISSIONS, CO-OP and CREW drop into a row one at a time, each with a clunk; CO-OP pulses on kie's line. SETTINGS stays under them. MISSIONS is the old START (the den, solo) renamed, until there's a mission screen. With no online in the build, CO-OP doesn't drop. Not in yet: kie's snacks and the lean on CO-OP.
+
 ## Reveals are story beats
 
 The game hides what's coming ([progressive disclosure](README.md#progressive-disclosure-the-thread-through-all-four)), so each reveal gets a scene of its own:
