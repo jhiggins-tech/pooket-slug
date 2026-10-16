@@ -29,7 +29,7 @@ There are two kinds of music: **loops**, which play under a whole stretch of the
 |---|---|---|
 | **Mission start** | Under the caption card, as the announcer calls the start, leading straight into the mission theme | About 2 s |
 | **Boss victory** | When the tabk is wrecked, leading into the boss theme's final section for the pilot round | About 2 s |
-| **Mission complete** | As MISSION COMPLETE! lands (the freeing, or the gate on the first drive), after the boss theme stops | About 3 s |
+| **Mission complete** | As MISSION COMPLETE! lands (the gate at the end of the coda), after the boss theme stops | About 3 s |
 | **Rank up** | The RANK UP! stamp in the debrief: the chip fanfare the [first debrief](story.md#the-first-debrief) calls for | About 2 s |
 | **Game over** | When the last continue runs out: a sad descending run that ends on a buzz | About 3 s |
 | **Continue countdown** | Under the CONTINUE? 10…0 count: a ticking bass note that rises every second | 10 s |
@@ -39,7 +39,7 @@ There are two kinds of music: **loops**, which play under a whole stretch of the
 
 - **Cutscenes** use what's playing around them: the opening is street ambience until the caption card, where the mission start sting and the mission theme kick in ([the opening scene](story.md#the-opening-scene)). The motor pool reveal cuts the mission theme and leads into the boss theme ([the motor pool reveal](story.md#the-motor-pool-reveal)). The boss theme cuts out when the pilot glitches out ([freeing kie](story.md#freeing-kie)).
 - **The boss intro's siren** is a sound effect, not music: the screen locks, the music cuts, the siren and WARNING! banner play in silence, and the boss theme kicks in on the tabk's first shot.
-- **The first drive** depends on a pick (below).
+- **The coda** depends on a pick (below).
 - **Pause** keeps the track playing, quieter. **Co-op** plays the same music on both phones, each following its own screen, like the sound effects.
 
 ## The style
@@ -75,6 +75,6 @@ Everything is code: no audio files, nothing to download, and a track is a few li
 ## Open questions
 
 - **One boss theme, or one per boss?** The draft has one shared theme.
-- **The first drive's music.**
+- **The coda's music.**
 - **Mission one's feel.** The draft is a military march.
 - **Who writes the melodies.** The draft has Claude composing them.

@@ -25,9 +25,8 @@ They share a crewmate's look and paint, and nothing else needs to carry over.
 Tabks stay hidden until they matter ([progressive disclosure](README.md#progressive-disclosure-the-thread-through-all-four)):
 1. **Before the first tabk,** nothing mentions tabks: not the menus, the HUD, the loading screens, the controls or the web page around the game. No enemy tabks appear before then either.
 2. **The first tabk** is kie's, at the end of Mission one, with a full boss intro.
-3. **The first drive** comes straight after kie is freed. His tabk is yours, and a short drive out of the base ends the mission and teaches the controls.
-4. **The first call-in** comes in the next mission, when you can first call a tabk in. The game shows how once, at a calm moment.
-5. **The tabk choice** on the mission screen appears once you've won a tabk.
+3. **The first call-in and the first drive** come straight after kie is freed (owner, 2026-10-16): kie frees tones2's own tabk and bows out, and in Mission one's coda, a short mini-level after the boss, a prompt has you call it in, then drive it out of the base ([the coda](story.md#the-coda)).
+4. **The tabk choice** on the mission screen appears once you've won a tabk.
 
 ## Tabk bosses
 
@@ -125,7 +124,7 @@ Wreck the tabk and its Trollogram pilot jumps out to fight you on foot with the 
 - **Choose which tabk** on the mission screen, before you start.
 - **In co-op, each player calls their own,** so both of you can have a tabk out at once.
 
-**Built so far:** the call-in drops your real tabk ([driving a tabk](#driving-a-tabk)) for anyone who has one to call, solo and co-op; until tabks are won in play, only `?unlock=tank` or `?test=tank` give one. **Spike** (2026-10-16, `?spike=callin`, solo): plays as if kie's tabk were won. You have one call-in, and at the first calm moment (a few seconds in, no goon within six units, on foot and on the ground; goons keep coming, so 20 seconds in it shows anyway) a blinking hint says HOLD DOWN + SP TO CALL YOUR TABK, until you start a call or for six seconds. In the spike it shows every visit; for real it shows once (the `CallInHinted` event is where the game marks it seen). A called-in tabk blinks a landing marker on the ground where it will land. Code: `Core/CallInCoach.cs`, `World.CallInCoach`, the hint in `HudView`, the marker in `PlayerTank`. Open: when real players get the call-in (after beating Mission one, or with Mission two), and the tabk choice on the mission screen, which waits for a second tabk.
+**Built so far:** the call-in drops your real tabk ([driving a tabk](#driving-a-tabk)) for anyone who has one to call, solo and co-op; until tabks are won in play, only `?unlock=tank` or `?test=tank` give one. **Spike** (2026-10-16, `?spike=callin`, solo): plays as if kie's tabk were won. You have one call-in, and at the first calm moment (a few seconds in, no goon within six units, on foot and on the ground; goons keep coming, so 20 seconds in it shows anyway) a blinking hint says HOLD DOWN + SP TO CALL YOUR TABK, until you start a call or for six seconds. In the spike it shows every visit; for real it shows once (the `CallInHinted` event is where the game marks it seen). A called-in tabk blinks a landing marker on the ground where it will land. Code: `Core/CallInCoach.cs`, `World.CallInCoach`, the hint in `HudView`, the marker in `PlayerTank`. Real players get it from Mission one's coda on (owner, 2026-10-16): the coda's HOLD DOWN + SP prompt is the hint's first showing, and every mission after starts with the call-in. Open: the tabk choice on the mission screen, which waits for a second tabk.
 
 ## Not planned
 

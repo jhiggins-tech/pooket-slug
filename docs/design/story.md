@@ -24,7 +24,7 @@ Up: [Design](README.md)
 
 1. **The opening:** a short scene. tones2 comes back from a snack run to find the crew's hangout raided and empty, and heads in alone. Nothing in it mentions tabks.
 2. **Mission one, the military base:** tones2 fights through the base to the motor pool. There comes the reveal: the crew's stolen tabks are parked inside, and kie's tabk rolls out to fight, with a Trollogram kie at the controls. Beat the tabk, then Trollogram kie on foot, and the real kie is freed.
-3. **The first drive:** kie's tabk is yours now. A short drive out of the base ends the mission and teaches you the tabk's controls.
+3. **The coda** (owner, 2026-10-16): with the last of his strength, kie frees tones2's own tabk and bows out, exhausted. tones2 calls it in for the first time and blasts his way out of the base in a short, explosive mini-level after the boss, still part of Mission one. It ends the mission and teaches the tabk.
 4. **Two of the crew:** with kie back, co-op opens. kie's first line sets it up as the menu changes.
 5. **Mission two frees kcaj.** Each mission after that frees one more crewmate from their own tabk.
 6. **The coming-soon crew** (shotdownboyz, lankcity, odsey and doctorfox) arrive later, each with a mission of their own.
@@ -65,7 +65,7 @@ A scene that can be skipped once seen skips its intro with it. The narrator wait
 | Each later crewmate's Trollogram | Their mission's [boss intro](tanks.md#the-boss-intro), the first time | As the pilot shows in the hatch | TROLLO-&lt;NAME&gt; |
 | Each later crewmate | Their freeing scene | As the real one appears | &lt;NAME&gt; |
 
-[The first drive](#the-first-drive), [the first debrief](#the-first-debrief) and [two of the crew](#two-of-the-crew) bring in nobody new, so they have no intro.
+[The coda](#the-coda), [the first debrief](#the-first-debrief) and [two of the crew](#two-of-the-crew) bring in nobody new, so they have no intro.
 
 ## The opening scene
 
@@ -101,7 +101,7 @@ The first-ever reveal: tabks exist ([reveals](#reveals-are-story-beats)). It pla
 | # | Shot | What happens | Bubbles and text | Time |
 |---|---|---|---|---|
 | 1 | **The shutter** | tones2 steps into the arena and the screen locks. The motor pool's blast shutter grinds up, and cold light pours out from behind it. | (no bubble: the shutter's grind, a hum) | 2 s |
-| 2 | **The tabks** | The camera eases right and in: the crew's tabks parked in a row under work lights, each in its crewmate's paint, with cables and cyan Trollogram junk all over them. One space at the front is empty, its paint scuffs still steaming. | tones2: "...ARE THOSE OURS?" | 3 s |
+| 2 | **The tabks** | The camera eases right and in: the crew's tabks parked in a row under work lights, each in its crewmate's paint (tones2's own among them), with cables and cyan Trollogram junk all over them. One space at the front is empty, its paint scuffs still steaming. | tones2: "...ARE THOSE OURS?" | 3 s |
 | 3 | **kie's tabk** | An engine roars off-screen, and kie's tabk rolls out of the shadows into the empty space. On top, in the hatch: kie, but cyan, flickering, grinning. | Trollogram kie, glitchy bubble: "HEY TONES. WANNA RACE?" | 3 s |
 | 4 | **Hatch shut** | Trollogram kie drops into the hatch and it slams. The turret swings round to tones2. Straight into the boss intro's WARNING! banner, name card and boss music, with control back in your hands. | tones2: "THAT'S NOT KIE." | 2 s |
 
@@ -111,41 +111,48 @@ The first-ever reveal: tabks exist ([reveals](#reveals-are-story-beats)). It pla
 
 ## Freeing kie
 
-The freeing scene, after Trollogram kie is beaten on foot ([the pilot round](tanks.md#the-pilot-round)). Draft, 2026-10-15. About 10 seconds, four shots; it can be skipped once seen, on a replay.
+The freeing scene, after Trollogram kie is beaten on foot ([the pilot round](tanks.md#the-pilot-round)). Draft, 2026-10-15, reworked 2026-10-16 for the owner's new ending: kie frees tones2's tabk, then bows out. About 12 seconds, five shots; it can be skipped once seen, on a replay.
 
 | # | Shot | What happens | Bubbles and text | Time |
 |---|---|---|---|---|
 | 1 | **The glitch-out** | Trollogram kie staggers, freezes mid-taunt, and glitches apart: the big version of the goons' death (the pilot glitch spike). The boss music cuts out. | Trollogram kie: "WAIT, I WAS WINN-" | 3 s |
 | 2 | **The real kie** | Where it stood, a cyan cage of light flickers out, and the real kie drops to the floor, dazed, in his own colours. | kie: "...HOW LONG WAS I IN THERE?" | 3 s |
 | 3 | **The bit** | tones2 holds out the last of the snacks from the opening. kie takes them. | tones2: "BROUGHT SNACKS." · kie: "LEGEND." | 2 s |
-| 4 | **The point** | kie looks over at his tabk, still running, the hatch open. | kie: "SHE'S YOURS. GET US OUT OF HERE." | 2 s |
+| 4 | **The release** | kie staggers over to tones2's tabk in the row and rips the cyan Trollogram clamp off it. A cargo drone drops through the roof hatch, hooks the tabk and hauls it up and out. kie presses its call-in remote into tones2's hand. | kie: "YOURS. CALL IT WHEN YOU NEED IT." | 2 s |
+| 5 | **Lights out** | Alarms start up somewhere in the base. kie sits down hard against the wall with the snacks in his lap, and nods off. | kie: "I'M GONNA... SIT THIS ONE OUT." | 2 s |
 
 **Character intro:** the real kie, in shot 2, as he drops to the floor: KIE ([character intros](#character-intros)). His line comes after it.
 
-Then straight into the first drive, the first time; on a replay, into the debrief. In co-op, the partner's soldier stands beside tones2 throughout.
+**kie bows out** (owner, 2026-10-16): he's spent, and sits out the rest of Mission one; tones2 finishes it alone, with his tabk. kie is back, rested, for [two of the crew](#two-of-the-crew).
+
+Then straight into [the coda](#the-coda), every time: the coda is part of Mission one. In co-op, the partner's soldier stands beside tones2 throughout, and goes on into the coda with him.
+
+**How the release is done** is a placeholder (the cargo drone and the remote) until the owner picks one; it's what makes the call-in drop from the sky in every later mission.
 
 **Spike** (2026-10-16, `?spike=pilot-glitch`, solo): shots 1 and 2 in the game, without the scene around them. Beaten, Trollogram kie freezes mid-taunt ("WAIT, I WAS WINN-") and the boss music cuts dead; he glitches harder and harder for about a second, then tears apart like the goons, bigger and slower. Where he stood, a cyan cage of light flickers out, the real kie drops to the floor in his own colours, sits there dazed with stars round his head and says his line, and the mission's won. The numbers are `PilotFreeingSpec` (`Core/KieTuning.cs`), the look `HoloLook.Big` and `FreedKie` (`Pilot.cs`). `?test=pilot,weak` starts at the tabk, and the pilot goes down on his own a few seconds after he jumps out.
 
-## The first drive
+## The coda
 
-The second reveal: you can drive a tabk ([reveals](#reveals-are-story-beats)). It plays once, ever, straight after freeing kie. Draft, 2026-10-15. A short scene, then a short playable drive that ends the mission. The drive teaches the controls by doing, one prompt at a time, each shown only until you've done it once.
+The second reveal: your tabk, called in and driven ([reveals](#reveals-are-story-beats)). Mission one's last stretch, straight after [freeing kie](#freeing-kie): a short mini-level after the boss, still part of Mission one, played every time the mission is (owner, 2026-10-16). Draft. Short, action-packed and loud: lots of goons, lots of explosions, and a tabk to do it with.
 
-**The scene** (about 4 seconds): tones2 climbs onto kie's tabk and drops into the hatch; kie hops up behind the turret and holds on. Bubble, kie: "STICK DRIVES. FIRE SHOOTS. GO!" The motor pool's far wall is a gate, and the searchlights are swinging back.
+**The setup** (a beat, no scene): the base's alarms are going, the motor pool's back gate grinds open, and goons pour in. kie stays behind, asleep against the wall. The first time, a prompt blinks: **HOLD DOWN + SP TO CALL YOUR TABK** ([calling in a tabk](tanks.md#calling-in-a-tabk)), shown until you call it. The call charges, and the cargo drone drops tones2's tabk beside him, full of fuel. Climb in.
 
-**The drive** (about 30 seconds, playable): out of the motor pool and through the base's back gate to the road outside, the only way out. Goons pour in to stop you, and the prompts come one at a time:
+**The run** (about a minute, playable): out of the back of the motor pool, along the base's service road and through the last gate onto the road outside. It's a gauntlet built for the tabk: goons in waves, drones overhead, sandbag nests, fuel drums and barrels that go up in chains, a watchtower that topples when you shoot its legs, and squashable goons all the way (the payoff for spending fuel). The first time, prompts teach the tabk one at a time, each shown only until you've done it once:
 1. **"DRIVE"** with the stick (or arrows), shown until you've moved.
 2. **"AIM"**: a few goons on a gantry above; the gun points the same eight ways you aim on foot.
-3. **"FIRE"**: the gate's guard post is in the way; shoot it down. The tabk's rounds counter appears for the first time (5 main shots, 3 specials, 1 super), with a note that rounds never refill ([driving a tabk](tanks.md#driving-a-tabk)).
-4. **"SP"**: a wall of goons behind sandbags at the gate; the special clears it.
-5. **The gate:** you smash through it and out onto the road, the snow and the searchlights behind you. The caption card slams in, and the announcer calls "Mission complete!".
+3. **"FIRE"**: a guard post in the way; shoot it down. The tabk's rounds counter appears for the first time (5 main shots, 3 specials, 1 super), with a note that rounds never refill ([driving a tabk](tanks.md#driving-a-tabk)).
+4. **"SP"**: a wall of goons behind sandbags; the special clears it.
+5. **The gate:** you smash through it and out onto the road, the snow, the searchlights and a few last explosions behind you. The caption card slams in, and the announcer calls "Mission complete!".
 
-Eject and the super are left for later missions to teach, so the drive stays short. The first drive always happens solo, since Mission one is first beaten solo. On a co-op replay there's no drive scene: the mission ends at the freeing.
+**Tuned to the tabk:** a full tank of fuel gets you through, and the run is beatable on foot if the tabk is wrecked, just harder. Lose your last life in the coda and the continue restarts you at its start, not at the boss.
+
+**Co-op and replays:** on a replay there are no prompts. In co-op each player calls in their own tabk ([calling in](tanks.md#calling-in-a-tabk)), since Mission one has been beaten by then. Eject and the super are left for later missions to teach.
 
 ## The first debrief
 
 Mission one's debrief, the first time: the tally, then XP and rank are revealed ([what the player sees, and when](levels.md#what-the-player-sees-and-when)). Draft, 2026-10-15. It's a screen more than a scene: the crew stand to one side and the numbers count up on the other. Each part counts up fast, and a tap fills it at once; another tap moves on.
 
-1. **The tally** (about 3 s): MISSION COMPLETE! at the top, and the announcer says it if the drive didn't. Then the numbers count up: score, time, goons, accuracy, and how many lives and continues were left. Your best score so far shows beside it, with NEW BEST! if it is.
+1. **The tally** (about 3 s): MISSION COMPLETE! at the top, and the announcer says it if the coda didn't. Then the numbers count up: score, time, goons, accuracy, and how many lives and continues were left. Your best score so far shows beside it, with NEW BEST! if it is.
 2. **The first XP** (about 3 s): a new bar slides in for the first time, labelled XP. It fills from the mission's parts: the mission cleared, kie freed, and the kills ([career XP](player.md#what-the-player-keeps)). kie's bubble: "YOU GET XP FOR THAT."
 3. **The first step up the ladder** (about 3 s): the rank badge appears, and you go up from the lowest rank on the ladder, where everyone starts ([rank](player.md#what-the-player-keeps)), to the one above it, with a RANK UP! stamp and a chip fanfare. Only that rank's name is shown; the ladder's hidden ranks stay hidden ([rank](player.md#what-the-player-keeps)).
 4. **Sign in to keep it** (only for players who aren't signed in): kie's bubble: "SIGN IN SO THIS DOESN'T VANISH." The sign-in button shows over the game, as on the title screen, beside CONTINUE. Signing in here saves the run's progress straight away; skipping is fine and asks again only on the next debrief.
@@ -186,7 +193,7 @@ The game hides what's coming ([progressive disclosure](README.md#progressive-dis
 | Reveal | When | How |
 |---|---|---|
 | Tabks exist | The motor pool, at the end of Mission one | kie's tabk rolls out, with its boss intro |
-| You can drive one | Straight after kie is freed | You climb into his tabk and drive it out of the base |
+| Your tabk: calling it in and driving it | The coda, straight after kie is freed | kie frees tones2's own tabk and bows out; you call it in and blast your way out of the base |
 | Co-op exists | Once Mission one has been beaten solo | [Two of the crew](#two-of-the-crew): the menu grows, and kie's first line sets it up |
 | Each new crewmate | The end of their mission | The freeing scene |
 | XP and rank | The first debrief | The first XP, and the first step up the ladder |

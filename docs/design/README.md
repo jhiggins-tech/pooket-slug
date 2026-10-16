@@ -32,7 +32,7 @@ Use these words in everything players or readers see: in-game text, voice lines,
 
 The game shows only what the player has already met. Nothing on screen, in the menus or on the web page hints at what's still to come, and each new thing gets a moment of its own:
 - **Tabks** aren't mentioned until the first one rolls out at the end of Mission one ([tabks](tanks.md#discovering-tabks)).
-- **Driving a tabk** stays secret until the first chance to climb in ([tabks](tanks.md#discovering-tabks)).
+- **Calling in and driving a tabk** stay secret until Mission one's coda, when kie frees tones2's own ([tabks](tanks.md#discovering-tabks)).
 - **Co-op, and online play of any kind,** appear only once Mission one has been beaten solo, when the menu changes ([progression](levels.md#what-the-player-sees-and-when)).
 - **Smaller things** follow the same idea: buttons, the crew screen, ranks and XP ([player](player.md#discovering-the-kit)).
 

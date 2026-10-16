@@ -11,7 +11,7 @@ Up: [Design](README.md)
 ## Missions
 
 - **Handmade levels, one for each crewmate to free.** There's one mission to start, and kcaj's comes next. The rest arrive one crewmate at a time.
-- **Every mission has the same shape:** a run through the map, then the boss arena. The crewmate's tabk comes first, then its Trollogram pilot ([tabks](tanks.md#tabk-bosses)). Freeing the crewmate ends the mission, and the debrief follows.
+- **Every mission has the same shape:** a run through the map, then the boss arena. The crewmate's tabk comes first, then its Trollogram pilot ([tabks](tanks.md#tabk-bosses)). Freeing the crewmate ends the fight. Mission one then has a short coda, a tabk run out of the base ([the coda](story.md#the-coda)), and the debrief follows.
 - **A checkpoint at the boss door.** Lose the boss fight and you restart at the arena, not at the start of the run.
 - **Replays:** you can play any mission you've cleared again, for score, XP, rank and stats. Your best score and your clears are kept for each mission.
 
@@ -23,7 +23,8 @@ Up: [Design](README.md)
 - **Solo, as tones2,** straight in with no tutorial.
 - **Goons:** riflemen (crouch under their shots), knife runners and bomb-dropping drones, all as flickering Trollograms.
 - **The boss** is kie's tabk, then Trollogram kie ([tabks](tanks.md#tabk-bosses)).
-- **Two reveals:** the first tabk, then the first drive, out of the base in kie's tabk ([discovering tabks](tanks.md#discovering-tabks)).
+- **Two reveals:** the first tabk, then your own. Freed, kie frees tones2's tabk and bows out, and in the coda, a short explosive mini-level after the boss, you call it in and drive it out of the base ([the coda](story.md#the-coda), owner 2026-10-16).
+- **A checkpoint at the coda's start,** after the boss: lose there and you restart the coda, not the fight.
 
 ## Difficulty
 
@@ -50,7 +51,7 @@ Up: [Design](README.md)
 ## The order things open up
 
 1. **First launch:** the title screen offers Start, which begins Mission one, plus settings and a small sign-in button. Returning players on a new device can sign in straight away and keep their progress.
-2. **Mission one,** played solo. The first tabk and the first drive happen here.
+2. **Mission one,** played solo. The first tabk, the first call-in and the first drive happen here.
 3. **Once Mission one has been beaten solo:**
    - **Co-op appears** in the menu: host a room, join with a code, quick match, browse rooms, or watch a game.
    - **The mission screen** appears, with replays, Mission one's hard setting, and kcaj's mission.
@@ -68,7 +69,7 @@ The game shows only what the player has already met. Nothing on the title screen
 | Title menu | Start, plus settings and a small sign-in button | Missions, Co-op, Crew | |
 | Online | Hidden | Host, join, quick match, browse, watch | |
 | Crew | tones2, with no crew screen | The crew screen: tones2 and kie | One more per mission |
-| Tabks | Never mentioned | kie's tabk, and the call-in | One more per mission |
+| Tabks | Never mentioned | tones2's tabk, and the call-in | One more per mission |
 | Missions | Mission one | Replays, hard settings, the next mission | One more per crewmate |
 | Progress | High score | XP, rank, looks, leaderboard | Hidden ranks appear as you reach them |
 
