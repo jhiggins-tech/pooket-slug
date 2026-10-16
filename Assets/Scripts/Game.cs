@@ -896,6 +896,8 @@ namespace PooketSlug
             m_World.Dispose();
             m_World = NewWorld(Missions.ByNetId(m_Net.Link.Mission) ?? m_Mission, m_Net.Link);
             m_Net.Events = m_World.Sync;
+            if (DropIn.UnderWay(m_Net.Link.IsAuthority, m_Net.Link.CamX)) // the co-op test's drop-in round looks for it
+                Log.Net.Info($"Dropped in to a mission under way, {m_Net.Link.CamX:0} m in, with {m_World.Player.Lives.Lives} lives and our own score at 0");
             m_Coop = true;
             Music.Silence(); // spikes are solo only
             m_Paused = false;

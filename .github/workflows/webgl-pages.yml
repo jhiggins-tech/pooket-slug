@@ -307,6 +307,11 @@ jobs:
         if: success() || failure()
         run: node tools/coop.mjs http://127.0.0.1:8000/index.html coop-test/scene scene
 
+      - name: Drop in to a mission under way (spike drop-in, doesn't fail the build)
+        if: success() || failure()
+        continue-on-error: true
+        run: node tools/coop.mjs http://127.0.0.1:8000/index.html coop-test/dropin dropin
+
       - name: Summary
         if: always()
         run: |
@@ -339,6 +344,13 @@ jobs:
                   ("waited", "A tapping alone moves neither phone on"),
                   ("tappedThrough", "Both tapping moves each shot on"),
                   ("together", "It ends on both phones together"),
+                  ("played", "Both play on with no errors or disconnects"),
+              ]),
+              ("Drop-in (spike, ?spike=dropin)", "coop-test/dropin/result.json", [
+                  ("hostOnline", "A hosts a room and plays on alone"),
+                  ("guestOnline", "B joins with the invite link"),
+                  ("joined", "A sees B join"),
+                  ("droppedIn", "B drops in to the mission under way"),
                   ("played", "Both play on with no errors or disconnects"),
               ]),
           ]

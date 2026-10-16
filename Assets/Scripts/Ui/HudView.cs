@@ -64,7 +64,7 @@ namespace PooketSlug
         const int PopupSize = 9;
         readonly List<Image> m_Hearts = new List<Image>();
         readonly List<Text> m_Popups = new List<Text>();
-        int m_Points = -1, m_HiScore = -1, m_Seconds = -1, m_FpsShown = -1;
+        int m_Points = -1, m_OwnShown = -1, m_HiScore = -1, m_Seconds = -1, m_FpsShown = -1;
         int m_ArmsGun = -1, m_ArmsAmmo = -1, m_ArmsSpecials = -1, m_ArmsTank = -1;
         bool m_MutedShown;
         readonly System.Func<Text> m_NewPopup, m_NewPartnerLabel, m_NewTag;
@@ -354,7 +354,14 @@ namespace PooketSlug
             if (info.InGame)
             {
                 int points = w.Scoring.Points;
-                if (points != m_Points) m_Score.text = "SCORE " + (m_Points = points).ToString("000000");
+                bool own = Spike.DropIn && info.Net != null; // spike drop-in: our own points beside the shared score
+                int ownPoints = own ? w.OwnPoints : -1;
+                if (points != m_Points || ownPoints != m_OwnShown)
+                {
+                    m_Points = points;
+                    m_OwnShown = ownPoints;
+                    m_Score.text = own ? "SCORE " + DropIn.Points(points) + "  YOU " + DropIn.Points(w.OwnPoints) : "SCORE " + points.ToString("000000");
+                }
                 int hi = Mathf.Max(info.HiScore, points);
                 if (hi != m_HiScore) m_Hi.text = "HI " + (m_HiScore = hi).ToString("000000");
                 int secs = Mathf.FloorToInt(w.Elapsed);
@@ -445,7 +452,7 @@ namespace PooketSlug
 
                 Text tag = Pooled(m_Tags, row, m_NewTag);
                 tag.rectTransform.anchoredPosition = Ui.FromScreen(cam.WorldToScreenPoint(new Vector3(r.Pos.x, r.Pos.y + 1.9f, 0f)));
-                tag.text = name;
+                tag.text = Spike.DropIn ? name + "  " + DropIn.Points(r.Link.Score) : name;
                 tag.color = SkinColors[skin];
                 row++;
             }

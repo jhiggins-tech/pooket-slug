@@ -271,6 +271,12 @@ namespace PooketSlug
             m_Local.NetDen = 0;
         }
 
+        public void SendScore(int points)
+        {
+            if (m_Local == null || !m_Local.Object.IsValid) return;
+            m_Local.NetScore = points;
+        }
+
         public void SendDen(SoldierDef soldier, int flags)
         {
             if (m_Local == null || !m_Local.Object.IsValid) return;

@@ -21,6 +21,7 @@ namespace PooketSlug
         [Networked] public Vector2 NetTankPos { get; set; }
         [Networked] public byte NetDen { get; set; }  // Den.Flags while in the den (the lobby), 0 once playing
         [Networked] public int NetScene { get; set; } // CutsceneSync.Pack() while in a co-op cutscene, else 0
+        [Networked] public int NetScore { get; set; } // their own points, from their kills
 
         bool Live => Object != null && Object.IsValid;
 
@@ -29,6 +30,7 @@ namespace PooketSlug
         public Vector2 Vel => Live ? NetVel : default;
         public int PoseFlags => Live ? NetPose : 0;
         public int Hp => Live ? NetHp : 0;
+        public int Score => Live ? NetScore : 0;
         public int Skin => Live ? NetSkin : 0;
         public int TankFlags => Live ? NetTank : 0;
         public Vector2 TankPos => Live ? NetTankPos : default;
