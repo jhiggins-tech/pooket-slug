@@ -291,6 +291,20 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void ThePhoneThatEndsFirstLetsTheOtherFinish()
+        {
+            // b tapped the last shot first; a's tap ended it on a's phone in the same frame, so a's tap never went
+            // out on its own. a's closing word ("tapped through it all") has to finish it on b's phone.
+            var b = new CutscenePlayer(Cutscenes.Opening, seenBefore: false, players: 2);
+            int last = Cutscenes.Opening.Shots.Length - 1;
+            RunTo(b, last, 0.3f);
+            b.Tap(0);
+            Assert.IsFalse(b.Done, "b waits on a");
+            CutsceneSync.Apply(b, true, CutsceneSync.Pack(3, 1, Cutscenes.Opening.Shots.Length * 3, false), 3);
+            Assert.IsTrue(b.Done);
+        }
+
+        [Test]
         public void ATapBeforeTheIntroWaitsForThePartnerThenJumpsBothToTheBuildUp()
         {
             var a = new CutscenePlayer(Cutscenes.Opening, seenBefore: false, players: 2);
