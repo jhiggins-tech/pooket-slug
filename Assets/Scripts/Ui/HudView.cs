@@ -392,7 +392,7 @@ namespace PooketSlug
                 m_Banner.text = w.Victory ? "MISSION COMPLETE!" : w.Mission.Name + "  START!";
                 m_Banner.fontSize = w.Victory ? 28 : 26;
             }
-            // the call-in hint, once, at a calm moment: blinking so it's seen
+            // the call-in prompt, the first time, until you call: blinking so it's seen
             Ui.Show(m_Coach, info.Playing && !banner && w.CallInCoach != null && w.CallInCoach.Showing && Time.unscaledTime % 0.8f < 0.55f);
             bool note = banner && !w.Victory && info.Note != null;
             Ui.Show(m_Note, note);

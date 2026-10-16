@@ -6,7 +6,7 @@ namespace PooketSlug
     /// <summary>
     /// Spike tests: small throwaway experiments switched on from the page address, so they ride along in the
     /// normal build without changing the game anyone else plays. <c>?spike=craters</c> turns on
-    /// blasts digging craters in the boss arena, <c>?spike=music</c> the music's first cut, <c>?spike=pilot-glitch</c> hologram kie's big glitch-out and the real kie freed, <c>?spike=callin</c> a tabk to call in as if kie's were won. Spikes are solo only: a
+    /// blasts digging craters in the boss arena, <c>?spike=music</c> the music's first cut, <c>?spike=pilot-glitch</c> hologram kie's big glitch-out and the real kie freed, <c>?spike=callin</c> a tabk to call in as if tones2's were won. Spikes are solo only: a
     /// co-op game ignores them.
     /// </summary>
     public static class Spike
@@ -24,8 +24,8 @@ namespace PooketSlug
         public static bool PilotGlitch;
 
         /// <summary>
-        /// The tabk call-in as if kie's tabk were won: one to call in, the hint showing how at the first calm moment
-        /// (<see cref="CallInCoach"/>, every visit), and a marker where it'll land.
+        /// The tabk call-in as if tones2's tabk were won, the way Mission one's coda brings it in: one to call in, the
+        /// prompt showing how until you call (<see cref="CallInCoach"/>, every visit), and the cargo drone lowering it in.
         /// </summary>
         public static bool CallIn;
 

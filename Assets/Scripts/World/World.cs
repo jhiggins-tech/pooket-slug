@@ -121,9 +121,9 @@ namespace PooketSlug
         public int TanksToCall;
         /// <summary>Our soldier called in a tank, at this spot: it drops in (<see cref="PlayerTank"/>). In co-op each player calls their own.</summary>
         public event System.Action<Vector2> TankCalled;
-        /// <summary>Shows once, at a calm moment, how to call a tank in; null when it's been seen (<see cref="CallInCoach"/>).</summary>
+        /// <summary>The prompt that shows how to call a tank in, the first time; null when it's been seen (<see cref="CallInCoach"/>).</summary>
         public CallInCoach CallInCoach;
-        /// <summary>The call-in hint went up just now: the game marks it seen.</summary>
+        /// <summary>The call-in prompt went up just now: the game marks it seen.</summary>
         public event System.Action CallInHinted;
 
         /// <summary>
@@ -211,17 +211,6 @@ namespace PooketSlug
             TankCalled?.Invoke(at);
         }
 
-        /// <summary>A calm moment for a hint: our soldier on the ground and on foot, no boss up, and no goon close.</summary>
-        bool Calm()
-        {
-            if (Player.Dead || Player.Riding != null || !Player.Grounded || Victory) return false;
-            if (Boss != null && Boss.Engaged && !Boss.Removed) return false;
-            float r = CallInCoach.CalmRadius;
-            foreach (Enemy e in Enemies)
-                if (e.Shootable && e.Def.Brain != EnemyBrain.Barrel && (e.Center - Player.Center).sqrMagnitude < r * r) return false;
-            return true;
-        }
-
         /// <summary>?test=tank: an empty tank parked at <paramref name="x"/>, to climb into.</summary>
         public void ParkTank(float x) => SetTank(PlayerTank.Park(this, x));
 
@@ -293,7 +282,7 @@ namespace PooketSlug
             }
             Player.Tick(dt);
             for (int i = 0; i < Remotes.Count; i++) Remotes[i].Tick(dt);
-            if (CallInCoach != null && CallInCoach.Tick(dt, TanksToCall > 0 && !Player.Dead, Calm(), Player.CallInCharge > 0f))
+            if (CallInCoach != null && CallInCoach.Tick(dt, TanksToCall > 0 && !Player.Dead, Player.CallInCharge > 0f))
                 CallInHinted?.Invoke();
             Spawner.SpawnAhead();
 

@@ -38,6 +38,11 @@ namespace PooketSlug
         /// <summary>Where a called-in tank will land, blinking on the ground while it drops.</summary>
         readonly SpriteRenderer m_Marker;
         readonly float m_LandY;
+        /// <summary>The cargo drone that lowers a called-in tank on a cable, then lets go and flies off (placeholder art).</summary>
+        readonly SpriteRenderer m_Drone, m_Cable;
+        float m_DroneAway;
+        static readonly Color DroneTint = new Color(1f, 0.85f, 0.45f);
+        const float DroneUp = 1.1f; // its middle, above the hull's top, while it carries the tank
         Vector2 m_Aim;
         float m_BarrelAngle, m_FireCooldown, m_Grace, m_Runaway, m_Muzzle, m_Hint;
         bool m_SaidEmpty, m_SaidDry;
@@ -59,6 +64,21 @@ namespace PooketSlug
             m_Marker.sprite = Art.LandingMarker;
             m_Marker.color = new Color(1f, 0.85f, 0.3f);
             m_Marker.sortingOrder = SortOrder.Effects;
+            m_Drone = Child("Cargo drone", Art.Drone[0], SortOrder.Player + 4);
+            m_Drone.color = DroneTint;
+            m_Drone.transform.localScale = new Vector3(2f, 2f, 1f);
+            m_Cable = Child("Cable", Art.Pixel, SortOrder.Player + 3);
+            m_Cable.color = new Color(0.15f, 0.15f, 0.2f);
+        }
+
+        SpriteRenderer Child(string name, Sprite sprite, int order)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(Go.transform, false);
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = sprite;
+            sr.sortingOrder = order;
+            return sr;
         }
 
         /// <summary>An empty tank, parked on the ground at <paramref name="x"/>, facing right.</summary>
@@ -101,6 +121,7 @@ namespace PooketSlug
             m_Grace -= dt;
             m_Muzzle -= dt;
             FlashTimer -= dt;
+            if (Mode != State.Dropping) m_DroneAway += dt;
             switch (Mode)
             {
                 case State.Dropping: Fall(dt); break;
@@ -333,6 +354,25 @@ namespace PooketSlug
                 bool shown = Mode == State.Dropping && (int)(Time.time * 8f) % 2 == 0;
                 if (m_Marker.enabled != shown) m_Marker.enabled = shown;
                 m_Marker.transform.localPosition = new Vector3(0f, m_LandY - Pos.y + 0.05f, 0f);
+            }
+            if (m_Drone != null)
+            {
+                // it carries the tank down, lets go as it lands, and climbs away off the top of the screen
+                bool carrying = Mode == State.Dropping, shown = carrying || m_DroneAway < 1.5f;
+                if (m_Drone.enabled != shown) m_Drone.enabled = shown;
+                if (m_Cable.enabled != carrying) m_Cable.enabled = carrying;
+                if (shown)
+                {
+                    float t = carrying ? 0f : m_DroneAway, y = Height + DroneUp + t * (3f + 6f * t);
+                    m_Drone.sprite = Art.Drone[(int)(Time.time * 20f) % 2];
+                    m_Drone.transform.localPosition = new Vector3(-Facing * t * 1.5f, y, 0f);
+                }
+                if (carrying)
+                {
+                    float bottom = Height - 0.05f, top = Height + DroneUp - 0.3f;
+                    m_Cable.transform.localPosition = new Vector3(0f, (bottom + top) * 0.5f, 0f);
+                    m_Cable.transform.localScale = new Vector3(1f, (top - bottom) * Art.PPU, 1f);
+                }
             }
         }
     }
