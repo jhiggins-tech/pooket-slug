@@ -135,7 +135,7 @@ namespace PooketSlug
             m_TeamLeft = Ui.Picture(m_TeamCard, "Left", null, Ui.Middle, new Vector2(1f, 0.5f), Vector2.zero, new Vector2(220f, 100f), Color.white);
             m_TeamRight = Ui.Picture(m_TeamCard, "Right", null, Ui.Middle, new Vector2(0f, 0.5f), Vector2.zero, new Vector2(220f, 100f), Color.white);
             m_TeamLeftPic = Ui.Picture(m_TeamLeft.rectTransform, "Portrait", null, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(10f, 4f), new Vector2(64f, 64f), Color.white);
-            m_TeamRightPic = Ui.Picture(m_TeamRight.rectTransform, "Portrait", null, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-10f, 4f), new Vector2(64f, 64f), Color.white);
+            m_TeamRightPic = Ui.Picture(m_TeamRight.rectTransform, "Portrait", null, new Vector2(1f, 0.5f), new Vector2(0f, 0.5f), new Vector2(-10f, 4f), new Vector2(64f, 64f), Color.white); // flipped about its left edge, so it stays inside
             m_TeamLeftPic.preserveAspect = m_TeamRightPic.preserveAspect = true;
             m_TeamLeftName = Ui.Label(m_TeamLeft.rectTransform, "Name", new Vector2(0f, 0f), new Vector2(12f, 10f), 12, TextAnchor.LowerLeft, Color.white);
             m_TeamRightName = Ui.Label(m_TeamRight.rectTransform, "Name", new Vector2(1f, 0f), new Vector2(-12f, 10f), 12, TextAnchor.LowerRight, Color.white);
