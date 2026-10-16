@@ -29,6 +29,10 @@ Use these words in everything players or readers see: in-game text, voice lines,
 - **Mission one is single player only** (owner, 2026-10-16): the prelude. Beating it opens the lobby and co-op; it's never played with two, replays included.
 - **Trollogram**, never hologram. kie's projections are Trollograms, from the raiders to Trollogram kie; in a character intro the title is TROLLO-KIE.
 
+## Safe flashing
+
+- **No strobing, anywhere** (owner, 2026-10-16, after a cutscene's static strobed on for its whole second half). Anything that flashes a large part of the screen (a white or red screen flash, the static's cyan, the boss intro's WARNING!) does it at most 2.5 times a second, under the 3 a second that can set off photosensitive seizures, and a glitch over the whole screen is one soft pulse that fades. Small things (a sprite blinking, a marker) can flash faster.
+
 ## Progressive disclosure, the thread through all four
 
 The game shows only what the player has already met. Nothing on screen, in the menus or on the web page hints at what's still to come, and each new thing gets a moment of its own:

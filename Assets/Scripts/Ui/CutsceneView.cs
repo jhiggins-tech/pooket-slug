@@ -18,6 +18,7 @@ namespace PooketSlug
     public sealed class CutsceneView
     {
         const float Px = 2f; // HUD units per art pixel
+        const float FlickerFor = 0.3f; // the Trollograms' static pulse over the whole stage: one, fading
         const int StageW = 320, StageH = 180, Street = 26, Floor = 22;
         // the motor pool: its floor, the shutter's opening, and where the row's tabks park (the first space is kie's)
         const float MotorFloor = 18f, MotorOpenX = 100f, MotorOpenW = 216f, MotorOpenH = 100f;
@@ -274,7 +275,7 @@ namespace PooketSlug
             switch (id)
             {
                 case "door": Sfx.Play(Sfx.Thump, 0.7f); break;
-                case "static": Sfx.Play(Sfx.Glitch, 0.4f); m_FlickerUntil = Time.unscaledTime + 0.25f; break;
+                case "static": Sfx.Play(Sfx.Glitch, 0.4f); m_FlickerUntil = m_Clock + FlickerFor; break;
                 case "drop": Sfx.Play(Sfx.Splat, 0.6f); break;
                 case "goon": Sfx.Play(Sfx.Glitch, 0.5f); break;
                 case "jet": Sfx.Play(Sfx.Splat, 0.8f); break;
@@ -311,9 +312,11 @@ namespace PooketSlug
             Stage(p.Shot, t, now);
             Intro(p);
 
-            // a quick cut between shots, and the cyan flicker of the holograms' static
+            // a quick cut between shots, and the Trollograms' static: one soft cyan pulse that fades, never a strobe
+            // (it's timed on the scene's own clock; it was once timed against the real one, and strobed for the rest
+            // of the scene)
             m_Fade.color = new Color(0f, 0f, 0f, Mathf.Clamp01(1f - t / 0.18f));
-            float flicker = now < m_FlickerUntil ? ((int)(now * 30f) % 2 == 0 ? 0.35f : 0.1f) : 0f;
+            float flicker = now < m_FlickerUntil ? 0.3f * (m_FlickerUntil - now) / FlickerFor : 0f;
             m_Flicker.color = new Color(0.4f, 1f, 1f, flicker);
 
             p.Showing(m_Lines);

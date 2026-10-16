@@ -10,7 +10,7 @@ namespace PooketSlug
     {
         public enum Cue { None, Siren, SayWarning, SayBoss }
 
-        public const float SirenGap = 0.6f, StripesIn = 0.3f, StripesOut = 0.3f, FlashRate = 4f;
+        public const float SirenGap = 0.6f, StripesIn = 0.3f, StripesOut = 0.3f, FlashRate = 2.5f;
         public const float FullBanner = 2.8f, QuickBanner = 1.6f, NameAt = 1.4f, NameUntil = 3.4f, EdgesFor = 1.2f;
 
         static readonly (float at, Cue cue)[] FullCues = { (0f, Cue.Siren), (0.1f, Cue.SayWarning), (SirenGap, Cue.Siren), (NameAt + 0.1f, Cue.SayBoss) };

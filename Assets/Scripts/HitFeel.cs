@@ -17,13 +17,18 @@ namespace PooketSlug
         static readonly Color Pain = new Color(1f, 0.15f, 0.1f), Numbers = new Color(1f, 0.3f, 0.25f);
 
         /// <summary>The faintest a blast's flash gets drawn, the brightest, and the quiet gap after a white flash.</summary>
-        const float BlastFlashMin = 0.12f, BlastFlashMax = 0.32f, WhiteGap = 0.3f;
+        const float BlastFlashMin = 0.12f, BlastFlashMax = 0.32f;
+        /// <summary>
+        /// The quiet gap after any screen flash, white or red: at most 2.5 a second, under the 3 a second that can
+        /// set off photosensitive seizures.
+        /// </summary>
+        public const float FlashGap = 0.4f;
         /// <summary>The least time between fizzes from a soaking stream.</summary>
         const float FizzGap = 0.08f;
 
         readonly World m_World;
         readonly SpriteRenderer m_Flash;
-        float m_FlashLeft, m_FlashTime, m_FlashAlpha, m_NextWhite, m_NextFizz;
+        float m_FlashLeft, m_FlashTime, m_FlashAlpha, m_NextFlash, m_NextFizz;
 
         public HitFeel(World world)
         {
@@ -97,18 +102,14 @@ namespace PooketSlug
             Flash(Pain, 0.28f, 0.14f);
         }
 
-        /// <summary>A white flash, unless one went off a moment ago.</summary>
-        void White(float alpha, float seconds)
-        {
-            float now = Time.unscaledTime;
-            if (now < m_NextWhite) return;
-            m_NextWhite = now + WhiteGap;
-            Flash(Color.white, alpha, seconds);
-        }
+        /// <summary>A white flash, unless a flash went off a moment ago.</summary>
+        void White(float alpha, float seconds) => Flash(Color.white, alpha, seconds);
 
         void Flash(Color color, float alpha, float seconds)
         {
-            if (m_FlashLeft > 0f && m_FlashAlpha * (m_FlashLeft / m_FlashTime) > alpha) return; // a stronger flash is already showing
+            float now = Time.unscaledTime;
+            if (now < m_NextFlash) return; // rationed: never a strobe
+            m_NextFlash = now + FlashGap;
             color.a = alpha;
             m_Flash.color = color;
             m_FlashAlpha = alpha;
