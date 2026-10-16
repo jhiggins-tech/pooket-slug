@@ -206,8 +206,17 @@ try {
     // A's phone sends the game to the background: its page stops running, but its connection stays open
     const cdp = await A.page.context().newCDPSession(A.page);
     const frozeAt = Date.now();
+    // a page that's frozen doesn't answer: check it took (headless Chromium may only freeze a hidden page)
+    const answers = () => Promise.race([A.page.evaluate(() => 1).then(() => true), new Promise(r => setTimeout(() => r(false), 1500))]);
     await cdp.send('Page.setWebLifecycleState', { state: 'frozen' });
-    console.log(`${t()} A frozen`);
+    let frozen = !(await answers());
+    if (!frozen) {
+      const other = await A.page.context().newPage(); // a tab in front hides A's page, as switching apps does
+      await other.bringToFront();
+      await cdp.send('Page.setWebLifecycleState', { state: 'frozen' });
+      frozen = !(await answers());
+    }
+    console.log(`${t()} A frozen: ${frozen ? 'yes' : 'NO, it still answers'}`);
     const playing = play(B, 'ArrowRight', 12000);
     const asked = await waitLog(B, /quiet for .* asking to run the shared world/, 15000);
     checks.asked = !!asked;
@@ -220,6 +229,7 @@ try {
     await shot(B, '3-alone');
     checks.playedOn = !B.logs.some(l => /\[pageerror\]|Disconnected from Photon|Session ended/.test(l));
     await cdp.send('Page.setWebLifecycleState', { state: 'active' });
+    await A.page.bringToFront();
     console.log(`${t()} A back`);
     const back = await waitLog(A, /Another client runs the shared world/, 15000);
     console.log(`${t()} A back: ${back ? 'follows B\'s world' : A.logs.some(l => /Session ended|Disconnected/.test(l)) ? 'timed out by Photon' : 'no word'}`);

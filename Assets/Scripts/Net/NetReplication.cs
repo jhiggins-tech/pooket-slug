@@ -21,9 +21,11 @@ namespace PooketSlug
 
         /// <summary>Receives the session's events; null outside co-op play.</summary>
         public INetEvents Events { get; set; }
+        /// <summary>We're watching: no soldier of our own, and we never open the shared world.</summary>
+        public bool Watching { get; set; }
 
-        /// <summary>The shared world and our own soldier both exist.</summary>
-        public bool Ready => SharedValid && m_Local != null;
+        /// <summary>The shared world and our own soldier (or, watching, just the world) both exist.</summary>
+        public bool Ready => SharedValid && (m_Local != null || Watching);
         public int PlayerCount => m_Players.Count;
 
         bool SharedValid => m_Shared != null && m_Shared.Object != null && m_Shared.Object.IsValid;
@@ -46,13 +48,13 @@ namespace PooketSlug
         public void Tick(NetworkRunner runner)
         {
             // The master client opens the shared world (once; if it leaves, the object migrates to the next master).
-            if (m_Shared == null && !m_SpawnedWorld && runner.IsSharedModeMasterClient)
+            if (m_Shared == null && !m_SpawnedWorld && runner.IsSharedModeMasterClient && !Watching)
             {
                 m_SpawnedWorld = true;
                 runner.Spawn(NetPrefabs.World);
             }
             // And the boss's object beside it (once; it migrates the same way).
-            if (m_Boss == null && !m_SpawnedBoss && runner.IsSharedModeMasterClient)
+            if (m_Boss == null && !m_SpawnedBoss && runner.IsSharedModeMasterClient && !Watching)
             {
                 m_SpawnedBoss = true;
                 runner.Spawn(NetPrefabs.Boss);
@@ -91,6 +93,34 @@ namespace PooketSlug
         {
             m_Players.Remove(p);
             if (m_Local == p) m_Local = null;
+        }
+
+        /// <summary>A player with a soldier (someone watching hands the master client to them).</summary>
+        internal bool FirstSoldier(out PlayerRef player)
+        {
+            foreach (PlayerNet p in m_Players)
+                if (p.Object != null && p.Object.IsValid)
+                {
+                    player = p.Object.StateAuthority;
+                    return true;
+                }
+            player = PlayerRef.None;
+            return false;
+        }
+
+        /// <summary>The room as the browser lists it (the master's view): its mission, players, whether it's under way, and the host's soldier.</summary>
+        internal RoomListing Listing(NetworkRunner runner)
+        {
+            var r = new RoomListing { Mission = Mission, Host = -1 };
+            PlayerRef master = runner.GetMasterClient();
+            foreach (PlayerNet p in m_Players)
+            {
+                if (p.Object == null || !p.Object.IsValid) continue;
+                r.Soldiers++;
+                r.UnderWay |= p.Playing;
+                if (p.Object.StateAuthority == master) r.Host = p.NetSoldier;
+            }
+            return r;
         }
 
         /// <summary>The beat of <paramref name="player"/>'s soldier, or -1 when they have none.</summary>

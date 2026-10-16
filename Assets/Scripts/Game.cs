@@ -499,7 +499,7 @@ namespace PooketSlug
             if ((m_DenView.TakeHost() || keys.Host) && CoopReady && m_Den.Mode == DenMode.Solo)
             {
                 Log.Game.Info("Den: hosting from the couch");
-                GoOnline(m_Net.Host);
+                GoOnline(() => m_Net.Host(false));
                 return;
             }
             SoldierDef tapped = m_DenView.TakePick();
@@ -1017,7 +1017,7 @@ namespace PooketSlug
                     {
                         // J doubles as fire, so the online keys are checked first
                         if (click == MenuAction.Online) { OpenOnline(); break; }
-                        if (keys.Host) { GoOnline(m_Net.Host); break; }
+                        if (keys.Host) { GoOnline(() => m_Net.Host(false)); break; }
                         if (keys.Quick) { GoOnline(m_Net.QuickMatch); break; }
                         if (keys.Join) { OpenCodeEntry(""); break; }
                     }
@@ -1061,7 +1061,7 @@ namespace PooketSlug
                     break;
 
                 case GameState.Online:
-                    if (click == MenuAction.Host || keys.Host) GoOnline(m_Net.Host);
+                    if (click == MenuAction.Host || keys.Host) GoOnline(() => m_Net.Host(false));
                     else if (click == MenuAction.Quick || keys.Quick) GoOnline(m_Net.QuickMatch);
                     else if (click == MenuAction.Join || keys.Join) OpenCodeEntry("");
                     else if (click == MenuAction.Back || keys.Back) SetState(GameState.Title);
