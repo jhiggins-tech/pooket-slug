@@ -19,6 +19,10 @@ namespace PooketSlug
         /// <summary>What every soldier shares. Each one's speed, jump, size and health are in its <see cref="SoldierDef"/>.</summary>
         public static class Soldier
         {
+            /// <summary>Every soldier's body and moves, unless their definition says otherwise.</summary>
+            public const float RunSpeed = 5.5f, CrawlSpeed = 2f, JumpVelocity = 17f;
+            public const float HalfWidth = 0.3f, StandHeight = 1.35f, CrouchHeight = 0.8f;
+            public const int MaxHp = 5;
             /// <summary>Gravity multiplier while rising with jump released, for a short hop.</summary>
             public static float ShortHopGravity = 2.2f;
             public static float CoyoteTime = 0.1f, JumpBuffer = 0.12f, DropThroughTime = 0.25f;
@@ -103,10 +107,18 @@ namespace PooketSlug
             public const float RemoteSoldierLead = 0.05f;
         }
 
+        public static class Pixels
+        {
+            /// <summary>The art's pixels in a world unit (a tile): sprites, the crater mask and anything sized in pixels.</summary>
+            public const int PerUnit = 16;
+        }
+
         public static class Hud
         {
             /// <summary>The HUD is laid out in units of a screen this tall, whatever its pixels.</summary>
             public const float Height = 360f;
+            /// <summary>The HUD's layout is a 16:9 screen; wider or narrower screens stretch or squeeze the gaps.</summary>
+            public const float Width = Height * 16f / 9f;
             public const float PopupRise = 0.8f, PopupLife = 1.4f;
         }
     }

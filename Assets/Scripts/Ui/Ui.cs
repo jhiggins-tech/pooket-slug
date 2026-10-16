@@ -53,7 +53,7 @@ namespace PooketSlug
             canvas.sortingOrder = order;
             var scaler = go.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(Tuning.Hud.Height * 16f / 9f, Tuning.Hud.Height);
+            scaler.referenceResolution = new Vector2(Tuning.Hud.Width, Tuning.Hud.Height);
             scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
             scaler.matchWidthOrHeight = 1f; // the height sets the scale, as it did for the IMGUI HUD
             return (RectTransform)go.transform;

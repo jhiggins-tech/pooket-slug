@@ -11,7 +11,7 @@ namespace PooketSlug
     /// </summary>
     public sealed class CraterGround
     {
-        public const int Px = 16;
+        public const int Px = Tuning.Pixels.PerUnit;
         /// <summary>Pixels at the bottom of the level that never dig away, so nothing falls out of the world.</summary>
         public const int Bedrock = 4;
         /// <summary>The steepest slope an actor walks up (rise over run): steeper is a wall, and takes a jump.</summary>
