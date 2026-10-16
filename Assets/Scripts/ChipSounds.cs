@@ -69,7 +69,24 @@ namespace PooketSlug
                 c.Arp(new[] { 79f, 84f }, 0.18f, at: 0.5f, dur: 0.16f, duty: 0.25f, vol: 0.15f);
                 c.Tone(0.9f, 0.7f, Chip.Midi(88), duty: 0.25f, vibratoRate: 6f, vibratoDepth: 10f, vol: 0.15f);
             });
-            // A character's intro (story.md, Cutscenes): a big musical hit, every note of a wide chord at once over a
+            // The build-up to a character's intro, like the run-up before a drop: a snare roll that speeds up, a noise
+            // sweep and a tone both climbing, all swelling to the peak, where the hit lands (CutscenePlayer.BuildUp long).
+            Sfx.IntroRise = Render("chipIntroRise", 2.5f, c =>
+            {
+                float[] swell = { 1f, 1f };
+                c.Noise(0f, 2.5f, rate: 0.15f, to: 1f, vol: 0.1f, env: swell);
+                c.Tone(0f, 2.5f, Chip.Midi(48), Chip.Midi(72), duty: 0.125f, vol: 0.07f, env: swell);
+                c.Tone(0f, 2.5f, Chip.Midi(55), Chip.Midi(79), duty: 0.25f, vol: 0.05f, env: swell);
+                // the roll: hits a quarter-second apart, then eighths, then sixteenths, then a blur, louder as it goes
+                for (float t = 0f, gap = 0.25f; t < 2.45f; t += gap)
+                {
+                    c.Noise(t, 0.05f, rate: 0.8f, vol: 0.05f + 0.1f * t / 2.5f);
+                    if (t > 1f) gap = 0.125f;
+                    if (t > 1.6f) gap = 0.0625f;
+                    if (t > 2.1f) gap = 0.035f;
+                }
+            });
+            // A character's intro (story.md, Character intros): a big musical hit, every note of a wide chord at once over a
             // crash and a bass drop, ringing out with a wobble as the slow-mo holds.
             Sfx.Intro = Render("chipIntro", 1.7f, c =>
             {

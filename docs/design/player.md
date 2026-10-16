@@ -103,7 +103,7 @@ The game shows only what the player has already met:
   - The ⓘ screen opens from the crew pick on the title screen (the round **i** beside CREW, or YOUR KIT before there's a crew) and from the pause menu (owner, 2026-10-16: part of the character pick). Each move has a short demo clip, recorded from the game itself with goons reacting, which plays while it's picked.
 - **The super button lights up the first time it's charged,** with a one-off prompt.
 - **The ability button only appears for soldiers who have one.**
-- **The crew screen appears once there's a second soldier to pick.**
+- **The crew screen appears once there's a second soldier to pick.** It's the gaming den, where each freed crewmate has a station ([the lobby](lobby.md)).
 - **Weapon forks appear at level II.**
 - **XP, rank and looks appear at the first debrief.**
 

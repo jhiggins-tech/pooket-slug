@@ -254,7 +254,8 @@ namespace PooketSlug
                 case "card-up": Sfx.Play(Sfx.Pickup, 0.9f); break;
                 case "crush": Sfx.Play(Sfx.Hit, 0.7f); break;
                 case "card": Sfx.Play(Sfx.Thump, 1f); break;
-                case CutscenePlayer.IntroCue: Sfx.Play(Sfx.Intro, 1f); break;
+                case CutscenePlayer.BuildUpCue: Sfx.Play(Sfx.IntroRise, 0.5f); break;
+                case CutscenePlayer.IntroCue: Sfx.Play(Sfx.Intro, 0.5f); break;
                 default:
                     if (id.StartsWith("say:")) Sfx.Say(id.Substring(4));
                     break;
@@ -312,32 +313,39 @@ namespace PooketSlug
         }
 
         /// <summary>
-        /// A character's intro (<c>docs/design/story.md</c>, Cutscenes): the camera crash-zooms onto them, there's a
-        /// white flash, their name slams up on a band, and it all eases back out as the slow-mo ends.
+        /// A character's intro (<c>docs/design/story.md</c>, Character intros). First the build-up: the camera creeps in
+        /// on them and the scene darkens a little as the riser climbs, with a shake as it peaks. Then it lands: the camera
+        /// crash-zooms onto them, there's a white flash, their name slams up on a band, and it all eases back out as the
+        /// slow-mo ends.
         /// </summary>
         void Intro(CutscenePlayer p)
         {
+            const float Creep = 1.18f;
             CutsceneIntro intro = p.Current.Intro;
             bool on = p.Introducing && intro != null;
+            float build = p.BuildingUp;
             Ui.Show(m_IntroBand, on);
+            Figure who = intro != null && (intro.Who == Speaker.Goon || intro.Who == Speaker.Hologram) ? m_Goon : m_Tones2;
+            Vector2 half = new Vector2(StageW, StageH) * Px / 2f;
+            Vector2 focus = who.Rt.anchoredPosition + new Vector2(0f, 16f * Px) - half; // their middle, from the world's centre
             if (!on)
             {
-                m_World.localScale = Vector3.one;
-                m_World.anchoredPosition = Vector2.zero;
-                m_Flash.color = new Color(1f, 1f, 1f, 0f);
+                // the build-up: a slow creep in on them (they stay put on screen), a darkening, and a shake at the peak
+                float creep = Mathf.Lerp(1f, Creep, build * build);
+                Vector2 shake = build > 0.8f ? new Vector2(Mathf.Sin(m_Clock * 90f), Mathf.Cos(m_Clock * 70f)) * (build - 0.8f) * 10f : Vector2.zero;
+                m_World.localScale = new Vector3(creep, creep, 1f);
+                m_World.anchoredPosition = build > 0f ? focus - focus * creep + shake : Vector2.zero;
+                m_Flash.color = new Color(0f, 0f, 0.05f, 0.3f * build * build);
                 return;
             }
             float k = p.IntroT, end = CutscenePlayer.IntroSeconds;
             float zoomIn = Mathf.Clamp01(k / 0.12f), zoomOut = Mathf.Clamp01((end - k) / 0.3f);
             float e = Mathf.Min(1f - (1f - zoomIn) * (1f - zoomIn), zoomOut * zoomOut * (3f - 2f * zoomOut));
 
-            Figure who = intro.Who == Speaker.Goon || intro.Who == Speaker.Hologram ? m_Goon : m_Tones2;
-            Vector2 half = new Vector2(StageW, StageH) * Px / 2f;
-            Vector2 focus = who.Rt.anchoredPosition + new Vector2(0f, 16f * Px) - half; // their middle, from the world's centre
             Vector2 target = new Vector2(-StageW * Px * 0.22f, -12f); // where they end up: left of centre, the name to their right
-            float scale = Mathf.Lerp(1f, 2.6f, e);
+            float scale = Mathf.Lerp(k < end / 2f ? Creep : 1f, 2.6f, e); // on from the creep, back out to where it started
             m_World.localScale = new Vector3(scale, scale, 1f);
-            m_World.anchoredPosition = Vector2.Lerp(focus, target, e) - focus * scale;
+            m_World.anchoredPosition = Vector2.Lerp(focus, target, e) - focus * scale; // they stay where the creep had them
 
             m_Flash.color = new Color(1f, 1f, 1f, Mathf.Clamp01(0.85f - k / 0.18f));
             m_IntroName.text = intro.Name;
@@ -450,8 +458,9 @@ namespace PooketSlug
             {
                 case 0: // outside the hangout: tones2 strolls in from the left with the snacks
                 {
-                    float x = Mathf.Lerp(-16f, 196f, Mathf.Clamp01(t / 3.6f));
-                    Soldier(x, Street, t < 3.6f, t);
+                    // he walks on for a few seconds before his intro lands (at 4 s), and on to the door after it
+                    float x = Mathf.Lerp(-16f, 196f, Mathf.Clamp01(t / 5.6f));
+                    Soldier(x, Street, t < 5.6f, t);
                     break;
                 }
                 case 1: // the door swings in off a hinge, and the warm light turns cold

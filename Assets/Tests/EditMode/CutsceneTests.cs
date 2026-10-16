@@ -24,7 +24,7 @@ namespace PooketSlug.Tests
         public void TheOpeningIsSixUnhurriedShotsEachWithANarratorLine()
         {
             Assert.AreEqual(6, Cutscenes.Opening.Shots.Length);
-            Assert.That(Cutscenes.Opening.Seconds, Is.InRange(30f, 36f));
+            Assert.That(Cutscenes.Opening.Seconds, Is.InRange(30f, 40f));
             foreach (CutsceneShot shot in Cutscenes.Opening.Shots)
             {
                 Assert.That(shot.Seconds, Is.InRange(4f, 8f), shot.Name);
@@ -56,7 +56,7 @@ namespace PooketSlug.Tests
             var p = new CutscenePlayer(Cutscenes.Opening, seenBefore: false);
             var lines = new List<CutsceneLine>();
             Assert.IsNull(p.Narration);
-            RunTo(p, 0, 1.35f);
+            RunTo(p, 0, 4.35f);
             Assert.AreEqual("Friday night. tones2's back from the snack run.", p.Narration);
             Assert.AreEqual(0, p.Showing(lines), "no bubble for the narrator");
             while (p.Shot < 3) Run(p, 0.1f);
@@ -82,13 +82,14 @@ namespace PooketSlug.Tests
         {
             var p = new CutscenePlayer(Cutscenes.Opening, seenBefore: false);
             var cues = new List<string>();
-            Run(p, 40f, cues);
+            Run(p, 45f, cues);
             Assert.IsTrue(p.Done);
             Assert.IsFalse(p.Skipped);
             int expected = 0;
-            foreach (CutsceneShot shot in Cutscenes.Opening.Shots) expected += shot.Cues.Length + (shot.Intro != null ? 1 : 0);
+            foreach (CutsceneShot shot in Cutscenes.Opening.Shots) expected += shot.Cues.Length + (shot.Intro != null ? 2 : 0);
             Assert.AreEqual(expected, cues.Count);
             Assert.AreEqual(1, cues.FindAll(c => c == CutscenePlayer.IntroCue).Count, "tones2's intro, once");
+            Assert.Less(cues.IndexOf(CutscenePlayer.BuildUpCue), cues.IndexOf(CutscenePlayer.IntroCue), "its build-up first");
             Assert.AreEqual(1, cues.FindAll(c => c == "say:mission-start").Count);
         }
 
@@ -153,7 +154,7 @@ namespace PooketSlug.Tests
             Assert.AreEqual(0, p.Showing(lines));
             Run(p, 1f);
             Assert.AreEqual(0, p.Showing(lines));
-            RunTo(p, 0, 3.3f);
+            RunTo(p, 0, 6.5f);
             Assert.AreEqual(1, p.Showing(lines));
             Assert.AreEqual("SNACKS ARE HERE LADS", lines[0].Text);
             while (p.Shot < 4) Run(p, 0.1f);
@@ -197,14 +198,36 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void AnIntroBuildsUpForAFewSecondsWhileTones2WalksOn()
+        {
+            var p = new CutscenePlayer(Cutscenes.Opening, seenBefore: false);
+            var cues = new List<string>();
+            float at = Cutscenes.Opening.Shots[0].Intro.At;
+            Assert.That(at - CutscenePlayer.BuildUp, Is.GreaterThanOrEqualTo(1f), "he's on screen a while before it starts");
+            Assert.That(CutscenePlayer.BuildUp, Is.InRange(2f, 3f));
+            RunTo(p, 0, at - CutscenePlayer.BuildUp - 0.1f);
+            Assert.AreEqual(0f, p.BuildingUp);
+            Run(p, 0.2f, cues);
+            Assert.Contains(CutscenePlayer.BuildUpCue, cues, "the riser starts");
+            RunTo(p, 0, at - 0.1f);
+            Assert.That(p.BuildingUp, Is.GreaterThan(0.9f));
+            Assert.IsFalse(p.Introducing);
+            Run(p, 0.15f);
+            Assert.IsTrue(p.Introducing, "and lands at the peak");
+            Assert.AreEqual(0f, p.BuildingUp);
+        }
+
+        [Test]
         public void ATapBeforeAnIntroJumpsToItRatherThanPastIt()
         {
             var p = new CutscenePlayer(Cutscenes.Opening, seenBefore: false);
             Run(p, 0.5f);
             Assert.IsTrue(p.Tap(0));
             Assert.AreEqual(0, p.Shot);
-            Assert.AreEqual(Cutscenes.Opening.Shots[0].Intro.At, p.T);
-            Run(p, 0.05f);
+            float at = Cutscenes.Opening.Shots[0].Intro.At;
+            Assert.AreEqual(at - CutscenePlayer.BuildUp, p.T, "to the start of its build-up, so that still plays");
+            Assert.IsFalse(p.Tap(0), "and no tapping through the build-up");
+            Run(p, CutscenePlayer.BuildUp + 0.05f);
             Assert.IsTrue(p.Introducing);
         }
     }
