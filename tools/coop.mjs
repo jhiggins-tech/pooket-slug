@@ -1,5 +1,6 @@
 // Two-player co-op check against a build, in two separate headless Chromium instances.
-//   code mode (default): A hosts (H), B opens the invite link ?room=CODE and presses Enter.
+//   code mode (default): A hosts (H), copies the invite link in the den (H again, as tapping the TV), and B opens the
+//                        invite link ?room=CODE and presses Enter.
 //   quick mode:          both press Q (quick match).
 //   boss mode:           as code mode, but both start at the boss (?test=boss) and fight it: B must see the boss
 //                        tank's turret and shots from A's world. Nobody leaves.
@@ -43,13 +44,14 @@ const checks = HANDOVER
   ? { hostOnline: false, guestOnline: false, joined: false, played: false, bossIntro: false, bossFought: false, bossFollowed: false, bossFired: false }
   : SCENE
     ? { hostOnline: false, guestOnline: false, joined: false, bothInScene: false, waited: false, tappedThrough: false, together: false, played: false }
-    : { hostOnline: false, guestOnline: false, joined: false, played: false, pickup: false, takeover: false };
+    : { hostOnline: false, guestOnline: false, joined: false, invite: false, played: false, pickup: false, takeover: false };
 const GRANT = new RegExp(TAG + String.raw` Pickup \d+ .* goes to player`); // the master handing out a pickup
 let failure = null;
 
 async function player(name) {
   const browser = await chromium.launch({ args: ARGS });
-  const page = await browser.newPage({ viewport: { width: 960, height: 720 } });
+  const context = await browser.newContext({ viewport: { width: 960, height: 720 }, permissions: ['clipboard-read', 'clipboard-write'] });
+  const page = await context.newPage();
   const logs = [];
   page.on('console', m => logs.push(`${t()} ${name} [${m.type()}] ${m.text()}`));
   page.on('pageerror', e => logs.push(`${t()} ${name} [pageerror] ${e.message}`));
@@ -143,6 +145,16 @@ try {
     joinUrl = url + (url.includes('?') ? '&' : '?') + 'room=' + code;
   }
   if (!checks.hostOnline) throw new Error('A never got online');
+  if (mode === 'code') {
+    // rooms: the TV's invite (H in a room's den, as a tap on the TV) copies the room's link on a computer
+    await denOpen(A);
+    await A.page.keyboard.press('h');
+    const copied = await waitLog(A, new RegExp(TAG + ' Invite (copied|shared)'), 10000);
+    const clip = copied ? await A.page.evaluate(() => navigator.clipboard.readText()).catch(e => 'unreadable: ' + e.message) : '';
+    checks.invite = !!copied && /[?&]room=[A-Z]{4}$/.test(clip) && joinUrl.endsWith(clip.slice(clip.indexOf('?room=') + 1));
+    console.log(`${t()} invite: ${copied ? 'copied ' + clip : 'NO'}`);
+    await shot(A, 'den-invited');
+  }
   if (SCENE) await denOpen(A); // A waits in the den for B, so they start together
   else {
     await denStart(A);

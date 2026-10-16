@@ -465,6 +465,7 @@ namespace PooketSlug
                 // Mission one is solo only (docs/design/lobby.md, Co-op): until Mission two is built, co-op plays it as a stand-in
                 Mission = m_Den.Mode == DenMode.Crew ? null : coop && mission == Missions.One ? "TEST MISSION" : mission.Name.ToUpperInvariant(),
                 Room = coop ? m_Net.RoomCode : null,
+                InviteLink = coop ? InviteCode.Link(m_PageUrl, m_Net.RoomCode) : null,
                 CanHost = CoopReady && m_Den.Mode == DenMode.Solo,
                 Skin = coop ? m_Net.Link.LocalSkin : 0,
             };
@@ -494,6 +495,7 @@ namespace PooketSlug
                 OpenBoard(fromDen: true);
                 return;
             }
+            Invites(coop, keys.Host);
             if ((m_DenView.TakeHost() || keys.Host) && CoopReady && m_Den.Mode == DenMode.Solo)
             {
                 Log.Game.Info("Den: hosting from the couch");
@@ -521,6 +523,29 @@ namespace PooketSlug
                 Options o = m_Options; // the title and the next den remember who's on the couch
                 o.Crew = m_Den.Pick.Id;
                 ChangeOptions(o);
+            }
+        }
+
+        /// <summary>
+        /// The TV's invite: armed as a finger goes down on it (or H, hosting's key, goes down in a room), shared or copied
+        /// as it lifts; the TV says how it went.
+        /// </summary>
+        void Invites(bool coop, bool key)
+        {
+            string link = coop ? InviteCode.Link(m_PageUrl, m_Net.RoomCode) : null;
+            if ((m_DenView.TakeInvite() || key) && link != null)
+            {
+                Invite.Arm(link, "Come play Pooket Slug with me: room " + m_Net.RoomCode);
+                Log.Game.Info("Invite armed: " + link);
+            }
+            switch (Invite.Result())
+            {
+                case InviteResult.Shared: m_DenView.TvSay("LINK SENT"); Log.Game.Info("Invite shared"); break;
+                case InviteResult.Copied: m_DenView.TvSay("LINK COPIED"); Log.Game.Info("Invite copied"); break;
+                case InviteResult.Failed:
+                    if (link != null) m_DenView.Note("SEND THIS LINK: " + link, 8f);
+                    Log.Game.Info("Invite couldn't be shared or copied: showing the link");
+                    break;
             }
         }
 

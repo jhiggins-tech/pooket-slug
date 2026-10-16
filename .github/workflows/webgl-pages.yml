@@ -389,6 +389,7 @@ jobs:
                   ("hostOnline", "A hosts a room"),
                   ("guestOnline", "B joins with the invite link"),
                   ("joined", "A sees B join"),
+                  ("invite", "A's den copies the room's invite link (the TV, or H)"),
                   ("played", "Both play with no errors or disconnects"),
                   ("pickup", "A's world hands out the test crate (?test=crate)"),
                   ("takeover", "B takes over the world when A leaves"),

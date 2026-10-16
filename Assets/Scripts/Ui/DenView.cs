@@ -11,6 +11,8 @@ namespace PooketSlug
         public string Mission;
         /// <summary>The co-op room's code for the TV, or null.</summary>
         public string Room;
+        /// <summary>The room's invite link (tapping the TV shares it), or null.</summary>
+        public string InviteLink;
         /// <summary>Tapping the empty second controller hosts a room (solo, once co-op's open).</summary>
         public bool CanHost;
         /// <summary>Our colours (<see cref="Art.SkinFor"/>): 0 player one's, 1 player two's.</summary>
@@ -127,7 +129,10 @@ namespace PooketSlug
         bool m_BitSaidHolo;
 
         SoldierDef m_Picked;
-        bool m_ReadyPressed, m_BackPressed, m_KitPressed, m_HostPressed, m_BoardPressed;
+        bool m_ReadyPressed, m_BackPressed, m_KitPressed, m_HostPressed, m_BoardPressed, m_InviteDown;
+        RectTransform m_InviteTap;
+        string m_TvSaid;
+        float m_TvSaidUntil;
 
         public DenView(Transform parent)
         {
@@ -185,6 +190,13 @@ namespace PooketSlug
             boardTap.transition = Selectable.Transition.None;
             boardTap.navigation = new Navigation { mode = Navigation.Mode.None };
             boardTap.onClick.AddListener(() => m_BoardPressed = true);
+
+            // the TV, in a co-op room: a tap shares the invite link. It's armed as the finger goes down (Invite)
+            m_InviteTap = Ui.Rect(m_World, "Tap TV", Vector2.zero, Vector2.zero, new Vector2(86f, 54f) * Px, new Vector2(62f, 34f) * Px);
+            m_InviteTap.gameObject.AddComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
+            var down = new UnityEngine.EventSystems.EventTrigger.Entry { eventID = UnityEngine.EventSystems.EventTriggerType.PointerDown };
+            down.callback.AddListener(_ => m_InviteDown = true);
+            m_InviteTap.gameObject.AddComponent<UnityEngine.EventSystems.EventTrigger>().triggers.Add(down);
 
             m_Visitor = new Figure(m_World, "Visitor");
             m_Dim = Ui.Picture(m_Stage, "Fade", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, new Color(0f, 0f, 0f, 0f));
@@ -302,6 +314,15 @@ namespace PooketSlug
         public bool TakeHost() => Take(ref m_HostPressed);
         /// <summary>The mission board was tapped: it opens the mission screen.</summary>
         public bool TakeBoard() => Take(ref m_BoardPressed);
+        /// <summary>A finger went down on the TV in a co-op room: arm the invite (<see cref="Invite"/>).</summary>
+        public bool TakeInvite() => Take(ref m_InviteDown);
+
+        /// <summary>The TV says this under the room code for a few seconds ("LINK COPIED").</summary>
+        public void TvSay(string text)
+        {
+            m_TvSaid = text;
+            m_TvSaidUntil = m_Clock + 2.5f;
+        }
 
         static bool Take(ref bool flag)
         {
@@ -311,10 +332,10 @@ namespace PooketSlug
         }
 
         /// <summary>Says something across the top for a few seconds (a pick undone, say).</summary>
-        public void Note(string text)
+        public void Note(string text, float seconds = 3f)
         {
             m_Note.text = text;
-            m_NoteUntil = m_Clock + 3f;
+            m_NoteUntil = m_Clock + seconds;
         }
 
         // ------------------------------------------------------------------ each frame
@@ -637,7 +658,10 @@ namespace PooketSlug
         {
             bool counting = den.Countdown > 0f;
             m_TvTitle.text = info.Mission ?? "CREW";
-            m_TvRoom.text = info.Room != null ? "ROOM " + info.Room : den.Mode == DenMode.Crew ? "PICK WHO YOU'LL PLAY" : "SOLO";
+            string invite = m_Clock < m_TvSaidUntil ? m_TvSaid : "TAP TO INVITE";
+            m_TvRoom.text = info.Room != null ? "ROOM " + info.Room + (info.InviteLink != null ? "  " + invite : "")
+                : den.Mode == DenMode.Crew ? "PICK WHO YOU'LL PLAY" : "SOLO";
+            Ui.Show(m_InviteTap, info.InviteLink != null && den.Zoom < 0f);
             Ui.Show(m_TvCount, counting);
             if (counting) m_TvCount.text = Mathf.CeilToInt(den.Countdown).ToString();
             m_Board.text = info.Mission ?? "";
