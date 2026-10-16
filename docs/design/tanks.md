@@ -120,12 +120,12 @@ Wreck the tabk and its Trollogram pilot jumps out to fight you on foot with the 
 
 ## tones2's tabk
 
-The first tabk you win, freed by kie at the end of Mission one and called in for the first time in [the coda](story.md#the-coda). Draft, 2026-10-16: the guns, ten-1 and ten-2, the paint and single player are the owner's picks; ten-3's numbers, the name and the drone are Claude's defaults, to review.
+The first tabk you win, freed by kie at the end of Mission one and called in for the first time in [the coda](story.md#the-coda). Draft, 2026-10-16: the guns, ten-1, ten-2, ten-3's length, the paint and single player are the owner's picks; the name and the drone are Claude's defaults, to review.
 
 - **Its own guns** (owner, 2026-10-16): each crewmate's tabk fires tabk-sized versions of their kit, as in Pooket Tabks, where the tank is the kit. Rounds stay 5, 3 and 1, never refilled, and the controls stay the same ([driving a tabk](#driving-a-tabk)).
   - **ten-1, the water cannon** (FIRE, 5 rounds; owner, 2026-10-16): one round is one spray cycle, as in Pooket Tabks. Press FIRE and the pressure builds in spurts from a wide, weak spray to a clean, hard arc, holds there for a moment, then eases off (about three seconds in all), and you aim it as it goes. The full-pressure arc does the real damage and shoves goons back a long way. Off a wall point-blank it splashes back, harmless, as on foot.
   - **ten-2, the mud jump** (SP, 3 rounds; owner, 2026-10-16: as true to the Pooket Tabks tank as it can be): the tabk shakes and rumbles as it builds up (about a second, cut down from Tabks' 10 s turn), then blasts off along the aim like a jetpack, flies and comes down somewhere new. The exhaust is a huge blast of toxic mud that carpets the ground around the launch and poisons goons walking through it. It aims the upper five ways (a flat aim launches long and low, a downward one straight up), burns no fuel, and landing on goons squashes them. In the coda it's how you get over the sandbag nest and leave the goons behind it in the mud.
-  - **ten-3, the spew** (SU, 1 round): tabk-sized. Two seconds of spew along the aim that melts anything close and leaves a long trail of sludge. He can drive while it pours.
+  - **ten-3, the spew** (SU, 1 round; owner, 2026-10-16): tabk-sized, and twice as long as on foot: three seconds of spew along the aim (the soldier's is 1.5 s, `Tones2Tuning`), melting anything close and leaving a long trail of sludge. He can drive while it pours.
 - **Paint** (owner, 2026-10-16): orange and black, with a pumpkin-head stencil on the hull.
 - **Its name** on screen while you drive it: TONES2'S TABK, over its rounds (WATER 5, MUD 3, SPEW 1).
 - **The rest is shared** with every tabk: health, fuel, speed, the hop, squashing goons, eject and the runaway.
