@@ -13,9 +13,12 @@ on:
 permissions:
   contents: write # peaceiris/actions-gh-pages pushes the build to the gh-pages branch
 
+# A run under way finishes (and deploys) before the next starts; of the pushes that land meanwhile, only the newest
+# waits its turn. Cancelling the run under way instead (as it did until 2026-10-16) meant that with several threads
+# pushing to the same branch, nothing ever got as far as deploying.
 concurrency:
   group: webgl-pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build-and-deploy:

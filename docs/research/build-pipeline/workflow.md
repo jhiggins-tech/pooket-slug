@@ -12,9 +12,8 @@ Up: [Build pipeline](README.md)
   - Pushes to `main` and `claude/**`, and manual dispatch.
   - `paths-ignore` skips pushes that only touch `**.md` or `docs/**`. A doc change never redeploys the game, and a redeploy changes the build version, which [splits co-op players](../netcode/sessions.md#build-versions).
 - **`permissions: contents: write`:** needed by `peaceiris/actions-gh-pages` to push the `gh-pages` branch.
-- **Concurrency:** `group: webgl-pages` with `cancel-in-progress: true`, so a new push cancels the build in flight.
-  - The group is **global**, so a push to *any* branch cancels *any* in-flight build. That's fine for one branch; use `group: webgl-pages-${{ github.ref }}` before several people push.
-  - Pushing a follow-up commit cancels the previous run. Push small changes early, or wait.
+- **Concurrency:** `group: webgl-pages` with `cancel-in-progress: false` (since 2026-10-16), so a build in flight always finishes and deploys; pushes that land meanwhile queue, and only the newest of them runs next.
+  - The group is **global**: a build for any branch waits for any other. With `cancel-in-progress: true`, as before, several threads pushing to the same branch kept cancelling each other and nothing deployed for over an hour.
 
 ## Secrets
 
