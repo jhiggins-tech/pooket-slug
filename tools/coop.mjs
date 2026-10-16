@@ -7,10 +7,10 @@
 //   dropin mode:         spike drop-in: A starts alone and fights its way in, then B joins the mission under way. B
 //                        must drop in partway with its own lives and a score of its own at 0, both play on, and
 //                        (reported, not required: kills aren't certain) each sees the other's own score. Nobody leaves.
-//   handover mode:       rooms: as code mode, then A's page is frozen (as a phone does to a game sent to the
-//                        background) while both play. B must notice A's beat stop, ask Photon for the shared world and
-//                        run it, well before Photon would time A out, and play on. Then A comes back (reported, not
-//                        required: it may have been timed out by then) and should follow B's world.
+//   handover mode:       rooms: as code mode, then A's page stalls for 32 s (its main thread held busy, as a phone
+//                        freezes a game sent to the background). B must notice A's beat stop, ask Photon for the
+//                        shared world and run it, well before Photon would time A out, and play on. Then A comes
+//                        back (reported, not required: it may have been timed out by then) and should follow B's world.
 //   watch mode:          rooms: A quick-matches (opening a listed room), B finds it in the room browser (R) and joins
 //                        it (ENTER, the first row), both play, and C finds it full in the browser and watches it: C
 //                        must follow the game with no soldier of its own, and A's room must count C watching. Nobody
@@ -258,19 +258,15 @@ try {
   } else if (HANDOVER) {
     await Promise.all([play(A, 'ArrowRight', 5000), play(B, 'ArrowRight', 5000)]);
     checks.played = ![...A.logs, ...B.logs].some(l => /\[pageerror\]|Disconnected from Photon|Session ended/.test(l));
-    // A's phone sends the game to the background: its page stops running, but its connection stays open
-    const cdp = await A.page.context().newCDPSession(A.page);
+    // A's phone sends the game to the background: its page stops running, but its connection stays open. Headless
+    // Chromium won't freeze a page (Page.setWebLifecycleState didn't take in CI), so A's main thread is held busy
+    // instead: the game, and everything it sends Photon, stops just the same.
+    const STALL = 32000;
     const frozeAt = Date.now();
-    // a page that's frozen doesn't answer: check it took (headless Chromium may only freeze a hidden page)
+    const stalled = A.page.evaluate(ms => { const end = performance.now() + ms; while (performance.now() < end) {} }, STALL).catch(() => {});
+    await A.page.waitForTimeout(300);
     const answers = () => Promise.race([A.page.evaluate(() => 1).then(() => true), new Promise(r => setTimeout(() => r(false), 1500))]);
-    await cdp.send('Page.setWebLifecycleState', { state: 'frozen' });
-    let frozen = !(await answers());
-    if (!frozen) {
-      const other = await A.page.context().newPage(); // a tab in front hides A's page, as switching apps does
-      await other.bringToFront();
-      await cdp.send('Page.setWebLifecycleState', { state: 'frozen' });
-      frozen = !(await answers());
-    }
+    const frozen = !(await answers());
     console.log(`${t()} A frozen: ${frozen ? 'yes' : 'NO, it still answers'}`);
     const playing = play(B, 'ArrowRight', 12000);
     const asked = await waitLog(B, /quiet for .* asking to run the shared world/, 15000);
@@ -283,8 +279,7 @@ try {
     await playing;
     await shot(B, '3-alone');
     checks.playedOn = !B.logs.some(l => /\[pageerror\]|Disconnected from Photon|Session ended/.test(l));
-    await cdp.send('Page.setWebLifecycleState', { state: 'active' });
-    await A.page.bringToFront();
+    await stalled;
     console.log(`${t()} A back`);
     const back = await waitLog(A, /Another client runs the shared world/, 15000);
     console.log(`${t()} A back: ${back ? 'follows B\'s world' : A.logs.some(l => /Session ended|Disconnected/.test(l)) ? 'timed out by Photon' : 'no word'}`);
