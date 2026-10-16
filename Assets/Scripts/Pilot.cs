@@ -47,7 +47,7 @@ namespace PooketSlug
             Engaged = true; // the boss bar is his from the moment he's out
         }
 
-        public override string DisplayName => "HOLOGRAM KIE";
+        public override string DisplayName => "TROLLOGRAM KIE";
 
         /// <summary>Authority: out of the wreck, with a leap and a moment no shot can touch him.</summary>
         public void JumpOut(int side)

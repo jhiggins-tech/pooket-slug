@@ -140,7 +140,7 @@ namespace PooketSlug
                 new DemoScript(DemoScript.Ground("...P.........==..s...==..s.............."), 5.5f, false,
                     (Lead, 0.6f, DemoKeys.Fire), (1.6f, 1.7f, DemoKeys.Fire), (2.7f, 2.8f, DemoKeys.Fire))),
             new MoveGuide(Content.Kie, KitSlot.Special, "TROLLOGRAM",
-                "Tap to drop a hologram of yourself, up to three. Goons shoot a hologram instead of you, and a shot one blows up. Hold to swap places with the one furthest away.",
+                "Tap to drop a Trollogram of yourself, up to three. Goons shoot a Trollogram instead of you, and a shot one blows up. Hold to swap places with the one furthest away.",
                 new DemoScript(DemoScript.Ground("....P..............s.....s.............."), 6f, false,
                     (Lead, 1.2f, DemoKeys.Right), (1.2f, 1.3f, DemoKeys.Special), (1.4f, 2.2f, DemoKeys.Left), (3.4f, 3.9f, DemoKeys.Special))),
             new MoveGuide(Content.Kie, KitSlot.Super, "STEAL",

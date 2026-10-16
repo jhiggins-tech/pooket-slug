@@ -92,7 +92,7 @@ namespace PooketSlug
             m_Hi = Ui.Label(m_Top, "High score", Ui.TopRight, new Vector2(-8f, -5f), 14, TextAnchor.UpperRight, Color.white);
             m_Time = Ui.Label(m_Top, "Time", Ui.TopRight, new Vector2(-8f, -24f), 11, TextAnchor.UpperRight, Color.white);
             m_BossName = Ui.Label(m_Top, "Boss", Ui.TopCenter, new Vector2(0f, -6f), 10, TextAnchor.UpperCenter, new Color(1f, 0.6f, 0.4f));
-            m_BossName.text = "REBEL TANK";
+            m_BossName.text = "REBEL TABK";
             m_BossBack = Ui.Picture(m_Top, "Boss bar", null, Ui.TopCenter, Ui.TopCenter, new Vector2(0f, -21f), new Vector2(182f, 8f), new Color(0.1f, 0.05f, 0.08f, 0.85f));
             m_BossFill = Ui.Picture(m_BossBack.rectTransform, "Health", null, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(1f, 0f), new Vector2(180f, 6f), new Color(0.9f, 0.25f, 0.2f));
             m_SuperLabel = Ui.Label(m_Top, "Super", Ui.TopLeft, new Vector2(8f, -55f), 8, TextAnchor.UpperLeft, Arms);
@@ -292,7 +292,7 @@ namespace PooketSlug
                     m_ArmsTank = tankRounds;
                     string arms = p.GunAmmo > 0 ? p.Gun.Hud + " " + p.GunAmmo : p.Def.Primary.Hud; // the font has no infinity glyph
                     m_Arms.text = tank != null
-                        ? "TANK  SHELL " + tank.Rounds.Main + "   MORTAR " + tank.Rounds.Specials + "   BARRAGE " + tank.Rounds.Supers
+                        ? "TABK  SHELL " + tank.Rounds.Main + "   MORTAR " + tank.Rounds.Specials + "   BARRAGE " + tank.Rounds.Supers
                         : "ARMS " + arms + "   " + p.Def.Special.Hud + " " + p.Specials;
                 }
                 Ui.Show(m_TankLabel, tank != null);

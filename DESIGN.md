@@ -68,7 +68,7 @@ kie's Trollogram holograms went rogue and stole the crew's tanks. The goons are 
 - **Left thumb**: a stick to run; up aims up, down crouches (or aims down in the air).
 - **Right thumb**: FIRE (hold to keep firing), JUMP, special (SP) and super (SU), plus the ability (AB) above the special for the soldiers who have one.
 - **Calling in your tank**: hold the stick down and hold SP. The call charges up first, and letting go early cancels it; a tap of SP still fires the special.
-- **In your tank**, the stick drives and points the gun eight ways and FIRE shoots at once, Metal Slug style ([tanks](docs/design/tanks.md#driving-a-tank)). Only boss tanks swing a turret and charge their shots.
+- **In your tank**, the stick drives and points the gun eight ways and FIRE shoots at once, Metal Slug style ([tanks](docs/design/tanks.md#driving-a-tabk)). Only boss tanks swing a turret and charge their shots.
 
 ### The kit
 Each soldier's Tabks tiers become a hero kit:
@@ -92,7 +92,7 @@ Tabks' statuses, with turns turned into seconds. They come only from the soldier
 - **Toxic**: mud and sludge that poison whatever walks through them (ten-2, ten-3).
 
 ## Tanks
-- **Two kinds of tank** (2026-10-15): the **boss tank** a hologram drives is slow artillery, swinging its turret and charging its shots. **Your tank**, once won, drives Metal Slug style: the stick drives it and points the gun eight ways, and FIRE shoots at once ([tanks](docs/design/tanks.md#two-kinds-of-tank)).
+- **Two kinds of tank** (2026-10-15): the **boss tank** a hologram drives is slow artillery, swinging its turret and charging its shots. **Your tank**, once won, drives Metal Slug style: the stick drives it and points the gun eight ways, and FIRE shoots at once ([tanks](docs/design/tanks.md#two-kinds-of-tabk)).
 - **Beat a crew tank and its pilot, then climb in.** Your tank has its own health bar and its Tabks kit with 5 / 3 / 1 rounds that never refill. Eject before it blows.
 - **Calling one in**: in Missions, once a mission, hold the stick down and hold SP until the call charges (letting go early cancels it), and a tank you've won drops in beside you. You choose which tank on the mission screen (in the Roguelite, at the start of each stage).
 - **Soldiers and tanks mix**: tones2 can ride kcaj's tank, Double Park, Unmedicated and all.

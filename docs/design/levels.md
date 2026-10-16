@@ -11,19 +11,19 @@ Up: [Design](README.md)
 ## Missions
 
 - **Handmade levels, one for each crewmate to free.** There's one mission to start, and kcaj's comes next. The rest arrive one crewmate at a time.
-- **Every mission has the same shape:** a run through the map, then the boss arena. The crewmate's tank comes first, then its hologram pilot ([tanks](tanks.md#tank-bosses)). Freeing the crewmate ends the mission, and the debrief follows.
+- **Every mission has the same shape:** a run through the map, then the boss arena. The crewmate's tabk comes first, then its Trollogram pilot ([tabks](tanks.md#tabk-bosses)). Freeing the crewmate ends the mission, and the debrief follows.
 - **A checkpoint at the boss door.** Lose the boss fight and you restart at the arena, not at the start of the run.
 - **Replays:** you can play any mission you've cleared again, for score, XP, rank and stats. Your best score and your clears are kept for each mission.
 
 ## Mission one: the military base
 
-- **Metal Slug played straight:** sandbags and watchtowers, ending at the motor pool, where the stolen tanks are parked.
-- **The look: a steel base at night** (picked 2026-10-15). Snow on concrete and steel, hazard stripes, searchlights, live fences and steam vents, with the motor pool's blast shutter as the boss door. The cold palette makes the hologram goons and the fire stand out. The concept sheets are in the project's files, under concepts/m1-map.
+- **Metal Slug played straight:** sandbags and watchtowers, ending at the motor pool, where the stolen tabks are parked.
+- **The look: a steel base at night** (picked 2026-10-15). Snow on concrete and steel, hazard stripes, searchlights, live fences and steam vents, with the motor pool's blast shutter as the boss door. The cold palette makes the Trollogram goons and the fire stand out. The concept sheets are in the project's files, under concepts/m1-map.
 - **About five minutes long.**
 - **Solo, as tones2,** straight in with no tutorial.
-- **Goons:** riflemen (crouch under their shots), knife runners and bomb-dropping drones, all as flickering holograms.
-- **The boss** is kie's tank, then hologram kie ([tanks](tanks.md#tank-bosses)).
-- **Two reveals:** the first tank, then the first drive, out of the base in kie's tank ([discovering tanks](tanks.md#discovering-tanks)).
+- **Goons:** riflemen (crouch under their shots), knife runners and bomb-dropping drones, all as flickering Trollograms.
+- **The boss** is kie's tabk, then Trollogram kie ([tabks](tanks.md#tabk-bosses)).
+- **Two reveals:** the first tabk, then the first drive, out of the base in kie's tabk ([discovering tabks](tanks.md#discovering-tabks)).
 
 ## Difficulty
 
@@ -44,31 +44,31 @@ Up: [Design](README.md)
   - **Supply crates** (a Should). In co-op, whoever grabs one first gets it.
 - **The ground is solid,** except in boss arenas, where blasts dig craters. If craters prove very hard to build, arenas are solid too.
 - **Goons come in hordes.** Later missions add shield soldiers, grenadiers, paratroopers, troop trucks and snipers (all Shoulds), a few new kinds at a time.
-- **Helicopters can appear in any mission. Enemy tanks only come after Mission one,** so the crew's tanks stay a surprise.
+- **Helicopters can appear in any mission. Enemy tabks only come after Mission one,** so the crew's tabks stay a surprise.
 - **In co-op,** the camera keeps both players on screen.
 
 ## The order things open up
 
 1. **First launch:** the title screen offers Start, which begins Mission one, plus settings and a small sign-in button. Returning players on a new device can sign in straight away and keep their progress.
-2. **Mission one,** played solo. The first tank and the first drive happen here.
+2. **Mission one,** played solo. The first tabk and the first drive happen here.
 3. **Once Mission one has been beaten solo:**
    - **Co-op appears** in the menu: host a room, join with a code, quick match, browse rooms, or watch a game.
    - **The mission screen** appears, with replays, Mission one's hard setting, and kcaj's mission.
    - **The crew screen** appears, with tones2 and kie: it's the gaming den ([the lobby](lobby.md)).
    - **The debrief** shows XP and rank for the first time, and offers sign-in to players who haven't.
-4. **Each later mission** frees another crewmate, adds their tank to call in, and opens its map for replays and its hard setting.
+4. **Each later mission** frees another crewmate, adds their tabk to call in, and opens its map for replays and its hard setting.
 5. **The Roguelite mode** is on ice. It's kept in [DESIGN.md](../../DESIGN.md#roguelite-on-ice) for when it returns.
 
 ## What the player sees, and when
 
-The game shows only what the player has already met. Nothing on the title screen, in the menus or on the web page hints at tanks, co-op or online play before their moment. The menu grows with the player:
+The game shows only what the player has already met. Nothing on the title screen, in the menus or on the web page hints at tabks, co-op or online play before their moment. The menu grows with the player:
 
 | | First launch | After Mission one | Later |
 |---|---|---|---|
 | Title menu | Start, plus settings and a small sign-in button | Missions, Co-op, Crew | |
 | Online | Hidden | Host, join, quick match, browse, watch | |
 | Crew | tones2, with no crew screen | The crew screen: tones2 and kie | One more per mission |
-| Tanks | Never mentioned | kie's tank, and the call-in | One more per mission |
+| Tabks | Never mentioned | kie's tabk, and the call-in | One more per mission |
 | Missions | Mission one | Replays, hard settings, the next mission | One more per crewmate |
 | Progress | High score | XP, rank, looks, leaderboard | Hidden ranks appear as you reach them |
 
@@ -95,4 +95,4 @@ The game shows only what the player has already met. Nothing on the title screen
   - shop prices
   - how two players agree at the shop
   - whether runs free crew
-  - how often you can call in a tank
+  - how often you can call in a tabk

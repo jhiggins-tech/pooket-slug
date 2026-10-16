@@ -180,7 +180,7 @@ namespace PooketSlug
         /// <summary>The boss theme: faster and in a minor key (E minor), galloping bass, alarm stabs, 16 bars.</summary>
         public static readonly MusicTrack TankAlert = new MusicTrack
         {
-            Name = "Tank Alert",
+            Name = "Tabk Alert",
             Bpm = 172f,
             Loop = true,
             LeadDuty = 0.125f,
@@ -201,7 +201,7 @@ namespace PooketSlug
         /// </summary>
         public static readonly MusicTrack TankAlertFinal = new MusicTrack
         {
-            Name = "Tank Alert (final)",
+            Name = "Tabk Alert (final)",
             Bpm = 200f,
             Loop = true,
             LeadDuty = 0.125f,

@@ -82,7 +82,7 @@ namespace PooketSlug
             Mode = State.Driven;
             Sfx.Play(Sfx.Thump, 0.8f);
             Sfx.Play(Sfx.RocketRumble, 0.4f);
-            World.Scoring.Popup("TANK!", Pos + Vector2.up * 2.4f, new Color(1f, 0.85f, 0.3f));
+            World.Scoring.Popup("TABK!", Pos + Vector2.up * 2.4f, new Color(1f, 0.85f, 0.3f));
         }
 
         public override void Tick(float dt)
@@ -273,7 +273,7 @@ namespace PooketSlug
             if (Hp <= 0)
             {
                 Hp = 0;
-                World.Scoring.Popup("TANK WRECKED!", Pos + Vector2.up * 2.4f, new Color(1f, 0.5f, 0.4f));
+                World.Scoring.Popup("TABK WRECKED!", Pos + Vector2.up * 2.4f, new Color(1f, 0.5f, 0.4f));
                 Eject(true);
             }
         }

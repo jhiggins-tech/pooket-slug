@@ -34,11 +34,11 @@ Each combo is a gag built from both kits, and it always ends the same way: every
 | tones2 + garyoldmancorp | **Jet Ski** | gary rides tones2's jet like a jet ski across the screen, unstoppable; the CRASH! at the far wall hurts goons, not him. |
 | tones2 + kiwicore | **Foam Party** | kiwicore stage-dives into a screen full of tones2's foam; goons slip, slide and pop as he crowd-surfs across them. |
 | kie + kcaj | **Pill Weasels** | a weasel for every goon on screen, each carrying a pill; they scurry under their goon, pop, and burst into bouncing pills. |
-| kie + torikloud | **Mistrial** | kie fills the screen with a hologram jury, and torikloud shouts OBJECTION!; every juror explodes on the goons nearest it. |
+| kie + torikloud | **Mistrial** | kie fills the screen with a Trollogram jury, and torikloud shouts OBJECTION!; every juror explodes on the goons nearest it. |
 | kie + ciarra | **Fun Run** | ciarra runs a Marathon leg with a pack of weasels chasing her; each one peels off and pops under a goon as she passes. |
 | kie + larinovsky | **The Long Con** | kie's roulette lifts the weapon off every enemy on screen, and larinovsky's scam fires them all back at once. |
 | kie + garyoldmancorp | **Casino Night** | the Steal roulette and the Diced Coffee wheel spin together and always land on JACKPOT: every enemy on screen freezes and shatters, and kie pockets the loot. |
-| kie + kiwicore | **Encore** | kie projects a hologram stadium crowd and kiwicore stage-dives across it; every hologram fan he lands on bursts like a shot Trollogram. |
+| kie + kiwicore | **Encore** | kie projects a Trollogram stadium crowd and kiwicore stage-dives across it; every Trollogram fan he lands on bursts like a shot Trollogram. |
 | kcaj + torikloud | **Prescription Pad** | torikloud reads out one very long word, and every letter is a pill that bounces across the screen and pops on a goon until none are left. |
 | kcaj + ciarra | **Stitches** | ciarra's Sew pins every goon on screen, kcaj's Hyperfixate locks a beam onto each one at once, and they burn while pinned. |
 | kcaj + larinovsky | **Double Dose** | both pill kits at once: 240 pills and walking blasts fill the screen, then the cooked goons pop in a chain. |

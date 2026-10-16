@@ -33,7 +33,7 @@ namespace PooketSlug
         public float RecoilTime = 0.45f;
         public float MaxRage = 1.8f;
         /// <summary>What the HUD and the intro call it.</summary>
-        public string Name = "KIE'S TANK";
+        public string Name = "KIE'S TABK";
         /// <summary>
         /// The entrance (<c>docs/design/tanks.md</c>, The boss intro): it rolls out of the motor pool's shutter to its
         /// patrol at this speed, taking at most this many seconds, and can't be hurt or fire until it stops.

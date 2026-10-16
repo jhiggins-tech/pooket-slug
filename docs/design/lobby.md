@@ -27,7 +27,7 @@ Each station is built from the soldier's kit ([kits](kits.md)), so it shows what
 | Floor | Crewmate | Station | Idle cycles |
 |---|---|---|---|
 | Ground | **tones2** | A beanbag and a slushie machine beside the couch (the couch itself is everyone's: it's where the players sit) | Slurps the slushie and gets brain freeze; sprays the slushie machine clean with a bit of ten-1; leans over the back of the couch to watch the TV |
-| Ground | **kie** | A workbench with the Trollogram projector, half taken apart, and a weasel hutch | Tinkers with the projector, which flickers a tiny hologram kie that waves at him (he unplugs it fast); a weasel pops out of the hutch and back in |
+| Ground | **kie** | A workbench with the Trollogram projector, half taken apart, and a weasel hutch | Tinkers with the projector, which flickers a tiny Trollogram kie that waves at him (he unplugs it fast); a weasel pops out of the hutch and back in |
 | Ground | **kiwicore** | A drum kit by the wall, a shower cubicle in the corner and a fridge of XXXX Gold | A short drum fill with a cymbal grab; throws his flat cap across the room and catches it; steam rises from the shower and a can floats down |
 | Ground | **garyoldmancorp** | A coffee cart with a spinning prize wheel, his scooter parked on a ramp by the door | Spins the coffee wheel and waits; scoots a lap of the ground floor and stops a hair from the wall (one time in four: CRASH!) |
 | Loft | **kcaj** | A chest freezer of ice cream and a desk buried in sticky notes, with a red string board | Eats two cones at once; stares at the string board, adds a note, and the screen edges dim for a moment (Hyperfixate) |
@@ -63,9 +63,9 @@ Sample bits (placeholders):
 
 | Pair | What happens | Lines |
 |---|---|---|
-| tones2 + kie | tones2 holds out a slushie; kie's hologram takes it, and it falls through and splashes on the floor | tones2: "WANT ONE?" · kie: "THAT WASN'T ME." |
+| tones2 + kie | tones2 holds out a slushie; kie's Trollogram takes it, and it falls through and splashes on the floor | tones2: "WANT ONE?" · kie: "THAT WASN'T ME." |
 | tones2 + kiwicore | kiwicore starts a drum fill and tones2 jumps off the couch for an air guitar solo, then sits back down like nothing happened | kiwicore: "ONE TWO THREE FOUR" |
-| kie + larinovsky | larinovsky's phone rings; kie answers it in a hologram's voice | kie: "THIS IS THE ATO." · larinovsky: "HANG UP HANG UP" |
+| kie + larinovsky | larinovsky's phone rings; kie answers it in a Trollogram's voice | kie: "THIS IS THE ATO." · larinovsky: "HANG UP HANG UP" |
 | kcaj + torikloud | kcaj points at the string board; torikloud stands up at the lectern | torikloud: "OBJECTION. HEARSAY." · kcaj: "IT'S ALL CONNECTED." |
 | ciarra + larinovsky | ciarra tiptoes over and tattoos a tiny cat on the sleeping larinovsky; a cat hisses | ciarra: "HOLD STILL." · (a snore) |
 | garyoldmancorp + kiwicore | garyoldmancorp scoots past and grabs a can from the fridge; kiwicore throws his cap and knocks it out of his hand | kiwicore: "THAT'S MINE." |

@@ -32,9 +32,9 @@ namespace PooketSlug
         public static readonly ProjectileDef StolenShell = new ProjectileDef(8, "Stolen shell", radius: 0.25f, damage: 8, life: 4f, gravity: 12f,
             blastRadius: 1.6f, blastSize: 1.2f);
         /// <summary>Your tank's shell, fired straight along the aim, and its mortar, lobbed high (<see cref="PlayerTank"/>).</summary>
-        public static readonly ProjectileDef PlayerTankShellShot = new ProjectileDef(9, "Tank shell", radius: 0.22f, damage: 8, life: 3f,
+        public static readonly ProjectileDef PlayerTankShellShot = new ProjectileDef(9, "Tabk shell", radius: 0.22f, damage: 8, life: 3f,
             gravity: 2f, blastRadius: 1.5f, blastSize: 1f);
-        public static readonly ProjectileDef PlayerTankMortarShot = new ProjectileDef(10, "Tank mortar", radius: 0.25f, damage: 12, life: 4f,
+        public static readonly ProjectileDef PlayerTankMortarShot = new ProjectileDef(10, "Tabk mortar", radius: 0.25f, damage: 12, life: 4f,
             gravity: 18f, blastRadius: 2f, blastSize: 1.3f, spin: ProjectileSpin.Tumble);
 
         // ------------------------------------------------------------------ weapons
@@ -52,7 +52,7 @@ namespace PooketSlug
         /// <summary>The drone's bombs, dropped with half its speed.</summary>
         public static readonly WeaponDef DroneBomb = new WeaponDef(5, "Bomb drop", WeaponBehaviour.Lob, Bomb, carry: 0.5f);
         /// <summary>The tank's machine gun.</summary>
-        public static readonly WeaponDef TankGun = new WeaponDef(6, "Tank gun", WeaponBehaviour.Bullet, EnemyBullet, speed: 7.5f);
+        public static readonly WeaponDef TankGun = new WeaponDef(6, "Tabk gun", WeaponBehaviour.Bullet, EnemyBullet, speed: 7.5f);
         // tones2's kit (Tones2Kit.cs, numbers in Tones2Tuning). None fires a projectile: the jet and the spew pour
         // out droplets, and the rocket jump launches him. Only the rocket jump is sent, so partners see the mud.
         public static readonly WeaponDef WaterJet = new WeaponDef(7, "ten-1", WeaponBehaviour.Jet, null, hud: "TEN-1");
@@ -74,9 +74,9 @@ namespace PooketSlug
         public static readonly WeaponDef StolenCannon = new WeaponDef(17, "Stolen cannon", WeaponBehaviour.Bullet, StolenShell, speed: 15f, cooldown: 0.7f,
             ammo: 5, muzzleBlast: 0.5f, kick: 0.15f, hud: "CANNON");
         // Your tank's guns (PlayerTankSpec): FIRE's shell and SP's mortar (SU fires a fan of shells).
-        public static readonly WeaponDef PlayerTankCannon = new WeaponDef(18, "Tank cannon", WeaponBehaviour.Bullet, PlayerTankShellShot, speed: 15f,
+        public static readonly WeaponDef PlayerTankCannon = new WeaponDef(18, "Tabk cannon", WeaponBehaviour.Bullet, PlayerTankShellShot, speed: 15f,
             cooldown: 0.35f, muzzleBlast: 0.45f, kick: 0.12f, hud: "SHELL");
-        public static readonly WeaponDef PlayerTankMortar = new WeaponDef(19, "Tank mortar", WeaponBehaviour.Lob, PlayerTankMortarShot,
+        public static readonly WeaponDef PlayerTankMortar = new WeaponDef(19, "Tabk mortar", WeaponBehaviour.Lob, PlayerTankMortarShot,
             throwVelocity: new Vector2(6f, 12f), carry: 0.4f, hud: "MORTAR");
 
         /// <summary>How Mission one's boss tank fights.</summary>
@@ -92,13 +92,13 @@ namespace PooketSlug
         public static readonly EnemyDef Rifleman = new EnemyDef(0, "Rifleman", EnemyBrain.Rifleman, halfWidth: 0.3f, height: 1.35f, hp: 3, score: 100);
         public static readonly EnemyDef Runner = new EnemyDef(1, "Knife runner", EnemyBrain.Runner, halfWidth: 0.3f, height: 1.35f, hp: 2, score: 150);
         public static readonly EnemyDef Drone = new EnemyDef(2, "Drone", EnemyBrain.Drone, halfWidth: 0.5f, height: 0.7f, hp: 3, score: 200);
-        public static readonly EnemyDef Tank = new EnemyDef(3, "Tank", EnemyBrain.Tank, halfWidth: 1.5f, height: 1.3f, hp: 45, score: 3000);
+        public static readonly EnemyDef Tank = new EnemyDef(3, "Tabk", EnemyBrain.Tank, halfWidth: 1.5f, height: 1.3f, hp: 45, score: 3000);
         public static readonly EnemyDef Barrel = new EnemyDef(4, "Explosive barrel", EnemyBrain.Barrel, halfWidth: 0.38f, height: 1.1f, hp: 3, score: 100);
         /// <summary>kie's tank's weasels and hologram copies (<see cref="KieTank"/>), made mid-fight.</summary>
         public static readonly EnemyDef Weasel = new EnemyDef(5, "Weasel", EnemyBrain.Weasel, halfWidth: 0.35f, height: 0.55f, hp: 1, score: 50);
-        public static readonly EnemyDef TankCopy = new EnemyDef(6, "Tank copy", EnemyBrain.TankCopy, halfWidth: 1.5f, height: 1.3f, hp: 45, score: 100);
+        public static readonly EnemyDef TankCopy = new EnemyDef(6, "Tabk copy", EnemyBrain.TankCopy, halfWidth: 1.5f, height: 1.3f, hp: 45, score: 100);
         /// <summary>Hologram kie, who jumps out of the wrecked tank (<see cref="KiePilotSpec"/>), and the Trollogram he drops.</summary>
-        public static readonly EnemyDef Pilot = new EnemyDef(7, "Hologram kie", EnemyBrain.Pilot, halfWidth: 0.3f, height: 1.35f, hp: KieTuning.Pilot.Hp, score: 5000);
+        public static readonly EnemyDef Pilot = new EnemyDef(7, "Trollogram kie", EnemyBrain.Pilot, halfWidth: 0.3f, height: 1.35f, hp: KieTuning.Pilot.Hp, score: 5000);
         public static readonly EnemyDef PilotDecoy = new EnemyDef(8, "Trollogram", EnemyBrain.PilotDecoy, halfWidth: 0.3f, height: 1.35f, hp: 1, score: 100);
 
         // ------------------------------------------------------------------ pickups

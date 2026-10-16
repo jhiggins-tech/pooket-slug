@@ -4,7 +4,7 @@ Every soldier's moves: the primary, its fork at level II, the special, the super
 
 **Status:** moved here from DESIGN.md on 2026-10-15, with the owner's answers from that day's consistency check. This is the one place the kits are designed; the four other documents link here.
 
-**Read this when** you're building or tuning a soldier's weapons, or a boss tank or pilot round that fights with a crewmate's kit.
+**Read this when** you're building or tuning a soldier's weapons, or a boss tabk or pilot round that fights with a crewmate's kit.
 
 Up: [Design](README.md)
 
@@ -22,8 +22,8 @@ From [player mechanics](player.md#the-kit): the primary has unlimited ammo, the 
 ## kie
 - **Weasel Pop** (primary): each press tumbles out three weasels. Where they land, they scurry under the nearest goon and pop, to Pop Goes the Weasel. It's lobbed, so it reaches behind cover, but it's weak against flyers.
 - **Fork at II**: Ferret Frenzy (more, smaller weasels) or Badger (one big one that won't stop chasing).
-- **Trollogram** (special): tap to drop a hologram of yourself (up to three at once); while one is on screen, goons always shoot a hologram instead of you. Hold to swap places with the one furthest away (owner, 2026-10-15: several at once, always the goons' target). A shot hologram blows up on everything nearby. The running joke: these are the ones that went rogue.
-- **Steal** (super): the roulette spins and kie lifts a random power-up off the toughest enemy on screen. The tougher it is, the bigger the prize: a burst of the goon's own weapon, say, or a whole crew gun off a boss tank.
+- **Trollogram** (special): tap to drop a Trollogram of yourself (up to three at once); while one is on screen, goons always shoot a Trollogram instead of you. Hold to swap places with the one furthest away (owner, 2026-10-15: several at once, always the goons' target). A shot Trollogram blows up on everything nearby. The running joke: these are the ones that went rogue.
+- **Steal** (super): the roulette spins and kie lifts a random power-up off the toughest enemy on screen. The tougher it is, the bigger the prize: a burst of the goon's own weapon, say, or a whole crew gun off a boss tabk.
 
 ## kcaj
 - **Double Park** (primary): twin cones, either side of your aim.
@@ -48,7 +48,7 @@ From [player mechanics](player.md#the-kit): the primary has unlimited ammo, the 
 - **Pill Pusher** (primary): lobs a mixed handful of pills whose blasts walk across the ground, so it reaches over cover.
 - **Fork at II**: Extra Strength (bigger blasts) or Bulk Buy (twice the pills, but smaller).
 - **the Rizzler** (special): a spinning heart in shades that homes in on anything close. Whatever's in its blast is cooked and deals half damage for a few seconds.
-- **Women in Scam** (ability): for three seconds, any attack that hits you is scammed. You still take the damage, but you get rounds of that weapon to fire back: scam a boss tank and you're holding its own weapon.
+- **Women in Scam** (ability): for three seconds, any attack that hits you is scammed. You still take the damage, but you get rounds of that weapon to fire back: scam a boss tabk and you're holding its own weapon.
 - **Take a Nap** (super): two seconds asleep, waking at full health with the special recharged. The two cats stand guard and swat away whatever comes, but each dies comically on the first hit it takes: a yowl, a puff of fur, a little halo floating off. They're back for the next nap (nine lives).
 
 ## garyoldmancorp (beta)
@@ -65,7 +65,7 @@ From [player mechanics](player.md#the-kit): the primary has unlimited ammo, the 
 - His kit is complete, so he isn't in beta.
 
 ## Coming soon
-shotdownboyz, lankcity, odsey and doctorfox each arrive as a new mission, with their tank as its boss. Their teasers suit a platformer: lankcity's lizard walk could climb walls, and shotdownboyz's summon digger could tunnel (in boss arenas, the one place the ground breaks), with his "tank build" passive making him the one soldier who's still basically a tank.
+shotdownboyz, lankcity, odsey and doctorfox each arrive as a new mission, with their tabk as its boss. Their teasers suit a platformer: lankcity's lizard walk could climb walls, and shotdownboyz's summon digger could tunnel (in boss arenas, the one place the ground breaks), with his "tabk build" passive making him the one soldier who's still basically a tabk.
 
 ## Open questions
 

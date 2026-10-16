@@ -14,7 +14,7 @@ Up: [Repository README](../../README.md)
 | Document | What it covers | Status |
 |---|---|---|
 | [Story, plot and cutscenes](story.md) | The premise, the plot mission by mission, and how cutscenes and reveals play | Signed off, 2026-10-14 |
-| [Tanks](tanks.md) | Tank bosses, winning a tank, driving one and calling it in | Signed off, 2026-10-14 |
+| [Tabks](tanks.md) | Tabk bosses, winning a tabk, driving one and calling it in | Signed off, 2026-10-14 |
 | [Player mechanics](player.md) | The crew, controls, kits, health and lives, crates, co-op, and what the player keeps | Signed off, 2026-10-14 |
 | [Maps, missions and progression](levels.md) | What a mission is, difficulty, how maps are built, and the order things open up in, menus included | Signed off, 2026-10-14 |
 | [The crew's kits](kits.md) | Every soldier's weapons, forks and abilities | Moved from DESIGN.md, 2026-10-15 |
@@ -22,11 +22,17 @@ Up: [Repository README](../../README.md)
 | [The lobby](lobby.md) | The gaming den: a station per freed crewmate, their idle bits, and picking and readying up, solo and co-op | Approved, 2026-10-16 |
 | [Music](music.md) | Every track and sting, the style, and how the chip synth makes them | Approved, 2026-10-15 |
 
+## Canonical terms
+
+Use these words in everything players or readers see: in-game text, voice lines, and these documents (owner, 2026-10-16). Code identifiers keep their old names (`PlayerTank`, `HoloLook` and so on), and so does the file name of [tanks.md](tanks.md).
+- **Tabk**, never tank. The typo is on purpose, after Pooket Tabks: a tabk, tabks, TABK WRECKED!. The one exception is Pocket Tanks, the real game.
+- **Trollogram**, never hologram. kie's projections are Trollograms, from the raiders to Trollogram kie; in a character intro the title is TROLLO-KIE.
+
 ## Progressive disclosure, the thread through all four
 
 The game shows only what the player has already met. Nothing on screen, in the menus or on the web page hints at what's still to come, and each new thing gets a moment of its own:
-- **Tanks** aren't mentioned until the first one rolls out at the end of Mission one ([tanks](tanks.md#discovering-tanks)).
-- **Driving a tank** stays secret until the first chance to climb in ([tanks](tanks.md#discovering-tanks)).
+- **Tabks** aren't mentioned until the first one rolls out at the end of Mission one ([tabks](tanks.md#discovering-tabks)).
+- **Driving a tabk** stays secret until the first chance to climb in ([tabks](tanks.md#discovering-tabks)).
 - **Co-op, and online play of any kind,** appear only once Mission one has been beaten solo, when the menu changes ([progression](levels.md#what-the-player-sees-and-when)).
 - **Smaller things** follow the same idea: buttons, the crew screen, ranks and XP ([player](player.md#discovering-the-kit)).
 

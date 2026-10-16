@@ -193,7 +193,7 @@ namespace PooketSlug
         {
             if (TanksToCall <= 0) return;
             TanksToCall--;
-            Scoring.Popup("TANK INBOUND!", at + Vector2.up * 2.4f, new Color(1f, 0.85f, 0.3f));
+            Scoring.Popup("TABK INBOUND!", at + Vector2.up * 2.4f, new Color(1f, 0.85f, 0.3f));
             View.Shake(0.2f);
             // it drops in just ahead of the soldier, on screen; the tank left over, if any, is gone
             int facing = Player.Facing;
@@ -312,7 +312,7 @@ namespace PooketSlug
         public void OnTankWrecked(TankBoss tank)
         {
             Log.Game.Info("Boss tank wrecked: the pilot jumps out");
-            Scoring.Popup("TANK WRECKED!", tank.Center + Vector2.up * 1.6f, new Color(1f, 0.85f, 0.3f));
+            Scoring.Popup("TABK WRECKED!", tank.Center + Vector2.up * 1.6f, new Color(1f, 0.85f, 0.3f));
             TankWrecked?.Invoke();
             if (!IsAuthority) return;
             if (Spawner.SpawnEnemy(Content.Pilot, tank.Pos + Vector2.up * 0.6f) is Pilot pilot)

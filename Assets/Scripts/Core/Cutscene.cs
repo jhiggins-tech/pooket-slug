@@ -131,7 +131,7 @@ namespace PooketSlug
                 new[]
                 {
                     new CutsceneLine(0.8f, Speaker.Goon, "INTRUDER. INTRUD-"),
-                    new CutsceneLine(1.2f, Speaker.Narrator, "One of the raiders is still here: a hologram.", "opening-4a"),
+                    new CutsceneLine(1.2f, Speaker.Narrator, "One of the raiders is still here: a Trollogram.", "opening-4a"),
                     new CutsceneLine(5.0f, Speaker.Narrator, "It glitches out, and drops its keycard.", "opening-4b"),
                 },
                 new[] { new CutsceneCue(0.3f, "goon"), new CutsceneCue(3.2f, "jet"), new CutsceneCue(3.8f, "glitch"), new CutsceneCue(4.2f, "card-drop") }),

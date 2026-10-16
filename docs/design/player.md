@@ -16,7 +16,7 @@ Up: [Design](README.md)
 | Soldier | Plays like |
 |---|---|
 | tones2 | A water jet that builds pressure (point-blank splashback slows him), a straight-up rocket jump that leaves toxic mud, and a spew he can walk with that leaves long-lasting sludge |
-| kie | Weasels that hunt goons down, a decoy hologram, and a roulette that steals power-ups |
+| kie | Weasels that hunt goons down, a decoy Trollogram, and a roulette that steals power-ups |
 | kcaj | Twin cones, a beam that locks on and burns, and a screen full of pills |
 | torikloud | Words fired as bullet bursts, sound waves through walls, and a twin who copies him. He has the most health |
 | ciarra | The best jumper, with a needle gun that marks targets, stitches that pin them, and an unstoppable sprint |
@@ -32,7 +32,7 @@ Up: [Design](README.md)
 - **Phones come first,** with an arcade pad:
   - **Left thumb:** a stick to run, aim up, and crouch (or aim down while in the air).
   - **Right thumb:** FIRE (hold to keep firing), JUMP, special (SP), super (SU), and an ability (AB) for the soldiers who have one.
-  - **Once you've won a tank,** holding the stick down and holding SP calls it in ([tanks](tanks.md#calling-in-a-tank)).
+  - **Once you've won a tabk,** holding the stick down and holding SP calls it in ([tabks](tanks.md#calling-in-a-tabk)).
 - **A keyboard works too.** Gamepads are a Could.
 - **Moving:** run, jump (hold for higher), crouch, and drop through thin floors. Getting hit knocks you back a little.
 - **Aiming:** up, down while in the air, and diagonals.
@@ -66,7 +66,7 @@ Pickups last for the mission, so every mission starts level.
 
 ## Status effects
 
-Statuses come only from the soldiers' kits: each one belongs to a particular soldier's weapons, and no crate adds them. Tank bosses use their crewmate's statuses on you too:
+Statuses come only from the soldiers' kits: each one belongs to a particular soldier's weapons, and no crate adds them. Tabk bosses use their crewmate's statuses on you too:
 
 | Status | Effect |
 |---|---|
@@ -89,7 +89,7 @@ Statuses come only from the soldiers' kits: each one belongs to a particular sol
 ## What the player keeps
 
 - **The crew they've freed,** and whether co-op is open.
-- **Career XP,** from clearing missions, kills and freeing crewmates. Each level gives tokens to spend on looks, as in Tabks: hats, skins, tank paint, death animations, kill effects and victory poses. XP never unlocks anything else.
+- **Career XP,** from clearing missions, kills and freeing crewmates. Each level gives tokens to spend on looks, as in Tabks: hats, skins, tabk paint, death animations, kill effects and victory poses. XP never unlocks anything else.
   - **Placeholder amounts, on Tabks' scale, to tune after playtesting:** +200 for each mission clear, +300 for each crewmate freed, and +1 for each kill. Every 600 XP earns a looks token.
 - **Rank:** the ladder from Pooket Tabks. Everyone starts on its lowest rank (owner, 2026-10-15). Each stretch of a mission you beat moves you a little way up it, replays included, and you never drop down. The first clear of Mission one is always worth a whole rung, so the first debrief ends in a rank-up (picked 2026-10-15). Eight ranks are known, and the other 25 stay hidden until you reach them.
 - **Stats** for each soldier and weapon: shots, hits, accuracy, damage dealt and taken, and kills.
