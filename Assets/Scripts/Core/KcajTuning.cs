@@ -31,6 +31,9 @@ namespace PooketSlug
         public float TickInterval = 0.2f;
         /// <summary>The first burn and the hottest one, and the seconds it takes to get from one to the other.</summary>
         public float FirstTick = 0.15f, HottestTick = 2f, RampTime = 3f;
+        /// <summary>The special's charges, and the seconds each one takes to come back.</summary>
+        public int Charges = 3;
+        public float RechargeTime = 6f;
         /// <summary>The most seconds one charge holds on for.</summary>
         public float MaxHold = 4f;
         /// <summary>How dark the screen edges get (0 to 1), and how quickly they close in.</summary>

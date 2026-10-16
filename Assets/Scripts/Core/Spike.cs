@@ -7,12 +7,12 @@ namespace PooketSlug
     /// Spike tests: small throwaway experiments switched on from the page address, so they ride along in the
     /// normal build without changing the game anyone else plays. <c>?spike=craters</c> turns on
     /// blasts digging craters in the boss arena, <c>?spike=music</c> the music's first cut, <c>?spike=callin</c> a tabk to call in as if tones2's were won, <c>?spike=partner</c> the partner arrow
-    /// and warnings. Spikes are solo only (a co-op game ignores them), except the partner one, which is about co-op.
+    /// and warnings, <c>?spike=kcaj</c> kcaj's special and super. Spikes are solo only (a co-op game ignores them), except the partner one, which is about co-op.
     /// </summary>
     public static class Spike
     {
         public const string CratersKey = "craters", MusicKey = "music";
-        public const string CallInKey = "callin", PartnerKey = "partner";
+        public const string CallInKey = "callin", PartnerKey = "partner", KcajKey = "kcaj";
 
         /// <summary>Blasts dig craters in the boss arena (<see cref="CraterGround"/>).</summary>
         public static bool Craters;
@@ -33,7 +33,13 @@ namespace PooketSlug
         /// </summary>
         public static bool Partner;
 
-        public static bool Any => Craters || Music || CallIn || Partner;
+        /// <summary>
+        /// kcaj's special and super (<see cref="KcajTuning"/>) in the soldier's hands: SP is Hyperfixate, SU is
+        /// Unmedicated, ready from the start and again after each rain. The <c>kcaj-beam</c> and <c>kcaj-pills</c> spikes.
+        /// </summary>
+        public static bool Kcaj;
+
+        public static bool Any => Craters || Music || CallIn || Partner || Kcaj;
 
         /// <summary>Reads <c>?spike=</c> from the page address.</summary>
         public static void Configure(string url)
@@ -43,6 +49,7 @@ namespace PooketSlug
             Music = Array.IndexOf(keys, MusicKey) >= 0;
             CallIn = Array.IndexOf(keys, CallInKey) >= 0;
             Partner = Array.IndexOf(keys, PartnerKey) >= 0;
+            Kcaj = Array.IndexOf(keys, KcajKey) >= 0;
         }
 
         /// <summary>What the start banner says, or null when no spike is on.</summary>
@@ -56,6 +63,7 @@ namespace PooketSlug
                 if (Music) parts.Add("MUSIC");
                 if (CallIn) parts.Add("TABK CALL-IN");
                 if (Partner) parts.Add("PARTNER ARROW");
+                if (Kcaj) parts.Add("KCAJ: HYPERFIXATE + UNMEDICATED");
                 return "SPIKE TEST · " + string.Join(" + ", parts);
             }
         }
