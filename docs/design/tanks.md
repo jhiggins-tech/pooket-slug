@@ -54,6 +54,8 @@ A boss tank's arrival is the mission's big moment ([story](story.md#cutscenes): 
 4. **The name card:** the tank's name ("KIE'S TANK") drops in under the banner, and the announcer shouts "Here comes the tank!" (it shouts "Warning!" with the banner in step 2).
 5. **The fight:** the boss music kicks in on the tank's first shot, and its health bar fills up across the top.
 
+**The pilot's intro:** from Mission two on, the first time a mission's boss intro plays, its hologram pilot gets their [character intro](story.md#character-intros) as the tank stops and the hatch pops: crash zoom, HOLO-&lt;NAME&gt;, slow-mo and the musical hit. It's the one moment the intro holds the action, and it never plays again. In Mission one, hologram kie gets his in [the motor pool reveal](story.md#the-motor-pool-reveal) instead.
+
 **The announcer** (picked 2026-10-15) is a generated voice: a gravelly arcade announcer made with text-to-speech by the vendor repository's CI from its `voice/lines.json`, so a line is changed or added by editing that file. It also calls "Mission one... start!" and "Mission complete!".
 
 **The music** (picked 2026-10-15): a looping Mission one track plays through the run, and a faster, minor-key boss track takes over for the fight. Both are made in code with the chip synth the sound effects use. The full track list is in [music](music.md).

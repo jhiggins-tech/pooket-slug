@@ -23,7 +23,7 @@ namespace PooketSlug
         static readonly Color Cyan = new Color(0.45f, 1f, 1f), Warm = new Color(1f, 0.78f, 0.38f), Gold = new Color(1f, 0.85f, 0.3f);
         static readonly Color Water = new Color(0.45f, 0.75f, 1f);
 
-        readonly RectTransform m_Root, m_Stage;
+        readonly RectTransform m_Root, m_Stage, m_World;
         readonly Image m_Fade, m_Flicker, m_Back, m_Window, m_Door, m_DoorGap, m_Bag, m_Cup, m_Card, m_Spark;
         readonly Image[] m_Snow = new Image[36], m_Chips = new Image[10], m_Jet = new Image[8], m_Beams = new Image[2];
         readonly Figure m_Tones2, m_Goon;
@@ -33,6 +33,11 @@ namespace PooketSlug
         readonly RectTransform m_CardBand;
         readonly Text m_CardText;
         readonly Button m_Skip;
+        // a character's intro: the crash zoom moves m_World, and their name slams up over it
+        readonly RectTransform m_IntroBand;
+        readonly Text m_IntroName;
+        readonly Image m_Flash;
+        float m_Clock, m_LastNow;
         // ?spike=narrator: the candidate voices, and a button to switch between them
         readonly NarratorVoices m_Voices;
         readonly Button m_VoiceButton;
@@ -85,10 +90,13 @@ namespace PooketSlug
 
             m_Stage = Ui.Rect(m_Root, "Stage", Ui.Middle, Ui.Middle, Vector2.zero, new Vector2(StageW, StageH) * Px);
             m_Stage.gameObject.AddComponent<RectMask2D>();
+            // everything in the scene sits in the world, which the camera's crash zoom moves; what's over it (subtitles,
+            // the caption card, buttons) sits on the stage
+            m_World = Ui.Rect(m_Stage, "World", Ui.Middle, Ui.Middle, Vector2.zero, new Vector2(StageW, StageH) * Px);
             m_Back = Picture("Backdrop", null, 0f, 0f, StageW, StageH, Color.white);
             m_Back.rectTransform.pivot = Vector2.zero;
             m_Window = Picture("Window glow", null, 262f, Street + 38f, 28f, 20f, Warm);
-            m_Sign = Ui.Label(m_Stage, "Sign", Vector2.zero, new Vector2(232f, 110f) * Px, 20, TextAnchor.MiddleCenter, new Color(1f, 0.55f, 0.2f));
+            m_Sign = Ui.Label(m_World, "Sign", Vector2.zero, new Vector2(232f, 110f) * Px, 20, TextAnchor.MiddleCenter, new Color(1f, 0.55f, 0.2f));
             m_Sign.text = "POOKET";
             m_DoorGap = Picture("Doorway", null, 232f, Street, 20f, 40f, Cyan);
             m_Door = Picture("Door", null, 222f, Street, 20f, 40f, new Color(0.42f, 0.27f, 0.2f));
@@ -101,14 +109,29 @@ namespace PooketSlug
 
             m_Spark = Picture("Spark", null, 128f, 52f, 6f, 6f, Gold);
             for (int i = 0; i < m_Chips.Length; i++) m_Chips[i] = Picture("Chip", null, 0f, 0f, 3f, 2f, new Color(1f, 0.82f, 0.3f));
-            m_Goon = new Figure(m_Stage, "Goon");
+            m_Goon = new Figure(m_World, "Goon");
             m_Goon.Rt.localScale = new Vector3(-1f, 1f, 1f); // faces left, at tones2
-            m_Tones2 = new Figure(m_Stage, "tones2");
+            m_Tones2 = new Figure(m_World, "tones2");
             m_Bag = Picture("Snacks", null, 0f, 0f, 9f, 11f, new Color(0.95f, 0.3f, 0.35f));
             m_Cup = Picture("Slushie", null, 0f, 0f, 6f, 12f, new Color(0.55f, 0.35f, 0.95f));
             m_Card = Picture("Keycard", null, 0f, 0f, 8f, 5f, Cyan);
             for (int i = 0; i < m_Jet.Length; i++) m_Jet[i] = Picture("Water", null, 0f, 0f, 4f, 3f, Water);
             for (int i = 0; i < m_Snow.Length; i++) m_Snow[i] = Picture("Snow", null, 0f, 0f, 1.5f, 1.5f, new Color(1f, 1f, 1f, 0.85f));
+
+            // a character's intro: a white flash, then their name on a slanted band
+            m_Flash = Ui.Picture(m_Stage, "Flash", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, new Color(1f, 1f, 1f, 0f));
+            Stretch(m_Flash.rectTransform);
+            m_IntroBand = Ui.Rect(m_Stage, "Intro", Ui.Middle, Ui.Middle, new Vector2(StageW * Px * 0.2f, 28f), new Vector2(StageW * Px * 0.62f, 74f));
+            var introBack = m_IntroBand.gameObject.AddComponent<Image>();
+            introBack.color = new Color(0.06f, 0.04f, 0.08f, 0.9f);
+            introBack.raycastTarget = false;
+            m_IntroBand.localRotation = Quaternion.Euler(0f, 0f, 6f);
+            Ui.Picture(m_IntroBand, "Edge", White, new Vector2(0.5f, 0f), new Vector2(0.5f, 1f), Vector2.zero, new Vector2(StageW * Px * 0.62f, 5f), Gold);
+            Ui.Picture(m_IntroBand, "Edge", White, new Vector2(0.5f, 1f), new Vector2(0.5f, 0f), Vector2.zero, new Vector2(StageW * Px * 0.62f, 5f), Gold);
+            m_IntroName = Ui.Label(m_IntroBand, "Name", Ui.Middle, Vector2.zero, 52, TextAnchor.MiddleCenter, Gold);
+            var nameOutline = m_IntroName.gameObject.AddComponent<Outline>();
+            nameOutline.effectColor = Ink;
+            nameOutline.effectDistance = new Vector2(2.5f, -2.5f);
 
             // the keycard's close-up: the room dimmed, and the card big enough to read
             m_Dim = Ui.Picture(m_Stage, "Dim", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, new Color(0.03f, 0.02f, 0.05f, 0.7f));
@@ -157,17 +180,13 @@ namespace PooketSlug
                 voiceKey.text = m_Voices != null ? "TAP TO TRY THE NEXT VOICE" : "NO VOICES IN THIS BUILD: SUBTITLES ONLY";
                 m_VoiceLabel = m_VoiceButton.GetComponentInChildren<Text>();
                 m_VoiceLabel.fontSize = 10;
-                // a long voice name shrinks to fit rather than running off the button
-                m_VoiceLabel.resizeTextForBestFit = true;
-                m_VoiceLabel.resizeTextMinSize = 7;
-                m_VoiceLabel.resizeTextMaxSize = 10;
             }
 
             Ui.Show(m_Root, false);
         }
 
         Image Picture(string name, Sprite sprite, float x, float y, float w, float h, Color color) =>
-            Ui.Picture(m_Stage, name, sprite != null ? sprite : White, Vector2.zero, new Vector2(0.5f, 0f), new Vector2(x, y) * Px, new Vector2(w, h) * Px, color);
+            Ui.Picture(m_World, name, sprite != null ? sprite : White, Vector2.zero, new Vector2(0.5f, 0f), new Vector2(x, y) * Px, new Vector2(w, h) * Px, color);
 
         static void Stretch(RectTransform rt)
         {
@@ -187,6 +206,8 @@ namespace PooketSlug
             m_FlickerUntil = 0f;
             m_Tapped = m_SkipPressed = m_VoicePressed = false;
             m_LastSaid = null;
+            m_Clock = 0f;
+            m_LastNow = Time.unscaledTime;
             if (s_Street == null)
             {
                 s_Street = Backdrop(DrawStreet);
@@ -233,6 +254,7 @@ namespace PooketSlug
                 case "card-up": Sfx.Play(Sfx.Pickup, 0.9f); break;
                 case "crush": Sfx.Play(Sfx.Hit, 0.7f); break;
                 case "card": Sfx.Play(Sfx.Thump, 1f); break;
+                case CutscenePlayer.IntroCue: Sfx.Play(Sfx.Intro, 1f); break;
                 default:
                     if (id.StartsWith("say:")) Sfx.Say(id.Substring(4));
                     break;
@@ -244,9 +266,14 @@ namespace PooketSlug
         {
             CutscenePlayer p = m_Player;
             if (p == null || p.Done) return;
-            float t = p.T, now = Time.unscaledTime;
+            // the scene's own clock, for snow, flickers and sparks, so they go slow-mo in an intro too
+            float real = Time.unscaledTime;
+            m_Clock += (real - m_LastNow) * (p.Introducing ? CutscenePlayer.SlowMo : 1f);
+            m_LastNow = real;
+            float t = p.T, now = m_Clock;
 
             Stage(p.Shot, t, now);
+            Intro(p);
 
             // a quick cut between shots, and the cyan flicker of the holograms' static
             m_Fade.color = new Color(0f, 0f, 0f, Mathf.Clamp01(1f - t / 0.18f));
@@ -284,12 +311,53 @@ namespace PooketSlug
             if (p.Waiting) m_Waiting.text = p.HasTapped(0) ? "WAITING FOR YOUR PARTNER" : "YOUR PARTNER'S READY: TAP TO GO ON";
         }
 
+        /// <summary>
+        /// A character's intro (<c>docs/design/story.md</c>, Cutscenes): the camera crash-zooms onto them, there's a
+        /// white flash, their name slams up on a band, and it all eases back out as the slow-mo ends.
+        /// </summary>
+        void Intro(CutscenePlayer p)
+        {
+            CutsceneIntro intro = p.Current.Intro;
+            bool on = p.Introducing && intro != null;
+            Ui.Show(m_IntroBand, on);
+            if (!on)
+            {
+                m_World.localScale = Vector3.one;
+                m_World.anchoredPosition = Vector2.zero;
+                m_Flash.color = new Color(1f, 1f, 1f, 0f);
+                return;
+            }
+            float k = p.IntroT, end = CutscenePlayer.IntroSeconds;
+            float zoomIn = Mathf.Clamp01(k / 0.12f), zoomOut = Mathf.Clamp01((end - k) / 0.3f);
+            float e = Mathf.Min(1f - (1f - zoomIn) * (1f - zoomIn), zoomOut * zoomOut * (3f - 2f * zoomOut));
+
+            Figure who = intro.Who == Speaker.Goon || intro.Who == Speaker.Hologram ? m_Goon : m_Tones2;
+            Vector2 half = new Vector2(StageW, StageH) * Px / 2f;
+            Vector2 focus = who.Rt.anchoredPosition + new Vector2(0f, 16f * Px) - half; // their middle, from the world's centre
+            Vector2 target = new Vector2(-StageW * Px * 0.22f, -12f); // where they end up: left of centre, the name to their right
+            float scale = Mathf.Lerp(1f, 2.6f, e);
+            m_World.localScale = new Vector3(scale, scale, 1f);
+            m_World.anchoredPosition = Vector2.Lerp(focus, target, e) - focus * scale;
+
+            m_Flash.color = new Color(1f, 1f, 1f, Mathf.Clamp01(0.85f - k / 0.18f));
+            m_IntroName.text = intro.Name;
+            float slam = Mathf.Clamp01((k - 0.08f) / 0.1f);
+            float size = k < 0.08f ? 0f : Mathf.Lerp(2.4f, 1f, slam);
+            m_IntroBand.localScale = new Vector3(size * zoomOut, size, 1f);
+        }
+
         /// <summary>?spike=narrator: reads each narrator line as it comes up, and the voice button tries the next voice.</summary>
         void Voice(string line)
         {
             if (m_VoiceButton == null) return;
             Ui.Show(m_VoiceButton, true);
-            m_VoiceLabel.text = m_Voices != null ? m_Voices.Label : "NARRATOR: NO VOICE";
+            string label = m_Voices != null ? m_Voices.Label : "NARRATOR: NO VOICE";
+            if (m_VoiceLabel.text != label)
+            {
+                m_VoiceLabel.text = label;
+                m_VoiceLabel.fontSize = 10;
+                while (m_VoiceLabel.fontSize > 7 && m_VoiceLabel.preferredWidth > 236f) m_VoiceLabel.fontSize--; // a long name shrinks to fit
+            }
             if (m_Voices == null) return;
             if (m_VoicePressed)
             {
@@ -326,7 +394,7 @@ namespace PooketSlug
         Bubble NewBubble()
         {
             var b = new Bubble();
-            b.Rt = Ui.Rect(m_Stage, "Bubble", Vector2.zero, new Vector2(0.5f, 0f), Vector2.zero, new Vector2(40f, 22f));
+            b.Rt = Ui.Rect(m_World, "Bubble", Vector2.zero, new Vector2(0.5f, 0f), Vector2.zero, new Vector2(40f, 22f));
             b.Tail = Ui.Picture(b.Rt, "Tail", White, new Vector2(0.5f, 0f), Ui.Middle, Vector2.zero, new Vector2(8f, 8f), Paper);
             b.Tail.rectTransform.localRotation = Quaternion.Euler(0f, 0f, 45f);
             b.Back = b.Rt.gameObject.AddComponent<Image>();
@@ -338,7 +406,7 @@ namespace PooketSlug
             b.Text = Ui.Label(b.Rt, "Line", Ui.Middle, Vector2.zero, 11, TextAnchor.MiddleCenter, Ink);
             b.Text.GetComponent<Shadow>().enabled = false;
             b.Tail.transform.SetAsFirstSibling();
-            b.Rt.SetSiblingIndex(m_SubBand.GetSiblingIndex());
+            b.Rt.SetAsLastSibling();
             return b;
         }
 

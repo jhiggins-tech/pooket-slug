@@ -69,6 +69,15 @@ namespace PooketSlug
                 c.Arp(new[] { 79f, 84f }, 0.18f, at: 0.5f, dur: 0.16f, duty: 0.25f, vol: 0.15f);
                 c.Tone(0.9f, 0.7f, Chip.Midi(88), duty: 0.25f, vibratoRate: 6f, vibratoDepth: 10f, vol: 0.15f);
             });
+            // A character's intro (story.md, Cutscenes): a big musical hit, every note of a wide chord at once over a
+            // crash and a bass drop, ringing out with a wobble as the slow-mo holds.
+            Sfx.Intro = Render("chipIntro", 1.7f, c =>
+            {
+                foreach (float n in new[] { 48f, 60f, 67f, 72f, 76f, 79f })
+                    c.Tone(0f, 1.6f, Chip.Midi(n), duty: 0.25f, vibratoRate: 5.5f, vibratoDepth: Chip.Midi(n) * 0.006f, vol: 0.06f);
+                c.Noise(0f, 0.6f, rate: 0.55f, to: 0.2f, vol: 0.22f);
+                c.Tone(0f, 0.5f, 160f, 45f, duty: 0.5f, steps: 8, vol: 0.2f);
+            });
             // Tabks' did-not-finish: sad trombone, wah wah wah waaaah.
             Sfx.GameOver = Render("chipGameOver", 1.9f, c =>
             {

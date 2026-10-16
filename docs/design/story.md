@@ -43,6 +43,23 @@ Cutscenes are **in-engine scenes**: the game's own art, drawn in code, with spee
 - **A narrator tells each scene,** in subtitles along the bottom of the screen, so what's happening is never left to guesswork. The owner asked for this after trying the first cut of the opening, 2026-10-15. Subtitles are text only for now; a voice comes from the narrator voice spike, generated like the announcer's.
 - **Sound:** there's a music track for each mission, and one for bosses. The crew talk in speech bubbles, and an arcade announcer calls the big moments ("Mission complete!"), in a generated voice ([tanks](tanks.md#the-boss-intro)).
 - **In co-op,** scenes play for both players, and a scene ends once both have tapped. A partner who hasn't seen it gets to watch it.
+- **Every character gets an intro the first time they're on screen** (canonical, the owner, 2026-10-16). The first time a character appears in the story's timeline, the camera crash-zooms onto them, their name slams up big ("TONES2"), time goes slow-mo, and a big musical hit plays. It's part of that scene, so it plays whenever the scene does, and never anywhere else. [Who gets theirs where](#character-intros) is set below, and each scene's design names its intro.
+
+### Character intros
+
+**How it plays:** about 1.8 seconds. A white flash and a crash zoom onto the character, so they fill the left of the screen; their name slams in on a slanted band to their right, in the caption card's gold; the scene runs at slow-mo underneath (its bubbles, cues and snow all slow down); a chip musical hit rings out (a wide chord over a crash and a bass drop). Then it eases back out and the shot carries on at full speed. A tap can't cut it short, and a tap before it in the same shot jumps straight to it, so it's never skipped the first time. A scene that can be skipped once seen skips its intro with it. The narrator and the subtitles carry on through it.
+
+**What counts:** named characters, the crew and their hologram copies. Each hologram copy is a character of its own (it's that mission's boss), so a crewmate gets two intros: their hologram where it first appears, then the real one when they're freed. Nameless enemies (the hologram goons) and vehicles don't get one; a tank gets its name card in [the boss intro](tanks.md#the-boss-intro) instead.
+
+| Character | Scene | Shot | Name on screen |
+|---|---|---|---|
+| tones2 | [The opening](#the-opening-scene) | 1, as he strolls in with the snacks | TONES2 |
+| Hologram kie | [The motor pool reveal](#the-motor-pool-reveal) | 3, as he pops up in the hatch | HOLO-KIE |
+| kie | [Freeing kie](#freeing-kie) | 2, as the real kie drops to the floor | KIE |
+| Each later crewmate's hologram | Their mission's [boss intro](tanks.md#the-boss-intro), the first time | As the pilot shows in the hatch | HOLO-&lt;NAME&gt; |
+| Each later crewmate | Their freeing scene | As the real one appears | &lt;NAME&gt; |
+
+[The first drive](#the-first-drive), [the first debrief](#the-first-debrief) and [two of the crew](#two-of-the-crew) bring in nobody new, so they have no intro.
 
 ## The opening scene
 
@@ -59,6 +76,8 @@ The first cutscene, and Mission one's briefing ([the plot](#the-plot), step 1). 
 | 5 | **The keycard** | A close-up: the room dims and the card slides up big enough to read, flickering like the holograms do. It says MILITARY BASE, NORTH GATE, ACCESS: ALL AREAS. | Narrator: "A pass for the military base, up on the hill." · tones2: "THAT'S WHERE THEY TOOK THEM." | 5 s |
 | 6 | **Heading out** | Out of the window, searchlights sweep the sky over a hill in the distance. tones2 finishes the slushie in one go, crushes the cup, and walks out to the right. The caption card slams in, and the announcer calls it as the mission starts. | Narrator: "So tones2 goes in alone." · tones2: "RIGHT." · Card: "MISSION 1 · THE MILITARY BASE · FIND THE CREW" · Announcer: "Mission one... start!" | 6 s |
 
+**Character intro:** tones2, in shot 1, about 1.4 seconds in, as he strolls in with the snacks ([character intros](#character-intros)). The shot holds about 1.5 seconds longer for it.
+
 **What it teaches:** the holograms are the enemy and they glitch out when beaten (shot 4, using the goon death), tones2 sprays water (the jet), and the keycard's close-up and the narrator make it plain that the base is where the crew went.
 
 **What it sets up:** the empty hangout is the room the crew come back to as they're freed. A later scene can show it filling up again.
@@ -67,7 +86,7 @@ The first cutscene, and Mission one's briefing ([the plot](#the-plot), step 1). 
 
 **In co-op:** Mission one is solo the first time, so this scene first plays solo. On a co-op replay it plays for both players, and ends once both have tapped, or by itself ([cutscenes](#cutscenes)).
 
-**What the cutscene engine needs from it:** a backdrop (the street, then the room), placed props (door, couch, setup, keycard), the soldier and a goon moving along simple paths, a goon dying the goon's way, speech bubbles anchored above a character, a close-up insert, the narrator's subtitles, a caption card, and a timer with tap-to-advance and SKIP.
+**What the cutscene engine needs from it:** a character intro (crash zoom, name, slow-mo and musical hit), a backdrop (the street, then the room), placed props (door, couch, setup, keycard), the soldier and a goon moving along simple paths, a goon dying the goon's way, speech bubbles anchored above a character, a close-up insert, the narrator's subtitles, a caption card, and a timer with tap-to-advance and SKIP.
 
 ## The motor pool reveal
 
@@ -79,6 +98,8 @@ The first-ever reveal: tanks exist ([reveals](#reveals-are-story-beats)). It pla
 | 2 | **The tanks** | The camera eases right and in: the crew's tanks parked in a row under work lights, each in its crewmate's paint, with cables and cyan hologram junk all over them. One space at the front is empty, its paint scuffs still steaming. | tones2: "...ARE THOSE OURS?" | 3 s |
 | 3 | **kie's tank** | An engine roars off-screen, and kie's tank rolls out of the shadows into the empty space. On top, in the hatch: kie, but cyan, flickering, grinning. | Hologram kie, glitchy bubble: "HEY TONES. WANNA RACE?" | 3 s |
 | 4 | **Hatch shut** | Hologram kie drops into the hatch and it slams. The turret swings round to tones2. Straight into the boss intro's WARNING! banner, name card and boss music, with control back in your hands. | tones2: "THAT'S NOT KIE." | 2 s |
+
+**Character intro:** hologram kie, in shot 3, as he pops up in the hatch: HOLO-KIE ([character intros](#character-intros)). His glitchy bubble comes after it.
 
 **How it fits the boss intro:** the first time, this scene is the tank's entrance, so the intro that follows skips the roll-out and goes straight to the banner, the name card ("KIE'S TANK") and the music.
 
@@ -92,6 +113,8 @@ The freeing scene, after hologram kie is beaten on foot ([the pilot round](tanks
 | 2 | **The real kie** | Where it stood, a cyan cage of light flickers out, and the real kie drops to the floor, dazed, in his own colours. | kie: "...HOW LONG WAS I IN THERE?" | 3 s |
 | 3 | **The bit** | tones2 holds out the last of the snacks from the opening. kie takes them. | tones2: "BROUGHT SNACKS." · kie: "LEGEND." | 2 s |
 | 4 | **The point** | kie looks over at his tank, still running, the hatch open. | kie: "SHE'S YOURS. GET US OUT OF HERE." | 2 s |
+
+**Character intro:** the real kie, in shot 2, as he drops to the floor: KIE ([character intros](#character-intros)). His line comes after it.
 
 Then straight into the first drive, the first time; on a replay, into the debrief. In co-op, the partner's soldier stands beside tones2 throughout.
 

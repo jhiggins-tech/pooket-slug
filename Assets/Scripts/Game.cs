@@ -226,7 +226,7 @@ namespace PooketSlug
                 if (m_Scene.HasTapped(0) && m_PartnerTapIn < 0f) m_PartnerTapIn = 1.2f;
                 if (m_PartnerTapIn >= 0f && (m_PartnerTapIn -= dt) < 0f) m_Scene.Tap(1);
             }
-            if (m_Scene.Shot != shot || m_Scene.Done) m_PartnerTapIn = -1f;
+            if (m_Scene.Shot != shot || m_Scene.Done || !m_Scene.HasTapped(0)) m_PartnerTapIn = -1f; // moved on, or jumped to an intro
             m_Scene.Tick(dt, m_SceneCues);
             foreach (string cue in m_SceneCues)
             {
