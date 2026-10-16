@@ -10,14 +10,17 @@ namespace PooketSlug
         /// <summary>What the shared world sends. It never changes.</summary>
         public readonly byte NetId;
         public readonly string Name;
+        /// <summary>Where it's set, as the mission screen and the opening's caption call it.</summary>
+        public readonly string Place;
         /// <summary>The map's rows, top first (see <see cref="Level"/>).</summary>
         public readonly string[] Map;
 
-        public MissionDef(string id, byte netId, string name, string[] map)
+        public MissionDef(string id, byte netId, string name, string place, string[] map)
         {
             Id = id;
             NetId = netId;
             Name = name;
+            Place = place;
             Map = map;
         }
 
@@ -32,7 +35,7 @@ namespace PooketSlug
     /// </summary>
     public static class Missions
     {
-        public static readonly MissionDef One = new MissionDef("mission-1", 0, "MISSION 1", new[]
+        public static readonly MissionDef One = new MissionDef("mission-1", 0, "MISSION 1", "THE MILITARY BASE", new[]
         {
             "......................................................................................................................................................................................................................................................................................",
             "......................................................................................................................................................................................................................................................................................",

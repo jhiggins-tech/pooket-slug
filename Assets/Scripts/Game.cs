@@ -87,6 +87,12 @@ namespace PooketSlug
         bool m_KitOpen;
         SoldierDef m_KitSoldier;
         int m_KitMove;
+        // the mission screen (docs/design/levels.md, Missions), over the title (MISSIONS) or the den (its mission board):
+        // its cards, the one picked, and whether hard is picked
+        bool m_BoardOpen, m_BoardFromDen, m_BoardHard, m_BoardHeld;
+        System.Collections.Generic.List<MissionCard> m_BoardCards;
+        int m_BoardPick;
+        Setting m_Setting = Setting.Normal; // the setting a solo game plays (hard is only ever open in co-op)
         string m_DemoFolder; // where the demo clips are served: demos/ beside the page (null in the editor)
         // ?demo=: moves' demos played in the game, in turn, for CI to record (tools/demos.mjs)
         System.Collections.Generic.IReadOnlyList<MoveGuide> m_Demos;
@@ -481,6 +487,11 @@ namespace PooketSlug
                 OpenKit(m_Den.Pick ?? Soldier);
                 return;
             }
+            if (m_DenView.TakeBoard() && m_Den.Mode == DenMode.Solo) // the host's pick in a co-op room comes later
+            {
+                OpenBoard(fromDen: true);
+                return;
+            }
             if ((m_DenView.TakeHost() || keys.Host) && CoopReady && m_Den.Mode == DenMode.Solo)
             {
                 Log.Game.Info("Den: hosting from the couch");
@@ -543,7 +554,7 @@ namespace PooketSlug
             }
             if (coop) m_Net.Link.SendDen(m_Den.Pick, m_Den.Flags);
             m_DenView.Refresh(dt, m_Den, DenInfoNow());
-            if (!m_Den.Go || m_KitOpen) return;
+            if (!m_Den.Go || m_KitOpen || m_BoardOpen) return;
             m_DenView.Hide();
             if (m_Den.Mode == DenMode.Coop)
             {
@@ -557,6 +568,62 @@ namespace PooketSlug
                 m_World.Dispose(); // the soldier on the couch plays
                 m_World = NewWorld(m_Mission);
                 StartFromTitle();
+            }
+        }
+
+        // ------------------------------------------------------------------ the mission screen
+
+        /// <summary>
+        /// Opens the mission screen on the mission picked last (else the newest reached): from MISSIONS, PLAY goes on
+        /// to the den; from the den's mission board, PICK goes back to it with that mission on the board.
+        /// </summary>
+        void OpenBoard(bool fromDen)
+        {
+            m_BoardCards = MissionBoard.Cards(m_Profile, coop: false);
+            m_BoardPick = 0;
+            for (int i = 0; i < m_BoardCards.Count; i++)
+                if (!m_BoardCards[i].ComingSoon) m_BoardPick = i;
+            for (int i = 0; i < m_BoardCards.Count; i++)
+                if (m_BoardCards[i].Mission == m_Mission) m_BoardPick = i;
+            m_BoardHard = m_Setting == Setting.Hard && m_BoardCards[m_BoardPick].HardOpen;
+            m_BoardFromDen = fromDen;
+            m_BoardOpen = true;
+            Sfx.Play(Sfx.Pickup, 0.4f);
+            Log.Game.Info("Mission screen open" + (fromDen ? " (the den's board)" : "") + ": " + m_BoardCards.Count + " cards");
+        }
+
+        /// <summary>The mission screen's buttons: a card (or left and right), the setting, PLAY (Enter, fire) and back.</summary>
+        void TickBoard(MenuAction click, MenuInput keys, SoldierInput soldier)
+        {
+            if (click == MenuAction.Back || keys.Back || keys.Settings)
+            {
+                m_BoardOpen = false;
+                return;
+            }
+            int pick = m_BoardPick;
+            if (click >= MenuAction.Card1 && click <= MenuAction.Card4) pick = click - MenuAction.Card1;
+            else if (m_StateTime > 0.2f && (soldier.Left || soldier.Right) && !m_BoardHeld) pick += soldier.Right ? 1 : -1;
+            m_BoardHeld = soldier.Left || soldier.Right;
+            if (pick != m_BoardPick && pick >= 0 && pick < m_BoardCards.Count && !m_BoardCards[pick].ComingSoon)
+            {
+                m_BoardPick = pick;
+                m_BoardHard = false;
+                Sfx.Play(Sfx.Pickup, 0.3f);
+            }
+            MissionCard card = m_BoardCards[m_BoardPick];
+            if ((click == MenuAction.Hard || keys.Host) && card.HardOpen)
+            {
+                m_BoardHard = !m_BoardHard;
+                Sfx.Play(Sfx.Pickup, 0.5f);
+            }
+            if (click == MenuAction.Play || keys.Start || soldier.FirePressed || soldier.JumpPressed)
+            {
+                if (card.ComingSoon) return;
+                m_Mission = card.Mission;
+                m_Setting = MissionBoard.SettingFor(card, m_BoardHard);
+                m_BoardOpen = false;
+                Log.Game.Info("Mission picked: " + m_Mission.Name + " (" + m_Setting + ")");
+                if (!m_BoardFromDen) OpenDen(DenMode.Solo); // from the den, its board shows the pick from the next frame
             }
         }
 
@@ -625,7 +692,7 @@ namespace PooketSlug
             m_DemoIndex = index;
             MoveGuide move = m_Demos[index];
             m_World.Dispose();
-            m_World = new World(m_Camera, new MissionDef("demo", byte.MaxValue, "DEMO", move.Demo.Map), null, move.Soldier);
+            m_World = new World(m_Camera, new MissionDef("demo", byte.MaxValue, "DEMO", "", move.Demo.Map), null, move.Soldier);
             m_World.Player.NoDamage = true;
             if (move.Demo.SuperReady)
                 for (int i = 0; i < Tuning.Kit.SuperKills; i++) m_World.Player.Kit.AddKill();
@@ -901,6 +968,7 @@ namespace PooketSlug
             }
 
             if (m_KitOpen) TickKit(click, keys, soldier);
+            else if (m_BoardOpen) TickBoard(click, keys, soldier);
             else switch (m_State)
             {
                 case GameState.Demo:
@@ -926,7 +994,7 @@ namespace PooketSlug
                     else if (CrewOpen && (click == MenuAction.Crew || soldier.SpecialPressed)) OpenDen(DenMode.Crew);
                     else if (click == MenuAction.Play || keys.Start || soldier.FirePressed || soldier.JumpPressed)
                     {
-                        if (CrewOpen) OpenDen(DenMode.Solo);
+                        if (CrewOpen) OpenBoard(fromDen: false); // MISSIONS: the mission screen, then the den
                         else StartFromTitle(); // before the crew's freed, tones2 is all there is: straight in
                     }
                     break;
@@ -1096,10 +1164,14 @@ namespace PooketSlug
                 KitMove = m_KitMove,
                 KitSoldier = m_KitOpen ? m_KitSoldier.Name.ToUpperInvariant() : null,
                 DemoFolder = m_DemoFolder,
+                Missions = m_BoardOpen ? m_BoardCards : null,
+                MissionPick = m_BoardPick,
+                MissionHard = m_BoardHard,
+                MissionFromDen = m_BoardFromDen,
             });
 
             // The sign-in button sits over the game, on the title screen and settings only.
-            bool account = (m_State == GameState.Title || m_State == GameState.Settings) && !m_KitOpen ||
+            bool account = (m_State == GameState.Title || m_State == GameState.Settings) && !m_KitOpen && !m_BoardOpen ||
                            m_Debrief != null && (m_Debrief.Now == DebriefPlayer.Part.SignIn || m_Debrief.Now == DebriefPlayer.Part.Continue) && m_Debrief.Result.OfferSignIn;
             if (account != m_AccountShown)
             {
@@ -1111,6 +1183,7 @@ namespace PooketSlug
         MenuScreen MenuScreenNow()
         {
             if (m_KitOpen) return MenuScreen.Kit;
+            if (m_BoardOpen) return MenuScreen.Missions;
             switch (m_State)
             {
                 case GameState.Title: return MenuScreen.Title;
@@ -1142,7 +1215,7 @@ namespace PooketSlug
             if (state == GameState.GameOver) Music.Silence();
             bool wasOpen = m_Profile.coop, won = state == GameState.Victory;
             int best = m_Profile.Best(m_World.Mission), clears = m_Profile.Clears(m_World.Mission);
-            m_Profile.RecordRun(m_World.Mission, Setting.Normal, m_World.Scoring.Points, won, solo: !m_Coop);
+            m_Profile.RecordRun(m_World.Mission, m_Coop ? Setting.Normal : m_Setting, m_World.Scoring.Points, won, solo: !m_Coop);
             m_CoopJustOpened = !wasOpen && m_Profile.coop;
             if (won && !m_Coop) Debrief(best, firstClear: clears == 0 || m_TestDebrief);
             m_Store.Save(m_Profile);

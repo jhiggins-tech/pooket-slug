@@ -5,10 +5,10 @@ using UnityEngine.UI;
 namespace PooketSlug
 {
     /// <summary>Which menu is on screen.</summary>
-    public enum MenuScreen { None, Title, Settings, Online, Join, Connecting, Paused, GameOver, Victory, Kit }
+    public enum MenuScreen { None, Title, Settings, Online, Join, Connecting, Paused, GameOver, Victory, Kit, Missions }
 
     /// <summary>What a menu button (or its key) asks the game to do.</summary>
-    public enum MenuAction { None, Play, Settings, Crew, Sound, Shake, Online, Host, Join, Quick, Submit, Back, Resume, Restart, Menu, Kit, Move1, Move2, Move3, Move4 }
+    public enum MenuAction { None, Play, Settings, Crew, Sound, Shake, Online, Host, Join, Quick, Submit, Back, Resume, Restart, Menu, Kit, Move1, Move2, Move3, Move4, Card1, Card2, Card3, Card4, Hard }
 
     /// <summary>What the menus show, gathered by <see cref="Game"/> each frame.</summary>
     public struct MenuInfo
@@ -44,13 +44,18 @@ namespace PooketSlug
         public string KitSoldier;
         public System.Collections.Generic.IReadOnlyList<MoveGuide> Kit;
         public int KitMove;
+        /// <summary>The mission screen: its cards, the one picked, whether hard is picked, and whether it was opened from the den.</summary>
+        public System.Collections.Generic.IReadOnlyList<MissionCard> Missions;
+        public int MissionPick;
+        public bool MissionHard, MissionFromDen;
         /// <summary>Where the demo clips are (<c>&lt;id&gt;.mp4</c>), or null when this build can't fetch them.</summary>
         public string DemoFolder;
     }
 
     /// <summary>
-    /// The menus in uGUI: title, settings, online co-op, join, connecting, pause, game over, victory and the ⓘ kit screen
-    /// (from the den's couch pick, and the pause menu), which plays a demo of each move. Buttons work by
+    /// The menus in uGUI: title, settings, online co-op, join, connecting, pause, game over, victory, the ⓘ kit screen
+    /// (from the den's couch pick, and the pause menu), which plays a demo of each move, and the mission screen
+    /// (<see cref="MissionBoard"/>, from MISSIONS and the den's mission board). Buttons work by
     /// click and tap; each also has a key, which <see cref="Game"/> reads, shown under it on a keyboard. Only
     /// what the player has met is shown: co-op appears once Mission one is beaten solo.
     /// </summary>
@@ -59,6 +64,7 @@ namespace PooketSlug
         static readonly Color Orange = new Color(1f, 0.62f, 0.2f), Keys = new Color(1f, 0.95f, 0.8f);
         static readonly Color CoopBlue = new Color(0.6f, 0.9f, 1f), Gold = new Color(1f, 0.85f, 0.3f);
         static readonly Vector2 Wide = new Vector2(150f, 26f), Narrow = new Vector2(110f, 26f), Setting = new Vector2(190f, 26f);
+        static readonly Vector2 CardSize = new Vector2(150f, 112f);
 
         readonly RectTransform m_Root;
         readonly Image m_Dim;
@@ -76,6 +82,14 @@ namespace PooketSlug
         readonly Button[] m_Moves = new Button[4];
         readonly Text[] m_MoveLabels = new Text[4], m_MoveKeys = new Text[4];
         readonly DemoClip m_Clip;
+        // the mission screen
+        public const int MaxCards = 4;
+        readonly RectTransform m_Missions;
+        readonly Button[] m_Cards = new Button[MaxCards];
+        readonly Outline[] m_CardEdges = new Outline[MaxCards];
+        readonly Text[] m_CardNames = new Text[MaxCards], m_CardPlaces = new Text[MaxCards], m_CardRecords = new Text[MaxCards], m_CardTags = new Text[MaxCards];
+        readonly Button m_HardButton, m_MissionPlay;
+        readonly Text m_HardLabel, m_MissionPlayLabel, m_MissionPlayKey, m_HardKey, m_MissionsBackKey, m_MissionsHint;
         MenuScreen m_Shown;
         int m_FocusFrame = -1;
         MenuAction m_Clicked;
@@ -196,6 +210,31 @@ namespace PooketSlug
             m_KitText.rectTransform.sizeDelta = new Vector2(300f, 60f);
             Ui.Button(m_Kit, "BACK", new Vector2(0f, -122f), Narrow, () => Click(MenuAction.Back), out m_KitBackKey);
 
+            // the mission screen: a card per mission reached, then the next one's
+            m_Missions = Ui.Fill(m_Root, "Missions");
+            Image blocker = Ui.Picture(m_Missions, "Blocker", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, Color.clear);
+            Stretch(blocker.rectTransform);
+            blocker.raycastTarget = true; // taps on the screen stop here, not on the den under it
+            Line(m_Missions, 140f, 22, Orange).text = "MISSIONS";
+            m_MissionsHint = Line(m_Missions, 116f, 9, Keys);
+            for (int i = 0; i < MaxCards; i++)
+            {
+                MenuAction pick = MenuAction.Card1 + i;
+                m_Cards[i] = Ui.Button(m_Missions, "", new Vector2(0f, 30f), CardSize, () => Click(pick), out Text cardKey);
+                Ui.Show(cardKey, false);
+                m_CardEdges[i] = m_Cards[i].GetComponent<Outline>();
+                var card = m_Cards[i].GetComponent<RectTransform>();
+                m_CardNames[i] = Ui.Label(card, "Name", Ui.TopCenter, new Vector2(0f, -14f), 16, TextAnchor.UpperCenter, Gold);
+                m_CardPlaces[i] = Ui.Label(card, "Place", Ui.TopCenter, new Vector2(0f, -38f), 10, TextAnchor.UpperCenter, Color.white);
+                m_CardRecords[i] = Ui.Label(card, "Record", Ui.Middle, new Vector2(0f, -14f), 9, TextAnchor.MiddleCenter, Keys);
+                m_CardTags[i] = Ui.Label(card, "Tag", new Vector2(0.5f, 0f), new Vector2(0f, 12f), 9, TextAnchor.LowerCenter, CoopBlue);
+            }
+            m_HardButton = Ui.Button(m_Missions, "NORMAL", new Vector2(0f, -54f), Setting, () => Click(MenuAction.Hard), out m_HardKey);
+            m_HardLabel = Label(m_HardButton);
+            m_MissionPlay = Ui.Button(m_Missions, "PLAY", new Vector2(80f, -100f), Narrow, () => Click(MenuAction.Play), out m_MissionPlayKey);
+            m_MissionPlayLabel = Label(m_MissionPlay);
+            Ui.Button(m_Missions, "BACK", new Vector2(-80f, -100f), Narrow, () => Click(MenuAction.Back), out m_MissionsBackKey);
+
             Show(MenuScreen.None);
         }
 
@@ -285,6 +324,10 @@ namespace PooketSlug
                     Dim(new Color(0f, 0f, 0f, 0.8f));
                     RefreshKit(info, keys);
                     break;
+                case MenuScreen.Missions:
+                    Dim(new Color(0f, 0f, 0f, 0.8f));
+                    RefreshMissions(info, keys);
+                    break;
                 case MenuScreen.GameOver:
                     Dim(new Color(0.2f, 0f, 0f, Mathf.Min(0.45f, info.StateTime)));
                     m_Score.text = "SCORE " + info.Score;
@@ -323,6 +366,7 @@ namespace PooketSlug
             Ui.Show(m_GameOver, screen == MenuScreen.GameOver);
             Ui.Show(m_Victory, screen == MenuScreen.Victory);
             Ui.Show(m_Kit, screen == MenuScreen.Kit);
+            Ui.Show(m_Missions, screen == MenuScreen.Missions);
             if (screen != MenuScreen.Kit) m_Clip.Stop();
             if (screen == MenuScreen.Join) m_FocusFrame = Time.frameCount + 1;
             else if (m_Code.isFocused) m_Code.DeactivateInputField();
@@ -351,6 +395,50 @@ namespace PooketSlug
             if (m_KitText.text != text) m_KitText.text = text;
             m_Clip.Play(shownMove == null || info.DemoFolder == null ? null : info.DemoFolder + shownMove.DemoId + ".mp4");
             Key(m_KitBackKey, keys, "ESC");
+        }
+
+        /// <summary>
+        /// The mission screen's cards in a row, the picked one edged in gold; a coming-soon card is dimmed and can't be
+        /// picked. The setting button shows only where hard is open, and PLAY says PICK when the den opened the screen.
+        /// </summary>
+        void RefreshMissions(in MenuInfo info, bool keys)
+        {
+            const float Gap = 162f;
+            int count = Mathf.Min(MaxCards, info.Missions?.Count ?? 0);
+            int pick = Mathf.Clamp(info.MissionPick, 0, Mathf.Max(0, count - 1));
+            for (int i = 0; i < MaxCards; i++)
+            {
+                bool shown = i < count;
+                Ui.Show(m_Cards[i], shown);
+                if (!shown) continue;
+                MissionCard card = info.Missions[i];
+                bool picked = i == pick && !card.ComingSoon;
+                m_Cards[i].GetComponent<RectTransform>().anchoredPosition = new Vector2((i - (count - 1) * 0.5f) * Gap, 30f);
+                m_Cards[i].interactable = !card.ComingSoon;
+                m_CardEdges[i].effectColor = picked ? Gold : card.ComingSoon ? new Color(0.4f, 0.4f, 0.45f) : Orange;
+                m_CardEdges[i].effectDistance = picked ? new Vector2(2f, -2f) : new Vector2(1f, -1f);
+                Set(m_CardNames[i], "MISSION " + card.Number);
+                m_CardNames[i].color = card.ComingSoon ? new Color(1f, 1f, 1f, 0.45f) : Gold;
+                Set(m_CardPlaces[i], card.ComingSoon ? "???" : card.Mission.Place);
+                PooketSlug.Setting setting = picked && info.MissionHard ? PooketSlug.Setting.Hard : PooketSlug.Setting.Normal;
+                Set(m_CardRecords[i], MissionBoard.RecordLine(card, setting));
+                Set(m_CardTags[i], card.SoloOnly ? "SOLO ONLY" : card.HardOpen ? "HARD OPEN" : "");
+            }
+            MissionCard chosen = count > 0 ? info.Missions[pick] : null;
+            bool hard = chosen != null && chosen.HardOpen;
+            Ui.Show(m_HardButton, hard);
+            if (hard) Set(m_HardLabel, info.MissionHard ? "SETTING: HARD (FOR TWO)" : "SETTING: NORMAL");
+            Ui.Show(m_MissionPlay, chosen != null && !chosen.ComingSoon);
+            Set(m_MissionPlayLabel, info.MissionFromDen ? "PICK" : "PLAY");
+            Set(m_MissionsHint, info.Touch ? "TAP A MISSION TO PLAY IT AGAIN" : "LEFT / RIGHT PICKS A MISSION");
+            Key(m_MissionPlayKey, keys, "ENTER");
+            Key(m_HardKey, keys, "H");
+            Key(m_MissionsBackKey, keys, "ESC");
+        }
+
+        static void Set(Text text, string value)
+        {
+            if (text.text != value) text.text = value;
         }
 
         /// <summary>The keyboard key for a kit button, as the settings list them.</summary>
