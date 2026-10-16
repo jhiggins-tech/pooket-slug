@@ -232,7 +232,8 @@ namespace PooketSlug
         /// <summary>START on the title screen, or a solo START in the den: Mission one plays its opening scene first.</summary>
         void StartFromTitle()
         {
-            if (m_Mission == Missions.One) PlayScene(Cutscenes.Opening, false, StartSolo);
+            // ?test=boss, pilot and team are for trying something at once: they start without the opening
+            if (m_Mission == Missions.One && !m_TestBoss && !m_TestTeam) PlayScene(Cutscenes.Opening, false, StartSolo);
             else StartSolo();
         }
 
