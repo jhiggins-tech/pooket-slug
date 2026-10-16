@@ -268,6 +268,7 @@ namespace PooketSlug
             }
             if (skip && m_SceneCoop && m_Scene.CanSkip) m_SceneSkip = true; // it skips once the partner asks too
             int beat = m_Scene.Beat, shot = m_Scene.Shot;
+            float left = m_Scene.Scene.Shots[shot].Seconds - m_Scene.T; // a shot that moves on with time left was tapped on
             if (tap && (m_Scene.Tap(0) || m_Scene.HasTapped(0))) m_SceneTapped = Math.Max(m_SceneTapped, beat);
             if (m_SceneCoop)
             {
@@ -288,7 +289,8 @@ namespace PooketSlug
                 if (cue == "say:mission-start") m_SceneSaidStart = true;
                 m_SceneView.Cue(cue);
             }
-            if (m_Scene.Shot != shot && !m_Scene.Done) Log.Game.Info("Cutscene shot " + (m_Scene.Shot + 1) + " of " + m_Scene.Scene.Shots.Length);
+            if (m_Scene.Shot != shot && !m_Scene.Done)
+                Log.Game.Info("Cutscene shot " + (m_Scene.Shot + 1) + " of " + m_Scene.Scene.Shots.Length + (left > 0.5f ? ", tapped on" : ""));
             if (m_Scene.Done) EndScene();
             else m_SceneView.Refresh();
         }

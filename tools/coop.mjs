@@ -105,8 +105,9 @@ const at = line => parseFloat(line);
 async function tapThrough(p, ms) {
   const end = Date.now() + ms;
   while (Date.now() < end && !p.logs.some(l => /Cutscene over: scene-opening/.test(l))) {
-    await p.page.keyboard.down('x'); await p.page.waitForTimeout(80); await p.page.keyboard.up('x');
-    await p.page.waitForTimeout(450);
+    // held a while: a slow runner draws a few frames a second, and a quicker press can fall between two
+    await p.page.keyboard.down('x'); await p.page.waitForTimeout(250); await p.page.keyboard.up('x');
+    await p.page.waitForTimeout(350);
   }
 }
 
@@ -165,7 +166,10 @@ try {
     await Promise.all([tapThrough(A, 30000), tapThrough(B, 30000)]);
     const over = [await waitLog(A, /Cutscene over: scene-opening/, 5000), await waitLog(B, /Cutscene over: scene-opening/, 5000)];
     const began = Math.max(...start.map(at));
-    checks.tappedThrough = over.every(Boolean) && over.every(l => at(l) - began < 28); // its own timer takes about 38 s
+    // CI's runner plays slower than real time, so the clock can't say whether taps did it: the game logs each
+    // shot that moved on with time left. Of the five moves, four or more should be tapped on (a tap can land in the intro).
+    const tapped = p => p.logs.filter(l => /Cutscene shot \d+ of \d+, tapped on/.test(l)).length;
+    checks.tappedThrough = over.every(Boolean) && tapped(A) >= 4 && tapped(B) >= 4;
     checks.together = over.every(Boolean) && Math.abs(at(over[0]) - at(over[1])) < 4;
     console.log(`${t()} the opening took ${over.map(l => l ? (at(l) - began).toFixed(1) + ' s' : 'forever').join(' and ')}`);
     await Promise.all([play(A, 'ArrowRight', 4000), play(B, 'ArrowRight', 4000)]);
