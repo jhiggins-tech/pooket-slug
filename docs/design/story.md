@@ -26,7 +26,7 @@ Up: [Design](README.md)
 2. **Mission one, the military base:** tones2 fights through the base to the motor pool. There comes the reveal: the crew's stolen tabks are parked inside, and kie's tabk rolls out to fight, with a Trollogram kie at the controls. Beat the tabk, then Trollogram kie on foot, and the real kie is freed.
 3. **The coda** (owner, 2026-10-16): with the last of his strength, kie frees tones2's own tabk and bows out, exhausted. tones2 calls it in for the first time and blasts his way out of the base in a short, explosive mini-level after the boss, still part of Mission one. It ends the mission and teaches the tabk.
 4. **Two of the crew:** with kie back, co-op opens. kie's first line sets it up as the menu changes.
-5. **Mission two frees kcaj.** Each mission after that frees one more crewmate from their own tabk.
+5. **Mission two frees kcaj,** at the Brain Freeze creamery ([Mission two](#mission-two-the-creamery)). The night Mission one ended, the Trollograms moved every tabk left in the motor pool, so each is held somewhere new (owner, 2026-10-16). Each mission after that frees one more crewmate from their own tabk.
 6. **The coming-soon crew** (shotdownboyz, lankcity, odsey and doctorfox) arrive later, each with a mission of their own.
 7. **There's no finale for now.** The story stays open-ended and grows one crewmate at a time, like Coming soon in Tabks.
 
@@ -62,6 +62,8 @@ A scene that can be skipped once seen skips its intro with it. The narrator wait
 | tones2 | [The opening](#the-opening-scene) | 1, as he strolls in with the snacks | TONES2 |
 | Trollogram kie | [The motor pool reveal](#the-motor-pool-reveal) | 3, as he pops up in the hatch | TROLLO-KIE |
 | kie | [Freeing kie](#freeing-kie) | 2, as the real kie drops to the floor | KIE |
+| Trollogram kcaj | [Mission two's boss intro](#the-boss-intro), the first time | As he looks out of the hatch | TROLLO-KCAJ |
+| kcaj | [Freeing kcaj](#freeing-kcaj) | 2, as he steps out of the frost | KCAJ |
 | Each later crewmate's Trollogram | Their mission's [boss intro](tanks.md#the-boss-intro), the first time | As the pilot shows in the hatch | TROLLO-&lt;NAME&gt; |
 | Each later crewmate | Their freeing scene | As the real one appears | &lt;NAME&gt; |
 
@@ -194,6 +196,51 @@ The third reveal: co-op exists ([reveals](#reveals-are-story-beats)). It plays o
 
 **Built** (2026-10-16, `Core/CrewReveal.cs`, `Ui/CrewRevealView.cs`, `MenuView.LayOutTitle`): `?test=crew` to try it. kie walks in through the title's own world and stays beside tones2 until the title's left. START shakes, splits with a hit, and MISSIONS, CO-OP and CREW drop into a row one at a time, each with a clunk; CO-OP pulses on kie's line. SETTINGS stays under them. MISSIONS opens the [mission screen](levels.md#missions), then the den. With no online in the build, CO-OP doesn't drop. Not in yet: kie's snacks and the lean on CO-OP.
 
+## Mission two: the creamery
+
+kcaj's mission, at the Brain Freeze creamery ([the map](levels.md#mission-two-the-brain-freeze-creamery), picked by the owner 2026-10-16). Draft, 2026-10-16, from the story options on the item's page. The first mission two can play, so every scene here plays on both phones in co-op ([cutscenes](#cutscenes)). All the lines are placeholders for the owner to rewrite in the crew's own voice.
+
+**Why the creamery:** Trollograms run hot. The creamery's industrial freezers keep the projectors that make them from melting down, so its cold store is the Trollograms' server room. They've parked kcaj's tabk in front of it as its guard, and shut kcaj in it, which, honestly, he'd have chosen anyway.
+
+**Why not the base:** the night Mission one ended, the Trollograms moved every tabk left in the motor pool (owner, 2026-10-16). The briefing opens on it.
+
+### The briefing
+
+Played when Mission two starts from the den, about 24 seconds, four shots; it can be skipped once seen. **Waiting on the owner:** whether kcaj's string board briefs the mission (a card in the Design thread). The shots below are that version; if not, shots 2 and 3 become a plain close-up of a creamery delivery docket found in the empty motor pool, with the same lines.
+
+| # | Shot | What happens | Narrator, bubbles and text | Time |
+|---|---|---|---|---|
+| 1 | **The empty motor pool** | Morning at the base: the blast shutter is up, and the bay is empty. Tyre tracks and cyan scuffs lead out of the back gate. tones2 and kie stand in the middle of it. | Narrator: "By morning, the motor pool was empty." · kie: "THEY TOOK THE LOT." | 5 s |
+| 2 | **kcaj's corner** | The den, the loft: kcaj's corner is dark and wrecked, but his red string board is still on the wall, sticky notes everywhere. tones2 and kie climb the ladder to it. | Narrator: "kcaj's string board. Everyone thought it was about the moon landing." | 6 s |
+| 3 | **The string** | A close-up: one red string runs off the board to a photo of a factory with a giant soft-serve sign, "THEY NEED IT COLD" scrawled under it. | kie: "HE WAS RIGHT?" · tones2: "HE'S NEVER BEEN RIGHT." | 6 s |
+| 4 | **Heading out** | Back out of the den's roller door into daylight. The caption card slams in, and the announcer calls it. | Narrator: "The Trollograms like it cold. So, as it turns out, does kcaj." · Card: "MISSION 2 · THE CREAMERY · FIND KCAJ" · Announcer: "Mission two... start!" | 7 s |
+
+**Who's in it:** always tones2 and kie, whoever the players picked, since they're the only crew free at this point in the story; a replay is the same.
+
+### The run
+
+No scenes, just the place telling it: goons on the production line, Trollogram projectors humming behind frosted glass (shoot one and a few goons nearby flicker out), a goon frozen solid on a conveyor rolling past still mid-shout, and the freezer corridor before the cold store, where breath fogs. A scoop dropper plops a scoop on a soldier's head once, the first time, for the gag.
+
+### The boss intro
+
+kcaj's tabk gets the usual [boss intro](tanks.md#the-boss-intro): the cold store's doors fog open and the tabk rolls out of the mist, a cone on its antenna, into the WARNING! banner and the name card, "KCAJ'S TABK". The first time, the hatch pops as it stops and Trollogram kcaj looks out with two cones: his intro, TROLLO-KCAJ. Glitchy bubble: "YOU'RE NOT IN MY NOTES."
+
+### Freeing kcaj
+
+After Trollogram kcaj is beaten on foot ([the pilot round](tanks.md#the-pilot-round)), like [freeing kie](#freeing-kie): about 14 seconds, five shots; it can be skipped once seen.
+
+| # | Shot | What happens | Narrator, bubbles and text | Time |
+|---|---|---|---|---|
+| 1 | **The glitch-out** | In the game itself: Trollogram kcaj freezes mid-taunt and tears apart, the big version of the goons' death. The boss music cuts out. | Trollogram kcaj: "IT'S ALL CONNECT-" | 3 s |
+| 2 | **The real kcaj** | The cold store's door creaks open, frost rolls out, and the real kcaj stumbles out in his own colours, rimed with frost, holding an empty tub. | KCAJ (his intro) · Narrator: "And out comes the real kcaj. Slightly frozen." · kcaj: "I'VE BEEN IN THERE FOR DAYS." | 4.5 s |
+| 3 | **The evidence** | He looks at the tub, then at the crew. | kcaj: "I ATE THE EVIDENCE." | 2.5 s |
+| 4 | **The bit** | tones2 holds out a slushie. kcaj walks past it, opens a freezer, and eats two cones at once. | Narrator: "He's had a difficult week." | 2.5 s |
+| 5 | **Told you** | kcaj points at the factory around them, then at the crew. Nobody answers. He sticks a sticky note on tones2's back. | kcaj: "I TOLD YOU. I TOLD ALL OF YOU." | 2.5 s |
+
+**Character intro:** the real kcaj, in shot 2, as he steps out of the frost: KCAJ ([character intros](#character-intros)).
+
+**Home:** the next time the den loads, kcaj moves into the loft ([the lobby](lobby.md)) and his corner lights up.
+
 ## Reveals are story beats
 
 The game hides what's coming ([progressive disclosure](README.md#progressive-disclosure-the-thread-through-all-four)), so each reveal gets a scene of its own:
@@ -211,4 +258,5 @@ The second time you meet something, it's quick: a tabk you've already fought onl
 ## Open questions
 
 - **Mission order after kcaj**, which sets the order of the story.
-- **Each mission's story:** its briefing, and how its crewmate's freeing plays out.
+- **Each mission's story after Mission two:** its briefing, and how its crewmate's freeing plays out.
+- **Mission two's briefing:** whether kcaj's string board in the den is the briefing (asked, 2026-10-16).
