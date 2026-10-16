@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace PooketSlug.Tests
 {
-    /// <summary>The sandbox (Core/Sandbox.cs, docs/sandbox.md): its link reader, its setup lines and its knobs.</summary>
+    /// <summary>The sandbox (Core/Platform/Sandbox.cs, docs/sandbox.md): its link reader, its setup lines and its knobs.</summary>
     public class SandboxTests
     {
         [Test]
