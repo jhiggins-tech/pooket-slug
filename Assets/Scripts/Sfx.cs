@@ -8,7 +8,7 @@ namespace PooketSlug
     {
         public static AudioClip Siren, Shot, Heavy, EnemyShot, Cannon, Explosion, BigExplosion, Jump, Hurt, Hit, Pickup, Throw, Start, Victory, GameOver;
         // tones2's kit, and the extras (the hologram goons, the boss tank)
-        public static AudioClip JetLoop, Splat, RocketRumble, RocketLaunch, Glitch, Poison, Spew, Sizzle, Thump, Charge, Servo;
+        public static AudioClip Intro, JetLoop, Splat, RocketRumble, RocketLaunch, Glitch, Poison, Spew, Sizzle, Thump, Charge, Servo;
         // kie's kit
         public static AudioClip WeaselThrow, WeaselTune, TrollDrop, TrollSwap;
         public static bool Muted;
@@ -82,6 +82,13 @@ namespace PooketSlug
         /// game's (as <c>&lt;id&gt;.bytes</c>, so Unity leaves them as plain WAV bytes); a build without them stays quiet here.
         /// </summary>
         public static void Say(string id, float delay = 0f) => Speak("Voice/" + id, 0.9f, delay);
+
+        /// <summary>
+        /// The cutscene narrator reads line <paramref name="id"/> (a <see cref="CutsceneLine.Voice"/>), from
+        /// <c>Resources/Narration/&lt;id&gt;.bytes</c>: the narrator's own voice (voice F from the narrator voice spike), made by
+        /// the vendor repository's Narration workflow and fetched like the announcer's.
+        /// </summary>
+        public static void Narrate(string id) => Speak("Narration/" + id, 1f, 0f);
 
         /// <summary>
         /// The cutscene narrator reads line <paramref name="id"/> in candidate voice <paramref name="voice"/> (the narrator

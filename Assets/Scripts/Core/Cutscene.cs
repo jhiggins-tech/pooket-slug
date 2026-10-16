@@ -39,20 +39,41 @@ namespace PooketSlug
         }
     }
 
-    /// <summary>One shot of a scene: how long it holds by itself, its bubbles and its cues.</summary>
+    /// <summary>
+    /// A character's intro, the first time they're on screen in the story (<c>docs/design/story.md</c>, Cutscenes): at
+    /// <see cref="At"/> seconds into the shot the camera crash-zooms onto <see cref="Who"/>, their name slams up big,
+    /// time goes slow-mo, and a musical hit plays.
+    /// </summary>
+    public sealed class CutsceneIntro
+    {
+        public readonly float At;
+        public readonly Speaker Who;
+        public readonly string Name;
+
+        public CutsceneIntro(float at, Speaker who, string name)
+        {
+            At = at;
+            Who = who;
+            Name = name;
+        }
+    }
+
+    /// <summary>One shot of a scene: how long it holds by itself, its bubbles and its cues, and any character's intro.</summary>
     public sealed class CutsceneShot
     {
         public readonly string Name;
         public readonly float Seconds;
         public readonly CutsceneLine[] Lines;
         public readonly CutsceneCue[] Cues;
+        public readonly CutsceneIntro Intro;
 
-        public CutsceneShot(string name, float seconds, CutsceneLine[] lines, CutsceneCue[] cues = null)
+        public CutsceneShot(string name, float seconds, CutsceneLine[] lines, CutsceneCue[] cues = null, CutsceneIntro intro = null)
         {
             Name = name;
             Seconds = seconds;
             Lines = lines ?? new CutsceneLine[0];
             Cues = cues ?? new CutsceneCue[0];
+            Intro = intro;
         }
     }
 
@@ -90,9 +111,10 @@ namespace PooketSlug
             new CutsceneShot("Outside the hangout", 5f,
                 new[]
                 {
-                    new CutsceneLine(0.4f, Speaker.Narrator, "Friday night. tones2's back from the snack run.", "opening-1"),
+                    new CutsceneLine(1.3f, Speaker.Narrator, "Friday night. tones2's back from the snack run.", "opening-1"), // after his intro
                     new CutsceneLine(3.2f, Speaker.Tones2, "SNACKS ARE HERE LADS"),
-                }),
+                },
+                intro: new CutsceneIntro(1.0f, Speaker.Tones2, "TONES2")),
             new CutsceneShot("The door", 4.5f,
                 new[]
                 {
@@ -132,11 +154,19 @@ namespace PooketSlug
     /// Plays a scene (<c>docs/design/story.md</c>, Cutscenes): each shot moves on by itself, or with a tap. A scene
     /// that's been seen before can be skipped. In co-op every player has to tap before a shot moves on early, so a
     /// partner who hasn't seen it gets to watch it; the timer still moves it on for both.
+    /// <para>
+    /// A shot with a character's <see cref="CutsceneIntro"/> holds it for <see cref="IntroSeconds"/>, during which the
+    /// shot's own clock runs at <see cref="SlowMo"/>, and a tap can't cut it short.
+    /// </para>
     /// </summary>
     public sealed class CutscenePlayer
     {
         /// <summary>A tap this soon into a shot is ignored, so mashing doesn't throw away two shots at once.</summary>
         public const float TapGuard = 0.3f;
+        /// <summary>How long a character's intro holds, in real seconds, and how slow the shot runs meanwhile.</summary>
+        public const float IntroSeconds = 1.8f, SlowMo = 0.15f;
+        /// <summary>The cue that comes due as an intro starts: the musical hit.</summary>
+        public const string IntroCue = "intro";
 
         public readonly CutsceneDef Scene;
         public readonly bool CanSkip;
@@ -147,6 +177,11 @@ namespace PooketSlug
         public float T { get; private set; }
         public bool Done { get; private set; }
         public bool Skipped { get; private set; }
+        /// <summary>Real seconds into the intro playing now, if <see cref="Introducing"/>.</summary>
+        public float IntroT { get; private set; }
+
+        enum IntroState { Due, Playing, Over }
+        IntroState m_Intro;
 
         public CutscenePlayer(CutsceneDef scene, bool seenBefore, int players = 1)
         {
@@ -157,6 +192,9 @@ namespace PooketSlug
 
         public int Players => m_Tapped.Length;
         public CutsceneShot Current => Done ? null : Scene.Shots[Shot];
+
+        /// <summary>A character's intro is playing now: the crash zoom, their name, and slow-mo.</summary>
+        public bool Introducing => !Done && m_Intro == IntroState.Playing;
 
         public bool HasTapped(int player) => player >= 0 && player < m_Tapped.Length && m_Tapped[player];
 
@@ -176,13 +214,24 @@ namespace PooketSlug
             }
         }
 
-        /// <summary><paramref name="player"/> tapped to move on. True if that moved the scene on.</summary>
+        /// <summary>
+        /// <paramref name="player"/> tapped to move on. True if that moved the scene on: to the next shot, or to the
+        /// character intro still to come in this one.
+        /// </summary>
         public bool Tap(int player)
         {
-            if (Done || player < 0 || player >= m_Tapped.Length || T < TapGuard) return false;
+            if (Done || player < 0 || player >= m_Tapped.Length || T < TapGuard || Introducing) return false;
             m_Tapped[player] = true;
             foreach (bool t in m_Tapped)
                 if (!t) return false;
+            CutsceneIntro intro = Current.Intro;
+            if (intro != null && m_Intro == IntroState.Due)
+            {
+                // a character's intro is never tapped past: the tap jumps to it instead
+                T = intro.At;
+                for (int i = 0; i < m_Tapped.Length; i++) m_Tapped[i] = false;
+                return true;
+            }
             Next();
             return true;
         }
@@ -203,10 +252,23 @@ namespace PooketSlug
         {
             due?.Clear();
             if (Done) return 0;
-            float from = T;
-            T += dt;
+            float from = T, rate = 1f;
+            if (m_Intro == IntroState.Playing)
+            {
+                IntroT += dt;
+                if (IntroT >= IntroSeconds) m_Intro = IntroState.Over;
+                else rate = SlowMo;
+            }
+            T += dt * rate;
             foreach (CutsceneCue cue in Current.Cues)
                 if (cue.At >= from && cue.At < T) due?.Add(cue.Id);
+            CutsceneIntro intro = Current.Intro;
+            if (intro != null && m_Intro == IntroState.Due && T >= intro.At)
+            {
+                m_Intro = IntroState.Playing;
+                IntroT = 0f;
+                due?.Add(IntroCue);
+            }
             if (T >= Current.Seconds) Next();
             return due?.Count ?? 0;
         }
@@ -243,6 +305,8 @@ namespace PooketSlug
         {
             Shot++;
             T = 0f;
+            m_Intro = IntroState.Due;
+            IntroT = 0f;
             for (int i = 0; i < m_Tapped.Length; i++) m_Tapped[i] = false;
             if (Shot >= Scene.Shots.Length)
             {

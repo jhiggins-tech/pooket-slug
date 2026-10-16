@@ -54,6 +54,8 @@ A boss tank's arrival is the mission's big moment ([story](story.md#cutscenes): 
 4. **The name card:** the tank's name ("KIE'S TANK") drops in under the banner, and the announcer shouts "Here comes the tank!" (it shouts "Warning!" with the banner in step 2).
 5. **The fight:** the boss music kicks in on the tank's first shot, and its health bar fills up across the top.
 
+**The pilot's intro:** from Mission two on, the first time a mission's boss intro plays, its hologram pilot gets their [character intro](story.md#character-intros) as the tank stops and the hatch pops: crash zoom, HOLO-&lt;NAME&gt;, slow-mo and the musical hit. It's the one moment the intro holds the action, and it never plays again. In Mission one, hologram kie gets his in [the motor pool reveal](story.md#the-motor-pool-reveal) instead.
+
 **The announcer** (picked 2026-10-15) is a generated voice: a gravelly arcade announcer made with text-to-speech by the vendor repository's CI from its `voice/lines.json`, so a line is changed or added by editing that file. It also calls "Mission one... start!" and "Mission complete!".
 
 **The music** (picked 2026-10-15): a looping Mission one track plays through the run, and a faster, minor-key boss track takes over for the fight. Both are made in code with the chip synth the sound effects use. The full track list is in [music](music.md).
@@ -109,15 +111,16 @@ Wreck the tank and its hologram pilot jumps out to fight you on foot with the cr
 - **Climb in** to a tank you've won. It has its own health bar, separate from yours.
 - **The controls are Metal Slug's:** the stick drives it and points the gun, the same eight ways a soldier aims on foot, and FIRE shoots at once. There's no turret to swing and no power to build: that's how boss tanks fight, not yours.
 - **Rounds never refill:** a tank has 5 main shots, 3 specials and 1 super.
+- **Fuel runs out, as in Pooket Tabks** (owner, 2026-10-16). A tank has a fuel bar that drains as it drives (and hops). When it's dry, the tank can't move and stays where it is, but it can still aim and fire. Fuel belongs to each tank: a tank arrives full, nothing refuels it, and ejecting is the way out of a dry one (the empty tank still rolls on and blows up, on its own momentum, Metal Slug style).
 - **Eject before it blows.** The empty tank rolls on and explodes into the goons, Metal Slug style.
 - **A wrecked tank is gone** until the next mission.
 - **Any soldier can drive any tank you've won,** so tones2 can take kcaj's tank out.
 
-**Spike** (2026-10-15, `?spike=drive`, solo): a tank parked a few steps from the start, and one call-in that drops another in beside you (the call-in now summons this tank whenever one's unlocked, solo). Jump into it, or press JUMP touching it, to climb in. Inside, the stick drives it and points the gun the eight ways, keeping the last aim when let go; FIRE shoots a shell at once, SP lobs a mortar, SU fans a barrage (5, 3 and 1, never refilled); JUMP hops it, and down and JUMP ejects. It has its own health bar (TK, under the kit's meters); every hit meant for the driver lands on it. Ejected, it rolls on and blows up on the first goon or wall; wrecked, it throws you clear and blows up. Code: `Spikes/PlayerTank.cs`, numbers `PlayerTankSpec` (`Core/PlayerTankSpec.cs`).
+**Spike** (2026-10-15, `?spike=drive`, solo): a tank parked a few steps from the start, and one call-in that drops another in beside you (the call-in now summons this tank whenever one's unlocked, solo). Jump into it, or press JUMP touching it, to climb in. Inside, the stick drives it and points the gun the eight ways, keeping the last aim when let go; FIRE shoots a shell at once, SP lobs a mortar, SU fans a barrage (5, 3 and 1, never refilled); JUMP hops it, and down and JUMP ejects. It has its own health bar (TK, under the kit's meters) and a fuel bar (FU, under that: 12 seconds of driving, a hop burns half a second; dry, it stays put but still aims and fires, added 2026-10-16); every hit meant for the driver lands on it. Ejected, it rolls on and blows up on the first goon or wall; wrecked, it throws you clear and blows up. Code: `Spikes/PlayerTank.cs`, numbers `PlayerTankSpec` (`Core/PlayerTankSpec.cs`).
 
 ## Calling in a tank
 
-- **Once per mission,** hold the stick down and hold SP, and a tank you've won drops in beside you. A tap of SP still fires your special, even while you're crouching.
+- **Once per mission,** hold the stick down and hold SP, and a tank you've won drops in beside you, with a full tank of fuel. A tap of SP still fires your special, even while you're crouching.
 - **The call charges up first.** Holding SP charges a short call-in before the tank drops. Letting go before it's charged cancels the call.
 - **Choose which tank** on the mission screen, before you start.
 - **In co-op, each player calls their own,** so both of you can have a tank out at once.
