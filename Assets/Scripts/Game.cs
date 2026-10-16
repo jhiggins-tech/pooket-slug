@@ -378,7 +378,8 @@ namespace PooketSlug
             MissionDef mission = coop ? Missions.ByNetId(m_Net.Link.Mission) ?? m_Mission : m_Mission;
             return new DenInfo
             {
-                Mission = m_Den.Mode == DenMode.Crew ? null : mission.Name.ToUpperInvariant(),
+                // Mission one is solo only (docs/design/lobby.md, Co-op): until Mission two is built, co-op plays it as a stand-in
+                Mission = m_Den.Mode == DenMode.Crew ? null : coop && mission == Missions.One ? "TEST MISSION" : mission.Name.ToUpperInvariant(),
                 Room = coop ? m_Net.RoomCode : null,
                 CanHost = CoopReady && m_Den.Mode == DenMode.Solo,
                 Skin = coop ? m_Net.Link.LocalSkin : 0,
