@@ -27,7 +27,7 @@ namespace PooketSlug.Tests
             Assert.That(Cutscenes.Opening.Seconds, Is.InRange(30f, 40f));
             foreach (CutsceneShot shot in Cutscenes.Opening.Shots)
             {
-                Assert.That(shot.Seconds, Is.InRange(4f, 8f), shot.Name);
+                Assert.That(shot.Seconds, Is.InRange(4f, 9f), shot.Name);
                 Assert.IsTrue(System.Array.Exists(shot.Lines, l => l.Who == Speaker.Narrator), shot.Name + " has narration");
             }
         }
@@ -402,5 +402,38 @@ namespace PooketSlug.Tests
             Assert.IsTrue(CutsceneSync.Apply(a, false, 0, 1), "gone: their say doesn't hold up a skip");
             Assert.IsTrue(a.T >= Cutscenes.Opening.Shots[0].Intro.At - CutscenePlayer.BuildUp, "nor a tap");
         }
-    }
+    
+        [Test]
+        public void EveryNarratorLineHasTimeForItsVoice()
+        {
+            foreach (CutsceneDef scene in new[] { Cutscenes.Opening, Cutscenes.MotorPool, Cutscenes.FreeingKie })
+                foreach (CutsceneShot shot in scene.Shots)
+                    foreach (CutsceneLine line in shot.Lines)
+                    {
+                        if (line.Who != Speaker.Narrator) continue;
+                        Assert.IsTrue(NarratorClips.Seconds.TryGetValue(line.Voice ?? "", out float clip), line.Voice + " has a recorded length");
+                        float until = shot.Seconds;
+                        foreach (CutsceneLine next in shot.Lines)
+                            if (next.Who == Speaker.Narrator && next.At > line.At && next.At < until) until = next.At;
+                        Assert.GreaterOrEqual(until - line.At, clip + NarratorClips.Breath, scene.Id + ", " + shot.Name + ": " + line.Voice);
+                    }
+        }
+
+        [Test]
+        public void TheShotWaitsForTheNarratorToFinish()
+        {
+            var p = new CutscenePlayer(Cutscenes.MotorPool, false);
+            float end = Cutscenes.MotorPool.Shots[0].Seconds;
+            while (p.T < end - 0.1f) p.Tick(0.05f);
+            for (int i = 0; i < 20; i++) p.Tick(0.05f, null, true);
+            Assert.AreEqual(0, p.Shot, "held while they talk");
+            p.Tick(0.05f);
+            Assert.AreEqual(1, p.Shot, "then on");
+
+            p = new CutscenePlayer(Cutscenes.MotorPool, false);
+            while (p.T < end - 0.1f) p.Tick(0.05f);
+            for (int i = 0; i < 100; i++) p.Tick(0.05f, null, true);
+            Assert.AreEqual(1, p.Shot, "but never for longer than " + CutscenePlayer.MaxHold + " s");
+        }
+}
 }

@@ -470,20 +470,40 @@ namespace PooketSlug
             float zoom = m_World.localScale.x, half = w / 2f + 4f, view = StageW * Px / 2f / zoom;
             float middle = StageW * Px / 2f - m_World.anchoredPosition.x / zoom;
             at.x = Mathf.Clamp(at.x, middle - view + half, middle + view - half);
-            // two people talking close together: the later bubble goes above the earlier one
-            for (int k = 0; k < m_Placed.Count; k++)
-            {
-                Rect r = m_Placed[k];
-                if (Mathf.Abs(at.x - r.center.x) < (w + r.width) / 2f + 4f && Mathf.Abs(at.y - r.y) < 24f)
-                {
-                    at.y = r.y + 26f;
-                    k = -1; // and check it again against them all
-                }
-            }
-            m_Placed.Add(new Rect(at.x - w / 2f, at.y, w, 22f));
+            // never on top of another bubble: comic-book style, a later one stacks above the ones already up, or below
+            // them if there's no room left above in the shot
+            float top = StageH * Px / 2f - m_World.anchoredPosition.y / zoom + StageH * Px / 2f / zoom;
+            at.y = Stack(at.x, at.y, w, top);
+            m_Placed.Add(new Rect(at.x - w / 2f, at.y, w, BubbleH));
             if (glitchy && (int)(now * 12f) % 5 == 0) at.x += 2f; // the holograms' bubbles glitch too
             b.Rt.anchoredPosition = at;
             b.Tail.rectTransform.anchoredPosition = new Vector2(Mathf.Clamp(who.Head.x - at.x, -w / 2f + 8f, w / 2f - 8f), 0f);
+        }
+
+        const float BubbleH = 22f, BubbleGap = 4f;
+
+        /// <summary>The height for a bubble at <paramref name="x"/> that clears every bubble already placed this frame.</summary>
+        float Stack(float x, float y, float w, float top)
+        {
+            for (int step = 0; step < 8; step++)
+            {
+                float up = y + step * (BubbleH + BubbleGap);
+                if (up + BubbleH <= top - 2f && Clear(x, up, w)) return up;
+            }
+            for (int step = 1; step < 8; step++)
+            {
+                float down = y - step * (BubbleH + BubbleGap);
+                if (Clear(x, down, w)) return down;
+            }
+            return y;
+        }
+
+        bool Clear(float x, float y, float w)
+        {
+            foreach (Rect r in m_Placed)
+                if (Mathf.Abs(x - r.center.x) < (w + r.width) / 2f + BubbleGap && Mathf.Abs(y - r.y) < BubbleH + BubbleGap)
+                    return false;
+            return true;
         }
 
         Bubble NewBubble()

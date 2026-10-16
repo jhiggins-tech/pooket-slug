@@ -95,12 +95,21 @@ namespace PooketSlug
         /// <c>Resources/Narration/&lt;id&gt;.bytes</c>: the narrator's own voice (voice F from the narrator voice spike), made by
         /// the vendor repository's Narration workflow and fetched like the announcer's.
         /// </summary>
-        public static void Narrate(string id) => Speak("Narration/" + id, NarratorVolume, 0f);
+        public static void Narrate(string id)
+        {
+            Speak("Narration/" + id, NarratorVolume, 0f);
+            s_Narrating = s_Voice != null && s_Voice.clip != null && s_Voice.clip.name == "voice-Narration/" + id;
+        }
+
+        /// <summary>The narrator's line is still being read out (a cutscene waits for it).</summary>
+        public static bool NarratorTalking => s_Narrating && s_Voice != null && s_Voice.isPlaying;
+        static bool s_Narrating;
 
 
         /// <summary>Plays a recorded line (a WAV kept as .bytes), cutting off any still playing. Quiet if it isn't in the build.</summary>
         static void Speak(string path, float volume, float delay)
         {
+            s_Narrating = false;
             if (Muted || s_Voice == null) return;
             if (!s_Lines.TryGetValue(path, out AudioClip clip))
             {

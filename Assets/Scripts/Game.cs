@@ -288,7 +288,7 @@ namespace PooketSlug
                 m_Net.Link.SendScene(CutsceneSync.Pack(m_SceneRound, m_Scene.Scene.NetId, m_SceneTapped, m_SceneSkip));
                 m_SceneView.Waiting(m_SceneSkip ? "SKIPPING ONCE YOUR PARTNER DOES" : null);
             }
-            m_Scene.Tick(dt, m_SceneCues);
+            m_Scene.Tick(dt, m_SceneCues, Sfx.NarratorTalking);
             foreach (string cue in m_SceneCues)
             {
                 if (cue == "say:mission-start") m_SceneSaidStart = true;

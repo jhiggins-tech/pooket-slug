@@ -26,6 +26,25 @@ namespace PooketSlug
         }
     }
 
+    /// <summary>
+    /// How long each of the narrator's recorded lines runs, in seconds (measured from the vendor repository's
+    /// narration.zip). A narrator line gets at least its voice plus <see cref="Breath"/> on screen before their next
+    /// line or the end of its shot, so the voice is never cut off; a test holds every scene to it. A line re-recorded
+    /// longer still isn't clipped: the scene waits for the voice (<see cref="CutscenePlayer.Tick"/>).
+    /// </summary>
+    public static class NarratorClips
+    {
+        public const float Breath = 0.4f;
+
+        public static readonly Dictionary<string, float> Seconds = new Dictionary<string, float>
+        {
+            { "opening-1", 3.54f }, { "opening-2", 1.42f }, { "opening-3", 2.9f }, { "opening-4a", 2.96f },
+            { "opening-4b", 2.5f }, { "opening-5", 2.56f }, { "opening-6", 1.76f },
+            { "motor-pool-1", 2.67f }, { "motor-pool-2", 3.26f }, { "motor-pool-3", 3.84f }, { "motor-pool-4", 2.13f },
+            { "freeing-1", 3.08f }, { "freeing-2", 2.53f }, { "freeing-3", 3.35f },
+        };
+    }
+
     /// <summary>A sound or a bit of staging due <see cref="At"/> seconds into a shot. The ids are the view's to read.</summary>
     public readonly struct CutsceneCue
     {
@@ -114,7 +133,7 @@ namespace PooketSlug
         /// tells it in subtitles (a voice comes later), and the keycard gets a close-up so it's clear where it sends you.
         /// </summary>
         public static readonly CutsceneDef Opening = new CutsceneDef("scene-opening", 1,
-            new CutsceneShot("Outside the hangout", 8f,
+            new CutsceneShot("Outside the hangout", 8.5f,
                 new[]
                 {
                     new CutsceneLine(4.3f, Speaker.Narrator, "Friday night. tones2's back from the snack run.", "opening-1"), // after his intro
@@ -163,7 +182,7 @@ namespace PooketSlug
         /// and kie nodding off as the alarms start. It can be skipped once seen.
         /// </summary>
         public static readonly CutsceneDef FreeingKie = new CutsceneDef("scene-freeing-kie", 3,
-            new CutsceneShot("The real kie", 6.5f,
+            new CutsceneShot("The real kie", 7.5f,
                 new[]
                 {
                     new CutsceneLine(3.4f, Speaker.Narrator, "And out drops the real kie. Bit peaky.", "freeing-1"), // after his intro
@@ -185,7 +204,7 @@ namespace PooketSlug
                     new CutsceneLine(3.6f, Speaker.Kie, "YOURS. CALL IT WHEN YOU NEED IT."),
                 },
                 new[] { new CutsceneCue(1.2f, "rip"), new CutsceneCue(1.6f, "drone"), new CutsceneCue(2.7f, "lift"), new CutsceneCue(4.2f, "remote") }),
-            new CutsceneShot("Lights out", 5f,
+            new CutsceneShot("Lights out", 7f,
                 new[]
                 {
                     new CutsceneLine(0.9f, Speaker.Kie, "I'M GONNA... SIT THIS ONE OUT."),
@@ -221,7 +240,7 @@ namespace PooketSlug
                     new CutsceneLine(0.4f, Speaker.Narrator, "And parked inside, all in a row: the crew's tabks.", "motor-pool-2"),
                     new CutsceneLine(3.2f, Speaker.Tones2, "...ARE THOSE OURS?"),
                 }),
-            new CutsceneShot("kie's tabk", 8f,
+            new CutsceneShot("kie's tabk", 9.5f,
                 new[]
                 {
                     new CutsceneLine(4.8f, Speaker.Narrator, "That's kie. Or something wearing his face.", "motor-pool-3"), // after his intro
@@ -366,7 +385,7 @@ namespace PooketSlug
         /// Moves time on by <paramref name="dt"/>, and fills <paramref name="due"/> with the ids of the cues that came due
         /// in the current shot. Returns how many. A shot's leftover cues are dropped when a tap moves past them.
         /// </summary>
-        public int Tick(float dt, List<string> due = null)
+        public int Tick(float dt, List<string> due = null, bool narratorTalking = false)
         {
             due?.Clear();
             if (Done) return 0;
@@ -378,6 +397,16 @@ namespace PooketSlug
                 else rate = SlowMo;
             }
             T += dt * rate;
+            if (narratorTalking && m_Held < MaxHold)
+            {
+                // the narrator's still talking: their next line, and the end of the shot, wait for them to finish
+                float until = NextNarration(from);
+                if (T >= until)
+                {
+                    m_Held += T - from;
+                    T = System.Math.Max(from, until - 0.001f);
+                }
+            }
             foreach (CutsceneCue cue in Current.Cues)
                 if (cue.At >= from && cue.At < T) due?.Add(cue.Id);
             CutsceneIntro intro = Current.Intro;
@@ -420,10 +449,24 @@ namespace PooketSlug
             return any;
         }
 
+        /// <summary>Most a shot waits on the narrator, in case a voice never reports it's done.</summary>
+        public const float MaxHold = 3f;
+        float m_Held;
+
+        /// <summary>When the narrator's next line in this shot is due after <paramref name="from"/>, or the shot's end.</summary>
+        float NextNarration(float from)
+        {
+            float until = Current.Seconds;
+            foreach (CutsceneLine l in Current.Lines)
+                if (l.Who == Speaker.Narrator && l.At > from && l.At < until) until = l.At;
+            return until;
+        }
+
         void Next()
         {
             Shot++;
             T = 0f;
+            m_Held = 0f;
             m_Intro = IntroState.Due;
             IntroT = 0f;
             for (int i = 0; i < m_Tapped.Length; i++) m_Tapped[i] = false;
