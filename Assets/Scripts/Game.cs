@@ -296,7 +296,11 @@ namespace PooketSlug
         {
             if (m_Profile.MarkSeen(m_Scene.Scene.Id)) m_Store.Save(m_Profile);
             Log.Game.Info("Cutscene over: " + m_Scene.Scene.Id + (m_Scene.Skipped ? ", skipped" : ""));
-            if (m_SceneCoop) m_Net.Link.SendScene(0);
+            // Leave the last word standing as "tapped through it all": the tap that ended it here went out with no
+            // packet of its own, so the partner may still be waiting on it. The round and scene key keep it from
+            // counting anywhere else.
+            if (m_SceneCoop)
+                m_Net.Link.SendScene(CutsceneSync.Pack(m_SceneRound, m_Scene.Scene.NetId, m_Scene.Scene.Shots.Length * 3, m_SceneSkip || m_Scene.Skipped));
             DropScene();
             Action after = m_AfterScene;
             m_AfterScene = null;
