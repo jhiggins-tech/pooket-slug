@@ -19,7 +19,8 @@ namespace PooketSlug
         public HoloLook Look;
         /// <summary>Our soldier has had the kill (a co-op follower sees the death only when the authority reports it).</summary>
         public bool KillCredited;
-        protected const float Gravity = Tuning.Physics.Gravity, MaxFall = Tuning.Physics.MaxFall;
+        protected static float Gravity => Tuning.Physics.Gravity;
+        protected static float MaxFall => Tuning.Physics.MaxFall;
         Vector2 m_NetPos;
         bool m_NetPlaced;
 

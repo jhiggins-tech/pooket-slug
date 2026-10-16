@@ -15,6 +15,7 @@ on:
     paths-ignore: # docs never change the game, and a redeploy changes the build version co-op players must share
       - '**.md'
       - 'docs/**'
+      - 'sandbox/**' # the sandbox's setups go live on their own (sandbox-files.yml), with no build
   delete:
   workflow_dispatch:
 
@@ -275,6 +276,14 @@ jobs:
           name: kit-demos
           path: demos
           if-no-files-found: ignore
+
+      # The sandbox's setups (sandbox-files.yml puts them up between builds), so a deploy keeps them.
+      - name: Add the sandbox's setups
+        run: |
+          if ls sandbox/*.txt >/dev/null 2>&1; then
+            sudo mkdir -p build/WebGL/WebGL/sandbox
+            sudo cp sandbox/*.txt build/WebGL/WebGL/sandbox/
+          fi
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v6
