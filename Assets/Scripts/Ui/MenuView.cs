@@ -71,7 +71,7 @@ namespace PooketSlug
         readonly InputField m_Code;
         // the kit screen, and the title's and pause menu's ways into it
         readonly RectTransform m_Kit;
-        readonly Button m_KitInfo, m_KitButton, m_KitCrew;
+        readonly Button m_KitInfo, m_KitButton, m_KitCrew, m_KitBack;
         readonly Text m_KitInfoKey, m_KitButtonKey, m_PauseKitKey, m_KitTitle, m_KitText, m_KitCrewLabel, m_KitBackKey;
         readonly Button[] m_Moves = new Button[4];
         readonly Text[] m_MoveLabels = new Text[4], m_MoveKeys = new Text[4];
@@ -201,7 +201,7 @@ namespace PooketSlug
             m_KitText.rectTransform.sizeDelta = new Vector2(300f, 60f);
             m_KitCrew = Ui.Button(m_Kit, "CREW", new Vector2(-62f, -122f), Wide, () => Click(MenuAction.Crew), out _);
             m_KitCrewLabel = Label(m_KitCrew);
-            Ui.Button(m_Kit, "BACK", new Vector2(62f, -122f), Narrow, () => Click(MenuAction.Back), out m_KitBackKey);
+            m_KitBack = Ui.Button(m_Kit, "BACK", new Vector2(62f, -122f), Narrow, () => Click(MenuAction.Back), out m_KitBackKey);
 
             Show(MenuScreen.None);
         }
@@ -369,6 +369,7 @@ namespace PooketSlug
             m_Clip.Play(shownMove == null || info.DemoFolder == null ? null : info.DemoFolder + shownMove.DemoId + ".mp4");
             Ui.Show(m_KitCrew, info.KitCrew);
             if (info.KitCrew) m_KitCrewLabel.text = "CREW: " + info.KitSoldier;
+            m_KitBack.GetComponent<RectTransform>().anchoredPosition = new Vector2(info.KitCrew ? 62f : 0f, -122f);
             Key(m_KitBackKey, keys, "ESC");
         }
 
