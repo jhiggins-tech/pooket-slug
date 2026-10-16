@@ -53,7 +53,7 @@ namespace PooketSlug.Tests
         {
             var spawns = new Level(Small).Spawns;
             Assert.AreEqual(3, spawns.Count);
-            Assert.AreEqual(SpawnKind.Soldier, spawns[0].Kind);
+            Assert.AreEqual(SpawnKind.Rifleman, spawns[0].Kind);
             Assert.AreEqual(new Vector2(2.5f, 1f), spawns[0].Pos);
             Assert.AreEqual(SpawnKind.Drone, spawns[1].Kind);
             Assert.AreEqual(new Vector2(6.5f, 2f), spawns[1].Pos);
@@ -67,9 +67,9 @@ namespace PooketSlug.Tests
             var spawns = new Level(new[] { "srdTHB+FUWMxZVILK", "#################" }).Spawns;
             var kinds = new[]
             {
-                SpawnKind.Soldier, SpawnKind.Runner, SpawnKind.Drone, SpawnKind.Tank,
+                SpawnKind.Rifleman, SpawnKind.Runner, SpawnKind.Drone, SpawnKind.Tank,
                 SpawnKind.CrateHeavy, SpawnKind.CrateBombs, SpawnKind.Medkit, SpawnKind.Flag, SpawnKind.OneUp,
-                SpawnKind.Watchtower, SpawnKind.MotorPool, SpawnKind.Barrel, SpawnKind.LiveFence, SpawnKind.SteamVent,
+                SpawnKind.TowerScenery, SpawnKind.MotorPool, SpawnKind.Barrel, SpawnKind.LiveFence, SpawnKind.SteamVent,
                 SpawnKind.Icicles, SpawnKind.Lift, SpawnKind.Checkpoint,
             };
             Assert.AreEqual(kinds.Length, spawns.Count);

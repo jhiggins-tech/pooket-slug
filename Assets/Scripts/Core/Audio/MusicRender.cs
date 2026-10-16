@@ -20,10 +20,10 @@ namespace PooketSlug
         {
             float step = track.Step, length = track.Seconds;
             var chip = new Chip(length + Tail);
-            Voice(chip, Score.Read(track.Lead), step, track.LeadDuty, false, 0.11f, 0.9f);
-            Voice(chip, Score.Read(track.Harmony), step, 0.5f, false, 0.05f, 0.7f);
-            Voice(chip, Score.Read(track.Bass), step, 0.5f, true, 0.2f, 0.8f);
-            Drums(chip, Score.Read(track.Drums), step);
+            Voice(chip, Notation.Read(track.Lead), step, track.LeadDuty, false, 0.11f, 0.9f);
+            Voice(chip, Notation.Read(track.Harmony), step, 0.5f, false, 0.05f, 0.7f);
+            Voice(chip, Notation.Read(track.Bass), step, 0.5f, true, 0.2f, 0.8f);
+            Drums(chip, Notation.Read(track.Drums), step);
             float[] all = chip.Finish();
             if (!track.Loop) return all;
 
@@ -34,9 +34,9 @@ namespace PooketSlug
             return loop;
         }
 
-        static void Voice(Chip chip, List<Score.Note> notes, float step, float duty, bool triangle, float vol, float gate)
+        static void Voice(Chip chip, List<Notation.Note> notes, float step, float duty, bool triangle, float vol, float gate)
         {
-            foreach (Score.Note note in notes)
+            foreach (Notation.Note note in notes)
             {
                 if (note.Pitches.Length == 0) continue;
                 float at = note.At * step, dur = note.Len * step * gate;
@@ -49,9 +49,9 @@ namespace PooketSlug
             }
         }
 
-        static void Drums(Chip chip, List<Score.Note> notes, float step)
+        static void Drums(Chip chip, List<Notation.Note> notes, float step)
         {
-            foreach (Score.Note note in notes)
+            foreach (Notation.Note note in notes)
             {
                 float at = note.At * step;
                 foreach (char d in note.Drums)

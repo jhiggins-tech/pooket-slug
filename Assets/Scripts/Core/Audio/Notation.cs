@@ -16,7 +16,7 @@ namespace PooketSlug
     /// <item><c>~</c> after a note: slide from it into the next one.</item>
     /// </list>
     /// </summary>
-    public static class Score
+    public static class Notation
     {
         public struct Note
         {

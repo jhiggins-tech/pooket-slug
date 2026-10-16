@@ -41,7 +41,7 @@ namespace PooketSlug.Tests
             Assert.IsNull(s.Script);
             Level level = s.Mission.Load();
             Assert.Greater(level.PlayerStart.x, 0f);
-            Assert.That(level.Spawns.Exists(sp => sp.Kind == SpawnKind.Soldier));
+            Assert.That(level.Spawns.Exists(sp => sp.Kind == SpawnKind.Rifleman));
             Assert.AreEqual("SANDBOX", s.Label);
         }
 
