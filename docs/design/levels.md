@@ -27,6 +27,16 @@ Up: [Design](README.md)
 - **Two reveals:** the first tabk, then your own. Freed, kie frees tones2's tabk and bows out, and in the coda, a short explosive mini-level after the boss, you call it in and drive it out of the base ([the coda](story.md#the-coda), owner 2026-10-16).
 - **A checkpoint at the coda's start,** after the boss: lose there and you restart the coda, not the fight.
 
+## Mission two: the Brain Freeze creamery
+
+kcaj's mission (picked by the owner, 2026-10-16, from three concepts; the sheets are in the project's files, under concepts/m2-setting).
+- **An ice cream factory by day,** run left to right along the production line, ending at the cold store, where kcaj's tabk guards the door.
+- **The look:** warm pastels after Mission one's cold night. Waffle-cone floors topped with pink icing and sprinkles, lilac factory walls, ice cream tubs for cover and a giant soft-serve sign as the landmark. The Trollogram goons' cyan stands out against it.
+- **Hazards:** conveyor belts that carry you and the goons, nitrogen vents that freeze whoever walks through them for a moment, and scoop droppers overhead.
+- **Breakables:** boxes of cones that drop items, and nitrogen tanks that explode.
+- **The boss door** is the cold store: it fogs open and the tabk rolls out of the mist. The boss is kcaj's tabk, then Trollogram kcaj ([tabks](tanks.md#tabk-bosses)).
+- **The story side** (why the Trollograms are here, the briefing and the freeing) is in [the story](story.md) once Story and lore write it in.
+
 ## Difficulty
 
 - **Missions don't change with two players.** The same mission is simply easier with two.
@@ -90,7 +100,7 @@ The game shows only what the player has already met. Nothing on the title screen
 
 ## Open questions
 
-- **Mission order after kcaj,** and each mission's setting.
+- **Mission order after kcaj,** and each later mission's setting (Mission two's is the creamery).
 - **How hard is hard:** how far the late missions and the hard setting go beyond what one player can do.
 - **Solo players and co-op-only content:** how a solo player finds a partner when a late mission needs two. Quick match is one way.
 - **The Roguelite's return:** when it comes back, plus its own open points:
