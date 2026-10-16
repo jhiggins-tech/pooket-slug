@@ -1,10 +1,10 @@
 # Accounts: "Sign in with Google" spike
 
-Plan for identifying players with their Google account and keeping their stats and progression across devices and browsers. The record holds what the [game design](../../../DESIGN.md) keeps per player: best scores and clears, freed crew, the co-op unlock, career XP, cosmetics, rank progress and the tally ([database rules](database-rules.md#the-record)), and there's a friends board per mission. It reuses the Firebase project of the owner's game Cardmaster ([setup](gcloud-setup.md)). Roadmap rows SOC-01 and SOC-02, which then unlock SCR-07…09.
+Plan for identifying players with their Google account and keeping their stats and progression across devices and browsers. The record holds what the game design keeps per player: best scores and clears, freed crew, the co-op unlock, career XP, cosmetics, rank progress and the tally ([database rules](database-rules.md#the-record)), and there's a friends board per mission. It reuses the Firebase project of the owner's game Cardmaster ([setup](gcloud-setup.md)). Roadmap rows SOC-01 and SOC-02, which then unlock SCR-07…09.
 
 **Status, 2026-10-14:**
 - **Database rules:** live since 2026-10-14, merged into Cardmaster and deployed by its CI ([database rules](database-rules.md)).
-- **Page, bridge and game code:** written 2026-10-14 and tested against the database emulator ([test log](../verification/test-log.md#part-3-sign-in)). Not yet built by CI or tried with a real Google account ([to-do](../todo.md)).
+- **Page, bridge and game code:** written 2026-10-14 and tested against the database emulator. Since live and confirmed by the owner (2026-10-15).
 
 How it's wired:
 - **Config:** CI passes the repository variables to `WebGLBuild`, which writes `pooket-config.js` beside the page. Missing values mean no sign-in, and progress stays in the browser.
@@ -14,7 +14,7 @@ How it's wired:
 
 **Read this when** you're implementing sign-in or cloud saves, or touching the page template's account area.
 
-Up: [Research index](../AGENTS.md)
+Up: [Research index](../README.md)
 
 ## Recommendation: Google button + Firebase over REST, no server
 

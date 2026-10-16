@@ -31,7 +31,7 @@ namespace PooketSlug
     /// 2026-10-16). Everyone starts on the lowest (<c>docs/design/player.md</c>, What the player keeps). Most are
     /// meant to be discovered: a rank's name shows in the game only once you've reached it, and only Bronze, Silver,
     /// Gold, Platinum, Diamond, Master, Grandmaster and Champion may be named outside this file (docs, tests,
-    /// commit messages: <c>DESIGN.md</c>, Ranks).
+    /// commit messages: <c>docs/design/player.md</c>, What the player keeps).
     /// </summary>
     public static class Ranks
     {

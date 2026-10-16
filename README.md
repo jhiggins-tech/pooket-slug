@@ -2,7 +2,7 @@
 
 A spike to test **[GameCI](https://game.ci)** on GitHub Actions. It builds a small Metal Slug–style side-scrolling shooter in **Unity 6.3 LTS** for **WebGL**, then publishes it to **GitHub Pages**.
 
-▶ **Play:** https://jhiggins-tech.github.io/pooket-slug/ · 📚 **Research notes and reference guide:** [docs/research](docs/research/AGENTS.md) (start with [lessons learned](docs/research/lessons-learned.md))
+▶ **Play:** https://jhiggins-tech.github.io/pooket-slug/ · 📚 **Research notes and reference guide:** [CLAUDE.md](CLAUDE.md) and [docs/research](docs/research/README.md) (start with [lessons learned](docs/research/lessons-learned.md))
 
 ## What's in the demo
 
@@ -86,6 +86,5 @@ Project layout:
 | `Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion` | Our Fusion config (weaver settings); the rest of `Assets/Photon/` is the SDK and is ignored |
 | `tools/unpack_unitypackage.py` | Unpacks a `.unitypackage` into the project without Unity (used by CI) |
 | `docs/design/` | The game design: story, tanks, player, levels and the crew's kits |
-| `DESIGN.md` | The original brainstorm, frozen as history |
 | `docs/design/` | The design as four sign-off documents: story and cutscenes, tanks, player mechanics, and maps and progression. Start at [`README.md`](docs/design/README.md) |
-| `docs/research/` | Research notes and the reference guide: pipeline, netcode, verification, test log, roadmap. Start at [`AGENTS.md`](docs/research/AGENTS.md) |
+| `docs/research/` | Research notes: pipeline, netcode, accounts, verification. Start at [its README](docs/research/README.md); the code map is [`CLAUDE.md`](CLAUDE.md) |

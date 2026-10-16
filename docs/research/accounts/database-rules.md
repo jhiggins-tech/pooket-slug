@@ -10,7 +10,7 @@ Up: [Accounts](README.md)
 
 ## The record
 
-Each player has one record at `pooketSlug/players/{uid}`. Only they read and write it, and nobody can list the players. It holds what the refactor plan [scoped from the design](../roadmap/refactor-plan.md#the-player-record-scoped-by-the-moscow-pass), plus a save number:
+Each player has one record at `pooketSlug/players/{uid}`. Only they read and write it, and nobody can list the players. It holds what the refactor plan scoped from the design, plus a save number:
 
 | Field | Meaning | Rules |
 |---|---|---|
@@ -37,7 +37,7 @@ Each player has one record at `pooketSlug/players/{uid}`. Only they read and wri
 
 ## The friends board
 
-`pooketSlug/leaderboard/{mission}/{uid}` holds each player's `name`, `best` and `ts` for a mission. It's the owner's [friends board](../roadmap/refactor-plan.md#decisions-2026-10-14), which runs on trust.
+`pooketSlug/leaderboard/{mission}/{uid}` holds each player's `name`, `best` and `ts` for a mission. It's the owner's friends board, which runs on trust.
 - **Any signed-in player** of the shared Firebase project can read a mission's board. Nobody can list the boards, or read one signed out.
 - **Only the player** writes their entry. Their best never goes down, the name is 1 to 24 characters, `ts` is the server time, and nothing else is allowed.
 - **A player can take their own entry down;** nobody else can.
@@ -91,7 +91,7 @@ All 30 of Cardmaster's rules tests pass, its own 17 included.
 - **Times and access:** a client-chosen save time; a `first` that changes; others reading or writing the record.
 - **The board:** others writing; a lower best; signed-out readers; a client-chosen time; extra fields; overlong mission ids.
 
-Results are in the [test log](../verification/test-log.md#part-3-sign-in).
+
 
 ## Running the tests in the cloud sandbox
 

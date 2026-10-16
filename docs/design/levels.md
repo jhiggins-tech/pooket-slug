@@ -70,7 +70,7 @@ kcaj's mission (picked by the owner, 2026-10-16, from three concepts; the sheets
    - **The crew screen** appears, with tones2 and kie: it's the gaming den ([the lobby](lobby.md)).
    - **The debrief** shows XP and rank for the first time, and offers sign-in to players who haven't.
 4. **Each later mission** frees another crewmate, adds their tabk to call in, and opens its map for replays and its hard setting.
-5. **The Roguelite mode** is on ice. It's kept in [DESIGN.md](../../DESIGN.md#roguelite-on-ice) for when it returns.
+5. **The Roguelite mode** is on ice. It's kept in [history](history.md#the-roguelite-on-ice) for when it returns.
 
 ## What the player sees, and when
 
