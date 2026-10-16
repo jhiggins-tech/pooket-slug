@@ -250,7 +250,7 @@ namespace PooketSlug
         public override void Render()
         {
             base.Render();
-            m_Visual.Apply(new AvatarPose { Facing = 1, Grounded = true, Crouching = true, Blink = true });
+            m_Visual.Apply(new AvatarPose { Facing = 1, Grounded = true, Crouching = true });
         }
     }
 }

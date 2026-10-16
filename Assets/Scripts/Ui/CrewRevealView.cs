@@ -71,7 +71,7 @@ namespace PooketSlug
         public void Finish()
         {
             Ui.Show(m_Root, false);
-            m_Visual?.Apply(new AvatarPose { Facing = -1, Grounded = true, Blink = true });
+            m_Visual?.Apply(new AvatarPose { Facing = -1, Grounded = true });
         }
 
         /// <summary>A tap on the screen since the last call.</summary>
@@ -92,7 +92,7 @@ namespace PooketSlug
             m_Kie.position = new Vector3(x, m_Y, 0f);
             m_Kie.localScale = new Vector3(-1f, 1f, 1f); // facing tones2
             m_Anim += dt;
-            m_Visual.Apply(new AvatarPose { Facing = -1, Grounded = true, Running = walking, Anim = m_Anim, Blink = true, AimY = reveal.Now == CrewReveal.Shot.KiesLine ? 1 : 0 });
+            m_Visual.Apply(new AvatarPose { Facing = -1, Grounded = true, Running = walking, Anim = m_Anim, AimY = reveal.Now == CrewReveal.Shot.KiesLine ? 1 : 0 });
 
             string line = reveal.Line;
             Ui.Show(m_Bubble, line != null);
