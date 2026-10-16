@@ -102,7 +102,7 @@ namespace PooketSlug
         readonly Rng m_Rng;
 
         float m_Think, m_Burst, m_Tap, m_Tell = -1f;
-        bool m_Firing, m_Dodging;
+        bool m_Firing;
         int m_Move, m_AimY;
         bool m_Jump, m_Drop;
         PilotMove m_Pending;
@@ -117,7 +117,6 @@ namespace PooketSlug
 
         /// <summary>A big move is coming: the pilot flashes and a sound plays, this long before it lands (0 to 1 of the tell).</summary>
         public bool Telling => m_Tell >= 0f;
-        public PilotMove Coming => m_Pending;
 
         /// <summary>The buttons it presses this frame.</summary>
         public SoldierInput Tick(float dt, in PilotView v)
@@ -224,10 +223,8 @@ namespace PooketSlug
             }
 
             // jump shots it sees coming
-            m_Dodging = false;
             if (v.Threat && v.Grounded && m_Rng.Value < Spec.DodgeAt(v.Health))
             {
-                m_Dodging = true;
                 m_Jump = true;
                 m_Drop = false;
                 if (v.ThreatSide != 0) m_Move = -v.ThreatSide; // and away from it
@@ -256,9 +253,6 @@ namespace PooketSlug
             m_Pending = move;
             m_Tell = 0f;
         }
-
-        /// <summary>Jumping a shot it saw coming (for tests).</summary>
-        public bool Dodging => m_Dodging;
     }
 
     /// <summary>A big move the pilot is about to make, after its tell.</summary>

@@ -18,7 +18,7 @@ namespace PooketSlug
     /// renderer per band for under a second.
     /// </para>
     /// <para>
-    /// The big version (<see cref="Big"/>, hologram kie's, behind <c>?spike=pilot-glitch</c>): he freezes first,
+    /// The big version (<see cref="Big"/>, hologram kie's, when he's beaten): he freezes first,
     /// glitching harder and harder, then tears apart the same way, slower and further.
     /// </para>
     /// </summary>
@@ -62,9 +62,6 @@ namespace PooketSlug
             m_Stretch = stretch;
             m_Amp = amp;
         }
-
-        /// <summary>How long the death takes, start to gone.</summary>
-        public float DeathLength => m_Freeze + End * m_Stretch;
 
         /// <summary>Where the death is on the goons' timeline, from its seconds: negative while it's still frozen.</summary>
         float DeathT(float time) => (time - m_Freeze) / m_Stretch;

@@ -43,7 +43,7 @@ namespace PooketSlug
         readonly WaterJet m_Jet;
         readonly RocketJump m_Rocket;
         readonly Spew m_Spew;
-        // kie's kit (spike)
+        // kie's kit
         readonly Trollogram m_Troll;
         // kcaj's special and super, borrowed by whoever's playing (?spike=kcaj, solo)
         readonly KcajBeam m_Beam;

@@ -44,9 +44,5 @@ namespace PooketSlug
         }
 
         public void Release(T entity) => m_Pool.Release(entity);
-
-        /// <summary>Entities made so far, and handed out so far (each reuse counts again).</summary>
-        public int Made => m_Made;
-        public int Used => m_Used;
     }
 }
