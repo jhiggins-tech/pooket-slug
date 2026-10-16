@@ -53,7 +53,7 @@ Options considered:
   - an `#account` element in the header
   - a small `pooket-auth.js`, ported from TypeScript to plain JavaScript, that loads Google's button, exchanges tokens, refreshes them and calls the database
   - it keeps `unityInstance` in a global, and queues results that arrive before the game has loaded.
-- **Bridge:** a `PooketAuth.jslib` plugin exposes `PS_AuthInit(config)`, `PS_Save(json)` and `PS_SignOut()` to C#. JavaScript replies with `SendMessage(gameObject, method, json)`, which takes one string argument.
+- **Bridge:** a `PooketAuth.jslib` plugin exposes `PS_AuthInit(config)`, `PS_Save(json)` and `PS_ShowAccount(show)` to C# (signing out is the page's own button). JavaScript replies with `SendMessage(gameObject, method, json)`, which takes one string argument.
 - **Game:**
   - **Account state in the HUD:** signed in or not, and the display name.
   - **The profile:** [`Profile`](../../../Assets/Scripts/Core/Profile.cs), in Core and tested, is written. It holds the best score and clears for each mission and setting, whether co-op is open, the reveals already seen, and the first and last save. It's saved at the end of every run. Two copies merge by taking the better of each field, never adding clears up, which is the rule the cloud copy needs ([how](database-rules.md#writing-it-from-the-game)).
