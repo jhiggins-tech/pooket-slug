@@ -58,6 +58,8 @@ namespace PooketSlug
         /// <summary>Where the checkpoint our soldier has passed stands, or -1 (see <see cref="Checkpoint"/>).</summary>
         public float CheckpointX = -1f;
         public bool Victory, BossDefeatedPending;
+        /// <summary>The boss music's cut before the win (the pilot's big glitch-out, <c>?spike=pilot-glitch</c>).</summary>
+        public bool BossMusicOff;
         public float VictoryTime;
 
         /// <param name="soldier">Who our soldier is (the title's CREW pick); tones2 when not given.</param>
@@ -132,6 +134,8 @@ namespace PooketSlug
         public bool QuickBossIntro;
         /// <summary>?test=pilot: a boss tank is wrecked the moment it's ready to fight, so the pilot round starts at once.</summary>
         public bool SkipToPilot;
+        /// <summary>Testing (<c>?test=pilot,weak</c>): the pilot jumps out on one point of health.</summary>
+        public bool WeakPilot;
 
         public void OnBossIntro(BossEnemy boss, bool firstTime)
         {
@@ -312,7 +316,10 @@ namespace PooketSlug
             TankWrecked?.Invoke();
             if (!IsAuthority) return;
             if (Spawner.SpawnEnemy(Content.Pilot, tank.Pos + Vector2.up * 0.6f) is Pilot pilot)
+            {
                 pilot.JumpOut(Player.Pos.x < tank.Pos.x ? -1 : 1);
+                if (WeakPilot) pilot.Hp = 1;
+            }
         }
 
         /// <summary>The mission's last boss is beaten (the pilot glitched out): the mission's won.</summary>

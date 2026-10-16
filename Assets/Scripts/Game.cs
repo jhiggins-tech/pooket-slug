@@ -44,6 +44,7 @@ namespace PooketSlug
         bool m_TestOneUp;       // ?test=1up: a 1-up just ahead of the start
         bool m_TestBoss;        // ?test=boss: a game starts just before the boss's arena (co-op too: the co-op test's boss round)
         bool m_TestPilot;       // ?test=pilot: the same, and the tank's wrecked as it wakes, so the pilot round starts at once
+        bool m_TestWeakPilot;   // ?test=pilot,weak: and the pilot goes down to one shot, to see what beating him does
         string m_Notice, m_StartNote;
         float m_NoticeTime, m_LeaveArmed;
 
@@ -122,6 +123,7 @@ namespace PooketSlug
             m_TestTank = Array.IndexOf(tests, "tank") >= 0;
             m_TestOneUp = Array.IndexOf(tests, "1up") >= 0;
             m_TestPilot = Array.IndexOf(tests, "pilot") >= 0;
+            m_TestWeakPilot = m_TestPilot && Array.IndexOf(tests, "weak") >= 0;
             m_TestBoss = m_TestPilot || Array.IndexOf(tests, "boss") >= 0;
 
             m_World = NewWorld(m_Mission);
@@ -155,7 +157,7 @@ namespace PooketSlug
         /// <summary>A world for <paramref name="mission"/>, shared when <paramref name="net"/> is given.</summary>
         World NewWorld(MissionDef mission, INetLink net = null)
         {
-            var world = new World(m_Camera, mission, net, Soldier) { TanksToCall = m_TankUnlocked || m_TestTank ? 1 : 0, SkipToPilot = m_TestPilot };
+            var world = new World(m_Camera, mission, net, Soldier) { TanksToCall = m_TankUnlocked || m_TestTank ? 1 : 0, SkipToPilot = m_TestPilot, WeakPilot = m_TestWeakPilot };
             world.BossIntro += OnBossIntro;
             world.BossFightStarted += OnBossFightStarted;
             world.TankWrecked += OnTankWrecked;
@@ -696,7 +698,7 @@ namespace PooketSlug
                     if (keys.Pause || keys.PadPause || keys.Back || (keys.Start && m_StateTime > 0.2f)) { m_Paused = true; break; }
 
                     m_World.Tick(dt, soldier);
-                    if (MusicOn && m_World.Victory && Music.Playing != null) Music.Stop(fade: true); // the pilot glitched out
+                    if (MusicOn && (m_World.Victory || m_World.BossMusicOff) && Music.Playing != null) Music.Stop(fade: !m_World.BossMusicOff); // the pilot glitched out (cut dead by his big glitch-out)
                     m_OutFor = m_World.Player.Lives.IsOut ? m_OutFor + dt : 0f;
                     if (m_OutFor > Tuning.Lives.GameOverDelay) EndRun(GameState.GameOver);
                     else if (m_World.Victory && m_World.VictoryTime > 1f) EndRun(GameState.Victory);

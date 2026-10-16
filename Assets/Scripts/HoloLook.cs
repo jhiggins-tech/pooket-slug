@@ -17,6 +17,10 @@ namespace PooketSlug
     /// shrinks to a dot and is gone, throwing off a few bits. It costs nothing until a goon dies, and then one
     /// renderer per band for under a second.
     /// </para>
+    /// <para>
+    /// The big version (<see cref="Big"/>, hologram kie's, behind <c>?spike=pilot-glitch</c>): he freezes first,
+    /// glitching harder and harder, then tears apart the same way, slower and further.
+    /// </para>
     /// </summary>
     public sealed class HoloLook
     {
@@ -36,6 +40,7 @@ namespace PooketSlug
         float m_GlitchUntil, m_NextGlitch, m_NextJitter; // in world time, so a paused game holds still
         Vector2 m_Jitter;
         bool m_DeathStarted, m_Bits;
+        float m_Freeze, m_Stretch = 1f, m_Amp = 5f; // the big death's: frozen first, then the tear slower and wider
 
         public HoloLook(Enemy enemy)
         {
@@ -46,6 +51,23 @@ namespace PooketSlug
         }
 
         float Now => m_Enemy.World.Elapsed;
+
+        /// <summary>
+        /// Makes the death the big one: frozen for <paramref name="freeze"/> seconds, glitching harder and harder, then
+        /// the goons' tear-apart <paramref name="stretch"/> times as long, its bands thrown up to <paramref name="amp"/> pixels.
+        /// </summary>
+        public void Big(float freeze, float stretch, float amp)
+        {
+            m_Freeze = freeze;
+            m_Stretch = stretch;
+            m_Amp = amp;
+        }
+
+        /// <summary>How long the death takes, start to gone.</summary>
+        public float DeathLength => m_Freeze + End * m_Stretch;
+
+        /// <summary>Where the death is on the goons' timeline, from its seconds: negative while it's still frozen.</summary>
+        float DeathT(float time) => (time - m_Freeze) / m_Stretch;
 
         /// <summary>A hit makes it glitch.</summary>
         public void OnHit() => m_GlitchUntil = Mathf.Max(m_GlitchUntil, Now + 0.12f);
@@ -85,10 +107,17 @@ namespace PooketSlug
         public void Render()
         {
             if (m_Parts == null) Init();
+            float frozen = 0f; // the big death's freeze, 0 to 1: drawn alive, glitching more and more
             if (m_Enemy.Dying)
             {
-                RenderDeath();
-                return;
+                if (DeathT(m_Enemy.DyingSeconds) >= 0f)
+                {
+                    RenderDeath();
+                    return;
+                }
+                frozen = m_Enemy.DyingSeconds / m_Freeze;
+                // glitches closer and closer together, until it never stops
+                if (Rng.Fx.Value < Mathf.Lerp(0.08f, 1f, frozen)) m_GlitchUntil = Mathf.Max(m_GlitchUntil, Now + 0.1f);
             }
 
             float now = Now;
@@ -101,7 +130,9 @@ namespace PooketSlug
             if (glitching && now >= m_NextJitter)
             {
                 m_NextJitter = now + 0.04f;
-                m_Jitter = new Vector2(Rng.Fx.Range(-2, 3), Rng.Fx.Range(0, 2)) / Art.PPU;
+                int big = Mathf.RoundToInt(frozen * 4f);
+                m_Jitter = new Vector2(Rng.Fx.Range(-2 - big, 3 + big), Rng.Fx.Range(0, 2 + big / 2)) / Art.PPU;
+                if (frozen > 0f && Rng.Fx.Value < 0.12f) Sfx.Play(Sfx.Glitch, 0.15f + 0.3f * frozen); // a stutter of glitches
             }
             Transform visual = m_Enemy.VisualRoot;
             visual.localPosition = glitching ? (Vector3)m_Jitter : Vector3.zero;
@@ -120,7 +151,7 @@ namespace PooketSlug
                 ghost.enabled = glitching && part.enabled;
                 if (!ghost.enabled) continue;
                 ghost.sprite = part.sprite;
-                ghost.transform.localPosition = part.transform.localPosition + new Vector3((i % 2 == 0 ? 2f : -2f) / Art.PPU, 0f, 0f);
+                ghost.transform.localPosition = part.transform.localPosition + new Vector3((i % 2 == 0 ? 2f : -2f) * (1f + 2f * frozen) / Art.PPU, 0f, 0f);
                 ghost.color = i % 2 == 0 ? new Color(1f, 0.2f, 0.6f, 0.5f) : new Color(0.2f, 0.9f, 1f, 0.5f);
             }
         }
@@ -128,17 +159,20 @@ namespace PooketSlug
         /// <summary>Called each frame of the death with how long it's been. True once it's over.</summary>
         public bool TickDying(float time)
         {
+            time = DeathT(time);
+            if (time < 0f) return false; // the big death: still frozen
             if (!m_DeathStarted)
             {
                 m_DeathStarted = true;
-                Sfx.Play(Sfx.Glitch, 0.55f);
+                Sfx.Play(Sfx.Glitch, m_Freeze > 0f ? 1f : 0.55f);
             }
             if (time >= SquashEnd && !m_Bits)
             {
                 m_Bits = true;
                 World w = m_Enemy.World;
                 Vector2 at = m_Enemy.Center;
-                for (int i = 0; i < 10; i++)
+                int bits = m_Freeze > 0f ? 40 : 10;
+                for (int i = 0; i < bits; i++)
                     w.SpawnParticle(at + new Vector2(Rng.Fx.Range(-0.3f, 0.3f), 0f), new Vector2(Rng.Fx.Range(-3f, 3f), Rng.Fx.Range(2f, 8f)),
                         i % 3 == 0 ? Color.white : m_Tint, Rng.Fx.Range(1f, 2f), Rng.Fx.Range(0.3f, 0.6f));
             }
@@ -171,11 +205,11 @@ namespace PooketSlug
         void RenderDeath()
         {
             if (m_Bands.Count == 0) BuildBands();
-            float t = m_Enemy.DyingSeconds;
+            float t = DeathT(m_Enemy.DyingSeconds);
             Transform visual = m_Enemy.VisualRoot;
             float facing = m_Enemy.Facing, h = m_Enemy.Height;
             bool newJitter = Now >= m_NextJitter;
-            if (newJitter) m_NextJitter = Now + 0.035f;
+            if (newJitter) m_NextJitter = Now + 0.035f * Mathf.Min(m_Stretch, 1.6f);
 
             Vector3 scale = new Vector3(facing, 1f, 1f);
             float lift = 0f;
@@ -204,7 +238,7 @@ namespace PooketSlug
                 }
                 if (!newJitter) continue;
                 // Bands tear further apart as it goes, flicking between colours, some dropping out.
-                float amp = Mathf.Lerp(1f, 5f, tear);
+                float amp = Mathf.Lerp(1f, m_Amp, tear);
                 SetBandX(band, Mathf.Round(Rng.Fx.Range(-amp, amp)) / Art.PPU);
                 band.enabled = Rng.Fx.Value > 0.15f + 0.3f * tear;
                 float pick = Rng.Fx.Value;
