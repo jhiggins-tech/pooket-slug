@@ -355,7 +355,7 @@ namespace PooketSlug
                     m_ArmsTank = tankRounds;
                     string arms = p.GunAmmo > 0 ? p.Gun.Hud + " " + p.GunAmmo : p.Def.Primary.Hud; // the font has no infinity glyph
                     m_Arms.text = tank != null
-                        ? "TABK  SHELL " + tank.Rounds.Main + "   MORTAR " + tank.Rounds.Specials + "   BARRAGE " + tank.Rounds.Supers
+                        ? "TONES2'S TABK  WATER " + tank.Rounds.Main + "   MUD " + tank.Rounds.Specials + "   SPEW " + tank.Rounds.Supers
                         : "ARMS " + arms + "   " + p.Def.Special.Hud + " " + p.Specials;
                 }
                 Ui.Show(m_TankLabel, tank != null);

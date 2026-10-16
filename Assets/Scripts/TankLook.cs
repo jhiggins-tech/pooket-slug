@@ -3,7 +3,7 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// How your tank looks (<see cref="PlayerTank"/>): the hull, mirrored to face the way it drives, and the gun turning on
+    /// How your tank looks (<see cref="PlayerTank"/>), in whatever paint it's given: the hull, mirrored to face the way it drives, and the gun turning on
     /// the turret. Your own tank and a partner's copy of theirs (<see cref="RemotePlayer"/>) draw with it.
     /// </summary>
     public sealed class TankLook
@@ -13,17 +13,20 @@ namespace PooketSlug
         readonly GameObject m_Root;
         readonly Transform m_HullRoot, m_BarrelPivot;
         readonly SpriteRenderer m_Hull, m_Barrel;
+        readonly Sprite m_HullArt;
 
-        public TankLook(Transform parent, int order)
+        /// <summary>A tank in this paint (<paramref name="hull"/> facing left, <paramref name="barrel"/> pointing left from its pivot).</summary>
+        public TankLook(Transform parent, int order, Sprite hull, Sprite barrel)
         {
+            m_HullArt = hull;
             m_Root = new GameObject("Tank look");
             m_Root.transform.SetParent(parent, false);
             m_HullRoot = new GameObject("Hull root").transform;
             m_HullRoot.SetParent(m_Root.transform, false);
-            m_Hull = Renderer(m_HullRoot, "Hull", Art.TankHull, order + 1);
+            m_Hull = Renderer(m_HullRoot, "Hull", hull, order + 1);
             m_BarrelPivot = new GameObject("Turret").transform;
             m_BarrelPivot.SetParent(m_Root.transform, false);
-            m_Barrel = Renderer(m_BarrelPivot, "Barrel", Art.TankBarrel, order);
+            m_Barrel = Renderer(m_BarrelPivot, "Barrel", barrel, order);
         }
 
         static SpriteRenderer Renderer(Transform parent, string name, Sprite sprite, int order)
@@ -52,7 +55,7 @@ namespace PooketSlug
         {
             m_Root.transform.localPosition = offset;
             m_HullRoot.localScale = new Vector3(-facing, 1f, 1f); // the art faces left
-            m_Hull.sprite = flash ? Art.Flash(Art.TankHull) : Art.TankHull;
+            m_Hull.sprite = flash ? Art.Flash(m_HullArt) : m_HullArt;
             m_Hull.color = blink ? RunawayBlink : Color.white;
             m_BarrelPivot.localPosition = PivotLocal(facing);
             m_BarrelPivot.localRotation = Quaternion.Euler(0f, 0f, barrelAngle - 180f); // the barrel's art points left

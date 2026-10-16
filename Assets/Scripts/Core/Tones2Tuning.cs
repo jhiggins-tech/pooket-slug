@@ -8,6 +8,8 @@ namespace PooketSlug
         public static readonly JetSpec Jet = new JetSpec();
         public static readonly RocketSpec Rocket = new RocketSpec();
         public static readonly SpewSpec Spew = new SpewSpec();
+        /// <summary>His tabk's guns: tabk-sized versions of these (<see cref="Tones2TabkSpec"/>).</summary>
+        public static readonly Tones2TabkSpec Tabk = new Tones2TabkSpec();
     }
 
     /// <summary>

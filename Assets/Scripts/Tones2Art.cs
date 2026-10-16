@@ -65,6 +65,74 @@ namespace PooketSlug
             }
         }
 
+        static Sprite s_TabkHull, s_TabkBarrel;
+        static Sprite[] s_TabkDrone;
+
+        /// <summary>
+        /// His tabk's hull (<c>docs/design/tanks.md</c>, tones2's tabk): the tabk's shape in orange and black, with a black
+        /// jack-o'-lantern face stencilled on its flank, so the hull is the pumpkin. Its gun is drawn on its own, as the boss tabk's is (<see cref="Art.TankHull"/>).
+        /// </summary>
+        public static Sprite TabkHull
+        {
+            get
+            {
+                if (s_TabkHull != null) return s_TabkHull;
+                var rows = Recolour(ArtData.Tank, "toTOueDedDmDMo");
+                for (int r = 4; r <= 5; r++) rows[r] = new string('.', 22) + rows[r].Substring(22); // the gun is drawn on its own
+                string[] pumpkin =
+                {
+                    ".e.......e.",
+                    "eee..e..eee",
+                    "...........",
+                    "e.eeeeeee.e",
+                    ".eee.e.eee.",
+                };
+                for (int r = 0; r < pumpkin.Length; r++)
+                {
+                    char[] row = rows[8 + r].ToCharArray();
+                    for (int i = 0; i < pumpkin[r].Length; i++)
+                        if (pumpkin[r][i] != '.') row[24 + i] = pumpkin[r][i];
+                    rows[8 + r] = new string(row);
+                }
+                return s_TabkHull = Art.FromRows(rows, new Vector2(0.5f, 0f));
+            }
+        }
+
+        /// <summary>His tabk's gun, black, pointing left from its pivot (as <see cref="Art.TankBarrel"/>).</summary>
+        public static Sprite TabkBarrel =>
+            s_TabkBarrel ?? (s_TabkBarrel = Art.FromRows(new[] { new string('D', 20), new string('e', 20) }, new Vector2(20.5f / 22f, 0.5f)));
+
+        /// <summary>The crew's cargo drone, in his orange and black: the drone's shape, two frames of its rotors.</summary>
+        public static Sprite[] TabkDrone
+        {
+            get
+            {
+                if (s_TabkDrone != null) return s_TabkDrone;
+                const string swap = "DodezdMery";
+                var mid = new Vector2(0.5f, 0.5f);
+                return s_TabkDrone = new[] { Art.FromRows(Recolour(ArtData.Drone1, swap), mid), Art.FromRows(Recolour(ArtData.Drone2, swap), mid) };
+            }
+        }
+
+        /// <summary>Art rows with letters swapped, <paramref name="pairs"/> as from-to pairs ("tT" swaps t for T).</summary>
+        static string[] Recolour(string[] rows, string pairs)
+        {
+            var copy = new string[rows.Length];
+            for (int r = 0; r < rows.Length; r++)
+            {
+                char[] row = rows[r].ToCharArray();
+                for (int i = 0; i < row.Length; i++)
+                    for (int k = 0; k + 1 < pairs.Length; k += 2)
+                        if (row[i] == pairs[k])
+                        {
+                            row[i] = pairs[k + 1];
+                            break;
+                        }
+                copy[r] = new string(row);
+            }
+            return copy;
+        }
+
         /// <summary>Three variants of a tile-wide strip of toxic mud, its bottom on the floor.</summary>
         public static Sprite[] MudStrips => s_Mud ?? (s_Mud = Strips(Mud, new Color32(0x7a, 0x56, 0x34, 255), new Color32(0x3e, 0x28, 0x16, 255), Toxic, 5));
 

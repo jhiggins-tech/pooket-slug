@@ -27,7 +27,7 @@ namespace PooketSlug
             Link = link;
             m_Visual = new PlayerVisual(Visual, Art.SkinFor(link.Soldier, link.Skin), SortOrder.Player - 5);
             if (link.Soldier.Primary.Behaviour == WeaponBehaviour.Jet) m_Tones2 = new Tones2Copy(this);
-            m_Tank = new TankLook(Go.transform, SortOrder.Player - 4);
+            m_Tank = new TankLook(Go.transform, SortOrder.Player - 4, Tones2Art.TabkHull, Tones2Art.TabkBarrel);
             m_Tank.Shown = false;
         }
 

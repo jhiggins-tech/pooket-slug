@@ -49,10 +49,7 @@ namespace PooketSlug
 
         /// <summary>Rounds for the whole ride: they never refill.</summary>
         public int MainShots = 5, Specials = 3, Supers = 1;
-        // FIRE's shell and SP's mortar are Content.PlayerTankCannon and Content.PlayerTankMortar.
-        /// <summary>SU: a fan of shells along the aim.</summary>
-        public int BarrageShells = 7;
-        public float BarrageFan = 35f;
+        // What FIRE, SP and SU fire is tones2's tabk's guns: Tones2TabkSpec.
 
         /// <summary>The barrel turns to the aim this fast (degrees per second), for the look only: shots go along the aim at once.</summary>
         public float BarrelTurn = 900f;

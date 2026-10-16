@@ -31,7 +31,7 @@ namespace PooketSlug
         /// <summary>A boss tank's cannon in kie's hands (Steal): a heavy shell with a wide blast.</summary>
         public static readonly ProjectileDef StolenShell = new ProjectileDef(8, "Stolen shell", radius: 0.25f, damage: 8, life: 4f, gravity: 12f,
             blastRadius: 1.6f, blastSize: 1.2f);
-        /// <summary>Your tank's shell, fired straight along the aim, and its mortar, lobbed high (<see cref="PlayerTank"/>).</summary>
+        /// <summary>Retired: the first tank's shell and mortar, before it became tones2's (ids are never reused).</summary>
         public static readonly ProjectileDef PlayerTankShellShot = new ProjectileDef(9, "Tabk shell", radius: 0.22f, damage: 8, life: 3f,
             gravity: 2f, blastRadius: 1.5f, blastSize: 1f);
         public static readonly ProjectileDef PlayerTankMortarShot = new ProjectileDef(10, "Tabk mortar", radius: 0.25f, damage: 12, life: 4f,
@@ -73,7 +73,7 @@ namespace PooketSlug
             throwVelocity: new Vector2(5.5f, 8f), carry: 0.3f, ammo: 8, hud: "BOMBS");
         public static readonly WeaponDef StolenCannon = new WeaponDef(17, "Stolen cannon", WeaponBehaviour.Bullet, StolenShell, speed: 15f, cooldown: 0.7f,
             ammo: 5, muzzleBlast: 0.5f, kick: 0.15f, hud: "CANNON");
-        // Your tank's guns (PlayerTankSpec): FIRE's shell and SP's mortar (SU fires a fan of shells).
+        // Retired: the first tank's cannon and mortar. Your tabk is tones2's now, his guns in Tones2TabkSpec (ids are never reused).
         public static readonly WeaponDef PlayerTankCannon = new WeaponDef(18, "Tabk cannon", WeaponBehaviour.Bullet, PlayerTankShellShot, speed: 15f,
             cooldown: 0.35f, muzzleBlast: 0.45f, kick: 0.12f, hud: "SHELL");
         public static readonly WeaponDef PlayerTankMortar = new WeaponDef(19, "Tabk mortar", WeaponBehaviour.Lob, PlayerTankMortarShot,
