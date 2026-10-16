@@ -132,9 +132,18 @@ async function tapThrough(p, ms) {
 }
 
 /** The room browser: R on the title opens it, and it starts looking through the listed rooms. */
+/** Press `key` until the game logs `re`: a key pressed just after loading can land before the title takes keys. */
+async function pressUntil(p, key, re, tries = 5) {
+  for (let i = 0; i < tries; i++) {
+    await p.page.keyboard.press(key);
+    const hit = await waitLog(p, re, 3000);
+    if (hit) return hit;
+  }
+  return null;
+}
+
 async function openBrowser(p) {
-  await p.page.keyboard.press('r');
-  if (!(await waitLog(p, new RegExp(TAG + ' Room browser open'), 10000))) throw new Error(`${p.name} never opened the room browser`);
+  if (!(await pressUntil(p, 'r', new RegExp(TAG + ' Room browser open')))) throw new Error(`${p.name} never opened the room browser`);
   await p.page.waitForTimeout(3000);
 }
 
@@ -144,7 +153,8 @@ const C = WATCH ? await player('C') : null;
 try {
   if (WATCH) {
     await load(A, url);
-    await A.page.keyboard.press('q'); // no rooms yet: quick match opens a listed one
+    // no rooms yet: quick match opens a listed one
+    await pressUntil(A, 'q', new RegExp(TAG + ' (Looking through the listed rooms|Quick match|Couldn.t list)'));
     const line = await waitLog(A, new RegExp(TAG + ' Online .*room ([A-Z]{4}) \\(listed\\)'), 90000);
     checks.hostOnline = !!line;
     if (!line) throw new Error('A never opened a listed room');
