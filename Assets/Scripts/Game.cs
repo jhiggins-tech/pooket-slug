@@ -788,7 +788,7 @@ namespace PooketSlug
                 StartCoroutine(SiteFile.Fetch(file, (text, error) =>
                 {
                     m_SandboxLoading = false;
-                    BeginSandbox(text != null ? SandboxSetup.Read(text) : SandboxSetup.Failed("couldn't load sandbox/" + sandbox.ToLowerInvariant() + ".txt: " + error));
+                    BeginSandbox(text != null ? SandboxSetup.Read(text) : SandboxSetup.Failed("couldn't load the sandbox file " + sandbox.ToLowerInvariant() + ".txt: " + error));
                 }));
                 return true;
             }

@@ -15,7 +15,7 @@ namespace PooketSlug
         public string Note;
         public int HiScore, Fps;
         public bool Muted;
-        /// <summary>A move's demo is playing (<c>?demo=</c>): the build line and frame rate stay out of the recording.</summary>
+        /// <summary>A move's demo is playing (<c>?demo=</c>), or a sandbox's scripted take: the build line, frame rate and start banner stay out of the recording.</summary>
         public bool Demo;
         /// <summary>Co-op: the session, or null in a solo game.</summary>
         public INetSession Net;
@@ -408,7 +408,7 @@ namespace PooketSlug
             }
 
             bool starting = info.StateTime < (info.Note != null ? 4f : 2.2f) && !info.Paused;
-            bool banner = info.Playing && (w.Victory || starting);
+            bool banner = info.Playing && (w.Victory || starting) && (!info.Demo || info.Note != null); // a clean scripted take (?sandbox) is filmed bare
             Ui.Show(m_Banner, banner);
             if (banner)
             {
