@@ -165,7 +165,7 @@ namespace PooketSlug
             m_Leave = Ui.Label(m_Coop, "Leave", Ui.Middle, new Vector2(0f, -16f), 12, TextAnchor.MiddleCenter, Color.white);
 
             m_Beacons = Ui.Fill(m_Top, "Partner beacon");
-            m_NewArrow = () => Ui.Picture(m_Beacons, "Arrow", Ui.Arrow, Ui.BottomLeft, Ui.Middle, Vector2.zero, new Vector2(18f, 18f), Color.white);
+            m_NewArrow = () => Ui.Picture(m_Beacons, "Arrow", Ui.Arrow, Ui.BottomLeft, Ui.Middle, Vector2.zero, new Vector2(22f, 22f), Color.white);
             m_NewGhostMark = () => Ui.Picture(m_Beacons, "Pretend partner", Ui.Disc, Ui.BottomLeft, new Vector2(0.5f, 0f), Vector2.zero, new Vector2(14f, 22f), new Color(0.45f, 0.72f, 1f, 0.55f));
             m_NewArrowLabel = () => Ui.Label(m_Beacons, "Arrow label", Ui.BottomLeft, Vector2.zero, 8, TextAnchor.MiddleCenter, Color.white);
             m_NewWarning = () => Ui.Label(m_Beacons, "Warning", Ui.BottomLeft, Vector2.zero, 8, TextAnchor.MiddleCenter, Low);
@@ -544,7 +544,7 @@ namespace PooketSlug
                 arrow.color = low && blink ? Low : away ? AwayGrey : colour;
                 // the label sits just inside the arrow, toward the middle of the screen
                 Vector2 inward = -new Vector2(Mathf.Cos(angle * Mathf.Deg2Rad), Mathf.Sin(angle * Mathf.Deg2Rad));
-                Vector2 spot = hud + inward * 22f;
+                Vector2 spot = hud + inward * 40f; // far enough in that the label clears the arrow either side
                 label.rectTransform.anchoredPosition = spot;
                 label.text = name + "  " + PartnerBeacon.Metres(view, feet) + "M";
                 label.color = colour;
