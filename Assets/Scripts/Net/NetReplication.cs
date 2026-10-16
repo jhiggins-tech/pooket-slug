@@ -290,6 +290,11 @@ namespace PooketSlug
             if (m_Local != null && m_Local.Object.IsValid) m_Local.NetScene = taps;
         }
 
+        public void SendSceneVersions(int versions)
+        {
+            if (m_Local != null && m_Local.Object.IsValid) m_Local.NetScenes = versions;
+        }
+
         public void SendShot(in ShotEvent shot)
         {
             if (m_Local != null && m_Local.Object.IsValid) { m_Local.RPC_Shot(shot.Weapon.Id, shot.Origin, shot.Velocity); WireMeter.Out.Count(WireKind.Shot); }

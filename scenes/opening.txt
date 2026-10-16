@@ -1,0 +1,106 @@
+// The opening (docs/design/story.md, The opening scene): the snack run and the raided hangout, which doubles as
+// Mission one's briefing. The narrator tells it, and the keycard gets a close-up so it's clear where it sends you.
+// How to write a scene: docs/scenes.md.
+net 1
+
+shot: Outside the hangout
+length 8.5
+set street
+show sign window door snow
+// he walks on for a few seconds; his intro builds up from 1.5 s and lands at 4 s, then he walks on to the door
+intro 4 tones2: TONES2
+0-5.6 tones2 walk -16 196
+tones2 holds bag cup
+4.3 narrator opening-1: Friday night. tones2's back from the snack run.
+6.4 tones2: SNACKS ARE HERE LADS
+
+shot: The door
+length 4.5
+set street
+show sign window door doorway snow
+tones2 at 206
+tones2 holds bag cup
+// the door swings in on its hinge and sags, hanging off it, and the warm light turns cold
+0.5-0.8 door size 1 1 0.35 1
+0.5-0.8 door turn 0 -9
+1.2-1.8 window flicker warm cyan 14
+1.2-1.8 doorway flicker warm cyan 14
+1.8 window colour cyan
+1.8 doorway colour cyan
+0.5 cue door
+1.2 cue static
+0.9 narrator opening-2: But the door's been kicked in.
+2.4 tones2: ...LADS?
+
+shot: Inside, raided
+length 5
+set room
+spark blink 9 3
+// a long look, then the bag drops and the chips go everywhere
+tones2 at 56
+tones2 holds bag cup
+2.2-2.4 bag move 66 12 66 0
+2.4 chips burst 66
+2.2 cue drop
+3.4 cue static
+0.5 narrator opening-3: The hangout's trashed, and the crew are gone.
+
+shot: A straggler
+length 8
+set room
+spark blink 9 3
+chips spill 66
+// a Trollogram flickers up from behind the couch and shouts; tones2 sprays it, it glitches out and drops its
+// keycard, and he goes over and picks it up
+goon at 178 6
+goon face left
+0.2 goon show
+0.2-0.5 goon appear
+3.8 goon glitch-out
+tones2 at 56
+tones2 holds cup
+3.2-3.8 tones2 pose spray
+3.2-3.8 jet spray 66 168
+5.4-6.2 tones2 walk 56 164
+4.2-6.4 card show
+4.2-4.55 card move 176 14 176 0 in
+4.2-4.55 card turn 200 0
+0.3 cue goon
+3.2 cue jet
+3.8 cue glitch
+4.2 cue card-drop
+0.8 goon: INTRUDER. INTRUD-
+1.2 narrator opening-4a: One of the raiders is still here: a Trollogram.
+5.0 narrator opening-4b: It glitches out, and drops its keycard.
+
+shot: The keycard
+length 5
+set room
+spark blink 9 3
+// the keycard, close up: it slides up into view and flickers like the Trollograms do. tones2 is off screen, but
+// his bubble points down to where he stands.
+closeup show
+tones2 at 40
+tones2 hide
+0.1 cue card-up
+0.5 narrator opening-5: A pass for the military base, up on the hill.
+2.6 tones2: THAT'S WHERE THEY TOOK THEM.
+
+shot: Heading out
+length 6
+set room
+spark blink 9 3
+chips spill 66
+searchlights show
+// searchlights through the window, the slushie crushed, and off he goes
+tones2 at 164
+tones2 holds cup
+1.4 cup size 1 0.5
+1.6 cup hide
+1.8-4.8 tones2 walk 164 340
+1.6 cue crush
+3.9 cue card
+4.1 say mission-start
+0.4 narrator opening-6: So tones2 goes in alone.
+1.2 tones2: RIGHT.
+3.9 caption: MISSION 1 · THE MILITARY BASE | FIND THE CREW

@@ -11,10 +11,8 @@ namespace PooketSlug
     public enum CueStaging
     {
         None = 0,
-        /// <summary>The Trollograms on stage flicker for a moment.</summary>
+        /// <summary>The Trollograms on stage flicker for a moment. (The rest of the staging is the scene's own: <see cref="Staging"/>.)</summary>
         Flicker = 1,
-        /// <summary>The opening's straggler glitches out.</summary>
-        GoonGlitches = 2,
     }
 
     /// <summary>What a cue does: up to two sounds at their volumes, and any staging.</summary>
@@ -37,7 +35,8 @@ namespace PooketSlug
     /// <summary>
     /// The cutscene cues (<see cref="CutsceneCue"/>): their ids, and what each one does, so a scene can only name a cue
     /// that exists and every cue has an effect (a test holds every scene to it). A <c>say:</c> cue has the announcer
-    /// read a line (<see cref="Say"/>) instead. Ids are plain strings so that scenes can one day be loaded as data.
+    /// read a line (<see cref="Say"/>) instead. Scene scripts name them (<c>2.2 cue drop</c>), and a script naming one
+    /// that isn't here has a problem (<see cref="SceneScript"/>).
     /// </summary>
     public static class Cues
     {
@@ -64,7 +63,7 @@ namespace PooketSlug
             { Drop, new CueEffect(CueSound.Splat, 0.6f) },
             { Goon, new CueEffect(CueSound.Glitch, 0.5f) },
             { Jet, new CueEffect(CueSound.Splat, 0.8f) },
-            { Glitch, new CueEffect(CueSound.Glitch, 0.7f, CueStaging.GoonGlitches) },
+            { Glitch, new CueEffect(CueSound.Glitch, 0.7f) },
             { CardDrop, new CueEffect(CueSound.Pickup, 0.6f) },
             { CardUp, new CueEffect(CueSound.Pickup, 0.9f) },
             { Crush, new CueEffect(CueSound.Hit, 0.7f) },

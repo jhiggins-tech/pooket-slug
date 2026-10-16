@@ -21,5 +21,16 @@ namespace PooketSlug
                 else done(null, request.responseCode == 404 ? "not found" : request.error);
             }
         }
+
+        /// <summary>A file's bytes (a recording), as the URL has it: it carries its own version, so no cache-busting.</summary>
+        public static IEnumerator FetchBytes(string url, Action<byte[], string> done)
+        {
+            using (UnityWebRequest request = UnityWebRequest.Get(url))
+            {
+                yield return request.SendWebRequest();
+                if (request.result == UnityWebRequest.Result.Success) done(request.downloadHandler.data, null);
+                else done(null, request.responseCode == 404 ? "not found" : request.error);
+            }
+        }
     }
 }

@@ -23,9 +23,9 @@ namespace PooketSlug.Tests
         [Test]
         public void TheOpeningIsSixUnhurriedShotsEachWithANarratorLine()
         {
-            Assert.AreEqual(6, Cutscenes.Opening.Shots.Length);
-            Assert.That(Cutscenes.Opening.Seconds, Is.InRange(30f, 40f));
-            foreach (CutsceneShot shot in Cutscenes.Opening.Shots)
+            Assert.AreEqual(6, TestScenes.Opening.Shots.Length);
+            Assert.That(TestScenes.Opening.Seconds, Is.InRange(30f, 40f));
+            foreach (CutsceneShot shot in TestScenes.Opening.Shots)
             {
                 Assert.That(shot.Seconds, Is.InRange(4f, 9f), shot.Name);
                 Assert.IsTrue(System.Array.Exists(shot.Lines, l => l.Who == Speaker.Narrator), shot.Name + " has narration");
@@ -35,25 +35,15 @@ namespace PooketSlug.Tests
         [Test]
         public void EveryLineHasTimeToBeRead()
         {
-            // about three words a second, counted from when a line appears to when it goes
-            foreach (CutsceneShot shot in Cutscenes.Opening.Shots)
-                for (int i = 0; i < shot.Lines.Length; i++)
-                {
-                    CutsceneLine line = shot.Lines[i];
-                    if (line.Who == Speaker.Caption) continue;
-                    float until = shot.Seconds;
-                    if (line.Who == Speaker.Narrator)
-                        for (int j = i + 1; j < shot.Lines.Length; j++)
-                            if (shot.Lines[j].Who == Speaker.Narrator) { until = shot.Lines[j].At; break; }
-                    int words = line.Text.Split(' ').Length;
-                    Assert.That(until - line.At, Is.GreaterThanOrEqualTo(words / 3f), line.Text);
-                }
+            // about three words a second, counted from when a line appears to when it goes (SceneCheck.Timing)
+            foreach (SceneScript scene in TestScenes.All.Values)
+                Assert.IsEmpty(SceneCheck.Timing(scene.Def), scene.Name + ": " + string.Join("; ", SceneCheck.Timing(scene.Def)));
         }
 
         [Test]
         public void TheNarratorSpeaksInSubtitlesNotBubbles()
         {
-            var p = new CutscenePlayer(Cutscenes.Opening, seenBefore: false);
+            var p = new CutscenePlayer(TestScenes.Opening, seenBefore: false);
             var lines = new List<CutsceneLine>();
             Assert.IsNull(p.Narration);
             RunTo(p, 0, 4.35f);
@@ -70,7 +60,7 @@ namespace PooketSlug.Tests
         public void EveryNarratorLineHasItsOwnRecording()
         {
             var ids = new HashSet<string>();
-            foreach (CutsceneShot shot in Cutscenes.Opening.Shots)
+            foreach (CutsceneShot shot in TestScenes.Opening.Shots)
                 foreach (CutsceneLine line in shot.Lines)
                     if (line.Who == Speaker.Narrator)
                         Assert.IsTrue(ids.Add(line.Voice ?? ""), line.Text);
@@ -80,13 +70,13 @@ namespace PooketSlug.Tests
         [Test]
         public void EachShotMovesOnByItselfAndEveryCueFiresOnce()
         {
-            var p = new CutscenePlayer(Cutscenes.Opening, seenBefore: false);
+            var p = new CutscenePlayer(TestScenes.Opening, seenBefore: false);
             var cues = new List<string>();
             Run(p, 45f, cues);
             Assert.IsTrue(p.Done);
             Assert.IsFalse(p.Skipped);
             int expected = 0;
-            foreach (CutsceneShot shot in Cutscenes.Opening.Shots) expected += shot.Cues.Length + (shot.Intro != null ? 2 : 0);
+            foreach (CutsceneShot shot in TestScenes.Opening.Shots) expected += shot.Cues.Length + (shot.Intro != null ? 2 : 0);
             Assert.AreEqual(expected, cues.Count);
             Assert.AreEqual(1, cues.FindAll(c => c == CutscenePlayer.IntroCue).Count, "tones2's intro, once");
             Assert.Less(cues.IndexOf(CutscenePlayer.BuildUpCue), cues.IndexOf(CutscenePlayer.IntroCue), "its build-up first");
@@ -96,7 +86,7 @@ namespace PooketSlug.Tests
         [Test]
         public void ATapMovesToTheNextShotButNotTooSoon()
         {
-            var p = new CutscenePlayer(Cutscenes.Opening, seenBefore: false);
+            var p = new CutscenePlayer(TestScenes.Opening, seenBefore: false);
             RunTo(p, 1);
             Assert.IsFalse(p.Tap(0), "a tap the moment a shot starts is ignored");
             Run(p, CutscenePlayer.TapGuard + 0.05f);
@@ -109,12 +99,12 @@ namespace PooketSlug.Tests
         [Test]
         public void OnlyAScenesSeenBeforeCanBeSkipped()
         {
-            var first = new CutscenePlayer(Cutscenes.Opening, seenBefore: false);
+            var first = new CutscenePlayer(TestScenes.Opening, seenBefore: false);
             Assert.IsFalse(first.CanSkip);
             Assert.IsFalse(first.Skip());
             Assert.IsFalse(first.Done);
 
-            var again = new CutscenePlayer(Cutscenes.Opening, seenBefore: true);
+            var again = new CutscenePlayer(TestScenes.Opening, seenBefore: true);
             Assert.IsTrue(again.Skip());
             Assert.IsTrue(again.Done);
             Assert.IsTrue(again.Skipped);
@@ -123,7 +113,7 @@ namespace PooketSlug.Tests
         [Test]
         public void InCoopAShotWaitsUntilBothHaveTapped()
         {
-            var p = new CutscenePlayer(Cutscenes.Opening, seenBefore: false, players: 2);
+            var p = new CutscenePlayer(TestScenes.Opening, seenBefore: false, players: 2);
             RunTo(p, 1, 0.5f);
             Assert.IsFalse(p.Tap(0));
             Assert.IsTrue(p.Waiting, "one has tapped, the other hasn't");
@@ -138,10 +128,10 @@ namespace PooketSlug.Tests
         [Test]
         public void InCoopTheTimerStillMovesItOnForBoth()
         {
-            var p = new CutscenePlayer(Cutscenes.Opening, seenBefore: false, players: 2);
+            var p = new CutscenePlayer(TestScenes.Opening, seenBefore: false, players: 2);
             RunTo(p, 1, 0.5f);
             p.Tap(0);
-            Run(p, Cutscenes.Opening.Shots[1].Seconds);
+            Run(p, TestScenes.Opening.Shots[1].Seconds);
             Assert.AreEqual(2, p.Shot);
             Assert.IsFalse(p.Waiting);
         }
@@ -149,7 +139,7 @@ namespace PooketSlug.Tests
         [Test]
         public void BubblesAppearOnTheirCueAndLastTheShot()
         {
-            var p = new CutscenePlayer(Cutscenes.Opening, seenBefore: false);
+            var p = new CutscenePlayer(TestScenes.Opening, seenBefore: false);
             var lines = new List<CutsceneLine>();
             Assert.AreEqual(0, p.Showing(lines));
             Run(p, 1f);
@@ -166,21 +156,21 @@ namespace PooketSlug.Tests
         [Test]
         public void Tones2GetsHisIntroTheFirstTimeHesOnScreen()
         {
-            CutsceneIntro intro = Cutscenes.Opening.Shots[0].Intro;
+            CutsceneIntro intro = TestScenes.Opening.Shots[0].Intro;
             Assert.IsNotNull(intro, "the opening's first shot is tones2's first time on screen");
-            Assert.AreEqual(Speaker.Tones2, intro.Who);
+            Assert.AreEqual("tones2", intro.Figure);
             Assert.AreEqual("TONES2", intro.Name);
-            var who = new HashSet<Speaker>();
-            foreach (CutsceneShot shot in Cutscenes.Opening.Shots)
-                if (shot.Intro != null) Assert.IsTrue(who.Add(shot.Intro.Who), "one intro per character");
+            var who = new HashSet<string>();
+            foreach (CutsceneShot shot in TestScenes.Opening.Shots)
+                if (shot.Intro != null) Assert.IsTrue(who.Add(shot.Intro.Figure), "one intro per character");
         }
 
         [Test]
         public void AnIntroGoesSlowMoAndATapCantCutItShort()
         {
-            var p = new CutscenePlayer(Cutscenes.Opening, seenBefore: false);
+            var p = new CutscenePlayer(TestScenes.Opening, seenBefore: false);
             var cues = new List<string>();
-            float at = Cutscenes.Opening.Shots[0].Intro.At;
+            float at = TestScenes.Opening.Shots[0].Intro.At;
             Run(p, at + 0.05f, cues);
             Assert.IsTrue(p.Introducing);
             Assert.Contains(CutscenePlayer.IntroCue, cues, "the musical hit");
@@ -200,9 +190,9 @@ namespace PooketSlug.Tests
         [Test]
         public void AnIntroBuildsUpForAFewSecondsWhileTones2WalksOn()
         {
-            var p = new CutscenePlayer(Cutscenes.Opening, seenBefore: false);
+            var p = new CutscenePlayer(TestScenes.Opening, seenBefore: false);
             var cues = new List<string>();
-            float at = Cutscenes.Opening.Shots[0].Intro.At;
+            float at = TestScenes.Opening.Shots[0].Intro.At;
             Assert.That(at - CutscenePlayer.BuildUp, Is.GreaterThanOrEqualTo(1f), "he's on screen a while before it starts");
             Assert.That(CutscenePlayer.BuildUp, Is.InRange(2f, 3f));
             RunTo(p, 0, at - CutscenePlayer.BuildUp - 0.1f);
@@ -220,11 +210,11 @@ namespace PooketSlug.Tests
         [Test]
         public void ATapBeforeAnIntroJumpsToItRatherThanPastIt()
         {
-            var p = new CutscenePlayer(Cutscenes.Opening, seenBefore: false);
+            var p = new CutscenePlayer(TestScenes.Opening, seenBefore: false);
             Run(p, 0.5f);
             Assert.IsTrue(p.Tap(0));
             Assert.AreEqual(0, p.Shot);
-            float at = Cutscenes.Opening.Shots[0].Intro.At;
+            float at = TestScenes.Opening.Shots[0].Intro.At;
             Assert.AreEqual(at - CutscenePlayer.BuildUp, p.T, "to the start of its build-up, so that still plays");
             Assert.IsFalse(p.Tap(0), "and no tapping through the build-up");
             Run(p, CutscenePlayer.BuildUp + 0.05f);
@@ -234,7 +224,7 @@ namespace PooketSlug.Tests
         [Test]
         public void TheBeatOnlyGoesUpThroughTheScene()
         {
-            var p = new CutscenePlayer(Cutscenes.Opening, seenBefore: false);
+            var p = new CutscenePlayer(TestScenes.Opening, seenBefore: false);
             int last = p.Beat, steps = 0;
             Assert.AreEqual(0, last, "before tones2's build-up");
             for (int i = 0; i < 60 * 45 && !p.Done; i++)
@@ -244,23 +234,23 @@ namespace PooketSlug.Tests
                 if (p.Beat != last) steps++;
                 last = p.Beat;
             }
-            Assert.AreEqual(Cutscenes.Opening.Shots.Length * 3, p.Beat, "done");
-            Assert.AreEqual(Cutscenes.Opening.Shots.Length + 2, steps, "every shot, and the opening's build-up and intro");
+            Assert.AreEqual(TestScenes.Opening.Shots.Length * 3, p.Beat, "done");
+            Assert.AreEqual(TestScenes.Opening.Shots.Length + 2, steps, "every shot, and the opening's build-up and intro");
         }
 
         [Test]
         public void ACoopPartnersTapsTravelAsOneNumber()
         {
-            int sent = CutsceneSync.Pack(7, Cutscenes.Opening.NetId, 4, false);
+            int sent = CutsceneSync.Pack(7, TestScenes.Opening.NetId, 4, false);
             Assert.AreNotEqual(0, sent);
-            Assert.IsTrue(CutsceneSync.Read(sent, 7, Cutscenes.Opening.NetId, out int tapped, out bool skip));
+            Assert.IsTrue(CutsceneSync.Read(sent, 7, TestScenes.Opening.NetId, out int tapped, out bool skip));
             Assert.AreEqual(4, tapped);
             Assert.IsFalse(skip);
             Assert.IsTrue(CutsceneSync.Read(CutsceneSync.Pack(7, 1, -1, false), 7, 1, out tapped, out _));
             Assert.AreEqual(-1, tapped, "not tapped yet");
             Assert.IsTrue(CutsceneSync.Read(CutsceneSync.Pack(7, 1, 2, true), 7, 1, out _, out skip));
             Assert.IsTrue(skip);
-            Assert.IsFalse(CutsceneSync.Read(sent, 8, Cutscenes.Opening.NetId, out _, out _), "last round's taps don't count");
+            Assert.IsFalse(CutsceneSync.Read(sent, 8, TestScenes.Opening.NetId, out _, out _), "last round's taps don't count");
             Assert.IsFalse(CutsceneSync.Read(sent, 7, 2, out _, out _), "nor another scene's");
             Assert.IsFalse(CutsceneSync.Read(0, 7, 1, out _, out _), "nor nothing");
         }
@@ -268,8 +258,8 @@ namespace PooketSlug.Tests
         [Test]
         public void TwoPhonesMoveOnTogetherWhenBothHaveTapped()
         {
-            var a = new CutscenePlayer(Cutscenes.Opening, seenBefore: false, players: 2);
-            var b = new CutscenePlayer(Cutscenes.Opening, seenBefore: false, players: 2);
+            var a = new CutscenePlayer(TestScenes.Opening, seenBefore: false, players: 2);
+            var b = new CutscenePlayer(TestScenes.Opening, seenBefore: false, players: 2);
             int aTapped = -1, bTapped = -1;
             RunTo(a, 1, 0.5f);
             RunTo(b, 1, 0.5f);
@@ -293,9 +283,9 @@ namespace PooketSlug.Tests
         [Test]
         public void TheMotorPoolRevealIsFourShotsWithTrolloKiesIntroInTheThird()
         {
-            CutsceneDef m = Cutscenes.MotorPool;
+            CutsceneDef m = TestScenes.MotorPool;
             Assert.AreEqual("scene-motor-pool", m.Id);
-            Assert.AreNotEqual(Cutscenes.Opening.NetId, m.NetId, "each scene has its own number for a partner's phone");
+            Assert.AreNotEqual(TestScenes.Opening.NetId, m.NetId, "each scene has its own number for a partner's phone");
             Assert.AreEqual(4, m.Shots.Length);
             Assert.That(m.Seconds, Is.InRange(15f, 25f));
             for (int i = 0; i < m.Shots.Length; i++)
@@ -312,7 +302,7 @@ namespace PooketSlug.Tests
                 Assert.IsTrue(narrated, shot.Name + " has the narrator");
             }
             CutsceneIntro intro = m.Shots[2].Intro;
-            Assert.AreEqual(Speaker.Hologram, intro.Who);
+            Assert.AreEqual("kie", intro.Figure, "Trollogram kie, in his hatch");
             Assert.AreEqual("TROLLO-KIE", intro.Name);
             Assert.That(intro.At, Is.GreaterThanOrEqualTo(CutscenePlayer.BuildUp), "he's on screen through the build-up");
             foreach (CutsceneLine line in m.Shots[2].Lines) Assert.Greater(line.At, intro.At, "his lines come after his intro");
@@ -321,10 +311,10 @@ namespace PooketSlug.Tests
         [Test]
         public void TheCoopStandInIsItsOwnSceneWithNothingToRecord()
         {
-            CutsceneDef c = Cutscenes.CoopTest;
+            CutsceneDef c = TestScenes.CoopTest;
             Assert.AreEqual(6, c.Shots.Length, "CI's two-phone check counts the moves between them");
-            Assert.AreNotEqual(Cutscenes.Opening.NetId, c.NetId);
-            Assert.AreNotEqual(Cutscenes.MotorPool.NetId, c.NetId);
+            Assert.AreNotEqual(TestScenes.Opening.NetId, c.NetId);
+            Assert.AreNotEqual(TestScenes.MotorPool.NetId, c.NetId);
             foreach (CutsceneShot shot in c.Shots)
             {
                 Assert.IsNull(shot.Intro);
@@ -335,12 +325,12 @@ namespace PooketSlug.Tests
         [Test]
         public void FreeingKiePicksUpAtTheCageWithKiesIntroFirst()
         {
-            CutsceneDef f = Cutscenes.FreeingKie;
+            CutsceneDef f = TestScenes.FreeingKie;
             Assert.AreEqual("scene-freeing-kie", f.Id);
-            CollectionAssert.AllItemsAreUnique(new[] { Cutscenes.Opening.NetId, Cutscenes.MotorPool.NetId, f.NetId, Cutscenes.CoopTest.NetId });
+            CollectionAssert.AllItemsAreUnique(new[] { TestScenes.Opening.NetId, TestScenes.MotorPool.NetId, f.NetId, TestScenes.CoopTest.NetId });
             Assert.AreEqual(4, f.Shots.Length, "the glitch-out, the design's shot 1, plays in the game itself");
             CutsceneIntro intro = f.Shots[0].Intro;
-            Assert.AreEqual(Speaker.Kie, intro.Who);
+            Assert.AreEqual("kie", intro.Figure);
             Assert.AreEqual("KIE", intro.Name);
             Assert.That(intro.At, Is.GreaterThanOrEqualTo(CutscenePlayer.BuildUp));
             Assert.That(intro.At, Is.GreaterThan(KieTuning.Freeing.Cage), "he's out of the cage when it lands");
@@ -354,10 +344,10 @@ namespace PooketSlug.Tests
         [Test]
         public void TheMotorPoolCantBeSkippedTheFirstTime()
         {
-            var first = new CutscenePlayer(Cutscenes.MotorPool, seenBefore: false, players: 1);
+            var first = new CutscenePlayer(TestScenes.MotorPool, seenBefore: false, players: 1);
             Assert.IsFalse(first.CanSkip);
             Assert.IsFalse(first.Skip());
-            var again = new CutscenePlayer(Cutscenes.MotorPool, seenBefore: true, players: 1);
+            var again = new CutscenePlayer(TestScenes.MotorPool, seenBefore: true, players: 1);
             Assert.IsTrue(again.Skip());
             Assert.IsTrue(again.Done);
         }
@@ -367,24 +357,24 @@ namespace PooketSlug.Tests
         {
             // b tapped the last shot first; a's tap ended it on a's phone in the same frame, so a's tap never went
             // out on its own. a's closing word ("tapped through it all") has to finish it on b's phone.
-            var b = new CutscenePlayer(Cutscenes.Opening, seenBefore: false, players: 2);
-            int last = Cutscenes.Opening.Shots.Length - 1;
+            var b = new CutscenePlayer(TestScenes.Opening, seenBefore: false, players: 2);
+            int last = TestScenes.Opening.Shots.Length - 1;
             RunTo(b, last, 0.3f);
             b.Tap(0);
             Assert.IsFalse(b.Done, "b waits on a");
-            CutsceneSync.Apply(b, true, CutsceneSync.Pack(3, 1, Cutscenes.Opening.Shots.Length * 3, false), 3);
+            CutsceneSync.Apply(b, true, CutsceneSync.Pack(3, 1, TestScenes.Opening.Shots.Length * 3, false), 3);
             Assert.IsTrue(b.Done);
         }
 
         [Test]
         public void ATapBeforeTheIntroWaitsForThePartnerThenJumpsBothToTheBuildUp()
         {
-            var a = new CutscenePlayer(Cutscenes.Opening, seenBefore: false, players: 2);
+            var a = new CutscenePlayer(TestScenes.Opening, seenBefore: false, players: 2);
             Run(a, 0.5f);
             int beat = a.Beat;
             Assert.IsFalse(a.Tap(0));
             Assert.IsTrue(CutsceneSync.Apply(a, true, CutsceneSync.Pack(1, 1, beat, false), 1) == false);
-            Assert.AreEqual(Cutscenes.Opening.Shots[0].Intro.At - CutscenePlayer.BuildUp, a.T, "both tapped: on to the build-up");
+            Assert.AreEqual(TestScenes.Opening.Shots[0].Intro.At - CutscenePlayer.BuildUp, a.T, "both tapped: on to the build-up");
             Assert.AreEqual(1, a.Beat);
             CutsceneSync.Apply(a, true, CutsceneSync.Pack(1, 1, beat, false), 1);
             Assert.IsFalse(a.HasTapped(1), "the tap before the build-up doesn't count in it");
@@ -393,47 +383,51 @@ namespace PooketSlug.Tests
         [Test]
         public void ASkipNeedsBothAndALeavingPartnerHoldsNobodyUp()
         {
-            var a = new CutscenePlayer(Cutscenes.Opening, seenBefore: true, players: 2);
+            var a = new CutscenePlayer(TestScenes.Opening, seenBefore: true, players: 2);
             Assert.IsFalse(CutsceneSync.Apply(a, true, CutsceneSync.Pack(1, 1, -1, false), 1), "they haven't asked to skip");
             Assert.IsTrue(CutsceneSync.Apply(a, true, CutsceneSync.Pack(1, 1, -1, true), 1), "now they have");
             Run(a, 0.5f);
             a.Tap(0);
             Assert.AreEqual(0, a.Shot);
             Assert.IsTrue(CutsceneSync.Apply(a, false, 0, 1), "gone: their say doesn't hold up a skip");
-            Assert.IsTrue(a.T >= Cutscenes.Opening.Shots[0].Intro.At - CutscenePlayer.BuildUp, "nor a tap");
+            Assert.IsTrue(a.T >= TestScenes.Opening.Shots[0].Intro.At - CutscenePlayer.BuildUp, "nor a tap");
         }
     
         [Test]
-        public void EveryNarratorLineHasTimeForItsVoice()
+        public void ANarratorLineNeedsItsRecordingAndTimeToPlayIt()
         {
-            foreach (CutsceneDef scene in new[] { Cutscenes.Opening, Cutscenes.MotorPool, Cutscenes.FreeingKie })
-                foreach (CutsceneShot shot in scene.Shots)
-                    foreach (CutsceneLine line in shot.Lines)
-                    {
-                        if (line.Who != Speaker.Narrator) continue;
-                        Assert.IsTrue(NarratorClips.Seconds.TryGetValue(line.Voice ?? "", out float clip), line.Voice + " has a recorded length");
-                        float until = shot.Seconds;
-                        foreach (CutsceneLine next in shot.Lines)
-                            if (next.Who == Speaker.Narrator && next.At > line.At && next.At < until) until = next.At;
-                        Assert.GreaterOrEqual(until - line.At, clip + NarratorClips.Breath, scene.Id + ", " + shot.Name + ": " + line.Voice);
-                    }
+            // the scene deploy reads each recording's length from the clip itself (tools/scenecheck); here, made-up ones
+            CutsceneDef opening = TestScenes.Opening;
+            var clips = new Dictionary<string, float>();
+            foreach (CutsceneShot shot in opening.Shots)
+                foreach (CutsceneLine line in shot.Lines)
+                    if (line.Voice != null) clips[line.Voice] = 1f;
+            Assert.IsEmpty(SceneCheck.Timing(opening, clips));
+            clips["opening-2"] = 1.3f; // a 4.5 s shot, the line at 0.9 s: room for 3.2 s of clip and a breath
+            Assert.IsEmpty(SceneCheck.Timing(opening, clips));
+            clips["opening-2"] = 3.4f;
+            List<string> problems = SceneCheck.Timing(opening, clips);
+            Assert.AreEqual(1, problems.Count);
+            StringAssert.Contains("The door", problems[0]);
+            clips.Remove("opening-2");
+            StringAssert.Contains("no recording called 'opening-2'", SceneCheck.Timing(opening, clips)[0]);
         }
 
         [Test]
         public void TheShotWaitsForTheNarratorToFinish()
         {
-            var p = new CutscenePlayer(Cutscenes.MotorPool, false);
-            float end = Cutscenes.MotorPool.Shots[0].Seconds;
+            var p = new CutscenePlayer(TestScenes.MotorPool, false);
+            float end = TestScenes.MotorPool.Shots[0].Seconds;
             while (p.T < end - 0.1f) p.Tick(0.05f);
             for (int i = 0; i < 20; i++) p.Tick(0.05f, null, true);
             Assert.AreEqual(0, p.Shot, "held while they talk");
             p.Tick(0.05f);
             Assert.AreEqual(1, p.Shot, "then on");
 
-            p = new CutscenePlayer(Cutscenes.MotorPool, false);
+            p = new CutscenePlayer(TestScenes.MotorPool, false);
             while (p.T < end - 0.1f) p.Tick(0.05f);
             for (int i = 0; i < 100; i++) p.Tick(0.05f, null, true);
             Assert.AreEqual(1, p.Shot, "but never for longer than " + CutscenePlayer.MaxHold + " s");
         }
-}
+    }
 }
