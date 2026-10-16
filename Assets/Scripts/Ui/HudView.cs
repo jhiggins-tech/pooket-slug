@@ -44,6 +44,11 @@ namespace PooketSlug
         readonly Image m_Edges;
         readonly RawImage m_StripesTop, m_StripesBottom;
         readonly Text m_Warning, m_IntroName;
+        // a team super's split card: both soldiers slam in from the sides, the combo's name between them
+        readonly RectTransform m_TeamCard;
+        readonly Image m_TeamBand, m_TeamLeft, m_TeamRight, m_TeamLeftPic, m_TeamRightPic;
+        readonly Text m_TeamTitle, m_TeamName, m_TeamLeftName, m_TeamRightName;
+        SoldierDef m_TeamShownLeft;
         readonly Text m_Score, m_Arms, m_Hi, m_Time, m_BossName, m_Build, m_Fps, m_Banner, m_Note;
         readonly Image m_BossBack, m_BossFill;
         // the kit's meters: the super (SU), the special's refill (SP) and the ability (AB); and a tank call-in's charge
@@ -73,8 +78,8 @@ namespace PooketSlug
         // touch pad
         readonly RectTransform m_Pad;
         readonly Image m_StickBase, m_StickKnob;
-        readonly Image[] m_Buttons = new Image[6];
-        readonly Text[] m_ButtonLabels = new Text[6];
+        readonly Image[] m_Buttons = new Image[7];
+        readonly Text[] m_ButtonLabels = new Text[7];
         int m_SpecialsShown = -1;
 
         public HudView(Transform parent)
@@ -121,6 +126,19 @@ namespace PooketSlug
             m_Warning.text = "WARNING!";
             m_IntroName = Ui.Label(m_Root, "Boss name", Ui.Middle, new Vector2(0f, 2f), 18, TextAnchor.MiddleCenter, Color.white);
             m_Note = Ui.Label(m_Root, "Note", Ui.Middle, new Vector2(0f, 32f), 12, TextAnchor.MiddleCenter, CoopBlue);
+            m_TeamCard = Ui.Fill(m_Root, "Team card");
+            m_TeamBand = Ui.Picture(m_TeamCard, "Band", null, Ui.Middle, Ui.Middle, Vector2.zero, new Vector2(2000f, 110f), new Color(0.06f, 0.04f, 0.08f, 0.85f));
+            m_TeamLeft = Ui.Picture(m_TeamCard, "Left", null, Ui.Middle, new Vector2(1f, 0.5f), Vector2.zero, new Vector2(220f, 100f), Color.white);
+            m_TeamRight = Ui.Picture(m_TeamCard, "Right", null, Ui.Middle, new Vector2(0f, 0.5f), Vector2.zero, new Vector2(220f, 100f), Color.white);
+            m_TeamLeftPic = Ui.Picture(m_TeamLeft.rectTransform, "Portrait", null, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(10f, 4f), new Vector2(64f, 64f), Color.white);
+            m_TeamRightPic = Ui.Picture(m_TeamRight.rectTransform, "Portrait", null, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(-10f, 4f), new Vector2(64f, 64f), Color.white);
+            m_TeamLeftPic.preserveAspect = m_TeamRightPic.preserveAspect = true;
+            m_TeamLeftName = Ui.Label(m_TeamLeft.rectTransform, "Name", new Vector2(0f, 0f), new Vector2(12f, 10f), 12, TextAnchor.LowerLeft, Color.white);
+            m_TeamRightName = Ui.Label(m_TeamRight.rectTransform, "Name", new Vector2(1f, 0f), new Vector2(-12f, 10f), 12, TextAnchor.LowerRight, Color.white);
+            m_TeamTitle = Ui.Label(m_TeamCard, "Title", Ui.Middle, new Vector2(0f, 76f), 30, TextAnchor.MiddleCenter, Gold);
+            m_TeamTitle.text = "TEAM SUPER!";
+            m_TeamName = Ui.Label(m_TeamCard, "Combo", Ui.Middle, new Vector2(0f, -72f), 22, TextAnchor.MiddleCenter, Color.white);
+            m_TeamCard.gameObject.SetActive(false);
 
             m_Coop = Ui.Fill(m_Top, "Co-op");
             m_Waiting = Ui.Label(m_Coop, "Waiting", Ui.TopCenter, new Vector2(0f, -40f), 12, TextAnchor.UpperCenter, CoopBlue);
@@ -140,7 +158,7 @@ namespace PooketSlug
             m_Pad = Ui.Fill(m_Root, "Touch pad");
             m_StickBase = Ui.Picture(m_Pad, "Stick", Ui.Disc, Ui.TopLeft, Ui.Middle, Vector2.zero, Vector2.one * (ArcadePad.StickRadius + 12f) * 2f, PadFill);
             m_StickKnob = Ui.Picture(m_Pad, "Knob", Ui.Disc, Ui.TopLeft, Ui.Middle, Vector2.zero, Vector2.one * 36f, Color.white);
-            string[] names = { "FIRE", "JUMP", "SP", "SU", "AB", "II" };
+            string[] names = { "FIRE", "JUMP", "SP", "SU", "AB", "II", "TEAM" };
             for (int i = 0; i < m_Buttons.Length; i++)
             {
                 m_Buttons[i] = Ui.Picture(m_Pad, names[i], Ui.Disc, Ui.TopLeft, Ui.Middle, Vector2.zero, Vector2.one, PadFill);
@@ -209,6 +227,45 @@ namespace PooketSlug
             Ui.Show(m_Edges, edges > 0f);
             Ui.Show(m_IntroName, on && show.NameCard);
             if (on && show.NameCard && m_IntroName.text != info.IntroName) m_IntroName.text = info.IntroName;
+        }
+
+        /// <summary>A soldier's colour on the team card.</summary>
+        static Color CardColour(SoldierDef s) => s == Content.Tones2 ? new Color(1f, 0.72f, 0.1f, 0.95f)
+            : s == Content.Kie ? new Color(0.25f, 0.85f, 0.8f, 0.95f) : new Color(0.6f, 0.6f, 0.65f, 0.95f);
+
+        /// <summary>
+        /// A team super's split card, while the action's frozen: the presser slams in from the left, the partner from
+        /// the right, "TEAM SUPER!" over them and the combo's name under; then they're swept away.
+        /// </summary>
+        void TeamCard(World w, in HudInfo info)
+        {
+            TeamSuperShow show = w.Team;
+            bool on = show != null && show.Freezing && info.Playing;
+            m_TeamCard.gameObject.SetActive(on);
+            if (!on) return;
+            if (m_TeamShownLeft != show.Fired)
+            {
+                m_TeamShownLeft = show.Fired;
+                m_TeamLeft.color = CardColour(show.Fired);
+                m_TeamRight.color = CardColour(show.Partner);
+                m_TeamLeftPic.sprite = Art.SkinFor(show.Fired, 0).TorsoForward;
+                m_TeamRightPic.sprite = Art.SkinFor(show.Partner, 1).TorsoForward;
+                m_TeamRightPic.rectTransform.localScale = new Vector3(-1f, 1f, 1f); // facing the presser
+                m_TeamLeftName.text = show.Fired.Name.ToUpperInvariant();
+                m_TeamRightName.text = show.Partner.Name.ToUpperInvariant();
+                m_TeamName.text = show.Combo.Name;
+            }
+            float t = show.CardTime, card = TeamSupers.Spec.Card;
+            float slam = Mathf.Clamp01(t / 0.14f), leave = Mathf.Clamp01((t - (card - 0.12f)) / 0.12f);
+            float off = (1f - slam) * 420f + leave * 420f;
+            float shake = slam >= 1f && t < 0.24f ? Mathf.Sin(t * 120f) * 3f : 0f; // the slam lands with a judder
+            m_TeamLeft.rectTransform.anchoredPosition = new Vector2(-2f - off + shake, 0f);
+            m_TeamRight.rectTransform.anchoredPosition = new Vector2(2f + off - shake, 0f);
+            m_TeamBand.color = new Color(0.06f, 0.04f, 0.08f, 0.85f * slam * (1f - leave));
+            bool words = slam >= 1f && leave <= 0f;
+            Ui.Show(m_TeamTitle, words);
+            Ui.Show(m_TeamName, words);
+            if (words) m_TeamTitle.color = (int)(t * 12f) % 2 == 0 ? Gold : Color.white;
         }
 
         static Image Meter(RectTransform parent, string name, Vector2 at, out Image fill, Color color)
@@ -334,9 +391,11 @@ namespace PooketSlug
             if (note) m_Note.text = info.Note;
 
             Intro(info);
+            TeamCard(w, info);
             Popups(w, cam);
             if (info.Fps != m_FpsShown || info.Muted != m_MutedShown)
                 m_Fps.text = (m_FpsShown = info.Fps) + " FPS" + ((m_MutedShown = info.Muted) ? " · MUTED" : "");
+            GameInput.Pad.TeamVisible = info.Playing && w.TeamReady != null;
             Pad(GameInput.Pad, p, info.Net != null);
             CallIn(p, cam);
         }
@@ -430,7 +489,8 @@ namespace PooketSlug
                 bool held = pad.Held(b);
                 image.rectTransform.anchoredPosition = Down(pad.Center(b));
                 image.rectTransform.sizeDelta = Vector2.one * pad.Radius(b) * 2f;
-                image.color = held ? PadHeld : b == ArcadePad.Button.Super && p.Kit.SuperReady ? PadReady : PadFill;
+                image.color = held ? PadHeld : b == ArcadePad.Button.Super && p.Kit.SuperReady ? PadReady
+                    : b == ArcadePad.Button.Team ? ((int)(Time.unscaledTime * 5f) % 2 == 0 ? PadReady : PadHeld) : PadFill;
                 m_ButtonLabels[i].color = held ? Color.white : new Color(1f, 1f, 1f, 0.85f);
             }
         }

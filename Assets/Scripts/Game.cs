@@ -44,6 +44,7 @@ namespace PooketSlug
         bool m_TestOneUp;       // ?test=1up: a 1-up just ahead of the start
         bool m_TestBoss;        // ?test=boss: a game starts just before the boss's arena (co-op too: the co-op test's boss round)
         bool m_TestPilot;       // ?test=pilot: the same, and the tank's wrecked as it wakes, so the pilot round starts at once
+        bool m_TestTeam;        // ?test=team: solo, a stand-in partner and both supers charged, to try TEAM
         bool m_TestWeakPilot;   // ?test=pilot,weak: and the pilot goes down to one shot, to see what beating him does
         string m_Notice, m_StartNote;
         float m_NoticeTime, m_LeaveArmed;
@@ -124,6 +125,7 @@ namespace PooketSlug
             m_TestOneUp = Array.IndexOf(tests, "1up") >= 0;
             m_TestPilot = Array.IndexOf(tests, "pilot") >= 0;
             m_TestWeakPilot = m_TestPilot && Array.IndexOf(tests, "weak") >= 0;
+            m_TestTeam = Array.IndexOf(tests, "team") >= 0;
             m_TestBoss = m_TestPilot || Array.IndexOf(tests, "boss") >= 0;
 
             m_World = NewWorld(m_Mission);
@@ -157,7 +159,7 @@ namespace PooketSlug
         /// <summary>A world for <paramref name="mission"/>, shared when <paramref name="net"/> is given.</summary>
         World NewWorld(MissionDef mission, INetLink net = null)
         {
-            var world = new World(m_Camera, mission, net, Soldier) { TanksToCall = m_TankUnlocked || m_TestTank ? 1 : 0, SkipToPilot = m_TestPilot, WeakPilot = m_TestWeakPilot };
+            var world = new World(m_Camera, mission, net, Soldier) { TanksToCall = m_TankUnlocked || m_TestTank ? 1 : 0, SkipToPilot = m_TestPilot, WeakPilot = m_TestWeakPilot, TestTeam = m_TestTeam };
             world.BossIntro += OnBossIntro;
             world.BossFightStarted += OnBossFightStarted;
             world.TankWrecked += OnTankWrecked;

@@ -14,7 +14,7 @@ namespace PooketSlug
         bool Read(ref SoldierInput soldier, ref MenuInput menu);
     }
 
-    /// <summary>Arrows or WASD to move, Z/Space/K to jump, X/J to fire, C/L for the special, V/U for the super, B/I for the ability.</summary>
+    /// <summary>Arrows or WASD to move, Z/Space/K to jump, X/J to fire, C/L for the special, V/U for the super, B/I for the ability, T/Y for TEAM.</summary>
     public sealed class KeyboardSource : IInputSource
     {
         public bool Read(ref SoldierInput soldier, ref MenuInput menu)
@@ -36,6 +36,8 @@ namespace PooketSlug
             soldier.SuperPressed |= kb.vKey.wasPressedThisFrame || kb.uKey.wasPressedThisFrame;
             soldier.Ability |= kb.bKey.isPressed || kb.iKey.isPressed;
             soldier.AbilityPressed |= kb.bKey.wasPressedThisFrame || kb.iKey.wasPressedThisFrame;
+            soldier.Team |= kb.tKey.isPressed || kb.yKey.isPressed;
+            soldier.TeamPressed |= kb.tKey.wasPressedThisFrame || kb.yKey.wasPressedThisFrame;
             menu.Start |= kb.enterKey.wasPressedThisFrame || kb.numpadEnterKey.wasPressedThisFrame;
             menu.Restart |= kb.rKey.wasPressedThisFrame;
             menu.Pause |= kb.pKey.wasPressedThisFrame;
@@ -62,6 +64,8 @@ namespace PooketSlug
             soldier.SuperPressed |= Input.GetKeyDown(KeyCode.V) || Input.GetKeyDown(KeyCode.U);
             soldier.Ability |= Input.GetKey(KeyCode.B) || Input.GetKey(KeyCode.I);
             soldier.AbilityPressed |= Input.GetKeyDown(KeyCode.B) || Input.GetKeyDown(KeyCode.I);
+            soldier.Team |= Input.GetKey(KeyCode.T) || Input.GetKey(KeyCode.Y);
+            soldier.TeamPressed |= Input.GetKeyDown(KeyCode.T) || Input.GetKeyDown(KeyCode.Y);
             menu.Start |= Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter);
             menu.Restart |= Input.GetKeyDown(KeyCode.R);
             menu.Pause |= Input.GetKeyDown(KeyCode.P);
@@ -78,7 +82,7 @@ namespace PooketSlug
         }
     }
 
-    /// <summary>The d-pad or left stick to move, A to jump, X or the right trigger to fire, B or RB for the special, Y for the super, LB for the ability.</summary>
+    /// <summary>The d-pad or left stick to move, A to jump, X or the right trigger to fire, B or RB for the special, Y for the super, LB for the ability, the left trigger for TEAM.</summary>
     public sealed class GamepadSource : IInputSource
     {
         public bool Read(ref SoldierInput soldier, ref MenuInput menu)
@@ -102,12 +106,14 @@ namespace PooketSlug
             soldier.SuperPressed |= pad.buttonNorth.wasPressedThisFrame;
             soldier.Ability |= pad.leftShoulder.isPressed;
             soldier.AbilityPressed |= pad.leftShoulder.wasPressedThisFrame;
+            soldier.Team |= pad.leftTrigger.isPressed;
+            soldier.TeamPressed |= pad.leftTrigger.wasPressedThisFrame;
             menu.Start |= pad.startButton.wasPressedThisFrame;
             menu.Restart |= pad.selectButton.wasPressedThisFrame;
             menu.Settings |= pad.selectButton.wasPressedThisFrame; // the title screen's SETTINGS, and back
             return pad.buttonSouth.wasPressedThisFrame || pad.buttonWest.wasPressedThisFrame || pad.buttonEast.wasPressedThisFrame
                 || pad.buttonNorth.wasPressedThisFrame || pad.rightTrigger.wasPressedThisFrame || pad.rightShoulder.wasPressedThisFrame
-                || pad.leftShoulder.wasPressedThisFrame
+                || pad.leftShoulder.wasPressedThisFrame || pad.leftTrigger.wasPressedThisFrame
                 || pad.startButton.wasPressedThisFrame || pad.selectButton.wasPressedThisFrame || pad.dpad.ReadValue() != Vector2.zero
                 || stick.sqrMagnitude > SoldierInput.AimThreshold * SoldierInput.AimThreshold;
 #else

@@ -17,6 +17,8 @@ namespace PooketSlug
         public bool Special, SpecialPressed;
         public bool Super, SuperPressed;
         public bool Ability, AbilityPressed;
+        /// <summary>TEAM: the team super, in co-op when both supers are charged (<see cref="TeamSupers"/>).</summary>
+        public bool Team, TeamPressed;
 
         /// <summary>-1, 0 or 1: pushing both ways at once cancels out, as with the arrow keys.</summary>
         public float MoveX => (Right ? 1f : 0f) - (Left ? 1f : 0f);
@@ -47,6 +49,8 @@ namespace PooketSlug
             SuperPressed |= other.SuperPressed;
             Ability |= other.Ability;
             AbilityPressed |= other.AbilityPressed;
+            Team |= other.Team;
+            TeamPressed |= other.TeamPressed;
         }
     }
 }

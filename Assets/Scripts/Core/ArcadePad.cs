@@ -10,8 +10,8 @@ namespace PooketSlug
     /// </summary>
     public sealed class ArcadePad
     {
-        public enum Button { Fire, Jump, Special, Super, Ability, Pause }
-        const int ButtonCount = 6;
+        public enum Button { Fire, Jump, Special, Super, Ability, Pause, Team }
+        const int ButtonCount = 7;
 
         /// <summary>A finger on the screen this frame.</summary>
         public readonly struct Finger
@@ -53,6 +53,8 @@ namespace PooketSlug
         public bool PauseVisible { get; set; }
         /// <summary>The soldier has an ability, so its button (AB) shows.</summary>
         public bool AbilityVisible { get; set; }
+        /// <summary>A team super can be fired (<see cref="TeamSupers"/>), so its button (TEAM) shows.</summary>
+        public bool TeamVisible { get; set; }
         public float Width { get; private set; }
         /// <summary>Where the stick rests when no thumb is on it.</summary>
         public Vector2 StickHome { get; private set; }
@@ -65,7 +67,8 @@ namespace PooketSlug
         public Vector2 Center(Button b) => m_Center[(int)b];
         public float Radius(Button b) => m_Radius[(int)b];
         public bool Held(Button b) => m_Held[(int)b];
-        public bool Shown(Button b) => b == Button.Pause ? PauseVisible : b == Button.Ability ? Visible && AbilityVisible : Visible;
+        public bool Shown(Button b) => b == Button.Pause ? PauseVisible : b == Button.Ability ? Visible && AbilityVisible
+            : b == Button.Team ? Visible && TeamVisible : Visible;
 
         /// <summary>Places the stick and the buttons on a screen this many HUD units wide.</summary>
         public void Layout(float width)
@@ -79,6 +82,7 @@ namespace PooketSlug
             Place(Button.Super, width - 46f, h - 152f, 20f);
             Place(Button.Ability, width - 198f, h - 118f, 18f);
             Place(Button.Pause, width - 22f, 60f, 13f);
+            Place(Button.Team, width - 62f, h - 208f, 22f);
         }
 
         void Place(Button b, float x, float y, float radius)
@@ -135,6 +139,8 @@ namespace PooketSlug
             input.SuperPressed |= Held(Button.Super) && !m_WasHeld[(int)Button.Super];
             input.Ability |= Held(Button.Ability);
             input.AbilityPressed |= Held(Button.Ability) && !m_WasHeld[(int)Button.Ability];
+            input.Team |= Held(Button.Team);
+            input.TeamPressed |= Held(Button.Team) && !m_WasHeld[(int)Button.Team];
             return began;
         }
 

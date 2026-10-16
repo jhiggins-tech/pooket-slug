@@ -89,6 +89,7 @@ namespace PooketSlug
             Pressure = m_Jet != null ? m_Jet.Pressure : 0f,
             Spewing = Spewing,
             Rooted = m_Rocket != null && m_Rocket.Rooted,
+            SuperReady = Kit.SuperReady,
         };
 
         public override void Tick(float dt)
@@ -197,6 +198,7 @@ namespace PooketSlug
                 else if (Kit.UseSuper()) FireSuper();
             }
             if (input.AbilityPressed && Kit.UseAbility()) FireOnce(Def.Ability);
+            if (input.TeamPressed) World.FireTeam(); // only when TEAM shows
 
             // jump into an empty tank, or press JUMP touching one, to climb in
             PlayerTank tank = World.Tank;

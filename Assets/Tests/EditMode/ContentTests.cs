@@ -161,11 +161,11 @@ namespace PooketSlug.Tests
         }
 
         [TestCase(-1)]
-        [TestCase(20)]
         [TestCase(255)]
         public void AnUnknownWeaponIdFindsNothing(int id)
         {
             Assert.IsNull(Content.Weapon(id));
+            Assert.IsNull(Content.Weapon(Content.Weapons.Count), "one past the last weapon");
         }
 
         [Test]
@@ -181,7 +181,8 @@ namespace PooketSlug.Tests
             {
                 bool pours = w.Behaviour == WeaponBehaviour.Jet || w.Behaviour == WeaponBehaviour.RocketJump || w.Behaviour == WeaponBehaviour.Spew;
                 if (pours) Assert.IsNull(w.Projectile, w.Name + ": tones2's kit fires no projectile");
-                else if (w.Behaviour == WeaponBehaviour.Weasels || w.Behaviour == WeaponBehaviour.Trollogram || w.Behaviour == WeaponBehaviour.Steal)
+                else if (w.Behaviour == WeaponBehaviour.Weasels || w.Behaviour == WeaponBehaviour.Trollogram || w.Behaviour == WeaponBehaviour.Steal
+                    || w.Behaviour == WeaponBehaviour.TeamSuper)
                     Assert.IsNull(w.Projectile, w.Name + ": weasels and holograms aren't projectiles");
                 else Assert.AreSame(w.Projectile, Content.Projectiles[w.Projectile.Id], w.Name);
             }

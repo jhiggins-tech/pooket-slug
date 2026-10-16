@@ -78,6 +78,8 @@ namespace PooketSlug
             cooldown: 0.35f, muzzleBlast: 0.45f, kick: 0.12f, hud: "SHELL");
         public static readonly WeaponDef PlayerTankMortar = new WeaponDef(19, "Tabk mortar", WeaponBehaviour.Lob, PlayerTankMortarShot,
             throwVelocity: new Vector2(6f, 12f), carry: 0.4f, hud: "MORTAR");
+        /// <summary>A team super fired (<see cref="TeamSupers"/>): sent to the partner, so their screen plays it and spends their super.</summary>
+        public static readonly WeaponDef TeamSuper = new WeaponDef(20, "Team super", WeaponBehaviour.TeamSuper, null, hud: "TEAM");
 
         /// <summary>How Mission one's boss tank fights.</summary>
         public static readonly BossTankSpec BossTank = new BossTankSpec();
@@ -143,7 +145,7 @@ namespace PooketSlug
             PlayerTankShellShot, PlayerTankMortarShot);
         public static readonly IReadOnlyList<WeaponDef> Weapons = ById(w => w.Id, Pistol, HeavyMachineGun, Rifle, Cannon, GrenadeThrow, DroneBomb, TankGun,
             WaterJet, RocketJump, Spew, BossCannon, WeaselPop, Trollogram,
-            Steal, StolenRifle, StolenKnives, StolenBombs, StolenCannon, PlayerTankCannon, PlayerTankMortar);
+            Steal, StolenRifle, StolenKnives, StolenBombs, StolenCannon, PlayerTankCannon, PlayerTankMortar, TeamSuper);
         public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank, Barrel, Weasel, TankCopy, Pilot, PilotDecoy);
         public static readonly IReadOnlyList<PickupDef> Pickups = ById(p => p.Id, HeavyMachineGunCrate, BombCrate, Medkit, OneUp);
         public static readonly IReadOnlyList<SoldierDef> Soldiers = ById(s => s.Id, Trooper, Tones2, Kie);

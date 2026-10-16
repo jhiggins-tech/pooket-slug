@@ -11,6 +11,8 @@ namespace PooketSlug
         // tones2's kit, so a partner's copy can pour out the same liquids: the jet and its pressure (3 bits), the spew,
         // and shaking before a rocket jump
         const int JetBit = 1 << 13, PressureShift = 14, PressureMask = 7 << PressureShift, SpewBit = 1 << 17, RootedBit = 1 << 18;
+        // the super's charged, so a partner's pad can show TEAM (team supers)
+        const int SuperReadyBit = 1 << 19;
 
         public int Facing;  // 1 = right, -1 = left
         public int AimY;    // 1 = up, -1 = down, 0 = forward
@@ -23,6 +25,8 @@ namespace PooketSlug
         public bool Grounded, Crouching, Running, Dead, Muzzle, Blink, Flash;
         /// <summary>tones2: firing his jet, at <see cref="Pressure"/> (0 to 1, in sevenths on the wire); spewing; shaking before a rocket jump.</summary>
         public bool Jetting, Spewing, Rooted;
+        /// <summary>The super is charged: with the partner's too, a team super can be fired.</summary>
+        public bool SuperReady;
         public float Pressure;
         public float Anim, DeadTime;
 
@@ -32,7 +36,7 @@ namespace PooketSlug
             (Dead ? DeadBit : 0) | (Muzzle ? MuzzleBit : 0) | (Blink ? BlinkBit : 0) | (Flash ? FlashBit : 0) |
             (Diagonal && AimY != 0 ? DiagonalBit : 0) | (Out ? OutBit : 0) | (Gone ? GoneBit : 0) |
             (Jetting ? JetBit | (Mathf.Clamp(Mathf.RoundToInt(Pressure * 7f), 0, 7) << PressureShift) : 0) |
-            (Spewing ? SpewBit : 0) | (Rooted ? RootedBit : 0);
+            (Spewing ? SpewBit : 0) | (Rooted ? RootedBit : 0) | (SuperReady ? SuperReadyBit : 0);
 
         /// <summary>Unpacks replicated flags; animation clocks are kept locally by the caller.</summary>
         public static AvatarPose Unpack(int flags, float anim, float deadTime) => new AvatarPose
@@ -53,6 +57,7 @@ namespace PooketSlug
             Pressure = ((flags & PressureMask) >> PressureShift) / 7f,
             Spewing = (flags & SpewBit) != 0,
             Rooted = (flags & RootedBit) != 0,
+            SuperReady = (flags & SuperReadyBit) != 0,
             Anim = anim,
             DeadTime = deadTime,
         };

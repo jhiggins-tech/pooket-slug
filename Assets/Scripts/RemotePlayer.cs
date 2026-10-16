@@ -40,6 +40,8 @@ namespace PooketSlug
         public bool OutOfLives => m_Pose.Out;
         /// <summary>Out of lives and continues.</summary>
         public bool Gone => m_Pose.Gone;
+        /// <summary>Their super is charged (for a team super).</summary>
+        public bool SuperReady => m_Pose.SuperReady && !m_Pose.Dead;
 
         public override void Tick(float dt)
         {

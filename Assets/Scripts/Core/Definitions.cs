@@ -69,6 +69,8 @@ namespace PooketSlug
         Trollogram,
         /// <summary>kie's Steal: a roulette over the toughest enemy on screen lifts a weapon off it (<see cref="StealSpec"/>).</summary>
         Steal,
+        /// <summary>A team super (<see cref="TeamSupers"/>): not fired as a weapon; its number carries the combo to the partner.</summary>
+        TeamSuper,
     }
 
     /// <summary>A weapon: what it fires, and how. Shots are replicated by weapon id.</summary>

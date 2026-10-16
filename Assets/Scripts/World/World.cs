@@ -61,6 +61,11 @@ namespace PooketSlug
         /// <summary>The boss music's cut before the win (the pilot's big glitch-out, <c>?spike=pilot-glitch</c>).</summary>
         public bool BossMusicOff;
         public float VictoryTime;
+        /// <summary>A team super playing out, or null (<see cref="TeamSupers"/>).</summary>
+        public TeamSuperShow Team;
+        /// <summary>Testing (<c>?test=team</c>): solo, a stand-in partner whose super is always charged, so TEAM can be tried.</summary>
+        public bool TestTeam;
+        bool m_TeamFilled;
 
         /// <param name="soldier">Who our soldier is (the title's CREW pick); tones2 when not given.</param>
         public World(Camera camera, MissionDef mission, INetLink net = null, SoldierDef soldier = null)
@@ -236,6 +241,31 @@ namespace PooketSlug
 
             Sync?.Pull();
 
+            // a team super: the action freezes for its card, then the goons hold still while it plays
+            if (TestTeam && !m_TeamFilled)
+            {
+                Player.Kit.FillSuper(); // ?test=team: charged, and again after each try
+                m_TeamFilled = true;
+            }
+            bool teamPlaying = Team != null;
+            if (teamPlaying)
+            {
+                Team.Tick(dt);
+                if (Team.Over)
+                {
+                    Team.Destroy();
+                    Team = null;
+                    m_TeamFilled = false;
+                }
+                else if (Team.Freezing)
+                {
+                    Scoring.Tick(dt);
+                    View.Tick(dt);
+                    Sync?.Push();
+                    return;
+                }
+            }
+
             Player.Input = input;
             if (Tank != null)
             {
@@ -250,8 +280,10 @@ namespace PooketSlug
             for (int i = 0; i < Remotes.Count; i++) Remotes[i].Tick(dt);
             Spawner.SpawnAhead();
 
-            for (int i = 0; i < Enemies.Count; i++) Enemies[i].Tick(dt);
-            for (int i = 0; i < Projectiles.Count; i++) Projectiles[i].Tick(dt);
+            for (int i = 0; i < Enemies.Count; i++)
+                if (!teamPlaying || Enemies[i].Dying) Enemies[i].Tick(dt);
+            for (int i = 0; i < Projectiles.Count; i++)
+                if (!teamPlaying || !Projectiles[i].Hostile) Projectiles[i].Tick(dt);
             for (int i = 0; i < Pickups.Count; i++) Pickups[i].Tick(dt);
             for (int i = 0; i < Effects.Count; i++) Effects[i].Tick(dt);
             for (int i = 0; i < Props.Count; i++) Props[i].Tick(dt); // scenery does nothing; hazards hurt
@@ -285,6 +317,7 @@ namespace PooketSlug
             foreach (Pickup p in Pickups) p.Render();
             foreach (Entity e in Effects) e.Render();
             foreach (Entity e in Props) e.Render();
+            Team?.Render();
             HitFeel.Render();
         }
 
@@ -320,6 +353,68 @@ namespace PooketSlug
                 pilot.JumpOut(Player.Pos.x < tank.Pos.x ? -1 : 1);
                 if (WeakPilot) pilot.Hp = 1;
             }
+        }
+
+        // ------------------------------------------------------------------ team supers
+
+        /// <summary>Our partner for a team super (the first partner still in the game), or null.</summary>
+        RemotePlayer TeamPartner
+        {
+            get
+            {
+                foreach (RemotePlayer r in Remotes)
+                    if (!r.Gone && !r.Removed) return r;
+                return null;
+            }
+        }
+
+        /// <summary>Our partner's soldier, and whether their super is charged: the stand-in's with <see cref="TestTeam"/>.</summary>
+        SoldierDef PartnerSoldier(out bool ready)
+        {
+            RemotePlayer r = TeamPartner;
+            if (r != null)
+            {
+                ready = r.SuperReady;
+                return r.Link.Soldier;
+            }
+            ready = TestTeam && !Coop;
+            if (!ready) return null;
+            foreach (TeamCombo c in TeamSupers.All)
+                if (c.Other(Player.Def) != null) return c.Other(Player.Def);
+            return null;
+        }
+
+        /// <summary>The combo TEAM would fire now, or null when it can't (TEAM is hidden).</summary>
+        public TeamCombo TeamReady
+        {
+            get
+            {
+                if (Player.Dead || Player.Riding != null || Victory) return null;
+                SoldierDef partner = PartnerSoldier(out bool ready);
+                TeamCombo combo = TeamSupers.For(Player.Def, partner);
+                return TeamSupers.CanFire(Player.Kit.SuperReady, ready, combo, Team != null) ? combo : null;
+            }
+        }
+
+        /// <summary>We pressed TEAM: our super's spent, the show starts here, and the partner's screen is told.</summary>
+        public void FireTeam()
+        {
+            TeamCombo combo = TeamReady;
+            if (combo == null || !Player.Kit.UseSuper()) return;
+            SoldierDef partner = combo.Other(Player.Def);
+            Team = new TeamSuperShow(this, combo, Player.Def, partner, Player.Facing);
+            Net?.SendShot(new ShotEvent(Content.TeamSuper, Player.Pos, new Vector2(combo.Id, Player.Facing)));
+        }
+
+        /// <summary>Our partner pressed TEAM: our super's spent too, and the show plays here (unless ours already is).</summary>
+        public void OnPartnerTeam(in ShotEvent shot)
+        {
+            TeamCombo combo = TeamSupers.ById(Mathf.RoundToInt(shot.Velocity.x));
+            if (combo == null) return;
+            Player.Kit.UseSuper(); // both supers go, whoever pressed it
+            if (Team != null) return; // we both pressed it at once: one show
+            SoldierDef fired = combo.Other(Player.Def) ?? combo.A;
+            Team = new TeamSuperShow(this, combo, fired, Player.Def, shot.Velocity.y >= 0f ? 1 : -1);
         }
 
         /// <summary>The mission's last boss is beaten (the pilot glitched out): the mission's won.</summary>

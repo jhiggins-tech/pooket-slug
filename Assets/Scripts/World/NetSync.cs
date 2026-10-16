@@ -151,6 +151,7 @@ namespace PooketSlug
                 // kie's weasels and holograms (KieKit)
                 if (shot.Weapon == Content.WeaselPop) KieKit.CopyWeasel(m_World, shot);
                 else if (shot.Weapon == Content.Trollogram) KieKit.OnTrollEvent(m_World, shot);
+                else if (shot.Weapon == Content.TeamSuper) m_World.OnPartnerTeam(shot);
                 // tones2's rocket jump: the same mud on our screen, harmless (it poisons goons on theirs)
                 if (shot.Weapon == Content.RocketJump)
                 {
