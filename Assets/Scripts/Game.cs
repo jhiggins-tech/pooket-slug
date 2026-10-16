@@ -855,6 +855,8 @@ namespace PooketSlug
         {
             Sfx.Muted = !m_Options.Sound;
             Music.Muted = !m_Options.Sound;
+            Sfx.EffectsVolume = Options.Gain(m_Options.Effects);
+            Sfx.VoicesVolume = Options.Gain(m_Options.Voices);
             ScrollCamera.Shaking = m_Options.Shake;
         }
 
@@ -1008,6 +1010,26 @@ namespace PooketSlug
                     {
                         Options o = m_Options;
                         o.Shake = !o.Shake;
+                        ChangeOptions(o);
+                    }
+                    else if (click == MenuAction.Effects)
+                    {
+                        Options o = m_Options;
+                        o.Effects = Options.Next(o.Effects);
+                        ChangeOptions(o);
+                        Sfx.Play(Sfx.Pickup, 0.8f); // a taste of the new level
+                    }
+                    else if (click == MenuAction.Voices)
+                    {
+                        Options o = m_Options;
+                        o.Voices = Options.Next(o.Voices);
+                        ChangeOptions(o);
+                        Sfx.Say("mission-start"); // a taste of the new level
+                    }
+                    else if (click == MenuAction.LeftHanded)
+                    {
+                        Options o = m_Options;
+                        o.LeftHanded = !o.LeftHanded;
                         ChangeOptions(o);
                     }
                     else if (click == MenuAction.Back || keys.Back || keys.Settings) SetState(GameState.Title);
@@ -1206,7 +1228,7 @@ namespace PooketSlug
         void UpdatePad()
         {
             ArcadePad pad = GameInput.Pad;
-            pad.Layout(Screen.width * Tuning.Hud.Height / Mathf.Max(1, Screen.height));
+            pad.Layout(Screen.width * Tuning.Hud.Height / Mathf.Max(1, Screen.height), m_Options.LeftHanded);
             bool touch = GameInput.TouchActive;
             bool playing = m_State == GameState.Playing;
             pad.Visible = touch && playing && !m_Paused;

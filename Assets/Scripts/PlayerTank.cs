@@ -290,7 +290,7 @@ namespace PooketSlug
             if (m_Hiss == null) m_Hiss = Sfx.LoopSource(Go, Sfx.JetLoop);
             if (m_Hiss == null) return;
             if (!m_Hiss.isPlaying) m_Hiss.Play();
-            m_Hiss.volume = Sfx.Muted ? 0f : 0.15f + 0.25f * p;
+            m_Hiss.volume = Sfx.Muted ? 0f : (0.15f + 0.25f * p) * Sfx.EffectsVolume;
             m_Hiss.pitch = 0.55f + 0.6f * p; // deeper than his jet: it's a cannon
         }
 

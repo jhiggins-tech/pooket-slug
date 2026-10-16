@@ -237,5 +237,32 @@ namespace PooketSlug.Tests
             Assert.Greater(On(ArcadePad.Button.Fire).x, 640f);
             Assert.Less(On(ArcadePad.Button.Fire).x, 800f);
         }
+
+        [Test]
+        public void LeftHanded_TheStickIsOnTheRightAndTheButtonsOnTheLeft()
+        {
+            m_Pad.Layout(Width, leftHanded: true);
+            Assert.IsTrue(m_Pad.LeftHanded);
+            Assert.Greater(m_Pad.StickHome.x, Width * 0.5f);
+            foreach (ArcadePad.Button b in new[] { ArcadePad.Button.Fire, ArcadePad.Button.Jump, ArcadePad.Button.Special, ArcadePad.Button.Super })
+                Assert.Less(On(b).x, Width * 0.5f, b + " is under the left thumb");
+            Assert.Greater(On(ArcadePad.Button.Pause).x, Width * 0.5f, "pause stays top right");
+
+            Vector2 thumb = new Vector2(Width - Thumb.x, Thumb.y);
+            Frame(Down(1, thumb));
+            Assert.IsTrue(m_Pad.StickActive, "a thumb on the right takes the stick");
+            Assert.AreEqual(1f, Frame(Held(1, thumb + new Vector2(30f, 0f))).MoveX);
+            SoldierInput input = Frame(Held(1, thumb), Down(2, On(ArcadePad.Button.Fire)));
+            Assert.IsTrue(input.FirePressed, "the left thumb fires");
+        }
+
+        [Test]
+        public void LeftHanded_TheButtonsStillDontOverlap()
+        {
+            m_Pad.Layout(Width, leftHanded: true);
+            TheButtonsDontOverlap();
+            m_Pad.Layout(Width, leftHanded: false);
+            Assert.Less(m_Pad.StickHome.x, Width * 0.5f, "and back again");
+        }
     }
 }

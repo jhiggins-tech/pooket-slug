@@ -62,7 +62,7 @@ namespace PooketSlug
             if (m_Hiss != null)
             {
                 if (!m_Hiss.isPlaying) m_Hiss.Play();
-                m_Hiss.volume = Sfx.Muted ? 0f : 0.12f + 0.22f * p;
+                m_Hiss.volume = Sfx.Muted ? 0f : (0.12f + 0.22f * p) * Sfx.EffectsVolume;
                 m_Hiss.pitch = 0.7f + 0.7f * p;
             }
         }
