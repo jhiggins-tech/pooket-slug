@@ -14,7 +14,7 @@ How it's wired:
 
 **Read this when** you're implementing sign-in or cloud saves, or touching the page template's account area.
 
-Up: [Research index](../AGENTS.md)
+Up: [Research index](../README.md)
 
 ## Recommendation: Google button + Firebase over REST, no server
 

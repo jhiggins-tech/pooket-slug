@@ -4,7 +4,7 @@ The spike's findings in one place, each linked to the document with the detail a
 
 **Read this when** you want the takeaways without the detail, or you're deciding whether to reuse this approach.
 
-Up: [Research index](AGENTS.md)
+Up: [Research index](README.md)
 
 ## The two questions
 
