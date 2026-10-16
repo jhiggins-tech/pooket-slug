@@ -1,9 +1,9 @@
 // Records the ⓘ kit screen's demo clips: one for each move, played by the game itself from a scripted scene with goons
 // (?demo=all plays every move's demo in turn: KitGuide.cs has the scenes and the keys each one presses).
-// Chromium records the page while the game plays them; each demo runs on a fixed step, so a slow machine plays it in
-// slow motion, and its clip is cut out of the recording at the times the game logged and sped back up to its real
-// speed. Each clip is the game's canvas, 640x360, H.264 with no sound: <outdir>/<id>.mp4 (e.g. tones2-fire.mp4), which
-// the game plays from demos/ beside the page. Also writes demos.json (what was recorded), console.log and the raw video.
+// The game records its own canvas for each demo, from its first frame to its last (PooketDemo.jslib); each demo runs on
+// a fixed step, so a slow machine plays it in slow motion, and its clip is sped back up to its real speed. Each clip is
+// the game's canvas, 640x360, H.264 with no sound: <outdir>/<id>.mp4 (e.g. tones2-fire.mp4), which the game plays from
+// demos/ beside the page. Also writes demos.json (what was recorded), console.log and the raw recordings (raw/<id>.webm).
 // Needs ffmpeg. CI runs it on each build, before it deploys (.github/workflows/webgl-pages.yml).
 // usage: PW_PATH=... node demos.mjs <url> <outdir>
 import { createRequire } from 'module';
@@ -25,30 +25,28 @@ const ARGS = ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swif
 const VIEW = { width: 1280, height: 720 };
 const SIZE = { width: 640, height: 360 };
 const TAG = String.raw`\[PooketSlug/Game\] `;
-const START = new RegExp(TAG + String.raw`Demo start: (\S+)`);
+const LIST = new RegExp(TAG + String.raw`Demos: (\S+)`);
 const END = new RegExp(TAG + String.raw`Demo end: (\S+) \((\d+) frames, ([\d.]+) s\)`);
 const DONE = new RegExp(TAG + 'Demos done');
 const LIMIT_MS = 15 * 60 * 1000;
 
 const browser = await chromium.launch({ args: ARGS });
-const context = await browser.newContext({ viewport: VIEW, recordVideo: { dir: raw, size: VIEW } });
-const page = await context.newPage();
-const T0 = Date.now(); // the recording starts with the page
+const page = await browser.newPage({ viewport: VIEW });
+const T0 = Date.now();
 const logs = [];
-const demos = []; // { id, start, end, frames, seconds }, in the order played
-let done = false, error = null;
+const ends = {}; // id → { frames, seconds } of game time, from the game's log
+let ids = null, done = false, error = null;
 page.on('console', m => {
-  const now = Date.now(), text = m.text();
-  logs.push(`${((now - T0) / 1000).toFixed(2).padStart(7)} [${m.type()}] ${text}`);
+  const text = m.text();
+  logs.push(`${((Date.now() - T0) / 1000).toFixed(2).padStart(7)} [${m.type()}] ${text}`);
   let hit;
-  if ((hit = START.exec(text))) demos.push({ id: hit[1], start: now });
-  else if ((hit = END.exec(text))) {
-    const d = demos[demos.length - 1];
-    if (d && d.id === hit[1] && d.end === undefined) Object.assign(d, { end: now, frames: +hit[2], seconds: +hit[3] });
-  } else if (DONE.test(text)) done = true;
+  if ((hit = LIST.exec(text))) ids = hit[1].split(',');
+  else if ((hit = END.exec(text))) ends[hit[1]] = ends[hit[1]] || { frames: +hit[2], seconds: +hit[3] };
+  else if (DONE.test(text)) done = true;
 });
 page.on('pageerror', e => { logs.push(`[pageerror] ${e.message}`); error = error || e.message; });
 
+const clips = {}; // id → { webm: Buffer, seconds } (wall clock the recording took)
 try {
   await page.goto(url, { waitUntil: 'load' });
   await page.waitForFunction(() => getComputedStyle(document.querySelector('#loader')).display === 'none', null, { timeout: 300000 });
@@ -58,40 +56,48 @@ try {
   const end = Date.now() + LIMIT_MS;
   while (!done && !error && Date.now() < end) await page.waitForTimeout(250);
   if (!done) throw new Error(error ? 'page error: ' + error : 'the demos never finished');
+  await page.waitForFunction(n => Object.keys(window.pooketDemoClips || {}).length >= n, ids.length, { timeout: 30000 });
+  for (const id of ids) {
+    const clip = await page.evaluate(async id => {
+      const c = window.pooketDemoClips[id];
+      if (!c) return null;
+      const bytes = new Uint8Array(await c.blob.arrayBuffer());
+      let s = '';
+      for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));
+      return { b64: btoa(s), seconds: c.seconds };
+    }, id);
+    if (clip) clips[id] = { webm: Buffer.from(clip.b64, 'base64'), seconds: clip.seconds };
+  }
 } catch (e) {
   error = e.message;
 }
-const box = await page.locator('#unity-canvas').boundingBox().catch(() => null);
-const video = page.video();
-await context.close(); // finishes the recording
 await browser.close();
 fs.writeFileSync(path.join(out, 'console.log'), logs.join('\n') + '\n');
 if (error) {
   console.error('Recording failed: ' + error);
   process.exit(1);
 }
-const webm = await video.path();
-const even = n => Math.max(2, Math.floor(n / 2) * 2);
-const crop = `crop=${even(box.width)}:${even(box.height)}:${Math.round(box.x)}:${Math.round(box.y)}`;
 
-const seen = new Set(), summary = [];
-for (const d of demos) {
-  if (d.end === undefined || seen.has(d.id)) continue; // ?demo=all loops: keep each move's first full run
-  seen.add(d.id);
-  const real = (d.end - d.start) / 1000;
-  // a little off each end: the console's timestamps lag the recording, so a cut right at the start shows the last demo
-  const from = (d.start - T0) / 1000 + 0.3, length = Math.max(0.5, real - 0.45);
-  const speed = d.seconds / real; // game seconds per recorded second: under 1 on a machine too slow to draw 30 frames a second
-  const file = path.join(out, `${d.id}.mp4`);
-  execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-ss', from.toFixed(3), '-t', length.toFixed(3), '-i', webm,
-    '-vf', `${crop},setpts=(PTS-STARTPTS)*${speed.toFixed(4)},fps=30,scale=${SIZE.width}:${SIZE.height}:flags=lanczos`,
+const summary = [];
+for (const id of ids) {
+  const clip = clips[id], game = ends[id];
+  if (!clip || !game) {
+    console.error(`${id}: not recorded`);
+    continue;
+  }
+  const webm = path.join(raw, `${id}.webm`);
+  fs.writeFileSync(webm, clip.webm);
+  const speed = game.seconds / clip.seconds; // game seconds per recorded second: under 1 on a machine too slow to draw 30 frames a second
+  const file = path.join(out, `${id}.mp4`);
+  execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', webm,
+    '-vf', `setpts=(PTS-STARTPTS)*${speed.toFixed(4)},fps=30,scale=${SIZE.width}:${SIZE.height}:flags=lanczos`,
     '-an', '-c:v', 'libx264', '-preset', 'slow', '-crf', '24', '-pix_fmt', 'yuv420p', '-movflags', '+faststart', file]);
   const bytes = fs.statSync(file).size;
-  summary.push({ id: d.id, gameSeconds: d.seconds, recordedSeconds: +real.toFixed(2), speed: +speed.toFixed(3), bytes });
-  console.log(`${d.id}: ${d.seconds} s of game in ${real.toFixed(1)} s (×${(1 / speed).toFixed(2)} slow), ${(bytes / 1024).toFixed(0)} KB`);
+  summary.push({ id, gameSeconds: game.seconds, recordedSeconds: +clip.seconds.toFixed(2), speed: +speed.toFixed(3), bytes });
+  console.log(`${id}: ${game.seconds} s of game in ${clip.seconds.toFixed(1)} s (×${(1 / speed).toFixed(2)} slow), ${(bytes / 1024).toFixed(0)} KB`);
 }
 fs.writeFileSync(path.join(out, 'demos.json'), JSON.stringify(summary, null, 2) + '\n');
-if (summary.length === 0) {
-  console.error('No demo was recorded.');
+if (summary.length < (ids || []).length || summary.length === 0) {
+  console.error('Not every demo was recorded.');
   process.exit(1);
 }

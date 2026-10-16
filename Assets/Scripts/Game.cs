@@ -83,7 +83,7 @@ namespace PooketSlug
         System.Collections.Generic.IReadOnlyList<MoveGuide> m_Demos;
         int m_DemoIndex, m_DemoFrames;
         float m_DemoT, m_DemoWait;
-        bool m_DemoStarted;
+        bool m_DemoStarted, m_DemoRecording; // the first time through ?demo=all, the page records each demo for CI
 
         /// <summary>Co-op shows only once Mission one has been beaten solo (progressive disclosure).</summary>
         bool CoopOpen => m_Profile.coop || m_Unlocked;
@@ -566,7 +566,13 @@ namespace PooketSlug
             m_DemoFrames = 0;
             m_World.Render();
             SetState(GameState.Demo);
-            if (m_DemoStarted) Log.Game.Info("Demo start: " + move.DemoId);
+            if (m_DemoStarted) StartedDemo(move);
+        }
+
+        void StartedDemo(MoveGuide move)
+        {
+            Log.Game.Info("Demo start: " + move.DemoId);
+            if (m_DemoRecording) DemoRecording.Begin(move.DemoId);
         }
 
         /// <summary>
@@ -583,7 +589,8 @@ namespace PooketSlug
                 bool waited = m_Demos.Count == 1 && m_DemoWait > 2f; // ?demo=all (CI's recorder) waits for its Enter
                 if (!keys.Start && !soldier.FirePressed && !waited) return;
                 m_DemoStarted = true;
-                Log.Game.Info("Demo start: " + move.DemoId);
+                m_DemoRecording = m_Demos.Count > 1;
+                StartedDemo(move);
             }
             const float dt = 1f / DemoScript.Fps;
             m_DemoT += dt;
@@ -591,7 +598,12 @@ namespace PooketSlug
             m_World.Tick(dt, move.Demo.InputAt(m_DemoFrames));
             if (m_DemoT < move.Demo.Seconds) return;
             Log.Game.Info("Demo end: " + move.DemoId + " (" + m_DemoFrames + " frames, " + (m_DemoFrames / DemoScript.Fps).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + " s)");
-            if (m_DemoIndex == m_Demos.Count - 1 && m_Demos.Count > 1) Log.Game.Info("Demos done");
+            if (m_DemoRecording) DemoRecording.End();
+            if (m_DemoIndex == m_Demos.Count - 1 && m_Demos.Count > 1)
+            {
+                m_DemoRecording = false;
+                Log.Game.Info("Demos done");
+            }
             BeginDemo((m_DemoIndex + 1) % m_Demos.Count);
         }
 

@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Video;
@@ -83,5 +84,23 @@ namespace PooketSlug
             Ui.Show(m_Note, note != null);
             if (note != null) m_Note.text = note;
         }
+    }
+
+    /// <summary>
+    /// CI's side of the demos (<c>?demo=all</c>, <c>tools/demos.mjs</c>): the page records the canvas from the frame a demo
+    /// starts to the frame it ends (<c>PooketDemo.jslib</c>), so each clip holds exactly one demo.
+    /// </summary>
+    public static class DemoRecording
+    {
+#if UNITY_WEBGL && !UNITY_EDITOR
+        [DllImport("__Internal")] static extern void PS_DemoBegin(string id);
+        [DllImport("__Internal")] static extern void PS_DemoEnd();
+#else
+        static void PS_DemoBegin(string id) { }
+        static void PS_DemoEnd() { }
+#endif
+
+        public static void Begin(string id) => PS_DemoBegin(id);
+        public static void End() => PS_DemoEnd();
     }
 }
