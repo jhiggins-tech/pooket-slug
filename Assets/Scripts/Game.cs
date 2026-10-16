@@ -324,7 +324,7 @@ namespace PooketSlug
             m_Scene.Tick(dt, m_SceneCues, Sfx.NarratorTalking);
             foreach (string cue in m_SceneCues)
             {
-                if (cue == "say:mission-start") m_SceneSaidStart = true;
+                if (cue == Cues.SayMissionStart) m_SceneSaidStart = true;
                 m_SceneView.Cue(cue);
             }
             if (m_Scene.Shot != shot && !m_Scene.Done)
