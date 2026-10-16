@@ -133,8 +133,12 @@ namespace PooketSlug
     public interface ISoldierChannel
     {
         IReadOnlyList<IAvatarLink> RemoteAvatars { get; }
-        /// <summary>Our soldier, and our tank (<see cref="TankPose.Pack"/> and where it is; 0 for none).</summary>
+        /// <summary>Every other player in the session, playing or in the den (the lobby).</summary>
+        IReadOnlyList<IAvatarLink> Partners { get; }
+        /// <summary>Our soldier, and our tank (<see cref="TankPose.Pack"/> and where it is; 0 for none). It takes us out of the den.</summary>
         void SendAvatar(SoldierDef soldier, Vector2 pos, Vector2 vel, int poseFlags, int hp, int tankFlags, Vector2 tankPos);
+        /// <summary>Where we are in the den: who's on our seat of the couch (null for nobody) and <see cref="Den.Flags"/>.</summary>
+        void SendDen(SoldierDef soldier, int flags);
         void SendShot(in ShotEvent shot);
     }
 
@@ -194,6 +198,10 @@ namespace PooketSlug
         Vector2 TankPos { get; }
         /// <summary>Their player's id in the session.</summary>
         int PlayerId { get; }
+        /// <summary>Where they are in the den (<see cref="Den.Flags"/>); 0 once they're playing.</summary>
+        int DenFlags { get; }
+        /// <summary>They're in a mission (any round), not in the den.</summary>
+        bool Playing { get; }
         /// <summary>Asks the owning client to apply damage to its soldier.</summary>
         void Hurt(int damage);
     }

@@ -19,6 +19,7 @@ namespace PooketSlug
         [Networked] public byte NetSoldier { get; set; } // SoldierDef id
         [Networked] public int NetTank { get; set; }  // TankPose.Pack(): their tank, 0 for none
         [Networked] public Vector2 NetTankPos { get; set; }
+        [Networked] public byte NetDen { get; set; }  // Den.Flags while in the den (the lobby), 0 once playing
 
         bool Live => Object != null && Object.IsValid;
 
@@ -32,6 +33,8 @@ namespace PooketSlug
         public Vector2 TankPos => Live ? NetTankPos : default;
         public int PlayingRound => Live ? NetRound - 1 : -1;
         public int PlayerId => Live ? Object.StateAuthority.PlayerId : -1;
+        public int DenFlags => Live ? NetDen : 0;
+        public bool Playing => Live && NetRound > 0;
 
         public override void Spawned() => NetSession.Instance?.Replication.OnPlayerSpawned(this);
 
