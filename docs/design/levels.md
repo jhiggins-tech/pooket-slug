@@ -54,7 +54,7 @@ Up: [Design](README.md)
 3. **Once Mission one has been beaten solo:**
    - **Co-op appears** in the menu: host a room, join with a code, quick match, browse rooms, or watch a game.
    - **The mission screen** appears, with replays, Mission one's hard setting, and kcaj's mission.
-   - **The crew screen** appears, with tones2 and kie.
+   - **The crew screen** appears, with tones2 and kie: it's the gaming den ([the lobby](lobby.md)).
    - **The debrief** shows XP and rank for the first time, and offers sign-in to players who haven't.
 4. **Each later mission** frees another crewmate, adds their tank to call in, and opens its map for replays and its hard setting.
 5. **The Roguelite mode** is on ice. It's kept in [DESIGN.md](../../DESIGN.md#roguelite-on-ice) for when it returns.
@@ -77,7 +77,7 @@ The game shows only what the player has already met. Nothing on the title screen
 ## Online, once it's open
 
 - **Rooms:** join with a code or an invite link, use quick match, or browse open rooms.
-- **A lobby,** where both players pick their soldiers and ready up.
+- **A lobby,** where both players pick their soldiers and ready up: the crew's gaming den ([the lobby](lobby.md)).
 - **Spectators** can watch a game, but only of missions they've already cleared, so nothing is spoiled.
 - **Invites:** a button copies the room's link to share.
 

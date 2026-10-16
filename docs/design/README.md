@@ -19,6 +19,7 @@ Up: [Repository README](../../README.md)
 | [Maps, missions and progression](levels.md) | What a mission is, difficulty, how maps are built, and the order things open up in, menus included | Signed off, 2026-10-14 |
 | [The crew's kits](kits.md) | Every soldier's weapons, forks and abilities | Moved from DESIGN.md, 2026-10-15 |
 | [Team supers](team-supers.md) | The combo attack for each pair of soldiers in co-op | Draft, 2026-10-15 |
+| [The lobby](lobby.md) | The gaming den: a station per freed crewmate, their idle bits, and picking and readying up, solo and co-op | Draft, 2026-10-16 |
 | [Music](music.md) | Every track and sting, the style, and how the chip synth makes them | Approved, 2026-10-15 |
 
 ## Progressive disclosure, the thread through all four
