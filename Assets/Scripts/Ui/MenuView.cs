@@ -223,6 +223,9 @@ namespace PooketSlug
                 m_Cards[i] = Ui.Button(m_Missions, "", new Vector2(0f, 30f), CardSize, () => Click(pick), out Text cardKey);
                 Ui.Show(cardKey, false);
                 m_CardEdges[i] = m_Cards[i].GetComponent<Outline>();
+                ColorBlock colors = m_Cards[i].colors;
+                colors.disabledColor = new Color(0.07f, 0.06f, 0.08f, 0.85f); // the coming-soon card, dark like a locked one
+                m_Cards[i].colors = colors;
                 var card = m_Cards[i].GetComponent<RectTransform>();
                 m_CardNames[i] = Ui.Label(card, "Name", Ui.TopCenter, new Vector2(0f, -14f), 16, TextAnchor.UpperCenter, Gold);
                 m_CardPlaces[i] = Ui.Label(card, "Place", Ui.TopCenter, new Vector2(0f, -38f), 10, TextAnchor.UpperCenter, Color.white);
@@ -430,7 +433,7 @@ namespace PooketSlug
             if (hard) Set(m_HardLabel, info.MissionHard ? "SETTING: HARD (FOR TWO)" : "SETTING: NORMAL");
             Ui.Show(m_MissionPlay, chosen != null && !chosen.ComingSoon);
             Set(m_MissionPlayLabel, info.MissionFromDen ? "PICK" : "PLAY");
-            Set(m_MissionsHint, info.Touch ? "TAP A MISSION TO PLAY IT AGAIN" : "LEFT / RIGHT PICKS A MISSION");
+            Set(m_MissionsHint, info.Touch ? "TAP A MISSION, THEN PLAY" : "LEFT / RIGHT PICKS A MISSION");
             Key(m_MissionPlayKey, keys, "ENTER");
             Key(m_HardKey, keys, "H");
             Key(m_MissionsBackKey, keys, "ESC");
