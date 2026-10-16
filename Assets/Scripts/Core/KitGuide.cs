@@ -44,10 +44,13 @@ namespace PooketSlug
             return keys;
         }
 
-        /// <summary>Our soldier's input for the frame at <paramref name="t"/>: what's held, and what went down since <paramref name="t"/> − <paramref name="dt"/>.</summary>
-        public SoldierInput InputAt(float t, float dt)
+        /// <summary>
+        /// Our soldier's input on frame <paramref name="frame"/> (the first is 1, at 1/<see cref="Fps"/> s): what's held, and
+        /// what went down since the frame before. Counted in frames, so the frame before is always the same instant.
+        /// </summary>
+        public SoldierInput InputAt(int frame)
         {
-            DemoKeys now = Held(t), before = Held(t - dt);
+            DemoKeys now = Held(frame / Fps), before = Held((frame - 1) / Fps);
             DemoKeys down = now & ~before;
             return new SoldierInput
             {

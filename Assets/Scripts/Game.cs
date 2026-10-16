@@ -410,7 +410,7 @@ namespace PooketSlug
             const float dt = 1f / DemoScript.Fps;
             m_DemoT += dt;
             m_DemoFrames++;
-            m_World.Tick(dt, move.Demo.InputAt(m_DemoT, dt));
+            m_World.Tick(dt, move.Demo.InputAt(m_DemoFrames));
             if (m_DemoT < move.Demo.Seconds) return;
             Log.Game.Info("Demo end: " + move.DemoId + " (" + m_DemoFrames + " frames, " + (m_DemoFrames / DemoScript.Fps).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + " s)");
             if (m_DemoIndex == m_Demos.Count - 1 && m_Demos.Count > 1) Log.Game.Info("Demos done");

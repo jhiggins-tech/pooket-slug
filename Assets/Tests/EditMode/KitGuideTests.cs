@@ -66,13 +66,18 @@ namespace PooketSlug.Tests
         public void ADemoPressesAKeyOnTheFrameItGoesDown()
         {
             var demo = new DemoScript(DemoScript.Ground("P"), 3f, false, (1f, 2f, DemoKeys.Fire | DemoKeys.Right), (1.5f, 1.6f, DemoKeys.Super));
-            const float dt = 1f / DemoScript.Fps;
-            SoldierInput before = demo.InputAt(1f - dt, dt), first = demo.InputAt(1f, dt), next = demo.InputAt(1f + dt, dt);
+            int at1 = 30, at15 = 45, at2 = 60; // frames at 30 fps
+            SoldierInput before = demo.InputAt(at1 - 1), first = demo.InputAt(at1), next = demo.InputAt(at1 + 1);
             Assert.IsFalse(before.Fire);
             Assert.IsTrue(first.Fire && first.FirePressed && first.Right);
             Assert.IsTrue(next.Fire && !next.FirePressed);
-            Assert.IsTrue(demo.InputAt(1.5f, dt).SuperPressed);
-            Assert.IsFalse(demo.InputAt(2f, dt).Fire);
+            Assert.IsTrue(demo.InputAt(at15).SuperPressed);
+            Assert.IsFalse(demo.InputAt(at15 + 1).SuperPressed);
+            Assert.IsFalse(demo.InputAt(at2).Fire);
+            // every press lands once, however the frames fall on the steps
+            int presses = 0;
+            for (int f = 1; f <= 90; f++) if (demo.InputAt(f).FirePressed) presses++;
+            Assert.AreEqual(1, presses);
             Assert.AreEqual(DemoKeys.None, demo.Held(-1f));
         }
 
