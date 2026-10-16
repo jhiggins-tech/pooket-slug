@@ -3,41 +3,38 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// Spike (<c>?spike=drive</c>, solo): your tank, the one you drive or call in (<c>docs/design/tanks.md</c>, Driving
-    /// a tank). It's its own entity, apart from the boss tank (<see cref="TankBoss"/>), and shares only its look.
+    /// Your tank, the one you drive or call in (<c>docs/design/tanks.md</c>, Driving a tank). It's its own entity, apart
+    /// from the boss tank (<see cref="TankBoss"/>), and shares only its look (<see cref="TankLook"/>). Numbers are in
+    /// <see cref="PlayerTankSpec"/>, its guns in <see cref="Content.PlayerTankCannon"/> and <see cref="Content.PlayerTankMortar"/>.
     ///
     /// Jump into an empty tank (or press JUMP touching it) to climb in. Inside, the stick drives it and points the gun
     /// the eight ways (<see cref="TankAim"/>), FIRE shoots a shell at once, SP lobs a mortar and SU fans a barrage;
     /// its rounds never refill (<see cref="TankRounds"/>). JUMP hops it; down and JUMP ejects. Driving and hopping burn
-    /// fuel (<see cref="TankFuel"/>), which never refills: a dry tank stays put but still aims and fires, until you eject. Ejected, the empty
-    /// tank rolls on and blows up on the first goon or wall; wrecked, it throws its driver clear and blows up. Either
-    /// way it's gone.
+    /// fuel (<see cref="TankFuel"/>), which never refills: a dry tank stays put but still aims and fires, until you
+    /// eject. Driving over a goon squashes it, the payoff for the fuel (<see cref="PlayerTankSpec.Crushes"/>). Ejected,
+    /// the empty tank rolls on and blows up on the first goon or wall; wrecked, it throws its driver clear and blows up.
+    /// Either way it's gone.
     ///
     /// While someone's inside, the soldier rides along hidden (<see cref="Player.Riding"/>), with the tank's size,
     /// so every shot, blast and touch that would hurt them lands on the tank instead.
+    ///
+    /// Each player's tank is their own and runs on their own screen, like their soldier. In co-op it travels with the
+    /// soldier's replicated state (<see cref="Pose"/>), and a partner's screen draws it (<see cref="RemotePlayer"/>);
+    /// its shells go as the player's shots, and squashed goons as their hits.
     /// </summary>
     public sealed class PlayerTank : Actor
     {
         public enum State { Dropping, Parked, Driven, Runaway }
 
-        // Spike ids from 250 are kept off the wire (spikes are solo only).
-        static readonly ProjectileDef ShellShot = new ProjectileDef(250, "Tank shell", radius: 0.22f, damage: Spec.ShellDamage, life: 3f,
-            gravity: 2f, blastRadius: Spec.ShellBlast, blastSize: 1f);
-        static readonly ProjectileDef MortarShot = new ProjectileDef(251, "Tank mortar", radius: 0.25f, damage: Spec.MortarDamage, life: 4f,
-            gravity: 18f, blastRadius: Spec.MortarBlast, blastSize: 1.3f, spin: ProjectileSpin.Tumble);
-        static readonly WeaponDef Shell = new WeaponDef(250, "Tank cannon", WeaponBehaviour.Bullet, ShellShot, speed: Spec.ShellSpeed,
-            cooldown: Spec.ShellCooldown, muzzleBlast: 0.45f, kick: 0.12f, hud: "SHELL");
-        static readonly WeaponDef Mortar = new WeaponDef(251, "Tank mortar", WeaponBehaviour.Lob, MortarShot, throwVelocity: Spec.MortarThrow,
-            carry: 0.4f, hud: "MORTAR");
-
         static PlayerTankSpec Spec => Content.PlayerTank;
+        static WeaponDef Shell => Content.PlayerTankCannon;
+        static WeaponDef Mortar => Content.PlayerTankMortar;
 
         public State Mode { get; private set; }
         public readonly TankRounds Rounds = new TankRounds(Content.PlayerTank);
         public readonly TankFuel Fuel = new TankFuel(Content.PlayerTank);
 
-        readonly SpriteRenderer m_Hull, m_Barrel;
-        readonly Transform m_BarrelPivot;
+        readonly TankLook m_Look;
         Vector2 m_Aim;
         float m_BarrelAngle, m_FireCooldown, m_Grace, m_Runaway, m_Muzzle, m_Hint;
         bool m_SaidEmpty, m_SaidDry;
@@ -49,10 +46,7 @@ namespace PooketSlug
             Mode = mode;
             m_Aim = new Vector2(facing, 0f);
             m_BarrelAngle = TankAim.Angle(m_Aim);
-            m_Hull = AddRenderer(Visual, "Hull", Art.TankHull, SortOrder.Player + 2);
-            m_BarrelPivot = new GameObject("Turret").transform;
-            m_BarrelPivot.SetParent(Go.transform, false);
-            m_Barrel = AddRenderer(m_BarrelPivot, "Barrel", Art.TankBarrel, SortOrder.Player + 1);
+            m_Look = new TankLook(Go.transform, SortOrder.Player + 1);
             if (mode == State.Dropping) Vel = new Vector2(0f, -Spec.DropSpeed);
         }
 
@@ -69,6 +63,18 @@ namespace PooketSlug
         public bool Invulnerable => m_Grace > 0f;
         /// <summary>Where the gun points.</summary>
         public Vector2 Aim => m_Aim;
+
+        /// <summary>The tank as a partner's screen draws it.</summary>
+        public TankPose Pose => new TankPose
+        {
+            State = Mode == State.Dropping ? TankPose.Mode.Dropping : Mode == State.Parked ? TankPose.Mode.Parked
+                : Mode == State.Driven ? TankPose.Mode.Driven : TankPose.Mode.Runaway,
+            Facing = Facing,
+            AimOctant = TankPose.Octant(m_Aim),
+            Hp = Hp,
+            Flash = FlashTimer > 0f,
+            Muzzle = m_Muzzle > 0f,
+        };
 
         /// <summary>The soldier climbs in: they ride along hidden, and the tank takes their orders.</summary>
         public void Board()
@@ -154,9 +160,11 @@ namespace PooketSlug
             }
             Gravity(dt);
             MoveWithTiles(dt);
-            // Metal Slug style: the camera never scrolls back, and you can't leave it
+            // Metal Slug style: the camera never scrolls back, and you can't leave it (co-op: either side)
             float minX = World.View.Left + HalfW;
             if (Pos.x < minX) Pos.x = minX;
+            if (World.Coop) Pos.x = Mathf.Min(Pos.x, World.View.Right - HalfW);
+            if (drives || Vel.y < -2f) Crush(); // rolling or landing on goons squashes them
 
             m_Aim = TankAim.Next(m_Aim, input.Left, input.Right, input.Up, input.Down);
             m_BarrelAngle = Mathf.MoveTowardsAngle(m_BarrelAngle, TankAim.Angle(m_Aim), Spec.BarrelTurn * dt);
@@ -184,6 +192,21 @@ namespace PooketSlug
             }
         }
 
+        /// <summary>Goons under the tracks are squashed: a killing hit (reported to the authority in co-op).</summary>
+        void Crush()
+        {
+            Rect under = Bounds;
+            foreach (Enemy e in World.Enemies)
+            {
+                if (!e.Shootable || e.KillCredited || !Spec.Crushes(e.Def) || !under.Overlaps(e.Bounds)) continue;
+                World.Combat.DamageEnemy(e, Mathf.Max(1, e.Hp));
+                World.Scoring.Popup("SQUASH!", e.Center + Vector2.up * 0.8f, new Color(1f, 0.85f, 0.3f));
+                World.Burst(e.Pos + Vector2.up * 0.2f, 8, new Color(0.45f, 0.4f, 0.35f));
+                World.View.Shake(0.12f);
+                Sfx.Play(Sfx.Splat, 0.9f);
+            }
+        }
+
         void Roll(float dt)
         {
             m_Runaway += dt;
@@ -196,10 +219,7 @@ namespace PooketSlug
             if (hit) Blow();
         }
 
-        /// <summary>Where the barrel turns: the middle of the turret (the art faces left, so it's mirrored by facing).</summary>
-        Vector2 PivotLocal => new Vector2(-Facing * 4.5f / Art.PPU, 17.5f / Art.PPU);
-
-        Vector2 MuzzleAlong(Vector2 dir) => Pos + PivotLocal + dir * Spec.BarrelLength;
+        Vector2 MuzzleAlong(Vector2 dir) => Pos + TankLook.PivotLocal(Facing) + dir * Spec.BarrelLength;
 
         void FireShell(Vector2 dir)
         {
@@ -207,7 +227,7 @@ namespace PooketSlug
             World.Combat.FirePlayerShot(Shell, at, dir * Shell.Speed);
             World.SpawnEffect(Art.Explosion, 30f, at, Shell.MuzzleBlast);
             World.View.Shake(Shell.Kick);
-            Sfx.Play(Sfx.Cannon, 0.85f);
+            Sfx.PlayShot(Shell);
             m_FireCooldown = Shell.Cooldown;
             m_Muzzle = 0.08f;
             m_BarrelAngle = TankAim.Angle(dir); // shots go at once, the barrel with them
@@ -215,9 +235,9 @@ namespace PooketSlug
 
         void FireMortar()
         {
-            Vector2 at = Pos + PivotLocal + Vector2.up * 0.6f;
+            Vector2 at = Pos + TankLook.PivotLocal(Facing) + Vector2.up * 0.6f;
             World.Combat.FirePlayerShot(Mortar, at, Mortar.LobVelocity(Facing, Vel));
-            Sfx.Play(Sfx.Throw, 0.9f);
+            Sfx.PlayShot(Mortar);
             Sfx.Play(Sfx.Cannon, 0.5f);
             World.View.Shake(0.1f);
         }
@@ -279,21 +299,24 @@ namespace PooketSlug
             if (Removed) return;
             if (Mode == State.Driven) World.Player.LeaveTank(Pos + new Vector2(0f, Height), new Vector2(0f, Spec.EjectVelocity.y), Spec.EjectShield);
             Remove();
+            World.TankBlew(Center);
             World.Combat.Explode(Center, Spec.RunawayBlast, Spec.RunawayDamage, false, 2f);
-            World.Burst(Center, 24, new Color(0.3f, 0.32f, 0.2f));
+            Blast(World, Center);
+        }
+
+        /// <summary>The look and sound of a tank blowing up (a partner's, on our screen, is only this).</summary>
+        public static void Blast(World world, Vector2 at)
+        {
+            world.Burst(at, 24, new Color(0.3f, 0.32f, 0.2f));
             Sfx.Play(Sfx.BigExplosion);
-            World.View.Shake(0.45f);
+            world.View.Shake(0.45f);
         }
 
         public override void Render()
         {
             base.Render();
-            Visual.localScale = new Vector3(-Facing, 1f, 1f); // the art faces left
-            m_Hull.sprite = Flashed(Art.TankHull);
-            m_Hull.color = Mode == State.Runaway && (int)(m_Runaway * 12f) % 2 == 0 ? new Color(1f, 0.6f, 0.5f) : Color.white;
-            m_BarrelPivot.localPosition = PivotLocal;
-            m_BarrelPivot.localRotation = Quaternion.Euler(0f, 0f, m_BarrelAngle - 180f); // the barrel's art points left
-            m_Barrel.color = m_Muzzle > 0f ? new Color(1f, 0.9f, 0.6f) : Color.white;
+            bool blink = Mode == State.Runaway && (int)(m_Runaway * 12f) % 2 == 0;
+            m_Look.Apply(Vector2.zero, Facing, m_BarrelAngle, FlashTimer > 0f, m_Muzzle > 0f, blink);
         }
     }
 }

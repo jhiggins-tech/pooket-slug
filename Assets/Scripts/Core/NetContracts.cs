@@ -133,7 +133,8 @@ namespace PooketSlug
     public interface ISoldierChannel
     {
         IReadOnlyList<IAvatarLink> RemoteAvatars { get; }
-        void SendAvatar(SoldierDef soldier, Vector2 pos, Vector2 vel, int poseFlags, int hp);
+        /// <summary>Our soldier, and our tank (<see cref="TankPose.Pack"/> and where it is; 0 for none).</summary>
+        void SendAvatar(SoldierDef soldier, Vector2 pos, Vector2 vel, int poseFlags, int hp, int tankFlags, Vector2 tankPos);
         void SendShot(in ShotEvent shot);
     }
 
@@ -188,6 +189,9 @@ namespace PooketSlug
         int PoseFlags { get; }
         int Hp { get; }
         int Skin { get; }
+        /// <summary>Their tank (<see cref="TankPose"/>, packed; 0 for none) and where it is.</summary>
+        int TankFlags { get; }
+        Vector2 TankPos { get; }
         /// <summary>Their player's id in the session.</summary>
         int PlayerId { get; }
         /// <summary>Asks the owning client to apply damage to its soldier.</summary>

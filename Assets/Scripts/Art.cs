@@ -205,6 +205,8 @@ namespace PooketSlug
             s_Projectiles[Content.BigShell.Id] = Shell;
             s_Projectiles[Content.Knife.Id] = HeavyBullet;
             s_Projectiles[Content.StolenShell.Id] = Shell;
+            s_Projectiles[Content.PlayerTankShellShot.Id] = Shell;
+            s_Projectiles[Content.PlayerTankMortarShot.Id] = Grenade;
             MuzzleFlash = Simple(ArtData.MuzzleFlash, Center, outline: false);
             CrateHeavy = Simple(ArtData.CrateHeavy, feet);
             CrateBombs = Simple(ArtData.CrateBombs, feet);

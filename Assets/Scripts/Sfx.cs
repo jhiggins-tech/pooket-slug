@@ -51,7 +51,8 @@ namespace PooketSlug
             else if (weapon == Content.Rifle || weapon == Content.TankGun) { clip = EnemyShot; own = 0.35f; }
             else if (weapon == Content.StolenRifle) { clip = EnemyShot; own = 0.5f; }
             else if (weapon == Content.StolenKnives || weapon == Content.StolenBombs) { clip = Throw; own = 0.7f; }
-            else if (weapon == Content.StolenCannon) { clip = Cannon; own = 0.8f; }
+            else if (weapon == Content.StolenCannon || weapon == Content.PlayerTankCannon) { clip = Cannon; own = 0.85f; }
+            else if (weapon == Content.PlayerTankMortar) { clip = Throw; own = 0.9f; }
             else return; // dropped bombs are silent
             Play(clip, volume >= 0f ? volume : own);
         }

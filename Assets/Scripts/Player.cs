@@ -28,7 +28,7 @@ namespace PooketSlug
         public float SlowTimer;
 
         /// <summary>
-        /// The tank this soldier is driving (spike: <c>?spike=drive</c>), or null on foot. Inside, they ride along hidden
+        /// The tank this soldier is driving, or null on foot. Inside, they ride along hidden
         /// with the tank's size, so whatever would hurt them hits the tank (<see cref="PlayerTank"/>).
         /// </summary>
         public PlayerTank Riding { get; private set; }

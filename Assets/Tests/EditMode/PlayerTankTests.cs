@@ -86,6 +86,65 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void ARealTankHasMoreFuelThanTheSpikesTwelveSeconds()
+        {
+            Assert.Greater(Content.PlayerTank.Fuel, 12f);
+        }
+
+        [Test]
+        public void DrivingOverGoonsOnFootSquashesThem()
+        {
+            PlayerTankSpec spec = Content.PlayerTank;
+            Assert.IsTrue(spec.Crushes(Content.Rifleman));
+            Assert.IsTrue(spec.Crushes(Content.Runner));
+            Assert.IsTrue(spec.Crushes(Content.Weasel));
+            Assert.IsFalse(spec.Crushes(Content.Barrel), "barrels aren't squashed");
+            Assert.IsFalse(spec.Crushes(Content.Tank), "nor the boss");
+            Assert.IsFalse(spec.Crushes(Content.TankCopy));
+            Assert.IsFalse(spec.Crushes(Content.Pilot), "nor the pilot, a boss duel");
+            Assert.IsFalse(spec.Crushes(Content.PilotDecoy));
+            Assert.IsFalse(spec.Crushes(null));
+        }
+
+        [Test]
+        public void ItsGunsHaveTheirOwnIdsOnTheWire()
+        {
+            Assert.AreEqual(18, Content.PlayerTankCannon.Id);
+            Assert.AreEqual(19, Content.PlayerTankMortar.Id);
+            Assert.AreEqual(9, Content.PlayerTankShellShot.Id);
+            Assert.AreEqual(10, Content.PlayerTankMortarShot.Id);
+            Assert.AreSame(Content.PlayerTankCannon, Content.Weapon(18));
+        }
+
+        [Test]
+        public void APartnerSeesTheTankAsItIs()
+        {
+            var pose = new TankPose { State = TankPose.Mode.Driven, Facing = -1, AimOctant = 3, Hp = 12, Flash = true, Muzzle = false, Blown = 5 };
+            TankPose back = TankPose.Unpack(pose.Pack());
+            Assert.AreEqual(TankPose.Mode.Driven, back.State);
+            Assert.AreEqual(-1, back.Facing);
+            Assert.AreEqual(3, back.AimOctant);
+            Assert.AreEqual(12, back.Hp);
+            Assert.IsTrue(back.Flash);
+            Assert.IsFalse(back.Muzzle);
+            Assert.AreEqual(5, back.Blown);
+            Assert.AreEqual(TankPose.Mode.None, TankPose.Unpack(0).State, "no tank out");
+            Assert.AreEqual(0, TankPose.Unpack(new TankPose { Blown = 16 }.Pack()).Blown, "the blast count wraps");
+        }
+
+        [Test]
+        public void TheEightAimsSurviveTheTrip()
+        {
+            Vector2[] aims = { Vector2.right, new Vector2(Diag, Diag), Vector2.up, new Vector2(-Diag, Diag), Vector2.left,
+                new Vector2(-Diag, -Diag), Vector2.down, new Vector2(Diag, -Diag) };
+            for (int i = 0; i < aims.Length; i++)
+            {
+                Assert.AreEqual(i, TankPose.Octant(aims[i]));
+                Same(aims[i], TankPose.AimOf(i));
+            }
+        }
+
+        [Test]
         public void YourTankIsItsOwnThingNotTheBoss()
         {
             Assert.IsNotNull(Content.PlayerTank);

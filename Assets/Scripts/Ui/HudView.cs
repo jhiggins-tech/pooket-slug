@@ -49,7 +49,7 @@ namespace PooketSlug
         // the kit's meters: the super (SU), the special's refill (SP) and the ability (AB); and a tank call-in's charge
         readonly Text m_SuperLabel, m_AbilityLabel;
         readonly Image m_SuperBack, m_SuperFill, m_RefillFill, m_AbilityBack, m_AbilityFill, m_CallBack, m_CallFill;
-        // your tank's health while you're in it (spike: ?spike=drive)
+        // your tank's health while you're in it
         readonly Text m_TankLabel, m_FuelLabel;
         readonly Image m_TankBack, m_TankFill, m_FuelBack, m_FuelFill;
         const float MeterWidth = 60f;

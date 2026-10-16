@@ -19,8 +19,11 @@ namespace PooketSlug
         /// <summary>Gameplay randomness for this play-through; cosmetic effects use <see cref="Rng.Fx"/>.</summary>
         public readonly Rng Rng = new Rng(Rng.NewSeed());
         public Player Player;
-        /// <summary>Spike (<c>?spike=drive</c>, or a call-in, solo): your tank, parked, driven or rolling away; null when there's none.</summary>
+        /// <summary>Our soldier's tank (called in, or <c>?test=tank</c>): parked, driven or rolling away; null when there's none.</summary>
         public PlayerTank Tank;
+        /// <summary>Our tanks that have blown up, and where the last one did: a partner's screen shows the blast.</summary>
+        public int TanksBlown;
+        public Vector2 LastTankPos;
         public BossEnemy Boss;
         /// <summary>kie's hologram on the players' side (Trollogram), or null: the goons shoot it instead while it's up.</summary>
         /// <summary>kie's Trollograms (players' side) standing in the world: every goon shoots one while it's on screen.</summary>
@@ -94,7 +97,6 @@ namespace PooketSlug
                 start = new Vector2(x, Level.TopSurfaceY(x));
             }
             Player = new Player(this, soldier ?? Content.Tones2, start, Coop ? net.LocalSkin : 0); // tones2 until the crew opens (Crew)
-            if (!Coop && Spike.Drive) Tank = PlayerTank.Park(this, start.x + Content.PlayerTank.HalfWidth + 4f); // a tank to climb into, a few steps ahead
             View.Tick(0f);
             Spawner.SpawnAhead();
         }
@@ -110,7 +112,7 @@ namespace PooketSlug
 
         /// <summary>Tanks our soldier can still call in this mission (<c>docs/design/tanks.md</c>).</summary>
         public int TanksToCall;
-        /// <summary>Our soldier called in a tank, at this spot. Solo, it drops in (<see cref="PlayerTank"/>); co-op has no tank to drive yet.</summary>
+        /// <summary>Our soldier called in a tank, at this spot: it drops in (<see cref="PlayerTank"/>). In co-op each player calls their own.</summary>
         public event System.Action<Vector2> TankCalled;
 
         /// <summary>
@@ -189,19 +191,32 @@ namespace PooketSlug
             TanksToCall--;
             Scoring.Popup("TANK INBOUND!", at + Vector2.up * 2.4f, new Color(1f, 0.85f, 0.3f));
             View.Shake(0.2f);
-            if (!Coop)
-            {
-                // it drops in just ahead of the soldier, on screen; the tank left over, if any, is gone
-                if (Tank != null)
-                {
-                    Tank.Blow();
-                    Tank.Destroy();
-                }
-                int facing = Player.Facing;
-                float x = Mathf.Clamp(at.x + facing * 2.6f, View.Left + Content.PlayerTank.HalfWidth + 0.5f, View.Right - Content.PlayerTank.HalfWidth - 0.5f);
-                Tank = PlayerTank.Drop(this, x, facing);
-            }
+            // it drops in just ahead of the soldier, on screen; the tank left over, if any, is gone
+            int facing = Player.Facing;
+            float x = Mathf.Clamp(at.x + facing * 2.6f, View.Left + Content.PlayerTank.HalfWidth + 0.5f, View.Right - Content.PlayerTank.HalfWidth - 0.5f);
+            SetTank(PlayerTank.Drop(this, x, facing));
             TankCalled?.Invoke(at);
+        }
+
+        /// <summary>?test=tank: an empty tank parked at <paramref name="x"/>, to climb into.</summary>
+        public void ParkTank(float x) => SetTank(PlayerTank.Park(this, x));
+
+        void SetTank(PlayerTank tank)
+        {
+            if (Tank != null)
+            {
+                if (Player.Riding == Tank) Player.LeaveTank(Tank.Pos + Vector2.up * Tank.Height, Vector2.up * 8f, Tuning.Soldier.HurtInvulnerability);
+                Tank.Blow();
+                Tank.Destroy();
+            }
+            Tank = tank;
+        }
+
+        /// <summary>Our tank blew up at <paramref name="at"/> (its blast is already on our screen; partners are told by the count).</summary>
+        public void TankBlew(Vector2 at)
+        {
+            TanksBlown++;
+            LastTankPos = at;
         }
 
         /// <summary>Runs one frame, with the local soldier following <paramref name="input"/>.</summary>

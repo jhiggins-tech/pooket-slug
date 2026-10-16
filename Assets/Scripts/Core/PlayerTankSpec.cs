@@ -5,8 +5,7 @@ namespace PooketSlug
     /// <summary>
     /// Your tank as numbers (<c>docs/design/tanks.md</c>, Driving a tank): the one you climb into or call in, not the
     /// boss tank (<see cref="BossTankSpec"/>). It drives and aims Metal Slug style: the stick drives it and points
-    /// the gun the eight ways, FIRE shoots at once, and its rounds never refill. Placeholders, to tune in play
-    /// (spike: <c>?spike=drive</c>).
+    /// the gun the eight ways, FIRE shoots at once, and its rounds never refill. Placeholders, to tune in play.
     /// </summary>
     public sealed class PlayerTankSpec
     {
@@ -23,20 +22,34 @@ namespace PooketSlug
         /// Seconds of driving in a full tank, as in Pooket Tabks: each tank arrives full and never refuels. Dry, it
         /// can't drive or hop, but can still aim and fire; ejecting is the way out (<see cref="TankFuel"/>).
         /// </summary>
-        public float Fuel = 12f;
+        public float Fuel = 18f; // the spike's 12 was a little short (owner, 2026-10-16)
         /// <summary>Seconds of fuel a hop burns.</summary>
         public float HopFuel = 0.5f;
+        /// <summary>
+        /// Driving over a goon squashes it, the payoff for spending fuel: anything on foot with this much health or less
+        /// (soldiers, runners, weasels), never barrels, tanks or a pilot. Dry, or standing still, the tank squashes nothing.
+        /// </summary>
+        public int CrushMaxHp = 10;
+
+        /// <summary>Whether driving over this kind of enemy squashes it (<see cref="CrushMaxHp"/>).</summary>
+        public bool Crushes(EnemyDef def)
+        {
+            if (def == null || def.Hp > CrushMaxHp) return false;
+            switch (def.Brain)
+            {
+                case EnemyBrain.Rifleman:
+                case EnemyBrain.Runner:
+                case EnemyBrain.Drone:
+                case EnemyBrain.Weasel:
+                    return true;
+                default:
+                    return false; // barrels, tanks and their copies, the pilot and his decoy
+            }
+        }
 
         /// <summary>Rounds for the whole ride: they never refill.</summary>
         public int MainShots = 5, Specials = 3, Supers = 1;
-        /// <summary>FIRE: a cannon shell straight along the aim.</summary>
-        public float ShellSpeed = 15f, ShellCooldown = 0.35f;
-        public int ShellDamage = 8;
-        public float ShellBlast = 1.5f;
-        /// <summary>SP: a mortar lobbed high over cover, forward.</summary>
-        public Vector2 MortarThrow = new Vector2(6f, 12f);
-        public int MortarDamage = 12;
-        public float MortarBlast = 2f;
+        // FIRE's shell and SP's mortar are Content.PlayerTankCannon and Content.PlayerTankMortar.
         /// <summary>SU: a fan of shells along the aim.</summary>
         public int BarrageShells = 7;
         public float BarrageFan = 35f;
@@ -133,5 +146,51 @@ namespace PooketSlug
             count--;
             return true;
         }
+    }
+
+    /// <summary>
+    /// A player's tank as their partner sees it, packed into one replicated int beside the soldier's pose: what it's
+    /// doing, which way it faces and aims, its health, and how many tanks of theirs have blown up (a change means one
+    /// just did, so the partner's screen shows the blast). The tank's position travels on its own.
+    /// </summary>
+    public struct TankPose
+    {
+        public enum Mode { None, Dropping, Parked, Driven, Runaway }
+
+        const int ModeMask = 7, FacingRightBit = 1 << 3, AimShift = 4, AimMask = 7 << AimShift, HpShift = 7, HpMask = 63 << HpShift;
+        const int FlashBit = 1 << 13, MuzzleBit = 1 << 14, BlownShift = 15, BlownMask = 15 << BlownShift;
+
+        public Mode State;
+        public int Facing;
+        /// <summary>Which of the eight ways the gun points: 0 right, counterclockwise in 45° steps.</summary>
+        public int AimOctant;
+        public int Hp;
+        public bool Flash, Muzzle;
+        /// <summary>Tanks of theirs that have blown up so far (it wraps at 16).</summary>
+        public int Blown;
+
+        public static int Octant(Vector2 aim) => ((Mathf.RoundToInt(TankAim.Angle(aim) / 45f) % 8) + 8) % 8;
+
+        public static Vector2 AimOf(int octant)
+        {
+            float a = octant * 45f * Mathf.Deg2Rad;
+            Vector2 v = new Vector2(Mathf.Cos(a), Mathf.Sin(a));
+            return new Vector2(Mathf.Abs(v.x) < 1e-4f ? 0f : v.x, Mathf.Abs(v.y) < 1e-4f ? 0f : v.y);
+        }
+
+        public int Pack() =>
+            ((int)State & ModeMask) | (Facing > 0 ? FacingRightBit : 0) | ((AimOctant & 7) << AimShift) |
+            (Mathf.Clamp(Hp, 0, 63) << HpShift) | (Flash ? FlashBit : 0) | (Muzzle ? MuzzleBit : 0) | ((Blown & 15) << BlownShift);
+
+        public static TankPose Unpack(int flags) => new TankPose
+        {
+            State = (Mode)Mathf.Clamp(flags & ModeMask, 0, (int)Mode.Runaway),
+            Facing = (flags & FacingRightBit) != 0 ? 1 : -1,
+            AimOctant = (flags & AimMask) >> AimShift,
+            Hp = (flags & HpMask) >> HpShift,
+            Flash = (flags & FlashBit) != 0,
+            Muzzle = (flags & MuzzleBit) != 0,
+            Blown = (flags & BlownMask) >> BlownShift,
+        };
     }
 }

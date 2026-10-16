@@ -31,6 +31,11 @@ namespace PooketSlug
         /// <summary>A boss tank's cannon in kie's hands (Steal): a heavy shell with a wide blast.</summary>
         public static readonly ProjectileDef StolenShell = new ProjectileDef(8, "Stolen shell", radius: 0.25f, damage: 8, life: 4f, gravity: 12f,
             blastRadius: 1.6f, blastSize: 1.2f);
+        /// <summary>Your tank's shell, fired straight along the aim, and its mortar, lobbed high (<see cref="PlayerTank"/>).</summary>
+        public static readonly ProjectileDef PlayerTankShellShot = new ProjectileDef(9, "Tank shell", radius: 0.22f, damage: 8, life: 3f,
+            gravity: 2f, blastRadius: 1.5f, blastSize: 1f);
+        public static readonly ProjectileDef PlayerTankMortarShot = new ProjectileDef(10, "Tank mortar", radius: 0.25f, damage: 12, life: 4f,
+            gravity: 18f, blastRadius: 2f, blastSize: 1.3f, spin: ProjectileSpin.Tumble);
 
         // ------------------------------------------------------------------ weapons
         // Ids 0-5 are the byte the projectile enum used to send for the same shot.
@@ -68,12 +73,17 @@ namespace PooketSlug
             throwVelocity: new Vector2(5.5f, 8f), carry: 0.3f, ammo: 8, hud: "BOMBS");
         public static readonly WeaponDef StolenCannon = new WeaponDef(17, "Stolen cannon", WeaponBehaviour.Bullet, StolenShell, speed: 15f, cooldown: 0.7f,
             ammo: 5, muzzleBlast: 0.5f, kick: 0.15f, hud: "CANNON");
+        // Your tank's guns (PlayerTankSpec): FIRE's shell and SP's mortar (SU fires a fan of shells).
+        public static readonly WeaponDef PlayerTankCannon = new WeaponDef(18, "Tank cannon", WeaponBehaviour.Bullet, PlayerTankShellShot, speed: 15f,
+            cooldown: 0.35f, muzzleBlast: 0.45f, kick: 0.12f, hud: "SHELL");
+        public static readonly WeaponDef PlayerTankMortar = new WeaponDef(19, "Tank mortar", WeaponBehaviour.Lob, PlayerTankMortarShot,
+            throwVelocity: new Vector2(6f, 12f), carry: 0.4f, hud: "MORTAR");
 
         /// <summary>How Mission one's boss tank fights.</summary>
         public static readonly BossTankSpec BossTank = new BossTankSpec();
         /// <summary>What makes the boss tank kie's: its three attacks (<see cref="KieTankSpec"/>).</summary>
         public static readonly KieTankSpec KieTank = new KieTankSpec();
-        /// <summary>How your tank drives and fights, the one you climb into or call in (spike: <c>?spike=drive</c>).</summary>
+        /// <summary>How your tank drives and fights, the one you climb into or call in.</summary>
         public static readonly PlayerTankSpec PlayerTank = new PlayerTankSpec();
 
         // ------------------------------------------------------------------ enemies
@@ -129,10 +139,11 @@ namespace PooketSlug
 
         // ------------------------------------------------------------------ lookups (after the definitions: statics initialise in order)
 
-        public static readonly IReadOnlyList<ProjectileDef> Projectiles = ById(p => p.Id, Bullet, HeavyBullet, EnemyBullet, Shell, Grenade, Bomb, BigShell, Knife, StolenShell);
+        public static readonly IReadOnlyList<ProjectileDef> Projectiles = ById(p => p.Id, Bullet, HeavyBullet, EnemyBullet, Shell, Grenade, Bomb, BigShell, Knife, StolenShell,
+            PlayerTankShellShot, PlayerTankMortarShot);
         public static readonly IReadOnlyList<WeaponDef> Weapons = ById(w => w.Id, Pistol, HeavyMachineGun, Rifle, Cannon, GrenadeThrow, DroneBomb, TankGun,
             WaterJet, RocketJump, Spew, BossCannon, WeaselPop, Trollogram,
-            Steal, StolenRifle, StolenKnives, StolenBombs, StolenCannon);
+            Steal, StolenRifle, StolenKnives, StolenBombs, StolenCannon, PlayerTankCannon, PlayerTankMortar);
         public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank, Barrel, Weasel, TankCopy, Pilot, PilotDecoy);
         public static readonly IReadOnlyList<PickupDef> Pickups = ById(p => p.Id, HeavyMachineGunCrate, BombCrate, Medkit, OneUp);
         public static readonly IReadOnlyList<SoldierDef> Soldiers = ById(s => s.Id, Trooper, Tones2, Kie);

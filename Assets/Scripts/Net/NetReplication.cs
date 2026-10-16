@@ -246,7 +246,7 @@ namespace PooketSlug
             return true;
         }
 
-        public void SendAvatar(SoldierDef soldier, Vector2 pos, Vector2 vel, int poseFlags, int hp)
+        public void SendAvatar(SoldierDef soldier, Vector2 pos, Vector2 vel, int poseFlags, int hp, int tankFlags, Vector2 tankPos)
         {
             if (m_Local == null || !m_Local.Object.IsValid) return;
             m_Local.NetSoldier = soldier.Id;
@@ -254,6 +254,8 @@ namespace PooketSlug
             m_Local.NetVel = vel;
             m_Local.NetPose = poseFlags;
             m_Local.NetHp = hp;
+            m_Local.NetTank = tankFlags;
+            m_Local.NetTankPos = tankPos;
             m_Local.NetRound = (Events != null ? Events.Round : Round) + 1;
         }
 

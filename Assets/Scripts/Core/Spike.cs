@@ -7,14 +7,13 @@ namespace PooketSlug
     /// Spike tests: small throwaway experiments switched on from the page address, so they ride along in the
     /// normal build without changing the game anyone else plays. <c>?spike=hits</c> turns on
     /// the hit feel for that visit, <c>?spike=craters</c> blasts digging craters in the boss arena, <c>?spike=music</c> the music's first cut, <c>?spike=cutscenes</c> the opening scene
-    /// before Mission one, <c>?spike=drive</c> your tank to climb into and drive (and one to call in) (<c>cutscenes-coop</c> adds a pretend partner who has to tap too). Spikes are solo only: a
+    /// before Mission one (<c>cutscenes-coop</c> adds a pretend partner who has to tap too). Spikes are solo only: a
     /// co-op game ignores them.
     /// </summary>
     public static class Spike
     {
         public const string HitsKey = "hits", CratersKey = "craters", MusicKey = "music";
         public const string CutscenesKey = "cutscenes", CutscenesCoopKey = "cutscenes-coop", NarratorKey = "narrator";
-        public const string DriveKey = "drive";
 
         /// <summary>Hits land with weight: sparks, flashes, and damage numbers floating off you.</summary>
         public static bool Hits;
@@ -37,10 +36,7 @@ namespace PooketSlug
         /// <summary>The candidate voice the address asks for, or null for the first.</summary>
         public static string Voice;
 
-        /// <summary>Your tank (<see cref="PlayerTankSpec"/>): one parked a few steps ahead to climb into, and one to call in.</summary>
-        public static bool Drive;
-
-        public static bool Any => Hits || Craters || Music || Scenes || Drive;
+        public static bool Any => Hits || Craters || Music || Scenes;
 
         /// <summary>Reads <c>?spike=</c> from the page address.</summary>
         public static void Configure(string url)
@@ -53,7 +49,6 @@ namespace PooketSlug
             Narrator = Array.IndexOf(keys, NarratorKey) >= 0;
             Scenes = ScenesCoop || Narrator || Array.IndexOf(keys, CutscenesKey) >= 0;
             Voice = PageQuery.Get(url, "voice")?.Trim().ToLowerInvariant();
-            Drive = Array.IndexOf(keys, DriveKey) >= 0;
         }
 
         /// <summary>What the start banner says, or null when no spike is on.</summary>
@@ -68,7 +63,6 @@ namespace PooketSlug
                 if (Music) parts.Add("MUSIC");
                 if (Narrator) parts.Add("NARRATOR");
                 else if (Scenes) parts.Add("CUTSCENES");
-                if (Drive) parts.Add("YOUR TANK");
                 return "SPIKE TEST · " + string.Join(" + ", parts);
             }
         }

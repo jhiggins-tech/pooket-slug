@@ -46,13 +46,11 @@ namespace PooketSlug.Tests
         }
 
         [Test]
-        public void TheDriveSpikeGivesYouATank()
+        public void YourTankIsNoLongerASpike()
         {
-            Spike.Configure(Page + "?spike=drive");
-            Assert.IsTrue(Spike.Drive);
-            Assert.AreEqual("SPIKE TEST · YOUR TANK", Spike.Label);
-            Spike.Configure(Page + "?spike=hits");
-            Assert.IsFalse(Spike.Drive);
+            Spike.Configure(Page + "?spike=drive"); // your tank is the game's own now (?test=tank parks one)
+            Assert.IsFalse(Spike.Any);
+            Assert.IsNull(Spike.Label);
         }
 
         [Test]

@@ -40,6 +40,7 @@ namespace PooketSlug
         bool m_TankUnlocked, m_CrewUnlocked; // ?unlock=crew: the CREW pick is open for this visit, for testing
         float m_OutFor;         // seconds the game has had nobody left in it (out of lives and continues)    // ?unlock=tank: a tank can be called in each mission, for testing
         bool m_TestCrate;       // ?test=crate: a crate just ahead of the start, so the co-op test sees one handed out
+        bool m_TestTank;        // ?test=tank: a tank of your own parked just ahead of the start, and one call-in
         bool m_TestOneUp;       // ?test=1up: a 1-up just ahead of the start
         bool m_TestBoss;        // ?test=boss: a game starts just before the boss's arena (co-op too: the co-op test's boss round)
         bool m_TestPilot;       // ?test=pilot: the same, and the tank's wrecked as it wakes, so the pilot round starts at once
@@ -118,6 +119,7 @@ namespace PooketSlug
             m_CrewUnlocked = Array.IndexOf(unlocks, "crew") >= 0;
             string[] tests = (PageQuery.Get(url, "test") ?? "").ToLowerInvariant().Split(',');
             m_TestCrate = Array.IndexOf(tests, "crate") >= 0;
+            m_TestTank = Array.IndexOf(tests, "tank") >= 0;
             m_TestOneUp = Array.IndexOf(tests, "1up") >= 0;
             m_TestPilot = Array.IndexOf(tests, "pilot") >= 0;
             m_TestBoss = m_TestPilot || Array.IndexOf(tests, "boss") >= 0;
@@ -153,7 +155,7 @@ namespace PooketSlug
         /// <summary>A world for <paramref name="mission"/>, shared when <paramref name="net"/> is given.</summary>
         World NewWorld(MissionDef mission, INetLink net = null)
         {
-            var world = new World(m_Camera, mission, net, Soldier) { TanksToCall = m_TankUnlocked || (Spike.Drive && net == null) ? 1 : 0, SkipToPilot = m_TestPilot };
+            var world = new World(m_Camera, mission, net, Soldier) { TanksToCall = m_TankUnlocked || m_TestTank ? 1 : 0, SkipToPilot = m_TestPilot };
             world.BossIntro += OnBossIntro;
             world.BossFightStarted += OnBossFightStarted;
             world.TankWrecked += OnTankWrecked;
@@ -171,6 +173,7 @@ namespace PooketSlug
                 world.Spawner.SpawnPickup(Content.OneUp, new Vector2(x, world.Level.TopSurfaceY(x)));
             }
             if (m_TestBoss) StartAtBoss(world);
+            if (m_TestTank) world.ParkTank(world.Player.Pos.x + Content.PlayerTank.HalfWidth + 4f); // each player's own, a few steps ahead
             return world;
         }
 
