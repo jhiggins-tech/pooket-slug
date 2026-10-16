@@ -96,18 +96,20 @@ The first cutscene, and Mission one's briefing ([the plot](#the-plot), step 1). 
 
 ## The motor pool reveal
 
-The first-ever reveal: tabks exist ([reveals](#reveals-are-story-beats)). It plays once, ever, the first time anyone reaches the motor pool; every later fight, a replay included, gets only [the boss intro](tanks.md#the-boss-intro). Draft, 2026-10-15. About 10 seconds, four shots; tap moves on, and it can't be skipped the first time.
+The first-ever reveal: tabks exist ([reveals](#reveals-are-story-beats)). It plays once, ever, the first time tones2 reaches the motor pool; every later fight, a replay included, gets only [the boss intro](tanks.md#the-boss-intro). Drafted 2026-10-15; built 2026-10-16 with the narrator and Trollogram kie's intro, which took it from about 10 seconds to about 22 (four shots of 4.5 to 8 seconds, as the opening's were slowed down). Tap moves on, and it can't be skipped the first time. Always solo, like the rest of Mission one.
 
-| # | Shot | What happens | Bubbles and text | Time |
+| # | Shot | What happens | Narrator, bubbles and text | Time |
 |---|---|---|---|---|
-| 1 | **The shutter** | tones2 steps into the arena and the screen locks. The motor pool's blast shutter grinds up, and cold light pours out from behind it. | (no bubble: the shutter's grind, a hum) | 2 s |
-| 2 | **The tabks** | The camera eases right and in: the crew's tabks parked in a row under work lights, each in its crewmate's paint (tones2's own among them), with cables and cyan Trollogram junk all over them. One space at the front is empty, its paint scuffs still steaming. | tones2: "...ARE THOSE OURS?" | 3 s |
-| 3 | **kie's tabk** | An engine roars off-screen, and kie's tabk rolls out of the shadows into the empty space. On top, in the hatch: kie, but cyan, flickering, grinning. | Trollogram kie, glitchy bubble: "HEY TONES. WANNA RACE?" | 3 s |
-| 4 | **Hatch shut** | Trollogram kie drops into the hatch and it slams. The turret swings round to tones2. Straight into the boss intro's WARNING! banner, name card and boss music, with control back in your hands. | tones2: "THAT'S NOT KIE." | 2 s |
+| 1 | **The shutter** | tones2 steps in from the left in front of the base's wall, and the motor pool's blast shutter grinds up, juddering, and cold light pours out across the apron from the bay behind it. | Narrator: "Behind the shutter: the base's motor pool." (the shutter's grind, then a hum) | 4.5 s |
+| 2 | **The tabks** | The camera eases right and in: the crew's tabks parked in a row under work lights, each in its crewmate's paint (tones2's pink among them), with cyan Trollogram junk flickering all over them and cables across the floor. The space at the front is empty, its paint scuffs still steaming. | Narrator: "And parked inside, all in a row: the crew's tabks." · tones2: "...ARE THOSE OURS?" | 5.5 s |
+| 3 | **kie's tabk** | An engine roars, and kie's tabk rolls in from the right into the empty space, its turret pointing up and away. The hatch pops, and up comes kie, but cyan, flickering, grinning. His intro builds up as he rises and lands at 4.5 seconds. | TROLLO-KIE (his intro) · Narrator: "That's kie. Or something wearing his face." · Trollogram kie, glitchy bubble: "HEY TONES. WANNA RACE?" | 8 s |
+| 4 | **Hatch shut** | Trollogram kie drops into the hatch and it slams. The turret swings round on to tones2. Straight into the boss intro's WARNING! banner, name card and boss music, with control back in your hands. | Narrator: "kie has never once offered to race." · tones2: "THAT'S NOT KIE." | 4.5 s |
 
 **Character intro:** Trollogram kie, in shot 3, as he pops up in the hatch: TROLLO-KIE ([character intros](#character-intros)). His glitchy bubble comes after it.
 
 **How it fits the boss intro:** the first time, this scene is the tabk's entrance, so the intro that follows skips the roll-out and goes straight to the banner, the name card ("KIE'S TABK") and the music.
+
+**Built** (2026-10-16): it plays as the boss tabk wakes, the first time, solo; once it ends, the tabk is in its place and the full boss intro runs (`Cutscenes.MotorPool` in `Core/Cutscene.cs`, its staging in `Ui/CutsceneView.cs`). Test starts (`?test=boss`, `pilot`, `team`) skip it; `?test=boss,reveal` plays it every time, so it can be tried again once seen. The narrator says "tanks" where the subtitles say "tabks".
 
 ## Freeing kie
 

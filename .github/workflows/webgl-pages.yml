@@ -303,7 +303,7 @@ jobs:
         if: success() || failure()
         run: node tools/coop.mjs http://127.0.0.1:8000/index.html coop-test/boss boss
 
-      - name: Watch the opening together
+      - name: Watch a scene together (a stand-in, as Mission one is solo only)
         if: success() || failure()
         run: node tools/coop.mjs http://127.0.0.1:8000/index.html coop-test/scene scene
 
@@ -331,13 +331,13 @@ jobs:
                   ("bossFollowed", "B's boss tank follows the turret of A's"),
                   ("bossFired", "B sees the boss tank fire in A's world"),
               ]),
-              ("Two-player opening scene", "coop-test/scene/result.json", [
+              ("Two-player scene (?test=scene)", "coop-test/scene/result.json", [
                   ("hostOnline", "A hosts a room"),
                   ("guestOnline", "B joins with the invite link"),
                   ("joined", "A sees B join"),
-                  ("bothInScene", "Starting together, the opening plays on both phones"),
+                  ("bothInScene", "Starting together, a scene plays on both phones"),
                   ("waited", "A tapping alone moves neither phone on"),
-                  ("tappedThrough", "Both tapping moves it on, well before its own timer"),
+                  ("tappedThrough", "Both tapping moves each shot on"),
                   ("together", "It ends on both phones together"),
                   ("played", "Both play on with no errors or disconnects"),
               ]),

@@ -94,6 +94,15 @@ namespace PooketSlug
 
         public override string DisplayName => m_Spec.Name;
 
+        /// <summary>Puts it straight in place, its roll-out done: the motor pool reveal was its entrance.</summary>
+        public void SkipEntrance()
+        {
+            if (m_State != State.Entrance) return;
+            Pos = new Vector2(m_HomeX, Pos.y);
+            m_Timer = 0.3f;
+            Enter(State.Recoil);
+        }
+
         /// <summary>Still rolling out: it can't be hurt and doesn't fire.</summary>
         public bool Entering => m_State == State.Entrance;
 
