@@ -14,7 +14,7 @@ Up: [Design](README.md)
 - **Every mission has the same shape:** a run through the map, then the boss arena. The crewmate's tabk comes first, then its Trollogram pilot ([tabks](tanks.md#tabk-bosses)). Freeing the crewmate ends the fight. Mission one then has a short coda, a tabk run out of the base ([the coda](story.md#the-coda)), and the debrief follows.
 - **A checkpoint at the boss door.** Lose the boss fight and you restart at the arena, not at the start of the run.
 - **Replays:** you can play any mission you've cleared again, for score, XP, rank and stats. Your best score and your clears are kept for each mission.
-- **The mission screen** opens from MISSIONS on the title and from the den's mission board: a card for each mission reached (its number, where it's set, best score and clears, and SOLO ONLY on Mission one), then the next mission's card, COMING SOON until it's built. A mission is reached once the one before it is cleared, so nothing further on shows. From the title PLAY goes on to the den; from the board, PICK puts the mission on it. A card's hard setting shows once it's open (a cleared mission from Mission two on, in co-op). **Built** 2026-10-16 (`Core/MissionBoard.cs`, `MenuView.RefreshMissions`); not yet: the host's pick in a co-op room, so hard can't be reached until then.
+- **The mission screen** opens from MISSIONS on the title and from the den's mission board: a card for each mission reached (its number, where it's set, best score and clears, and SOLO ONLY on Mission one), then the next mission's card, COMING SOON until it's built. A mission is reached once the one before it is cleared, so nothing further on shows. From the title PLAY goes on to the den; from the board, PICK puts the mission on it. A card's hard setting shows once it's open (a cleared mission from Mission two on, in co-op). **Built** 2026-10-16 (`Core/Missions/MissionBoard.cs`, `MenuView.RefreshMissions`); not yet: the host's pick in a co-op room, so hard can't be reached until then.
 
 ## Mission one: the military base
 
@@ -70,7 +70,7 @@ kcaj's mission (picked by the owner, 2026-10-16, from three concepts; the sheets
    - **The crew screen** appears, with tones2 and kie: it's the gaming den ([the lobby](lobby.md)).
    - **The debrief** shows XP and rank for the first time, and offers sign-in to players who haven't.
 4. **Each later mission** frees another crewmate, adds their tabk to call in, and opens its map for replays and its hard setting.
-5. **The Roguelite mode** is on ice. It's kept in [DESIGN.md](../../DESIGN.md#roguelite-on-ice) for when it returns.
+5. **The Roguelite mode** is on ice. It's kept in [history](history.md#the-roguelite-on-ice) for when it returns.
 
 ## What the player sees, and when
 

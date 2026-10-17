@@ -1,8 +1,8 @@
 # Pooket Slug design: the sign-off documents
 
 The game's design: four documents written to be read through and signed off, plus the crew's kits. This folder is the one source for the design. It drew on three sources:
-- the owner's brainstorm in [DESIGN.md](../../DESIGN.md), frozen on 2026-10-15 as a historical record (the Roguelite, and what was considered and not picked)
-- the owner's MoSCoW pass over the [feature list](../research/roadmap/feature-candidates.csv)
+- the owner's brainstorm of 14 Oct, whose Roguelite and ideas not picked are kept in [history](history.md)
+- the owner's MoSCoW pass over an early feature list
 - the owner's answers to the documents' questions, on 2026-10-14
 
 Each document ends with what's still open.
@@ -17,10 +17,11 @@ Up: [Repository README](../../README.md)
 | [Tabks](tanks.md) | Tabk bosses, winning a tabk, driving one and calling it in | Signed off, 2026-10-14 |
 | [Player mechanics](player.md) | The crew, controls, kits, health and lives, crates, co-op, and what the player keeps | Signed off, 2026-10-14 |
 | [Maps, missions and progression](levels.md) | What a mission is, difficulty, how maps are built, and the order things open up in, menus included | Signed off, 2026-10-14 |
-| [The crew's kits](kits.md) | Every soldier's weapons, forks and abilities | Moved from DESIGN.md, 2026-10-15 |
+| [The crew's kits](kits.md) | Every soldier's weapons, forks and abilities | Moved from the brainstorm, 2026-10-15 |
 | [Team supers](team-supers.md) | The combo attack for each pair of soldiers in co-op | Draft, 2026-10-15 |
 | [The lobby](lobby.md) | The gaming den: a station per freed crewmate, their idle bits, and picking and readying up, solo and co-op | Approved, 2026-10-16 |
 | [Music](music.md) | Every track and sting, the style, and how the chip synth makes them | Approved, 2026-10-15 |
+| [History](history.md) | The Roguelite (on ice), and ideas considered and not picked | Kept from the first brainstorm |
 
 ## Canonical terms
 
@@ -43,4 +44,4 @@ The game shows only what the player has already met. Nothing on screen, in the m
 
 ## After sign-off
 
-All four were signed off on 2026-10-14, on a [sign-off page](https://claude.ai/artifact/SuFxdReB83W6eM4T3VvYwv) (private to the owner). They're now the reference for building the game. On 2026-10-15 the kits moved here from DESIGN.md, which is now frozen as history; where it differs, these documents win. Pooket Tabks is only a thematic link: Slug's design doesn't depend on Tabks' code or docs.
+All four were signed off on 2026-10-14, on a [sign-off page](https://claude.ai/artifact/SuFxdReB83W6eM4T3VvYwv) (private to the owner). They're now the reference for building the game. On 2026-10-15 the kits moved here from the brainstorm, and on 2026-10-16 its last parts became [history](history.md). Pooket Tabks is only a thematic link: Slug's design doesn't depend on Tabks' code or docs.

@@ -12,6 +12,12 @@ namespace PooketSlug
         public string Mission;
         /// <summary>The co-op room's code for the TV, or null.</summary>
         public string Room;
+        /// <summary>The room's invite link (tapping the TV shares it), or null.</summary>
+        public string InviteLink;
+        /// <summary>The host can list the room in the room browser or keep it invite only, and which it is.</summary>
+        public bool CanList, Listed;
+        /// <summary>People watching the room (the TV says so).</summary>
+        public int Watchers;
         /// <summary>Tapping the empty second controller hosts a room (solo, once co-op's open).</summary>
         public bool CanHost;
         /// <summary>Our colours (<see cref="Art.SkinFor"/>): 0 player one's, 1 player two's.</summary>
@@ -107,7 +113,8 @@ namespace PooketSlug
         readonly Image[] m_Lights = new Image[2], m_LoosePads = new Image[2], m_Drops = new Image[6];
         readonly Text m_TvTitle, m_TvRoom, m_TvLights, m_TvCount, m_Board, m_Hint, m_Note;
         readonly Text[] m_Tags = new Text[2];
-        readonly Button m_Ready, m_Back2, m_HostPad, m_KitButton;
+        readonly Button m_Ready, m_Back2, m_HostPad, m_KitButton, m_ListButton;
+        readonly Text m_ListLabel;
         readonly Text m_ReadyLabel, m_CardName;
         readonly RectTransform m_Card;
         readonly List<Button> m_StationTaps = new List<Button>();
@@ -125,7 +132,10 @@ namespace PooketSlug
         bool m_BitSaidHolo;
 
         SoldierDef m_Picked;
-        bool m_ReadyPressed, m_BackPressed, m_KitPressed, m_HostPressed, m_BoardPressed;
+        bool m_ReadyPressed, m_BackPressed, m_KitPressed, m_HostPressed, m_BoardPressed, m_InviteDown, m_ListPressed;
+        RectTransform m_InviteTap;
+        string m_TvSaid;
+        float m_TvSaidUntil;
 
         public DenView(Transform parent)
         {
@@ -178,6 +188,13 @@ namespace PooketSlug
             boardTap.navigation = new Navigation { mode = Navigation.Mode.None };
             boardTap.onClick.AddListener(() => m_BoardPressed = true);
 
+            // the TV, in a co-op room: a tap shares the invite link. It's armed as the finger goes down (Invite)
+            m_InviteTap = Ui.Rect(m_World, "Tap TV", Vector2.zero, Vector2.zero, new Vector2(86f, 54f) * Px, new Vector2(62f, 34f) * Px);
+            m_InviteTap.gameObject.AddComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
+            var down = new UnityEngine.EventSystems.EventTrigger.Entry { eventID = UnityEngine.EventSystems.EventTriggerType.PointerDown };
+            down.callback.AddListener(_ => m_InviteDown = true);
+            m_InviteTap.gameObject.AddComponent<UnityEngine.EventSystems.EventTrigger>().triggers.Add(down);
+
             m_Visitor = new Figure(m_World, "Visitor");
             m_Dim = Ui.Picture(m_Stage, "Fade", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, new Color(0f, 0f, 0f, 0f));
             Stretch(m_Dim.rectTransform);
@@ -187,6 +204,11 @@ namespace PooketSlug
             Vector2 half = new Vector2(StageW, StageH) * Px / 2f;
             m_Back2 = Ui.Button(m_Stage, "BACK", new Vector2(-half.x + 40f, half.y - 18f), new Vector2(64f, 22f), () => m_BackPressed = true, out Text backKey);
             backKey.text = "ESC";
+            // the host's switch: the room in the room browser for anyone, or invite only
+            m_ListButton = Ui.Button(m_Stage, "INVITE ONLY", new Vector2(-half.x + 146f, half.y - 18f), new Vector2(132f, 22f), () => m_ListPressed = true, out Text listKey);
+            m_ListLabel = m_ListButton.GetComponentInChildren<Text>();
+            m_ListLabel.fontSize = 10;
+            listKey.text = "";
             m_Ready = Ui.Button(m_Stage, "READY", new Vector2(half.x - 56f, -half.y + 32f), new Vector2(96f, 30f), () => m_ReadyPressed = true, out Text readyKey);
             readyKey.text = "ENTER";
             m_ReadyLabel = m_Ready.GetComponentInChildren<Text>();
@@ -248,7 +270,7 @@ namespace PooketSlug
             m_NextBit = Mathf.Lerp(DenBits.MinGap, DenBits.MaxGap, (float)m_Rng.NextDouble()) * 0.5f; // the first comes sooner
             m_Clock = 0f;
             m_Picked = null;
-            m_ReadyPressed = m_BackPressed = m_KitPressed = m_HostPressed = m_BoardPressed = false;
+            m_ReadyPressed = m_BackPressed = m_KitPressed = m_HostPressed = m_BoardPressed = m_InviteDown = m_ListPressed = false;
             m_World.localScale = Vector3.one;
             m_World.anchoredPosition = Vector2.zero;
             Ui.Show(m_Root, true);
@@ -281,6 +303,17 @@ namespace PooketSlug
         public bool TakeHost() => Take(ref m_HostPressed);
         /// <summary>The mission board was tapped: it opens the mission screen.</summary>
         public bool TakeBoard() => Take(ref m_BoardPressed);
+        /// <summary>A finger went down on the TV in a co-op room: arm the invite (<see cref="Invite"/>).</summary>
+        public bool TakeInvite() => Take(ref m_InviteDown);
+        /// <summary>The host tapped the listing switch.</summary>
+        public bool TakeList() => Take(ref m_ListPressed);
+
+        /// <summary>The TV says this under the room code for a few seconds ("LINK COPIED").</summary>
+        public void TvSay(string text)
+        {
+            m_TvSaid = text;
+            m_TvSaidUntil = m_Clock + 2.5f;
+        }
 
         static bool Take(ref bool flag)
         {
@@ -290,10 +323,10 @@ namespace PooketSlug
         }
 
         /// <summary>Says something across the top for a few seconds (a pick undone, say).</summary>
-        public void Note(string text)
+        public void Note(string text, float seconds = 3f)
         {
             m_Note.text = text;
-            m_NoteUntil = m_Clock + 3f;
+            m_NoteUntil = m_Clock + seconds;
         }
 
         // ------------------------------------------------------------------ each frame
@@ -596,7 +629,10 @@ namespace PooketSlug
         {
             bool counting = den.Countdown > 0f;
             m_TvTitle.text = info.Mission ?? "CREW";
-            m_TvRoom.text = info.Room != null ? "ROOM " + info.Room : den.Mode == DenMode.Crew ? "PICK WHO YOU'LL PLAY" : "SOLO";
+            string invite = m_Clock < m_TvSaidUntil ? m_TvSaid : "TAP TO INVITE";
+            m_TvRoom.text = info.Room != null ? "ROOM " + info.Room + (info.InviteLink != null ? "  " + invite : "")
+                : den.Mode == DenMode.Crew ? "PICK WHO YOU'LL PLAY" : "SOLO";
+            Ui.Show(m_InviteTap, info.InviteLink != null && den.Zoom < 0f);
             Ui.Show(m_TvCount, counting);
             if (counting) m_TvCount.text = Mathf.CeilToInt(den.Countdown).ToString();
             m_Board.text = info.Mission ?? "";
@@ -613,7 +649,8 @@ namespace PooketSlug
             string l1 = den.Ready ? "READY" : den.Pick != null ? "IN" : "--"; // the console font has no dots
             string l2 = partnerSeat ? (den.Partner.Ready ? "READY" : "IN") : "--";
             string mineTag = "P" + (den.Seat + 1), theirTag = "P" + (2 - den.Seat);
-            m_TvLights.text = den.Mode == DenMode.Crew ? "" : den.Seat == 0 ? $"{mineTag} {l1}   {theirTag} {l2}\n{StartLine(den)}" : $"{theirTag} {l2}   {mineTag} {l1}\n{StartLine(den)}";
+            string start = StartLine(den) + (info.Watchers > 0 ? "  " + info.Watchers + " WATCHING" : "");
+            m_TvLights.text = den.Mode == DenMode.Crew ? "" : den.Seat == 0 ? $"{mineTag} {l1}   {theirTag} {l2}\n{start}" : $"{theirTag} {l2}   {mineTag} {l1}\n{start}";
         }
 
         bool VisitorOn(int seat) => m_VisitorActor != null && m_VisitorActor.Seat == seat;
@@ -635,6 +672,8 @@ namespace PooketSlug
             Ui.Show(m_Card, den.Pick != null && !zooming);
             if (den.Pick != null) m_CardName.text = den.Pick.Name.ToUpperInvariant();
             Ui.Show(m_HostPad, info.CanHost && den.Mode != DenMode.Coop && !zooming);
+            Ui.Show(m_ListButton, info.CanList && !zooming);
+            if (info.CanList) m_ListLabel.text = info.Listed ? "PUBLIC ROOM" : "INVITE ONLY";
             foreach (Button b in m_StationTaps) b.interactable = !zooming;
             Ui.Show(m_Hint, !zooming);
             m_Hint.text = den.Pick == null ? "TAP SOMEONE TO SIT THEM ON THE COUCH"

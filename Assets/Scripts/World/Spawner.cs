@@ -37,7 +37,7 @@ namespace PooketSlug
             Enemy e;
             switch (def.Brain)
             {
-                case EnemyBrain.Rifleman: e = new Soldier(w, def, pos); break;
+                case EnemyBrain.Rifleman: e = new Rifleman(w, def, pos); break;
                 case EnemyBrain.Runner: e = new Runner(w, def, pos); break;
                 case EnemyBrain.Drone: e = new Drone(w, def, pos); break;
                 case EnemyBrain.Tank:
@@ -93,7 +93,7 @@ namespace PooketSlug
             PickupDef pickup = Content.PickupFor(s.Kind);
             if (pickup != null) w.Pickups.Add(new Pickup(w, pickup, s.Pos) { NetId = index });
             else if (s.Kind == SpawnKind.Flag) w.Props.Add(new Prop(w, Art.Flag, s.Pos, SortOrder.Pickups));
-            else if (s.Kind == SpawnKind.Watchtower) w.Props.Add(new Prop(w, Art.Watchtower, s.Pos, SortOrder.Scenery));
+            else if (s.Kind == SpawnKind.TowerScenery) w.Props.Add(new Prop(w, Art.Watchtower, s.Pos, SortOrder.Scenery));
             else if (s.Kind == SpawnKind.MotorPool) w.Props.Add(new Prop(w, Art.MotorPoolGate, s.Pos, SortOrder.Scenery));
             else if (s.Kind == SpawnKind.LiveFence) w.Props.Add(new LiveFence(w, s.Pos));
             else if (s.Kind == SpawnKind.SteamVent) w.Props.Add(new SteamVent(w, s.Pos));

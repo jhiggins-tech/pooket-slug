@@ -1,6 +1,6 @@
 # Sessions and matchmaking
 
-How players find each other and what happens when things go wrong: hosting, room codes, joining, quick match, build versions, failure messages, console logs, and how to test it by hand. The code is in [`NetSession.cs`](../../../Assets/Scripts/Net/NetSession.cs) (sessions) and [`Game.cs`](../../../Assets/Scripts/Game.cs) (the screens).
+How players find each other and what happens when things go wrong: hosting, room codes, joining, quick match, build versions, failure messages, console logs, and how to test it by hand. The code is in [`NetSession.cs`](../../../Assets/Scripts/Net/NetSession.cs) (sessions) and [`Game.cs`](../../../Assets/Scripts/Game/Game.cs) (the screens).
 
 **Read this when** you're changing the lobby or matchmaking, a player can't join, or you're about to test co-op.
 
@@ -10,8 +10,10 @@ Up: [Netcode](README.md)
 
 | Screen | Keys | What happens |
 |---|---|---|
-| Title | **Enter / X** play solo · **H** host · **J** join with a code · **Q** quick match | The online line only appears when the build has the SDK *and* an AppId. Otherwise it reads *Online co-op is off in this build* |
+| Title | **Enter / X** play solo · **H** host · **J** join with a code · **Q** quick match · **R** the room browser | The online line only appears when the build has the SDK *and* an AppId. Otherwise it reads *Online co-op is off in this build* |
 | Join box | Type the code · **Enter** join · **Esc** back | Opens prefilled when the page URL has `?room=ABCD` |
+| Room browser | **Enter** the first room · tap JOIN or WATCH · **Esc** back | Listed rooms: those with a free seat first (JOIN), then full ones (WATCH, only for a mission you've cleared; LOCKED otherwise, FULL with four watching) |
+| Den, in a room | **H** or tap the TV: share or copy the invite link · tap INVITE ONLY / PUBLIC ROOM (the host) | The TV shows the room code and how many are watching |
 | Connecting | **Esc** cancel | Shows the session's status text. On failure, back to the title with a red notice for 8 s |
 | Playing (co-op) | **Esc** twice within 2 s to leave | The bottom line shows the room code, players (n/2) and ping. While alone it shows *Waiting for a partner*, the code and an invite link |
 | Mission complete | **Enter** play again · **Esc** leave | Either player's Enter restarts both |
@@ -26,8 +28,9 @@ There's no pause in co-op, and no game over: fallen soldiers come back.
 runner.StartGame(new StartGameArgs {
     GameMode = GameMode.Shared,
     SessionName = name,                 // null = quick match (random join or create)
-    PlayerCount = 2,
-    IsVisible = quickMatch,             // private rooms aren't in the random-join pool
+    PlayerCount = RoomBrowser.MaxPeople, // 2 players + 4 watching
+    IsVisible = listed,                 // listed rooms show in the room browser
+    SessionProperties = …,              // the room's listing: every key given at creation, so the lobby shows them
     SceneManager = …, ObjectProvider = …,
     CustomPhotonAppSettings = settings, // AppId, AppVersion, FixedRegion (+ WebSocketSecure on WebGL)
 });
@@ -41,7 +44,7 @@ runner.StartGame(new StartGameArgs {
 
 - **Every game is in one Photon region: Australia (`au`),** the owner's choice (NET-05). Hosting, joining and quick match all set `FixedRegion` to `NetConfig.Region`. A build can name another region with `-photonRegion` (`pooket-net.json`); the workflow doesn't pass one.
 - **Photon sessions exist per region,** so a fixed region is what lets a code be just a name: everyone looks in the same place.
-- **Hosting picks a 4-letter session name** from `ABCDEFGHJKLMNPQRSTUVWXYZ` (no I or O), and that name is the code, for example `ABCD`. [`InviteCode`](../../../Assets/Scripts/Core/InviteCode.cs) makes and parses the codes, and has [tests](../verification/edit-mode-tests.md).
+- **Hosting picks a 4-letter session name** from `ABCDEFGHJKLMNPQRSTUVWXYZ` (no I or O), and that name is the code, for example `ABCD`. [`InviteCode`](../../../Assets/Scripts/Core/Lobby/InviteCode.cs) makes and parses the codes, and has [tests](../verification/edit-mode-tests.md).
 - **Older codes still parse.** Until 2026-10-14 each code carried its region, as in `ABCD-EU`; the suffix is now ignored.
 - **Players far from Australia get more lag.** That's the cost of one region.
 - **The invite link is the page URL plus `?room=CODE`.** The game reads it from `Application.absoluteURL`, so opening the link prefills the join box.
@@ -54,7 +57,15 @@ runner.StartGame(new StartGameArgs {
 
 ## Quick match
 
-- `SessionName = null`, `IsVisible = true`: Photon joins a random open visible session or creates one.
+- **Quick match looks through the room browser's list** (rooms, 2026-10-16): it joins the first listed room with a free seat, or after 4 s with none opens a listed room of its own for the next player to find. Photon's random join can't be used any more: a room has space for watchers, so it could put a third soldier in a full room.
+
+## Listed rooms, the browser and watching
+
+- **A room's listing** is in its session properties, which Photon shows to everyone browsing: its mission (`m`), players with a soldier (`n`), people watching (`w`), whether a mission is under way (`g`) and the host's soldier (`h`). The master client rewrites them when they change, checked once a second. Every key is given when the room opens, because Photon only shows the keys a room was created with.
+- **The browser** is a second runner in Photon's shared lobby (`JoinSessionLobby`), which hears `OnSessionListUpdated`. Only listed (`IsVisible`) rooms appear. [`RoomBrowser`](../../../Assets/Scripts/Core/Platform/Rooms.cs) decides each line: JOIN with a free seat, WATCH when full and the mission is cleared, LOCKED (no spoilers) or FULL.
+- **Hosting starts invite only;** the host's den has a switch for PUBLIC ROOM (`SessionInfo.IsVisible`). Quick-match rooms are listed. Whether hosts choose is the owner's call (asked 2026-10-16; `RoomBrowser.HostListed` / `HostChooses`).
+- **Watching** joins the room with no `PlayerNet`. The watcher's world has a soldier who's out for good (`World.Spectate`), its camera follows the room's scroll, and the HUD says WATCHING ROOM ABCD. Watchers are the room's peers without a soldier, so the den's TV can count them. A watcher made master client (the host left) hands it to a player, or leaves when nobody's playing.
+- **A room holds six:** two players and four watchers (Photon's free plan allows 20 connections in all). Joining a room that already lists two players says THAT GAME IS FULL.
 - **Everyone quick-matches in the same region,** so any two players can meet.
 
 ## Build versions
@@ -64,7 +75,7 @@ runner.StartGame(new StartGameArgs {
 
 ## Players and skins
 
-- **`PlayerCount = 2`.** A third player gets *That game is full*.
+- **Two soldiers a room.** A third player who joins by code, link or a stale browser line gets *That game is full* (from the room's listing); there's space for four watchers besides.
 - **Skins:** a new soldier takes red (skin 0) unless another player already has it. If two players picked red at the same moment, the one with the higher `PlayerId` switches to blue.
 
 ## When things fail
@@ -100,9 +111,9 @@ Open the browser's developer console. Lines starting with `[PooketSlug/Net]` tra
 [PooketSlug/Net] Disconnected from Photon: <NetDisconnectReason>
 ```
 
-- **Channels:** `Net` for the session, `Game` and `Audio` for the rest ([`Log.cs`](../../../Assets/Scripts/Core/Log.cs)). Builds before 2026-10-14 printed a plain `[PooketSlug]` prefix.
+- **Channels:** `Net` for the session, `Game` and `Audio` for the rest ([`Log.cs`](../../../Assets/Scripts/Core/Platform/Log.cs)). Builds before 2026-10-14 printed a plain `[PooketSlug]` prefix.
 - **Turning them up or down:** add `?log=net:debug` to the page address, or `?log=all:warn` for quiet. The levels are `debug`, `info` (the default), `warn`, `error` and `off`.
-- **`?log=game:debug` also reports the entity pools** each time one's use doubles, from 64: `[PooketSlug/Game] Projectile pool: 128 used, 11 made` ([`EntityPool.cs`](../../../Assets/Scripts/EntityPool.cs)).
+- **`?log=game:debug` also reports the entity pools** each time one's use doubles, from 64: `[PooketSlug/Game] Projectile pool: 128 used, 11 made` ([`EntityPool.cs`](../../../Assets/Scripts/World/EntityPool.cs)).
 
 Fusion and Photon log with their own prefixes, for example `[Fusion] StartGame Failed: …`, and WebSocket errors come from the browser.
 
@@ -110,6 +121,7 @@ Fusion and Photon log with their own prefixes, for example `[Fusion] StartGame F
 
 - **Browsers pause `requestAnimationFrame` in hidden tabs,** and Unity WebGL's main loop runs on it.
 - **A backgrounded player freezes,** and after a timeout Photon drops them. If that player was the master, the other inherits the world.
+- **A frozen host doesn't freeze the game for long** (rooms, 2026-10-16). Every player's `PlayerNet` carries a beat that changes four times a second while their game runs. When the master's beat stops for 2 s, the partner asks Photon for the master client (`NetworkRunner.RequestMasterClientReassign`, [`MasterWatch`](../../../Assets/Scripts/Core/Platform/Handover.cs)), and Photon agrees once the master's connection has been idle for `MasterClientRequestReassignThreshold` (2 s, opted into in `NetworkProjectConfig.fusion`). The shared world, a master-client object, moves with it. A host who comes back follows the partner's world. CI's handover round freezes the host's page to check it.
 - **Test with two visible windows side by side, or two devices.** Not two tabs in one window.
 
 ## Testing by hand

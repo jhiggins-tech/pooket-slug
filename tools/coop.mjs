@@ -1,11 +1,20 @@
 // Two-player co-op check against a build, in two separate headless Chromium instances.
-//   code mode (default): A hosts (H), B opens the invite link ?room=CODE and presses Enter.
+//   code mode (default): A hosts (H), copies the invite link in the den (H again, as tapping the TV), and B opens the
+//                        invite link ?room=CODE and presses Enter.
 //   quick mode:          both press Q (quick match).
 //   boss mode:           as code mode, but both start at the boss (?test=boss) and fight it: B must see the boss
 //                        tank's turret and shots from A's world. Nobody leaves.
 //   dropin mode:         spike drop-in: A starts alone and fights its way in, then B joins the mission under way. B
 //                        must drop in partway with its own lives and a score of its own at 0, both play on, and
 //                        (reported, not required: kills aren't certain) each sees the other's own score. Nobody leaves.
+//   handover mode:       rooms: as code mode, then A's page stalls for 32 s (its main thread held busy, as a phone
+//                        freezes a game sent to the background). B must notice A's beat stop, ask Photon for the
+//                        shared world and run it, well before Photon would time A out, and play on. Then A comes
+//                        back (reported, not required: it may have been timed out by then) and should follow B's world.
+//   watch mode:          rooms: A quick-matches (opening a listed room), B finds it in the room browser (R) and joins
+//                        it (ENTER, the first row), both play, and C finds it full in the browser and watches it: C
+//                        must follow the game with no soldier of its own, and A's room must count C watching. Nobody
+//                        leaves.
 //   scene mode:          as code mode, but both sit down in the den together and start at once, with ?test=scene, so
 //                        a stand-in scene plays on both phones (Mission one is single player only, so its own scenes
 //                        never play in co-op): both tap through it, and it must move on for both, together, each shot
@@ -22,7 +31,7 @@ const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PW_PATH || 'playwright');
 
 const [base, out, mode = 'code'] = process.argv.slice(2);
-const BOSS = mode === 'boss', SCENE = mode === 'scene', DROPIN = mode === 'dropin';
+const BOSS = mode === 'boss', SCENE = mode === 'scene', DROPIN = mode === 'dropin', HANDOVER = mode === 'handover', WATCH = mode === 'watch';
 const url = base + (base.includes('?') ? '&' : '?') + 'unlock=coop&test=' + (BOSS ? 'boss' : SCENE ? 'crate,scene' : 'crate') + (DROPIN ? '&spike=dropin,partner' : '');
 fs.mkdirSync(out, { recursive: true });
 const T0 = Date.now();
@@ -31,19 +40,24 @@ const TAG = String.raw`\[PooketSlug(?:/\w+)?\]`; // "[PooketSlug/Net] …" (olde
 const ARGS = ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--autoplay-policy=no-user-gesture-required'];
 
 // Each check is false until it passes; result.json records them all.
-const checks = DROPIN
+const checks = WATCH
+  ? { hostOnline: false, listed: false, browsedIn: false, joined: false, played: false, watcherIn: false, watching: false, counted: false }
+  : HANDOVER
+  ? { hostOnline: false, guestOnline: false, joined: false, played: false, asked: false, tookOver: false, quick: false, playedOn: false }
+  : DROPIN
   ? { hostOnline: false, guestOnline: false, joined: false, droppedIn: false, played: false }
   : BOSS
   ? { hostOnline: false, guestOnline: false, joined: false, played: false, bossIntro: false, bossFought: false, bossFollowed: false, bossFired: false }
   : SCENE
     ? { hostOnline: false, guestOnline: false, joined: false, bothInScene: false, waited: false, tappedThrough: false, together: false, played: false }
-    : { hostOnline: false, guestOnline: false, joined: false, played: false, pickup: false, takeover: false };
+    : { hostOnline: false, guestOnline: false, joined: false, invite: false, played: false, pickup: false, takeover: false };
 const GRANT = new RegExp(TAG + String.raw` Pickup \d+ .* goes to player`); // the master handing out a pickup
 let failure = null;
 
 async function player(name) {
   const browser = await chromium.launch({ args: ARGS });
-  const page = await browser.newPage({ viewport: { width: 960, height: 720 } });
+  const context = await browser.newContext({ viewport: { width: 960, height: 720 }, permissions: ['clipboard-read', 'clipboard-write'] });
+  const page = await context.newPage();
   const logs = [];
   page.on('console', m => logs.push(`${t()} ${name} [${m.type()}] ${m.text()}`));
   page.on('pageerror', e => logs.push(`${t()} ${name} [pageerror] ${e.message}`));
@@ -117,9 +131,71 @@ async function tapThrough(p, ms) {
   }
 }
 
+/** The room browser: R on the title opens it, and it starts looking through the listed rooms. */
+/** Press `key` until the game logs `re`: a key pressed just after loading can land before the title takes keys. */
+async function pressUntil(p, key, re, tries = 5) {
+  for (let i = 0; i < tries; i++) {
+    await p.page.keyboard.press(key);
+    const hit = await waitLog(p, re, 3000);
+    if (hit) return hit;
+  }
+  return null;
+}
+
+async function openBrowser(p) {
+  if (!(await pressUntil(p, 'r', new RegExp(TAG + ' Room browser open')))) throw new Error(`${p.name} never opened the room browser`);
+  await p.page.waitForTimeout(3000);
+}
+
 const A = await player('A');
 const B = await player('B');
+const C = WATCH ? await player('C') : null;
 try {
+  if (WATCH) {
+    await load(A, url);
+    // no rooms yet: quick match opens a listed one
+    await pressUntil(A, 'q', new RegExp(TAG + ' (Looking through the listed rooms|Quick match|Couldn.t list)'));
+    const line = await waitLog(A, new RegExp(TAG + ' Online .*room ([A-Z]{4}) \\(listed\\)'), 90000);
+    checks.hostOnline = !!line;
+    if (!line) throw new Error('A never opened a listed room');
+    const code = line.match(/room ([A-Z]{4})/)[1];
+    console.log(`${t()} A opened ${code}, listed`);
+    await denStart(A);
+    await A.page.waitForTimeout(2000);
+
+    const pick = async (p, verb) => {
+      await openBrowser(p);
+      for (let i = 0; i < 12; i++) {
+        await p.page.keyboard.press('Enter');
+        const took = await waitLog(p, new RegExp(TAG + ` Room browser: ${verb} ${code}`), 2000);
+        if (took) return true;
+      }
+      return false;
+    };
+    await load(B, url);
+    checks.listed = await pick(B, 'JOIN');
+    await shot(B, '1-browser');
+    if (!checks.listed) throw new Error(`B never saw ${code} to join in the room browser`);
+    checks.browsedIn = !!(await waitLog(B, new RegExp(TAG + ` Online .*room ${code}`), 60000));
+    await denStart(B);
+    checks.joined = !!(await waitLog(A, new RegExp(TAG + ' .* joined'), 30000));
+    await Promise.all([play(A, 'ArrowRight', 5000), play(B, 'ArrowRight', 5000)]);
+
+    await load(C, url);
+    const before = A.logs.length; // A's count from here on: C's arrival, not B's
+    const watched = await pick(C, 'WATCH');
+    await shot(C, '1-browser');
+    if (!watched) throw new Error(`C never saw ${code} to watch in the room browser`);
+    checks.watcherIn = !!(await waitLog(C, new RegExp(TAG + ` Online .*room ${code}( \\(listed\\))?, watching`), 60000));
+    checks.watching = !!(await waitLog(C, new RegExp(TAG + ` Watching room ${code}`), 20000));
+    await Promise.all([play(A, 'ArrowRight', 6000), play(B, 'ArrowRight', 6000)]);
+    await Promise.all([shot(A, '2-watched'), shot(B, '2-watched'), shot(C, '2-watching')]);
+    const counts = A.logs.slice(before).filter(l => new RegExp(TAG + ` \\d+ watching room ${code}`).test(l));
+    checks.counted = counts.length > 0 && / 1 watching room /.test(counts[counts.length - 1]);
+    console.log(`${t()} A's room counts: ${counts.map(l => l.match(/(\d+) watching/)[1]).join(', ') || 'none'}`);
+    checks.played = ![...A.logs, ...B.logs, ...C.logs].some(l => /\[pageerror\]|Disconnected from Photon|Session ended/.test(l));
+    throw null; // done: on to the results
+  }
   await load(A, url);
   await shot(A, '0-title');
 
@@ -137,6 +213,16 @@ try {
     joinUrl = url + (url.includes('?') ? '&' : '?') + 'room=' + code;
   }
   if (!checks.hostOnline) throw new Error('A never got online');
+  if (mode === 'code') {
+    // rooms: the TV's invite (H in a room's den, as a tap on the TV) copies the room's link on a computer
+    await denOpen(A);
+    await A.page.keyboard.press('h');
+    const copied = await waitLog(A, new RegExp(TAG + ' Invite (copied|shared)'), 10000);
+    const clip = copied ? await A.page.evaluate(() => navigator.clipboard.readText()).catch(e => 'unreadable: ' + e.message) : '';
+    checks.invite = !!copied && /[?&]room=[A-Z]{4}$/.test(clip) && joinUrl.endsWith(clip.slice(clip.indexOf('?room=') + 1));
+    console.log(`${t()} invite: ${copied ? 'copied ' + clip : 'NO'}`);
+    await shot(A, 'den-invited');
+  }
   if (SCENE) await denOpen(A); // A waits in the den for B, so they start together
   else {
     await denStart(A);
@@ -182,6 +268,36 @@ try {
     await Promise.all([play(A, 'ArrowRight', 4000), play(B, 'ArrowRight', 4000)]);
     await Promise.all([shot(A, '4-playing'), shot(B, '4-playing')]);
     checks.played = ![...A.logs, ...B.logs].some(l => /\[pageerror\]|Disconnected from Photon|Session ended/.test(l));
+  } else if (HANDOVER) {
+    await Promise.all([play(A, 'ArrowRight', 5000), play(B, 'ArrowRight', 5000)]);
+    checks.played = ![...A.logs, ...B.logs].some(l => /\[pageerror\]|Disconnected from Photon|Session ended/.test(l));
+    // A's phone sends the game to the background: its page stops running, but its connection stays open. Headless
+    // Chromium won't freeze a page (Page.setWebLifecycleState didn't take in CI), so A's main thread is held busy
+    // instead: the game, and everything it sends Photon, stops just the same.
+    const STALL = 32000;
+    const frozeAt = Date.now();
+    const stalled = A.page.evaluate(ms => { const end = performance.now() + ms; while (performance.now() < end) {} }, STALL).catch(() => {});
+    await A.page.waitForTimeout(300);
+    const answers = () => Promise.race([A.page.evaluate(() => 1).then(() => true), new Promise(r => setTimeout(() => r(false), 1500))]);
+    const frozen = !(await answers());
+    console.log(`${t()} A frozen: ${frozen ? 'yes' : 'NO, it still answers'}`);
+    const playing = play(B, 'ArrowRight', 12000);
+    const asked = await waitLog(B, /quiet for .* asking to run the shared world/, 15000);
+    checks.asked = !!asked;
+    const took = await waitLog(B, /now runs the shared world/, 20000);
+    checks.tookOver = !!took;
+    const secs = took ? (Date.now() - frozeAt) / 1000 : null;
+    checks.quick = secs !== null && secs < 10; // Photon would only time A out after about 10 s
+    console.log(`${t()} handover: ${took ? `B runs the shared world, ${secs.toFixed(1)} s after A froze` : 'NO'}`);
+    await playing;
+    await shot(B, '3-alone');
+    checks.playedOn = !B.logs.some(l => /\[pageerror\]|Disconnected from Photon|Session ended/.test(l));
+    await stalled;
+    console.log(`${t()} A back`);
+    const back = await waitLog(A, /Another client runs the shared world/, 15000);
+    console.log(`${t()} A back: ${back ? 'follows B\'s world' : A.logs.some(l => /Session ended|Disconnected/.test(l)) ? 'timed out by Photon' : 'no word'}`);
+    await Promise.all([play(A, 'ArrowRight', 4000), play(B, 'ArrowRight', 4000)]);
+    await Promise.all([shot(A, '4-back'), shot(B, '4-back')]);
   } else if (DROPIN) {
     const line = await waitLog(B, /Dropped in to a mission under way/, 15000);
     checks.droppedIn = !!line;
@@ -229,12 +345,14 @@ try {
     await Promise.all([shot(A, '5-left'), shot(B, '5-alone')]);
   }
 } catch (e) {
+  if (e !== null) {
   failure = e.message;
   console.log(`${t()} FAILED: ${e.message}`);
   await Promise.all([shot(A, 'x-fail').catch(() => {}), shot(B, 'x-fail').catch(() => {})]);
+  }
 } finally {
   const keep = l => !/\[debug\]/.test(l);
-  const all = [...A.logs, ...B.logs].filter(keep).sort((a, b) => parseFloat(a) - parseFloat(b));
+  const all = [...A.logs, ...B.logs, ...(C ? C.logs : [])].filter(keep).sort((a, b) => parseFloat(a) - parseFloat(b));
   fs.writeFileSync(`${out}/console.log`, all.join('\n') + '\n');
   console.log(all.filter(l => /PooketSlug|error|exception|warn|Fusion|Photon/i.test(l)).slice(-120).join('\n'));
   const ok = !failure && Object.values(checks).every(Boolean);
@@ -243,5 +361,6 @@ try {
   console.log(`${t()} result: ${ok ? 'PASS' : 'FAIL'} ${JSON.stringify(checks)}, ${pickups} pickup(s) given out`);
   await A.browser.close();
   await B.browser.close();
+  if (C) await C.browser.close();
   if (!ok) process.exitCode = 1;
 }

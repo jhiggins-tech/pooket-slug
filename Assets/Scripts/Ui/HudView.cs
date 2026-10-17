@@ -19,6 +19,8 @@ namespace PooketSlug
         public bool Demo;
         /// <summary>Co-op: the session, or null in a solo game.</summary>
         public INetSession Net;
+        /// <summary>Rooms: we're watching, with no soldier of our own (the HUD shows the players, not us).</summary>
+        public bool Watching;
         public string PageUrl;
         /// <summary>Co-op: the first press of Esc (or EXIT) is waiting for the second.</summary>
         public bool LeaveArmed;
@@ -368,7 +370,14 @@ namespace PooketSlug
                 int gun = p.GunAmmo > 0 ? p.Gun.Id : -1;
                 PlayerTank tank = p.Riding;
                 int tankRounds = tank == null ? -1 : tank.Rounds.Main * 100 + tank.Rounds.Specials * 10 + tank.Rounds.Supers;
-                if (gun != m_ArmsGun || p.GunAmmo != m_ArmsAmmo || p.Specials != m_ArmsSpecials || tankRounds != m_ArmsTank)
+                if (info.Watching)
+                {
+                    string watching = "WATCHING ROOM " + info.Net.RoomCode + (w.Remotes.Count == 0 ? "   THE PLAYERS ARE IN THE DEN" : "");
+                    if (m_Arms.text != watching) m_Arms.text = watching;
+                    m_ArmsGun = int.MinValue; // the soldier's line again once we're playing
+                    tank = null;
+                }
+                else if (gun != m_ArmsGun || p.GunAmmo != m_ArmsAmmo || p.Specials != m_ArmsSpecials || tankRounds != m_ArmsTank)
                 {
                     m_ArmsGun = gun;
                     m_ArmsAmmo = p.GunAmmo;
@@ -392,7 +401,18 @@ namespace PooketSlug
                 }
                 Kit(p);
                 Lives(p, info.Net != null);
-                HideFrom(m_Hearts, Hearts(m_Hearts, m_NewHeart, 0, p.MaxHp, p.Hp, new Vector2(8f, -24f), 13f, 12f, Color.white));
+                HideFrom(m_Hearts, info.Watching ? 0 : Hearts(m_Hearts, m_NewHeart, 0, p.MaxHp, p.Hp, new Vector2(8f, -24f), 13f, 12f, Color.white));
+                // watching: no soldier of our own, so none of its meters, lives or warnings
+                Ui.Show(m_Lives, !info.Watching);
+                Ui.Show(m_SuperLabel, !info.Watching);
+                Ui.Show(m_SuperBack, !info.Watching);
+                if (info.Watching)
+                {
+                    Ui.Show(m_AbilityLabel, false);
+                    Ui.Show(m_AbilityBack, false);
+                    Ui.Show(m_Down, false);
+                    Ui.Show(m_DownNote, false);
+                }
 
                 BossEnemy boss = w.Boss;
                 bool bossBar = boss != null && boss.Engaged && !boss.Removed;
@@ -461,7 +481,7 @@ namespace PooketSlug
 
             INetSession net = info.Net;
             string room = net.RoomCode;
-            bool alone = w.Remotes.Count == 0 && !w.Victory;
+            bool alone = w.Remotes.Count == 0 && !w.Victory && !info.Watching;
             Ui.Show(m_Waiting, alone && (int)(Time.unscaledTime * 2f) % 2 == 0);
             Ui.Show(m_Room, alone);
             Ui.Show(m_Link, alone && room != null && info.PageUrl.Length > 0);
@@ -473,7 +493,8 @@ namespace PooketSlug
             }
 
             string leave = GameInput.TouchActive ? "EXIT TWICE TO LEAVE" : "ESC ESC TO LEAVE";
-            string status = (room != null ? "ROOM " + room : "QUICK MATCH") + "  ·  " + net.PlayerCount + "/2  ·  " + net.PingMs + " MS  ·  " + leave;
+            string status = (info.Watching ? "WATCHING  ·  " : "") + (room != null ? "ROOM " + room : "QUICK MATCH") + "  ·  " + net.PlayerCount + "/2" +
+                            (net.Watchers > 0 && !info.Watching ? "  ·  " + net.Watchers + " WATCHING" : "") + "  ·  " + net.PingMs + " MS  ·  " + leave;
             if (status != m_StatusKey) m_Status.text = m_StatusKey = status;
 
             Ui.Show(m_Leave, info.LeaveArmed);

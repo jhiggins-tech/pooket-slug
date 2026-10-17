@@ -57,11 +57,11 @@ namespace PooketSlug
         Bullet,
         /// <summary>Thrown or dropped, then falls: <see cref="WeaponDef.Throw"/> plus some of the thrower's own speed.</summary>
         Lob,
-        /// <summary>A stream of droplets while FIRE is held, building pressure (spike: <see cref="JetSpec"/>).</summary>
+        /// <summary>A stream of droplets while FIRE is held, building pressure (<see cref="JetSpec"/>).</summary>
         Jet,
-        /// <summary>The soldier shakes, then launches upward (spike: <see cref="RocketSpec"/>).</summary>
+        /// <summary>The soldier shakes, then launches upward (<see cref="RocketSpec"/>).</summary>
         RocketJump,
-        /// <summary>A short-range spew that leaves burning sludge (spike: <see cref="SpewSpec"/>).</summary>
+        /// <summary>A short-range spew that leaves burning sludge (<see cref="SpewSpec"/>).</summary>
         Spew,
         /// <summary>kie's Weasel Pop: a press tumbles out weasels that hunt goons along the ground and pop (<see cref="WeaselPopSpec"/>).</summary>
         Weasels,
@@ -250,9 +250,11 @@ namespace PooketSlug
         /// </summary>
         public readonly int CrateSpecials;
 
-        public SoldierDef(byte id, string name, float runSpeed, float crawlSpeed, float jumpVelocity, float halfWidth, float standHeight,
-            float crouchHeight, int maxHp, WeaponDef primary, WeaponDef special, int startSpecials,
-            int specialMax = 0, float specialRefill = 0f, WeaponDef super = null, WeaponDef ability = null, float abilityCooldown = 0f,
+        public SoldierDef(byte id, string name, WeaponDef primary, WeaponDef special, int startSpecials,
+            float runSpeed = Tuning.Soldier.RunSpeed, float crawlSpeed = Tuning.Soldier.CrawlSpeed,
+            float jumpVelocity = Tuning.Soldier.JumpVelocity, float halfWidth = Tuning.Soldier.HalfWidth,
+            float standHeight = Tuning.Soldier.StandHeight, float crouchHeight = Tuning.Soldier.CrouchHeight,
+            int maxHp = Tuning.Soldier.MaxHp, int specialMax = 0, float specialRefill = 0f, WeaponDef super = null, WeaponDef ability = null, float abilityCooldown = 0f,
             int crateSpecials = Tuning.Crates.DefaultSpecials)
         {
             CrateSpecials = crateSpecials;

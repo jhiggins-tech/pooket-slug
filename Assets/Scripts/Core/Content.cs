@@ -125,23 +125,20 @@ namespace PooketSlug
         /// The first soldier, with a pistol and grenades. Nobody plays him now; he stays as the stand-in for a soldier
         /// a co-op partner's build has and this one doesn't.
         /// </summary>
-        public static readonly SoldierDef Trooper = new SoldierDef(0, "Trooper", runSpeed: 5.5f, crawlSpeed: 2f, jumpVelocity: 17f,
-            halfWidth: 0.3f, standHeight: 1.35f, crouchHeight: 0.8f, maxHp: 5, primary: Pistol, special: GrenadeThrow,
+        public static readonly SoldierDef Trooper = new SoldierDef(0, "Trooper", primary: Pistol, special: GrenadeThrow,
             startSpecials: Tuning.Kit.SpecialCharges, specialMax: Tuning.Kit.SpecialCharges, specialRefill: Tuning.Kit.SpecialRefill);
 
         /// <summary>
         /// tones2, from Pooket Tabks, who everyone plays until the crew is freed (<c>docs/design/player.md</c>): the water
         /// jet, the mud rocket jump and the spew.
         /// </summary>
-        public static readonly SoldierDef Tones2 = new SoldierDef(1, "tones2", runSpeed: 5.5f, crawlSpeed: 2f, jumpVelocity: 17f,
-            halfWidth: 0.3f, standHeight: 1.35f, crouchHeight: 0.8f, maxHp: 5, primary: WaterJet, special: RocketJump, startSpecials: 3,
+        public static readonly SoldierDef Tones2 = new SoldierDef(1, "tones2", primary: WaterJet, special: RocketJump, startSpecials: 3,
             super: Spew, crateSpecials: 3); // the rocket jump is a strong special: a bomb crate gives about 3
 
         /// <summary>
         /// kie, Mission one's crewmate (<c>docs/design/kits.md</c>): Weasel Pop, Trollogram and Steal. Picked with CREW once Mission one is beaten (<see cref="Crew"/>), and played by Mission one's pilot.
         /// </summary>
-        public static readonly SoldierDef Kie = new SoldierDef(2, "kie", runSpeed: 5.5f, crawlSpeed: 2f, jumpVelocity: 17f,
-            halfWidth: 0.3f, standHeight: 1.35f, crouchHeight: 0.8f, maxHp: 5, primary: WeaselPop, special: Trollogram,
+        public static readonly SoldierDef Kie = new SoldierDef(2, "kie", primary: WeaselPop, special: Trollogram,
             startSpecials: Tuning.Kit.SpecialCharges, specialMax: Tuning.Kit.SpecialCharges, specialRefill: Tuning.Kit.SpecialRefill, super: Steal);
 
         // ------------------------------------------------------------------ lookups (after the definitions: statics initialise in order)
@@ -198,7 +195,7 @@ namespace PooketSlug
         {
             switch (kind)
             {
-                case SpawnKind.Soldier: return Rifleman;
+                case SpawnKind.Rifleman: return Rifleman;
                 case SpawnKind.Runner: return Runner;
                 case SpawnKind.Drone: return Drone;
                 case SpawnKind.Tank: return Tank;

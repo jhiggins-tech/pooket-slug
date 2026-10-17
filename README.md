@@ -2,7 +2,7 @@
 
 A spike to test **[GameCI](https://game.ci)** on GitHub Actions. It builds a small Metal Slug–style side-scrolling shooter in **Unity 6.3 LTS** for **WebGL**, then publishes it to **GitHub Pages**.
 
-▶ **Play:** https://jhiggins-tech.github.io/pooket-slug/ · 📚 **Research notes and reference guide:** [docs/research](docs/research/AGENTS.md) (start with [lessons learned](docs/research/lessons-learned.md))
+▶ **Play:** https://jhiggins-tech.github.io/pooket-slug/ · 📚 **Research notes and reference guide:** [CLAUDE.md](CLAUDE.md) and [docs/research](docs/research/README.md) (start with [lessons learned](docs/research/lessons-learned.md))
 
 ## What's in the demo
 
@@ -24,7 +24,7 @@ Fusion's Shared Mode is the topology Fusion supports for WebGL. There is no host
 - **Your own soldier** is simulated by your client and replicated by a `PlayerNet` object you own.
 - **The shared world** is simulated by the room's master client: enemies, pickups, score, the scrolling camera and the spawn cursor. It's published through `WorldNet`, a *master-client object*, so if the host leaves, the next master client inherits it and its game becomes the authority. The other clients mirror the snapshot.
 - **Hits on enemies** are reported to the authority. **Damage to a soldier** is applied by that soldier's own client. **Crates** go to whoever the authority hears from first.
-- Gameplay code only talks to `INetLink` / `INetSession`, and the netcode to `INetEvents` (`Core/NetContracts.cs`). The Fusion code in `Assets/Scripts/Net/` is its own assembly, `PooketSlug.Net`, which compiles only when the SDK is present, so the game still builds as a solo game without it.
+- Gameplay code only talks to `INetLink` / `INetSession`, and the netcode to `INetEvents` (`Core/Platform/NetContracts.cs`). The Fusion code in `Assets/Scripts/Net/` is its own assembly, `PooketSlug.Net`, which compiles only when the SDK is present, so the game still builds as a solo game without it.
 - The project has no prefabs, so the two network objects are built in code too: templates are baked with `NetworkObjectBaker` and registered in Fusion's prefab table under fixed GUIDs.
 
 ## Pipeline
@@ -67,25 +67,24 @@ Project layout:
 
 | Path | What |
 | --- | --- |
-| `Assets/Scripts/Game.cs` | Bootstrap, camera, and the game's flow (title, online menus, play, pause, game over, victory), which hands the views what to show |
-| `Assets/Scripts/Save/`, `Core/Profile.cs` | The player's profile (`Profile`, in Core and tested) and where it's kept (`IProfileStore`): this browser for now (`LocalProfileStore`), the cloud once sign-in arrives |
+| `Assets/Scripts/Game/Game.cs` | Bootstrap, camera, and the game's flow (title, online menus, play, pause, game over, victory), which hands the views what to show |
+| `Assets/Scripts/Save/`, `Core/Lobby/Profile.cs` | The player's profile (`Profile`, in Core and tested) and where it's kept (`IProfileStore`): this browser for now (`LocalProfileStore`), the cloud once sign-in arrives |
 | `Assets/Scripts/Ui/` | uGUI built in code: the HUD (`HudView`) with the touch pad, the menus (`MenuView`), and the helpers that build them (`Ui`) |
 | `Assets/Scripts/World/` | `World` (the entities, their pools and the order things run in) and its systems: `ScrollCamera` (scrolling, shake, parallax), `Spawner`, `Combat` (hits, damage, explosions), `Scoring` and `NetSync` (the co-op session's side) |
 | `Assets/Scripts/Core/` | Pure logic in its own assembly (`PooketSlug.Core`): the missions and their ASCII maps (`Missions`), map parsing, tile physics (AABB vs grid, one-way bridges), content definitions, pose packing, room codes, the touch pad's logic, the profile, seeded randomness, log channels and tuning |
 | `Assets/Tests/EditMode/` | NUnit tests for `Core`. CI runs them before each build |
-| `Assets/Scripts/LevelView.cs` | Draws the level as chunked textures |
-| `Assets/Scripts/Entity.cs` | Entity/Actor base classes |
-| `Assets/Scripts/Player.cs`, `Enemies.cs`, `Projectile.cs` | Gameplay |
-| `Assets/Scripts/EntityPool.cs` | Reuses bullets, explosions and debris instead of creating and destroying a GameObject for each |
-| `Assets/Scripts/RemotePlayer.cs`, `PlayerVisual.cs` | The partner's soldier (a smoothed puppet) and the soldier rendering both share |
-| `Assets/Scripts/Core/NetContracts.cs` | The boundary with the netcode: what gameplay needs from an online session (`INetLink`, `INetSession`), what the session tells the world (`INetEvents`), and the typed event payloads |
+| `Assets/Scripts/World/LevelView.cs` | Draws the level as chunked textures |
+| `Assets/Scripts/World/Entity.cs` | Entity/Actor base classes |
+| `Assets/Scripts/Crew/Shared/Player.cs`, `Enemies/Enemies.cs`, `World/Projectile.cs` | Gameplay |
+| `Assets/Scripts/World/EntityPool.cs` | Reuses bullets, explosions and debris instead of creating and destroying a GameObject for each |
+| `Assets/Scripts/Crew/Shared/RemotePlayer.cs`, `PlayerVisual.cs` | The partner's soldier (a smoothed puppet) and the soldier rendering both share |
+| `Assets/Scripts/Core/Platform/NetContracts.cs` | The boundary with the netcode: what gameplay needs from an online session (`INetLink`, `INetSession`), what the session tells the world (`INetEvents`), and the typed event payloads |
 | `Assets/Scripts/Net/` | Photon Fusion implementation, in its own assembly (`PooketSlug.Net`): `NetSession` (runner, rooms), `NetReplication` (what the session shares), `NetPrefabs`, `PlayerNet`, `WorldNet` |
-| `Assets/Scripts/Art.cs`, `ArtData.cs`, `Sfx.cs` | Procedural sprites, backgrounds and audio |
+| `Assets/Scripts/Art/`, `Assets/Scripts/Audio/` | Procedural sprites, backgrounds and audio |
 | `Assets/Scripts/Input/` | Input sources (keyboard, gamepad and the touch pad) that add up into one frame. They work with either the Input System package or the legacy Input Manager. The pad's logic (`ArcadePad`) and the frame (`SoldierInput`) are in Core |
 | `Assets/Editor/WebGLBuild.cs` | Build entry point for GameCI and the editor menu |
 | `Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion` | Our Fusion config (weaver settings); the rest of `Assets/Photon/` is the SDK and is ignored |
 | `tools/unpack_unitypackage.py` | Unpacks a `.unitypackage` into the project without Unity (used by CI) |
 | `docs/design/` | The game design: story, tanks, player, levels and the crew's kits |
-| `DESIGN.md` | The original brainstorm, frozen as history |
 | `docs/design/` | The design as four sign-off documents: story and cutscenes, tanks, player mechanics, and maps and progression. Start at [`README.md`](docs/design/README.md) |
-| `docs/research/` | Research notes and the reference guide: pipeline, netcode, verification, test log, roadmap. Start at [`AGENTS.md`](docs/research/AGENTS.md) |
+| `docs/research/` | Research notes: pipeline, netcode, accounts, verification. Start at [its README](docs/research/README.md); the code map is [`CLAUDE.md`](CLAUDE.md) |

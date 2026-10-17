@@ -33,9 +33,9 @@ namespace PooketSlug
         public readonly Spawner Spawner;
         public readonly Combat Combat;
         public readonly Scoring Scoring = new Scoring();
-        /// <summary>Droplets and puddles (spike: tones2's kit).</summary>
+        /// <summary>Droplets and puddles: tones2's water, mud and sludge.</summary>
         public readonly Liquids Liquids;
-        /// <summary>The hit feel spike's sparks, flashes and damage numbers, or null when it's off.</summary>
+        /// <summary>Hit feel: the sparks, flashes and damage numbers.</summary>
         public readonly HitFeel HitFeel;
         /// <summary>The co-op session's side of the world; null when playing solo.</summary>
         public readonly NetSync Sync;
@@ -62,7 +62,7 @@ namespace PooketSlug
         /// <summary>Where the checkpoint our soldier has passed stands, or -1 (see <see cref="Checkpoint"/>).</summary>
         public float CheckpointX = -1f;
         public bool Victory, BossDefeatedPending;
-        /// <summary>The boss music's cut before the win (the pilot's big glitch-out, <c>?spike=pilot-glitch</c>).</summary>
+        /// <summary>The boss music's cut before the win (the pilot's big glitch-out, <see cref="PilotFreeingSpec"/>).</summary>
         public bool BossMusicOff;
         public float VictoryTime;
         /// <summary>A team super playing out, or null (<see cref="TeamSupers"/>).</summary>
@@ -116,6 +116,15 @@ namespace PooketSlug
         public CraterView CraterView;
 
         public bool Coop => Net != null;
+        /// <summary>Rooms: we're watching a co-op game, with no soldier of our own in play (<see cref="Spectate"/>).</summary>
+        public bool Spectating { get; private set; }
+
+        /// <summary>Makes this a watcher's world: our soldier is out of it for good, and the camera follows the room's.</summary>
+        public void Spectate()
+        {
+            Spectating = true;
+            Player.Spectate();
+        }
         /// <summary>Runs enemies, pickups and score: always offline, the master client in co-op.</summary>
         public bool IsAuthority => Net == null || Net.IsAuthority;
 

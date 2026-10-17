@@ -4,7 +4,7 @@ namespace PooketSlug
 {
     /// <summary>
     /// Mission one's hazards (<c>docs/design/levels.md</c>, Building a map): a live fence, steam vents and
-    /// icicles. (The lift, the checkpoint and the explosive barrel are further down.) They run on every client and hurt only that client's own soldier, the way each client already
+    /// icicles (the lift, the checkpoint and the explosive barrel have their own files). They run on every client and hurt only that client's own soldier, the way each client already
     /// owns its soldier's damage, so nothing about them goes over the network. Their timing comes from
     /// <see cref="World.Elapsed"/>, so they pulse together closely enough on each phone.
     /// </summary>
@@ -123,134 +123,6 @@ namespace PooketSlug
             base.Render();
             if (m_Fuse > 0f && !m_Falling)
                 Go.transform.localPosition += new Vector3(((int)(m_Fuse * 40f) % 2 == 0 ? 1f : -1f) / Art.PPU, 0f, 0f);
-        }
-    }
-
-    /// <summary>
-    /// An explosive barrel. It's an enemy as far as the game is concerned (shot, replicated and scored like
-    /// one, never a hologram), but it just stands there. Shoot it and it blows up, hurting soldiers and goons
-    /// alike and setting off other barrels. Each client's blast hurts its own soldier; the authority's hurts goons.
-    /// </summary>
-    public sealed class Barrel : Enemy
-    {
-        const float BlastRadius = 1.8f;
-        const int BlastDamage = 2, GoonDamage = 6;
-        readonly SpriteRenderer m_Sr;
-        bool m_Blown;
-
-        public Barrel(World world, EnemyDef def, Vector2 feet) : base(world, def, feet)
-        {
-            m_Sr = AddRenderer(Visual, "Body", Art.Barrel, SortOrder.Enemies - 1);
-        }
-
-        protected override void TickAlive(float dt)
-        {
-            Vel.x = 0f;
-            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
-            MoveWithTiles(dt);
-        }
-
-        protected override void TickDying(float dt)
-        {
-            if (!m_Blown)
-            {
-                m_Blown = true;
-                Vector2 at = Center;
-                World.Combat.Explode(at, BlastRadius, BlastDamage, true, 1.4f);
-                if (World.IsAuthority)
-                    foreach (Enemy e in World.Enemies)
-                        if (e != this && e.Shootable && Vector2.Distance(e.Center, at) <= BlastRadius + e.HalfW) e.Hurt(GoonDamage);
-            }
-            Remove();
-        }
-
-        public override void Render()
-        {
-            base.Render();
-            m_Sr.sprite = Flashed(Art.Barrel);
-            m_Sr.enabled = !Dying;
-        }
-    }
-
-    /// <summary>
-    /// A lift: a steel platform that rides up and down its rails on a fixed timetable, so it's in the same place
-    /// on every client. Our soldier can stand on it (each client carries its own soldier).
-    /// </summary>
-    public sealed class Lift : Entity
-    {
-        /// <summary>How far it rises, in tiles.</summary>
-        public const int Rise = 5;
-        const float Speed = 2f, Pause = 1.2f, HalfWidth = 1f;
-        readonly float m_Bottom;
-
-        /// <summary><paramref name="feet"/> is its marker: the left of its two tiles, at the bottom of its run.</summary>
-        public Lift(World world, Vector2 feet) : base(world, "Lift", new Vector2(feet.x + 0.5f, feet.y))
-        {
-            m_Bottom = feet.y;
-            Pos.y = HeightAt(world.Elapsed);
-            AddRenderer(Go.transform, "Car", Art.LiftCar, SortOrder.Pickups);
-        }
-
-        float HeightAt(float time)
-        {
-            float travel = Rise / Speed, t = time % (2f * (travel + Pause));
-            if (t < Pause) return m_Bottom;
-            t -= Pause;
-            if (t < travel) return m_Bottom + t * Speed;
-            t -= travel;
-            if (t < Pause) return m_Bottom + Rise;
-            t -= Pause;
-            return m_Bottom + Rise - t * Speed;
-        }
-
-        public override void Tick(float dt)
-        {
-            // Our soldier has just moved (soldiers tick first). One standing on the car, or landing on it, rides it.
-            Player p = World.Player;
-            bool riding = !p.Dead && Mathf.Abs(p.Pos.x - Pos.x) < HalfWidth && p.Vel.y <= 0.01f &&
-                          p.Pos.y <= Pos.y + 0.05f && p.Pos.y >= Pos.y - 0.45f;
-            Pos.y = HeightAt(World.Elapsed);
-            if (!riding) return;
-            p.Pos.y = Pos.y;
-            p.Vel.y = 0f;
-            p.Grounded = true;
-        }
-    }
-
-    /// <summary>
-    /// The checkpoint at the boss door: our soldier passing it lights it, and losing after that restarts a solo
-    /// game here rather than at the start of the run (<c>docs/design/levels.md</c>, Missions).
-    /// </summary>
-    public sealed class Checkpoint : Entity
-    {
-        readonly SpriteRenderer m_Sr;
-        bool m_Lit;
-
-        public Checkpoint(World world, Vector2 feet) : base(world, "Checkpoint", feet)
-        {
-            m_Sr = AddRenderer(Go.transform, "Sprite", Art.Checkpoint[0], SortOrder.Pickups);
-        }
-
-        public override void Tick(float dt)
-        {
-            if (m_Lit) return;
-            if (World.CheckpointX >= Pos.x)
-            {
-                m_Lit = true; // restarted here: already lit
-                return;
-            }
-            Player p = World.Player;
-            if (p.Dead || p.Pos.x < Pos.x) return;
-            m_Lit = true;
-            World.CheckpointX = Pos.x;
-            World.Scoring.Popup("CHECKPOINT!", Pos + Vector2.up * 2.8f, new Color(0.45f, 1f, 0.6f));
-            Sfx.Play(Sfx.Pickup);
-        }
-
-        public override void Render()
-        {
-            base.Render();
-            m_Sr.sprite = Art.Checkpoint[m_Lit ? 1 : 0];
         }
     }
 }

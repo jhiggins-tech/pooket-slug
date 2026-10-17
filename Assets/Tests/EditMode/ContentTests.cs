@@ -57,7 +57,7 @@ namespace PooketSlug.Tests
             Assert.AreEqual(effect, Content.PickupFor(marker).Effect);
         }
 
-        [TestCase(SpawnKind.Soldier)]
+        [TestCase(SpawnKind.Rifleman)]
         [TestCase(SpawnKind.Tank)]
         [TestCase(SpawnKind.Flag)]
         public void OtherMarkersPlaceNoPickup(SpawnKind marker)
@@ -101,7 +101,7 @@ namespace PooketSlug.Tests
             }
         }
 
-        [TestCase(SpawnKind.Soldier, EnemyBrain.Rifleman)]
+        [TestCase(SpawnKind.Rifleman, EnemyBrain.Rifleman)]
         [TestCase(SpawnKind.Runner, EnemyBrain.Runner)]
         [TestCase(SpawnKind.Drone, EnemyBrain.Drone)]
         [TestCase(SpawnKind.Tank, EnemyBrain.Tank)]
@@ -119,7 +119,7 @@ namespace PooketSlug.Tests
         [TestCase(SpawnKind.LiveFence)]
         [TestCase(SpawnKind.SteamVent)]
         [TestCase(SpawnKind.Icicles)]
-        [TestCase(SpawnKind.Watchtower)]
+        [TestCase(SpawnKind.TowerScenery)]
         [TestCase(SpawnKind.Lift)]
         [TestCase(SpawnKind.Checkpoint)]
         public void OtherMarkersPlaceNoEnemy(SpawnKind marker)
@@ -228,6 +228,29 @@ namespace PooketSlug.Tests
         {
             Assert.AreEqual(0, Content.Pistol.Ammo);
             Assert.Greater(Content.HeavyMachineGun.Ammo, 0);
+        }
+
+        [Test]
+        public void EverySoldierHasTheSharedBodyUnlessTheirsSaysOtherwise()
+        {
+            // The body and moves are in Tuning.Soldier once; no soldier overrides them yet.
+            foreach (var s in Content.Soldiers)
+            {
+                Assert.AreEqual(Tuning.Soldier.RunSpeed, s.RunSpeed, s.Name);
+                Assert.AreEqual(Tuning.Soldier.CrawlSpeed, s.CrawlSpeed, s.Name);
+                Assert.AreEqual(Tuning.Soldier.JumpVelocity, s.JumpVelocity, s.Name);
+                Assert.AreEqual(Tuning.Soldier.HalfWidth, s.HalfWidth, s.Name);
+                Assert.AreEqual(Tuning.Soldier.StandHeight, s.StandHeight, s.Name);
+                Assert.AreEqual(Tuning.Soldier.CrouchHeight, s.CrouchHeight, s.Name);
+                Assert.AreEqual(Tuning.Soldier.MaxHp, s.MaxHp, s.Name);
+            }
+        }
+
+        [Test]
+        public void PixelsPerUnitIsOneNumber()
+        {
+            Assert.AreEqual(Tuning.Pixels.PerUnit, CraterGround.Px);
+            Assert.AreEqual(Tuning.Hud.Height * 16f / 9f, Tuning.Hud.Width, 1e-4f);
         }
     }
 }
