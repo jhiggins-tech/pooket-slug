@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace PooketSlug
 {
-    /// <summary>Static decoration (end-of-level flag).</summary>
+    /// <summary>Static decoration: the end-of-level flag, the watchtower's scenery, the motor pool's gate and the lift rails.</summary>
     public sealed class Prop : Entity
     {
         public Prop(World world, Sprite sprite, Vector2 feet, int order) : base(world, "Prop", feet)

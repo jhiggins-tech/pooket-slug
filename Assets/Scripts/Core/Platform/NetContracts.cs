@@ -50,7 +50,7 @@ namespace PooketSlug
         int Watchers { get; }
         /// <summary>Our room shows in the room browser. The host can change it.</summary>
         bool Listed { get; set; }
-        /// <summary>Listening for listed rooms (<see cref="Rooms"/>), with no room of our own.</summary>
+        /// <summary>Listening for listed rooms (the <c>Rooms</c> list below), with no room of our own.</summary>
         bool Browsing { get; }
         /// <summary>The listed rooms, while browsing (empty until Photon's first list).</summary>
         IReadOnlyList<RoomListing> Rooms { get; }
@@ -154,7 +154,7 @@ namespace PooketSlug
         IReadOnlyList<IAvatarLink> RemoteAvatars { get; }
         /// <summary>Every other player in the session, playing or in the den (the lobby).</summary>
         IReadOnlyList<IAvatarLink> Partners { get; }
-        /// <summary>Our soldier, and our tank (<see cref="TankPose.Pack"/> and where it is; 0 for none). It takes us out of the den.</summary>
+        /// <summary>Our soldier, and our tank: its flags (<see cref="TankPose.Pack"/>, 0 for none) and where it is. It takes us out of the den.</summary>
         void SendAvatar(SoldierDef soldier, Vector2 pos, Vector2 vel, int poseFlags, int hp, int tankFlags, Vector2 tankPos);
         /// <summary>Where we are in the den: who's on our seat of the couch (null for nobody) and <see cref="Den.Flags"/>.</summary>
         void SendDen(SoldierDef soldier, int flags);
@@ -265,7 +265,7 @@ namespace PooketSlug
     /// </summary>
     public struct NetBossState
     {
-        /// <summary>What it's doing (the tank's own phases, from 1; 0 is no boss state yet).</summary>
+        /// <summary>What it's doing (the tank's own phases, from 1, or the pilot's <c>Pilot.NetPhase</c>; 0 is no boss state yet).</summary>
         public int Phase;
         /// <summary>The turret's angle, degrees up from facing right.</summary>
         public float Angle;

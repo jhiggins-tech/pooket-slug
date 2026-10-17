@@ -48,8 +48,8 @@ namespace PooketSlug
     }
 
     /// <summary>
-    /// How a weapon fires. The crew's kits will add beams, cones, homing shots and sprays
-    /// (<c>docs/design/player.md</c>).
+    /// How a weapon fires: one value per kind of shot the crew's kits and the enemies use
+    /// (<c>docs/design/kits.md</c>).
     /// </summary>
     public enum WeaponBehaviour
     {
@@ -133,7 +133,7 @@ namespace PooketSlug
         Runner,
         /// <summary>Hovers above the nearest soldier and drops bombs.</summary>
         Drone,
-        /// <summary>The boss: patrols its arena, lobs shells and sweeps machine-gun bursts.</summary>
+        /// <summary>The boss: patrols its arena and lobs shells, now and then a spread of three.</summary>
         Tank,
         /// <summary>An explosive barrel: stands still and blows up when it's destroyed.</summary>
         Barrel,

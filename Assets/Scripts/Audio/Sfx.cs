@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace PooketSlug
 {
-    /// <summary>The sound bank: every clip is an 8-bit recipe (<see cref="ChipSounds"/>), rendered at startup.</summary>
+    /// <summary>The sound bank: the 8-bit recipes (<see cref="ChipSounds"/>), rendered at startup, and the announcer's and narrator's recordings.</summary>
     public static class Sfx
     {
         public static AudioClip Siren, Shot, Heavy, EnemyShot, Cannon, Explosion, BigExplosion, Jump, Hurt, Hit, Pickup, Throw, Start, Victory, GameOver;

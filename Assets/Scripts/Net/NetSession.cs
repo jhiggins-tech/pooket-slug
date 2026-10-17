@@ -11,7 +11,7 @@ namespace PooketSlug
     /// <summary>
     /// Online co-op with Photon Fusion 2 in Shared Mode (the topology Fusion supports for WebGL): no host
     /// process, every client simulates its own soldier, and the room's master client runs the shared world.
-    /// This side connects: hosting, joining, quick match, failures and the <see cref="NetworkRunner"/>'s life.
+    /// This side connects: hosting, joining, quick match, failures and the <c>NetworkRunner</c>'s life (Fusion's).
     /// What the session shares while it's up is <see cref="NetReplication"/>.
     /// </summary>
     public sealed class NetSession : MonoBehaviour, INetSession, INetworkRunnerCallbacks

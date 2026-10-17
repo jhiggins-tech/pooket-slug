@@ -7,7 +7,8 @@ namespace PooketSlug
     /// Spike tests: small throwaway experiments switched on from the page address, so they ride along in the
     /// normal build without changing the game anyone else plays. <c>?spike=craters</c> turns on
     /// blasts digging craters in the boss arena, <c>?spike=music</c> the music's first cut, <c>?spike=partner</c> the partner arrow
-    /// and warnings, <c>?spike=kcaj</c> kcaj's special and super. Spikes are solo only (a co-op game ignores them), except the partner and drop-in ones, which are about co-op.
+    /// and warnings, <c>?spike=kcaj</c> kcaj's special and super, <c>?spike=dropin</c> each player's own score in co-op.
+    /// Spikes are solo only (a co-op game ignores them), except the partner and drop-in ones, which are about co-op.
     /// </summary>
     public static class Spike
     {
@@ -29,7 +30,7 @@ namespace PooketSlug
 
         /// <summary>
         /// kcaj's special and super (<see cref="KcajTuning"/>) in the soldier's hands: SP is Hyperfixate, SU is
-        /// Unmedicated, ready from the start and again after each rain. The <c>kcaj-beam</c> and <c>kcaj-pills</c> spikes.
+        /// Unmedicated, ready from the start and again after each rain.
         /// </summary>
         public static bool Kcaj;
 

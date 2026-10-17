@@ -65,7 +65,7 @@ namespace PooketSlug
             if (Pos.x < view.xMin - 2f || Pos.x > view.xMax + 2f || Pos.y < -2f || Pos.y > view.yMax + 4f) Remove();
         }
 
-        /// <summary>Called by <see cref="World"/> when this projectile touches a valid target.</summary>
+        /// <summary>Called by <see cref="Combat"/> when this projectile touches a valid target.</summary>
         public void Detonate()
         {
             if (Removed) return;

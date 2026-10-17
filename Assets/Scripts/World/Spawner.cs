@@ -57,7 +57,7 @@ namespace PooketSlug
             e.NetId = id;
             if (def.Brain != EnemyBrain.Tank && def.Brain != EnemyBrain.Barrel && def.Brain != EnemyBrain.Weasel &&
                 def.Brain != EnemyBrain.ToppleTower && def.Brain != EnemyBrain.ExitGate)
-                e.Look = new HoloLook(e); // the goons, kie's tank copies and its pilot are holograms (on every screen in co-op); the tank, barrels and weasels are real
+                e.Look = new HoloLook(e); // the goons, kie's tank copies and its pilot are holograms (on every screen in co-op); the tank, barrels, weasels, the watchtower and the last gate are real
             return e;
         }
 

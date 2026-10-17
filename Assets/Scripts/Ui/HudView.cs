@@ -31,7 +31,7 @@ namespace PooketSlug
 
     /// <summary>
     /// The in-game HUD in uGUI: score, hearts, arms, high score, time, the boss's bar, popups, co-op status, the
-    /// touch pad and the footer. It only shows things; the menus are drawn by <see cref="Game"/>.
+    /// touch pad and the footer. It only shows things; the menus are drawn by <see cref="MenuView"/>.
     /// </summary>
     public sealed class HudView
     {

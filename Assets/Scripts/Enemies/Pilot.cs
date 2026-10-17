@@ -23,7 +23,7 @@ namespace PooketSlug
     /// </summary>
     public sealed class Pilot : BossEnemy
     {
-        /// <summary>His phase in the boss's network object, apart from the tank's own (1 to 5).</summary>
+        /// <summary>His phase in the boss's network object, well clear of the tank's own (which count up from 1).</summary>
         public const int NetPhase = 100;
 
         static KiePilotSpec Spec => KieTuning.Pilot;

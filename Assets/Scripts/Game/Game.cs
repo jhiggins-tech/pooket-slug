@@ -106,7 +106,7 @@ namespace PooketSlug
             string url = Application.absoluteURL;
             m_Flags = LaunchFlags.Read(url);
             Log.Configure(m_Flags.LogLevels); // ?log=net:debug,game:warn for this visit
-            Spike.Configure(url); // ?spike=hits for this visit (before the art and sounds, which make what spikes need)
+            Spike.Configure(url); // ?spike=craters,music for this visit (before the art and sounds, which make what spikes need)
             Art.Init();
             Sfx.Init(gameObject);
             Music.Init(gameObject);
