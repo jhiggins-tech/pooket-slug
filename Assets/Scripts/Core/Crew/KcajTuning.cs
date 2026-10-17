@@ -3,9 +3,8 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// kcaj's kit as numbers and rules (<c>docs/design/kits.md</c>), for the spikes: Hyperfixate (the <c>kcaj-beam</c>
-    /// spike) and Unmedicated (the <c>kcaj-pills</c> spike). Rules first, as tests against Core, before any of it is
-    /// on screen.
+    /// kcaj's kit as numbers and rules (<c>docs/design/kits.md</c>), for the <c>?spike=kcaj</c> spike: Hyperfixate (his
+    /// special) and Unmedicated (his super). Rules first, as tests against Core, before any of it is on screen.
     /// </summary>
     public static class KcajTuning
     {

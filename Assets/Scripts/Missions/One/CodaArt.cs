@@ -3,10 +3,11 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// The art of the coda's pieces (<c>docs/design/story.md</c>, The coda): the motor pool's back gate that grinds
-    /// open once kie's freed (<see cref="BackGate"/>), the watchtower that stands in the road until it's shot down
-    /// (<see cref="ToppleTower"/>), the base's last gate (<see cref="ExitGate"/>), and kie asleep against the wall
-    /// (<see cref="SleepingKie"/>). Mission one is single player only, so none of them is shared over the network.
+    /// The art of the coda's gates (<c>docs/design/story.md</c>, The coda): the shutter of the motor pool's back gate
+    /// that grinds open once kie's freed (<see cref="BackGate"/>), and the base's last gate (<see cref="ExitGate"/>)
+    /// with the rubble it leaves when smashed. The watchtower (<see cref="ToppleTower"/>) and kie asleep against the
+    /// wall (<see cref="SleepingKie"/>) draw their own. Mission one is single player only, so none of them is shared
+    /// over the network.
     /// </summary>
     static class CodaArt
     {

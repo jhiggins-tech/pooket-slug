@@ -125,8 +125,8 @@ namespace PooketSlug
     /// <summary>
     /// kie's special, Trollogram, as numbers and rules. A tap of SP drops a hologram of kie where he stands (a charge),
     /// up to <see cref="MaxUp"/> at once, and every goon shoots a hologram instead of him while one's on screen (the
-    /// nearest one to it). Holding SP swaps him with the hologram furthest from him (free), and so does a tap with no
-    /// charges left. The first thing that hits one blows it up on every goon nearby. These are the ones that went rogue.
+    /// nearest one to it). Holding SP swaps him with the hologram furthest from him (free), and so does a tap once
+    /// there's no charge or room for another. The first thing that hits one blows it up on every goon nearby. These are the ones that went rogue.
     /// (Several at once, and always the goons' target on screen: owner, 2026-10-15.)
     /// </summary>
     public sealed class TrollogramSpec

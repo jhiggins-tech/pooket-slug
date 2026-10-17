@@ -11,7 +11,7 @@ namespace PooketSlug
     {
         /// <summary>Co-op has opened (Mission one beaten solo).</summary>
         public const string Coop = "coop";
-        /// <summary>A tank can be called in. Until tanks arrive, only <c>?unlock=tank</c> opens it, for testing.</summary>
+        /// <summary>The key of <c>?unlock=tank</c> (a tabk to call in from the start, for testing); play grants the call-in in the coda.</summary>
         public const string Tank = "tank";
         /// <summary>Two of the crew has played: kie walked in and the title menu grew (<c>docs/design/story.md</c>).</summary>
         public const string TwoOfTheCrew = "two-of-the-crew";
@@ -66,7 +66,7 @@ namespace PooketSlug
             return i < 0 ? 0 : missions[i].clears;
         }
 
-        /// <summary>Records a finished run, won or lost. Beating Mission one solo opens co-op.</summary>
+        /// <summary>Records a finished run, won or lost. Beating a mission whose story opens co-op (Mission one), solo, opens it.</summary>
         public void RecordRun(MissionDef mission, Setting setting, int score, bool won, bool solo)
         {
             int i = Find(mission.Id, setting);

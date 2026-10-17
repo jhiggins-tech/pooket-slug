@@ -8,7 +8,8 @@ namespace PooketSlug
     /// three (<see cref="KieTankSpec.AttackFor"/>, tuned in <see cref="Content.KieTank"/>):
     /// <list type="bullet">
     /// <item>Weasels: three lobbed at you, which land, scurry over and pop (<see cref="Weasel"/>). Shoot them first.</item>
-    /// <item>Holograms: two copies of the tank glitch in (<see cref="Content.TankCopy"/>) and all three shuffle. Every one
+    /// <item>Holograms: two copies of the tank glitch in (<see cref="Content.TankCopy"/>, spawned as decoy
+    /// <see cref="TankBoss"/>es) and all three shuffle. Every one
     /// flickers like a hologram and moves and fires as one. Only the real one can be hurt, and the first hit on it
     /// ends the trick.</item>
     /// <item>Roulette: a wheel spins over the tank and steals your special's charges (or your super's charge). Hit
@@ -75,8 +76,10 @@ namespace PooketSlug
         /// <summary>Every screen: follow the roulette as the authority runs it (<see cref="KieRoulette.ApplyNet"/>).</summary>
         public void ApplyNet(int state, float progress, int drops) => m_Roulette.ApplyNet(state, progress, drops);
 
-        /// <summary>Authority: the tank's charged shot, kie's attack in its place, or false for a plain shell.</summary>
-        /// <summary><paramref name="thrown"/>: it came out of the barrel (the weasels), so the tank kicks as if it fired.</summary>
+        /// <summary>
+        /// Authority: the tank's charged shot, kie's attack in its place, or false for a plain shell.
+        /// <paramref name="thrown"/>: it came out of the barrel (the weasels), so the tank kicks as if it fired.
+        /// </summary>
         public bool Fire(Vector2 muzzle, float angle, out bool thrown)
         {
             KieAttack attack = Next;

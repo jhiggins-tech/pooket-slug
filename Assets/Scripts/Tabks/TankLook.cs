@@ -48,7 +48,7 @@ namespace PooketSlug
         }
 
         /// <summary>
-        /// Draws it at <paramref name="feet"/> (world units, relative to the parent), facing <paramref name="facing"/>,
+        /// Draws it at <paramref name="offset"/> (world units, relative to the parent), facing <paramref name="facing"/>,
         /// with the gun at <paramref name="barrelAngle"/> degrees (0 right, counterclockwise).
         /// </summary>
         public void Apply(Vector2 offset, int facing, float barrelAngle, bool flash, bool muzzle, bool blink)

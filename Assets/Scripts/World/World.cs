@@ -7,7 +7,8 @@ namespace PooketSlug
     /// One play-through: the level, its entities, and the systems that run them. Destroyed and rebuilt on
     /// restart. Each system owns one concern: <see cref="View"/> the camera, <see cref="Spawner"/> what the
     /// level brings in, <see cref="Combat"/> shots and damage, <see cref="Scoring"/> points and popups, and
-    /// <see cref="Sync"/> the co-op session. World holds the entities and decides the order things run in.
+    /// <see cref="Sync"/> the co-op session, and the smaller ones (tones2's liquids, hit feel, the crater arena spike,
+    /// the team super). World holds the entities and decides the order things run in.
     /// </summary>
     public sealed class World
     {
@@ -25,7 +26,6 @@ namespace PooketSlug
         public int TanksBlown;
         public Vector2 LastTankPos;
         public BossEnemy Boss;
-        /// <summary>kie's hologram on the players' side (Trollogram), or null: the goons shoot it instead while it's up.</summary>
         /// <summary>kie's Trollograms (players' side) standing in the world: every goon shoots one while it's on screen.</summary>
         public readonly List<TrollDecoy> Decoys = new List<TrollDecoy>();
 
