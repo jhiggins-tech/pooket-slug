@@ -64,6 +64,9 @@ namespace PooketSlug
         // the cutscene playing (docs/design/story.md, Cutscenes), what comes after it, and in co-op our taps to send
         CutsceneView m_SceneView;
         CutscenePlayer m_Scene;
+        // the scenes themselves (scenes/<name>.txt): the built-in copies, and the site's once fetched
+        SceneLibrary m_Scenes;
+        bool m_SceneDraft; // a draft played with ?scene=: never marked seen, and back to the title after
         readonly System.Collections.Generic.List<string> m_SceneCues = new System.Collections.Generic.List<string>();
         Action m_AfterScene;
         bool m_SceneCoop, m_SceneSkip, m_SceneSaidStart;
@@ -136,6 +139,7 @@ namespace PooketSlug
             m_Hud = new HudView(transform);
             m_Menu = new MenuView(transform);
             m_SceneView = new CutsceneView(transform);
+            m_Scenes = BuiltInScenes();
             m_DebriefView = new DebriefView(transform);
             m_RevealView = new CrewRevealView(transform);
             m_DenView = new DenView(transform);
@@ -145,7 +149,9 @@ namespace PooketSlug
             SetState(GameState.Title);
             GameInput.TouchActive = Application.isMobilePlatform; // until the player shows otherwise
 
+            FetchScenes(url);
             if (StartDemos(m_Flags.Demo)) return; // a demo is all this visit plays
+            if (StartDraftScene(PageQuery.Get(url, "scene"), url)) return; // and so is a draft scene
             if (StartSandbox(PageQuery.Get(url, "sandbox"), url)) return; // and so is a sandbox: solo, and never recorded
             if (NetSessions.Factory != null && NetConfig.Configured) m_Net = NetSessions.Factory(gameObject);
             string invite = m_Flags.Room;
@@ -257,7 +263,7 @@ namespace PooketSlug
         void StartFromTitle()
         {
             // ?test=boss, pilot and team are for trying something at once: they start without the opening
-            if (m_Mission == Missions.One && m_Sandbox == null && !m_Flags.Boss && !m_Flags.Team && !m_Flags.Coda && !m_Flags.Debrief) PlayScene(Cutscenes.Opening, false, StartSolo);
+            if (m_Mission == Missions.One && m_Sandbox == null && !m_Flags.Boss && !m_Flags.Team && !m_Flags.Coda && !m_Flags.Debrief) PlayScene(m_Scenes.Get(SceneLibrary.Opening), false, StartSolo);
             else StartSolo();
         }
 
@@ -265,16 +271,17 @@ namespace PooketSlug
         /// Plays <paramref name="scene"/> (<c>docs/design/story.md</c>, Cutscenes), then <paramref name="after"/>. In co-op
         /// both phones play it, and a shot moves on early once both have tapped (<see cref="CutsceneSync"/>).
         /// </summary>
-        void PlayScene(CutsceneDef scene, bool coop, Action after)
+        void PlayScene(CutsceneDef scene, bool coop, Action after, string note = null)
         {
-            m_Scene = new CutscenePlayer(scene, m_Profile.HasSeen(scene.Id), coop ? 2 : 1);
+            m_SceneDraft = note != null;
+            m_Scene = new CutscenePlayer(scene, m_SceneDraft || m_Profile.HasSeen(scene.Id), coop ? 2 : 1);
             m_SceneCoop = coop;
             m_SceneRound = coop ? m_Net.Link.Round : 0;
             m_SceneTapped = -1;
             m_SceneSkip = false;
             m_SceneSaidStart = false;
             m_AfterScene = after;
-            m_SceneView.Begin(m_Scene);
+            m_SceneView.Begin(m_Scene, note);
             SetState(GameState.Cutscene);
             Log.Game.Info("Cutscene: " + scene.Id + (coop ? ", with a partner" : "") + (m_Scene.CanSkip ? ", seen before" : ""));
         }
@@ -321,7 +328,7 @@ namespace PooketSlug
 
         void EndScene()
         {
-            if (m_Profile.MarkSeen(m_Scene.Scene.Id)) m_Store.Save(m_Profile);
+            if (!m_SceneDraft && m_Profile.MarkSeen(m_Scene.Scene.Id)) m_Store.Save(m_Profile);
             Log.Game.Info("Cutscene over: " + m_Scene.Scene.Id + (m_Scene.Skipped ? ", skipped" : ""));
             // Leave the last word standing as "tapped through it all": the tap that ended it here went out with no
             // packet of its own, so the partner may still be waiting on it. The round and scene key keep it from
@@ -539,7 +546,14 @@ namespace PooketSlug
                 Sfx.Play(Sfx.Start, 0.6f);
                 Log.Game.Info("Den START: " + m_Den.Pick.Name + (coop && partner.Present ? ", partner " + (partner.Playing ? "playing" : "in the den") : ""));
             }
-            if (coop) m_Net.Link.SendDen(m_Den.Pick, m_Den.Flags);
+            if (coop)
+            {
+                m_Net.Link.SendDen(m_Den.Pick, m_Den.Flags);
+                // which copies of the scenes we'd play, fixed for the session (SceneLibrary): only a partner with
+                // exactly the same plays them with us, otherwise both play the built-in ones
+                if (!m_Scenes.InCoop) Log.Game.Info("Scenes for co-op: " + m_Scenes.StartCoop().ToString("x8"));
+                m_Net.Link.SendSceneVersions(m_Scenes.Versions);
+            }
             m_DenView.Refresh(dt, m_Den, DenInfoNow());
             if (!m_Den.Go || m_KitOpen || m_BoardOpen) return;
             m_DenView.Hide();
@@ -547,7 +561,7 @@ namespace PooketSlug
             {
                 // Mission one is single player only, so its scenes never play in a co-op room; ?test=scene plays a
                 // stand-in on both phones when starting together, to check the two-phone sync
-                if (m_Flags.Scene && partner.InDenNow) PlayScene(Cutscenes.CoopTest, true, BeginCoop);
+                if (m_Flags.Scene && partner.InDenNow) PlayScene(m_Scenes.ForCoop(SceneLibrary.CoopTest, PartnerScenes()), true, BeginCoop);
                 else BeginCoop();
             }
             else
@@ -728,6 +742,127 @@ namespace PooketSlug
             BeginDemo((m_DemoIndex + 1) % m_Demos.Count);
         }
 
+        // ------------------------------------------------------------------ the scenes: built in, from the site, drafts
+
+        /// <summary>
+        /// The scenes built into the game (<c>Resources/Scenes/&lt;name&gt;.txt</c>, copied from <c>scenes/</c> by the build;
+        /// in the editor, read from <c>scenes/</c> itself).
+        /// </summary>
+        static SceneLibrary BuiltInScenes()
+        {
+            var library = new SceneLibrary();
+            foreach (string name in SceneLibrary.Names)
+            {
+                string text = Resources.Load<TextAsset>("Scenes/" + name)?.text;
+#if UNITY_EDITOR
+                if (text == null) text = System.IO.File.ReadAllText(System.IO.Path.Combine(Application.dataPath, "..", "scenes", name + ".txt"));
+#endif
+                if (text == null)
+                {
+                    Log.Game.Warn("Scene " + name + " isn't built in");
+                    continue;
+                }
+                foreach (string problem in library.AddBuiltIn(name, text)) Log.Game.Warn("Built-in scene " + name + ": " + problem);
+            }
+            return library;
+        }
+
+        /// <summary>
+        /// The site's copies of the scenes (<c>scenes/&lt;name&gt;.txt</c> beside the game, published by the scene deploy),
+        /// fetched at start-up: each takes over from the built-in copy if it reads cleanly. And the narrator's
+        /// recordings, where the site's (<c>scenes/voice.txt</c>) differ from the built-in ones.
+        /// </summary>
+        void FetchScenes(string url)
+        {
+            foreach (string name in SceneLibrary.Names)
+            {
+                string file = SetupText.FileUrl(url, "scenes", name);
+                if (file == null) return; // off the site: the built-in copies it is
+                StartCoroutine(SiteFile.Fetch(file, (text, error) =>
+                {
+                    if (text == null) Log.Game.Info("Scene " + name + ": the site's copy didn't load (" + error + "), playing the built-in one");
+                    else if (m_Scenes.UseSite(name, text, out string why)) Log.Game.Info("Scene " + name + ": playing the site's copy " + m_Scenes.Script(name).Version.ToString("x8"));
+                    else Log.Game.Info("Scene " + name + ": playing the built-in copy, the site's isn't used: " + why);
+                }));
+            }
+            string folder = PageQuery.Folder(url);
+            StartCoroutine(SiteFile.Fetch(folder + "scenes/voice.txt", (text, error) =>
+            {
+                if (text == null)
+                {
+                    Log.Game.Info("Scene voices: no list on the site (" + error + ")");
+                    return;
+                }
+                foreach (VoiceClip clip in VoiceClip.Read(text))
+                {
+                    TextAsset built = Resources.Load<TextAsset>("Narration/" + clip.Id);
+                    if (built != null && SceneScript.Hash(built.bytes) == clip.Hash) continue;
+                    string id = clip.Id;
+                    StartCoroutine(SiteFile.FetchBytes(folder + "scenes/voice/" + id + ".wav?v=" + clip.Hash.ToString("x8"), (bytes, why) =>
+                    {
+                        if (bytes != null && Sfx.UseLine("Narration/" + id, bytes)) Log.Game.Info("Scene voices: the site's recording of " + id);
+                        else Log.Game.Warn("Scene voices: the site's recording of " + id + " didn't load (" + (why ?? "not a WAV") + ")");
+                    }));
+                }
+            }));
+        }
+
+        /// <summary>The partner's copies of the scenes (<see cref="SceneLibrary.Versions"/>), or -1 with no partner.</summary>
+        int PartnerScenes()
+        {
+            System.Collections.Generic.IReadOnlyList<IAvatarLink> partners = m_Net.Link.Partners;
+            return partners.Count > 0 ? partners[0].SceneVersions : -1;
+        }
+
+        /// <summary>
+        /// <c>?scene=&lt;name&gt;</c> (<c>docs/scenes.md</c>): plays the site's <c>scenes/&lt;name&gt;.txt</c> as a draft, so a
+        /// scene can be tried before it's one the game plays: with SKIP, its name and any problems over it, never
+        /// marked seen, and back to the title after. Only a name, so only ever a file on the game's own site; off the
+        /// site it plays the built-in copy. False for no <c>?scene=</c>.
+        /// </summary>
+        bool StartDraftScene(string name, string url)
+        {
+            if (name == null) return false;
+            name = name.ToLowerInvariant();
+            if (!SetupText.IsName(name))
+            {
+                Log.Game.Warn("?scene= takes a scene's file name, like ?scene=opening");
+                return false;
+            }
+            string file = SetupText.FileUrl(url, "scenes", name);
+            if (file == null)
+            {
+                if (!m_Scenes.Has(name)) return false;
+                PlayDraft(m_Scenes.Script(name), "built-in copy");
+                return true;
+            }
+            Log.Game.Info("Draft scene: loading " + file);
+            StartCoroutine(SiteFile.Fetch(file, (text, error) =>
+            {
+                if (text != null) PlayDraft(SceneScript.Read(name, text), "draft");
+                else PlayDraft(null, "couldn't load scenes/" + name + ".txt: " + error);
+            }));
+            return true;
+        }
+
+        void PlayDraft(SceneScript script, string what)
+        {
+            var note = new System.Text.StringBuilder();
+            note.Append("SCENE ").Append(script != null ? script.Name : "").Append(": ").Append(what);
+            CutsceneDef scene = script?.Def;
+            if (script != null)
+            {
+                var problems = new System.Collections.Generic.List<string>(script.Problems);
+                problems.AddRange(SceneCheck.Timing(script.Def));
+                note.Append(problems.Count == 0 ? ", no problems" : ", " + problems.Count + " problem(s)");
+                for (int i = 0; i < problems.Count && i < 4; i++) note.Append("\n").Append(problems[i]);
+                foreach (string problem in problems) Log.Game.Warn("Draft scene " + script.Name + ": " + problem);
+            }
+            if (scene == null || scene.Shots.Length == 0)
+                scene = new CutsceneDef("draft", 0, new CutsceneShot("Nothing to play", 8f, new CutsceneLine[0]));
+            PlayScene(scene, false, () => SetState(GameState.Title), note.ToString());
+        }
+
         // ------------------------------------------------------------------ ?sandbox: a world from a link
 
         /// <summary>
@@ -850,7 +985,7 @@ namespace PooketSlug
                 // The first time: the motor pool reveal is the tabk's entrance, so after it the tabk's in place and the
                 // intro goes straight to the banner, the name card and the music (docs/design/story.md).
                 float playedFor = m_StateTime; // the mission's clock (and its start banner) carry on from where they were
-                PlayScene(Cutscenes.MotorPool, false, () =>
+                PlayScene(m_Scenes.Get(SceneLibrary.MotorPool), false, () =>
                 {
                     tank.SkipEntrance();
                     m_Paused = false;
@@ -868,7 +1003,7 @@ namespace PooketSlug
         /// opens only once Mission one's beaten, so it's been seen by then). Test starts skip it, unless ?test=reveal.
         /// </summary>
         bool PlaysMotorPool => !m_Coop && m_Sandbox == null && m_Mission == Missions.One &&
-            (m_Flags.Reveal || !m_Profile.HasSeen(Cutscenes.MotorPool.Id) && !m_Flags.Boss && !m_Flags.Team);
+            (m_Flags.Reveal || !m_Profile.HasSeen(SceneScript.IdOf(SceneLibrary.MotorPool)) && !m_Flags.Boss && !m_Flags.Team);
 
         /// <summary>
         /// Trollogram kie glitched out, solo: the freeing scene, then the mission's won. (The coda, when it's built,
@@ -882,7 +1017,7 @@ namespace PooketSlug
                 return;
             }
             float playedFor = m_StateTime;
-            PlayScene(Cutscenes.FreeingKie, false, () =>
+            PlayScene(m_Scenes.Get(SceneLibrary.FreeingKie), false, () =>
             {
                 m_Paused = false;
                 SetState(GameState.Playing);

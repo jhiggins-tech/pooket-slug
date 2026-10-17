@@ -128,6 +128,18 @@ namespace PooketSlug
             s_Voice.PlayDelayed(delay);
         }
 
+        /// <summary>
+        /// Plays <paramref name="wav"/> for the recorded line at <paramref name="path"/> (<c>Narration/&lt;id&gt;</c>) from
+        /// now on, in place of the build's: the site's newer recording (<c>scenes/voice.txt</c>). False if it isn't a WAV.
+        /// </summary>
+        public static bool UseLine(string path, byte[] wav)
+        {
+            float[] samples = Wav.Read(wav, out int rate);
+            if (samples == null) return false;
+            s_Lines[path] = Clip("voice-" + path, samples, rate);
+            return true;
+        }
+
         /// <summary>Stops the line being said, if any.</summary>
         public static void Hush()
         {

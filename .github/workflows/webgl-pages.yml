@@ -16,6 +16,7 @@ on:
       - '**.md'
       - 'docs/**'
       - 'sandbox/**' # the sandbox's setups go live on their own (sandbox-files.yml), with no build
+      - 'scenes/**' # and so do the cutscenes (scene-files.yml)
   delete:
   workflow_dispatch:
 
@@ -65,9 +66,51 @@ jobs:
           fi
           { echo "build=$build"; echo "light=$light"; echo "slug=$slug"; } >> "$GITHUB_OUTPUT"
 
+  # The cutscenes pass the scene check (tools/scenecheck, as scene-files.yml runs it) before the build, which carries
+  # them and the narrator's recordings to the site as scenes/ (the game fetches them at start-up, Game.FetchScenes).
+  scenes:
+    name: Check the scenes
+    needs: plan
+    if: needs.plan.outputs.build == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          sparse-checkout: |
+            tools
+            scenes
+            Assets/Scripts/Core
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Fetch the narrator's lines
+        env:
+          GH_TOKEN: ${{ secrets.VENDOR_PAT }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/narration"
+          if gh release download narration -R jhiggins-tech/pooket-slug-vendor -p narration.zip -D vendor; then
+            unzip -o -q vendor/narration.zip '*.wav' -x sample.wav -d "$RUNNER_TEMP/narration"
+          else
+            echo "::warning::No narration.zip on the vendor repository's narration release: narrator lines are checked for reading time only."
+          fi
+
+      - name: Check the scenes
+        run: dotnet run --project tools/scenecheck -- scenes "$RUNNER_TEMP/narration" site-scenes
+
+      - name: Upload the scenes for the site
+        uses: actions/upload-artifact@v6
+        with:
+          name: site-scenes
+          path: site-scenes
+          if-no-files-found: error
+
   build-and-deploy:
     name: Build WebGL with GameCI and deploy
-    needs: plan
+    needs: [plan, scenes]
     if: needs.plan.outputs.build == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -154,6 +197,14 @@ jobs:
             echo "::warning::No orchestra.zip on the vendor repository's orchestra release: the boss music stays chip."
           fi
 
+      # The cutscenes built into the game (scenes/*.txt as Resources/Scenes), the copy that plays when the site's can't
+      # be reached or has a problem.
+      - name: Build in the scenes
+        run: |
+          mkdir -p Assets/Resources/Scenes
+          cp scenes/*.txt Assets/Resources/Scenes/
+          ls -l Assets/Resources/Scenes
+
       - name: Cache Unity Library
         uses: actions/cache@v5
         with:
@@ -188,7 +239,8 @@ jobs:
       - name: Test summary
         if: always() && steps.tests.outcome != 'skipped'
         run: |
-          python3 - >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          # to the log as well as the summary, so a failure can be read from the job's log alone
+          python3 - <<'EOF' | tee -a "$GITHUB_STEP_SUMMARY"
           import glob, xml.etree.ElementTree as ET
           files = sorted(glob.glob('test-results/*.xml'))
           if not files:
@@ -284,6 +336,19 @@ jobs:
             sudo mkdir -p build/WebGL/WebGL/sandbox
             sudo cp sandbox/*.txt build/WebGL/WebGL/sandbox/
           fi
+
+      # The scenes and the narrator's recordings, checked (the scenes job), so a deploy keeps them.
+      - name: Fetch the checked scenes
+        uses: actions/download-artifact@v8
+        with:
+          name: site-scenes
+          path: site-scenes
+
+      - name: Add the scenes
+        run: |
+          sudo mkdir -p build/WebGL/WebGL/scenes
+          sudo cp -R site-scenes/. build/WebGL/WebGL/scenes/
+          ls -lR build/WebGL/WebGL/scenes | head -40
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v6

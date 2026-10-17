@@ -46,7 +46,7 @@ Each file starts with a summary comment saying what it's for.
 
 | Where | What |
 |---|---|
-| `Core/` (assembly `PooketSlug.Core`, no references) | The rules, as plain C#, tested. At its root: `Content.cs` (soldiers, weapons, enemies, pickups as definitions with stable ids), `Definitions.cs`, `Tuning.cs` (shared numbers). Then, mirroring the game's folders: `Crew/` (`Crew.cs`: who you play; `<name>Tuning.cs` and specs, `Controls.cs`: the kit's meters, `KitGuide`, `TeamSuper`, `Lives`, `AvatarPose`), `Bosses/` (the boss tabks' specs, `PilotBrain`, `BossIntroShow`, `CraterGround`), `Tabks/` (`PlayerTankSpec`, `CallInCoach`), `Missions/` (`Level.cs` + `Missions.cs`: maps as text, `MissionBoard`, `CodaCoach`), `Story/` (`Cutscene.cs` + `Cues.cs`: scenes as data and the cue ids, `CrewReveal`), `Lobby/` (`Den`, `Debrief`: XP, `Ranks`, `Profile`: what's saved and reveals, `Options`, `InviteCode`), `Audio/` (`MusicTracks` / `Notation` / `Chip`: the chip music, its notation and the synth, `Wav`, `MusicMidi`), `Input/` (`ArcadePad`: the touch pad's logic, `SoldierInput`), `World/` (`TilePhysics`), `Platform/` (`LaunchFlags`: `?test=`, `?unlock=` and the rest, `Spike.cs`: `?spike=` flags, `PageQuery`, `Sandbox` + `Knobs` + `SetupText`, `NetContracts` / `NetIds` / `NetConfig`: co-op's interfaces and ids, `Rng`, `Log`) |
+| `Core/` (assembly `PooketSlug.Core`, no references) | The rules, as plain C#, tested. At its root: `Content.cs` (soldiers, weapons, enemies, pickups as definitions with stable ids), `Definitions.cs`, `Tuning.cs` (shared numbers). Then, mirroring the game's folders: `Crew/` (`Crew.cs`: who you play; `<name>Tuning.cs` and specs, `Controls.cs`: the kit's meters, `KitGuide`, `TeamSuper`, `Lives`, `AvatarPose`), `Bosses/` (the boss tabks' specs, `PilotBrain`, `BossIntroShow`, `CraterGround`), `Tabks/` (`PlayerTankSpec`, `CallInCoach`), `Missions/` (`Level.cs` + `Missions.cs`: maps as text, `MissionBoard`, `CodaCoach`), `Story/` (`SceneScript` (the scene files' reader), `SceneLibrary` (which copy plays, and the check), `Staging`, `Cutscene.cs` (the player) + `Cues.cs`: the cue ids, `CrewReveal`), `Lobby/` (`Den`, `Debrief`: XP, `Ranks`, `Profile`: what's saved and reveals, `Options`, `InviteCode`), `Audio/` (`MusicTracks` / `Notation` / `Chip`: the chip music, its notation and the synth, `Wav`, `MusicMidi`), `Input/` (`ArcadePad`: the touch pad's logic, `SoldierInput`), `World/` (`TilePhysics`), `Platform/` (`LaunchFlags`: `?test=`, `?unlock=` and the rest, `Spike.cs`: `?spike=` flags, `PageQuery`, `Sandbox` + `Knobs` + `SetupText`, `NetContracts` / `NetIds` / `NetConfig`: co-op's interfaces and ids, `Rng`, `Log`) |
 | `Game/` | `Game.cs`: `Bootstrap` and `Game`, the state machine (`GameState`: Title, Settings, Online, Lobby, Den, Cutscene, Playing, GameOver, Victory, Demo), the launch flags, menus to world |
 | `World/` | One play-through (`World.cs`), rebuilt on restart, split by concern: `ScrollCamera`, `Spawner`, `Combat` (shots, hits, who owns damage), `Scoring`, `NetSync` (the world's side of co-op), `Hazards` (the fence, vents and icicles), `Barrel`, `Lift`, `Checkpoint`, `Liquids` (tones2's); and what every play-through is made of: `Entity` / `EntityPool`, `Projectile`, `Effect`, `Particle`, `Pickup`, `Prop`, `HitFeel`, `LevelView` |
 | `Crew/` | `Shared/` (`Player`: your soldier, `RemotePlayer`: your partner's, `PlayerVisual`, `TeamSuperShow`), then one folder per crew member: `Tones2/` (kit, art, tabk guns), `Kie/` (kit, roulette), `Kcaj/` (kit) |
@@ -74,9 +74,10 @@ Each file starts with a summary comment saying what it's for.
   the room's master client runs the shared world (enemies, the boss, pickups, scroll). The others report their hits.
   World talks to the network only through `INetLink`. Things share ids by rule (`NetIds`: a level spawn's id is its
   index). Only identical builds match, so each preview is its own co-op world.
-- **Cutscenes** are data (`Cutscenes` in `Core/Story/Cutscene.cs`: shots, lines, cues), staged by `CutsceneView`. The
-  narrator's audio is made in the vendor repository (`voice/narration.json`) and fetched by CI; `NarratorClips`
-  holds each line's length.
+- **Cutscenes** are text files in `scenes/` ([how to write them](docs/scenes.md)), read by `SceneScript` and staged by
+  `CutsceneView`. `scene-files.yml` checks them and puts them up beside the game without a build; the game fetches
+  them at start-up (its built-in copy is the fallback) and `?scene=<name>` plays a draft. The narrator's audio is made
+  in the vendor repository (`voice/narration.json`) and fetched by CI; lengths come from the clips.
 - **Launch flags**, read once as the game starts: `?spike=` (spikes, `Spike.cs`) and the rest into `LaunchFlags` (Core, tested): `?test=` (crate, tank, 1up, pilot,
   weak, team, kcajtank, boss, reveal, coda, debrief, crew, scene: jump straight to a part), `?unlock=` (coop, tank,
   crew), `?demo=` (a kit move's scripted demo; `all` records them for CI), `?room=` (an invite), `?log=` (log levels).
@@ -84,9 +85,9 @@ Each file starts with a summary comment saying what it's for.
   orchestral music are WAVs CI fetches from vendor releases into `Resources` (`.bytes`, made into clips in code).
 
 ## Recipes
-**Add a cutscene**: a `CutsceneDef` in `Cutscenes` (and in `Cutscenes.All`), cues from `Cues` (`CueTests` holds
-every cue to having an effect), narrator
-lines in the vendor repo's `voice/narration.json` and their lengths in `NarratorClips`, then where it plays in `Game`.
+**Add a cutscene**: a file in `scenes/` ([docs/scenes.md](docs/scenes.md)) and its name in `SceneLibrary`, cues from
+`Cues` (`CueTests` holds every cue to having an effect), narrator lines in the vendor repo's `voice/narration.json`,
+then where it plays in `Game`.
 
 **Add a weapon**: its `WeaponDef` (and `ProjectileDef`, if it fires one) in `Content`, with the next unused id
 (ids ride the network: never change or reuse one), its sprite in `Art` / `ArtData` (keyed by the projectile's id),

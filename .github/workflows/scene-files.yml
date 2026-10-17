@@ -1,0 +1,82 @@
+name: Scenes → GitHub Pages
+
+# The cutscenes (scenes/*.txt, docs/scenes.md) go live without a build: a push that changes them runs the scene check
+# (tools/scenecheck, the game's own reader) and, if every scene passes, copies them to scenes/ beside the game, the
+# live game's for the main line and a branch's own preview's for any other, with the narrator's recordings and their
+# list (scenes/voice.txt). The game fetches them at start-up (Game.FetchScenes). The full build (webgl-pages.yml)
+# ignores these files, and carries them in its own deploy.
+on:
+  push:
+    branches:
+      - 'claude/**'
+    paths:
+      - 'scenes/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write # the deploy pushes to the gh-pages branch
+
+env:
+  MAIN_LINE: claude/gallant-keller-3qzp97
+
+concurrency:
+  group: scene-files-${{ github.ref_name }}
+  cancel-in-progress: true # only the newest scenes matter
+
+jobs:
+  publish:
+    name: Check and publish the scenes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          sparse-checkout: |
+            tools
+            scenes
+            Assets/Scripts/Core
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      # The narrator's recordings (as the build fetches them), so the check can time each line against its clip.
+      - name: Fetch the narrator's lines
+        env:
+          GH_TOKEN: ${{ secrets.VENDOR_PAT }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/narration"
+          if gh release download narration -R jhiggins-tech/pooket-slug-vendor -p narration.zip -D vendor; then
+            unzip -o -q vendor/narration.zip '*.wav' -x sample.wav -d "$RUNNER_TEMP/narration"
+          else
+            echo "::warning::No narration.zip on the vendor repository's narration release: narrator lines are checked for reading time only."
+          fi
+
+      - name: Check the scenes
+        run: dotnet run --project tools/scenecheck -- scenes "$RUNNER_TEMP/narration" "$RUNNER_TEMP/scenes" | tee "$RUNNER_TEMP/check.log"
+
+      - name: Deploy to gh-pages branch
+        run: |
+          set -o pipefail
+          slug=-
+          if [ "$GITHUB_REF_NAME" != "$MAIN_LINE" ]; then
+            slug=$(echo "$GITHUB_REF_NAME" | sed -e 's#^claude/##' -e 's/[^A-Za-z0-9-]/-/g' | tr 'A-Z' 'a-z')
+          fi
+          tools/pages_deploy.sh files "$slug" "$RUNNER_TEMP/scenes" scenes | tee "$RUNNER_TEMP/deploy.log"
+          {
+            echo "### Scenes published"
+            echo ""
+            grep -v '^::' "$RUNNER_TEMP/check.log" | sed 's/^/- /'
+            echo ""
+            echo "Live once Pages has updated (a couple of minutes). Try one with \`?scene=<name>\`."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Check summary
+        if: failure()
+        run: |
+          {
+            echo "### Scenes not published: the check found problems"
+            echo ""
+            grep '^::error' "$RUNNER_TEMP/check.log" | sed -e 's/^::error[^:]*::/- /' || true
+          } >> "$GITHUB_STEP_SUMMARY"

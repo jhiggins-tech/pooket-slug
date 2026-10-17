@@ -111,7 +111,7 @@ The first-ever reveal: tabks exist ([reveals](#reveals-are-story-beats)). It pla
 
 **How it fits the boss intro:** the first time, this scene is the tabk's entrance, so the intro that follows skips the roll-out and goes straight to the banner, the name card ("KIE'S TABK") and the music.
 
-**Built** (2026-10-16): it plays as the boss tabk wakes, the first time, solo; once it ends, the tabk is in its place and the full boss intro runs (`Cutscenes.MotorPool` in `Core/Story/Cutscene.cs`, its staging in `Ui/CutsceneView.cs`). Test starts (`?test=boss`, `pilot`, `team`) skip it; `?test=boss,reveal` plays it every time, so it can be tried again once seen. The narrator says "tanks" where the subtitles say "tabks".
+**Built** (2026-10-16): it plays as the boss tabk wakes, the first time, solo; once it ends, the tabk is in its place and the full boss intro runs (`scenes/motor-pool.txt`, drawn by `Ui/CutsceneView.cs`). Test starts (`?test=boss`, `pilot`, `team`) skip it; `?test=boss,reveal` plays it every time, so it can be tried again once seen. The narrator says "tanks" where the subtitles say "tabks".
 
 ## Freeing kie
 
@@ -133,7 +133,7 @@ Then straight into [the coda](#the-coda), every time: the coda is part of Missio
 
 **How the release is done** (owner, 2026-10-16): the cargo drone hauls the tabk out, and kie hands over its remote. It's what makes every call-in drop from the sky.
 
-**Built** (2026-10-16): beaten, Trollogram kie glitches out in the game itself (shot 1: he freezes mid-taunt, "WAIT, I WAS WINN-", the boss music cuts dead, and he tears apart like the goons, bigger and slower; the numbers are `PilotFreeingSpec` in `Core/Crew/KieTuning.cs`, the look `HoloLook.Big`). Then the scene plays shots 2 to 5 on the motor pool's stage (`Cutscenes.FreeingKie`): the cage of light flickers out and kie drops in a heap with KIE's intro, the snacks, the clamp ripped off tones2's tabk and the cargo drone hauling it up through the roof, the remote handed over, and kie nodding off against the motor pool's wall as the alarms go (a slow red wash, once a second). The narrator tells it ("And out drops the real kie. Bit peaky.", "Then he sets tones2's tabk free.", "kie's done for the night. tones2 isn't."). Then the coda starts ([the coda](#the-coda)). `?test=pilot,weak` gets there fastest: it starts at the tabk, and the pilot goes down on his own a few seconds after he jumps out. The `?spike=pilot-glitch` spike it grew from is gone.
+**Built** (2026-10-16): beaten, Trollogram kie glitches out in the game itself (shot 1: he freezes mid-taunt, "WAIT, I WAS WINN-", the boss music cuts dead, and he tears apart like the goons, bigger and slower; the numbers are `PilotFreeingSpec` in `Core/Crew/KieTuning.cs`, the look `HoloLook.Big`). Then the scene plays shots 2 to 5 on the motor pool's stage (`scenes/freeing-kie.txt`): the cage of light flickers out and kie drops in a heap with KIE's intro, the snacks, the clamp ripped off tones2's tabk and the cargo drone hauling it up through the roof, the remote handed over, and kie nodding off against the motor pool's wall as the alarms go (a slow red wash, once a second). The narrator tells it ("And out drops the real kie. Bit peaky.", "Then he sets tones2's tabk free.", "kie's done for the night. tones2 isn't."). Then the coda starts ([the coda](#the-coda)). `?test=pilot,weak` gets there fastest: it starts at the tabk, and the pilot goes down on his own a few seconds after he jumps out. The `?spike=pilot-glitch` spike it grew from is gone.
 
 ## The coda
 

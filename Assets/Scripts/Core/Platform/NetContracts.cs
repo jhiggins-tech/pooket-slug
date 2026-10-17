@@ -141,6 +141,8 @@ namespace PooketSlug
         void SendDen(SoldierDef soldier, int flags);
         /// <summary>Our taps in a co-op cutscene (<see cref="CutsceneSync.Pack"/>); 0 when we're in none.</summary>
         void SendScene(int taps);
+        /// <summary>Which copies of the scenes we play (<see cref="SceneLibrary.Versions"/>), so both phones play the same.</summary>
+        void SendSceneVersions(int versions);
         void SendShot(in ShotEvent shot);
         /// <summary>Our own points: the kills our soldier made (the shared score is everyone's, <see cref="IWorldChannel.Score"/>).</summary>
         void SendScore(int points);
@@ -208,6 +210,8 @@ namespace PooketSlug
         int DenFlags { get; }
         /// <summary>Their taps in a co-op cutscene (<see cref="CutsceneSync"/>), 0 when they're in none.</summary>
         int SceneTaps { get; }
+        /// <summary>Which copies of the scenes they play (<see cref="SceneLibrary.Versions"/>).</summary>
+        int SceneVersions { get; }
         /// <summary>They're in a mission (any round), not in the den.</summary>
         bool Playing { get; }
         /// <summary>Asks the owning client to apply damage to its soldier.</summary>

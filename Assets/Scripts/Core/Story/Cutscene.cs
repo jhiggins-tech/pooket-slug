@@ -26,26 +26,7 @@ namespace PooketSlug
         }
     }
 
-    /// <summary>
-    /// How long each of the narrator's recorded lines runs, in seconds (measured from the vendor repository's
-    /// narration.zip). A narrator line gets at least its voice plus <see cref="Breath"/> on screen before their next
-    /// line or the end of its shot, so the voice is never cut off; a test holds every scene to it. A line re-recorded
-    /// longer still isn't clipped: the scene waits for the voice (<see cref="CutscenePlayer.Tick"/>).
-    /// </summary>
-    public static class NarratorClips
-    {
-        public const float Breath = 0.4f;
-
-        public static readonly Dictionary<string, float> Seconds = new Dictionary<string, float>
-        {
-            { "opening-1", 3.54f }, { "opening-2", 1.42f }, { "opening-3", 2.9f }, { "opening-4a", 2.96f },
-            { "opening-4b", 2.5f }, { "opening-5", 2.56f }, { "opening-6", 1.76f },
-            { "motor-pool-1", 2.67f }, { "motor-pool-2", 3.26f }, { "motor-pool-3", 3.19f }, { "motor-pool-4", 2.13f },
-            { "freeing-1", 2.7f }, { "freeing-2", 2.53f }, { "freeing-3", 4.02f },
-        };
-    }
-
-    /// <summary>A sound or a bit of staging due <see cref="At"/> seconds into a shot. The ids are <see cref="Cues"/>'.</summary>
+    /// <summary>A sound due <see cref="At"/> seconds into a shot. The ids are <see cref="Cues"/>'.</summary>
     public readonly struct CutsceneCue
     {
         public readonly float At;
@@ -61,24 +42,28 @@ namespace PooketSlug
     /// <summary>
     /// A character's intro, the first time they're on screen in the story (<c>docs/design/story.md</c>, Character
     /// intros): it builds up for <see cref="CutscenePlayer.BuildUp"/> seconds first (a riser, and the camera creeping in),
-    /// then at <see cref="At"/> seconds into the shot it lands: the camera crash-zooms onto <see cref="Who"/>, their name
+    /// then at <see cref="At"/> seconds into the shot it lands: the camera crash-zooms onto <see cref="Figure"/>, their name
     /// slams up big, time goes slow-mo, and a musical hit plays.
     /// </summary>
     public sealed class CutsceneIntro
     {
         public readonly float At;
-        public readonly Speaker Who;
+        /// <summary>The soldier on the stage it's for (<see cref="Staging.Things"/>).</summary>
+        public readonly string Figure;
         public readonly string Name;
 
-        public CutsceneIntro(float at, Speaker who, string name)
+        public CutsceneIntro(float at, string figure, string name)
         {
             At = at;
-            Who = who;
+            Figure = figure;
             Name = name;
         }
     }
 
-    /// <summary>One shot of a scene: how long it holds by itself, its bubbles and its cues, and any character's intro.</summary>
+    /// <summary>
+    /// One shot of a scene: how long it holds by itself, its set, its bubbles and its cues, any character's intro, and
+    /// its staging (<see cref="ShotStage"/>).
+    /// </summary>
     public sealed class CutsceneShot
     {
         public readonly string Name;
@@ -86,14 +71,19 @@ namespace PooketSlug
         public readonly CutsceneLine[] Lines;
         public readonly CutsceneCue[] Cues;
         public readonly CutsceneIntro Intro;
+        /// <summary>Its set (<see cref="Staging.Sets"/>): the painted backdrop and the floor's height.</summary>
+        public readonly string Set;
+        public readonly StageStep[] Steps;
 
-        public CutsceneShot(string name, float seconds, CutsceneLine[] lines, CutsceneCue[] cues = null, CutsceneIntro intro = null)
+        public CutsceneShot(string name, float seconds, CutsceneLine[] lines, CutsceneCue[] cues = null, CutsceneIntro intro = null, string set = "street", StageStep[] steps = null)
         {
             Name = name;
             Seconds = seconds;
             Lines = lines ?? new CutsceneLine[0];
             Cues = cues ?? new CutsceneCue[0];
             Intro = intro;
+            Set = set;
+            Steps = steps ?? new StageStep[0];
         }
     }
 
@@ -123,141 +113,6 @@ namespace PooketSlug
                 return s;
             }
         }
-    }
-
-    /// <summary>The scenes as written in <c>docs/design/story.md</c>. The lines are placeholders for the owner's own.</summary>
-    public static class Cutscenes
-    {
-        /// <summary>
-        /// The opening: the snack run and the raided hangout, which doubles as Mission one's briefing. The narrator
-        /// tells it in subtitles (a voice comes later), and the keycard gets a close-up so it's clear where it sends you.
-        /// </summary>
-        public static readonly CutsceneDef Opening = new CutsceneDef("scene-opening", 1,
-            new CutsceneShot("Outside the hangout", 8.5f,
-                new[]
-                {
-                    new CutsceneLine(4.3f, Speaker.Narrator, "Friday night. tones2's back from the snack run.", "opening-1"), // after his intro
-                    new CutsceneLine(6.4f, Speaker.Tones2, "SNACKS ARE HERE LADS"),
-                },
-                // he walks on for a few seconds, the build-up starts at 1.5 s, and it lands at 4 s
-                intro: new CutsceneIntro(4.0f, Speaker.Tones2, "TONES2")),
-            new CutsceneShot("The door", 4.5f,
-                new[]
-                {
-                    new CutsceneLine(0.9f, Speaker.Narrator, "But the door's been kicked in.", "opening-2"),
-                    new CutsceneLine(2.4f, Speaker.Tones2, "...LADS?"),
-                },
-                new[] { new CutsceneCue(0.5f, Cues.Door), new CutsceneCue(1.2f, Cues.Static) }),
-            new CutsceneShot("Inside, raided", 5f,
-                new[] { new CutsceneLine(0.5f, Speaker.Narrator, "The hangout's trashed, and the crew are gone.", "opening-3") },
-                new[] { new CutsceneCue(2.2f, Cues.Drop), new CutsceneCue(3.4f, Cues.Static) }),
-            new CutsceneShot("A straggler", 8f,
-                new[]
-                {
-                    new CutsceneLine(0.8f, Speaker.Goon, "INTRUDER. INTRUD-"),
-                    new CutsceneLine(1.2f, Speaker.Narrator, "One of the raiders is still here: a Trollogram.", "opening-4a"),
-                    new CutsceneLine(5.0f, Speaker.Narrator, "It glitches out, and drops its keycard.", "opening-4b"),
-                },
-                new[] { new CutsceneCue(0.3f, Cues.Goon), new CutsceneCue(3.2f, Cues.Jet), new CutsceneCue(3.8f, Cues.Glitch), new CutsceneCue(4.2f, Cues.CardDrop) }),
-            new CutsceneShot("The keycard", 5f,
-                new[]
-                {
-                    new CutsceneLine(0.5f, Speaker.Narrator, "A pass for the military base, up on the hill.", "opening-5"),
-                    new CutsceneLine(2.6f, Speaker.Tones2, "THAT'S WHERE THEY TOOK THEM."),
-                },
-                new[] { new CutsceneCue(0.1f, Cues.CardUp) }),
-            new CutsceneShot("Heading out", 6f,
-                new[]
-                {
-                    new CutsceneLine(0.4f, Speaker.Narrator, "So tones2 goes in alone.", "opening-6"),
-                    new CutsceneLine(1.2f, Speaker.Tones2, "RIGHT."),
-                    new CutsceneLine(3.9f, Speaker.Caption, "MISSION 1 · THE MILITARY BASE\nFIND THE CREW"),
-                },
-                new[] { new CutsceneCue(1.6f, Cues.Crush), new CutsceneCue(3.9f, Cues.Card), new CutsceneCue(4.1f, Cues.SayMissionStart) }));
-
-        /// <summary>
-        /// Freeing kie, after Trollogram kie is beaten on foot. His glitch-out (the design's shot 1) plays in the game
-        /// itself (<c>Pilot</c>); the scene picks up as the cage of light flickers out and the real kie drops,
-        /// with his intro. Then the snacks, the release of tones2's tabk (the cargo drone, and its remote handed over),
-        /// and kie nodding off as the alarms start. It can be skipped once seen.
-        /// </summary>
-        public static readonly CutsceneDef FreeingKie = new CutsceneDef("scene-freeing-kie", 3,
-            new CutsceneShot("The real kie", 7.5f,
-                new[]
-                {
-                    new CutsceneLine(3.4f, Speaker.Narrator, "And out drops the real kie. Bit peaky.", "freeing-1"), // after his intro
-                    new CutsceneLine(4.4f, Speaker.Kie, "...HOW LONG WAS I IN THERE?"),
-                },
-                new[] { new CutsceneCue(0.1f, Cues.Cage), new CutsceneCue(1.5f, Cues.KieDrop) },
-                intro: new CutsceneIntro(3.0f, Speaker.Kie, "KIE")),
-            new CutsceneShot("The bit", 4.5f,
-                new[]
-                {
-                    new CutsceneLine(0.8f, Speaker.Tones2, "BROUGHT SNACKS."),
-                    new CutsceneLine(2.4f, Speaker.Kie, "LEGEND."),
-                },
-                new[] { new CutsceneCue(2.2f, Cues.Snacks) }),
-            new CutsceneShot("The release", 6f,
-                new[]
-                {
-                    new CutsceneLine(0.3f, Speaker.Narrator, "Then he sets tones2's tabk free.", "freeing-2"),
-                    new CutsceneLine(3.6f, Speaker.Kie, "YOURS. CALL IT WHEN YOU NEED IT."),
-                },
-                new[] { new CutsceneCue(1.2f, Cues.Rip), new CutsceneCue(1.6f, Cues.Drone), new CutsceneCue(2.7f, Cues.Lift), new CutsceneCue(4.2f, Cues.Remote) }),
-            new CutsceneShot("Lights out", 7.5f,
-                new[]
-                {
-                    new CutsceneLine(0.9f, Speaker.Kie, "I'M GONNA... SIT THIS ONE OUT."),
-                    new CutsceneLine(3.0f, Speaker.Narrator, "kie's done for the night. tones2 isn't.", "freeing-3"),
-                },
-                new[] { new CutsceneCue(0.1f, Cues.Alarm), new CutsceneCue(2.6f, Cues.Alarm) }));
-
-        /// <summary>
-        /// A stand-in for later missions' co-op scenes, for the two-phone check (<c>?test=scene</c>, CI's co-op test):
-        /// Mission one is single player only, so its own scenes never play in a co-op room. Six plain shots on the
-        /// opening's stage, each held long enough that a phone tapping alone is plainly waiting.
-        /// </summary>
-        public static readonly CutsceneDef CoopTest = new CutsceneDef("scene-coop-test", 63,
-            new CutsceneShot("Test shot 1", 6f, new[] { new CutsceneLine(0.3f, Speaker.Tones2, "TEST SHOT 1 OF 6: TAP TOGETHER") }),
-            new CutsceneShot("Test shot 2", 6f, new[] { new CutsceneLine(0.3f, Speaker.Tones2, "TEST SHOT 2 OF 6: TAP TOGETHER") }),
-            new CutsceneShot("Test shot 3", 6f, new[] { new CutsceneLine(0.3f, Speaker.Tones2, "TEST SHOT 3 OF 6: TAP TOGETHER") }),
-            new CutsceneShot("Test shot 4", 6f, new[] { new CutsceneLine(0.3f, Speaker.Tones2, "TEST SHOT 4 OF 6: TAP TOGETHER") }),
-            new CutsceneShot("Test shot 5", 6f, new[] { new CutsceneLine(0.3f, Speaker.Tones2, "TEST SHOT 5 OF 6: TAP TOGETHER") }),
-            new CutsceneShot("Test shot 6", 6f, new[] { new CutsceneLine(0.3f, Speaker.Tones2, "TEST SHOT 6 OF 6: TAP TOGETHER") }));
-
-        /// <summary>
-        /// The motor pool reveal: the first-ever reveal, that tabks exist. It plays once, ever, the first time tones2
-        /// reaches the motor pool, and it's kie's tabk's entrance: the boss intro after it skips the roll-out and goes
-        /// straight to the banner and the name card. Trollogram kie gets his intro as he pops up in the hatch.
-        /// </summary>
-        public static readonly CutsceneDef MotorPool = new CutsceneDef("scene-motor-pool", 2,
-            new CutsceneShot("The shutter", 4.5f,
-                new[] { new CutsceneLine(0.8f, Speaker.Narrator, "Behind the shutter: the base's motor pool.", "motor-pool-1") },
-                new[] { new CutsceneCue(0.2f, Cues.Shutter), new CutsceneCue(2.6f, Cues.Hum) }),
-            new CutsceneShot("The tabks", 5.5f,
-                new[]
-                {
-                    new CutsceneLine(0.4f, Speaker.Narrator, "And parked inside, all in a row: the crew's tabks.", "motor-pool-2"),
-                    new CutsceneLine(3.2f, Speaker.Tones2, "...ARE THOSE OURS?"),
-                }),
-            new CutsceneShot("kie's tabk", 9.5f,
-                new[]
-                {
-                    new CutsceneLine(4.8f, Speaker.Narrator, "That's kie. Or something wearing his face.", "motor-pool-3"), // after his intro
-                    new CutsceneLine(5.9f, Speaker.Hologram, "HEY TONES. WANNA RACE?"),
-                },
-                new[] { new CutsceneCue(0.2f, Cues.Engine), new CutsceneCue(2.1f, Cues.Hatch), new CutsceneCue(2.4f, Cues.Static) },
-                intro: new CutsceneIntro(4.5f, Speaker.Hologram, "TROLLO-KIE")),
-            new CutsceneShot("Hatch shut", 4.5f,
-                new[]
-                {
-                    new CutsceneLine(0.3f, Speaker.Narrator, "kie has never once offered to race.", "motor-pool-4"),
-                    new CutsceneLine(2.6f, Speaker.Tones2, "THAT'S NOT KIE."),
-                },
-                new[] { new CutsceneCue(0.5f, Cues.Slam), new CutsceneCue(1.0f, Cues.Turret) }));
-
-        /// <summary>Every scene, for the tests.</summary>
-        public static readonly IReadOnlyList<CutsceneDef> All = new[] { Opening, FreeingKie, CoopTest, MotorPool };
     }
 
     /// <summary>
@@ -311,7 +166,7 @@ namespace PooketSlug
             {
                 CutsceneIntro intro = Current?.Intro;
                 if (intro == null || m_Intro != IntroState.Due) return 0f;
-                return UnityEngine.Mathf.Clamp01((T - (intro.At - BuildUp)) / BuildUp);
+                return System.Math.Max(0f, System.Math.Min(1f, (T - (intro.At - BuildUp)) / BuildUp));
             }
         }
 

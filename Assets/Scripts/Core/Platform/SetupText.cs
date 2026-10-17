@@ -31,20 +31,21 @@ namespace PooketSlug
     /// text file published beside the game (<c>sandbox/&lt;name&gt;.txt</c>). The sandbox reads them (<see cref="SandboxSetup"/>),
     /// and cutscenes as data will too. A line ends at a new line or a ';' (so one fits in a link), the keyword at a
     /// space, ':' or '='; lines starting <c>//</c> are notes. '#' starts a link's fragment, so ground in a link is
-    /// written another way (the sandbox's <c>ground</c> line).
+    /// written another way (the sandbox's <c>ground</c> line). Scene scripts (<see cref="SceneScript"/>) are only ever
+    /// files, so their lines end only at a new line, and a ';' is just a ';'.
     /// </summary>
     public static class SetupText
     {
         /// <summary>The longest setup read, so a bad link or file can't stall the game.</summary>
         public const int MaxLength = 16384;
 
-        public static List<SetupLine> Read(string text)
+        public static List<SetupLine> Read(string text, bool links = true)
         {
             var lines = new List<SetupLine>();
             if (string.IsNullOrEmpty(text)) return lines;
             if (text.Length > MaxLength) text = text.Substring(0, MaxLength);
             int number = 0;
-            foreach (string raw in text.Replace("\r", "").Split('\n', ';'))
+            foreach (string raw in links ? text.Replace("\r", "").Split('\n', ';') : text.Replace("\r", "").Split('\n'))
             {
                 number++;
                 string line = raw.Trim();

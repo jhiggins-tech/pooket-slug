@@ -9,7 +9,7 @@ namespace PooketSlug.Tests
     {
         static IEnumerable<string> SceneCues()
         {
-            foreach (CutsceneDef scene in Cutscenes.All)
+            foreach (CutsceneDef scene in new[] { TestScenes.Opening, TestScenes.MotorPool, TestScenes.FreeingKie, TestScenes.CoopTest })
             foreach (CutsceneShot shot in scene.Shots)
             foreach (CutsceneCue cue in shot.Cues)
                 yield return cue.Id;

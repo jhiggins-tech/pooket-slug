@@ -29,10 +29,13 @@ namespace PooketSlug
         public float Dazed = 2.6f;
 
         /// <summary>Is the cage lit <paramref name="t"/> seconds in: steady, then stuttering faster and faster, then out.</summary>
-        public bool CageLit(float t)
+        public bool CageLit(float t) => CageLitFor(t, Cage);
+
+        /// <summary>The same flicker-out over <paramref name="length"/> seconds (a scene can time its own: <c>0-1.5 cage flicker-out</c>).</summary>
+        public static bool CageLitFor(float t, float length)
         {
-            if (t < 0f || t >= Cage) return false;
-            float k = t / Cage;
+            if (t < 0f || t >= length) return false;
+            float k = t / length;
             if (k < 0.3f) return true;
             int step = (int)(t * Mathf.Lerp(8f, 30f, k));
             return step % (k < 0.7f ? 4 : 2) != 0;
