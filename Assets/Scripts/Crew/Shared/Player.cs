@@ -430,6 +430,19 @@ namespace PooketSlug
             else if (Lives.Tick(dt)) Sfx.Play(Sfx.GameOver);
         }
 
+        /// <summary>
+        /// Rooms: someone watching has no soldier in play. Theirs is out for good, unseen and untouchable, and takes no
+        /// input; the world still has one, so everything that looks for the player finds a soldier who's down.
+        /// </summary>
+        public void Spectate()
+        {
+            Lives.Retire();
+            Dead = true;
+            DeadTime = Tuning.Lives.RespawnDelay;
+            m_Fell = true;
+            InputEnabled = false;
+        }
+
         /// <summary>A 1-up: a spare life, or back in for a player who was out of lives.</summary>
         public void GiveLife()
         {

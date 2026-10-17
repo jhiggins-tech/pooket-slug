@@ -58,5 +58,16 @@ namespace PooketSlug.Tests
             Assert.IsTrue(InviteCode.TryParse(name, out string parsed));
             Assert.AreEqual(name, parsed);
         }
+
+        [Test]
+        public void TheInviteLinkIsThePageWithTheRoom()
+        {
+            Assert.AreEqual("https://jhiggins-tech.github.io/pooket-slug/?room=ABCD",
+                InviteCode.Link("https://jhiggins-tech.github.io/pooket-slug/", "ABCD"));
+            Assert.IsTrue(InviteCode.TryParse(PageQuery.Get(InviteCode.Link("https://x.test/", "HCNW"), "room"), out string name));
+            Assert.AreEqual("HCNW", name, "opening the link reads the code back");
+            Assert.IsNull(InviteCode.Link("", "ABCD"), "no page address (the editor): no link");
+            Assert.IsNull(InviteCode.Link("https://x.test/", null));
+        }
     }
 }

@@ -84,7 +84,7 @@ namespace PooketSlug
             }
             // A view narrower than the shared co-op width (odd fullscreen aspect) keeps our own soldier in frame.
             float view = m_X;
-            if (HalfWidth < h) view = Mathf.Clamp(player.Pos.x, m_X - (h - HalfWidth), m_X + (h - HalfWidth));
+            if (HalfWidth < h && !w.Spectating) view = Mathf.Clamp(player.Pos.x, m_X - (h - HalfWidth), m_X + (h - HalfWidth));
             view = Mathf.Clamp(view, HalfWidth, Mathf.Max(HalfWidth, w.Level.ScrollLimit - HalfWidth));
             float cx = Entity.Snap(view + shake.x), cy = Entity.Snap(Tuning.Camera.ViewHeight * 0.5f + shake.y);
             w.Camera.transform.position = new Vector3(cx, cy, -10f);

@@ -35,10 +35,29 @@ namespace PooketSlug
         /// <summary>Receives the session's events (shots, hits, pickups, damage); null outside co-op play.</summary>
         INetEvents Events { set; }
 
-        void Host();
+        /// <summary>Opens a room; a <paramref name="listed"/> one shows in the room browser for anyone to join or watch.</summary>
+        void Host(bool listed);
         void Join(string code);
+        /// <summary>Joins a listed room with a free seat, or opens a listed one for the next player to find.</summary>
         void QuickMatch();
         void Leave();
+
+        // ------------------------------------------------------------------ rooms: the browser and watching
+
+        /// <summary>We're watching this session, with no soldier of our own.</summary>
+        bool Watching { get; }
+        /// <summary>People watching our room.</summary>
+        int Watchers { get; }
+        /// <summary>Our room shows in the room browser. The host can change it.</summary>
+        bool Listed { get; set; }
+        /// <summary>Listening for listed rooms (<see cref="Rooms"/>), with no room of our own.</summary>
+        bool Browsing { get; }
+        /// <summary>The listed rooms, while browsing (empty until Photon's first list).</summary>
+        IReadOnlyList<RoomListing> Rooms { get; }
+        void Browse();
+        void StopBrowsing();
+        /// <summary>Watches a listed room: no soldier, the shared world as the players see it.</summary>
+        void Watch(string code);
     }
 
     public static class NetSessions

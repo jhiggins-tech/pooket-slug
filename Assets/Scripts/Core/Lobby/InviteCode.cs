@@ -19,6 +19,10 @@ namespace PooketSlug
             return new string(name);
         }
 
+        /// <summary>The invite link for a room: the game's address (no query) with <c>?room=CODE</c>.</summary>
+        public static string Link(string pageUrl, string code) =>
+            string.IsNullOrEmpty(pageUrl) || string.IsNullOrEmpty(code) ? null : pageUrl + "?room=" + code;
+
         /// <summary>
         /// The session name in a typed code, in upper case. False when there's none. Older builds' codes carried a
         /// region ("ABCD-EU"); it's ignored, since every game is now in one region.

@@ -409,7 +409,7 @@ jobs:
     needs: [plan, build-and-deploy]
     if: needs.plan.outputs.light != 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -456,6 +456,14 @@ jobs:
         continue-on-error: true
         run: node tools/coop.mjs http://127.0.0.1:8000/index.html coop-test/dropin dropin
 
+      - name: Hand the world over when the host's phone goes to the background
+        if: success() || failure()
+        run: node tools/coop.mjs http://127.0.0.1:8000/index.html coop-test/handover handover
+
+      - name: Browse rooms, join one and watch one (three phones)
+        if: success() || failure()
+        run: node tools/coop.mjs http://127.0.0.1:8000/index.html coop-test/watch watch
+
       - name: Summary
         if: always()
         run: |
@@ -466,6 +474,7 @@ jobs:
                   ("hostOnline", "A hosts a room"),
                   ("guestOnline", "B joins with the invite link"),
                   ("joined", "A sees B join"),
+                  ("invite", "A's den copies the room's invite link (the TV, or H)"),
                   ("played", "Both play with no errors or disconnects"),
                   ("pickup", "A's world hands out the test crate (?test=crate)"),
                   ("takeover", "B takes over the world when A leaves"),
@@ -496,6 +505,26 @@ jobs:
                   ("joined", "A sees B join"),
                   ("droppedIn", "B drops in to the mission under way"),
                   ("played", "Both play on with no errors or disconnects"),
+              ]),
+              ("Host goes to the background", "coop-test/handover/result.json", [
+                  ("hostOnline", "A hosts a room"),
+                  ("guestOnline", "B joins with the invite link"),
+                  ("joined", "A sees B join"),
+                  ("played", "Both play with no errors or disconnects"),
+                  ("asked", "With A's page frozen, B asks for the shared world"),
+                  ("tookOver", "B runs the shared world"),
+                  ("quick", "Within 10 s of A freezing, before Photon would time A out"),
+                  ("playedOn", "B plays on with no errors or disconnects"),
+              ]),
+              ("Room browser and watching", "coop-test/watch/result.json", [
+                  ("hostOnline", "A quick-matches and opens a listed room"),
+                  ("listed", "B sees it in the room browser and picks JOIN"),
+                  ("browsedIn", "B gets in"),
+                  ("joined", "A sees B join"),
+                  ("watcherIn", "C finds it full in the browser and gets in to watch"),
+                  ("watching", "C follows the game with no soldier of its own"),
+                  ("counted", "A's room counts C watching"),
+                  ("played", "Nobody has errors or disconnects"),
               ]),
           ]
           for title, path, checks in runs:
