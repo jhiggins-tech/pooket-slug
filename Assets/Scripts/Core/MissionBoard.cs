@@ -30,7 +30,7 @@ namespace PooketSlug
     /// </summary>
     public static class MissionBoard
     {
-        public static bool SoloOnly(MissionDef mission) => mission == Missions.One;
+        public static bool SoloOnly(MissionDef mission) => mission.Story.SoloOnly;
 
         /// <summary>Hard can be picked for <paramref name="mission"/>: cleared, from Mission two on, and played in co-op.</summary>
         public static bool HardOpen(Profile profile, MissionDef mission, bool coop) =>

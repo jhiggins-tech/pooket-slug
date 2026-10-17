@@ -79,7 +79,7 @@ namespace PooketSlug
             r.best = Math.Max(r.best, score);
             if (won) r.clears++;
             missions[i] = r;
-            if (won && solo && mission == Missions.One) coop = true;
+            if (won && solo && mission.Story.OpensCoop) coop = true;
         }
 
         /// <summary>Adds a run's XP, and its climb up the rank ladder.</summary>

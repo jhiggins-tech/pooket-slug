@@ -97,5 +97,6 @@ window) / `up`; `lamps stutter`; `goon appear`; `clamp rip` (over a window); `ca
 ## A new scene
 
 Add its file, give it a `net` number no other scene has, and try it with `?scene=<name>`. For the game to play it
-somewhere, it needs its name in `SceneLibrary.Names` and a line in `Game.cs` saying when: that's a build. A new
+somewhere, it needs its name in `SceneLibrary.Names` and a place in a mission's story (`MissionStory`, on the
+mission in `Missions.cs`: its opening, its boss reveal, or the scene once the boss's pilot is freed): that's a build. A new
 thing or verb for the stage is a build too (`Staging.cs` for the vocabulary, `Ui/CutsceneView.cs` for its look).

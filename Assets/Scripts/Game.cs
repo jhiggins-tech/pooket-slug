@@ -64,6 +64,8 @@ namespace PooketSlug
         bool m_AccountShown = true; // the page shows the sign-in button until the game says otherwise
         Options m_Options;
         Profile m_Profile;
+        /// <summary>The profile's once-only story beats (the coda's prompts, the first debrief, a boss reveal).</summary>
+        StoryRecord m_Story => new StoryRecord(m_Profile);
         bool m_CoopJustOpened; // this run's win opened co-op
         DebriefPlayer m_Debrief; // a won solo run's debrief, while it's up
         DebriefView m_DebriefView;
@@ -241,9 +243,6 @@ namespace PooketSlug
             }
         }
 
-        /// <summary>Profile key: the coda's been cleared once, so its prompts don't show again.</summary>
-        const string CodaSeen = "coda";
-
         /// <summary>
         /// Starts at the coda: the back gate's open, the boss is left out, and there's a tabk to call
         /// (a restart at its checkpoint, or <c>?test=coda</c>).
@@ -290,11 +289,12 @@ namespace PooketSlug
             }
         }
 
-        /// <summary>START on the title screen, or a solo START in the den: Mission one plays its opening scene first.</summary>
+        /// <summary>START on the title screen, or a solo START in the den: the mission's opening scene first, if it has one.</summary>
         void StartFromTitle()
         {
             // ?test=boss, pilot and team are for trying something at once: they start without the opening
-            if (m_Mission == Missions.One && m_Sandbox == null && !m_TestBoss && !m_TestTeam && !m_TestCoda && !m_TestDebrief) PlayScene(m_Scenes.Get(SceneLibrary.Opening), false, StartSolo);
+            string opening = m_Mission.Story.Opening;
+            if (opening != null && m_Sandbox == null && !m_TestBoss && !m_TestTeam && !m_TestCoda && !m_TestDebrief) PlayScene(m_Scenes.Get(opening), false, StartSolo);
             else StartSolo();
         }
 
@@ -389,7 +389,7 @@ namespace PooketSlug
             if (checkpoint >= 0f && m_World.Level.CodaX >= 0f && checkpoint >= m_World.Level.CodaX)
             {
                 // lost in the coda: start again at its start, not at the boss (docs/design/story.md, The coda)
-                StartAtCoda(m_World, !m_Profile.HasSeen(CodaSeen));
+                StartAtCoda(m_World, m_Story.CodaPrompts);
                 m_World.CheckpointX = checkpoint;
             }
             else if (checkpoint >= 0f)
@@ -486,7 +486,7 @@ namespace PooketSlug
             return new DenInfo
             {
                 // Mission one is solo only (docs/design/lobby.md, Co-op): until Mission two is built, co-op plays it as a stand-in
-                Mission = m_Den.Mode == DenMode.Crew ? null : coop && mission == Missions.One ? "TEST MISSION" : mission.Name.ToUpperInvariant(),
+                Mission = m_Den.Mode == DenMode.Crew ? null : coop && mission.Story.CoopName != null ? mission.Story.CoopName : mission.Name.ToUpperInvariant(),
                 Room = coop ? m_Net.RoomCode : null,
                 CanHost = CoopReady && m_Den.Mode == DenMode.Solo,
                 Skin = coop ? m_Net.Link.LocalSkin : 0,
@@ -1011,12 +1011,12 @@ namespace PooketSlug
         void OnBossIntro(BossEnemy boss, bool firstTime)
         {
             if (MusicOn) Music.Stop(); // the screen locks and the mission's music cuts out (docs/design/tanks.md)
-            if (firstTime && boss is TankBoss tank && PlaysMotorPool)
+            if (firstTime && boss is TankBoss tank && PlaysBossReveal)
             {
-                // The first time: the motor pool reveal is the tabk's entrance, so after it the tabk's in place and the
-                // intro goes straight to the banner, the name card and the music (docs/design/story.md).
+                // The first time: the reveal (Mission one's motor pool) is the tabk's entrance, so after it the tabk's in
+                // place and the intro goes straight to the banner, the name card and the music (docs/design/story.md).
                 float playedFor = m_StateTime; // the mission's clock (and its start banner) carry on from where they were
-                PlayScene(m_Scenes.Get(SceneLibrary.MotorPool), false, () =>
+                PlayScene(m_Scenes.Get(m_Mission.Story.BossReveal), false, () =>
                 {
                     tank.SkipEntrance();
                     m_Paused = false;
@@ -1030,31 +1030,38 @@ namespace PooketSlug
         }
 
         /// <summary>
-        /// The motor pool reveal plays once, ever: the first time tones2 reaches Mission one's motor pool, solo (co-op
-        /// opens only once Mission one's beaten, so it's been seen by then). Test starts skip it, unless ?test=reveal.
+        /// The mission's boss reveal (Mission one's motor pool) plays once, ever: the first time the boss wakes, solo
+        /// (co-op opens only once Mission one's beaten, so it's been seen by then). Test starts skip it, unless
+        /// ?test=reveal.
         /// </summary>
-        bool PlaysMotorPool => !m_Coop && m_Sandbox == null && m_Mission == Missions.One &&
-            (m_TestReveal || !m_Profile.HasSeen(SceneScript.IdOf(SceneLibrary.MotorPool)) && !m_TestBoss && !m_TestTeam);
+        bool PlaysBossReveal => !m_Coop && m_Sandbox == null && m_Mission.Story.BossReveal != null &&
+            (m_TestReveal || m_Story.Due(m_Mission.Story.BossReveal) && !m_TestBoss && !m_TestTeam);
 
         /// <summary>
-        /// Trollogram kie glitched out, solo: the freeing scene, then the mission's won. (The coda, when it's built,
-        /// comes between them.)
+        /// The boss's pilot is freed (Trollogram kie glitched out), solo: the mission's scene for it, then its coda, or the
+        /// win at once for a mission with neither.
         /// </summary>
         void OnPilotFreed()
         {
-            if (m_Coop || m_Sandbox != null) // a sandbox skips the scene too
+            MissionStory story = m_Mission.Story;
+            if (m_Coop || m_Sandbox != null || story.PilotFreed == null) // a sandbox skips the scene too
             {
                 m_World.OnBossDestroyed();
                 return;
             }
             float playedFor = m_StateTime;
-            PlayScene(m_Scenes.Get(SceneLibrary.FreeingKie), false, () =>
+            PlayScene(m_Scenes.Get(story.PilotFreed), false, () =>
             {
                 m_Paused = false;
                 SetState(GameState.Playing);
                 m_StateTime = playedFor;
+                if (!story.Coda)
+                {
+                    m_World.OnBossDestroyed();
+                    return;
+                }
                 // on into the coda: the back gate opens, and the run out of the base with tones2's tabk
-                m_World.OpenCoda(!m_Profile.HasSeen(CodaSeen));
+                m_World.OpenCoda(m_Story.CodaPrompts);
                 if (MusicOn) Music.Play(MusicTracks.TankAlert);
             });
         }
@@ -1062,7 +1069,7 @@ namespace PooketSlug
         /// <summary>The coda's last gate is down: its prompts have been seen.</summary>
         void OnCodaCleared()
         {
-            if (m_Profile.MarkSeen(CodaSeen)) m_Store.Save(m_Profile);
+            if (m_Story.Mark(StoryRecord.Coda)) m_Store.Save(m_Profile);
         }
 
         void StartBossIntro(BossEnemy boss, bool firstTime)
@@ -1514,7 +1521,6 @@ namespace PooketSlug
         }
 
         /// <summary>Profile key: the first debrief's been shown (kie's lines are for that one).</summary>
-        const string DebriefSeen = "debrief";
 
         /// <summary>
         /// A won solo run: its XP and rank go on the profile, and the debrief shows them (docs/design/story.md, The
@@ -1532,13 +1538,13 @@ namespace PooketSlug
                 Lives = w.Player.Lives.Lives, Continues = w.Player.Lives.Continues,
                 Xp = Progression.XpFor(true, Crew.FreedBy(w.Mission)?.Name, w.Kills),
                 XpBefore = m_Profile.xp, ClimbBefore = m_Profile.rank,
-                First = !m_Profile.HasSeen(DebriefSeen) || m_TestDebrief,
+                First = m_Story.FirstDebrief || m_TestDebrief,
                 OfferSignIn = m_Account.Available && !m_Account.SignedIn,
             };
             int climb = Progression.ClimbFor(true, firstClear);
             result.ClimbAfter = result.ClimbBefore + climb;
             m_Profile.Award(result.XpGained, climb);
-            m_Profile.MarkSeen(DebriefSeen);
+            m_Story.Mark(StoryRecord.Debrief);
             Log.Game.Info("Debrief: " + result.XpGained + " XP, " + climb + " stages up the ladder" + (result.RankedUp ? ", a rank up" : ""));
             m_Debrief = new DebriefPlayer(result);
             m_DebriefView.Show(m_Debrief);

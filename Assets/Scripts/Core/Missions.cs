@@ -14,9 +14,12 @@ namespace PooketSlug
         public readonly string Place;
         /// <summary>The map's rows, top first (see <see cref="Level"/>).</summary>
         public readonly string[] Map;
+        /// <summary>Its story: scenes, solo only, the coda (<see cref="MissionStory.None"/> for none).</summary>
+        public readonly MissionStory Story;
 
-        public MissionDef(string id, byte netId, string name, string place, string[] map)
+        public MissionDef(string id, byte netId, string name, string place, string[] map, MissionStory story = null)
         {
+            Story = story ?? MissionStory.None;
             Id = id;
             NetId = netId;
             Name = name;
@@ -49,6 +52,17 @@ namespace PooketSlug
             "...P.....W......s....x=..s..################..Z...W......r....x.............################...=r......B=.s...x.==......r.===V.W..==....s.==x.r..s..Z.........B.x...s.=.....K.......M.....T.........G..K..........s.s.rs.............s.r..Y...xx.sx...r.....==sssr...s.xr.s...E....F..",
             "#################################################################################################..r.r.###############################################################################################################################################################################",
             "######################################################################################################################################################################################################################################################################################",
+        }, new MissionStory
+        {
+            // a single-player prelude: the opening, the motor pool reveal as the boss tabk's entrance, freeing kie, then
+            // the coda out of the base; beating it opens co-op (docs/design/story.md)
+            Opening = SceneLibrary.Opening,
+            BossReveal = SceneLibrary.MotorPool,
+            PilotFreed = SceneLibrary.FreeingKie,
+            Coda = true,
+            SoloOnly = true,
+            OpensCoop = true,
+            CoopName = "TEST MISSION",
         });
 
         public static readonly IReadOnlyList<MissionDef> All = new[] { One };
