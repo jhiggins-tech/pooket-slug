@@ -7,13 +7,14 @@ namespace PooketSlug
     /// Spike tests: small throwaway experiments switched on from the page address, so they ride along in the
     /// normal build without changing the game anyone else plays. <c>?spike=craters</c> turns on
     /// blasts digging craters in the boss arena, <c>?spike=music</c> the music's first cut, <c>?spike=partner</c> the partner arrow
-    /// and warnings, <c>?spike=kcaj</c> kcaj's special and super, <c>?spike=dropin</c> each player's own score in co-op.
+    /// and warnings, <c>?spike=kcaj</c> kcaj's special and super, <c>?spike=dropin</c> each player's own score in co-op,
+    /// <c>?spike=plates</c> generated background plates in place of the drawn parallax (<c>&amp;take=</c> picks another model's).
     /// Spikes are solo only (a co-op game ignores them), except the partner and drop-in ones, which are about co-op.
     /// </summary>
     public static class Spike
     {
         public const string CratersKey = "craters", MusicKey = "music";
-        public const string PartnerKey = "partner", KcajKey = "kcaj", DropInKey = "dropin";
+        public const string PartnerKey = "partner", KcajKey = "kcaj", DropInKey = "dropin", PlatesKey = "plates";
 
         /// <summary>Blasts dig craters in the boss arena (<see cref="CraterGround"/>).</summary>
         public static bool Craters;
@@ -40,7 +41,16 @@ namespace PooketSlug
         /// </summary>
         public static bool DropIn;
 
-        public static bool Any => Craters || Music || Partner || Kcaj || DropIn;
+        /// <summary>
+        /// Spike gen-plates: the parallax background is drawn from generated image plates (Resources/Plates, fetched from
+        /// the vendor repository's plates-spike release) instead of the code-drawn layers (<see cref="ScrollCamera"/>).
+        /// </summary>
+        public static bool Plates;
+
+        /// <summary>Which model's plates to show (<c>&amp;take=</c>, the start of its folder name), or null for the first model's.</summary>
+        public static string PlatesTake;
+
+        public static bool Any => Craters || Music || Partner || Kcaj || DropIn || Plates;
 
         /// <summary>Reads <c>?spike=</c> from the page address.</summary>
         public static void Configure(string url)
@@ -51,6 +61,8 @@ namespace PooketSlug
             Partner = Array.IndexOf(keys, PartnerKey) >= 0;
             Kcaj = Array.IndexOf(keys, KcajKey) >= 0;
             DropIn = Array.IndexOf(keys, DropInKey) >= 0;
+            Plates = Array.IndexOf(keys, PlatesKey) >= 0;
+            PlatesTake = PageQuery.Get(url, "take");
         }
 
         /// <summary>What the start banner says, or null when no spike is on.</summary>
@@ -65,6 +77,7 @@ namespace PooketSlug
                 if (Partner) parts.Add("PARTNER ARROW");
                 if (Kcaj) parts.Add("KCAJ: HYPERFIXATE + UNMEDICATED");
                 if (DropIn) parts.Add("OWN SCORES");
+                if (Plates) parts.Add("GENERATED PLATES" + (string.IsNullOrEmpty(PlatesTake) ? "" : " (" + PlatesTake.ToUpperInvariant() + ")"));
                 return "SPIKE TEST · " + string.Join(" + ", parts);
             }
         }

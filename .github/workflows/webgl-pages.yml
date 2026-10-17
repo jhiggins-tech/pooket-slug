@@ -177,6 +177,27 @@ jobs:
           tools/vendor_fetch.sh --bytes narration Assets/Resources/Narration "the narrator is subtitles only"
           tools/vendor_fetch.sh --bytes orchestra Assets/Resources/Music "the boss music stays chip"
 
+      # Spike gen-plates (?spike=plates): the generated background plates from the vendor repository's plates-spike
+      # release, as Resources/Plates/<id>.bytes (the first model's) and <model>__<id>.bytes (each model's take).
+      - name: Fetch the generated plates (spike)
+        env:
+          GH_TOKEN: ${{ secrets.VENDOR_PAT }}
+        run: |
+          zip=$RUNNER_TEMP/plates.zip
+          if ! gh release download plates-spike -R jhiggins-tech/pooket-slug-vendor -p plates.zip -O "$zip" --clobber; then
+            echo "::warning::No plates.zip on the vendor repository's plates-spike release: ?spike=plates shows the drawn layers."
+            exit 0
+          fi
+          rm -rf "$RUNNER_TEMP/plates" && unzip -q "$zip" -d "$RUNNER_TEMP/plates"
+          mkdir -p Assets/Resources/Plates
+          for f in "$RUNNER_TEMP"/plates/*.png; do cp "$f" "Assets/Resources/Plates/$(basename "${f%.png}").bytes"; done
+          for f in "$RUNNER_TEMP"/plates/takes/*/*.png; do
+            case "$f" in *.raw.png) continue;; esac
+            model=$(basename "$(dirname "$f")"); cp "$f" "Assets/Resources/Plates/${model}__$(basename "${f%.png}").bytes"
+          done
+          rm -f Assets/Resources/Plates/sheet.bytes
+          ls -l Assets/Resources/Plates
+
       # The cutscenes built into the game (scenes/*.txt as Resources/Scenes), the copy that plays when the site's can't
       # be reached or has a problem.
       - name: Build in the scenes

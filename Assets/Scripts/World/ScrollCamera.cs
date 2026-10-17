@@ -12,6 +12,9 @@ namespace PooketSlug
         readonly World m_World;
         readonly Transform[] m_Mountains = new Transform[3], m_Ruins = new Transform[3];
         Transform m_Sky;
+        // Spike gen-plates: the generated plates, when ?spike=plates found them (else null and the drawn layers show).
+        Sprite m_SkyPlate, m_FarPlate, m_MidPlate;
+        Transform[] m_SkyTiles;
         float m_X, m_Shake;
 
         public ScrollCamera(World world)
@@ -92,8 +95,9 @@ namespace PooketSlug
             // Parallax: layer origin moves with the camera by `factor` (1 = infinitely far away).
             m_Sky.position = new Vector3(cx, cy, 0f);
             m_Sky.localScale = new Vector3((HalfWidth * 2f + 2f) * Art.PPU, (Tuning.Camera.ViewHeight + 2f) / 2f, 1f);
-            PlaceLayer(m_Mountains, Art.Mountains, 0.85f, 1.2f, cx);
-            PlaceLayer(m_Ruins, Art.Ruins, 0.6f, 1.0f, cx);
+            if (m_SkyTiles != null) PlaceLayer(m_SkyTiles, m_SkyPlate, 0.95f, 0f, cx);
+            PlaceLayer(m_Mountains, m_FarPlate ?? Art.Mountains, 0.85f, 1.2f, cx);
+            PlaceLayer(m_Ruins, m_MidPlate ?? Art.Ruins, 0.6f, 1.0f, cx);
         }
 
         void PlaceLayer(Transform[] tiles, Sprite sprite, float factor, float y, float camX)
@@ -108,12 +112,45 @@ namespace PooketSlug
 
         void BuildBackground()
         {
+            if (Spike.Plates && !m_World.Coop)
+            {
+                m_SkyPlate = LoadPlate("m1-sky");
+                m_FarPlate = LoadPlate("m1-far");
+                m_MidPlate = LoadPlate("m1-mid");
+            }
             m_Sky = MakeBg("Sky", Art.Sky, SortOrder.Sky);
+            if (m_SkyPlate != null)
+            {
+                m_SkyTiles = new Transform[3];
+                for (int i = 0; i < 3; i++) m_SkyTiles[i] = MakeBg("SkyPlate" + i, m_SkyPlate, SortOrder.Sky + 1);
+            }
             for (int i = 0; i < 3; i++)
             {
-                m_Mountains[i] = MakeBg("Mountains" + i, Art.Mountains, SortOrder.Mountains);
-                m_Ruins[i] = MakeBg("Ruins" + i, Art.Ruins, SortOrder.Ruins);
+                m_Mountains[i] = MakeBg("Mountains" + i, m_FarPlate ?? Art.Mountains, SortOrder.Mountains);
+                m_Ruins[i] = MakeBg("Ruins" + i, m_MidPlate ?? Art.Ruins, SortOrder.Ruins);
             }
+        }
+
+        /// <summary>
+        /// Spike gen-plates: a generated plate from Resources/Plates (a PNG kept as .bytes so Unity leaves it alone):
+        /// <c>&lt;id&gt;</c> is the first model's, <c>&lt;model&gt;__&lt;id&gt;</c> each model's take (<c>&amp;take=</c>
+        /// picks one by the start of its model's name). Game pixels, 16 to a unit, pivot at the bottom left. Null if missing.
+        /// </summary>
+        static Sprite LoadPlate(string id)
+        {
+            TextAsset file = null;
+            if (string.IsNullOrEmpty(Spike.PlatesTake)) file = Resources.Load<TextAsset>("Plates/" + id);
+            else
+                foreach (TextAsset t in Resources.LoadAll<TextAsset>("Plates"))
+                    if (t.name.EndsWith("__" + id) && t.name.StartsWith(Spike.PlatesTake, System.StringComparison.OrdinalIgnoreCase)) file = t;
+            if (file == null)
+            {
+                Log.Game.Info("plates: no " + id + (string.IsNullOrEmpty(Spike.PlatesTake) ? "" : " for " + Spike.PlatesTake));
+                return null;
+            }
+            var tex = new Texture2D(2, 2, TextureFormat.RGBA32, false) { filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp };
+            if (!tex.LoadImage(file.bytes)) return null;
+            return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero, Art.PPU, 0, SpriteMeshType.FullRect);
         }
 
         Transform MakeBg(string name, Sprite sprite, int order)
