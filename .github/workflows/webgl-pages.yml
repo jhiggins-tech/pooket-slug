@@ -177,6 +177,22 @@ jobs:
           tools/vendor_fetch.sh --bytes narration Assets/Resources/Narration "the narrator is subtitles only"
           tools/vendor_fetch.sh --bytes orchestra Assets/Resources/Music "the boss music stays chip"
 
+      # gen-lobby-bg (?spike=denbg): the den's generated backdrops from the vendor repository's den release, as
+      # Resources/Den/<take>__<n>.bytes (320 x 180 PNGs).
+      - name: Fetch the den's generated backdrops (spike)
+        env:
+          GH_TOKEN: ${{ secrets.VENDOR_PAT }}
+        run: |
+          zip=$RUNNER_TEMP/den.zip
+          if ! gh release download den -R jhiggins-tech/pooket-slug-vendor -p den.zip -O "$zip" --clobber; then
+            echo "::warning::No den.zip on the vendor repository's den release: ?spike=denbg shows the drawn den."
+            exit 0
+          fi
+          rm -rf "$RUNNER_TEMP/den" && unzip -q "$zip" 'cut/*' -d "$RUNNER_TEMP/den"
+          mkdir -p Assets/Resources/Den
+          for f in "$RUNNER_TEMP"/den/cut/*.png; do cp "$f" "Assets/Resources/Den/$(basename "${f%.png}").bytes"; done
+          ls -l Assets/Resources/Den
+
       # The cutscenes built into the game (scenes/*.txt as Resources/Scenes), the copy that plays when the site's can't
       # be reached or has a problem.
       - name: Build in the scenes

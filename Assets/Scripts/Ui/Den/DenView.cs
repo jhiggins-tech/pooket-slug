@@ -89,7 +89,7 @@ namespace PooketSlug
             if (m_BackdropKey != key)
             {
                 m_BackdropKey = key;
-                m_Backdrop = Backdrop(c => Draw(c, den.Crew));
+                m_Backdrop = (Spike.DenBg ? GeneratedBackdrop() : null) ?? Backdrop(c => Draw(c, den.Crew));
                 m_Back.sprite = m_Backdrop;
             }
             m_Crew.Begin(den, info, m_Back.transform);
@@ -100,6 +100,28 @@ namespace PooketSlug
             m_World.localScale = Vector3.one;
             m_World.anchoredPosition = Vector2.zero;
             Ui.Show(m_Root, true);
+        }
+
+        /// <summary>
+        /// gen-lobby-bg (<c>?spike=denbg</c>): the den's room as a generated backdrop from Resources/Den (a PNG kept as
+        /// .bytes, 320 x 180), <c>&amp;take=</c> picking one by the start of its name (<c>seedream__2</c>, <c>gemini</c>),
+        /// else Seedream's first. Null if there's none, and the drawn room shows.
+        /// </summary>
+        static Sprite GeneratedBackdrop()
+        {
+            string want = string.IsNullOrEmpty(Spike.DenBgTake) ? "seedream__1" : Spike.DenBgTake;
+            TextAsset file = null;
+            foreach (TextAsset t in Resources.LoadAll<TextAsset>("Den"))
+                if (t.name.StartsWith(want, System.StringComparison.OrdinalIgnoreCase) && (file == null || string.CompareOrdinal(t.name, file.name) < 0)) file = t;
+            if (file == null)
+            {
+                Log.Game.Info("den: no generated backdrop" + (string.IsNullOrEmpty(Spike.DenBgTake) ? "" : " for " + Spike.DenBgTake));
+                return null;
+            }
+            var tex = new Texture2D(2, 2, TextureFormat.RGBA32, false) { filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp };
+            if (!tex.LoadImage(file.bytes)) return null;
+            Log.Game.Info("den: " + file.name);
+            return Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero, 1f);
         }
 
         static SoldierDef[] ToArray(IReadOnlyList<SoldierDef> list)
