@@ -5,8 +5,8 @@ name: WebGL build → GitHub Pages
 # - every other branch deploys a preview to previews/<branch without claude/>/ (its item's Try it link), with every
 #   check too, except spike branches (claude/spike-<name>), which skip the kit demos and the co-op tests;
 # - a branch whose commit the main line already has builds nothing (a mirror of the main line, or a merged branch);
-# - a deleted branch's preview goes at the next deploy (tools/pages_deploy.sh), or at once by the delete trigger once
-#   this file is on the default branch (GitHub runs delete triggers from there only).
+# - a deleted or merged branch's preview goes at the next deploy (tools/pages_deploy.sh); a deleted one's goes at once
+#   by the delete trigger, since this file is on the default branch (GitHub runs delete triggers from there only).
 on:
   push:
     branches:
