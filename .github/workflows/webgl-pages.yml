@@ -302,6 +302,30 @@ jobs:
           customParameters: -buildSha ${{ github.sha }} -photonAppId ${{ secrets.PHOTON_APP_ID }} -googleClientId ${{ vars.GOOGLE_CLIENT_ID || secrets.GOOGLE_CLIENT_ID }} -firebaseApiKey ${{ vars.FIREBASE_API_KEY || secrets.FIREBASE_API_KEY }} -firebaseDbUrl ${{ vars.FIREBASE_DB_URL || secrets.FIREBASE_DB_URL }}
           versioning: None
 
+      # Two thumbs on an emulated phone held sideways (tools/touch.mjs: the stick and FIRE, then pause), against the
+      # build just made: a page error or a START that doesn't get the mission going stops it before it deploys.
+      - name: Set up Node for the touch test
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Play it by touch
+        id: touch
+        run: |
+          npm install --no-save --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
+          python3 -m http.server 8001 --bind 127.0.0.1 --directory build/WebGL/WebGL > touch-server.log 2>&1 &
+          for i in $(seq 30); do curl -fsS -o /dev/null http://127.0.0.1:8001/index.html && break; sleep 1; done
+          node tools/touch.mjs http://127.0.0.1:8001/index.html touch-test
+
+      - name: Upload the touch test
+        if: always() && steps.touch.outcome != 'skipped'
+        uses: actions/upload-artifact@v6
+        with:
+          name: touch-test
+          path: touch-test
+          if-no-files-found: ignore
+
       # The ⓘ kit screen's demo clips: the build just made plays each move's scripted scene (?demo=all, KitGuide.cs) in
       # headless Chromium, which records it, and tools/demos.mjs cuts it into a clip for each move in demos/, so the
       # clips always match the build they ship with. If recording fails, the build still deploys, and the kit screen

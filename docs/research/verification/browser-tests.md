@@ -40,7 +40,7 @@ Up: [Verification](README.md)
 
 ## Touch test
 
-[`touch.mjs`](tools/touch.mjs) `<url> <outdir>` plays the game on an emulated phone: Playwright's *Pixel 7 landscape* profile, which has touch and a mobile browser's user agent.
+[`touch.mjs`](../../../tools/touch.mjs) (in `tools/`, run by CI on every build before it deploys) `<url> <outdir>` plays the game on an emulated phone: Playwright's *Pixel 7 landscape* profile, which has touch and a mobile browser's user agent.
 - **Two thumbs need the DevTools protocol.** Playwright's `touchscreen` has one finger, so the script sends `Input.dispatchTouchEvent` with two touch points: one on the stick, one on FIRE.
 - **It aims in HUD units.** The HUD is 360 units tall, so the script turns a pad position into page coordinates with the canvas's bounding box.
 - **It checks by screenshots:** the touch hints on the title, the stick pushed and FIRE lit while the soldier runs and fires, and the pause screen after II.

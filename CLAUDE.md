@@ -38,7 +38,7 @@ vendor repository (about a minute). After a Unity upgrade, run the vendor reposi
 new version first. The scripts underneath are in [docs/research/verification](docs/research/verification/README.md).
 
 github.io is blocked from cloud sessions: to smoke-test a deploy, fetch the `gh-pages` branch and serve it locally
-(`smoke.mjs`, `touch.mjs`; `tools/coop.mjs` is the two-browser co-op test CI runs). New `.cs` files go in the folder for what they're about (Core's tests in the matching test folder) and need a `.meta`, as does a new folder
+(`smoke.mjs`; `tools/touch.mjs` plays a build by touch and `tools/coop.mjs` is the two-browser co-op test, both run by CI). New `.cs` files go in the folder for what they're about (Core's tests in the matching test folder) and need a `.meta`, as does a new folder
 (`tools/new_meta.py`).
 
 ## Map
@@ -63,7 +63,7 @@ Each file starts with a summary comment saying what it's for.
 | `Save/` | `LocalProfileStore` / `OptionsStore` (PlayerPrefs), `CloudAccount` (sign-in and cloud saves through the page's `pooket-auth.js`), `SiteFile` (a text file fetched from beside the game) |
 | `Assets/Editor/WebGLBuild.cs` | The build: the scene, the WebGL template (`Assets/WebGLTemplates/PooketSlug`), the commit and secrets baked in |
 | `Assets/Tests/EditMode/` | NUnit tests against Core, in the same folders as Core, run by CI before every build |
-| `tools/` | `check.sh` (the local checks), `pages_deploy.sh` (the gh-pages deploy), `coop.mjs` (co-op tests), `demos.mjs` (kit demo clips), `unpack_unitypackage.py`, `new_meta.py` |
+| `tools/` | `check.sh` (the local checks), `pages_deploy.sh` (the gh-pages deploy), `coop.mjs` (co-op tests), `touch.mjs` (touch play), `demos.mjs` (kit demo clips), `unpack_unitypackage.py`, `new_meta.py` |
 | `docs/design/` | The game design. `docs/research/`: how the pipeline, netcode, accounts and verification work, and [lessons learned](docs/research/lessons-learned.md) |
 
 ## How the game fits together
