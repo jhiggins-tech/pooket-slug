@@ -38,7 +38,7 @@ jobs:
           set -o pipefail
           slug=-
           if [ "$GITHUB_REF_NAME" != "$MAIN_LINE" ]; then
-            slug=$(echo "$GITHUB_REF_NAME" | sed -e 's#^claude/##' -e 's/[^A-Za-z0-9-]/-/g' | tr 'A-Z' 'a-z')
+            slug=$(tools/slug.sh "$GITHUB_REF_NAME")
           fi
           mkdir -p "$RUNNER_TEMP/sandbox"
           cp sandbox/*.txt "$RUNNER_TEMP/sandbox/" 2>/dev/null || true

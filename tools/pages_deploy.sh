@@ -31,8 +31,8 @@ else
   [ -z "$src" ] || [ -f "$src/index.html" ] || { echo "::error::$src has no index.html: nothing to deploy." >&2; exit 1; }
 fi
 
-# A branch's preview folder: its name without claude/, lower case, anything but letters, digits and - as -.
-slugify() { sed -e 's#^claude/##' -e 's/[^A-Za-z0-9-]/-/g' | tr 'A-Z' 'a-z'; }
+# A branch's preview folder (tools/slug.sh has the rule).
+slugify() { "$(dirname "$0")"/slug.sh; }
 
 repo=${GITHUB_REPOSITORY:-jhiggins-tech/pooket-slug}
 main_line=${MAIN_LINE:-$(git ls-remote --symref origin HEAD | sed -n 's#^ref: refs/heads/\(.*\)\tHEAD$#\1#p')}

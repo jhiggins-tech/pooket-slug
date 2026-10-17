@@ -28,18 +28,21 @@ const TAG = String.raw`\[PooketSlug/Game\] `;
 const LIST = new RegExp(TAG + String.raw`Demos: (\S+)`);
 const END = new RegExp(TAG + String.raw`Demo end: (\S+) \((\d+) frames, ([\d.]+) s\)`);
 const DONE = new RegExp(TAG + 'Demos done');
-const LIMIT_MS = 15 * 60 * 1000;
+const LIMIT_MS = 6 * 60 * 1000; // all of them (they take under 2 minutes)
+const STALL_MS = 90 * 1000; // with no demo starting or ending: a hung recording fails now, not at the limit
+const PROGRESS = new RegExp(TAG + 'Demo (start|end): ');
 
 const browser = await chromium.launch({ args: ARGS });
 const page = await browser.newPage({ viewport: VIEW });
 const T0 = Date.now();
 const logs = [];
 const ends = {}; // id → { frames, seconds } of game time, from the game's log
-let ids = null, done = false, error = null;
+let ids = null, done = false, error = null, lastProgress = Date.now();
 page.on('console', m => {
   const text = m.text();
   logs.push(`${((Date.now() - T0) / 1000).toFixed(2).padStart(7)} [${m.type()}] ${text}`);
   let hit;
+  if (PROGRESS.test(text)) lastProgress = Date.now();
   if ((hit = LIST.exec(text))) ids = hit[1].split(',');
   else if ((hit = END.exec(text))) ends[hit[1]] = ends[hit[1]] || { frames: +hit[2], seconds: +hit[3] };
   else if (DONE.test(text)) done = true;
@@ -54,13 +57,15 @@ try {
   await page.locator('#unity-canvas').click();
   await page.keyboard.press('Enter'); // ?demo=all waits for it, so nothing plays under the loader
   const end = Date.now() + LIMIT_MS;
-  while (!done && !error && Date.now() < end) await page.waitForTimeout(250);
-  if (!done) throw new Error(error ? 'page error: ' + error : 'the demos never finished');
+  lastProgress = Date.now();
+  while (!done && !error && Date.now() < end && Date.now() - lastProgress < STALL_MS) await page.waitForTimeout(250);
+  if (!done) throw new Error(error ? 'page error: ' + error
+    : Date.now() - lastProgress >= STALL_MS ? `stuck: no demo started or ended for ${STALL_MS / 1000} s` : 'the demos never finished');
   await page.waitForFunction(n => Object.keys(window.pooketDemoClips || {}).length >= n, ids.length, { timeout: 30000 });
   for (const id of ids) {
     const clip = await page.evaluate(async id => {
       const c = window.pooketDemoClips[id];
-      if (!c) return null;
+      if (!c || !c.blob || !c.blob.size) return null; // nothing recorded (the recorder logs why)
       const bytes = new Uint8Array(await c.blob.arrayBuffer());
       let s = '';
       for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000));

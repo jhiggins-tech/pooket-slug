@@ -5,13 +5,15 @@ mergeInto(LibraryManager.library, {
   PS_DemoBegin: function (id) {
     var name = UTF8ToString(id);
     var canvas = Module.canvas || document.querySelector("#unity-canvas");
-    if (!canvas || !canvas.captureStream || typeof MediaRecorder === "undefined") return;
+    if (!canvas || !canvas.captureStream || typeof MediaRecorder === "undefined") { console.warn("Demo " + name + ": this browser can't record the canvas"); return; }
     var clips = (window.pooketDemoClips = window.pooketDemoClips || {});
     var chunks = [];
     var recorder = new MediaRecorder(canvas.captureStream(30), { mimeType: "video/webm;codecs=vp8", videoBitsPerSecond: 6000000 });
     var started = performance.now();
     recorder.ondataavailable = function (e) { if (e.data && e.data.size) chunks.push(e.data); };
     recorder.onstop = function () {
+      // an empty clip is no clip: tools/demos.mjs then fails that demo rather than shipping a blank one
+      if (!chunks.length) { console.warn("Demo " + name + ": nothing was recorded"); clips[name] = { blob: null, seconds: 0 }; return; }
       clips[name] = { blob: new Blob(chunks, { type: "video/webm" }), seconds: (performance.now() - started) / 1000 };
     };
     recorder.start();
