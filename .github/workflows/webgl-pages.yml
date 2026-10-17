@@ -177,6 +177,22 @@ jobs:
           tools/vendor_fetch.sh --bytes narration Assets/Resources/Narration "the narrator is subtitles only"
           tools/vendor_fetch.sh --bytes orchestra Assets/Resources/Music "the boss music stays chip"
 
+      # Spike gen-sprites (?spike=sheets): the generated sprite sheets from the vendor repository's sheets release, as
+      # Resources/Sheets/<anim>__<model>__<take>__f<frames>.bytes (PNG strips).
+      - name: Fetch the generated sprite sheets (spike)
+        env:
+          GH_TOKEN: ${{ secrets.VENDOR_PAT }}
+        run: |
+          zip=$RUNNER_TEMP/sheets.zip
+          if ! gh release download sheets -R jhiggins-tech/pooket-slug-vendor -p sheets.zip -O "$zip" --clobber; then
+            echo "::warning::No sheets.zip on the vendor repository's sheets release: ?spike=sheets shows the hand-made riflemen."
+            exit 0
+          fi
+          rm -rf "$RUNNER_TEMP/sheets" && unzip -q "$zip" 'game/*' -d "$RUNNER_TEMP/sheets"
+          mkdir -p Assets/Resources/Sheets
+          for f in "$RUNNER_TEMP"/sheets/game/*.png; do cp "$f" "Assets/Resources/Sheets/$(basename "${f%.png}").bytes"; done
+          ls -l Assets/Resources/Sheets
+
       # The cutscenes built into the game (scenes/*.txt as Resources/Scenes), the copy that plays when the site's can't
       # be reached or has a problem.
       - name: Build in the scenes

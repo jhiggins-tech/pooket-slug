@@ -172,6 +172,11 @@ namespace PooketSlug
         readonly SpriteRenderer m_Legs, m_Torso, m_Flash;
         float m_Cooldown, m_Muzzle;
 
+        // spike gen-sprites (?spike=sheets): the walk cycle from a generated sheet, in one renderer, when there is one
+        static Sprite[] s_Walk;
+        static bool s_WalkLoaded;
+        readonly SpriteRenderer m_Sheet;
+
         public Rifleman(World world, EnemyDef def, Vector2 feet) : base(world, def, feet)
         {
             m_Legs = AddRenderer(Visual, "Legs", Art.SoldierLegsIdle, SortOrder.Enemies);
@@ -180,6 +185,16 @@ namespace PooketSlug
             m_Flash.transform.localPosition = new Vector3(14f / Art.PPU, 14.5f / Art.PPU, 0f);
             m_Flash.enabled = false;
             m_Cooldown = World.Rng.Range(0.6f, 1.4f);
+            if (Spike.Sheets && !s_WalkLoaded)
+            {
+                s_Walk = GeneratedSheets.Load("rifleman-walk");
+                s_WalkLoaded = true;
+            }
+            if (Spike.Sheets && s_Walk != null)
+            {
+                m_Sheet = AddRenderer(Visual, "Sheet", s_Walk[0], SortOrder.Enemies);
+                m_Legs.enabled = m_Torso.enabled = false;
+            }
         }
 
         protected override void TickAlive(float dt)
@@ -210,9 +225,15 @@ namespace PooketSlug
         {
             base.Render();
             bool walking = Mathf.Abs(Vel.x) > 0.1f && Grounded && !Dying;
+            m_Flash.enabled = m_Muzzle > 0f && !Dying;
+            if (m_Sheet != null)
+            {
+                m_Sheet.sprite = walking ? s_Walk[(int)(Anim * 9f) % s_Walk.Length] : s_Walk[0];
+                m_Sheet.color = Flashed(Art.SoldierTorso) != Art.SoldierTorso ? new Color(1f, 0.55f, 0.55f) : Color.white;
+                return;
+            }
             m_Legs.sprite = Flashed(walking ? Art.SoldierLegsRun[(int)(Anim * 8f) % 4] : Art.SoldierLegsIdle);
             m_Torso.sprite = Flashed(Art.SoldierTorso);
-            m_Flash.enabled = m_Muzzle > 0f && !Dying;
         }
     }
 
