@@ -36,7 +36,7 @@ The tests are in [`Assets/Tests/EditMode`](../../../Assets/Tests/EditMode): 13 f
 The build job runs [`game-ci/unity-test-runner@v4.3.2`](../build-pipeline/workflow.md#5-editmode-tests) after restoring the Library cache and before the build:
 - **It uses the build's editor image,** picked from `ProjectVersion.txt`, so the image is pulled once.
 - **A failing test fails the job,** so nothing deploys.
-- **The job summary lists the counts and any failures.** The NUnit XML and Unity's log upload as the `editmode-tests` artifact.
+- **The job summary lists each mode's counts and any failures,** and the counts are a notice on the run too. The NUnit XML and Unity's log upload as the `tests` artifact.
 - **No check run,** which would need the `checks: write` permission.
 
 ## Locally

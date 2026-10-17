@@ -190,7 +190,7 @@ jobs:
         if: always() && steps.tests.outcome != 'skipped'
         run: |
           python3 - >> "$GITHUB_STEP_SUMMARY" <<'EOF'
-          import glob, xml.etree.ElementTree as ET
+          import glob, sys, xml.etree.ElementTree as ET
           files = sorted(glob.glob('test-results/*.xml'))
           if not files:
               print("### Tests\n\nNo results: Unity stopped before writing them. The test step's log says why.")
@@ -200,8 +200,11 @@ jobs:
               mode = 'PlayMode' if 'playmode' in path.lower() else 'EditMode'
               print(f"### {mode} tests: " + ("passed" if run.get("result", "").startswith("Passed") else "failed"))
               print()
-              print(f"{run.get('passed')} of {run.get('total')} passed, {run.get('failed')} failed, "
-                    f"{run.get('skipped')} skipped, in {float(run.get('duration') or 0):.1f} s.")
+              line = (f"{run.get('passed')} of {run.get('total')} passed, {run.get('failed')} failed, "
+                      f"{run.get('skipped')} skipped, in {float(run.get('duration') or 0):.1f} s.")
+              print(line)
+              # Also an annotation on the run, which the checks API can read without the log or the artifact.
+              print(f"::notice title={mode} tests::{line}", file=sys.stderr)
               failed = [t for t in run.iter('test-case') if t.get('result') == 'Failed']
               if failed:
                   print()
@@ -215,7 +218,7 @@ jobs:
         if: always() && steps.tests.outcome != 'skipped'
         uses: actions/upload-artifact@v6
         with:
-          name: editmode-tests
+          name: tests
           path: test-results
           if-no-files-found: ignore
 
