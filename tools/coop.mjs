@@ -182,14 +182,17 @@ try {
     await Promise.all([play(A, 'ArrowRight', 5000), play(B, 'ArrowRight', 5000)]);
 
     await load(C, url);
+    const before = A.logs.length; // A's count from here on: C's arrival, not B's
     const watched = await pick(C, 'WATCH');
     await shot(C, '1-browser');
     if (!watched) throw new Error(`C never saw ${code} to watch in the room browser`);
-    checks.watcherIn = !!(await waitLog(C, new RegExp(TAG + ` Online .*room ${code}, watching`), 60000));
+    checks.watcherIn = !!(await waitLog(C, new RegExp(TAG + ` Online .*room ${code}( \\(listed\\))?, watching`), 60000));
     checks.watching = !!(await waitLog(C, new RegExp(TAG + ` Watching room ${code}`), 20000));
     await Promise.all([play(A, 'ArrowRight', 6000), play(B, 'ArrowRight', 6000)]);
     await Promise.all([shot(A, '2-watched'), shot(B, '2-watched'), shot(C, '2-watching')]);
-    checks.counted = !!(await waitLog(A, new RegExp(TAG + ` 1 watching room ${code}`), 10000));
+    const counts = A.logs.slice(before).filter(l => new RegExp(TAG + ` \\d+ watching room ${code}`).test(l));
+    checks.counted = counts.length > 0 && / 1 watching room /.test(counts[counts.length - 1]);
+    console.log(`${t()} A's room counts: ${counts.map(l => l.match(/(\d+) watching/)[1]).join(', ') || 'none'}`);
     checks.played = ![...A.logs, ...B.logs, ...C.logs].some(l => /\[pageerror\]|Disconnected from Photon|Session ended/.test(l));
     throw null; // done: on to the results
   }

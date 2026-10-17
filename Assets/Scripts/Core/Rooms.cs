@@ -100,4 +100,32 @@ namespace PooketSlug
         /// <summary>Whether a quick match may put a new player in this room: it's open, with a free seat.</summary>
         public static bool OpenFor(int soldiers, bool soloOnly) => !soloOnly && soldiers < Tuning.Coop.MaxPlayers;
     }
+
+    /// <summary>
+    /// How many are watching a room: the people in it with no soldier. A player who's just joined has no soldier for a
+    /// moment either, so a new count only shows once it has held for <see cref="Hold"/> seconds.
+    /// </summary>
+    public sealed class WatcherCount
+    {
+        public const float Hold = 2f;
+        int m_Pending, m_Shown;
+        float m_Held;
+
+        public int Shown => m_Shown;
+
+        /// <summary>A frame of <paramref name="dt"/> seconds in which <paramref name="raw"/> people had no soldier.</summary>
+        public int Tick(float dt, int raw)
+        {
+            if (raw != m_Pending)
+            {
+                m_Pending = raw;
+                m_Held = 0f;
+            }
+            else m_Held += dt;
+            if (m_Held >= Hold) m_Shown = m_Pending;
+            return m_Shown;
+        }
+
+        public void Reset() { m_Pending = m_Shown = 0; m_Held = 0f; }
+    }
 }

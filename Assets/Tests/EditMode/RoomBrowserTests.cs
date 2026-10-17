@@ -61,5 +61,26 @@ namespace PooketSlug.Tests
             Assert.AreEqual(Tuning.Coop.MaxPlayers + RoomBrowser.MaxWatchers, RoomBrowser.MaxPeople);
             Assert.LessOrEqual(RoomBrowser.MaxPeople, 20, "Photon's free plan: 20 connections in all");
         }
+    
+        [Test]
+        public void AJoiningPlayerIsNotCountedAsWatching()
+        {
+            var count = new WatcherCount();
+            for (int i = 0; i < 10; i++) count.Tick(0.1f, 1); // a second without a soldier: they're still arriving
+            for (int i = 0; i < 10; i++) count.Tick(0.1f, 0); // then their soldier spawns
+            Assert.AreEqual(0, count.Shown);
+        }
+
+        [Test]
+        public void AWatcherIsCountedOnceTheyveHeldForTwoSeconds()
+        {
+            var count = new WatcherCount();
+            for (int i = 0; i < 19; i++) count.Tick(0.1f, 1);
+            Assert.AreEqual(0, count.Shown, "not yet");
+            for (int i = 0; i < 3; i++) count.Tick(0.1f, 1);
+            Assert.AreEqual(1, count.Shown);
+            for (int i = 0; i < 25; i++) count.Tick(0.1f, 0);
+            Assert.AreEqual(0, count.Shown, "and uncounted once they've gone");
+        }
     }
 }

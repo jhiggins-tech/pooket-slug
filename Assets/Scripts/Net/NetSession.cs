@@ -38,6 +38,7 @@ namespace PooketSlug
         readonly List<RoomListing> m_Rooms = new List<RoomListing>();
         bool m_ListArrived, m_Quick, m_Watching;
         float m_QuickT, m_ListingT;
+        readonly WatcherCount m_Watchers = new WatcherCount();
         RoomListing m_Listed;
         bool m_ListingSent;
 
@@ -52,8 +53,10 @@ namespace PooketSlug
         public bool Browsing => m_Lobby != null && !m_Quick;
         public IReadOnlyList<RoomListing> Rooms => m_Rooms;
 
-        public int Watchers =>
-            State == NetState.Online && m_Runner != null && m_Runner.IsRunning && m_Runner.SessionInfo.IsValid
+        public int Watchers => State == NetState.Online ? m_Watchers.Shown : 0;
+
+        int PeopleWithoutSoldiers =>
+            m_Runner != null && m_Runner.IsRunning && m_Runner.SessionInfo.IsValid
                 ? Mathf.Max(0, m_Runner.SessionInfo.PlayerCount - m_Replication.PlayerCount) : 0;
 
         public bool Listed
@@ -355,7 +358,11 @@ namespace PooketSlug
         void Update()
         {
             if (m_Quick && State == NetState.Connecting) TickQuick();
-            if (State != NetState.Online) return;
+            if (State != NetState.Online)
+            {
+                m_Watchers.Reset();
+                return;
+            }
             if (m_Runner == null || m_Runner.IsShutdown)
             {
                 Fail("DISCONNECTED");
@@ -363,6 +370,7 @@ namespace PooketSlug
             }
             if (!m_Runner.IsRunning) return;
             m_Replication.Tick(m_Runner);
+            m_Watchers.Tick(Time.unscaledDeltaTime, PeopleWithoutSoldiers);
             if (m_Watching) KeepOutOfCharge();
             else WatchMaster();
             if (m_Runner != null && m_Runner.IsSharedModeMasterClient) KeepListing();
