@@ -78,6 +78,18 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void AMissionIsCleared_ByAWinAtEitherSetting()
+        {
+            var p = new Profile();
+            Assert.IsFalse(MissionBoard.Cleared(p, Later));
+            p.RecordRun(Later, Setting.Normal, 100, won: false, solo: false);
+            Assert.IsFalse(MissionBoard.Cleared(p, Later), "a lost run isn't a clear");
+            p.RecordRun(Later, Setting.Hard, 900, won: true, solo: false);
+            Assert.IsTrue(MissionBoard.Cleared(p, Later), "a hard clear counts");
+            Assert.IsFalse(MissionBoard.Cleared(null, Later));
+        }
+
+        [Test]
         public void HardRecords_AreKeptApart()
         {
             var p = new Profile();

@@ -96,9 +96,6 @@ namespace PooketSlug
                 default: return "LOCKED";
             }
         }
-
-        /// <summary>Whether a quick match may put a new player in this room: it's open, with a free seat.</summary>
-        public static bool OpenFor(int soldiers, bool soloOnly) => !soloOnly && soldiers < Tuning.Coop.MaxPlayers;
     }
 
     /// <summary>

@@ -29,15 +29,7 @@ namespace PooketSlug
             m_Barrel = Renderer(m_BarrelPivot, "Barrel", barrel, order);
         }
 
-        static SpriteRenderer Renderer(Transform parent, string name, Sprite sprite, int order)
-        {
-            var go = new GameObject(name);
-            go.transform.SetParent(parent, false);
-            var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = sprite;
-            sr.sortingOrder = order;
-            return sr;
-        }
+        static SpriteRenderer Renderer(Transform parent, string name, Sprite sprite, int order) => Art.Renderer(parent, name, sprite, order);
 
         /// <summary>Where the barrel turns, from the tank's feet: the middle of the turret (the art faces left, so it's mirrored).</summary>
         public static Vector2 PivotLocal(int facing) => new Vector2(-facing * 4.5f / Art.PPU, 17.5f / Art.PPU);

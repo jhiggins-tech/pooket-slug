@@ -3,6 +3,42 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
+    /// Charges that come back one at a time, one every <see cref="Seconds"/>, up to <see cref="Max"/>: the special's
+    /// refill, for the crew and for Mission one's pilot. Time past a charge counts toward the next one.
+    /// </summary>
+    public struct ChargeRefill
+    {
+        public int Max;
+        /// <summary>Seconds to refill one charge; 0 for none.</summary>
+        public float Seconds;
+        float m_Time;
+
+        public ChargeRefill(int max, float seconds)
+        {
+            Max = max;
+            Seconds = seconds;
+            m_Time = 0f;
+        }
+
+        /// <summary>How far the next charge has refilled, 0 to 1 (0 when full or not refilling).</summary>
+        public float Progress(int charges) => Seconds > 0f && charges < Max ? m_Time / Seconds : 0f;
+
+        public void Tick(ref int charges, float dt)
+        {
+            if (Seconds > 0f && charges < Max)
+            {
+                m_Time += dt;
+                if (m_Time >= Seconds)
+                {
+                    m_Time -= Seconds;
+                    charges++;
+                }
+            }
+            else m_Time = 0f;
+        }
+    }
+
+    /// <summary>
     /// The kit's meters (<c>docs/design/player.md</c>, The kit): the special's charges, which refill over time;
     /// the super, charged by kills; and the ability's cooldown. Crates and spikes may change the charges directly.
     /// </summary>
@@ -10,29 +46,36 @@ namespace PooketSlug
     {
         /// <summary>Charges of the special. Refills one at a time up to <see cref="SpecialMax"/>; crates can add more.</summary>
         public int Specials;
-        public readonly int SpecialMax;
-        /// <summary>Seconds to refill one charge; 0 for none.</summary>
-        public readonly float SpecialRefill;
         /// <summary>Kills that fill the super.</summary>
         public readonly int SuperKills;
         /// <summary>Seconds between uses of the ability; 0 when the soldier has none.</summary>
         public readonly float AbilityCooldown;
 
-        float m_Refill;
+        ChargeRefill m_Refill;
         int m_Kills;
         float m_AbilityWait;
 
         public KitMeters(int startSpecials, int specialMax, float specialRefill, int superKills, float abilityCooldown)
         {
             Specials = startSpecials;
-            SpecialMax = specialMax;
-            SpecialRefill = specialRefill;
+            m_Refill = new ChargeRefill(specialMax, specialRefill);
             SuperKills = Mathf.Max(1, superKills);
             AbilityCooldown = abilityCooldown;
         }
 
+        public int SpecialMax => m_Refill.Max;
+        /// <summary>Seconds to refill one charge; 0 for none.</summary>
+        public float SpecialRefill => m_Refill.Seconds;
+
+        /// <summary>A kit whose special keeps its own numbers (tones2's rocket jump, kcaj's fixation) sets them here.</summary>
+        public void Recharge(int max, float seconds)
+        {
+            m_Refill.Max = max;
+            m_Refill.Seconds = seconds;
+        }
+
         /// <summary>How far the next special charge has refilled, 0 to 1 (0 when full or not refilling).</summary>
-        public float SpecialRefillProgress => SpecialRefill > 0f && Specials < SpecialMax ? m_Refill / SpecialRefill : 0f;
+        public float SpecialRefillProgress => m_Refill.Progress(Specials);
         /// <summary>How charged the super is, 0 to 1.</summary>
         public float SuperCharge => Mathf.Clamp01((float)m_Kills / SuperKills);
         public bool SuperReady => m_Kills >= SuperKills;
@@ -43,16 +86,7 @@ namespace PooketSlug
 
         public void Tick(float dt)
         {
-            if (SpecialRefill > 0f && Specials < SpecialMax)
-            {
-                m_Refill += dt;
-                if (m_Refill >= SpecialRefill)
-                {
-                    m_Refill -= SpecialRefill;
-                    Specials++;
-                }
-            }
-            else m_Refill = 0f;
+            m_Refill.Tick(ref Specials, dt);
             if (m_AbilityWait > 0f) m_AbilityWait -= dt;
         }
 

@@ -87,10 +87,8 @@ namespace PooketSlug
             m_Effects.MakeCloseup();
             m_Captions.MakeCard();
             m_Effects.MakeAlarm();
-            m_Flicker = Ui.Picture(m_Stage, "Flicker", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, new Color(0.4f, 1f, 1f, 0f));
-            Stretch(m_Flicker.rectTransform);
-            m_Fade = Ui.Picture(m_Stage, "Cut", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, Color.black);
-            Stretch(m_Fade.rectTransform);
+            m_Flicker = Ui.Cover(m_Stage, "Flicker", new Color(0.4f, 1f, 1f, 0f));
+            m_Fade = Ui.Cover(m_Stage, "Cut", Color.black);
             m_Captions.MakeSubtitles();
 
             m_Hint = Ui.Label(m_Stage, "Tap", Ui.TopRight, new Vector2(-8f, -8f), 9, TextAnchor.UpperRight, new Color(1f, 1f, 1f, 0.55f));

@@ -99,8 +99,7 @@ namespace PooketSlug
         /// <summary>On the stage: the keycard's close-up, the room dimmed and the card big enough to read.</summary>
         public void MakeCloseup()
         {
-            m_Dim = Ui.Picture(m_Stage, "Dim", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, new Color(0.03f, 0.02f, 0.05f, 0.7f));
-            Stretch(m_Dim.rectTransform);
+            m_Dim = Ui.Cover(m_Stage, "Dim", new Color(0.03f, 0.02f, 0.05f, 0.7f));
             m_BigCard = Ui.Rect(m_Stage, "Keycard close-up", Ui.Middle, Ui.Middle, new Vector2(0f, 26f), new Vector2(124f, 78f) * Px);
             m_BigCard.gameObject.AddComponent<Image>().color = new Color(0.3f, 0.85f, 0.92f);
             m_BigCard.gameObject.AddComponent<Outline>().effectColor = Ink;
@@ -116,8 +115,7 @@ namespace PooketSlug
         /// <summary>On the stage: the alarm's red wash.</summary>
         public void MakeAlarm()
         {
-            m_Alarm = Ui.Picture(m_Stage, "Alarm", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, new Color(1f, 0.1f, 0.05f, 0f));
-            Stretch(m_Alarm.rectTransform);
+            m_Alarm = Ui.Cover(m_Stage, "Alarm", new Color(1f, 0.1f, 0.05f, 0f));
         }
 
         /// <summary>Gives the shutter its slats, once the backdrops are painted.</summary>

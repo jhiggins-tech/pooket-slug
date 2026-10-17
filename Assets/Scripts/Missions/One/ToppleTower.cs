@@ -9,7 +9,6 @@ namespace PooketSlug
     public sealed class ToppleTower : Enemy
     {
         const float FallTime = 0.9f, Reach = 5.5f;
-        const int LandDamage = 12;
         readonly SpriteRenderer m_Sr;
         readonly int m_Column;
         bool m_Landed;
@@ -29,7 +28,7 @@ namespace PooketSlug
             World.Level.Bar(m_Column, false);
             World.Combat.Explode(Pos + new Vector2(0f, 0.6f), 1.2f, 0, false, 1.4f); // its legs go
             Sfx.Play(Sfx.Thump);
-            World.Scoring.Popup("TIMBER!", Pos + Vector2.up * 3f, new Color(1f, 0.85f, 0.3f));
+            World.Scoring.Popup("TIMBER!", Pos + Vector2.up * 3f, Palette.Gold);
         }
 
         protected override void TickDying(float dt)

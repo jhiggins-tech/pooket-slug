@@ -14,7 +14,7 @@ namespace PooketSlug
         /// <summary>In the menu shot: START cracks, then the new buttons drop in, one every <see cref="DropGap"/>.</summary>
         public const float CrackSeconds = 0.5f, DropGap = 0.8f, DropSeconds = 0.25f;
         /// <summary>A tap this soon after a shot starts is ignored, so a mashed button doesn't skip one unseen.</summary>
-        public const float TapGuard = 0.3f;
+        public const float TapGuard = Tuning.Hud.TapGuard;
         /// <summary>The new buttons, in the order they drop.</summary>
         public static readonly string[] NewButtons = { "MISSIONS", "CO-OP", "CREW" };
 

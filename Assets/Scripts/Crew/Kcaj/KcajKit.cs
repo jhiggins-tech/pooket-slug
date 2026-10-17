@@ -19,7 +19,7 @@ namespace PooketSlug
         Vector2[] m_Centres = new Vector2[16], m_Halves = new Vector2[16];
         Enemy m_Target;
         Vector2 m_MissEnd;
-        float m_Recharge, m_Miss;
+        float m_Miss;
 
         public KcajBeam(Player player, HyperfixateSpec spec)
         {
@@ -27,6 +27,7 @@ namespace PooketSlug
             m_Spec = spec;
             m_Fix = new Hyperfixation(spec);
             player.Specials = spec.Charges;
+            player.Kit.Recharge(spec.Charges, spec.RechargeTime);
             Transform root = player.World.Root;
             m_Beam = MakeRenderer(root, "Hyperfixate", SortOrder.Effects + 2);
             for (int i = 0; i < m_Edges.Length; i++)
@@ -36,16 +37,7 @@ namespace PooketSlug
             }
         }
 
-        static SpriteRenderer MakeRenderer(Transform parent, string name, int order)
-        {
-            var go = new GameObject(name);
-            go.transform.SetParent(parent, false);
-            var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = Art.Pixel;
-            sr.sortingOrder = order;
-            sr.enabled = false;
-            return sr;
-        }
+        static SpriteRenderer MakeRenderer(Transform parent, string name, int order) => Art.Renderer(parent, name, Art.Pixel, order, shown: false);
 
         /// <summary>Stuck on something: kcaj only shuffles, and can't jump or fire anything else.</summary>
         public bool Locked => m_Fix.Locked;
@@ -61,16 +53,6 @@ namespace PooketSlug
         public void Tick(float dt, bool pressed, bool held)
         {
             Player p = m_Player;
-            if (p.Specials < m_Spec.Charges)
-            {
-                m_Recharge += dt;
-                if (m_Recharge >= m_Spec.RechargeTime)
-                {
-                    m_Recharge = 0f;
-                    p.Specials++;
-                }
-            }
-            else m_Recharge = 0f;
             m_Miss -= dt;
 
             if (m_Fix.Locked)
@@ -338,7 +320,7 @@ namespace PooketSlug
         public static readonly Color Beam = new Color(1f, 0.35f, 0.75f), Hot = new Color(1f, 0.95f, 0.85f);
         public static readonly Color[] PillColours =
         {
-            new Color(1f, 0.4f, 0.55f), new Color(0.45f, 0.75f, 1f), new Color(1f, 0.85f, 0.3f), new Color(0.55f, 0.95f, 0.55f),
+            new Color(1f, 0.4f, 0.55f), new Color(0.45f, 0.75f, 1f), Palette.Gold, new Color(0.55f, 0.95f, 0.55f),
         };
 
         static Sprite[] s_Pills;

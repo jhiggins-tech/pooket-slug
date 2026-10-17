@@ -13,7 +13,6 @@ namespace PooketSlug
     /// </summary>
     sealed class DenConsole
     {
-        static readonly Color[] PlayerColours = { new Color(1f, 0.35f, 0.37f), new Color(0.31f, 0.66f, 1f) };
 
         readonly RectTransform m_World, m_Stage;
         readonly DenCrew m_Crew;
@@ -53,7 +52,7 @@ namespace PooketSlug
             {
                 m_Lights[i] = Picture("Port light", 66f + i * 8f, Floor + 12f, 2f, 2f, Color.black);
                 m_LoosePads[i] = Picture("Controller", SeatX[i], SeatY, 6f, 3f, Pad);
-                m_Tags[i] = WorldLabel("Tag", SeatX[i], Floor + 3f, 9, TextAnchor.LowerCenter, PlayerColours[i]);
+                m_Tags[i] = WorldLabel("Tag", SeatX[i], Floor + 3f, 9, TextAnchor.LowerCenter, Palette.Players[i]);
                 m_Tags[i].text = "P" + (i + 1);
             }
         }
@@ -129,10 +128,10 @@ namespace PooketSlug
             {
                 bool mine = seat == den.Seat, filled = mine ? den.Pick != null : partnerSeat || m_Crew.VisitorOn(seat);
                 bool ready = mine ? den.Ready : partnerSeat && den.Partner.Ready;
-                m_Lights[seat].color = ready ? new Color(0.3f, 1f, 0.45f) : filled ? new Color(1f, 0.8f, 0.3f) : new Color(0.2f, 0.18f, 0.25f);
+                m_Lights[seat].color = ready ? new Color(0.3f, 1f, 0.45f) : filled ? Palette.Gold : new Color(0.2f, 0.18f, 0.25f);
                 m_LoosePads[seat].enabled = !filled;
                 Ui.Show(m_Tags[seat], filled && (den.Mode == DenMode.Coop || seat == 0));
-                m_Tags[seat].color = PlayerColours[mine ? info.Skin : 1 - info.Skin];
+                m_Tags[seat].color = Palette.Players[mine ? info.Skin : 1 - info.Skin];
             }
             string l1 = den.Ready ? "READY" : den.Pick != null ? "IN" : "--"; // the console font has no dots
             string l2 = partnerSeat ? (den.Partner.Ready ? "READY" : "IN") : "--";

@@ -28,8 +28,7 @@ namespace PooketSlug
         /// <summary>A character's intro: a white flash, then their name on a slanted band (made in drawing order, by <see cref="CutsceneView"/>).</summary>
         public void MakeIntro()
         {
-            m_Flash = Ui.Picture(m_Stage, "Flash", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, new Color(1f, 1f, 1f, 0f));
-            Stretch(m_Flash.rectTransform);
+            m_Flash = Ui.Cover(m_Stage, "Flash", new Color(1f, 1f, 1f, 0f));
             m_IntroBand = Ui.Rect(m_Stage, "Intro", Ui.Middle, Ui.Middle, new Vector2(StageW * Px * 0.2f, 28f), new Vector2(StageW * Px * 0.62f, 74f));
             var introBack = m_IntroBand.gameObject.AddComponent<Image>();
             introBack.color = Band;

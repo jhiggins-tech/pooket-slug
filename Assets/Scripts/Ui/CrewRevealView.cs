@@ -25,9 +25,7 @@ namespace PooketSlug
             m_Parent = parent;
             m_Root = Ui.Canvas(parent, "Two of the crew", 12);
             m_Root.gameObject.AddComponent<GraphicRaycaster>();
-            Image catcher = Ui.Picture(m_Root, "Tap", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, Color.clear);
-            catcher.rectTransform.anchorMin = Vector2.zero;
-            catcher.rectTransform.anchorMax = Vector2.one;
+            Image catcher = Ui.Cover(m_Root, "Tap", Color.clear);
             catcher.raycastTarget = true;
             catcher.gameObject.AddComponent<Button>().onClick.AddListener(() => m_Tapped = true); // a tap anywhere
 

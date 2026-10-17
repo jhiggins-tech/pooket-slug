@@ -31,8 +31,7 @@ namespace PooketSlug
         {
             m_Root = Ui.Canvas(parent, "Debrief", 15);
             m_Root.gameObject.AddComponent<GraphicRaycaster>();
-            Image shade = Ui.Picture(m_Root, "Shade", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, new Color(0.04f, 0.03f, 0.08f, 0.88f));
-            Stretch(shade.rectTransform);
+            Image shade = Ui.Cover(m_Root, "Shade", new Color(0.04f, 0.03f, 0.08f, 0.88f));
             shade.raycastTarget = true;
             shade.gameObject.AddComponent<Button>().onClick.AddListener(() => m_Tapped = true); // a tap anywhere
 

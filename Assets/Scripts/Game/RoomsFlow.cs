@@ -30,8 +30,7 @@ namespace PooketSlug
         bool Cleared(int netId)
         {
             MissionDef m = Missions.ByNetId(netId);
-            Profile profile = m_Game.Profile;
-            return m != null && (profile.Clears(m) > 0 || profile.Clears(m, Setting.Hard) > 0 || m_Game.Flags.UnlockCoop);
+            return m != null && (MissionBoard.Cleared(m_Game.Profile, m) || m_Game.Flags.UnlockCoop);
         }
 
         public void Tick(MenuAction click, MenuInput keys)

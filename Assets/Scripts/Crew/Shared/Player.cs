@@ -327,7 +327,7 @@ namespace PooketSlug
         /// </summary>
         void FireSuper()
         {
-            World.Scoring.Popup("SUPER!", Pos + Vector2.up * 2.2f, new Color(1f, 0.85f, 0.3f));
+            World.Scoring.Popup("SUPER!", Pos + Vector2.up * 2.2f, Palette.Gold);
             World.View.Shake(0.25f);
             if (m_Spew != null)
             {
@@ -371,7 +371,7 @@ namespace PooketSlug
             if (Invulnerable || NoDamage) return;
             Hp -= damage;
             World.HitFeel?.Hurt(this, damage);
-            FlashTimer = 0.08f;
+            FlashTimer = Tuning.Impact.HitFlash;
             World.View.Shake(0.15f);
             if (Hp <= 0)
             {
@@ -461,7 +461,7 @@ namespace PooketSlug
             m_Invuln = Tuning.Lives.RespawnInvulnerability;
             float x = World.View.Left + 2f;
             Pos = new Vector2(x, World.Level.TopSurfaceY(x));
-            World.Scoring.Popup("BACK IN!", Pos + Vector2.up * 2f, new Color(0.6f, 0.9f, 1f));
+            World.Scoring.Popup("BACK IN!", Pos + Vector2.up * 2f, Palette.CoopBlue);
         }
 
         public override void Render()

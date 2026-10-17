@@ -21,6 +21,41 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void TimePastAChargeCountsTowardTheNext()
+        {
+            var kit = new KitMeters(1, 3, 6f, 12, 0f);
+            kit.Tick(7f);
+            Assert.AreEqual(2, kit.Specials);
+            Assert.AreEqual(1f / 6f, kit.SpecialRefillProgress, 1e-4f, "the extra second is kept");
+            kit.Tick(5f);
+            Assert.AreEqual(3, kit.Specials);
+        }
+
+        [Test]
+        public void AKitCanSetItsOwnRefill()
+        {
+            var kit = new KitMeters(3, 0, 0f, 12, 0f);
+            kit.Recharge(3, 4f);
+            Assert.IsTrue(kit.UseSpecial());
+            kit.Tick(4f);
+            Assert.AreEqual(3, kit.Specials);
+            Assert.AreEqual(3, kit.SpecialMax);
+            Assert.AreEqual(4f, kit.SpecialRefill);
+        }
+
+        [Test]
+        public void ARefillOnItsOwnFillsCharges()
+        {
+            var refill = new ChargeRefill(2, 5f);
+            int charges = 0;
+            refill.Tick(ref charges, 5f);
+            refill.Tick(ref charges, 5f);
+            refill.Tick(ref charges, 5f);
+            Assert.AreEqual(2, charges);
+            Assert.AreEqual(0f, refill.Progress(charges));
+        }
+
+        [Test]
         public void NoChargesNoSpecial()
         {
             var kit = new KitMeters(0, 3, 6f, 12, 0f);

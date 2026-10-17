@@ -20,7 +20,7 @@ namespace PooketSlug
 
         /// <summary>A bubble's lines and outline, and its paper.</summary>
         public static readonly Color Ink = new Color(0.1f, 0.07f, 0.1f), Paper = new Color(1f, 0.98f, 0.92f);
-        public static readonly Color Gold = new Color(1f, 0.85f, 0.3f), Cyan = new Color(0.45f, 1f, 1f);
+        public static readonly Color Gold = Palette.Gold, Cyan = Palette.Cyan;
         /// <summary>The bands that captions, names and cards sit on.</summary>
         public static readonly Color Band = new Color(0.06f, 0.04f, 0.08f, 0.9f);
 
@@ -29,14 +29,6 @@ namespace PooketSlug
         /// <summary>A plain white sprite, tinted to colour a block.</summary>
         public static Sprite White => s_White != null ? s_White : s_White = Sprite.Create(Art.WhiteTex, new Rect(0f, 0f, Art.WhiteTex.width, Art.WhiteTex.height), new Vector2(0.5f, 0.5f), 100f);
 
-        /// <summary>Makes <paramref name="rt"/> fill its parent.</summary>
-        public static void Stretch(RectTransform rt)
-        {
-            rt.anchorMin = Vector2.zero;
-            rt.anchorMax = Vector2.one;
-            rt.sizeDelta = Vector2.zero;
-        }
-
         /// <summary>
         /// A stage on <paramref name="root"/>: black letterboxing over the whole screen (returned, so a screen can take
         /// taps on it), the stage, masked to its edges, and the world in it, which a camera can move and zoom; what's
@@ -44,8 +36,7 @@ namespace PooketSlug
         /// </summary>
         public static Image Build(RectTransform root, out RectTransform stage, out RectTransform world)
         {
-            Image black = Ui.Picture(root, "Letterbox", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, Color.black);
-            Stretch(black.rectTransform);
+            Image black = Ui.Cover(root, "Letterbox", Color.black);
             stage = Ui.Rect(root, "Stage", Ui.Middle, Ui.Middle, Vector2.zero, new Vector2(StageW, StageH) * Px);
             stage.gameObject.AddComponent<RectMask2D>();
             world = Ui.Rect(stage, "World", Ui.Middle, Ui.Middle, Vector2.zero, new Vector2(StageW, StageH) * Px);

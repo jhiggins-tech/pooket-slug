@@ -37,15 +37,7 @@ namespace PooketSlug
 
         public static float Snap(float v) => Mathf.Round(v * Art.PPU) / Art.PPU;
 
-        protected SpriteRenderer AddRenderer(Transform parent, string name, Sprite sprite, int order)
-        {
-            var go = new GameObject(name);
-            go.transform.SetParent(parent, false);
-            var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = sprite;
-            sr.sortingOrder = order;
-            return sr;
-        }
+        protected SpriteRenderer AddRenderer(Transform parent, string name, Sprite sprite, int order) => Art.Renderer(parent, name, sprite, order);
     }
 
     /// <summary>Something with a feet-anchored hitbox, health and tile collision.</summary>

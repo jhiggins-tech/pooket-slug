@@ -95,7 +95,7 @@ namespace PooketSlug
         /// <summary>How long each part takes to count up, in seconds.</summary>
         public const float TallySeconds = 2.4f, XpSeconds = 2f, RankSeconds = 1.6f;
         /// <summary>A tap this soon after a part starts is ignored, so a mashed button doesn't skip a part unseen.</summary>
-        public const float TapGuard = 0.25f;
+        public const float TapGuard = Tuning.Hud.TapGuard;
 
         readonly List<Part> m_Parts = new List<Part>();
         int m_At;

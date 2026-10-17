@@ -58,33 +58,22 @@ namespace PooketSlug
                 Station s = st;
                 float y0 = s.Upstairs ? Loft : Floor;
                 RectTransform rt = Ui.Rect(m_World, "Tap " + s.Crewmate, Vector2.zero, Vector2.zero, new Vector2(s.X0, y0) * Px, new Vector2(s.X1 - s.X0, 46f) * Px);
-                var img = rt.gameObject.AddComponent<Image>();
-                img.color = new Color(1f, 1f, 1f, 0f);
-                var b = rt.gameObject.AddComponent<Button>();
-                b.transition = Selectable.Transition.None;
-                b.navigation = new Navigation { mode = Navigation.Mode.None };
-                b.onClick.AddListener(() => m_Picked = s.Soldier);
-                m_StationTaps.Add(b);
+                m_StationTaps.Add(Ui.Tap(rt, () => m_Picked = s.Soldier));
             }
 
             // the mission board, over the stations: a tap opens the mission screen
             RectTransform board = Ui.Rect(m_World, "Tap mission board", Vector2.zero, Vector2.zero, new Vector2(234f, 54f) * Px, new Vector2(32f, 30f) * Px);
-            board.gameObject.AddComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
-            var boardTap = board.gameObject.AddComponent<Button>();
-            boardTap.transition = Selectable.Transition.None;
-            boardTap.navigation = new Navigation { mode = Navigation.Mode.None };
-            boardTap.onClick.AddListener(() => m_BoardPressed = true);
+            Ui.Tap(board, () => m_BoardPressed = true);
 
             // the TV, in a co-op room: a tap shares the invite link. It's armed as the finger goes down (Invite)
             m_InviteTap = Ui.Rect(m_World, "Tap TV", Vector2.zero, Vector2.zero, new Vector2(86f, 54f) * Px, new Vector2(62f, 34f) * Px);
-            m_InviteTap.gameObject.AddComponent<Image>().color = new Color(1f, 1f, 1f, 0f);
+            Ui.Catcher(m_InviteTap);
             var down = new UnityEngine.EventSystems.EventTrigger.Entry { eventID = UnityEngine.EventSystems.EventTriggerType.PointerDown };
             down.callback.AddListener(_ => m_InviteDown = true);
             m_InviteTap.gameObject.AddComponent<UnityEngine.EventSystems.EventTrigger>().triggers.Add(down);
 
             m_Crew.MakeVisitor();
-            m_Fade = Ui.Picture(m_Stage, "Fade", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, new Color(0f, 0f, 0f, 0f));
-            Stretch(m_Fade.rectTransform);
+            m_Fade = Ui.Cover(m_Stage, "Fade", new Color(0f, 0f, 0f, 0f));
 
             m_Console.MakeButtons(() => m_BackPressed = true, () => m_ListPressed = true, () => m_ReadyPressed = true, () => m_KitPressed = true, () => m_HostPressed = true);
 

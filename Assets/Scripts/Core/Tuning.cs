@@ -74,6 +74,8 @@ namespace PooketSlug
             public static float KnockSpeed = 4f, KnockTime = 0.15f, KnockHop = 3f;
             /// <summary>Solo only: the game pauses this long when a goon dies, longer for a big one.</summary>
             public static float KillStop = 0.035f, BigKillStop = 0.09f;
+            /// <summary>Anyone hit flashes white this long: soldiers, tabks and goons.</summary>
+            public static float HitFlash = 0.08f;
             /// <summary>Enemies with at least this much health count as big.</summary>
             public static int BigHp = 10;
         }
@@ -120,6 +122,11 @@ namespace PooketSlug
             /// <summary>The HUD's layout is a 16:9 screen; wider or narrower screens stretch or squeeze the gaps.</summary>
             public const float Width = Height * 16f / 9f;
             public const float PopupRise = 0.8f, PopupLife = 1.4f;
+            /// <summary>
+            /// A tap this soon after a cutscene's shot, a reveal's shot or a debrief's part starts is ignored, so a mashed
+            /// button doesn't skip one unseen.
+            /// </summary>
+            public const float TapGuard = 0.3f;
         }
     }
 }

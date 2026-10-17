@@ -54,12 +54,7 @@ namespace PooketSlug
             m_Barrel = AddRenderer(m_BarrelPivot, "Barrel", Art.TankBarrel, SortOrder.Boss - 1);
             m_MeterBack = Bar("Meter", SortOrder.Effects, MeterBack);
             m_MeterFill = Bar("Power", SortOrder.Effects + 1, MeterFill);
-            var marker = new GameObject("Landing marker");
-            marker.transform.SetParent(Go.transform, false); // goes with the tank; placed in the world each frame
-            m_Marker = marker.AddComponent<SpriteRenderer>();
-            m_Marker.sprite = Art.LandingMarker;
-            m_Marker.sortingOrder = SortOrder.Effects;
-            m_Marker.enabled = false;
+            m_Marker = Art.Renderer(Go.transform, "Landing marker", Art.LandingMarker, SortOrder.Effects, shown: false); // goes with the tank; placed in the world each frame
             if (decoy) Engaged = true;
             else m_Kie = world.KcajTank ? new KcajBoss(world, this) : new KieBoss(world, this); // on every screen in co-op: the roulette and the disguise are drawn on each
             if (!decoy && !world.QuickBossIntro && ShutterX(world, feet.x, out float shutter))

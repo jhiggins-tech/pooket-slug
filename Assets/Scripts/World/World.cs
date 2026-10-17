@@ -55,6 +55,8 @@ namespace PooketSlug
         /// <summary>The mission being played; its map is <see cref="Level"/>.</summary>
         public readonly MissionDef Mission;
         public float Elapsed;
+        /// <summary>When kie's Pop Goes the Weasel last played, so it isn't played on every pop (<see cref="PopWeasel"/>).</summary>
+        public float WeaselTuneAt = -99f;
         /// <summary>For the debrief's tally: our soldier's kills, and shots fired and landed (bullets, shells and drops).</summary>
         public int Kills, ShotsFired, ShotsHit;
         /// <summary>Points for our own soldier's kills; in co-op, the shared score is everyone's (spike drop-in).</summary>
@@ -231,7 +233,7 @@ namespace PooketSlug
         {
             if (TanksToCall <= 0) return;
             TanksToCall--;
-            Scoring.Popup("TABK INBOUND!", at + Vector2.up * 2.4f, new Color(1f, 0.85f, 0.3f));
+            Scoring.Popup("TABK INBOUND!", at + Vector2.up * 2.4f, Palette.Gold);
             View.Shake(0.2f);
             // it drops in just ahead of the soldier, on screen; the tank left over, if any, is gone
             int facing = Player.Facing;
@@ -389,7 +391,7 @@ namespace PooketSlug
         public void OnTankWrecked(TankBoss tank)
         {
             Log.Game.Info("Boss tank wrecked: the pilot jumps out");
-            Scoring.Popup("TABK WRECKED!", tank.Center + Vector2.up * 1.6f, new Color(1f, 0.85f, 0.3f));
+            Scoring.Popup("TABK WRECKED!", tank.Center + Vector2.up * 1.6f, Palette.Gold);
             TankWrecked?.Invoke();
             if (!IsAuthority) return;
             if (Spawner.SpawnEnemy(Content.Pilot, tank.Pos + Vector2.up * 0.6f) is Pilot pilot)

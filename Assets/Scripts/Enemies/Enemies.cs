@@ -54,7 +54,7 @@ namespace PooketSlug
         public void FlashHit()
         {
             Look?.OnHit();
-            FlashTimer = 0.07f;
+            FlashTimer = Tuning.Impact.HitFlash;
             Sfx.Play(Sfx.Hit, 0.5f);
         }
 

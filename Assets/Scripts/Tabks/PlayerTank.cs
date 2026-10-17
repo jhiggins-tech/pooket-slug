@@ -61,27 +61,15 @@ namespace PooketSlug
             if (mode != State.Dropping) return;
             Vel = new Vector2(0f, -Spec.DropSpeed);
             m_LandY = world.Level.TopSurfaceY(feet.x);
-            var marker = new GameObject("Landing marker");
-            marker.transform.SetParent(Go.transform, false);
-            m_Marker = marker.AddComponent<SpriteRenderer>();
-            m_Marker.sprite = Art.LandingMarker;
-            m_Marker.color = new Color(1f, 0.85f, 0.3f);
-            m_Marker.sortingOrder = SortOrder.Effects;
+            m_Marker = Child("Landing marker", Art.LandingMarker, SortOrder.Effects);
+            m_Marker.color = Palette.Gold;
             m_Drone = Child("Cargo drone", kit.Drone[0], SortOrder.Player + 4);
             m_Drone.transform.localScale = new Vector3(2f, 2f, 1f);
             m_Cable = Child("Cable", Art.Pixel, SortOrder.Player + 3);
             m_Cable.color = new Color(0.15f, 0.15f, 0.2f);
         }
 
-        SpriteRenderer Child(string name, Sprite sprite, int order)
-        {
-            var go = new GameObject(name);
-            go.transform.SetParent(Go.transform, false);
-            var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = sprite;
-            sr.sortingOrder = order;
-            return sr;
-        }
+        SpriteRenderer Child(string name, Sprite sprite, int order) => Art.Renderer(Go.transform, name, sprite, order);
 
         /// <summary>An empty <paramref name="kit"/> tabk, parked on the ground at <paramref name="x"/>, facing right.</summary>
         public static PlayerTank Park(World world, TabkKit kit, float x) => new PlayerTank(world, kit, new Vector2(x, world.Level.TopSurfaceY(x)), 1, State.Parked);
@@ -115,7 +103,7 @@ namespace PooketSlug
             Mode = State.Driven;
             Sfx.Play(Sfx.Thump, 0.8f);
             Sfx.Play(Sfx.RocketRumble, 0.4f);
-            World.Scoring.Popup(m_Kit.Name, Pos + Vector2.up * 2.4f, new Color(1f, 0.85f, 0.3f));
+            World.Scoring.Popup(m_Kit.Name, Pos + Vector2.up * 2.4f, Palette.Gold);
         }
 
         public override void Tick(float dt)
@@ -162,7 +150,7 @@ namespace PooketSlug
             if (m_Hint <= 0f && !p.Dead && Mathf.Abs(p.Pos.x - Pos.x) < 4f)
             {
                 m_Hint = 2.5f;
-                World.Scoring.Popup("JUMP IN!", Pos + Vector2.up * 2.2f, new Color(0.6f, 0.9f, 1f));
+                World.Scoring.Popup("JUMP IN!", Pos + Vector2.up * 2.2f, Palette.CoopBlue);
             }
         }
 
@@ -223,7 +211,7 @@ namespace PooketSlug
             {
                 if (!e.Shootable || e.KillCredited || !Spec.Crushes(e.Def) || !under.Overlaps(e.Bounds)) continue;
                 World.Combat.DamageEnemy(e, Mathf.Max(1, e.Hp));
-                World.Scoring.Popup("SQUASH!", e.Center + Vector2.up * 0.8f, new Color(1f, 0.85f, 0.3f));
+                World.Scoring.Popup("SQUASH!", e.Center + Vector2.up * 0.8f, Palette.Gold);
                 World.Burst(e.Pos + Vector2.up * 0.2f, 8, new Color(0.45f, 0.4f, 0.35f));
                 World.View.Shake(0.12f);
                 Sfx.Play(Sfx.Splat, 0.9f);
@@ -257,7 +245,7 @@ namespace PooketSlug
             if (Mode != State.Driven || Invulnerable || damage <= 0) return;
             Hp -= damage;
             m_Grace = Spec.HurtGrace;
-            FlashTimer = 0.08f;
+            FlashTimer = Tuning.Impact.HitFlash;
             World.View.Shake(0.15f);
             Sfx.Play(Sfx.Hit, 0.8f);
             World.HitFeel?.Hurt(World.Player, damage);
@@ -281,7 +269,7 @@ namespace PooketSlug
             }
             Mode = State.Runaway;
             m_Runaway = 0f;
-            World.Scoring.Popup("EJECT!", Pos + Vector2.up * 2.4f, new Color(1f, 0.85f, 0.3f));
+            World.Scoring.Popup("EJECT!", Pos + Vector2.up * 2.4f, Palette.Gold);
         }
 
         /// <summary>It blows up, hurting goons (never the soldiers), and it's gone.</summary>

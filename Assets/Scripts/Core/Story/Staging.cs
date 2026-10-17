@@ -76,7 +76,7 @@ namespace PooketSlug
         }
 
         static readonly Color White = Color.white;
-        public static readonly Color Warm = new Color(1f, 0.78f, 0.38f), Cyan = new Color(0.45f, 1f, 1f);
+        public static readonly Color Warm = new Color(1f, 0.78f, 0.38f), Cyan = Palette.Cyan;
 
         /// <summary>Every thing a scene can put on the stage. The cutscene view draws each of them.</summary>
         public static readonly Dictionary<string, Thing> Things = Index(
@@ -93,7 +93,7 @@ namespace PooketSlug
             new Thing("window", Kind.Prop, 262f, 38f, Warm),
             new Thing("door", Kind.Prop, 222f, 0f, new Color(0.42f, 0.27f, 0.2f)),
             new Thing("doorway", Kind.Prop, 232f, 0f, Warm),
-            new Thing("spark", Kind.Prop, 128f, 30f, new Color(1f, 0.85f, 0.3f)),
+            new Thing("spark", Kind.Prop, 128f, 30f, Palette.Gold),
             new Thing("beacon", Kind.Prop, 94f, 108f, new Color(0.35f, 0.08f, 0.06f)),
             new Thing("clamp", Kind.Prop, 186f, 12f, Cyan, "rip"),
             new Thing("drone", Kind.Prop, 186f, 44f, new Color(0.32f, 0.35f, 0.4f)),
@@ -113,7 +113,7 @@ namespace PooketSlug
             new Thing("junk", Kind.Effect, 0f, 0f, Cyan),
             new Thing("steam", Kind.Effect, 136f, 0f, new Color(0.85f, 0.88f, 0.95f)),
             new Thing("cage", Kind.Effect, 100f, 0f, Cyan, "flicker-out"),
-            new Thing("stars", Kind.Effect, 0f, 0f, new Color(1f, 0.85f, 0.3f)),
+            new Thing("stars", Kind.Effect, 0f, 0f, Palette.Gold),
             new Thing("zz", Kind.Effect, 0f, 0f, new Color(1f, 0.98f, 0.92f)),
             new Thing("alarm", Kind.Effect, 0f, 0f, new Color(1f, 0.1f, 0.05f)));
 
@@ -135,7 +135,7 @@ namespace PooketSlug
         public static readonly Dictionary<string, Color> Colours = new Dictionary<string, Color>
         {
             { "white", White }, { "black", Color.black }, { "warm", Warm }, { "cyan", Cyan },
-            { "gold", new Color(1f, 0.85f, 0.3f) }, { "paper", new Color(1f, 0.98f, 0.92f) }, { "ink", new Color(0.1f, 0.07f, 0.1f) },
+            { "gold", Palette.Gold }, { "paper", new Color(1f, 0.98f, 0.92f) }, { "ink", new Color(0.1f, 0.07f, 0.1f) },
             { "water", new Color(0.45f, 0.75f, 1f) }, { "smoke", new Color(0.3f, 0.3f, 0.32f) }, { "wreck", new Color(0.4f, 0.37f, 0.36f) },
             { "red", new Color(1f, 0.25f, 0.15f) },
         };

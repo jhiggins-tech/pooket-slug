@@ -85,8 +85,6 @@ namespace PooketSlug
     {
         /// <summary>A partner's weasel, copied on our screen: it pops harmlessly (theirs does the damage).</summary>
         public readonly bool Cosmetic;
-        static float s_TuneAt = -99f;
-        static World s_TuneWorld;
 
         readonly SpriteRenderer m_Sr;
         float m_Time, m_Fuse;
@@ -174,10 +172,9 @@ namespace PooketSlug
             WeaselPopSpec spec = KieTuning.Weasels;
             World.Combat.Explode(Center, spec.BlastRadius, Cosmetic ? 0 : spec.Damage, false, spec.BlastSize);
             World.Burst(Center, 6, new Color(0.69f, 0.44f, 0.22f)); // a puff of fur
-            if (s_TuneWorld != World || World.Elapsed - s_TuneAt >= spec.TuneGap)
+            if (World.Elapsed - World.WeaselTuneAt >= spec.TuneGap)
             {
-                s_TuneWorld = World;
-                s_TuneAt = World.Elapsed;
+                World.WeaselTuneAt = World.Elapsed;
                 Sfx.Play(Sfx.WeaselTune, 0.8f);
                 World.Scoring.Popup("POP!", Center + Vector2.up * 1.2f, new Color(1f, 0.75f, 0.4f));
             }
@@ -433,7 +430,6 @@ namespace PooketSlug
     /// </summary>
     public sealed class StealRoulette : Entity
     {
-        static readonly Color Pink = new Color(1f, 0.45f, 0.8f), Gold = new Color(1f, 0.85f, 0.3f);
         static readonly StealPrize[] Faces = { StealPrize.Rifle, StealPrize.Knives, StealPrize.Bombs, StealPrize.Cannon };
 
         readonly Player m_Player;
@@ -476,7 +472,7 @@ namespace PooketSlug
                 return false;
             }
             w.Props.Add(new StealRoulette(w, p, marks[pick]));
-            w.Scoring.Popup("STEAL!", p.Pos + Vector2.up * 2.2f, Pink);
+            w.Scoring.Popup("STEAL!", p.Pos + Vector2.up * 2.2f, Palette.Pink);
             Sfx.Play(Sfx.Servo, 0.6f);
             return true;
         }
@@ -510,7 +506,7 @@ namespace PooketSlug
             WeaponDef loot = Content.StolenWeapon(m_Prize);
             if (loot == null || p.Dead) return;
             p.GiveGun(loot);
-            World.Scoring.Popup(loot.Hud + " STOLEN!", p.Pos + Vector2.up * 2.4f, Gold);
+            World.Scoring.Popup(loot.Hud + " STOLEN!", p.Pos + Vector2.up * 2.4f, Palette.Gold);
             Sfx.Play(Sfx.Pickup, 0.8f);
             Sfx.Play(Sfx.Glitch, 0.4f);
             // the loot streams off the mark into kie
@@ -520,7 +516,7 @@ namespace PooketSlug
                 Vector2 from = Pos + new Vector2(Rng.Fx.Range(-0.3f, 0.3f), Rng.Fx.Range(-0.3f, 0.3f));
                 float t = Rng.Fx.Range(0.3f, 0.5f);
                 var vel = (to - from) / t + Vector2.up * Rng.Fx.Range(-1f, 3f);
-                World.SpawnParticle(from, vel, i % 2 == 0 ? Pink : Gold, Rng.Fx.Range(1.5f, 2.5f), t);
+                World.SpawnParticle(from, vel, i % 2 == 0 ? Palette.Pink : Palette.Gold, Rng.Fx.Range(1.5f, 2.5f), t);
             }
         }
 
@@ -531,7 +527,7 @@ namespace PooketSlug
             // flicks through the prizes, slowing, and settles on the real one for the last part
             StealPrize face = t > 0.75f ? m_Prize : Faces[(int)(Mathf.Sqrt(t) * 12f) % Faces.Length];
             m_Icon.sprite = Icon(face);
-            m_Frame.color = t > 0.75f && (int)(m_Time * 16f) % 2 == 0 ? Color.white : Pink;
+            m_Frame.color = t > 0.75f && (int)(m_Time * 16f) % 2 == 0 ? Color.white : Palette.Pink;
         }
     }
 }

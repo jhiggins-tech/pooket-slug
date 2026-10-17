@@ -30,7 +30,7 @@ namespace PooketSlug
             m_Ram = pushing ? m_Ram + dt : 0f;
             if (m_Ram >= RamTime)
             {
-                World.Scoring.Popup("RAMMED!", Center + Vector2.up * 1.6f, new Color(1f, 0.85f, 0.3f));
+                World.Scoring.Popup("RAMMED!", Center + Vector2.up * 1.6f, Palette.Gold);
                 World.Combat.DamageEnemy(this, Hp);
             }
         }

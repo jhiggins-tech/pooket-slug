@@ -34,7 +34,8 @@ namespace PooketSlug
         readonly KieRoulette m_Roulette;
         PilotDecoy m_Decoy;
         Vector2 m_Aim = Vector2.right;
-        float m_Coyote, m_JumpBuffer, m_DropThrough, m_FireCooldown, m_SinceSwap = 9f, m_Refill, m_Shield, m_Muzzle, m_Tell;
+        float m_Coyote, m_JumpBuffer, m_DropThrough, m_FireCooldown, m_SinceSwap = 9f, m_Shield, m_Muzzle, m_Tell;
+        ChargeRefill m_Refill = new ChargeRefill(Spec.Specials, Spec.SpecialRefill);
         int m_Specials, m_Super, m_Shots, m_SeenShots = -1, m_HeartsSeen = -1, m_NetPose;
         bool m_Crouching, m_Telling, m_Leaping;
 
@@ -57,7 +58,7 @@ namespace PooketSlug
             m_Shield = Spec.JumpOutShield;
             Grounded = false;
             m_Leaping = true;
-            World.Scoring.Popup("THE PILOT!", Center + Vector2.up * 1.4f, new Color(0.45f, 1f, 1f));
+            World.Scoring.Popup("THE PILOT!", Center + Vector2.up * 1.4f, Palette.Cyan);
             Sfx.Play(Sfx.Glitch, 0.8f);
             Sfx.Play(Sfx.Jump, 0.8f);
         }
@@ -78,11 +79,7 @@ namespace PooketSlug
             m_FireCooldown -= dt;
             m_SinceSwap += dt;
             m_Muzzle -= dt;
-            if (m_Specials < Spec.Specials && (m_Refill += dt) >= Spec.SpecialRefill)
-            {
-                m_Refill = 0f;
-                m_Specials++;
-            }
+            m_Refill.Tick(ref m_Specials, dt);
             ChargeSuper();
             m_Roulette.Fury = 1f + PilotSpec.Rage(Health);
 
@@ -273,7 +270,7 @@ namespace PooketSlug
             PilotFreeingSpec spec = KieTuning.Freeing;
             Look?.Big(spec.Freeze, spec.Stretch, spec.TearPx);
             World.BossMusicOff = true;
-            World.Scoring.Popup("WAIT, I WAS WINN-", Center + Vector2.up * 1.2f, new Color(0.45f, 1f, 1f));
+            World.Scoring.Popup("WAIT, I WAS WINN-", Center + Vector2.up * 1.2f, Palette.Cyan);
             World.View.Shake(0.15f);
         }
 

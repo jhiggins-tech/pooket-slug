@@ -19,15 +19,7 @@ namespace PooketSlug
             m_Flash.enabled = false;
         }
 
-        SpriteRenderer Add(string name, Sprite sprite, int order)
-        {
-            var go = new GameObject(name);
-            go.transform.SetParent(m_Visual, false);
-            var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = sprite;
-            sr.sortingOrder = order;
-            return sr;
-        }
+        SpriteRenderer Add(string name, Sprite sprite, int order) => Art.Renderer(m_Visual, name, sprite, order);
 
         /// <summary>Gun tip position relative to the feet, for a right-facing soldier (px / 16).</summary>
         public static Vector2 MuzzleLocal(int aimY, bool crouching, bool diagonal = false)

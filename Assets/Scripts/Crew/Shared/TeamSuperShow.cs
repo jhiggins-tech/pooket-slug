@@ -138,15 +138,7 @@ namespace PooketSlug
             for (int i = 0; i < Spec.Weasels; i++) m_Weasels.Add(Renderer("Weasel", KieArt.Weasel[0], SortOrder.Effects));
         }
 
-        SpriteRenderer Renderer(string name, Sprite sprite, int order)
-        {
-            var go = new GameObject(name);
-            go.transform.SetParent(m_Root, false);
-            SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = sprite;
-            sr.sortingOrder = order;
-            return sr;
-        }
+        SpriteRenderer Renderer(string name, Sprite sprite, int order) => Art.Renderer(m_Root, name, sprite, order);
 
         /// <summary>The wave's top at column <paramref name="i"/>, in world units.</summary>
         float Crest(int i, float level)

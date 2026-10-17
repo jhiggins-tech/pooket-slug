@@ -72,6 +72,41 @@ namespace PooketSlug
             return rt;
         }
 
+        /// <summary>Makes <paramref name="rt"/> fill its parent.</summary>
+        public static void Stretch(RectTransform rt)
+        {
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.sizeDelta = Vector2.zero;
+        }
+
+        /// <summary>A block of <paramref name="color"/> over the whole of <paramref name="parent"/>: a dim, a fade or a flash.</summary>
+        public static Image Cover(RectTransform parent, string name, Color color)
+        {
+            Image image = Picture(parent, name, null, Middle, Middle, Vector2.zero, Vector2.zero, color);
+            Stretch(image.rectTransform);
+            return image;
+        }
+
+        /// <summary>Makes <paramref name="rt"/> take touches without being seen: a clear image for them to land on.</summary>
+        public static Image Catcher(RectTransform rt)
+        {
+            var image = rt.gameObject.AddComponent<Image>();
+            image.color = Color.clear;
+            return image;
+        }
+
+        /// <summary>A tap on <paramref name="rt"/> calls <paramref name="onTap"/>: an unseen button, with no look or keyboard stop of its own.</summary>
+        public static Button Tap(RectTransform rt, System.Action onTap)
+        {
+            Catcher(rt);
+            var b = rt.gameObject.AddComponent<Button>();
+            b.transition = Selectable.Transition.None;
+            b.navigation = new Navigation { mode = Navigation.Mode.None };
+            b.onClick.AddListener(() => onTap());
+            return b;
+        }
+
         /// <summary>A rect that fills its parent.</summary>
         public static RectTransform Fill(RectTransform parent, string name)
         {

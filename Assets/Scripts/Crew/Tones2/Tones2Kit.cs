@@ -28,13 +28,9 @@ namespace PooketSlug
 
         SpriteRenderer Gauge(string name, int order, Color color)
         {
-            var go = new GameObject(name);
-            go.transform.SetParent(m_Player.Go.transform, false); // not the visual: the gauge doesn't flip with facing
-            var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = Art.Pixel;
-            sr.sortingOrder = order;
+            // on the soldier, not the visual: the gauge doesn't flip with facing
+            SpriteRenderer sr = Art.Renderer(m_Player.Go.transform, name, Art.Pixel, order, shown: false);
             sr.color = color;
-            sr.enabled = false;
             return sr;
         }
 
@@ -94,13 +90,14 @@ namespace PooketSlug
     {
         readonly Player m_Player;
         readonly RocketSpec m_Spec;
-        float m_Shake = -1f, m_Recharge, m_Puff;
+        float m_Shake = -1f, m_Puff;
 
         public RocketJump(Player player, RocketSpec spec)
         {
             m_Player = player;
             m_Spec = spec;
             player.Specials = spec.Charges;
+            player.Kit.Recharge(spec.Charges, spec.RechargeTime);
         }
 
         /// <summary>Shaking before the launch: he can't move, jump or fire.</summary>
@@ -117,16 +114,6 @@ namespace PooketSlug
         {
             Player p = m_Player;
             World w = p.World;
-            if (p.Specials < m_Spec.Charges)
-            {
-                m_Recharge += dt;
-                if (m_Recharge >= m_Spec.RechargeTime)
-                {
-                    m_Recharge = 0f;
-                    p.Specials++;
-                }
-            }
-            else m_Recharge = 0f;
             if (Rising && p.Vel.y <= 0f) Rising = false;
 
             if (Rooted)

@@ -110,6 +110,21 @@ namespace PooketSlug
         static readonly Dictionary<Sprite, Sprite> s_Holo = new Dictionary<Sprite, Sprite>();
         static bool s_Ready;
 
+        /// <summary>
+        /// A sprite drawn at <paramref name="order"/> on a new child of <paramref name="parent"/>: how the world's
+        /// pieces are made. <paramref name="shown"/> false starts it hidden, for something drawn only now and then.
+        /// </summary>
+        public static SpriteRenderer Renderer(Transform parent, string name, Sprite sprite, int order, bool shown = true)
+        {
+            var go = new GameObject(name);
+            go.transform.SetParent(parent, false);
+            var sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = sprite;
+            sr.sortingOrder = order;
+            sr.enabled = shown;
+            return sr;
+        }
+
         public static Color32 Hex(uint rgb, byte a = 255) =>
             new Color32((byte)(rgb >> 16), (byte)(rgb >> 8), (byte)rgb, a);
 

@@ -127,7 +127,7 @@ namespace PooketSlug
     public sealed class CutscenePlayer
     {
         /// <summary>A tap this soon into a shot is ignored, so mashing doesn't throw away two shots at once.</summary>
-        public const float TapGuard = 0.3f;
+        public const float TapGuard = Tuning.Hud.TapGuard;
         /// <summary>How long a character's intro holds, in real seconds, and how slow the shot runs meanwhile.</summary>
         public const float IntroSeconds = 1.8f, SlowMo = 0.15f;
         /// <summary>How long an intro builds up before it lands, in shot seconds (the shot runs at full speed till then).</summary>

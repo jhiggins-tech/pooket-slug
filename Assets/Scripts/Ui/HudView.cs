@@ -35,10 +35,8 @@ namespace PooketSlug
     /// </summary>
     public sealed class HudView
     {
-        static readonly Color Gold = new Color(1f, 0.85f, 0.3f), Arms = new Color(1f, 0.9f, 0.5f), Faint = new Color(1f, 1f, 1f, 0.75f);
+        static readonly Color Arms = new Color(1f, 0.9f, 0.5f), Faint = new Color(1f, 1f, 1f, 0.75f);
         static readonly Color EmptyHeart = new Color(0.2f, 0.15f, 0.2f, 0.7f), Hurt = new Color(1f, 0.5f, 0.4f);
-        static readonly Color CoopBlue = new Color(0.6f, 0.9f, 1f);
-        static readonly Color[] SkinColors = { new Color(1f, 0.5f, 0.4f), new Color(0.45f, 0.72f, 1f) };
         static readonly Color PadFill = new Color(0.08f, 0.06f, 0.1f, 0.35f), PadHeld = new Color(1f, 0.62f, 0.2f, 0.6f);
         static readonly Color PadReady = new Color(1f, 0.85f, 0.3f, 0.45f);
 
@@ -115,11 +113,11 @@ namespace PooketSlug
             m_BossFill = Ui.Picture(m_BossBack.rectTransform, "Health", null, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(1f, 0f), new Vector2(180f, 6f), new Color(0.9f, 0.25f, 0.2f));
             m_SuperLabel = Ui.Label(m_Top, "Super", Ui.TopLeft, new Vector2(8f, -55f), 8, TextAnchor.UpperLeft, Arms);
             m_SuperLabel.text = "SU";
-            m_SuperBack = Meter(m_Top, "Super meter", new Vector2(24f, -57f), out m_SuperFill, Gold);
+            m_SuperBack = Meter(m_Top, "Super meter", new Vector2(24f, -57f), out m_SuperFill, Palette.Gold);
             m_RefillFill = Ui.Picture(m_SuperBack.rectTransform, "SP refill", null, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(1f, -3f), new Vector2(0f, 2f), new Color(0.55f, 0.85f, 1f, 0.9f));
             m_AbilityLabel = Ui.Label(m_Top, "Ability", Ui.TopLeft, new Vector2(8f, -67f), 8, TextAnchor.UpperLeft, Arms);
             m_AbilityLabel.text = "AB";
-            m_AbilityBack = Meter(m_Top, "Ability meter", new Vector2(24f, -69f), out m_AbilityFill, CoopBlue);
+            m_AbilityBack = Meter(m_Top, "Ability meter", new Vector2(24f, -69f), out m_AbilityFill, Palette.CoopBlue);
             m_TankLabel = Ui.Label(m_Top, "Tank", Ui.TopLeft, new Vector2(8f, -79f), 8, TextAnchor.UpperLeft, Arms);
             m_TankLabel.text = "TK";
             m_TankBack = Meter(m_Top, "Tank health", new Vector2(24f, -81f), out m_TankFill, new Color(0.55f, 0.9f, 0.45f));
@@ -127,8 +125,8 @@ namespace PooketSlug
             m_FuelLabel.text = "FU";
             m_FuelBack = Meter(m_Top, "Tank fuel", new Vector2(24f, -93f), out m_FuelFill, new Color(1f, 0.6f, 0.2f));
             m_CallBack = Ui.Picture(m_Root, "Call-in", null, Ui.BottomLeft, Ui.Middle, Vector2.zero, new Vector2(34f, 6f), new Color(0.1f, 0.05f, 0.08f, 0.85f));
-            m_CallFill = Ui.Picture(m_CallBack.rectTransform, "Charge", null, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(1f, 0f), new Vector2(0f, 4f), new Color(1f, 0.85f, 0.3f));
-            m_Banner = Ui.Label(m_Root, "Banner", Ui.Middle, new Vector2(0f, 60f), 26, TextAnchor.MiddleCenter, Gold);
+            m_CallFill = Ui.Picture(m_CallBack.rectTransform, "Charge", null, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(1f, 0f), new Vector2(0f, 4f), Palette.Gold);
+            m_Banner = Ui.Label(m_Root, "Banner", Ui.Middle, new Vector2(0f, 60f), 26, TextAnchor.MiddleCenter, Palette.Gold);
             m_Edges = Ui.Picture(m_Root, "Warning edges", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, Color.clear);
             m_Edges.rectTransform.anchorMin = Vector2.zero;
             m_Edges.rectTransform.anchorMax = Vector2.one;
@@ -138,8 +136,8 @@ namespace PooketSlug
             m_Warning = Ui.Label(m_Root, "Warning", Ui.Middle, new Vector2(0f, 40f), 44, TextAnchor.MiddleCenter, Warn);
             m_Warning.text = "WARNING!";
             m_IntroName = Ui.Label(m_Root, "Boss name", Ui.Middle, new Vector2(0f, 2f), 18, TextAnchor.MiddleCenter, Color.white);
-            m_Note = Ui.Label(m_Root, "Note", Ui.Middle, new Vector2(0f, 32f), 12, TextAnchor.MiddleCenter, CoopBlue);
-            m_Coach = Ui.Label(m_Root, "Call-in hint", Ui.Middle, new Vector2(0f, 46f), 14, TextAnchor.MiddleCenter, Gold);
+            m_Note = Ui.Label(m_Root, "Note", Ui.Middle, new Vector2(0f, 32f), 12, TextAnchor.MiddleCenter, Palette.CoopBlue);
+            m_Coach = Ui.Label(m_Root, "Call-in hint", Ui.Middle, new Vector2(0f, 46f), 14, TextAnchor.MiddleCenter, Palette.Gold);
             m_Coach.text = CallInPrompt;
             m_TeamCard = Ui.Fill(m_Root, "Team card");
             m_TeamBand = Ui.Picture(m_TeamCard, "Band", null, Ui.Middle, Ui.Middle, Vector2.zero, new Vector2(2000f, 110f), new Color(0.06f, 0.04f, 0.08f, 0.85f));
@@ -150,13 +148,13 @@ namespace PooketSlug
             m_TeamLeftPic.preserveAspect = m_TeamRightPic.preserveAspect = true;
             m_TeamLeftName = Ui.Label(m_TeamLeft.rectTransform, "Name", new Vector2(0f, 0f), new Vector2(12f, 10f), 12, TextAnchor.LowerLeft, Color.white);
             m_TeamRightName = Ui.Label(m_TeamRight.rectTransform, "Name", new Vector2(1f, 0f), new Vector2(-12f, 10f), 12, TextAnchor.LowerRight, Color.white);
-            m_TeamTitle = Ui.Label(m_TeamCard, "Title", Ui.Middle, new Vector2(0f, 76f), 30, TextAnchor.MiddleCenter, Gold);
+            m_TeamTitle = Ui.Label(m_TeamCard, "Title", Ui.Middle, new Vector2(0f, 76f), 30, TextAnchor.MiddleCenter, Palette.Gold);
             m_TeamTitle.text = "TEAM SUPER!";
             m_TeamName = Ui.Label(m_TeamCard, "Combo", Ui.Middle, new Vector2(0f, -72f), 22, TextAnchor.MiddleCenter, Color.white);
             m_TeamCard.gameObject.SetActive(false);
 
             m_Coop = Ui.Fill(m_Top, "Co-op");
-            m_Waiting = Ui.Label(m_Coop, "Waiting", Ui.TopCenter, new Vector2(0f, -40f), 12, TextAnchor.UpperCenter, CoopBlue);
+            m_Waiting = Ui.Label(m_Coop, "Waiting", Ui.TopCenter, new Vector2(0f, -40f), 12, TextAnchor.UpperCenter, Palette.CoopBlue);
             m_Waiting.text = "WAITING FOR A PARTNER";
             m_Room = Ui.Label(m_Coop, "Room", Ui.TopCenter, new Vector2(0f, -56f), 16, TextAnchor.UpperCenter, Color.white);
             m_Link = Ui.Label(m_Coop, "Link", Ui.TopCenter, new Vector2(0f, -76f), 8, TextAnchor.UpperCenter, new Color(1f, 1f, 1f, 0.8f));
@@ -285,7 +283,7 @@ namespace PooketSlug
             bool words = slam >= 1f && leave <= 0f;
             Ui.Show(m_TeamTitle, words);
             Ui.Show(m_TeamName, words);
-            if (words) m_TeamTitle.color = (int)(t * 12f) % 2 == 0 ? Gold : Color.white;
+            if (words) m_TeamTitle.color = (int)(t * 12f) % 2 == 0 ? Palette.Gold : Color.white;
         }
 
         static Image Meter(RectTransform parent, string name, Vector2 at, out Image fill, Color color)
@@ -300,7 +298,7 @@ namespace PooketSlug
         {
             KitMeters kit = p.Kit;
             m_SuperFill.rectTransform.sizeDelta = new Vector2(MeterWidth * kit.SuperCharge, 4f);
-            m_SuperFill.color = kit.SuperReady && (int)(Time.unscaledTime * 6f) % 2 == 0 ? Color.white : Gold;
+            m_SuperFill.color = kit.SuperReady && (int)(Time.unscaledTime * 6f) % 2 == 0 ? Color.white : Palette.Gold;
             m_RefillFill.rectTransform.sizeDelta = new Vector2(MeterWidth * kit.SpecialRefillProgress, 2f);
             Ui.Show(m_AbilityLabel, kit.HasAbility);
             Ui.Show(m_AbilityBack, kit.HasAbility);
@@ -451,13 +449,13 @@ namespace PooketSlug
                 Text label = Pooled(m_PartnerLabels, row, m_NewPartnerLabel);
                 label.rectTransform.anchoredPosition = new Vector2(8f, -y);
                 label.text = name;
-                label.color = SkinColors[skin];
-                hearts = Hearts(m_PartnerHearts, m_NewPartnerHeart, hearts, r.MaxHp, r.Hp, new Vector2(28f, -(y + 2f)), 10f, 9f, SkinColors[skin]);
+                label.color = Palette.Players[skin];
+                hearts = Hearts(m_PartnerHearts, m_NewPartnerHeart, hearts, r.MaxHp, r.Hp, new Vector2(28f, -(y + 2f)), 10f, 9f, Palette.Players[skin]);
 
                 Text tag = Pooled(m_Tags, row, m_NewTag);
                 tag.rectTransform.anchoredPosition = Ui.FromScreen(cam.WorldToScreenPoint(new Vector3(r.Pos.x, r.Pos.y + 1.9f, 0f)));
                 tag.text = Spike.DropIn ? name + "  " + DropIn.Points(r.Link.Score) : name;
-                tag.color = SkinColors[skin];
+                tag.color = Palette.Players[skin];
                 row++;
             }
             HideFrom(m_PartnerLabels, row);
@@ -501,14 +499,14 @@ namespace PooketSlug
                 foreach (RemotePlayer r in w.Remotes)
                 {
                     int skin = Mathf.Clamp(r.Link.Skin, 0, 1);
-                    Beacon(cam, view, n++, r.Pos, r.Height, skin == 0 ? "P1" : "P2", SkinColors[skin], r.LowHealth, r.Away);
+                    Beacon(cam, view, n++, r.Pos, r.Height, skin == 0 ? "P1" : "P2", Palette.Players[skin], r.LowHealth, r.Away);
                 }
             }
             else if (info.Playing)
             {
                 PartnerGhost.State g = PartnerGhost.At(w.Elapsed, w.Player.Pos, halfW);
                 bool low = PartnerBeacon.IsLow(g.Hp, g.MaxHp);
-                if (Beacon(cam, view, n++, g.Pos, 1.6f, "P2", SkinColors[1], low, g.Away))
+                if (Beacon(cam, view, n++, g.Pos, 1.6f, "P2", Palette.Players[1], low, g.Away))
                 {
                     // on screen: a stand-in for the soldier, and its tag
                     Image mark = Pooled(m_GhostMarks, ghosts++, m_NewGhostMark);
@@ -516,7 +514,7 @@ namespace PooketSlug
                     Text tag = Pooled(m_ArrowLabels, n - 1, m_NewArrowLabel);
                     tag.rectTransform.anchoredPosition = Ui.FromScreen(cam.WorldToScreenPoint(new Vector3(g.Pos.x, g.Pos.y + 1.9f, 0f)));
                     tag.text = "P2 (PRETEND)";
-                    tag.color = SkinColors[1];
+                    tag.color = Palette.Players[1];
                 }
             }
             HideFrom(m_GhostMarks, ghosts);

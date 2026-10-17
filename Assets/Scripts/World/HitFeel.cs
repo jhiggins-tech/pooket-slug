@@ -13,7 +13,7 @@ namespace PooketSlug
     /// </summary>
     public sealed class HitFeel
     {
-        static readonly Color Hot = new Color(1f, 0.95f, 0.6f), Gold = new Color(1f, 0.75f, 0.2f);
+        static readonly Color Hot = new Color(1f, 0.95f, 0.6f);
         static readonly Color Pain = new Color(1f, 0.15f, 0.1f), Numbers = new Color(1f, 0.3f, 0.25f);
 
         /// <summary>The faintest a blast's flash gets drawn, the brightest, and the quiet gap after a white flash.</summary>
@@ -33,12 +33,7 @@ namespace PooketSlug
         public HitFeel(World world)
         {
             m_World = world;
-            var go = new GameObject("Screen flash");
-            go.transform.SetParent(world.Root, false);
-            m_Flash = go.AddComponent<SpriteRenderer>();
-            m_Flash.sprite = Art.Pixel;
-            m_Flash.sortingOrder = SortOrder.Effects + 50;
-            m_Flash.enabled = false;
+            m_Flash = Art.Renderer(world.Root, "Screen flash", Art.Pixel, SortOrder.Effects + 50, shown: false);
         }
 
         /// <summary>
@@ -53,7 +48,7 @@ namespace PooketSlug
             {
                 float a = Rng.Fx.Range(-55f, 55f) * Mathf.Deg2Rad;
                 var dir = new Vector2(back.x * Mathf.Cos(a) - back.y * Mathf.Sin(a), back.x * Mathf.Sin(a) + back.y * Mathf.Cos(a));
-                m_World.SpawnParticle(at, dir * Rng.Fx.Range(4f, heavy ? 11f : 8f) + Vector2.up * 2f, i % 2 == 0 ? Hot : Gold,
+                m_World.SpawnParticle(at, dir * Rng.Fx.Range(4f, heavy ? 11f : 8f) + Vector2.up * 2f, i % 2 == 0 ? Hot : Palette.Gold,
                     heavy ? 2f : 1.5f, Rng.Fx.Range(0.12f, 0.25f));
             }
             if (heavy && ours)
@@ -70,7 +65,7 @@ namespace PooketSlug
             if (now < m_NextFizz) return;
             m_NextFizz = now + FizzGap;
             for (int i = 0; i < 2; i++)
-                m_World.SpawnParticle(at, new Vector2(Rng.Fx.Range(-4f, 4f), Rng.Fx.Range(3f, 7f)), i == 0 ? Hot : Gold, 1.5f, Rng.Fx.Range(0.1f, 0.18f));
+                m_World.SpawnParticle(at, new Vector2(Rng.Fx.Range(-4f, 4f), Rng.Fx.Range(3f, 7f)), i == 0 ? Hot : Palette.Gold, 1.5f, Rng.Fx.Range(0.1f, 0.18f));
         }
 
         /// <summary>Our soldier killed <paramref name="e"/>: a star of sparks, and for a big one a white flash.</summary>

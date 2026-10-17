@@ -80,7 +80,7 @@ namespace PooketSlug
 
         /// <summary>Has <paramref name="profile"/> freed <paramref name="member"/>: beaten their mission, at either setting?</summary>
         public static bool IsFree(CrewMember member, Profile profile) =>
-            member.FreedBy == null || profile != null && profile.Clears(member.FreedBy) + profile.Clears(member.FreedBy, Setting.Hard) > 0;
+            member.FreedBy == null || MissionBoard.Cleared(profile, member.FreedBy);
 
         /// <summary>The soldiers <paramref name="profile"/> can pick, in crew order; <paramref name="everyone"/> frees them all (for testing).</summary>
         public static IReadOnlyList<SoldierDef> Freed(Profile profile, bool everyone = false)

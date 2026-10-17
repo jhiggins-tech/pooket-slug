@@ -33,7 +33,6 @@ namespace PooketSlug
         public void Debug(string message) { if (IsEnabled(LogLevel.Debug)) UnityEngine.Debug.Log(m_Prefix + message); }
         public void Info(string message) { if (IsEnabled(LogLevel.Info)) UnityEngine.Debug.Log(m_Prefix + message); }
         public void Warn(string message) { if (IsEnabled(LogLevel.Warn)) UnityEngine.Debug.LogWarning(m_Prefix + message); }
-        public void Error(string message) { if (IsEnabled(LogLevel.Error)) UnityEngine.Debug.LogError(m_Prefix + message); }
         public void Exception(Exception e) { if (IsEnabled(LogLevel.Error)) UnityEngine.Debug.LogException(e); }
 
         /// <summary>

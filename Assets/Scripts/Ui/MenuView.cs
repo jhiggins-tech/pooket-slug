@@ -65,7 +65,6 @@ namespace PooketSlug
     public sealed class MenuView
     {
         static readonly Color Orange = new Color(1f, 0.62f, 0.2f), Keys = new Color(1f, 0.95f, 0.8f);
-        static readonly Color CoopBlue = new Color(0.6f, 0.9f, 1f), Gold = new Color(1f, 0.85f, 0.3f);
         static readonly Vector2 Wide = new Vector2(150f, 26f), Narrow = new Vector2(110f, 26f), Setting = new Vector2(190f, 26f);
         static readonly Vector2 CardSize = new Vector2(150f, 112f);
 
@@ -117,8 +116,7 @@ namespace PooketSlug
             events.AddComponent<StandaloneInputModule>();
 #endif
 
-            m_Dim = Ui.Picture(m_Root, "Dim", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, Color.clear);
-            Stretch(m_Dim.rectTransform);
+            m_Dim = Ui.Cover(m_Root, "Dim", Color.clear);
 
             // title
             m_Title = Ui.Fill(m_Root, "Title");
@@ -130,7 +128,7 @@ namespace PooketSlug
             m_SettingsButton = Ui.Button(m_Title, "SETTINGS", new Vector2(0f, -48f), Narrow, () => Click(MenuAction.Settings), out m_SettingsKey);
             m_Crew = Ui.Button(m_Title, "CREW", new Vector2(-85f, -48f), Narrow, () => Click(MenuAction.Crew), out m_CrewKey);
             m_CrewLabel = Label(m_Crew);
-            m_NewBadge = Ui.Label(m_Coop.GetComponent<RectTransform>(), "New", Ui.TopRight, new Vector2(6f, 7f), 9, TextAnchor.MiddleCenter, Gold);
+            m_NewBadge = Ui.Label(m_Coop.GetComponent<RectTransform>(), "New", Ui.TopRight, new Vector2(6f, 7f), 9, TextAnchor.MiddleCenter, Palette.Gold);
             m_NewBadge.text = "NEW!";
             m_OnlineOff = Line(m_Title, -90f, 9, new Color(1f, 1f, 1f, 0.6f));
             m_OnlineOff.text = "ONLINE CO-OP IS OFF IN THIS BUILD (NO PHOTON APP ID)";
@@ -155,7 +153,7 @@ namespace PooketSlug
             // online co-op
             m_Online = Ui.Fill(m_Root, "Online");
             Line(m_Online, 74f, 22, Orange).text = "ONLINE CO-OP";
-            Line(m_Online, 50f, 10, CoopBlue).text = "PLAY THE MISSION WITH A FRIEND";
+            Line(m_Online, 50f, 10, Palette.CoopBlue).text = "PLAY THE MISSION WITH A FRIEND";
             Ui.Button(m_Online, "HOST A GAME", new Vector2(-82f, 16f), Wide, () => Click(MenuAction.Host), out m_HostKey);
             Ui.Button(m_Online, "BROWSE ROOMS", new Vector2(82f, 16f), Wide, () => Click(MenuAction.Browse), out m_BrowseKey);
             Ui.Button(m_Online, "JOIN WITH A CODE", new Vector2(-82f, -20f), Wide, () => Click(MenuAction.Join), out m_JoinKey);
@@ -165,7 +163,7 @@ namespace PooketSlug
             // the room browser: listed rooms to join, or to watch once you've cleared their mission
             m_Rooms = Ui.Fill(m_Root, "Rooms");
             Line(m_Rooms, 112f, 22, Orange).text = "ROOMS";
-            m_RoomsStatus = Line(m_Rooms, 84f, 10, CoopBlue);
+            m_RoomsStatus = Line(m_Rooms, 84f, 10, Palette.CoopBlue);
             for (int i = 0; i < RoomBrowser.MaxRows; i++)
             {
                 float y = 50f - 32f * i;
@@ -207,9 +205,9 @@ namespace PooketSlug
 
             // victory
             m_Victory = Ui.Fill(m_Root, "Victory");
-            Line(m_Victory, 60f, 32, Gold).text = "MISSION COMPLETE!";
+            Line(m_Victory, 60f, 32, Palette.Gold).text = "MISSION COMPLETE!";
             m_Result = Line(m_Victory, 20f, 14, Color.white);
-            m_Opened = Line(m_Victory, -2f, 12, CoopBlue);
+            m_Opened = Line(m_Victory, -2f, 12, Palette.CoopBlue);
             m_Opened.text = "CO-OP IS OPEN: PLAY ONLINE WITH A FRIEND FROM THE MENU";
             m_Again = Ui.Button(m_Victory, "PLAY AGAIN", new Vector2(-70f, -40f), Wide, () => Click(MenuAction.Restart), out m_AgainKey);
             m_SecondVictory = Ui.Button(m_Victory, "MENU", new Vector2(70f, -40f), Wide, () => Click(m_SecondIsLeave ? MenuAction.Back : MenuAction.Menu), out m_SecondKey);
@@ -240,8 +238,7 @@ namespace PooketSlug
 
             // the mission screen: a card per mission reached, then the next one's
             m_Missions = Ui.Fill(m_Root, "Missions");
-            Image blocker = Ui.Picture(m_Missions, "Blocker", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, Color.clear);
-            Stretch(blocker.rectTransform);
+            Image blocker = Ui.Cover(m_Missions, "Blocker", Color.clear);
             blocker.raycastTarget = true; // taps on the screen stop here, not on the den under it
             Line(m_Missions, 140f, 22, Orange).text = "MISSIONS";
             m_MissionsHint = Line(m_Missions, 116f, 9, Keys);
@@ -255,10 +252,10 @@ namespace PooketSlug
                 colors.disabledColor = new Color(0.07f, 0.06f, 0.08f, 0.85f); // the coming-soon card, dark like a locked one
                 m_Cards[i].colors = colors;
                 var card = m_Cards[i].GetComponent<RectTransform>();
-                m_CardNames[i] = Ui.Label(card, "Name", Ui.TopCenter, new Vector2(0f, -14f), 16, TextAnchor.UpperCenter, Gold);
+                m_CardNames[i] = Ui.Label(card, "Name", Ui.TopCenter, new Vector2(0f, -14f), 16, TextAnchor.UpperCenter, Palette.Gold);
                 m_CardPlaces[i] = Ui.Label(card, "Place", Ui.TopCenter, new Vector2(0f, -38f), 10, TextAnchor.UpperCenter, Color.white);
                 m_CardRecords[i] = Ui.Label(card, "Record", Ui.Middle, new Vector2(0f, -14f), 9, TextAnchor.MiddleCenter, Keys);
-                m_CardTags[i] = Ui.Label(card, "Tag", new Vector2(0.5f, 0f), new Vector2(0f, 12f), 9, TextAnchor.LowerCenter, CoopBlue);
+                m_CardTags[i] = Ui.Label(card, "Tag", new Vector2(0.5f, 0f), new Vector2(0f, 12f), 9, TextAnchor.LowerCenter, Palette.CoopBlue);
             }
             m_HardButton = Ui.Button(m_Missions, "NORMAL", new Vector2(0f, -54f), Setting, () => Click(MenuAction.Hard), out m_HardKey);
             m_HardLabel = Label(m_HardButton);
@@ -455,7 +452,7 @@ namespace PooketSlug
                 MoveGuide move = info.Kit[i];
                 string label = move.Button + " · " + move.Name;
                 if (m_MoveLabels[i].text != label) m_MoveLabels[i].text = label;
-                m_MoveLabels[i].color = i == pick ? Gold : Color.white;
+                m_MoveLabels[i].color = i == pick ? Palette.Gold : Color.white;
                 Key(m_MoveKeys[i], keys, KeyOf(move.Slot));
             }
             MoveGuide shownMove = count > 0 ? info.Kit[pick] : null;
@@ -483,10 +480,10 @@ namespace PooketSlug
                 bool picked = i == pick && !card.ComingSoon;
                 m_Cards[i].GetComponent<RectTransform>().anchoredPosition = new Vector2((i - (count - 1) * 0.5f) * Gap, 30f);
                 m_Cards[i].interactable = !card.ComingSoon;
-                m_CardEdges[i].effectColor = picked ? Gold : card.ComingSoon ? new Color(0.4f, 0.4f, 0.45f) : Orange;
+                m_CardEdges[i].effectColor = picked ? Palette.Gold : card.ComingSoon ? new Color(0.4f, 0.4f, 0.45f) : Orange;
                 m_CardEdges[i].effectDistance = picked ? new Vector2(2f, -2f) : new Vector2(1f, -1f);
                 Set(m_CardNames[i], "MISSION " + card.Number);
-                m_CardNames[i].color = card.ComingSoon ? new Color(1f, 1f, 1f, 0.45f) : Gold;
+                m_CardNames[i].color = card.ComingSoon ? new Color(1f, 1f, 1f, 0.45f) : Palette.Gold;
                 Set(m_CardPlaces[i], card.ComingSoon ? "???" : card.Mission.Place);
                 PooketSlug.Setting setting = picked && info.MissionHard ? PooketSlug.Setting.Hard : PooketSlug.Setting.Normal;
                 Set(m_CardRecords[i], MissionBoard.RecordLine(card, setting));
@@ -579,13 +576,6 @@ namespace PooketSlug
 
         static Text Line(RectTransform parent, float y, int size, Color color) =>
             Ui.Label(parent, "Line", Ui.Middle, new Vector2(0f, y), size, TextAnchor.MiddleCenter, color);
-
-        static void Stretch(RectTransform rt)
-        {
-            rt.anchorMin = Vector2.zero;
-            rt.anchorMax = Vector2.one;
-            rt.sizeDelta = Vector2.zero;
-        }
 
         /// <summary>Room codes are letters, digits and a dash, typed in capitals.</summary>
         static char CodeChar(string text, int index, char c)

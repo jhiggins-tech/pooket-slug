@@ -41,19 +41,10 @@ namespace PooketSlug
             m_BarBack = Renderer(root, "Loot bar", Art.Pixel, SortOrder.Effects);
             m_BarBack.color = new Color(0.11f, 0.08f, 0.12f, 0.85f);
             m_BarFill = Renderer(root, "Loot", Art.Pixel, SortOrder.Effects + 1);
-            m_BarFill.color = new Color(1f, 0.85f, 0.3f);
+            m_BarFill.color = Palette.Gold;
         }
 
-        static SpriteRenderer Renderer(Transform parent, string name, Sprite sprite, int order)
-        {
-            var go = new GameObject(name);
-            go.transform.SetParent(parent, false);
-            SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = sprite;
-            sr.sortingOrder = order;
-            sr.enabled = false;
-            return sr;
-        }
+        static SpriteRenderer Renderer(Transform parent, string name, Sprite sprite, int order) => Art.Renderer(parent, name, sprite, order, shown: false);
 
         /// <summary>Authority: spinning or holding what it stole.</summary>
         public bool Busy => m_Phase != 0;
@@ -134,7 +125,7 @@ namespace PooketSlug
             else amount = p.Kit.TakeSuper();
             m_Holding = m_Pick;
             m_Held = amount;
-            m_World.Scoring.Popup(m_Pick == KieSteal.Special ? p.Def.Special.Hud + " STOLEN!" : "SUPER STOLEN!", over, new Color(1f, 0.45f, 0.8f));
+            m_World.Scoring.Popup(m_Pick == KieSteal.Special ? p.Def.Special.Hud + " STOLEN!" : "SUPER STOLEN!", over, Palette.Pink);
             Sfx.Play(Sfx.Glitch, 0.7f);
             Sfx.Play(Sfx.Pickup, 0.6f);
             // the loot streams off you into its holder
@@ -144,7 +135,7 @@ namespace PooketSlug
                 Vector2 from = p.Center + new Vector2(Rng.Fx.Range(-0.3f, 0.3f), Rng.Fx.Range(-0.3f, 0.3f));
                 float t = Rng.Fx.Range(0.35f, 0.6f);
                 var vel = (to - from) / t + Vector2.up * Rng.Fx.Range(-1f, 3f);
-                m_World.SpawnParticle(from, vel, i % 2 == 0 ? new Color(1f, 0.45f, 0.8f) : new Color(1f, 0.85f, 0.3f), Rng.Fx.Range(1.5f, 2.5f), t);
+                m_World.SpawnParticle(from, vel, i % 2 == 0 ? Palette.Pink : Palette.Gold, Rng.Fx.Range(1.5f, 2.5f), t);
             }
         }
 
@@ -153,7 +144,7 @@ namespace PooketSlug
             if (m_Holding == KieSteal.Nothing) return;
             float side = m_World.Player.Pos.x < m_Host.Pos.x ? -1f : 1f;
             m_World.Props.Add(new KieLoot(m_World, m_Host.Pos + Vector2.up * (m_Height + 0.3f), new Vector2(side * 3.5f, 9f), m_Holding, m_Held));
-            m_World.Scoring.Popup("DROPPED IT!", Over, new Color(1f, 0.85f, 0.3f));
+            m_World.Scoring.Popup("DROPPED IT!", Over, Palette.Gold);
             Sfx.Play(Sfx.Thump, 0.8f);
             m_Holding = KieSteal.Nothing;
             m_Held = 0;
@@ -214,12 +205,12 @@ namespace PooketSlug
                 float t = m_LocalSpin / SpinTime;
                 face = t > 0.8f ? m_Pick : ((int)(Mathf.Sqrt(t) * 14f) % 2 == 0 ? KieSteal.Special : KieSteal.Super);
                 if (face == KieSteal.Nothing) face = (int)(m_LocalSpin * 8f) % 2 == 0 ? KieSteal.Special : KieSteal.Super;
-                m_Frame.color = t > 0.8f && (int)(m_LocalSpin * 16f) % 2 == 0 ? Color.white : new Color(1f, 0.45f, 0.8f);
+                m_Frame.color = t > 0.8f && (int)(m_LocalSpin * 16f) % 2 == 0 ? Color.white : Palette.Pink;
             }
             else
             {
                 face = m_Holding;
-                m_Frame.color = new Color(1f, 0.45f, 0.8f);
+                m_Frame.color = Palette.Pink;
             }
             m_Icon.sprite = face == KieSteal.Super ? KieArt.Super : KieArt.Special;
             if (!holding) return;

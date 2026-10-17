@@ -44,12 +44,7 @@ namespace PooketSlug
             m_Rain = new PillRain(Spec.Rain);
             m_Pills = new PillView(world.Root, m_Rain.Capacity, 1.5f);
             m_OnSoldier = OnSoldier;
-            var go = new GameObject("Sweep beam");
-            go.transform.SetParent(world.Root, false);
-            m_Beam = go.AddComponent<SpriteRenderer>();
-            m_Beam.sprite = Art.Pixel;
-            m_Beam.sortingOrder = SortOrder.Effects + 2;
-            m_Beam.enabled = false;
+            m_Beam = Art.Renderer(world.Root, "Sweep beam", Art.Pixel, SortOrder.Effects + 2, shown: false);
         }
 
         public string Name => "KCAJ'S TABK";

@@ -32,9 +32,13 @@ namespace PooketSlug
     {
         public static bool SoloOnly(MissionDef mission) => mission.Story.SoloOnly;
 
+        /// <summary>Has <paramref name="profile"/> cleared <paramref name="mission"/>, at either setting?</summary>
+        public static bool Cleared(Profile profile, MissionDef mission) =>
+            profile != null && mission != null && profile.Clears(mission, Setting.Normal) + profile.Clears(mission, Setting.Hard) > 0;
+
         /// <summary>Hard can be picked for <paramref name="mission"/>: cleared, from Mission two on, and played in co-op.</summary>
         public static bool HardOpen(Profile profile, MissionDef mission, bool coop) =>
-            coop && mission != null && !SoloOnly(mission) && profile.Clears(mission, Setting.Normal) + profile.Clears(mission, Setting.Hard) > 0;
+            coop && mission != null && !SoloOnly(mission) && Cleared(profile, mission);
 
         /// <summary>The cards, in story order: the missions reached, then the next one, coming soon if it isn't in yet.</summary>
         public static List<MissionCard> Cards(Profile profile, bool coop)

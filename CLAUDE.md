@@ -51,7 +51,7 @@ Each file starts with a summary comment saying what it's for.
 
 | Where | What |
 |---|---|
-| `Core/` (assembly `PooketSlug.Core`, no references) | The rules, as plain C#, tested; its folders mirror the game's. At its root: `Content.cs` (soldiers, weapons, enemies, pickups as definitions with stable ids), `Definitions.cs` (their types), `Tuning.cs` (shared numbers) |
+| `Core/` (assembly `PooketSlug.Core`, no references) | The rules, as plain C#, tested; its folders mirror the game's. At its root: `Content.cs` (soldiers, weapons, enemies, pickups as definitions with stable ids), `Definitions.cs` (their types), `Tuning.cs` (shared numbers), `Palette.cs` (shared colours: gold, the players' colours) |
 | `Core/Crew/` | `Crew.cs` (who you play, who's freed), `<name>Tuning.cs` (each one's numbers), `Tones2TabkSpec` (his tabk's guns), `Controls.cs` (the kit's meters), `KitGuide` (the ⓘ screen's moves and demo scripts), `TeamSuper`, `Lives`, `AvatarPose` |
 | `Core/Bosses/` | `BossTankSpec` (the artillery boss tabk), `KieTankSpec` / `KcajTankSpec` (their tabks' charged shots), `PilotBrain`, `BossIntroShow`, `CraterGround` |
 | `Core/Tabks/` | `PlayerTankSpec`, `CallInCoach` |
@@ -69,8 +69,8 @@ Each file starts with a summary comment saying what it's for.
 | `Tabks/` | `PlayerTank` (your tabk) + `TankLook`, `TabkKit` (a crew member's tabk) |
 | `Missions/One/` | Mission one's own pieces: the coda's `BackGate`, `ToppleTower` (the watchtower in the road), `ExitGate` and `SleepingKie`, drawn by `CodaArt` |
 | `Stage/` | `StageKit`: the shared stage for cutscenes, the den and the debrief |
-| `Art/`, `Audio/` | `Art` + `ArtData` (ASCII pixel art); `Sfx` + `ChipSounds`, `Music` |
-| `Ui/` | uGUI built in code (`Ui.cs`): `HudView`, `MenuView`, `DebriefView`, `CrewRevealView`, `DemoClip`, `Invite` (sharing an invite link); `Cutscene/` (`CutsceneView` and its parts: backdrops, cast, effects, bubbles, captions, camera, cue sounds) and `Den/` (`DenView`, the lobby, and its parts: room, crew, bits, TV and buttons) |
+| `Art/`, `Audio/` | `Art` + `ArtData` (ASCII pixel art; `Art.Renderer` makes a sprite's child object); `Sfx` + `ChipSounds`, `Music` |
+| `Ui/` | uGUI built in code (`Ui.cs`, with the shared helpers: `Cover`, `Tap`, `Stretch`): `HudView`, `MenuView`, `DebriefView`, `CrewRevealView`, `DemoClip`, `Invite` (sharing an invite link); `Cutscene/` (`CutsceneView` and its parts: backdrops, cast, effects, bubbles, captions, camera, cue sounds) and `Den/` (`DenView`, the lobby, and its parts: room, crew, bits, TV and buttons) |
 | `Input/` | `InputSources` (a keyboard, a gamepad or the touch pad) into one `SoldierInput` a frame, and `GameInput` (the menu and system buttons) |
 | `Net/` (assembly `PooketSlug.Net`) | Photon Fusion 2, Shared Mode: `NetSession` (host, join, quick match), `NetReplication` (`PlayerNet`, `WorldNet`, `BossNet`), `NetPrefabs` (network objects built in code) |
 | `Save/` | `LocalProfileStore` / `OptionsStore` (PlayerPrefs), `CloudAccount` (sign-in and cloud saves through the page's `pooket-auth.js`), `SiteFile` (a text file fetched from beside the game) |

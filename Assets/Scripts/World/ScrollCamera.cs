@@ -118,12 +118,7 @@ namespace PooketSlug
 
         Transform MakeBg(string name, Sprite sprite, int order)
         {
-            var go = new GameObject(name);
-            go.transform.SetParent(m_World.Root, false);
-            var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = sprite;
-            sr.sortingOrder = order;
-            return go.transform;
+            return Art.Renderer(m_World.Root, name, sprite, order).transform;
         }
     }
 }

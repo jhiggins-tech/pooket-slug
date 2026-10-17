@@ -150,7 +150,7 @@ namespace PooketSlug
             }
             m_DecoyTime = Spec.DecoyTime;
             SetDisguised(true);
-            m_World.Scoring.Popup("WHICH ONE?", m_Tank.Pos + Vector2.up * 4.4f, new Color(0.45f, 1f, 1f));
+            m_World.Scoring.Popup("WHICH ONE?", m_Tank.Pos + Vector2.up * 4.4f, Palette.Cyan);
         }
 
         float m_DecoyTime;
@@ -185,7 +185,7 @@ namespace PooketSlug
         {
             if (on == m_Disguised) return;
             m_Disguised = on;
-            m_World.Burst(m_Tank.Center, 14, new Color(0.45f, 1f, 1f));
+            m_World.Burst(m_Tank.Center, 14, Palette.Cyan);
             Sfx.Play(Sfx.Glitch, 0.8f);
             if (on) m_Tank.Look = new HoloLook(m_Tank);
             else
@@ -342,7 +342,7 @@ namespace PooketSlug
             if (m_What == KieSteal.Super) p.Kit.ReturnSuper(m_Amount);
             else p.Specials += m_Amount;
             string what = m_What == KieSteal.Super ? "SUPER" : p.Def.Special.Hud;
-            World.Scoring.Popup(what + " BACK!", Pos + Vector2.up * 1.6f, new Color(1f, 0.85f, 0.3f));
+            World.Scoring.Popup(what + " BACK!", Pos + Vector2.up * 1.6f, Palette.Gold);
             Sfx.Play(Sfx.Pickup);
             Remove();
         }
