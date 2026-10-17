@@ -134,15 +134,19 @@ namespace PooketSlug
         /// <summary>
         /// Spike gen-plates: a generated plate from Resources/Plates (a PNG kept as .bytes so Unity leaves it alone):
         /// <c>&lt;id&gt;</c> is the first model's, <c>&lt;model&gt;__&lt;id&gt;</c> each model's take (<c>&amp;take=</c>
-        /// picks one by the start of its model's name). Game pixels, 16 to a unit, pivot at the bottom left. Null if missing.
+        /// picks one by its whole name, or else by the start of it: <c>&amp;take=openai</c>, <c>&amp;take=look-game</c>). Game pixels, 16 to a unit, pivot at the bottom left. Null if missing.
         /// </summary>
         static Sprite LoadPlate(string id)
         {
             TextAsset file = null;
             if (string.IsNullOrEmpty(Spike.PlatesTake)) file = Resources.Load<TextAsset>("Plates/" + id);
             else
-                foreach (TextAsset t in Resources.LoadAll<TextAsset>("Plates"))
-                    if (t.name.EndsWith("__" + id) && t.name.StartsWith(Spike.PlatesTake, System.StringComparison.OrdinalIgnoreCase)) file = t;
+            {
+                file = Resources.Load<TextAsset>("Plates/" + Spike.PlatesTake + "__" + id);
+                if (file == null)
+                    foreach (TextAsset t in Resources.LoadAll<TextAsset>("Plates"))
+                        if (t.name.EndsWith("__" + id) && t.name.StartsWith(Spike.PlatesTake, System.StringComparison.OrdinalIgnoreCase)) file = t;
+            }
             if (file == null)
             {
                 Log.Game.Info("plates: no " + id + (string.IsNullOrEmpty(Spike.PlatesTake) ? "" : " for " + Spike.PlatesTake));

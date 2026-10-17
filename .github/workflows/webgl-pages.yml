@@ -195,7 +195,7 @@ jobs:
             case "$f" in *.raw.png) continue;; esac
             model=$(basename "$(dirname "$f")"); cp "$f" "Assets/Resources/Plates/${model}__$(basename "${f%.png}").bytes"
           done
-          rm -f Assets/Resources/Plates/sheet.bytes
+          rm -f Assets/Resources/Plates/sheet.bytes Assets/Resources/Plates/looks.bytes
           ls -l Assets/Resources/Plates
 
       # The cutscenes built into the game (scenes/*.txt as Resources/Scenes), the copy that plays when the site's can't
