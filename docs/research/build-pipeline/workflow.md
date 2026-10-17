@@ -105,7 +105,7 @@ After the build, the job serves it on `127.0.0.1:8000` and runs [`tools/demos.mj
 
 ### 8. Deploy to `gh-pages`
 
-`tools/pages_deploy.sh` swaps the build into its own place (the root, or `previews/<slug>/`), drops previews whose branch is gone, and pushes `gh-pages` as a single fresh commit, leased against the one it started from. See [GitHub Pages](github-pages.md#deploying).
+`tools/pages_deploy.sh` swaps the build into its own place (the root, or `previews/<slug>/`), drops previews whose branch is gone or merged into the main line, and pushes `gh-pages` as a single fresh commit, leased against the one it started from. See [GitHub Pages](github-pages.md#deploying).
 
 ### 9. Summary
 

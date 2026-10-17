@@ -6,9 +6,10 @@
 #   tools/pages_deploy.sh files <slug|-> <dir> <name> just one folder of files, <name>/ beside the game (the root's
 #                                                     for -, previews/<slug>/'s for a slug), the game left alone:
 #                                                     the sandbox's setups (sandbox/), live in a couple of minutes
-#   tools/pages_deploy.sh prune                       only drops the previews of deleted branches
+#   tools/pages_deploy.sh prune                       only drops the previews of deleted and merged branches
 #
-# Every run also drops previews/<slug>/ for branches that no longer exist and rewrites previews/index.html.
+# Every run also drops previews/<slug>/ for branches that no longer exist or that the main line already has (merged:
+# the live game has them; the branch itself is kept), and rewrites previews/index.html. Pages holds 1 GB in all.
 # gh-pages is kept as one commit with no history (as force_orphan did), so a 50 MB build doesn't pile up in the
 # repository on every deploy. Several branches build at once, so the push is leased against the gh-pages commit
 # this run started from; if another deploy landed first, it starts over from that one.
@@ -34,6 +35,7 @@ fi
 slugify() { sed -e 's#^claude/##' -e 's/[^A-Za-z0-9-]/-/g' | tr 'A-Z' 'a-z'; }
 
 repo=${GITHUB_REPOSITORY:-jhiggins-tech/pooket-slug}
+main_line=${MAIN_LINE:-$(git ls-remote --symref origin HEAD | sed -n 's#^ref: refs/heads/\(.*\)\tHEAD$#\1#p')}
 pages="https://${repo%%/*}.github.io/${repo#*/}"
 site=$(mktemp -d)/site
 git config user.name >/dev/null || git config user.name 'github-actions[bot]'
@@ -62,14 +64,33 @@ for attempt in 1 2 3 4 5 6; do
   touch "$site/.nojekyll"
   [ -z "$slug" ] || [ "$mode" = files ] || echo "${GITHUB_SHA::7} from ${GITHUB_REF_NAME:-?}, $(date -u '+%d %b %H:%M') UTC" > "$site/previews/$slug/preview.txt"
 
-  # Previews whose branch has gone.
+  # Previews whose branch has gone or is merged. Every branch's history, commits only (no files: a few hundred KB),
+  # says which the main line already has; if that can't be fetched, only gone branches' previews go.
   live=$(git ls-remote --heads origin | sed 's#.*refs/heads/##' | slugify)
+  merged=
+  shallow=; [ ! -f "$(git rev-parse --git-dir)/shallow" ] || shallow=--unshallow
+  fetched=false
+  if [ -n "$main_line" ] && git fetch --quiet --no-tags --prune --filter=tree:0 $shallow origin '+refs/heads/*:refs/pages-deploy/*'
+  then fetched=true; fi
+  git config --unset remote.origin.partialclonefilter || true # the filter sticks otherwise: gh-pages' fetch needs files
+  if $fetched; then
+    open=$(git for-each-ref refs/pages-deploy --format='%(refname:strip=2)' | while read -r branch; do
+      git merge-base --is-ancestor "refs/pages-deploy/$branch" "refs/pages-deploy/$main_line" || echo "$branch"
+    done | slugify)
+    merged=$(comm -23 <(sort -u <<<"$live") <(sort -u <<<"$open"))
+  else
+    echo "::warning::Couldn't fetch the branches' history: only previews of deleted branches are dropped this time."
+  fi
   if [ -d "$site/previews" ]; then
     for dir in "$site"/previews/*/; do
       [ -d "$dir" ] || continue
       name=$(basename "$dir")
-      if ! grep -qxF "$name" <<<"$live" && [ "$name" != "$slug" ]; then
+      [ "$name" != "$slug" ] || continue
+      if ! grep -qxF "$name" <<<"$live"; then
         echo "Removing previews/$name/: its branch is gone."
+        rm -rf "$dir"
+      elif grep -qxF "$name" <<<"$merged"; then
+        echo "Removing previews/$name/: the main line has its branch."
         rm -rf "$dir"
       fi
     done
