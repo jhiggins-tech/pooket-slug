@@ -52,7 +52,7 @@ Each file starts with a summary comment saying what it's for.
 | Where | What |
 |---|---|
 | `Core/` (assembly `PooketSlug.Core`, no references) | The rules, as plain C#, tested; its folders mirror the game's. At its root: `Content.cs` (soldiers, weapons, enemies, pickups as definitions with stable ids), `Definitions.cs` (their types), `Tuning.cs` (shared numbers), `Palette.cs` (shared colours: gold, the players' colours) |
-| `Core/Crew/` | `Crew.cs` (who you play, who's freed), `<name>Tuning.cs` (each one's numbers), `Tones2TabkSpec` (his tabk's guns), `Controls.cs` (the kit's meters), `KitGuide` (the ⓘ screen's moves and demo scripts), `TeamSuper`, `Lives`, `AvatarPose` |
+| `Core/Crew/` | `Crew.cs` (who you play, who's freed), `<name>Tuning.cs` (each one's numbers), `Tones2TabkSpec` (his tabk's guns), `Controls.cs` (the kit's meters), `KitGuide` (the ⓘ screen's moves and demo scripts), `TeamSuper`, `Lives`, `DownLine` (what the HUD says while you're down), `AvatarPose` |
 | `Core/Bosses/` | `BossTankSpec` (the artillery boss tabk), `KieTankSpec` / `KcajTankSpec` (their tabks' charged shots), `PilotBrain`, `BossIntroShow`, `CraterGround` |
 | `Core/Tabks/` | `PlayerTankSpec`, `CallInCoach` |
 | `Core/Missions/` | `Level.cs` + `Missions.cs` (maps as text), `MissionStory` (a mission's scenes and once-only beats), `MissionBoard` (the mission screen, and whether a mission's cleared), `CodaCoach` |
