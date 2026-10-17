@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
-using UnityEngine;
 
 namespace PooketSlug.Tests
 {
@@ -10,7 +9,9 @@ namespace PooketSlug.Tests
     {
         static Dictionary<string, SceneScript> s_Read;
 
-        public static string Folder => Path.GetFullPath(Path.Combine(Application.dataPath, "..", "scenes"));
+        // The editor runs tests in the project's folder, as tools/check.sh does: Application.dataPath would tie the tests
+        // to the engine, so they couldn't run outside Unity.
+        public static string Folder => Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "scenes"));
 
         /// <summary>Every scene file, read.</summary>
         public static IReadOnlyDictionary<string, SceneScript> All
