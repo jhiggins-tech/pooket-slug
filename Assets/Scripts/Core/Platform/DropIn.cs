@@ -16,7 +16,7 @@ namespace PooketSlug
         /// <summary>We're joining (not running the shared world) a mission the others have already scrolled into.</summary>
         public static bool UnderWay(bool authority, float camX) => !authority && camX > Tuning.Coop.HalfWidth + UnderWayPast;
 
-        /// <summary>A score as the HUD writes it.</summary>
+        /// <summary>A score as the HUD and the debrief write it: six digits, capped at 999,999.</summary>
         public static string Points(int points) => Mathf.Clamp(points, 0, 999999).ToString("000000");
     }
 }

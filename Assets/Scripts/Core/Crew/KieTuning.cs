@@ -83,6 +83,33 @@ namespace PooketSlug
     public enum StealPrize { Nothing, Rifle, Knives, Bombs, Cannon }
 
     /// <summary>
+    /// How every roulette of kie's spins, his own (<c>StealRoulette</c>) and his tabk's and pilot's
+    /// (<c>KieRoulette</c>), so they slow and settle alike: the faces flick by, slowing, then it settles on what it
+    /// lands on for the last quarter and the frame flashes.
+    /// </summary>
+    public static class RouletteSpin
+    {
+        /// <summary>How far through the spin (0 to 1) it settles.</summary>
+        public const float Settles = 0.75f;
+        /// <summary>Face changes over a whole spin, and frame flashes a second once it's settled.</summary>
+        const float Flicks = 12f, Flashes = 16f;
+
+        /// <summary>Settled on what it lands on, <paramref name="t"/> (0 to 1) through the spin.</summary>
+        public static bool Settled(float t) => t > Settles;
+
+        /// <summary>The face showing <paramref name="t"/> through the spin (before it settles), of <paramref name="faces"/>.</summary>
+        public static int Face(float t, int faces) => Step(t) % faces;
+
+        /// <summary>Whether a face changed between <paramref name="before"/> and <paramref name="now"/> (both 0 to 1): it ticks.</summary>
+        public static bool Ticked(float before, float now) => Step(before) != Step(now);
+
+        /// <summary>The frame lit, <paramref name="seconds"/> into a spin <paramref name="t"/> through.</summary>
+        public static bool Lit(float t, float seconds) => Settled(t) && (int)(seconds * Flashes) % 2 == 0;
+
+        static int Step(float t) => (int)(Mathf.Sqrt(Mathf.Max(0f, t)) * Flicks);
+    }
+
+    /// <summary>
     /// kie's super, Steal, as rules. SU spins a roulette over the toughest enemy on screen, and kie lifts a power-up
     /// off it: the tougher it is, the bigger the prize. A goon gives a burst of its own weapon (a rifleman's rifle,
     /// a knife runner's knives, a drone's bombs); a boss tank gives its whole cannon. The prize takes the primary's
@@ -207,13 +234,70 @@ namespace PooketSlug
     /// <summary>What a press of SP does with Trollogram (<see cref="TrollogramSpec.OnSpecial"/>).</summary>
     public enum TrollAction { Nothing, Drop, Swap, Wait }
 
+    /// <summary>What a weasel does next (<see cref="WeaselSpec"/>).</summary>
+    public enum WeaselMove { Run, Pop, Gone }
+
+    /// <summary>
+    /// One weasel's rules, whoever threw it: kie's own (<see cref="WeaselPopSpec"/>), and the ones his tabk and his
+    /// pilot throw at the soldiers (<see cref="KieTankSpec.Weasel"/>). Every copy runs these, so they can't drift
+    /// apart: it tumbles until it lands and pops on anything it hunts that it touches on the way (or gives up after
+    /// <see cref="AirTime"/>), then scurries under the nearest one and pops, or pops when its fuse runs out. Off the
+    /// screen it's gone, without a pop.
+    /// </summary>
+    public class WeaselSpec
+    {
+        /// <summary>Its own gravity while tumbling, floatier than a soldier's.</summary>
+        public float Gravity = 26f;
+        /// <summary>How fast a landed weasel scurries, and how far ahead and up or down it will hunt.</summary>
+        public float ScurrySpeed = 6.5f, HuntRange = 9f, HuntHeight = 2.5f;
+        /// <summary>Seconds after landing before a weasel pops anyway, and in the air before it gives up tumbling.</summary>
+        public float Fuse = 2.5f, AirTime = 3f;
+        /// <summary>How close under its prey (from the middle) a weasel gets before it pops, and how far up or down that counts.</summary>
+        public float Reach = 0.35f, PopHeight = 1.2f;
+        /// <summary>The pop: its reach, damage, and size on screen.</summary>
+        public float BlastRadius = 1.1f, BlastSize = 0.55f;
+        public int Damage = 2;
+
+        /// <summary>
+        /// Whether a weasel at <paramref name="weasel"/> (its feet) will hunt something whose feet are at
+        /// <paramref name="prey"/>: on the ground, in reach along it, and not much higher or lower.
+        /// </summary>
+        public bool CanHunt(Vector2 weasel, Vector2 prey, bool flies) =>
+            !flies && Mathf.Abs(prey.x - weasel.x) <= HuntRange && Mathf.Abs(prey.y - weasel.y) <= HuntHeight;
+
+        /// <summary>
+        /// Weasels only work on screen: one whose middle leaves it (either side) is gone, quietly, and only goons on
+        /// screen are hunted, so nothing ahead is blown up before you get there (owner, 2026-10-15).
+        /// </summary>
+        public static bool OnScreen(float x, float left, float right) => x >= left && x <= right;
+
+        /// <summary>Close enough under the prey (its middle at <paramref name="preyX"/>) to pop.</summary>
+        public bool Under(float weaselX, float preyX, float preyHalfWidth) => Mathf.Abs(preyX - weaselX) <= Mathf.Max(Reach, preyHalfWidth * 0.6f);
+
+        /// <summary>Off the screen, or fallen out of the world: gone, without a pop.</summary>
+        public static bool Leaves(Vector2 weasel, float left, float right) => weasel.y < -2f || !OnScreen(weasel.x, left, right);
+
+        /// <summary>Tumbling, <paramref name="time"/> seconds since it was thrown: pops on touching its prey, or once it's been up too long.</summary>
+        public WeaselMove InAir(float time, bool touchingPrey) => touchingPrey || time >= AirTime ? WeaselMove.Pop : WeaselMove.Run;
+
+        /// <summary>
+        /// Landed, <paramref name="fuse"/> seconds ago: pops under its prey (feet at <paramref name="prey"/>, when it
+        /// has one), or when the fuse runs out.
+        /// </summary>
+        public WeaselMove OnGround(float fuse, Vector2 weasel, bool hasPrey, Vector2 prey, float preyHalfWidth)
+        {
+            if (hasPrey && Under(weasel.x, prey.x, preyHalfWidth) && Mathf.Abs(prey.y - weasel.y) < PopHeight) return WeaselMove.Pop;
+            return fuse >= Fuse ? WeaselMove.Pop : WeaselMove.Run;
+        }
+    }
+
     /// <summary>
     /// kie's primary, Weasel Pop, as numbers and rules. Each press tumbles out three weasels, lobbed along the aim
     /// (so they reach over cover). Where each lands it scurries under the nearest goon on the ground within reach
-    /// and pops, to Pop Goes the Weasel; one with nothing to hunt pops when its fuse runs out. Flyers are out of
-    /// reach: the weasels only hunt along the ground, and the pop is small.
+    /// and pops, to Pop Goes the Weasel (<see cref="WeaselSpec"/>); one with nothing to hunt pops when its fuse runs
+    /// out. Flyers are out of reach: the weasels only hunt along the ground, and the pop is small.
     /// </summary>
-    public sealed class WeaselPopSpec
+    public sealed class WeaselPopSpec : WeaselSpec
     {
         /// <summary>Weasels a press tumbles out, and degrees between neighbours (Tabks' ±4°, opened up a little).</summary>
         public int Count = 3;
@@ -222,20 +306,9 @@ namespace PooketSlug
         public float ThrowSpeed = 8.5f, Lift = 6.5f, Carry = 0.3f;
         /// <summary>Each weasel after the first is thrown this much softer, so a volley lands spread out.</summary>
         public float Soften = 0.12f;
-        /// <summary>The weasels' own gravity while tumbling, floatier than a soldier's.</summary>
-        public float Gravity = 26f;
         /// <summary>Seconds between presses, and the most weasels kie can have out at once.</summary>
         public float Cooldown = 0.5f;
         public int MaxOut = 9;
-        /// <summary>How fast a landed weasel scurries, and how far ahead and up or down it will hunt a goon.</summary>
-        public float ScurrySpeed = 6.5f, HuntRange = 9f, HuntHeight = 2.5f;
-        /// <summary>Seconds after landing before a weasel pops anyway, and in the air before it gives up tumbling.</summary>
-        public float Fuse = 2.5f, AirTime = 3f;
-        /// <summary>How close under a goon (from its middle) a weasel gets before it pops.</summary>
-        public float Reach = 0.35f;
-        /// <summary>The pop: its reach, damage, and size on screen.</summary>
-        public float BlastRadius = 1.1f, BlastSize = 0.55f;
-        public int Damage = 2;
         /// <summary>Seconds that the tune, once played, waits before another pop plays it again (plain pops in between).</summary>
         public float TuneGap = 1.6f;
 
@@ -256,21 +329,5 @@ namespace PooketSlug
             }
             return throws;
         }
-
-        /// <summary>
-        /// Whether a weasel at <paramref name="weasel"/> (its feet) will hunt a goon whose feet are at
-        /// <paramref name="goon"/>: on the ground, in reach along it, and not much higher or lower.
-        /// </summary>
-        public bool CanHunt(Vector2 weasel, Vector2 goon, bool flies) =>
-            !flies && Mathf.Abs(goon.x - weasel.x) <= HuntRange && Mathf.Abs(goon.y - weasel.y) <= HuntHeight;
-
-        /// <summary>
-        /// Weasels only work on screen: one whose middle leaves it (either side) is gone, quietly, and only goons on
-        /// screen are hunted, so nothing ahead is blown up before you get there (owner, 2026-10-15).
-        /// </summary>
-        public static bool OnScreen(float x, float left, float right) => x >= left && x <= right;
-
-        /// <summary>Close enough under the goon (its middle at <paramref name="goonX"/>) to pop.</summary>
-        public bool Under(float weaselX, float goonX, float goonHalfWidth) => Mathf.Abs(goonX - weaselX) <= Mathf.Max(Reach, goonHalfWidth * 0.6f);
     }
 }

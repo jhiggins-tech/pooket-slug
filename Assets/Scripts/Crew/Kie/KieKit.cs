@@ -87,8 +87,7 @@ namespace PooketSlug
         public readonly bool Cosmetic;
 
         readonly SpriteRenderer m_Sr;
-        float m_Time, m_Fuse;
-        bool m_Landed;
+        WeaselBody.Run m_Run;
 
         public PopWeasel(World world, Vector2 at, Vector2 vel, bool cosmetic = false) : base(world, "Weasel", at, 0.3f, 0.5f, 1)
         {
@@ -110,41 +109,9 @@ namespace PooketSlug
         public override void Tick(float dt)
         {
             WeaselPopSpec spec = KieTuning.Weasels;
-            m_Time += dt;
-            if (Pos.y < -2f || !WeaselPopSpec.OnScreen(Pos.x, World.View.Left, World.View.Right))
-            {
-                // off the screen: gone, without a pop
-                Remove();
-                return;
-            }
-
-            Enemy prey = Prey(spec);
-            if (!m_Landed)
-            {
-                bool down = WeaselBody.Tumble(this, dt, spec.Gravity);
-                if (prey != null && prey.Bounds.Overlaps(Bounds))
-                {
-                    Pop();
-                    return;
-                }
-                if (down) m_Landed = true;
-                else if (m_Time >= spec.AirTime) Pop();
-                return;
-            }
-
-            m_Fuse += dt;
-            if (prey != null)
-            {
-                float dx = prey.Pos.x - Pos.x;
-                if (Mathf.Abs(dx) > 0.05f) Facing = dx > 0f ? 1 : -1;
-                if (spec.Under(Pos.x, prey.Pos.x, prey.HalfW) && Mathf.Abs(prey.Pos.y - Pos.y) < 1.2f)
-                {
-                    Pop();
-                    return;
-                }
-            }
-            WeaselBody.Scurry(this, dt, spec.ScurrySpeed);
-            if (m_Fuse >= spec.Fuse) Pop();
+            WeaselMove move = WeaselBody.Step(this, ref m_Run, spec, dt, Prey(spec), spec.ScurrySpeed);
+            if (move == WeaselMove.Gone) Remove(); // off the screen: gone, without a pop
+            else if (move == WeaselMove.Pop) Pop();
         }
 
         /// <summary>The nearest goon it will hunt: on the ground, in reach (<see cref="WeaselPopSpec.CanHunt"/>).</summary>
@@ -155,7 +122,7 @@ namespace PooketSlug
             foreach (Enemy e in World.Enemies)
             {
                 if (!e.Shootable || e.Def.Brain == EnemyBrain.Barrel) continue;
-                if (!WeaselPopSpec.OnScreen(e.Pos.x, World.View.Left, World.View.Right)) continue; // nothing ahead of the screen
+                if (!WeaselSpec.OnScreen(e.Pos.x, World.View.Left, World.View.Right)) continue; // nothing ahead of the screen
                 if (!spec.CanHunt(Pos, e.Pos, e.Def.Brain == EnemyBrain.Drone)) continue;
                 float dx = Mathf.Abs(e.Pos.x - Pos.x);
                 if (dx < bestDx)
@@ -184,9 +151,9 @@ namespace PooketSlug
         public override void Render()
         {
             base.Render();
-            m_Sr.sprite = WeaselBody.Pose(this, m_Landed, m_Time);
+            m_Sr.sprite = WeaselBody.Pose(this, m_Run.Landed, m_Run.Time);
             // blinks as its fuse runs out
-            Blink(m_Sr, m_Landed ? KieTuning.Weasels.Fuse - m_Fuse : 1f);
+            Blink(m_Sr, m_Run.Landed ? KieTuning.Weasels.Fuse - m_Run.Fuse : 1f);
         }
 
         static void Blink(SpriteRenderer sr, float left) =>
@@ -309,7 +276,7 @@ namespace PooketSlug
             m_Def = def;
             Mine = mine;
             Id = id;
-            m_Pose = Still(pose);
+            m_Pose = pose.Still();
             Facing = pose.Facing;
             Height = pose.Crouching ? def.CrouchHeight : def.StandHeight;
             m_Visual = new PlayerVisual(Visual, Art.SkinFor(def, skin), SortOrder.Player - 2);
@@ -321,23 +288,12 @@ namespace PooketSlug
 
         public bool Crouching => m_Pose.Crouching;
 
-        /// <summary>Is the pose it holds: frozen mid-whatever, never firing or blinking.</summary>
-        static AvatarPose Still(AvatarPose p)
-        {
-            p.Muzzle = false;
-            p.Blink = false;
-            p.Flash = false;
-            p.Running = false;
-            p.Dead = false;
-            return p;
-        }
-
         /// <summary>kie swapped with it: it stands where he stood, as he stood.</summary>
         public void SwapTo(Vector2 feet, AvatarPose pose)
         {
             Pos = feet;
             Vel = Vector2.zero;
-            m_Pose = Still(pose);
+            m_Pose = pose.Still();
             Facing = pose.Facing;
             Height = pose.Crouching ? m_Def.CrouchHeight : m_Def.StandHeight;
         }
@@ -495,7 +451,7 @@ namespace PooketSlug
             m_Time += dt;
             if (!m_Mark.Removed) Pos = new Vector2(m_Mark.Pos.x, m_Mark.Pos.y + m_Mark.Height + 1.2f);
             // ticks as it spins, slowing down
-            if ((int)(Mathf.Sqrt(before / spin) * 12f) != (int)(Mathf.Sqrt(m_Time / spin) * 12f)) Sfx.Play(Sfx.Servo, 0.5f);
+            if (RouletteSpin.Ticked(before / spin, m_Time / spin)) Sfx.Play(Sfx.Servo, 0.5f);
             if (m_Time >= spin) Lift();
         }
 
@@ -525,9 +481,9 @@ namespace PooketSlug
             base.Render();
             float t = m_Time / KieTuning.Steal.SpinTime;
             // flicks through the prizes, slowing, and settles on the real one for the last part
-            StealPrize face = t > 0.75f ? m_Prize : Faces[(int)(Mathf.Sqrt(t) * 12f) % Faces.Length];
+            StealPrize face = RouletteSpin.Settled(t) ? m_Prize : Faces[RouletteSpin.Face(t, Faces.Length)];
             m_Icon.sprite = Icon(face);
-            m_Frame.color = t > 0.75f && (int)(m_Time * 16f) % 2 == 0 ? Color.white : Palette.Pink;
+            m_Frame.color = RouletteSpin.Lit(t, m_Time) ? Color.white : Palette.Pink;
         }
     }
 }

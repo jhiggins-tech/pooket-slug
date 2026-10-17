@@ -200,5 +200,64 @@ namespace PooketSlug.Tests
             Assert.AreEqual(TrollEvent.None, TrollNet.Unpack(new Vector2(99f, 4f), out _, out _, out _));
             Assert.AreEqual(TrollEvent.None, TrollNet.Unpack(Vector2.zero, out _, out _, out _));
         }
+
+        [Test]
+        public void EveryWeaselRunsKiesRules()
+        {
+            WeaselSpec tabk = Content.KieTank.Weasel;
+            Assert.AreEqual(Spec.Gravity, tabk.Gravity, "the pilot throws kie's volley, so his weasels must fall like kie's");
+            Assert.AreEqual(Spec.Fuse, tabk.Fuse);
+            Assert.AreEqual(Spec.AirTime, tabk.AirTime);
+            Assert.AreEqual(Spec.Reach, tabk.Reach);
+            Assert.AreEqual(Spec.PopHeight, tabk.PopHeight);
+            Assert.Less(tabk.ScurrySpeed, Spec.ScurrySpeed, "the soldiers get a moment to shoot them");
+            Assert.Less(tabk.Damage, Spec.Damage, "a soldier has few hits");
+        }
+
+        [Test]
+        public void AWeaselInTheAirPopsOnItsPreyOrGivesUp()
+        {
+            Assert.AreEqual(WeaselMove.Run, Spec.InAir(0.5f, false));
+            Assert.AreEqual(WeaselMove.Pop, Spec.InAir(0.5f, true));
+            Assert.AreEqual(WeaselMove.Pop, Spec.InAir(Spec.AirTime, false));
+        }
+
+        [Test]
+        public void ALandedWeaselPopsUnderItsPreyOrWhenItsFuseRunsOut()
+        {
+            var at = new Vector2(10f, 2f);
+            Assert.AreEqual(WeaselMove.Run, Spec.OnGround(0.1f, at, true, new Vector2(13f, 2f), 0.4f), "not there yet");
+            Assert.AreEqual(WeaselMove.Pop, Spec.OnGround(0.1f, at, true, new Vector2(10.2f, 2f), 0.4f));
+            Assert.AreEqual(WeaselMove.Run, Spec.OnGround(0.1f, at, true, new Vector2(10.2f, 2f + Spec.PopHeight + 0.1f), 0.4f), "under it, but up on a ledge");
+            Assert.AreEqual(WeaselMove.Run, Spec.OnGround(0.1f, at, false, default, 0f), "nothing to hunt: runs on");
+            Assert.AreEqual(WeaselMove.Pop, Spec.OnGround(Spec.Fuse, at, false, default, 0f));
+        }
+
+        [Test]
+        public void AWeaselOffTheScreenIsGone()
+        {
+            Assert.IsFalse(WeaselSpec.Leaves(new Vector2(5f, 1f), 0f, 20f));
+            Assert.IsTrue(WeaselSpec.Leaves(new Vector2(-0.1f, 1f), 0f, 20f));
+            Assert.IsTrue(WeaselSpec.Leaves(new Vector2(20.1f, 1f), 0f, 20f));
+            Assert.IsTrue(WeaselSpec.Leaves(new Vector2(5f, -2.5f), 0f, 20f), "fell out of the world");
+        }
+
+        [Test]
+        public void EveryRouletteSpinsAlike()
+        {
+            Assert.IsFalse(RouletteSpin.Settled(RouletteSpin.Settles));
+            Assert.IsTrue(RouletteSpin.Settled(RouletteSpin.Settles + 0.01f));
+            Assert.IsFalse(RouletteSpin.Lit(0.5f, 0f), "only lit once it's settled");
+            Assert.IsTrue(RouletteSpin.Lit(0.9f, 0f));
+            int early = 0, late = 0;
+            for (int i = 0; i < 100; i++)
+            {
+                bool ticked = RouletteSpin.Ticked(i / 100f, (i + 1) / 100f);
+                if (ticked && i < 50) early++;
+                if (ticked && i >= 50) late++;
+            }
+            Assert.Greater(early, late, "it slows down");
+            for (float t = 0f; t < 1f; t += 0.05f) Assert.That(RouletteSpin.Face(t, 3), Is.InRange(0, 2));
+        }
     }
 }

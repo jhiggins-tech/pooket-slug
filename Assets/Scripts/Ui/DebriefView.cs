@@ -218,8 +218,8 @@ namespace PooketSlug
             int Count(int n) => Mathf.RoundToInt(n * k);
             switch (row)
             {
-                case 0: return Count(r.Score).ToString("000000");
-                case 1: return Count(r.Best).ToString("000000");
+                case 0: return DropIn.Points(Count(r.Score));
+                case 1: return DropIn.Points(Count(r.Best));
                 case 2:
                     int s = Count(r.Seconds);
                     return string.Format("{0}:{1:00}", s / 60, s % 60);

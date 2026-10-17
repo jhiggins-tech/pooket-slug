@@ -344,10 +344,10 @@ namespace PooketSlug
                 {
                     m_Points = points;
                     m_OwnShown = ownPoints;
-                    m_Score.text = own ? "SCORE " + DropIn.Points(points) + "  YOU " + DropIn.Points(w.OwnPoints) : "SCORE " + points.ToString("000000");
+                    m_Score.text = own ? "SCORE " + DropIn.Points(points) + "  YOU " + DropIn.Points(w.OwnPoints) : "SCORE " + DropIn.Points(points);
                 }
                 int hi = Mathf.Max(info.HiScore, points);
-                if (hi != m_HiScore) m_Hi.text = "HI " + (m_HiScore = hi).ToString("000000");
+                if (hi != m_HiScore) m_Hi.text = "HI " + DropIn.Points(m_HiScore = hi);
                 int secs = Mathf.FloorToInt(w.Elapsed);
                 if (secs != m_Seconds) m_Time.text = string.Format("TIME {0}:{1:00}", (m_Seconds = secs) / 60, secs % 60);
                 int gun = p.GunAmmo > 0 ? p.Gun.Id : -1;

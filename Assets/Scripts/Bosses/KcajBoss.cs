@@ -191,12 +191,9 @@ namespace PooketSlug
             m_Beam.enabled = on && (m_Phase == Sweeping || (int)(m_T * 24f) % 2 == 0);
             if (m_Beam.enabled)
             {
-                Vector2 from = m_Tank.Muzzle, to = Floor, d = to - from;
-                Transform t = m_Beam.transform;
-                t.position = (Vector3)((from + to) * 0.5f);
-                t.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(d.y, d.x) * Mathf.Rad2Deg);
-                t.localScale = new Vector3(d.magnitude * Art.PPU, m_Phase == Sweeping ? 3f + ((int)(Time.time * 30f) % 2) : 1f, 1f);
-                m_Beam.color = m_Phase == Sweeping ? Color.Lerp(KcajArt.Beam, KcajArt.Hot, 0.5f + 0.5f * Mathf.Sin(Time.time * 40f)) : new Color(1f, 0.6f, 0.85f, 0.7f);
+                // the sweep is kcaj's own beam at full heat
+                if (m_Phase == Sweeping) KcajArt.DrawBeam(m_Beam, m_Tank.Muzzle, Floor, 1f);
+                else KcajArt.DrawFaintBeam(m_Beam, m_Tank.Muzzle, Floor, new Color(1f, 0.6f, 0.85f, 0.7f));
             }
             m_Pills.Render(m_Rain, Raining);
         }

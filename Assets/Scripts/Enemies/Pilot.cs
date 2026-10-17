@@ -205,7 +205,7 @@ namespace PooketSlug
             if (out_ >= Spec.WeaselsOut) return;
             Vector2[] throws = KieTuning.Weasels.Volley(m_Aim, Vel);
             for (int i = 0; i < Spec.WeaselsPerThrow && i < throws.Length && out_ < Spec.WeaselsOut; i++, out_++)
-                if (World.Spawner.SpawnEnemy(Content.Weasel, MuzzlePos) is Weasel weasel) weasel.Launch(throws[i], Content.KieTank.WeaselSpeed);
+                if (World.Spawner.SpawnEnemy(Content.Weasel, MuzzlePos) is Weasel weasel) weasel.Launch(throws[i], Content.KieTank.Weasel.ScurrySpeed);
             m_FireCooldown = Spec.WeaselCooldown;
             Fired();
         }
@@ -357,8 +357,7 @@ namespace PooketSlug
         /// <summary>Holds the pilot's pose where it stands.</summary>
         public void Hold(AvatarPose pose, float height)
         {
-            pose.Muzzle = pose.Blink = pose.Flash = pose.Running = false;
-            m_Pose = pose;
+            m_Pose = pose = pose.Still();
             Facing = pose.Facing;
             Height = height;
             Vel = Vector2.zero;

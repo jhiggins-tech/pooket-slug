@@ -110,7 +110,6 @@ namespace PooketSlug
             if (dir.x != 0f) tank.Facing = dir.x > 0f ? 1 : -1;
             world.Liquids.SpillMud(tank.Pos, Guns.Mud);
             Tones2Sprays.Exhaust(world, tank.Pos);
-            Tones2Sprays.Exhaust(world, tank.Pos);
             Sfx.Play(Sfx.RocketLaunch);
             world.View.Shake(0.25f);
             world.Net?.SendShot(new ShotEvent(Content.RocketJump, tank.Pos, Vector2.zero)); // partners lay mud too, harmless, on their screens

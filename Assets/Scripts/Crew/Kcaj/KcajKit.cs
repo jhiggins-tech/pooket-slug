@@ -142,15 +142,8 @@ namespace PooketSlug
             m_Beam.enabled = locked || miss;
             if (m_Beam.enabled)
             {
-                Vector2 from = p.MuzzlePos, to = locked ? m_Target.Center : m_MissEnd;
-                Vector2 d = to - from;
-                float heat = locked ? Mathf.Clamp01(m_Fix.Held / m_Spec.RampTime) : 0f;
-                float thick = locked ? 1f + Mathf.Round(heat * 2f) + ((int)(Time.time * 30f) % 2) : 1f;
-                Transform t = m_Beam.transform;
-                t.position = (Vector3)((from + to) * 0.5f);
-                t.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(d.y, d.x) * Mathf.Rad2Deg);
-                t.localScale = new Vector3(d.magnitude * Art.PPU, thick, 1f);
-                m_Beam.color = miss ? new Color(1f, 1f, 1f, 0.5f) : Color.Lerp(KcajArt.Beam, KcajArt.Hot, heat * (0.6f + 0.4f * Mathf.Sin(Time.time * 40f)));
+                if (locked) KcajArt.DrawBeam(m_Beam, p.MuzzlePos, m_Target.Center, Mathf.Clamp01(m_Fix.Held / m_Spec.RampTime));
+                else KcajArt.DrawFaintBeam(m_Beam, p.MuzzlePos, m_MissEnd, new Color(1f, 1f, 1f, 0.5f));
             }
 
             // The screen edges close in while he's fixated.
@@ -324,6 +317,32 @@ namespace PooketSlug
         };
 
         static Sprite[] s_Pills;
+
+        /// <summary>
+        /// Draws a Hyperfixate beam from <paramref name="from"/> to <paramref name="to"/>, kcaj's and his tabk's alike:
+        /// <paramref name="heat"/> (0 to 1) thickens it and burns it white, and it flickers.
+        /// </summary>
+        public static void DrawBeam(SpriteRenderer beam, Vector2 from, Vector2 to, float heat)
+        {
+            Stretch(beam, from, to, 1f + Mathf.Round(heat * 2f) + ((int)(Time.time * 30f) % 2));
+            beam.color = Color.Lerp(Beam, Hot, heat * (0.6f + 0.4f * Mathf.Sin(Time.time * 40f)));
+        }
+
+        /// <summary>Draws a thin, faint beam that does no harm: a miss, or a warning of one to come.</summary>
+        public static void DrawFaintBeam(SpriteRenderer beam, Vector2 from, Vector2 to, Color colour)
+        {
+            Stretch(beam, from, to, 1f);
+            beam.color = colour;
+        }
+
+        static void Stretch(SpriteRenderer beam, Vector2 from, Vector2 to, float thickness)
+        {
+            Vector2 d = to - from;
+            Transform t = beam.transform;
+            t.position = (Vector3)((from + to) * 0.5f);
+            t.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(d.y, d.x) * Mathf.Rad2Deg);
+            t.localScale = new Vector3(d.magnitude * Art.PPU, thickness, 1f);
+        }
 
         /// <summary>A pill popping: a puff in its colours.</summary>
         public static void Pop(World w, Vector2 at, int flecks)

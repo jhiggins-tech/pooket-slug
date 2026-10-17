@@ -81,5 +81,17 @@ namespace PooketSlug.Tests
         {
             Assert.IsFalse(AvatarPose.Unpack(new AvatarPose { Facing = 1, Diagonal = true }.Pack(), 0f, 0f).Diagonal);
         }
+
+        [Test]
+        public void AStillPoseStandsAndNeverFires()
+        {
+            var pose = new AvatarPose { Facing = -1, AimY = 1, Crouching = true, Dead = true, Muzzle = true, Blink = true, Flash = true, Running = true };
+            AvatarPose still = pose.Still();
+            Assert.IsFalse(still.Dead, "a Trollogram of a downed soldier stands");
+            Assert.IsFalse(still.Muzzle || still.Blink || still.Flash || still.Running);
+            Assert.AreEqual(-1, still.Facing);
+            Assert.AreEqual(1, still.AimY);
+            Assert.IsTrue(still.Crouching, "frozen mid-whatever");
+        }
     }
 }

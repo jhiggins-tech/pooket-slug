@@ -48,6 +48,17 @@ namespace PooketSlug
             (Spewing ? SpewBit : 0) | (Rooted ? RootedBit : 0) | (SuperReady ? SuperReadyBit : 0) |
             (Away ? AwayBit : 0) | ((Beat & 3) << BeatShift);
 
+        /// <summary>
+        /// This pose held still, as a Trollogram holds it (kie's, <c>TrollDecoy</c>, and his pilot's,
+        /// <c>PilotDecoy</c>): frozen mid-whatever, standing (never drawn dead), never firing, blinking or running.
+        /// </summary>
+        public AvatarPose Still()
+        {
+            AvatarPose p = this;
+            p.Muzzle = p.Blink = p.Flash = p.Running = p.Dead = false;
+            return p;
+        }
+
         /// <summary>Unpacks replicated flags; animation clocks are kept locally by the caller.</summary>
         public static AvatarPose Unpack(int flags, float anim, float deadTime) => new AvatarPose
         {

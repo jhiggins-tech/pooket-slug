@@ -21,13 +21,14 @@ namespace PooketSlug
         /// <summary>Weasels in a wave, and how much harder or softer than the middle one each neighbour is thrown.</summary>
         public int WeaselCount = 3;
         public float WeaselSpread = 0.18f;
-        /// <summary>The weasels' own gravity while thrown (floatier than a soldier's), and the hardest throw.</summary>
-        public float WeaselGravity = 22f, WeaselMaxPower = 17f;
-        /// <summary>How fast a weasel scurries once it lands, before the tank's rage.</summary>
-        public float WeaselSpeed = 4.6f;
-        /// <summary>Seconds from landing until a weasel pops on its own, how close it gets before it pops, its blast.</summary>
-        public float WeaselFuse = 4.5f, WeaselReach = 0.7f, WeaselBlast = 1.0f;
-        public int WeaselDamage = 1;
+        /// <summary>The hardest throw (the weasels fall at <see cref="Weasel"/>'s gravity).</summary>
+        public float WeaselMaxPower = 18.5f;
+        /// <summary>
+        /// The weasels it and its pilot throw at the soldiers: kie's own rules (<see cref="WeaselSpec"/>), slower so
+        /// they can be shot first (the tank's rage speeds them up), a smaller pop for a soldier's few hits, and they
+        /// chase you right across the screen.
+        /// </summary>
+        public readonly WeaselSpec Weasel = new WeaselSpec { ScurrySpeed = 4.6f, HuntRange = 99f, Damage = 1, BlastRadius = 1f, BlastSize = 0.6f };
 
         /// <summary>Copies it throws up, how far apart the three tanks stand, and how long the copies last.</summary>
         public int Decoys = 2;

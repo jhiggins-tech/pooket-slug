@@ -201,11 +201,11 @@ namespace PooketSlug
             KieSteal face;
             if (spinning)
             {
-                // flicks between the two, slowing, and settles on what it'll take for the last part of the spin
+                // flicks between the two, slowing, and settles on what it'll take (the same spin as kie's own, RouletteSpin)
                 float t = m_LocalSpin / SpinTime;
-                face = t > 0.8f ? m_Pick : ((int)(Mathf.Sqrt(t) * 14f) % 2 == 0 ? KieSteal.Special : KieSteal.Super);
+                face = RouletteSpin.Settled(t) ? m_Pick : (RouletteSpin.Face(t, 2) == 0 ? KieSteal.Special : KieSteal.Super);
                 if (face == KieSteal.Nothing) face = (int)(m_LocalSpin * 8f) % 2 == 0 ? KieSteal.Special : KieSteal.Super;
-                m_Frame.color = t > 0.8f && (int)(m_LocalSpin * 16f) % 2 == 0 ? Color.white : Palette.Pink;
+                m_Frame.color = RouletteSpin.Lit(t, m_LocalSpin) ? Color.white : Palette.Pink;
             }
             else
             {

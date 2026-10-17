@@ -112,11 +112,11 @@ namespace PooketSlug
             Actor target = m_World.Combat.NearestAvatar(muzzle);
             float dx = target.Pos.x - muzzle.x, dy = target.Pos.y - muzzle.y;
             float lob = Mathf.Clamp(angle > 90f ? 180f - angle : angle, 30f, 70f);
-            float power = BossTankSpec.PowerFor(dx, dy, lob, Spec.WeaselGravity);
+            float power = BossTankSpec.PowerFor(dx, dy, lob, Spec.Weasel.Gravity);
             if (float.IsNaN(power) || power > Spec.WeaselMaxPower) power = Spec.WeaselMaxPower;
             float a = lob * Mathf.Deg2Rad, side = dx < 0f ? -1f : 1f;
             var dir = new Vector2(Mathf.Cos(a) * side, Mathf.Sin(a));
-            float speed = Spec.WeaselSpeed * m_Tank.Fury;
+            float speed = Spec.Weasel.ScurrySpeed * m_Tank.Fury;
             for (int i = 0; i < Spec.WeaselCount; i++)
             {
                 float k = 1f + (i - (Spec.WeaselCount - 1) * 0.5f) * Spec.WeaselSpread;
@@ -237,15 +237,16 @@ namespace PooketSlug
     {
         const float PopTime = 0.15f; // dying this long before it's gone, so the snapshot carries the pop
         readonly SpriteRenderer m_Sr;
-        float m_Speed, m_Fuse;
-        bool m_Landed, m_Boomed;
+        WeaselBody.Run m_Run;
+        float m_Speed;
+        bool m_Boomed;
 
         public Weasel(World world, EnemyDef def, Vector2 at) : base(world, def, at)
         {
             m_Sr = AddRenderer(Visual, "Body", KieArt.Weasel[0], SortOrder.Enemies + 1);
         }
 
-        /// <summary>Authority: thrown from the tank at <paramref name="vel"/>, to run at <paramref name="speed"/> once down.</summary>
+        /// <summary>Authority: thrown at <paramref name="vel"/>, to run at <paramref name="speed"/> once down.</summary>
         public void Launch(Vector2 vel, float speed)
         {
             Vel = vel;
@@ -255,24 +256,29 @@ namespace PooketSlug
 
         protected override void TickAlive(float dt)
         {
-            KieTankSpec spec = Content.KieTank;
-            if (!m_Landed)
+            WeaselSpec spec = Content.KieTank.Weasel;
+            WeaselMove move = WeaselBody.Step(this, ref m_Run, spec, dt, Prey(spec), m_Speed);
+            if (move == WeaselMove.Pop) Pop();
+            else if (move == WeaselMove.Gone)
             {
-                m_Landed = WeaselBody.Tumble(this, dt, spec.WeaselGravity);
-                return;
+                // off the screen: gone, without a pop
+                m_Boomed = true;
+                Dying = true;
             }
+        }
 
-            m_Fuse += dt;
-            if (!Target.IsDown) FaceTarget();
-            WeaselBody.Scurry(this, dt, Target.IsDown ? 0f : m_Speed);
-            bool close = !Target.IsDown && (Target.Center - Center).sqrMagnitude < spec.WeaselReach * spec.WeaselReach;
-            if (close || m_Fuse >= spec.WeaselFuse) Pop();
+        /// <summary>The soldier it hunts: the nearest one, standing, on screen and in reach (<see cref="WeaselSpec.CanHunt"/>).</summary>
+        Actor Prey(WeaselSpec spec)
+        {
+            Actor t = Target;
+            if (t == null || t.IsDown || !WeaselSpec.OnScreen(t.Pos.x, World.View.Left, World.View.Right)) return null;
+            return spec.CanHunt(Pos, t.Pos, false) ? t : null;
         }
 
         void Pop()
         {
-            KieTankSpec spec = Content.KieTank;
-            World.Combat.HostileBlast(Center, spec.WeaselBlast, spec.WeaselDamage, 0.6f);
+            WeaselSpec spec = Content.KieTank.Weasel;
+            World.Combat.HostileBlast(Center, spec.BlastRadius, spec.Damage, spec.BlastSize);
             m_Boomed = true;
             Dying = true; // no score: nobody shot it
         }
@@ -293,8 +299,8 @@ namespace PooketSlug
         {
             base.Render();
             Visual.gameObject.SetActive(!Dying);
-            if (!World.IsAuthority && Grounded) m_Landed = true; // a follower sees it land in the snapshot
-            m_Sr.sprite = Flashed(WeaselBody.Pose(this, m_Landed, Anim));
+            if (!World.IsAuthority && Grounded) m_Run.Landed = true; // a follower sees it land in the snapshot
+            m_Sr.sprite = Flashed(WeaselBody.Pose(this, m_Run.Landed, Anim));
         }
     }
 
