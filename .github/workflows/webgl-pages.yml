@@ -116,16 +116,17 @@ jobs:
     timeout-minutes: 60
     steps:
       # The unityci/editor WebGL image is ~7 GB compressed; make room for it on the hosted runner.
-      - name: Free disk space
-        uses: jlumbroso/free-disk-space@v1.3.1
-        with:
-          tool-cache: false
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: false
-          docker-images: true
-          swap-storage: false
+      # SPIKE (spike-ci-disk): instead of deleting ~2 minutes' worth of preinstalled tools, move Docker's storage to
+      # the runner's second disk (/mnt), which is mostly empty. Prints the space before and after for the review.
+      - name: Free disk space (spike, Docker on /mnt)
+        run: |
+          df -h / /mnt
+          sudo systemctl stop docker docker.socket
+          sudo mkdir -p /mnt/docker
+          echo '{"data-root": "/mnt/docker"}' | sudo tee /etc/docker/daemon.json
+          sudo systemctl start docker
+          docker info --format 'Docker storage: {{.DockerRootDir}}'
+          df -h / /mnt
 
       - name: Checkout
         uses: actions/checkout@v5
