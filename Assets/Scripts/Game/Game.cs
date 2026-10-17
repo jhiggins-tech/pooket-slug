@@ -11,6 +11,8 @@ namespace PooketSlug
         static void Boot()
         {
             if (Object.FindAnyObjectByType<Game>() != null) return;
+            // The test runner's own scene (PlayMode tests build the worlds they need): no game behind them.
+            if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name.StartsWith("InitTestScene")) return;
             var go = new GameObject("Pooket Slug");
             Object.DontDestroyOnLoad(go);
             go.AddComponent<Game>();

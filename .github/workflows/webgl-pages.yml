@@ -220,11 +220,12 @@ jobs:
           version=$(sed -n 's/^m_EditorVersion: //p' ProjectSettings/ProjectVersion.txt)
           echo "image=unityci/editor:ubuntu-$version-webgl-3" >> "$GITHUB_OUTPUT"
 
-      # EditMode tests for the pure game logic (Assets/Scripts/Core, tests in Assets/Tests/EditMode).
-      # A failing test stops the job here, so a broken build never deploys. Pinned to v4.3.2, the last
+      # EditMode tests for the pure game logic (Assets/Scripts/Core, tests in Assets/Tests/EditMode), then
+      # PlayMode tests for the gameplay (Assets/Tests/Gameplay: a real World, ticked frame by frame). A
+      # failing test stops the job here, so a broken build never deploys. Pinned to v4.3.2, the last
       # release that runs Unity itself: v4.4.0 (the v4 tag) wraps game-ci/cli, which rejected the flag the
       # action passed for coverageEnabled: false. No githubToken, so no check run: the summary lists results.
-      - name: Run EditMode tests (GameCI)
+      - name: Run the tests (GameCI)
         id: tests
         uses: game-ci/unity-test-runner@v4.3.2
         env:
@@ -233,7 +234,7 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           customImage: ${{ steps.editor.outputs.image }}
-          testMode: editmode
+          testMode: all
           artifactsPath: test-results
 
       - name: Test summary
@@ -241,29 +242,35 @@ jobs:
         run: |
           # to the log as well as the summary, so a failure can be read from the job's log alone
           python3 - <<'EOF' | tee -a "$GITHUB_STEP_SUMMARY"
-          import glob, xml.etree.ElementTree as ET
+          import glob, sys, xml.etree.ElementTree as ET
           files = sorted(glob.glob('test-results/*.xml'))
           if not files:
-              print("### EditMode tests\n\nNo results: Unity stopped before writing them. The test step's log says why.")
+              print("### Tests\n\nNo results: Unity stopped before writing them. The test step's log says why.")
               raise SystemExit
-          run = ET.parse(files[0]).getroot()
-          print("### EditMode tests: " + ("passed" if run.get("result", "").startswith("Passed") else "failed"))
-          print()
-          print(f"{run.get('passed')} of {run.get('total')} passed, {run.get('failed')} failed, "
-                f"{run.get('skipped')} skipped, in {float(run.get('duration') or 0):.1f} s.")
-          failed = [t for t in run.iter('test-case') if t.get('result') == 'Failed']
-          if failed:
+          for path in files:
+              run = ET.parse(path).getroot()
+              mode = 'PlayMode' if 'playmode' in path.lower() else 'EditMode'
+              print(f"### {mode} tests: " + ("passed" if run.get("result", "").startswith("Passed") else "failed"))
               print()
-          for t in failed[:30]:
-              message = (t.findtext('failure/message') or '').strip().splitlines()
-              print(f"- `{t.get('fullname')}`: {message[0] if message else 'failed'}")
+              line = (f"{run.get('passed')} of {run.get('total')} passed, {run.get('failed')} failed, "
+                      f"{run.get('skipped')} skipped, in {float(run.get('duration') or 0):.1f} s.")
+              print(line)
+              # Also an annotation on the run, which the checks API can read without the log or the artifact.
+              print(f"::notice title={mode} tests::{line}", file=sys.stderr)
+              failed = [t for t in run.iter('test-case') if t.get('result') == 'Failed']
+              if failed:
+                  print()
+              for t in failed[:30]:
+                  message = (t.findtext('failure/message') or '').strip().splitlines()
+                  print(f"- `{t.get('fullname')}`: {message[0] if message else 'failed'}")
+              print()
           EOF
 
       - name: Upload test results
         if: always() && steps.tests.outcome != 'skipped'
         uses: actions/upload-artifact@v6
         with:
-          name: editmode-tests
+          name: tests
           path: test-results
           if-no-files-found: ignore
 

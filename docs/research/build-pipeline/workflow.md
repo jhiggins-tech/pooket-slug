@@ -70,15 +70,15 @@ Four steps run the [EditMode tests](../verification/edit-mode-tests.md) before t
    | Input | Value | Why |
    |---|---|---|
    | `customImage` | The image from step 1 | One pull for both Unity runs |
-   | `testMode` | `editmode` | The only tests so far |
+   | `testMode` | `all` | EditMode (Core's rules) and PlayMode (gameplay, `Assets/Tests/Gameplay`) |
    | `artifactsPath` | `test-results` | Where the NUnit XML and Unity's log go |
 
    - It activates Unity with the same three secrets as the build.
    - There's no `githubToken`, so it creates no check run, which would need `checks: write`. The summary covers it.
    - It always passes `-enableCodeCoverage`. Without the coverage package, Unity writes no coverage report.
    - A failing test fails the step, so the build and deploy don't run.
-3. **Summarise the results:** the counts, and the first line of each failure.
-4. **Upload the NUnit XML** as the `editmode-tests` artifact.
+3. **Summarise the results:** each mode's counts, and the first line of each failure. The counts are also a notice on the run, which the checks API reads (`check-runs/<id>/annotations`) when the log and artifact are out of reach.
+4. **Upload the NUnit XML** as the `tests` artifact.
 
 ### 6. The build step
 
