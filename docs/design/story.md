@@ -111,7 +111,7 @@ The first-ever reveal: tabks exist ([reveals](#reveals-are-story-beats)). It pla
 
 **How it fits the boss intro:** the first time, this scene is the tabk's entrance, so the intro that follows skips the roll-out and goes straight to the banner, the name card ("KIE'S TABK") and the music.
 
-**Built** (2026-10-16): it plays as the boss tabk wakes, the first time, solo; once it ends, the tabk is in its place and the full boss intro runs (`scenes/motor-pool.txt`, drawn by `Ui/CutsceneView.cs`). Test starts (`?test=boss`, `pilot`, `team`) skip it; `?test=boss,reveal` plays it every time, so it can be tried again once seen. The narrator says "tanks" where the subtitles say "tabks".
+**Built** (2026-10-16): it plays as the boss tabk wakes, the first time, solo; once it ends, the tabk is in its place and the full boss intro runs (`scenes/motor-pool.txt`, drawn by `Ui/Cutscene/`). Test starts (`?test=boss`, `pilot`, `team`) skip it; `?test=boss,reveal` plays it every time, so it can be tried again once seen. The narrator says "tanks" where the subtitles say "tabks".
 
 ## Freeing kie
 
