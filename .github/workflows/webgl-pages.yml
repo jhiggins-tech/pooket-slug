@@ -205,8 +205,10 @@ jobs:
       # failing test stops the job here, so a broken build never deploys. Pinned to v4.3.2, the last
       # release that runs Unity itself: v4.4.0 (the v4 tag) wraps game-ci/cli, which rejected the flag the
       # action passed for coverageEnabled: false. No githubToken, so no check run: the summary lists results.
-      - name: Run the tests (GameCI)
-        id: tests
+      # One Unity (and one container) per test mode: run together, PlayMode can leave Unity's IL post-processing
+      # runner alive, and EditMode then dies with "Cannot access a closed pipe", reported as compiler errors.
+      - name: Run the EditMode tests (GameCI)
+        id: editmode
         uses: game-ci/unity-test-runner@v4.3.2
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -214,19 +216,35 @@ jobs:
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
           customImage: ${{ steps.editor.outputs.image }}
-          testMode: all
-          artifactsPath: test-results
+          testMode: editmode
+          artifactsPath: test-results/editmode
+
+      - name: Run the PlayMode tests (GameCI)
+        id: playmode
+        # after a red EditMode run too, so one run shows both modes' results
+        if: success() || steps.editmode.outcome == 'failure'
+        uses: game-ci/unity-test-runner@v4.3.2
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          customImage: ${{ steps.editor.outputs.image }}
+          testMode: playmode
+          artifactsPath: test-results/playmode
 
       - name: Test summary
-        if: always() && steps.tests.outcome != 'skipped'
+        if: always() && steps.editmode.outcome != 'skipped'
         run: |
           # to the log as well as the summary, so a failure can be read from the job's log alone
           python3 - <<'EOF' | tee -a "$GITHUB_STEP_SUMMARY"
           import glob, sys, xml.etree.ElementTree as ET
-          files = sorted(glob.glob('test-results/*.xml'))
+          files = sorted(glob.glob('test-results/**/*.xml', recursive=True))
           if not files:
-              print("### Tests\n\nNo results: Unity stopped before writing them. The test step's log says why.")
+              print("### Tests\n\nNo results: Unity stopped before writing them. The test steps' logs say why.")
               raise SystemExit
+          for missing in sorted({'EditMode', 'PlayMode'} - {'PlayMode' if 'playmode' in f.lower() else 'EditMode' for f in files}):
+              print(f"### {missing} tests: no results\n\nUnity stopped before writing them. Their step's log says why.\n")
           for path in files:
               run = ET.parse(path).getroot()
               mode = 'PlayMode' if 'playmode' in path.lower() else 'EditMode'
@@ -247,7 +265,7 @@ jobs:
           EOF
 
       - name: Upload test results
-        if: always() && steps.tests.outcome != 'skipped'
+        if: always() && steps.editmode.outcome != 'skipped'
         uses: actions/upload-artifact@v6
         with:
           name: tests

@@ -61,24 +61,24 @@ It takes 1 to 2 s. Why it works this way, and how to upgrade the SDK: [SDK in CI
 - Any asset change misses the exact key, then restores the most recent Library and imports incrementally.
 - Before Fusion, the cache was 83 MB compressed and saved about 70 s per build.
 
-### 5. EditMode tests
+### 5. EditMode and PlayMode tests
 
-Four steps run the [EditMode tests](../verification/edit-mode-tests.md) before the build:
+Five steps run the [EditMode tests](../verification/edit-mode-tests.md) and the PlayMode ones before the build:
 1. **Pick the editor image:** `unityci/editor:ubuntu-<version>-webgl-3`, with the version read from `ProjectVersion.txt`. The builder picks the same image, so it's pulled once.
-2. **Run the tests** with `game-ci/unity-test-runner@v4.3.2` ([why that version](#action-versions)):
+2. **Run the EditMode tests**, then 3. **the PlayMode tests**, each with `game-ci/unity-test-runner@v4.3.2` ([why that version](#action-versions)) in its own Unity and container. Run together (`testMode: all`), PlayMode could leave Unity's IL post-processing runner alive, and EditMode then died with "Cannot access a closed pipe", reported as "Scripts have compiler errors". The PlayMode step runs after a red EditMode one too, so a run shows both modes.
 
    | Input | Value | Why |
    |---|---|---|
-   | `customImage` | The image from step 1 | One pull for both Unity runs |
-   | `testMode` | `all` | EditMode (Core's rules) and PlayMode (gameplay, `Assets/Tests/Gameplay`) |
-   | `artifactsPath` | `test-results` | Where the NUnit XML and Unity's log go |
+   | `customImage` | The image from step 1 | One pull for all three Unity runs |
+   | `testMode` | `editmode`, then `playmode` | Core's rules, then gameplay (`Assets/Tests/Gameplay`) |
+   | `artifactsPath` | `test-results/editmode`, `test-results/playmode` | Where each mode's NUnit XML and Unity's log go |
 
-   - It activates Unity with the same three secrets as the build.
+   - Each activates Unity with the same three secrets as the build.
    - There's no `githubToken`, so it creates no check run, which would need `checks: write`. The summary covers it.
    - It always passes `-enableCodeCoverage`. Without the coverage package, Unity writes no coverage report.
    - A failing test fails the step, so the build and deploy don't run.
-3. **Summarise the results:** each mode's counts, and the first line of each failure. The counts are also a notice on the run, which the checks API reads (`check-runs/<id>/annotations`) when the log and artifact are out of reach.
-4. **Upload the NUnit XML** as the `tests` artifact.
+4. **Summarise the results:** each mode's counts (or that a mode wrote none), and the first line of each failure. The counts are also a notice on the run, which the checks API reads (`check-runs/<id>/annotations`) when the log and artifact are out of reach.
+5. **Upload the NUnit XML** as the `tests` artifact (both modes, in a folder each).
 
 ### 6. The build step
 
