@@ -14,6 +14,11 @@ namespace PooketSlug
         /// are split into stages, a clear counts as one, and the first clear of a mission as a whole rung.
         /// </summary>
         public const int Rung = 4, FirstClearClimb = Rung, ReplayClimb = 1;
+        /// <summary>Every this much career XP earns a looks token (<c>docs/design/player.md</c>).</summary>
+        public const int LooksTokenXp = 600;
+
+        /// <summary>How far career XP <paramref name="xp"/> is towards the next looks token, 0 to 1 (the debrief's XP bar).</summary>
+        public static float TokenProgress(int xp) => (xp % LooksTokenXp) / (float)LooksTokenXp;
 
         /// <summary>The rank <paramref name="climb"/> stages up the ladder is (the lowest at 0).</summary>
         public static int RankIndex(int climb) => System.Math.Max(0, System.Math.Min(Ranks.All.Length - 1, climb / Rung));
@@ -122,6 +127,16 @@ namespace PooketSlug
             int i = m_Parts.IndexOf(part);
             return i >= 0 && i <= m_At;
         }
+
+        /// <summary>
+        /// What kie says now, or null: the first debrief explains the XP as it counts up, and the sign-in offer asks
+        /// (<c>docs/design/story.md</c>, The first debrief).
+        /// </summary>
+        public string KieSays =>
+            Now == Part.SignIn ? "SIGN IN SO THIS DOESN'T VANISH." : Result.First && Now == Part.Xp ? "YOU GET XP FOR THAT." : null;
+
+        /// <summary>The sign-in button shows: in its own part, and at CONTINUE for a player who isn't signed in.</summary>
+        public bool ShowsSignIn => Now == Part.SignIn || Now == Part.Continue && Result.OfferSignIn;
 
         static float Length(Part p) => p == Part.Tally ? TallySeconds : p == Part.Xp ? XpSeconds : p == Part.Rank ? RankSeconds : 0f;
 

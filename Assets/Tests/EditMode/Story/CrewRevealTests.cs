@@ -44,6 +44,19 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void TheTitleShowsStartUntilTheCrewsOpenAndStartHasCracked()
+        {
+            Assert.IsFalse(CrewReveal.MenuGrown(false, null), "before Mission one's beaten: START");
+            Assert.IsTrue(CrewReveal.MenuGrown(true, null), "after: MISSIONS");
+            var r = new CrewReveal();
+            Assert.IsFalse(CrewReveal.MenuGrown(true, r), "while the reveal plays, START until it cracks");
+            r.Tick(1f);
+            r.Tick(2f);
+            r.Tick(CrewReveal.CrackSeconds + 0.01f);
+            Assert.IsTrue(CrewReveal.MenuGrown(true, r));
+        }
+
+        [Test]
         public void ATapMovesOnButCantSkipAShotUnseen()
         {
             var r = new CrewReveal();
