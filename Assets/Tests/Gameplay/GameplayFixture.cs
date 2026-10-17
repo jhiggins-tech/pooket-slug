@@ -16,7 +16,7 @@ namespace PooketSlug.Tests
         Camera m_Camera;
 
         /// <summary>A flat 40-tile strip (the kit demos' map): 'P' is our soldier, 's' a rifleman, 'r' a runner.</summary>
-        protected static string[] Strip(string row) => KitGuide.Ground(row.PadRight(40, Level.Empty));
+        protected static string[] Strip(string row) => DemoScript.Ground(row.PadRight(40, Level.Empty));
 
         [SetUp]
         public void MakeCamera()
