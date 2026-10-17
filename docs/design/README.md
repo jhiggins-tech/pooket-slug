@@ -20,6 +20,7 @@ Up: [Repository README](../../README.md)
 | [The crew's kits](kits.md) | Every soldier's weapons, forks and abilities | Moved from the brainstorm, 2026-10-15 |
 | [Team supers](team-supers.md) | The combo attack for each pair of soldiers in co-op | Draft, 2026-10-15 |
 | [The lobby](lobby.md) | The gaming den: a station per freed crewmate, their idle bits, and picking and readying up, solo and co-op | Approved, 2026-10-16 |
+| [Generated art](art.md) | The look of generated art: the model, prompt and pixels for background plates | Picked, 2026-10-17 |
 | [Music](music.md) | Every track and sting, the style, and how the chip synth makes them | Approved, 2026-10-15 |
 | [History](history.md) | The Roguelite (on ice), and ideas considered and not picked | Kept from the first brainstorm |
 
