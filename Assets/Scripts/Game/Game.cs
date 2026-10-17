@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -22,9 +23,14 @@ namespace PooketSlug
     public enum GameState { Title, Settings, Online, CodeEntry, Lobby, Den, Cutscene, Playing, GameOver, Victory, Demo, Rooms }
 
     /// <summary>
-    /// Owns the camera, the current <see cref="World"/>, the online session and the player's profile, and runs
-    /// the game's flow: title, online menus, play, pause, game over and victory. The HUD and the menus are
-    /// views (<see cref="HudView"/>, <see cref="MenuView"/>) that it hands what to show each frame.
+    /// Owns the camera, the current <see cref="World"/>, the online session and the player's profile, and runs the
+    /// game's state machine: title, settings, online menus, play, pause, game over and victory, and Mission one's
+    /// story beats. The rest of the game's flow is in flows it owns, one per part: the cutscenes (<see cref="SceneFlow"/>),
+    /// the den (<see cref="DenFlow"/>), the kit screen (<see cref="KitFlow"/>), the mission screen (<see cref="BoardFlow"/>),
+    /// the demos (<see cref="DemoFlow"/>), the sandbox (<see cref="SandboxFlow"/>), the boss intro
+    /// (<see cref="BossIntroFlow"/>), the music (<see cref="MusicFlow"/>), the room browser (<see cref="RoomsFlow"/>), the
+    /// debrief (<see cref="DebriefFlow"/>) and two of the crew (<see cref="RevealFlow"/>). The HUD and the menus are views
+    /// (<see cref="HudView"/>, <see cref="MenuView"/>) that it hands what to show each frame.
     /// </summary>
     public sealed class Game : MonoBehaviour
     {
@@ -40,9 +46,6 @@ namespace PooketSlug
         bool m_Coop;            // m_World is the shared co-op world
         float m_OutFor;         // seconds the game has had nobody left in it (out of lives and continues)
         LaunchFlags m_Flags;    // ?unlock=, ?test= and the rest, read once in Awake
-        bool m_TestCrew;        // ?test=crew, until two of the crew has played (once a visit)
-        CrewReveal m_Reveal;
-        CrewRevealView m_RevealView;
         string m_Notice, m_StartNote;
         float m_NoticeTime, m_LeaveArmed;
 
@@ -53,73 +56,61 @@ namespace PooketSlug
         bool m_AccountShown = true; // the page shows the sign-in button until the game says otherwise
         Options m_Options;
         Profile m_Profile;
-        /// <summary>The profile's once-only story beats (the coda's prompts, the first debrief, a boss reveal).</summary>
-        StoryRecord m_Story => new StoryRecord(m_Profile);
         bool m_CoopJustOpened; // this run's win opened co-op
-        DebriefPlayer m_Debrief; // a won solo run's debrief, while it's up
-        DebriefView m_DebriefView;
-        MissionDef m_Mission = Missions.One; // the mission a solo game plays; a shared game plays the host's
         string m_PageUrl;      // the page's address without its query, for invite links
-        // the boss intro under way (docs/design/tanks.md): seconds since it began, whether it's the full one, and the name card
-        float m_IntroT;
-        bool m_IntroFull;
-        string m_IntroName;
-        readonly BossIntroShow.Cue[] m_IntroCues = new BossIntroShow.Cue[4];
-        // the cutscene playing (docs/design/story.md, Cutscenes), what comes after it, and in co-op our taps to send
-        CutsceneView m_SceneView;
-        CutscenePlayer m_Scene;
-        // the scenes themselves (scenes/<name>.txt): the built-in copies, and the site's once fetched
-        SceneLibrary m_Scenes;
-        bool m_SceneDraft; // a draft played with ?scene=: never marked seen, and back to the title after
-        readonly System.Collections.Generic.List<string> m_SceneCues = new System.Collections.Generic.List<string>();
-        Action m_AfterScene;
-        bool m_SceneCoop, m_SceneSkip, m_SceneSaidStart;
-        int m_SceneRound, m_SceneTapped;
-        // the lobby, the crew's gaming den (docs/design/lobby.md): once the crew's open, START, CREW and co-op go through it
-        DenView m_DenView;
-        Den m_Den;
-        // the ⓘ kit screen, over the den (the couch pick) or the pause menu: whose kit, and the move whose demo plays
-        bool m_KitOpen;
-        SoldierDef m_KitSoldier;
-        int m_KitMove;
-        // the mission screen (docs/design/levels.md, Missions), over the title (MISSIONS) or the den (its mission board):
-        // its cards, the one picked, and whether hard is picked
-        bool m_BoardOpen, m_BoardFromDen, m_BoardHard, m_BoardHeld;
-        System.Collections.Generic.List<MissionCard> m_BoardCards;
-        int m_BoardPick;
-        Setting m_Setting = Setting.Normal; // the setting a solo game plays (hard is only ever open in co-op)
-        string m_DemoFolder; // where the demo clips are served: demos/ beside the page (null in the editor)
-        // ?demo=: moves' demos played in the game, in turn, for CI to record (tools/demos.mjs)
-        System.Collections.Generic.IReadOnlyList<MoveGuide> m_Demos;
-        int m_DemoIndex, m_DemoFrames;
-        float m_DemoT, m_DemoWait;
-        bool m_DemoStarted, m_DemoRecording; // the first time through ?demo=all, the page records each demo for CI
-        /// <summary>The sandbox this visit plays (<c>?sandbox=</c>), or null; set once its file's loaded.</summary>
-        SandboxSetup m_Sandbox;
-        bool m_SandboxLoading;
-        int m_SandboxFrames; // a scripted take's frames so far, on the demos' fixed step
-        int m_SandboxSpecials; // the most specials the soldier's had, which cheat specials keeps them at
+        string m_DemoFolder;   // where the demo clips are served: demos/ beside the page (null in the editor)
+
+        // ------------------------------------------------------------------ what the flows share
+
+        internal Camera Camera => m_Camera;
+        internal World World => m_World;
+        internal float StateTime => m_StateTime;
+        internal INetSession Net => m_Net;
+        internal bool Coop => m_Coop;
+        internal LaunchFlags Flags => m_Flags;
+        internal IProfileStore Store => m_Store;
+        internal CloudAccount Account => m_Account;
+        internal Options Options => m_Options;
+        internal Profile Profile => m_Profile;
+        /// <summary>The profile's once-only story beats (the coda's prompts, the first debrief, a boss reveal).</summary>
+        internal StoryRecord Story => new StoryRecord(m_Profile);
+        internal string PageUrl => m_PageUrl;
+        /// <summary>The mission a solo game plays; a shared game plays the host's.</summary>
+        internal MissionDef Mission { get; set; } = Missions.One;
+        /// <summary>The setting a solo game plays (hard is only ever open in co-op).</summary>
+        internal Setting Setting { get; set; } = Setting.Normal;
+
+        internal SceneFlow Scenes { get; private set; }
+        internal DenFlow Den { get; private set; }
+        internal KitFlow Kit { get; private set; }
+        internal BoardFlow Board { get; private set; }
+        internal DemoFlow Demos { get; private set; }
+        internal SandboxFlow Sandbox { get; private set; }
+        internal BossIntroFlow Intro { get; private set; }
+        internal MusicFlow MissionMusic { get; private set; }
+        internal RoomsFlow Rooms { get; private set; }
+        internal DebriefFlow Debrief { get; private set; }
+        internal RevealFlow Reveal { get; private set; }
 
         /// <summary>Co-op shows only once Mission one has been beaten solo (progressive disclosure).</summary>
         bool CoopOpen => m_Profile.coop || m_Flags.UnlockCoop;
         /// <summary>The crew opens with co-op, once Mission one is beaten solo (<c>?unlock=crew</c> opens it for testing).</summary>
         bool CrewOpen => CoopOpen || m_Flags.UnlockCrew;
         /// <summary>Who can be picked: the crewmates freed so far (any <c>?unlock=</c> frees them all, for testing).</summary>
-        System.Collections.Generic.IReadOnlyList<SoldierDef> Freed => Crew.Freed(m_Profile, m_Flags.UnlockCoop || m_Flags.UnlockCrew);
-        SoldierDef Soldier => Crew.Pick(m_Options.Crew, Freed);
-        bool CoopReady => m_Net != null && CoopOpen;
+        internal IReadOnlyList<SoldierDef> Freed => Crew.Freed(m_Profile, m_Flags.UnlockCoop || m_Flags.UnlockCrew);
+        internal SoldierDef Soldier => Crew.Pick(m_Options.Crew, Freed);
+        internal bool CoopReady => m_Net != null && CoopOpen;
 
         void Awake()
         {
             string url = Application.absoluteURL;
             m_Flags = LaunchFlags.Read(url);
-            m_TestCrew = m_Flags.Crew;
             Log.Configure(m_Flags.LogLevels); // ?log=net:debug,game:warn for this visit
             Spike.Configure(url); // ?spike=hits for this visit (before the art and sounds, which make what spikes need)
             Art.Init();
             Sfx.Init(gameObject);
             Music.Init(gameObject);
-            if (Spike.Music) Music.Prepare(MusicTracks.All); // rendered at launch, so the mission starts without a stutter
+            MusicFlow.Prepare();
             m_Options = OptionsStore.Load();
             ApplyOptions();
 
@@ -139,24 +130,30 @@ namespace PooketSlug
             m_Store = new CloudProfileStore(new LocalProfileStore(), m_Account);
             m_Profile = m_Store.Load();
 
-            m_World = NewWorld(m_Mission);
+            Intro = new BossIntroFlow();
+            MissionMusic = new MusicFlow(this);
+            Sandbox = new SandboxFlow(this);
+            m_World = NewWorld(Mission);
             m_Hud = new HudView(transform);
             m_Menu = new MenuView(transform);
-            m_SceneView = new CutsceneView(transform);
-            m_Scenes = BuiltInScenes();
-            m_DebriefView = new DebriefView(transform);
-            m_RevealView = new CrewRevealView(transform);
-            m_DenView = new DenView(transform);
-            m_PageUrl = PageUrl();
+            Scenes = new SceneFlow(this, transform);
+            Debrief = new DebriefFlow(this, transform);
+            Reveal = new RevealFlow(this, transform, m_Flags.Crew);
+            Den = new DenFlow(this, transform);
+            Kit = new KitFlow();
+            Board = new BoardFlow(this);
+            Demos = new DemoFlow(this);
+            Rooms = new RoomsFlow(this);
+            m_PageUrl = PageQuery.Base(url);
             string folder = PageQuery.Folder(url);
             m_DemoFolder = folder.Length > 0 ? folder + "demos/" : null;
             SetState(GameState.Title);
             GameInput.TouchActive = Application.isMobilePlatform; // until the player shows otherwise
 
-            FetchScenes(url);
-            if (StartDemos(m_Flags.Demo)) return; // a demo is all this visit plays
-            if (StartDraftScene(PageQuery.Get(url, "scene"), url)) return; // and so is a draft scene
-            if (StartSandbox(PageQuery.Get(url, "sandbox"), url)) return; // and so is a sandbox: solo, and never recorded
+            Scenes.Fetch(url);
+            if (Demos.Start(m_Flags.Demo)) return; // a demo is all this visit plays
+            if (Scenes.StartDraft(PageQuery.Get(url, "scene"), url)) return; // and so is a draft scene
+            if (Sandbox.Start(PageQuery.Get(url, "sandbox"), url)) return; // and so is a sandbox: solo, and never recorded
             if (NetSessions.Factory != null && NetConfig.Configured) m_Net = NetSessions.Factory(gameObject);
             string invite = m_Flags.Room;
             if (m_Net != null && !string.IsNullOrEmpty(invite))
@@ -174,17 +171,14 @@ namespace PooketSlug
             }
         }
 
+        // ------------------------------------------------------------------ worlds
+
         /// <summary>A world for <paramref name="mission"/>, shared when <paramref name="net"/> is given.</summary>
         World NewWorld(MissionDef mission, INetLink net = null)
         {
-            if (m_Sandbox != null) return SandboxWorld();
+            if (Sandbox.Active) return Sandbox.MakeWorld(m_Camera);
             var world = new World(m_Camera, mission, net, Soldier) { TanksToCall = m_Flags.UnlockTank || m_Flags.Tank ? 1 : 0, SkipToPilot = m_Flags.Pilot, WeakPilot = m_Flags.WeakPilot, TestTeam = m_Flags.Team, KcajTank = m_Flags.KcajTank };
-            world.BossIntro += OnBossIntro;
-            world.BossFightStarted += OnBossFightStarted;
-            world.PilotFreed += OnPilotFreed;
-            world.TankWrecked += OnTankWrecked;
-            world.CodaCleared += OnCodaCleared;
-            m_IntroName = null;
+            Wire(world, coda: true);
             if (m_Flags.Crate)
             {
                 // Just past where a joining partner appears (1.25 ahead of the start), so whoever runs first takes
@@ -203,8 +197,34 @@ namespace PooketSlug
             return world;
         }
 
+        /// <summary>Hooks a world's story events up to the game, and clears any boss intro left from the last one.</summary>
+        internal void Wire(World world, bool coda)
+        {
+            world.BossIntro += OnBossIntro;
+            world.BossFightStarted += _ => MissionMusic.BossFightStarted();
+            world.PilotFreed += OnPilotFreed;
+            world.TankWrecked += MissionMusic.TankWrecked;
+            if (coda) world.CodaCleared += OnCodaCleared;
+            Intro.Clear();
+        }
+
+        /// <summary>The solo world again, for the mission picked: the title's, the den's, a new solo game's.</summary>
+        internal void NewTitleWorld()
+        {
+            m_World.Dispose();
+            m_World = NewWorld(Mission);
+        }
+
+        /// <summary>A bare world in place of this one (a demo's): no launch flags, nothing wired, never shared.</summary>
+        internal World ReplaceWorld(MissionDef mission, SoldierDef soldier)
+        {
+            m_World.Dispose();
+            m_World = new World(m_Camera, mission, null, soldier);
+            return m_World;
+        }
+
         /// <summary>?test=boss: puts the soldier a screen short of the boss, to try boss fights without the run there.</summary>
-        static void StartAtBoss(World world)
+        internal static void StartAtBoss(World world)
         {
             foreach (Spawn s in world.Level.Spawns)
             {
@@ -218,7 +238,7 @@ namespace PooketSlug
         /// Starts at the coda: the back gate's open, the boss is left out, and there's a tabk to call
         /// (a restart at its checkpoint, or <c>?test=coda</c>).
         /// </summary>
-        static void StartAtCoda(World world, bool prompts)
+        internal static void StartAtCoda(World world, bool prompts)
         {
             float x = world.Level.CodaX;
             if (x < 0f) return;
@@ -228,7 +248,7 @@ namespace PooketSlug
         }
 
         /// <summary>Puts the soldier, and the camera, at <paramref name="x"/>; what's behind is left behind.</summary>
-        static void StartAt(World world, float x)
+        internal static void StartAt(World world, float x)
         {
             world.Player.Pos = new Vector2(x, world.Level.TopSurfaceY(x));
             world.View.JumpTo(x + Tuning.Camera.LookAhead);
@@ -236,131 +256,44 @@ namespace PooketSlug
             world.Spawner.SpawnAhead();
         }
 
-        void SetState(GameState state)
+        // ------------------------------------------------------------------ the state machine
+
+        internal void SetState(GameState state)
         {
-            if (state != GameState.Title) m_RevealView?.End(); // kie leaves with the title screen
+            if (state != GameState.Title) Reveal?.End(); // kie leaves with the title screen
             m_State = state;
             m_StateTime = 0f;
             m_OutFor = 0f;
         }
 
-        void StartSolo()
+        internal void StartSolo()
         {
             m_Paused = false;
             SetState(GameState.Playing);
             Sfx.Play(Sfx.Start);
-            if (!m_SceneSaidStart) Sfx.Say("mission-start", 0.3f); // the opening's caption card already called it
-            m_SceneSaidStart = false;
+            if (!Scenes.TakeSaidStart()) Sfx.Say("mission-start", 0.3f); // the opening's caption card already called it
             if (m_Flags.Debrief) m_World.OnBossDestroyed();
-            if (Spike.Music)
-            {
-                Music.Silence();
-                Music.Sting(MusicTracks.MissionStart);
-                Music.Play(MusicTracks.SteelNight, MusicTracks.MissionStart.Seconds);
-            }
+            MissionMusic.MissionStart();
         }
 
         /// <summary>START on the title screen, or a solo START in the den: the mission's opening scene first, if it has one.</summary>
-        void StartFromTitle()
+        internal void StartFromTitle()
         {
             // ?test=boss, pilot and team are for trying something at once: they start without the opening
-            string opening = m_Mission.Story.Opening;
-            if (opening != null && m_Sandbox == null && !m_Flags.Boss && !m_Flags.Team && !m_Flags.Coda && !m_Flags.Debrief) PlayScene(m_Scenes.Get(opening), false, StartSolo);
+            string opening = Mission.Story.Opening;
+            if (opening != null && !Sandbox.Active && !m_Flags.Boss && !m_Flags.Team && !m_Flags.Coda && !m_Flags.Debrief) Scenes.Play(Scenes.Library.Get(opening), false, StartSolo);
             else StartSolo();
         }
 
-        /// <summary>
-        /// Plays <paramref name="scene"/> (<c>docs/design/story.md</c>, Cutscenes), then <paramref name="after"/>. In co-op
-        /// both phones play it, and a shot moves on early once both have tapped (<see cref="CutsceneSync"/>).
-        /// </summary>
-        void PlayScene(CutsceneDef scene, bool coop, Action after, string note = null)
-        {
-            m_SceneDraft = note != null;
-            m_Scene = new CutscenePlayer(scene, m_SceneDraft || m_Profile.HasSeen(scene.Id), coop ? 2 : 1);
-            m_SceneCoop = coop;
-            m_SceneRound = coop ? m_Net.Link.Round : 0;
-            m_SceneTapped = -1;
-            m_SceneSkip = false;
-            m_SceneSaidStart = false;
-            m_AfterScene = after;
-            m_SceneView.Begin(m_Scene, note);
-            SetState(GameState.Cutscene);
-            Log.Game.Info("Cutscene: " + scene.Id + (coop ? ", with a partner" : "") + (m_Scene.CanSkip ? ", seen before" : ""));
-        }
-
-        /// <summary>Moves the scene on: taps (and in co-op the partner's), SKIP, and its cues.</summary>
-        void TickScene(float dt, MenuInput keys, SoldierInput soldier)
-        {
-            if (m_SceneCoop && !CoopAlive()) return;
-            bool tap = m_SceneView.TakeTap() || keys.Start || soldier.FirePressed || soldier.JumpPressed;
-            bool skip = m_SceneView.TakeSkip() || keys.Back;
-            if (skip && !m_SceneCoop && m_Scene.Skip())
-            {
-                EndScene();
-                return;
-            }
-            if (skip && m_SceneCoop && m_Scene.CanSkip) m_SceneSkip = true; // it skips once the partner asks too
-            int beat = m_Scene.Beat, shot = m_Scene.Shot;
-            float left = m_Scene.Scene.Shots[shot].Seconds - m_Scene.T; // a shot that moves on with time left was tapped on
-            if (tap && (m_Scene.Tap(0) || m_Scene.HasTapped(0))) m_SceneTapped = Math.Max(m_SceneTapped, beat);
-            if (m_SceneCoop)
-            {
-                System.Collections.Generic.IReadOnlyList<IAvatarLink> partners = m_Net.Link.Partners;
-                bool here = partners.Count > 0;
-                bool partnerSkips = CutsceneSync.Apply(m_Scene, here, here ? partners[0].SceneTaps : 0, m_SceneRound);
-                if (m_SceneSkip && partnerSkips && m_Scene.Skip())
-                {
-                    EndScene();
-                    return;
-                }
-                m_Net.Link.SendScene(CutsceneSync.Pack(m_SceneRound, m_Scene.Scene.NetId, m_SceneTapped, m_SceneSkip));
-                m_SceneView.Waiting(m_SceneSkip ? "SKIPPING ONCE YOUR PARTNER DOES" : null);
-            }
-            m_Scene.Tick(dt, m_SceneCues, Sfx.NarratorTalking);
-            foreach (string cue in m_SceneCues)
-            {
-                if (cue == Cues.SayMissionStart) m_SceneSaidStart = true;
-                m_SceneView.Cue(cue);
-            }
-            if (m_Scene.Shot != shot && !m_Scene.Done)
-                Log.Game.Info("Cutscene shot " + (m_Scene.Shot + 1) + " of " + m_Scene.Scene.Shots.Length + (left > 0.5f ? ", tapped on" : ""));
-            if (m_Scene.Done) EndScene();
-            else m_SceneView.Refresh();
-        }
-
-        void EndScene()
-        {
-            if (!m_SceneDraft && m_Profile.MarkSeen(m_Scene.Scene.Id)) m_Store.Save(m_Profile);
-            Log.Game.Info("Cutscene over: " + m_Scene.Scene.Id + (m_Scene.Skipped ? ", skipped" : ""));
-            // Leave the last word standing as "tapped through it all": the tap that ended it here went out with no
-            // packet of its own, so the partner may still be waiting on it. The round and scene key keep it from
-            // counting anywhere else.
-            if (m_SceneCoop)
-                m_Net.Link.SendScene(CutsceneSync.Pack(m_SceneRound, m_Scene.Scene.NetId, m_Scene.Scene.Shots.Length * 3, m_SceneSkip || m_Scene.Skipped));
-            DropScene();
-            Action after = m_AfterScene;
-            m_AfterScene = null;
-            after?.Invoke();
-        }
-
-        void DropScene()
-        {
-            if (m_Scene == null) return;
-            m_SceneView.Hide();
-            m_Scene = null;
-            m_SceneCoop = false;
-        }
-
-        void Restart()
+        internal void Restart()
         {
             // Lost after the checkpoint at the boss door: start again there (docs/design/levels.md, Missions).
             float checkpoint = m_State == GameState.GameOver ? m_World.CheckpointX : -1f;
-            m_World.Dispose();
-            m_World = NewWorld(m_Mission);
+            NewTitleWorld();
             if (checkpoint >= 0f && m_World.Level.CodaX >= 0f && checkpoint >= m_World.Level.CodaX)
             {
                 // lost in the coda: start again at its start, not at the boss (docs/design/story.md, The coda)
-                StartAtCoda(m_World, m_Story.CodaPrompts);
+                StartAtCoda(m_World, Story.CodaPrompts);
                 m_World.CheckpointX = checkpoint;
             }
             else if (checkpoint >= 0f)
@@ -373,50 +306,17 @@ namespace PooketSlug
             StartSolo();
         }
 
-        // ------------------------------------------------------------------ two of the crew
-
-        /// <summary>Two of the crew plays once, ever, the first time the title loads after Mission one's beaten solo.</summary>
-        bool CrewRevealDue => !m_Coop && !m_RevealView.Showing &&
-                              (m_TestCrew || m_Profile.coop && !m_Profile.HasSeen(Reveals.TwoOfTheCrew));
-
-        void BeginCrewReveal()
-        {
-            m_Reveal = new CrewReveal();
-            m_RevealView.Begin(m_World);
-        }
-
-        void TickCrewReveal(float dt, MenuInput keys, SoldierInput soldier)
-        {
-            if (m_RevealView.TakeTap() || keys.Start || soldier.FirePressed || soldier.JumpPressed) m_Reveal.Tap();
-            CrewReveal.Shot was = m_Reveal.Now;
-            bool wasCracked = !m_Reveal.OldStart;
-            if (m_Reveal.Tick(dt)) Sfx.Play(Sfx.Thump, 0.9f); // each new button's clunk
-            if (!wasCracked && !m_Reveal.OldStart) Sfx.Play(Sfx.Hit, 0.8f); // START splits
-            if (m_Reveal.Now != was && m_Reveal.Now == CrewReveal.Shot.KiesLine) Sfx.Play(Sfx.Pickup, 0.5f);
-            if (!m_Reveal.Done)
-            {
-                m_RevealView.Refresh(m_Reveal, m_Camera, dt);
-                return;
-            }
-            m_RevealView.Finish(); // kie stays, stood by tones2, until the title's left
-            m_Reveal = null;
-            m_TestCrew = false; // once a visit
-            if (m_Profile.MarkSeen(Reveals.TwoOfTheCrew)) m_Store.Save(m_Profile);
-            Log.Game.Info("Two of the crew: the menu's grown");
-        }
-
         /// <summary>Back to the title screen from a solo game.</summary>
-        void ToTitle()
+        internal void ToTitle()
         {
-            if (m_Sandbox != null)
+            if (Sandbox.Active)
             {
                 // a sandbox visit plays only the sandbox (its tuning stays turned): MENU starts it again
                 m_Paused = false;
                 Restart();
                 return;
             }
-            m_World.Dispose();
-            m_World = NewWorld(m_Mission);
+            NewTitleWorld();
             m_Paused = false;
             m_StartNote = null;
             Music.Silence();
@@ -439,594 +339,27 @@ namespace PooketSlug
             return "SIGN IN AT THE TOP RIGHT TO SAVE YOUR PROGRESS ONLINE";
         }
 
-        // ------------------------------------------------------------------ the den
-
-        /// <summary>Opens the den: to start a solo mission, to look round the crew, or a co-op room's lobby.</summary>
-        void OpenDen(DenMode mode)
-        {
-            m_Den = new Den(mode, Freed, Soldier);
-            m_DenView.Begin(m_Den, DenInfoNow());
-            SetState(GameState.Den);
-            Log.Game.Info("Den open: " + mode + ", on the couch: " + (m_Den.Pick?.Name ?? "nobody"));
-        }
-
-        DenInfo DenInfoNow()
-        {
-            bool coop = m_Den.Mode == DenMode.Coop;
-            MissionDef mission = coop ? Missions.ByNetId(m_Net.Link.Mission) ?? m_Mission : m_Mission;
-            return new DenInfo
-            {
-                // Mission one is solo only (docs/design/lobby.md, Co-op): until Mission two is built, co-op plays it as a stand-in
-                Mission = m_Den.Mode == DenMode.Crew ? null : coop && mission.Story.CoopName != null ? mission.Story.CoopName : mission.Name.ToUpperInvariant(),
-                Room = coop ? m_Net.RoomCode : null,
-                InviteLink = coop ? InviteCode.Link(m_PageUrl, m_Net.RoomCode) : null,
-                CanList = coop && RoomBrowser.HostChooses && m_Net.Link.IsAuthority,
-                Listed = coop && m_Net.Listed,
-                Watchers = coop ? m_Net.Watchers : 0,
-                CanHost = CoopReady && m_Den.Mode == DenMode.Solo,
-                Skin = coop ? m_Net.Link.LocalSkin : 0,
-            };
-        }
-
-        /// <summary>The den's buttons and keys: a crewmate tapped (or Special for the next), READY (Enter, fire), the kit, hosting, BACK.</summary>
-        void TickDen(MenuInput keys, SoldierInput soldier)
-        {
-            bool coop = m_Den.Mode == DenMode.Coop;
-            if (coop && !CoopAlive()) return;
-            if (m_DenView.TakeBack() || keys.Back)
-            {
-                Log.Game.Info("Den left");
-                if (coop) m_Net.Leave();
-                m_World.Dispose(); // the title's world again, with whoever's on the couch standing in it
-                m_World = NewWorld(m_Mission);
-                SetState(GameState.Title);
-                return;
-            }
-            if (m_DenView.TakeKit() || soldier.AbilityPressed)
-            {
-                OpenKit(m_Den.Pick ?? Soldier);
-                return;
-            }
-            if (m_DenView.TakeBoard() && m_Den.Mode == DenMode.Solo) // the host's pick in a co-op room comes later
-            {
-                OpenBoard(fromDen: true);
-                return;
-            }
-            Invites(coop, keys.Host);
-            if (m_DenView.TakeList() && coop && m_Net.Link.IsAuthority) m_Net.Listed = !m_Net.Listed;
-            if ((m_DenView.TakeHost() || keys.Host) && CoopReady && m_Den.Mode == DenMode.Solo)
-            {
-                Log.Game.Info("Den: hosting from the couch");
-                GoOnline(() => m_Net.Host(RoomBrowser.HostListed));
-                return;
-            }
-            SoldierDef tapped = m_DenView.TakePick();
-            if (tapped == null && soldier.SpecialPressed) tapped = m_Den.NextFree();
-            if (tapped != null && tapped != m_Den.Pick)
-            {
-                if (m_Den.TryPick(tapped)) Log.Game.Info("Den pick: " + tapped.Name);
-                else Sfx.Play(Sfx.Thump, 0.3f); // taken, or too late
-            }
-            bool keyReady = m_StateTime > 0.3f && (keys.Start || soldier.FirePressed || soldier.JumpPressed); // not the START that opened the den
-            if (m_DenView.TakeReady() || keyReady)
-            {
-                if (m_Den.ToggleReady())
-                {
-                    Sfx.Play(Sfx.Pickup, m_Den.Ready ? 0.7f : 0.3f);
-                    Log.Game.Info("Den " + (m_Den.Ready ? "ready: " : "unready: ") + m_Den.Pick.Name);
-                }
-            }
-            if (m_Den.Pick != null && m_Den.Pick != Soldier)
-            {
-                Options o = m_Options; // the title and the next den remember who's on the couch
-                o.Crew = m_Den.Pick.Id;
-                ChangeOptions(o);
-            }
-        }
-
-        /// <summary>
-        /// The TV's invite: armed as a finger goes down on it (or H, hosting's key, goes down in a room), shared or copied
-        /// as it lifts; the TV says how it went.
-        /// </summary>
-        void Invites(bool coop, bool key)
-        {
-            string link = coop ? InviteCode.Link(m_PageUrl, m_Net.RoomCode) : null;
-            if ((m_DenView.TakeInvite() || key) && link != null)
-            {
-                Invite.Arm(link, "Come play Pooket Slug with me: room " + m_Net.RoomCode);
-                Log.Game.Info("Invite armed: " + link);
-            }
-            switch (Invite.Result())
-            {
-                case InviteResult.Shared: m_DenView.TvSay("LINK SENT"); Log.Game.Info("Invite shared"); break;
-                case InviteResult.Copied: m_DenView.TvSay("LINK COPIED"); Log.Game.Info("Invite copied"); break;
-                case InviteResult.Failed:
-                    if (link != null) m_DenView.Note("SEND THIS LINK: " + link, 8f);
-                    Log.Game.Info("Invite couldn't be shared or copied: showing the link");
-                    break;
-            }
-        }
-
-        /// <summary>Moves the den on each frame: the partner's seat and flags in, ours out, the countdown, the zoom, and the mission once it's done.</summary>
-        void MoveDen(float dt)
-        {
-            bool coop = m_Den.Mode == DenMode.Coop && m_Net != null && m_Net.Ready;
-            DenPartner partner = default;
-            bool authority = true;
-            if (coop)
-            {
-                authority = m_Net.Link.IsAuthority;
-                System.Collections.Generic.IReadOnlyList<IAvatarLink> partners = m_Net.Link.Partners;
-                if (partners.Count > 0)
-                {
-                    IAvatarLink p = partners[0];
-                    partner = new DenPartner { Flags = p.DenFlags, Playing = p.Playing };
-                    if (partner.Seated || partner.Playing) partner.Soldier = p.Soldier; // otherwise it's whoever they played last
-                }
-            }
-            bool zooming = m_Den.Zoom >= 0f;
-            m_Den.Tick(dt, partner, authority);
-            if (m_Den.TakeUndone())
-            {
-                m_DenView.Note("YOUR MATE GOT THERE FIRST: PICK SOMEONE ELSE");
-                Sfx.Play(Sfx.Glitch, 0.4f);
-                Log.Game.Info("Den pick undone: the partner has it");
-            }
-            if (!zooming && m_Den.Zoom >= 0f)
-            {
-                Sfx.Play(Sfx.Start, 0.6f);
-                Log.Game.Info("Den START: " + m_Den.Pick.Name + (coop && partner.Present ? ", partner " + (partner.Playing ? "playing" : "in the den") : ""));
-            }
-            if (coop)
-            {
-                m_Net.Link.SendDen(m_Den.Pick, m_Den.Flags);
-                // which copies of the scenes we'd play, fixed for the session (SceneLibrary): only a partner with
-                // exactly the same plays them with us, otherwise both play the built-in ones
-                if (!m_Scenes.InCoop) Log.Game.Info("Scenes for co-op: " + m_Scenes.StartCoop().ToString("x8"));
-                m_Net.Link.SendSceneVersions(m_Scenes.Versions);
-            }
-            m_DenView.Refresh(dt, m_Den, DenInfoNow());
-            if (!m_Den.Go || m_KitOpen || m_BoardOpen) return;
-            m_DenView.Hide();
-            if (m_Den.Mode == DenMode.Coop)
-            {
-                // Mission one is single player only, so its scenes never play in a co-op room; ?test=scene plays a
-                // stand-in on both phones when starting together, to check the two-phone sync
-                if (m_Flags.Scene && partner.InDenNow) PlayScene(m_Scenes.ForCoop(SceneLibrary.CoopTest, PartnerScenes()), true, BeginCoop);
-                else BeginCoop();
-            }
-            else
-            {
-                m_World.Dispose(); // the soldier on the couch plays
-                m_World = NewWorld(m_Mission);
-                StartFromTitle();
-            }
-        }
-
-        // ------------------------------------------------------------------ the mission screen
-
-        /// <summary>
-        /// Opens the mission screen on the mission picked last (else the newest reached): from MISSIONS, PLAY goes on
-        /// to the den; from the den's mission board, PICK goes back to it with that mission on the board.
-        /// </summary>
-        void OpenBoard(bool fromDen)
-        {
-            m_BoardCards = MissionBoard.Cards(m_Profile, coop: false);
-            m_BoardPick = 0;
-            for (int i = 0; i < m_BoardCards.Count; i++)
-                if (!m_BoardCards[i].ComingSoon) m_BoardPick = i;
-            for (int i = 0; i < m_BoardCards.Count; i++)
-                if (m_BoardCards[i].Mission == m_Mission) m_BoardPick = i;
-            m_BoardHard = m_Setting == Setting.Hard && m_BoardCards[m_BoardPick].HardOpen;
-            m_BoardFromDen = fromDen;
-            m_BoardOpen = true;
-            Sfx.Play(Sfx.Pickup, 0.4f);
-            Log.Game.Info("Mission screen open" + (fromDen ? " (the den's board)" : "") + ": " + m_BoardCards.Count + " cards");
-        }
-
-        /// <summary>The mission screen's buttons: a card (or left and right), the setting, PLAY (Enter, fire) and back.</summary>
-        void TickBoard(MenuAction click, MenuInput keys, SoldierInput soldier)
-        {
-            if (click == MenuAction.Back || keys.Back || keys.Settings)
-            {
-                m_BoardOpen = false;
-                return;
-            }
-            int pick = m_BoardPick;
-            if (click >= MenuAction.Card1 && click <= MenuAction.Card4) pick = click - MenuAction.Card1;
-            else if (m_StateTime > 0.2f && (soldier.Left || soldier.Right) && !m_BoardHeld) pick += soldier.Right ? 1 : -1;
-            m_BoardHeld = soldier.Left || soldier.Right;
-            if (pick != m_BoardPick && pick >= 0 && pick < m_BoardCards.Count && !m_BoardCards[pick].ComingSoon)
-            {
-                m_BoardPick = pick;
-                m_BoardHard = false;
-                Sfx.Play(Sfx.Pickup, 0.3f);
-            }
-            MissionCard card = m_BoardCards[m_BoardPick];
-            if ((click == MenuAction.Hard || keys.Host) && card.HardOpen)
-            {
-                m_BoardHard = !m_BoardHard;
-                Sfx.Play(Sfx.Pickup, 0.5f);
-            }
-            if (click == MenuAction.Play || keys.Start || soldier.FirePressed || soldier.JumpPressed)
-            {
-                if (card.ComingSoon) return;
-                m_Mission = card.Mission;
-                m_Setting = MissionBoard.SettingFor(card, m_BoardHard);
-                m_BoardOpen = false;
-                Log.Game.Info("Mission picked: " + m_Mission.Name + " (" + m_Setting + ")");
-                if (!m_BoardFromDen) OpenDen(DenMode.Solo); // from the den, its board shows the pick from the next frame
-            }
-        }
-
-        // ------------------------------------------------------------------ the ⓘ kit screen
-
-        /// <summary>Opens the kit screen on <paramref name="soldier"/>'s moves, the first one's demo playing.</summary>
-        void OpenKit(SoldierDef soldier)
-        {
-            m_KitOpen = true;
-            m_KitSoldier = soldier;
-            m_KitMove = 0;
-            Sfx.Play(Sfx.Pickup, 0.4f);
-        }
-
-        /// <summary>The kit screen's buttons: a move (or its own button, so FIRE shows FIRE's), and back.</summary>
-        void TickKit(MenuAction click, MenuInput keys, SoldierInput soldier)
-        {
-            System.Collections.Generic.IReadOnlyList<MoveGuide> moves = KitGuide.For(m_KitSoldier);
-            int pick = -1;
-            if (click >= MenuAction.Move1 && click <= MenuAction.Move4) pick = click - MenuAction.Move1;
-            else if (soldier.FirePressed) pick = SlotIndex(moves, KitSlot.Fire);
-            else if (soldier.SpecialPressed) pick = SlotIndex(moves, KitSlot.Special);
-            else if (soldier.SuperPressed) pick = SlotIndex(moves, KitSlot.Super);
-            else if (soldier.AbilityPressed) pick = SlotIndex(moves, KitSlot.Ability);
-            if (pick >= 0 && pick < moves.Count && pick != m_KitMove)
-            {
-                m_KitMove = pick;
-                Sfx.Play(Sfx.Pickup, 0.3f);
-            }
-            if (click == MenuAction.Back || keys.Back || keys.Settings || keys.Start) m_KitOpen = false;
-        }
-
-        static int SlotIndex(System.Collections.Generic.IReadOnlyList<MoveGuide> moves, KitSlot slot)
-        {
-            for (int i = 0; i < moves.Count; i++)
-                if (moves[i].Slot == slot) return i;
-            return -1;
-        }
-
-        // ------------------------------------------------------------------ ?demo: the moves' demos
-
-        /// <summary>
-        /// <c>?demo=tones2-fire</c> plays that move's demo over and over; <c>?demo=all</c> plays every move's in turn, as
-        /// CI records them (<c>tools/demos.mjs</c>); <c>?demo=list</c> just logs their names. False for no demo.
-        /// </summary>
-        bool StartDemos(string demo)
-        {
-            if (string.IsNullOrEmpty(demo)) return false;
-            var ids = new System.Collections.Generic.List<string>();
-            foreach (MoveGuide m in KitGuide.All) ids.Add(m.DemoId);
-            Log.Game.Info("Demos: " + string.Join(",", ids));
-            if (string.Equals(demo, "all", StringComparison.OrdinalIgnoreCase)) m_Demos = KitGuide.All;
-            else if (KitGuide.Find(demo) is MoveGuide one) m_Demos = new[] { one };
-            else
-            {
-                if (!string.Equals(demo, "list", StringComparison.OrdinalIgnoreCase)) Log.Game.Warn("No demo called " + demo);
-                return false;
-            }
-            BeginDemo(0);
-            return true;
-        }
-
-        /// <summary>A fresh world for a demo: its little map, its soldier, who nothing hurts, with the super charged if it's needed.</summary>
-        void BeginDemo(int index)
-        {
-            m_DemoIndex = index;
-            MoveGuide move = m_Demos[index];
-            m_World.Dispose();
-            m_World = new World(m_Camera, new MissionDef("demo", byte.MaxValue, "DEMO", "", move.Demo.Map), null, move.Soldier);
-            m_World.Player.NoDamage = true;
-            if (move.Demo.SuperReady)
-                for (int i = 0; i < Tuning.Kit.SuperKills; i++) m_World.Player.Kit.AddKill();
-            m_DemoT = 0f;
-            m_DemoFrames = 0;
-            m_World.Render();
-            SetState(GameState.Demo);
-            if (m_DemoStarted) StartedDemo(move);
-        }
-
-        void StartedDemo(MoveGuide move)
-        {
-            Log.Game.Info("Demo start: " + move.DemoId);
-            if (m_DemoRecording) DemoRecording.Begin(move.DemoId);
-        }
-
-        /// <summary>
-        /// One frame of a demo, on a fixed step (so a slow machine records it in slow motion, and the recorder speeds it
-        /// back up). The first waits for Enter or a tap (one demo on its own starts by itself after two seconds), so the page
-        /// has finished loading.
-        /// </summary>
-        void TickDemo(MenuInput keys, SoldierInput soldier)
-        {
-            MoveGuide move = m_Demos[m_DemoIndex];
-            if (!m_DemoStarted)
-            {
-                m_DemoWait += Time.unscaledDeltaTime;
-                bool waited = m_Demos.Count == 1 && m_DemoWait > 2f; // ?demo=all (CI's recorder) waits for its Enter
-                if (!keys.Start && !soldier.FirePressed && !waited) return;
-                m_DemoStarted = true;
-                m_DemoRecording = m_Demos.Count > 1;
-                StartedDemo(move);
-            }
-            const float dt = 1f / DemoScript.Fps;
-            m_DemoT += dt;
-            m_DemoFrames++;
-            m_World.Tick(dt, move.Demo.InputAt(m_DemoFrames));
-            if (m_DemoT < move.Demo.Seconds) return;
-            Log.Game.Info("Demo end: " + move.DemoId + " (" + m_DemoFrames + " frames, " + (m_DemoFrames / DemoScript.Fps).ToString("0.00", System.Globalization.CultureInfo.InvariantCulture) + " s)");
-            if (m_DemoRecording) DemoRecording.End();
-            if (m_DemoIndex == m_Demos.Count - 1 && m_Demos.Count > 1)
-            {
-                m_DemoRecording = false;
-                Log.Game.Info("Demos done");
-            }
-            BeginDemo((m_DemoIndex + 1) % m_Demos.Count);
-        }
-
-        // ------------------------------------------------------------------ the scenes: built in, from the site, drafts
-
-        /// <summary>
-        /// The scenes built into the game (<c>Resources/Scenes/&lt;name&gt;.txt</c>, copied from <c>scenes/</c> by the build;
-        /// in the editor, read from <c>scenes/</c> itself).
-        /// </summary>
-        static SceneLibrary BuiltInScenes()
-        {
-            var library = new SceneLibrary();
-            foreach (string name in SceneLibrary.Names)
-            {
-                string text = Resources.Load<TextAsset>("Scenes/" + name)?.text;
-#if UNITY_EDITOR
-                if (text == null) text = System.IO.File.ReadAllText(System.IO.Path.Combine(Application.dataPath, "..", "scenes", name + ".txt"));
-#endif
-                if (text == null)
-                {
-                    Log.Game.Warn("Scene " + name + " isn't built in");
-                    continue;
-                }
-                foreach (string problem in library.AddBuiltIn(name, text)) Log.Game.Warn("Built-in scene " + name + ": " + problem);
-            }
-            return library;
-        }
-
-        /// <summary>
-        /// The site's copies of the scenes (<c>scenes/&lt;name&gt;.txt</c> beside the game, published by the scene deploy),
-        /// fetched at start-up: each takes over from the built-in copy if it reads cleanly. And the narrator's
-        /// recordings, where the site's (<c>scenes/voice.txt</c>) differ from the built-in ones.
-        /// </summary>
-        void FetchScenes(string url)
-        {
-            foreach (string name in SceneLibrary.Names)
-            {
-                string file = SetupText.FileUrl(url, "scenes", name);
-                if (file == null) return; // off the site: the built-in copies it is
-                StartCoroutine(SiteFile.Fetch(file, (text, error) =>
-                {
-                    if (text == null) Log.Game.Info("Scene " + name + ": the site's copy didn't load (" + error + "), playing the built-in one");
-                    else if (m_Scenes.UseSite(name, text, out string why)) Log.Game.Info("Scene " + name + ": playing the site's copy " + m_Scenes.Script(name).Version.ToString("x8"));
-                    else Log.Game.Info("Scene " + name + ": playing the built-in copy, the site's isn't used: " + why);
-                }));
-            }
-            string folder = PageQuery.Folder(url);
-            StartCoroutine(SiteFile.Fetch(folder + "scenes/voice.txt", (text, error) =>
-            {
-                if (text == null)
-                {
-                    Log.Game.Info("Scene voices: no list on the site (" + error + ")");
-                    return;
-                }
-                foreach (VoiceClip clip in VoiceClip.Read(text))
-                {
-                    TextAsset built = Resources.Load<TextAsset>("Narration/" + clip.Id);
-                    if (built != null && SceneScript.Hash(built.bytes) == clip.Hash) continue;
-                    string id = clip.Id;
-                    StartCoroutine(SiteFile.FetchBytes(folder + "scenes/voice/" + id + ".wav?v=" + clip.Hash.ToString("x8"), (bytes, why) =>
-                    {
-                        if (bytes != null && Sfx.UseLine("Narration/" + id, bytes)) Log.Game.Info("Scene voices: the site's recording of " + id);
-                        else Log.Game.Warn("Scene voices: the site's recording of " + id + " didn't load (" + (why ?? "not a WAV") + ")");
-                    }));
-                }
-            }));
-        }
-
-        /// <summary>The partner's copies of the scenes (<see cref="SceneLibrary.Versions"/>), or -1 with no partner.</summary>
-        int PartnerScenes()
-        {
-            System.Collections.Generic.IReadOnlyList<IAvatarLink> partners = m_Net.Link.Partners;
-            return partners.Count > 0 ? partners[0].SceneVersions : -1;
-        }
-
-        /// <summary>
-        /// <c>?scene=&lt;name&gt;</c> (<c>docs/scenes.md</c>): plays the site's <c>scenes/&lt;name&gt;.txt</c> as a draft, so a
-        /// scene can be tried before it's one the game plays: with SKIP, its name and any problems over it, never
-        /// marked seen, and back to the title after. Only a name, so only ever a file on the game's own site; off the
-        /// site it plays the built-in copy. False for no <c>?scene=</c>.
-        /// </summary>
-        bool StartDraftScene(string name, string url)
-        {
-            if (name == null) return false;
-            name = name.ToLowerInvariant();
-            if (!SetupText.IsName(name))
-            {
-                Log.Game.Warn("?scene= takes a scene's file name, like ?scene=opening");
-                return false;
-            }
-            string file = SetupText.FileUrl(url, "scenes", name);
-            if (file == null)
-            {
-                if (!m_Scenes.Has(name)) return false;
-                PlayDraft(m_Scenes.Script(name), "built-in copy");
-                return true;
-            }
-            Log.Game.Info("Draft scene: loading " + file);
-            StartCoroutine(SiteFile.Fetch(file, (text, error) =>
-            {
-                if (text != null) PlayDraft(SceneScript.Read(name, text), "draft");
-                else PlayDraft(null, "couldn't load scenes/" + name + ".txt: " + error);
-            }));
-            return true;
-        }
-
-        void PlayDraft(SceneScript script, string what)
-        {
-            var note = new System.Text.StringBuilder();
-            note.Append("SCENE ").Append(script != null ? script.Name : "").Append(": ").Append(what);
-            CutsceneDef scene = script?.Def;
-            if (script != null)
-            {
-                var problems = new System.Collections.Generic.List<string>(script.Problems);
-                problems.AddRange(SceneCheck.Timing(script.Def));
-                note.Append(problems.Count == 0 ? ", no problems" : ", " + problems.Count + " problem(s)");
-                for (int i = 0; i < problems.Count && i < 4; i++) note.Append("\n").Append(problems[i]);
-                foreach (string problem in problems) Log.Game.Warn("Draft scene " + script.Name + ": " + problem);
-            }
-            if (scene == null || scene.Shots.Length == 0)
-                scene = new CutsceneDef("draft", 0, new CutsceneShot("Nothing to play", 8f, new CutsceneLine[0]));
-            PlayScene(scene, false, () => SetState(GameState.Title), note.ToString());
-        }
-
-        // ------------------------------------------------------------------ ?sandbox: a world from a link
-
-        /// <summary>
-        /// <c>?sandbox=</c> (<see cref="SandboxSetup"/>, <c>docs/sandbox.md</c>): the setup itself, in setup lines
-        /// (<c>?sandbox=soldier kie;ground P...s...T</c>), or the name of a file published beside the game
-        /// (<c>?sandbox=boss</c> reads <c>sandbox/boss.txt</c>). <c>?sandbox=knobs</c> logs every knob there is, then
-        /// plays the default. False for no sandbox.
-        /// </summary>
-        bool StartSandbox(string sandbox, string url)
-        {
-            if (sandbox == null) return false;
-            if (string.Equals(sandbox, "knobs", StringComparison.OrdinalIgnoreCase))
-            {
-                Log.Game.Info("Sandbox knobs:\n" + string.Join("\n", Knobs.All()));
-                sandbox = "";
-            }
-            if (sandbox.Length > 0 && SetupText.IsName(sandbox))
-            {
-                string file = SetupText.FileUrl(url, "sandbox", sandbox);
-                if (file == null)
-                {
-                    BeginSandbox(SandboxSetup.Failed("sandbox files only load on the site"));
-                    return true;
-                }
-                m_SandboxLoading = true;
-                Log.Game.Info("Sandbox: loading " + file);
-                StartCoroutine(SiteFile.Fetch(file, (text, error) =>
-                {
-                    m_SandboxLoading = false;
-                    BeginSandbox(text != null ? SandboxSetup.Read(text) : SandboxSetup.Failed("couldn't load the sandbox file " + sandbox.ToLowerInvariant() + ".txt: " + error));
-                }));
-                return true;
-            }
-            BeginSandbox(SandboxSetup.Read(sandbox));
-            return true;
-        }
-
-        void BeginSandbox(SandboxSetup setup)
-        {
-            m_Sandbox = setup;
-            setup.ApplyTunes(); // before the world, which reads them as it's built
-            m_Mission = setup.Mission;
-            Log.Game.Info("Sandbox: " + setup.Soldier.Name + ", " + setup.Mission.Map.Length + " rows" +
-                          (setup.Script != null ? ", a scripted take of " + setup.Script.Seconds + " s" : "") +
-                          ", tuned: " + string.Join(", ", setup.Tunes));
-            foreach (string problem in setup.Problems) Log.Game.Warn("Sandbox: " + problem);
-            m_World.Dispose();
-            m_World = NewWorld(m_Mission);
-            StartSolo();
-        }
-
-        /// <summary>What the start banner says in a sandbox: SANDBOX and any problem; nothing in a clean scripted take, which is being recorded.</summary>
-        string SandboxNote => m_Sandbox.Script != null && m_Sandbox.Problems.Count == 0 ? null : m_Sandbox.Label;
-
-        /// <summary>The sandbox's world: its map and soldier, its boss, cheats and start, wired for play but never for the profile.</summary>
-        World SandboxWorld()
-        {
-            SandboxSetup s = m_Sandbox;
-            var world = new World(m_Camera, s.Mission, null, s.Soldier)
-            {
-                TanksToCall = s.Tank ? 99 : 0,
-                SkipToPilot = s.Boss == SandboxBoss.Pilot || s.Boss == SandboxBoss.WeakPilot,
-                WeakPilot = s.Boss == SandboxBoss.WeakPilot,
-                KcajTank = s.Boss == SandboxBoss.Kcaj,
-            };
-            world.BossIntro += OnBossIntro;
-            world.BossFightStarted += OnBossFightStarted;
-            world.PilotFreed += OnPilotFreed;
-            world.TankWrecked += OnTankWrecked;
-            m_IntroName = null;
-            world.Player.NoDamage = s.Invincible;
-            if (s.Super) world.Player.Kit.FillSuper();
-            if (s.At == "boss") StartAtBoss(world);
-            else if (s.At == "coda") StartAtCoda(world, false);
-            else if (s.AtX >= 0f) StartAt(world, s.AtX);
-            m_SandboxFrames = 0;
-            m_SandboxSpecials = 0;
-            return world;
-        }
-
-        /// <summary>
-        /// One frame of a sandbox: played, or its scripted take on the demos' fixed step, starting again once it's run
-        /// its length; then the cheats top up. True if it started again (the frame's over).
-        /// </summary>
-        bool TickSandbox(float dt, SoldierInput soldier)
-        {
-            SandboxSetup s = m_Sandbox;
-            if (s.Script != null)
-            {
-                m_SandboxFrames++;
-                m_World.Tick(1f / DemoScript.Fps, s.Script.InputAt(m_SandboxFrames));
-                if (m_SandboxFrames / DemoScript.Fps >= s.Script.Seconds)
-                {
-                    Restart();
-                    return true;
-                }
-            }
-            else m_World.Tick(dt, soldier);
-            Player p = m_World.Player;
-            if (s.Super) p.Kit.FillSuper();
-            if (s.Specials)
-            {
-                // full: as many as it's had (each kit has its own count: tones2's rocket charges, kie's specials)
-                m_SandboxSpecials = Mathf.Max(m_SandboxSpecials, p.Specials);
-                p.Specials = m_SandboxSpecials;
-            }
-            return false;
-        }
-
-        // ------------------------------------------------------------------ the boss intro
-
-        /// <summary>?spike=music, which is solo only.</summary>
-        bool MusicOn => Spike.Music && !m_Coop;
+        // ------------------------------------------------------------------ the mission's story beats (its MissionStory)
 
         void OnBossIntro(BossEnemy boss, bool firstTime)
         {
-            if (MusicOn) Music.Stop(); // the screen locks and the mission's music cuts out (docs/design/tanks.md)
+            MissionMusic.BossIntro();
             if (firstTime && boss is TankBoss tank && PlaysBossReveal)
             {
                 // The first time: the reveal (Mission one's motor pool) is the tabk's entrance, so after it the tabk's in
                 // place and the intro goes straight to the banner, the name card and the music (docs/design/story.md).
                 float playedFor = m_StateTime; // the mission's clock (and its start banner) carry on from where they were
-                PlayScene(m_Scenes.Get(m_Mission.Story.BossReveal), false, () =>
+                Scenes.Play(Scenes.Library.Get(Mission.Story.BossReveal), false, () =>
                 {
                     tank.SkipEntrance();
                     m_Paused = false;
                     SetState(GameState.Playing);
                     m_StateTime = playedFor;
-                    StartBossIntro(boss, true);
+                    Intro.Start(boss, true);
                 });
                 return;
             }
-            StartBossIntro(boss, firstTime);
+            Intro.Start(boss, firstTime);
         }
 
         /// <summary>
@@ -1034,8 +367,8 @@ namespace PooketSlug
         /// (co-op opens only once Mission one's beaten, so it's been seen by then). Test starts skip it, unless
         /// ?test=reveal.
         /// </summary>
-        bool PlaysBossReveal => !m_Coop && m_Sandbox == null && m_Mission.Story.BossReveal != null &&
-            (m_Flags.Reveal || m_Story.Due(m_Mission.Story.BossReveal) && !m_Flags.Boss && !m_Flags.Team);
+        bool PlaysBossReveal => !m_Coop && !Sandbox.Active && Mission.Story.BossReveal != null &&
+            (m_Flags.Reveal || Story.Due(Mission.Story.BossReveal) && !m_Flags.Boss && !m_Flags.Team);
 
         /// <summary>
         /// The boss's pilot is freed (Trollogram kie glitched out), solo: the mission's scene for it, then its coda, or the
@@ -1043,14 +376,14 @@ namespace PooketSlug
         /// </summary>
         void OnPilotFreed()
         {
-            MissionStory story = m_Mission.Story;
-            if (m_Coop || m_Sandbox != null || story.PilotFreed == null) // a sandbox skips the scene too
+            MissionStory story = Mission.Story;
+            if (m_Coop || Sandbox.Active || story.PilotFreed == null) // a sandbox skips the scene too
             {
                 m_World.OnBossDestroyed();
                 return;
             }
             float playedFor = m_StateTime;
-            PlayScene(m_Scenes.Get(story.PilotFreed), false, () =>
+            Scenes.Play(Scenes.Library.Get(story.PilotFreed), false, () =>
             {
                 m_Paused = false;
                 SetState(GameState.Playing);
@@ -1061,59 +394,15 @@ namespace PooketSlug
                     return;
                 }
                 // on into the coda: the back gate opens, and the run out of the base with tones2's tabk
-                m_World.OpenCoda(m_Story.CodaPrompts);
-                if (MusicOn) Music.Play(MusicTracks.TankAlert);
+                m_World.OpenCoda(Story.CodaPrompts);
+                MissionMusic.Coda();
             });
         }
 
         /// <summary>The coda's last gate is down: its prompts have been seen.</summary>
         void OnCodaCleared()
         {
-            if (m_Story.Mark(StoryRecord.Coda)) m_Store.Save(m_Profile);
-        }
-
-        void StartBossIntro(BossEnemy boss, bool firstTime)
-        {
-            m_IntroT = -0.001f; // just before 0, so the first cues fire on the next tick
-            m_IntroFull = firstTime;
-            m_IntroName = boss.DisplayName;
-        }
-
-        /// <summary>The tank's first shot: the boss music kicks in.</summary>
-        void OnBossFightStarted(BossEnemy boss)
-        {
-            if (MusicOn && Music.Playing != MusicTracks.TankAlertFinal) Music.Play(MusicTracks.TankAlert);
-        }
-
-        /// <summary>
-        /// The tank's wrecked: a victory sting, then the boss theme's even faster final section for the pilot round,
-        /// which crossfades from the chip to an orchestra playing the same notes.
-        /// </summary>
-        void OnTankWrecked()
-        {
-            if (!MusicOn) return;
-            Music.Sting(MusicTracks.BossVictory);
-            // after one pass in chip, the orchestra takes over (in builds that have it: the vendor repository's CI makes it)
-            Music.Play(MusicTracks.TankAlertFinal, MusicTracks.BossVictory.Seconds, Music.Layer("tank-alert-final"), MusicTracks.TankAlertFinal.Seconds);
-        }
-
-        /// <summary>Moves the intro on, and plays the siren and the announcer's lines as they come due.</summary>
-        void TickIntro(float dt)
-        {
-            if (m_IntroName == null) return;
-            float from = m_IntroT;
-            m_IntroT += dt;
-            int n = BossIntroShow.Cues(m_IntroFull, from, m_IntroT, m_IntroCues);
-            for (int i = 0; i < n; i++)
-            {
-                switch (m_IntroCues[i])
-                {
-                    case BossIntroShow.Cue.Siren: Sfx.Play(Sfx.Siren, 0.7f); break;
-                    case BossIntroShow.Cue.SayWarning: Sfx.Say("warning"); break;
-                    case BossIntroShow.Cue.SayBoss: Sfx.Say("boss-tank"); break;
-                }
-            }
-            if (new BossIntroShow(m_IntroT, m_IntroFull).Over) m_IntroName = null;
+            if (Story.Mark(StoryRecord.Coda)) m_Store.Save(m_Profile);
         }
 
         // ------------------------------------------------------------------ settings
@@ -1127,7 +416,7 @@ namespace PooketSlug
             ScrollCamera.Shaking = m_Options.Shake;
         }
 
-        void ChangeOptions(Options options)
+        internal void ChangeOptions(Options options)
         {
             m_Options = options;
             ApplyOptions();
@@ -1142,59 +431,6 @@ namespace PooketSlug
             SetState(GameState.Online);
         }
 
-        // ------------------------------------------------------------------ rooms: the browser
-
-        System.Collections.Generic.List<RoomRow> m_RoomRows = new System.Collections.Generic.List<RoomRow>();
-        float m_RoomsT;
-
-        void OpenRooms()
-        {
-            m_Net.Browse();
-            m_RoomRows.Clear();
-            m_RoomsT = 0f;
-            SetState(GameState.Rooms);
-            Log.Game.Info("Room browser open");
-        }
-
-        /// <summary>A mission's been cleared on this phone: its games can be watched without spoilers.</summary>
-        bool ClearedMission(int netId)
-        {
-            MissionDef m = Missions.ByNetId(netId);
-            return m != null && (m_Profile.Clears(m) > 0 || m_Profile.Clears(m, Setting.Hard) > 0 || m_Flags.UnlockCoop);
-        }
-
-        void TickRooms(MenuAction click, MenuInput keys)
-        {
-            m_RoomsT -= Time.unscaledDeltaTime;
-            if (m_RoomsT <= 0f)
-            {
-                m_RoomsT = 0.5f;
-                m_RoomRows = RoomBrowser.Rows(m_Net.Rooms, ClearedMission);
-            }
-            if (click == MenuAction.Back || keys.Back)
-            {
-                m_Net.StopBrowsing();
-                SetState(GameState.Online);
-                return;
-            }
-            int pick = click >= MenuAction.Room1 && click <= MenuAction.Room4 ? click - MenuAction.Room1 : keys.Start ? 0 : -1;
-            if (pick < 0 || pick >= m_RoomRows.Count) return;
-            RoomRow row = m_RoomRows[pick];
-            string code = row.Room.Name;
-            Log.Game.Info($"Room browser: {RoomBrowser.Button(row.Action)} {code}");
-            if (row.Action == RoomAction.Join)
-            {
-                m_Net.StopBrowsing();
-                GoOnline(() => m_Net.Join(code));
-            }
-            else if (row.Action == RoomAction.Watch)
-            {
-                m_Net.StopBrowsing();
-                GoOnline(() => m_Net.Watch(code));
-            }
-            else Sfx.Play(Sfx.Thump, 0.3f);
-        }
-
         void OpenCodeEntry(string code)
         {
             m_Menu.Code = code;
@@ -1207,7 +443,7 @@ namespace PooketSlug
             if (code.Length > 0) GoOnline(() => m_Net.Join(code));
         }
 
-        void GoOnline(Action connect)
+        internal void GoOnline(Action connect)
         {
             m_Notice = null;
             connect();
@@ -1215,10 +451,10 @@ namespace PooketSlug
         }
 
         /// <summary>Connected: swap the title/solo world for the shared one (also after a co-op restart).</summary>
-        void BeginCoop()
+        internal void BeginCoop()
         {
             m_World.Dispose();
-            m_World = NewWorld(Missions.ByNetId(m_Net.Link.Mission) ?? m_Mission, m_Net.Link);
+            m_World = NewWorld(Missions.ByNetId(m_Net.Link.Mission) ?? Mission, m_Net.Link);
             if (m_Net.Watching) m_World.Spectate();
             m_Net.Events = m_World.Sync;
             if (m_Net.Watching) Log.Net.Info($"Watching room {m_Net.RoomCode}, {m_Net.Link.CamX:0} m in");
@@ -1231,24 +467,21 @@ namespace PooketSlug
             m_StartNote = null;
             SetState(GameState.Playing);
             Sfx.Play(Sfx.Start);
-            if (!m_SceneSaidStart) Sfx.Say("mission-start", 0.3f); // the opening's caption card already called it
-            m_SceneSaidStart = false;
+            if (!Scenes.TakeSaidStart()) Sfx.Say("mission-start", 0.3f); // the opening's caption card already called it
         }
 
         void EndCoop(string notice)
         {
-            DropScene();
-            m_AfterScene = null;
+            Scenes.Abandon();
             m_Net.Events = null;
             m_Coop = false;
-            m_World.Dispose();
-            m_World = NewWorld(m_Mission);
+            NewTitleWorld();
             Notice(notice);
             SetState(GameState.Title);
         }
 
         /// <summary>Drops back to the title screen if the session is gone. True while co-op can go on.</summary>
-        bool CoopAlive()
+        internal bool CoopAlive()
         {
             if (m_Net.Ready) return true;
             string why = m_Net.State == NetState.Failed && !string.IsNullOrEmpty(m_Net.Status) ? m_Net.Status : "DISCONNECTED";
@@ -1263,8 +496,7 @@ namespace PooketSlug
             m_NoticeTime = Time.unscaledTime;
         }
 
-
-        static string PageUrl() => PageQuery.Base(Application.absoluteURL);
+        // ------------------------------------------------------------------ each frame
 
         void Update()
         {
@@ -1294,20 +526,20 @@ namespace PooketSlug
                 ChangeOptions(o);
             }
 
-            if (m_SandboxLoading) { } // the title shows behind until the sandbox's file is in
-            else if (m_KitOpen) TickKit(click, keys, soldier);
-            else if (m_BoardOpen) TickBoard(click, keys, soldier);
+            if (Sandbox.Loading) { } // the title shows behind until the sandbox's file is in
+            else if (Kit.Open) Kit.Tick(click, keys, soldier);
+            else if (Board.Open) Board.Tick(click, keys, soldier);
             else switch (m_State)
             {
                 case GameState.Demo:
-                    TickDemo(keys, soldier);
+                    Demos.Tick(keys, soldier);
                     break;
 
                 case GameState.Title:
-                    if (m_Reveal == null && CrewRevealDue) BeginCrewReveal();
-                    if (m_Reveal != null)
+                    if (Reveal.Now == null && Reveal.Due) Reveal.Begin();
+                    if (Reveal.Now != null)
                     {
-                        TickCrewReveal(dt, keys, soldier);
+                        Reveal.Tick(dt, keys, soldier);
                         break;
                     }
                     if (CoopReady)
@@ -1316,14 +548,14 @@ namespace PooketSlug
                         if (click == MenuAction.Online) { OpenOnline(); break; }
                         if (keys.Host) { GoOnline(() => m_Net.Host(RoomBrowser.HostListed)); break; }
                         if (keys.Quick) { GoOnline(m_Net.QuickMatch); break; }
-                        if (keys.Restart) { OpenRooms(); break; }
+                        if (keys.Restart) { Rooms.Show(); break; }
                         if (keys.Join) { OpenCodeEntry(""); break; }
                     }
                     if (click == MenuAction.Settings || keys.Settings) SetState(GameState.Settings);
-                    else if (CrewOpen && (click == MenuAction.Crew || soldier.SpecialPressed)) OpenDen(DenMode.Crew);
+                    else if (CrewOpen && (click == MenuAction.Crew || soldier.SpecialPressed)) Den.Show(DenMode.Crew);
                     else if (click == MenuAction.Play || keys.Start || soldier.FirePressed || soldier.JumpPressed)
                     {
-                        if (CrewOpen) OpenBoard(fromDen: false); // MISSIONS: the mission screen, then the den
+                        if (CrewOpen) Board.Show(fromDen: false); // MISSIONS: the mission screen, then the den
                         else StartFromTitle(); // before the crew's freed, tones2 is all there is: straight in
                     }
                     break;
@@ -1360,14 +592,14 @@ namespace PooketSlug
 
                 case GameState.Online:
                     if (click == MenuAction.Host || keys.Host) GoOnline(() => m_Net.Host(RoomBrowser.HostListed));
-                    else if (click == MenuAction.Browse || keys.Restart) OpenRooms();
+                    else if (click == MenuAction.Browse || keys.Restart) Rooms.Show();
                     else if (click == MenuAction.Quick || keys.Quick) GoOnline(m_Net.QuickMatch);
                     else if (click == MenuAction.Join || keys.Join) OpenCodeEntry("");
                     else if (click == MenuAction.Back || keys.Back) SetState(GameState.Title);
                     break;
 
                 case GameState.Rooms:
-                    TickRooms(click, keys);
+                    Rooms.Tick(click, keys);
                     break;
 
                 case GameState.CodeEntry:
@@ -1389,20 +621,20 @@ namespace PooketSlug
                     else if (m_Net.Ready)
                     {
                         if (m_Net.Watching) BeginCoop(); // watching skips the den: straight to the game as the players see it
-                        else OpenDen(DenMode.Coop);
+                        else Den.Show(DenMode.Coop);
                     }
                     break;
 
                 case GameState.Den:
-                    TickDen(keys, soldier);
+                    Den.Tick(keys, soldier);
                     break;
 
                 case GameState.Cutscene:
-                    TickScene(dt, keys, soldier);
+                    Scenes.Tick(dt, keys, soldier);
                     break;
 
                 case GameState.Playing:
-                    if (!m_Paused) TickIntro(dt);
+                    if (!m_Paused) Intro.Tick(dt);
                     if (m_Coop)
                     {
                         if (!CoopAlive()) break;
@@ -1427,7 +659,7 @@ namespace PooketSlug
                     }
                     if (m_Paused)
                     {
-                        if (click == MenuAction.Kit || soldier.AbilityPressed) OpenKit(m_World.Player.Def);
+                        if (click == MenuAction.Kit || soldier.AbilityPressed) Kit.Show(m_World.Player.Def);
                         else if (click == MenuAction.Resume || keys.Pause || keys.PadPause || keys.Start) m_Paused = false;
                         else if (click == MenuAction.Restart || keys.Restart) Restart();
                         else if (click == MenuAction.Menu || keys.Back) ToTitle();
@@ -1436,19 +668,19 @@ namespace PooketSlug
                     if (keys.Restart) { Restart(); break; }
                     if (keys.Pause || keys.PadPause || keys.Back || (keys.Start && m_StateTime > 0.2f)) { m_Paused = true; break; }
 
-                    if (m_Sandbox != null)
+                    if (Sandbox.Active)
                     {
-                        if (TickSandbox(dt, soldier)) break;
+                        if (Sandbox.Tick(dt, soldier)) break;
                     }
                     else m_World.Tick(dt, soldier);
-                    if (MusicOn && (m_World.Victory || m_World.BossMusicOff) && Music.Playing != null) Music.Stop(fade: !m_World.BossMusicOff); // the pilot glitched out (cut dead by his big glitch-out)
+                    MissionMusic.Tick(m_World);
                     m_OutFor = m_World.Player.Lives.IsOut && !m_World.Spectating ? m_OutFor + dt : 0f;
                     if (m_OutFor > Tuning.Lives.GameOverDelay) EndRun(GameState.GameOver);
                     else if (m_World.Victory && m_World.VictoryTime > 1f) EndRun(GameState.Victory);
                     break;
 
-                case GameState.Victory when m_Debrief != null: // the world holds still behind it, so nothing can hurt tones2
-                    TickDebrief(dt, keys, soldier);
+                case GameState.Victory when Debrief.Now != null: // the world holds still behind it, so nothing can hurt tones2
+                    Debrief.Tick(dt, keys, soldier);
                     break;
 
                 case GameState.GameOver:
@@ -1479,17 +711,17 @@ namespace PooketSlug
                     break;
             }
 
-            if (m_State == GameState.Den) MoveDen(dt); // over the kit screen too
-            else if (m_DenView.Showing) m_DenView.Hide();
+            if (m_State == GameState.Den) Den.Move(dt); // over the kit screen too
+            else if (Den.Showing) Den.Hide();
             m_World.Render();
             m_Hud.Refresh(m_World, m_Camera, new HudInfo
             {
                 InGame = m_State == GameState.Playing || m_State == GameState.GameOver || m_State == GameState.Victory,
                 Playing = m_State == GameState.Playing,
                 Paused = m_Paused,
-                Demo = m_State == GameState.Demo || m_Sandbox?.Script != null, // a scripted take is recorded the same way
+                Demo = m_State == GameState.Demo || Sandbox.Setup?.Script != null, // a scripted take is recorded the same way
                 StateTime = m_StateTime,
-                Note = m_StartNote ?? (m_Coop ? null : m_Sandbox != null ? SandboxNote : Spike.Label),
+                Note = m_StartNote ?? (m_Coop ? null : Sandbox.Active ? Sandbox.Note : Spike.Label),
                 HiScore = m_Profile.Best(m_World.Mission),
                 Fps = Mathf.RoundToInt(m_Fps),
                 Muted = Sfx.Muted,
@@ -1497,8 +729,8 @@ namespace PooketSlug
                 Watching = m_Coop && m_World.Spectating,
                 PageUrl = m_PageUrl,
                 LeaveArmed = m_LeaveArmed > 0f,
-                Intro = new BossIntroShow(m_IntroT, m_IntroFull),
-                IntroName = m_IntroName,
+                Intro = Intro.Show,
+                IntroName = Intro.Name,
             });
             m_Menu.Refresh(new MenuInfo
             {
@@ -1512,29 +744,28 @@ namespace PooketSlug
                 Crew = Soldier.Name.ToUpperInvariant(),
                 CoopNew = CoopOpen && !m_Profile.HasSeen(Reveals.Coop),
                 CoopJustOpened = m_CoopJustOpened,
-                Reveal = m_Reveal,
+                Reveal = Reveal.Now,
                 InCoop = m_Coop,
                 Notice = m_Notice != null && Time.unscaledTime - m_NoticeTime < 8f ? m_Notice : null,
                 Status = m_Net?.Status,
-                Rooms = m_State == GameState.Rooms ? m_RoomRows : null,
+                Rooms = m_State == GameState.Rooms ? Rooms.Rows : null,
                 RoomsStatus = m_State == GameState.Rooms ? m_Net?.Status : null,
                 Score = m_World.Scoring.Points,
                 Seconds = Mathf.FloorToInt(m_World.Elapsed),
                 Account = AccountLine(),
                 Options = m_Options,
-                Kit = m_KitOpen ? KitGuide.For(m_KitSoldier) : null,
-                KitMove = m_KitMove,
-                KitSoldier = m_KitOpen ? m_KitSoldier.Name.ToUpperInvariant() : null,
+                Kit = Kit.Open ? KitGuide.For(Kit.Soldier) : null,
+                KitMove = Kit.Move,
+                KitSoldier = Kit.Open ? Kit.Soldier.Name.ToUpperInvariant() : null,
                 DemoFolder = m_DemoFolder,
-                Missions = m_BoardOpen ? m_BoardCards : null,
-                MissionPick = m_BoardPick,
-                MissionHard = m_BoardHard,
-                MissionFromDen = m_BoardFromDen,
+                Missions = Board.Open ? Board.Cards : null,
+                MissionPick = Board.Pick,
+                MissionHard = Board.Hard,
+                MissionFromDen = Board.FromDen,
             });
 
             // The sign-in button sits over the game, on the title screen and settings only.
-            bool account = (m_State == GameState.Title || m_State == GameState.Settings) && !m_KitOpen && !m_BoardOpen ||
-                           m_Debrief != null && (m_Debrief.Now == DebriefPlayer.Part.SignIn || m_Debrief.Now == DebriefPlayer.Part.Continue) && m_Debrief.Result.OfferSignIn;
+            bool account = (m_State == GameState.Title || m_State == GameState.Settings) && !Kit.Open && !Board.Open || Debrief.OffersSignIn;
             if (account != m_AccountShown)
             {
                 m_AccountShown = account;
@@ -1544,8 +775,8 @@ namespace PooketSlug
 
         MenuScreen MenuScreenNow()
         {
-            if (m_KitOpen) return MenuScreen.Kit;
-            if (m_BoardOpen) return MenuScreen.Missions;
+            if (Kit.Open) return MenuScreen.Kit;
+            if (Board.Open) return MenuScreen.Missions;
             switch (m_State)
             {
                 case GameState.Title: return MenuScreen.Title;
@@ -1556,7 +787,7 @@ namespace PooketSlug
                 case GameState.Lobby: return MenuScreen.Connecting;
                 case GameState.Playing: return m_Paused ? MenuScreen.Paused : MenuScreen.None;
                 case GameState.GameOver: return MenuScreen.GameOver;
-                case GameState.Victory: return m_Debrief != null ? MenuScreen.None : MenuScreen.Victory;
+                case GameState.Victory: return Debrief.Now != null ? MenuScreen.None : MenuScreen.Victory;
                 default: return MenuScreen.None;
             }
         }
@@ -1577,63 +808,13 @@ namespace PooketSlug
             SetState(state);
             if (m_World.Spectating) return; // watching a room isn't a run of our own
             if (state == GameState.GameOver) Music.Silence();
-            if (m_Sandbox != null) return; // nothing a sandbox does goes on the profile
+            if (Sandbox.Active) return; // nothing a sandbox does goes on the profile
             bool wasOpen = m_Profile.coop, won = state == GameState.Victory;
             int best = m_Profile.Best(m_World.Mission), clears = m_Profile.Clears(m_World.Mission);
-            m_Profile.RecordRun(m_World.Mission, m_Coop ? Setting.Normal : m_Setting, m_World.Scoring.Points, won, solo: !m_Coop);
+            m_Profile.RecordRun(m_World.Mission, m_Coop ? Setting.Normal : Setting, m_World.Scoring.Points, won, solo: !m_Coop);
             m_CoopJustOpened = !wasOpen && m_Profile.coop;
-            if (won && !m_Coop) Debrief(best, firstClear: clears == 0 || m_Flags.Debrief);
+            if (won && !m_Coop) Debrief.Show(best, firstClear: clears == 0 || m_Flags.Debrief);
             m_Store.Save(m_Profile);
-        }
-
-        /// <summary>
-        /// A won solo run: its XP and rank go on the profile, and the debrief shows them (docs/design/story.md, The
-        /// first debrief). Co-op wins keep the plain victory screen for now.
-        /// </summary>
-        void Debrief(int bestBefore, bool firstClear)
-        {
-            World w = m_World;
-            int score = w.Scoring.Points;
-            var result = new DebriefResult
-            {
-                Score = score, Best = Math.Max(bestBefore, score), NewBest = score > bestBefore && bestBefore > 0,
-                Seconds = Mathf.FloorToInt(w.Elapsed), Kills = w.Kills,
-                Accuracy = w.ShotsFired > 0 ? Mathf.Clamp01(w.ShotsHit / (float)w.ShotsFired) : -1f,
-                Lives = w.Player.Lives.Lives, Continues = w.Player.Lives.Continues,
-                Xp = Progression.XpFor(true, Crew.FreedBy(w.Mission)?.Name, w.Kills),
-                XpBefore = m_Profile.xp, ClimbBefore = m_Profile.rank,
-                First = m_Story.FirstDebrief || m_Flags.Debrief,
-                OfferSignIn = m_Account.Available && !m_Account.SignedIn,
-            };
-            int climb = Progression.ClimbFor(true, firstClear);
-            result.ClimbAfter = result.ClimbBefore + climb;
-            m_Profile.Award(result.XpGained, climb);
-            m_Story.Mark(StoryRecord.Debrief);
-            Log.Game.Info("Debrief: " + result.XpGained + " XP, " + climb + " stages up the ladder" + (result.RankedUp ? ", a rank up" : ""));
-            m_Debrief = new DebriefPlayer(result);
-            m_DebriefView.Show(m_Debrief);
-        }
-
-        /// <summary>The debrief: taps fill each part and move on; CONTINUE goes to the title screen.</summary>
-        void TickDebrief(float dt, MenuInput keys, SoldierInput soldier)
-        {
-            bool tap = m_DebriefView.TakeTap() || keys.Start || soldier.FirePressed || soldier.JumpPressed;
-            bool leave = m_DebriefView.TakeLeave() || (m_Debrief.Now == DebriefPlayer.Part.Continue && m_StateTime > 1.2f && (tap || keys.Back));
-            if (leave)
-            {
-                CloseDebrief();
-                ToTitle();
-                return;
-            }
-            m_Debrief.Tick(dt);
-            if (tap) m_Debrief.Tap();
-            m_DebriefView.Refresh();
-        }
-
-        void CloseDebrief()
-        {
-            m_Debrief = null;
-            m_DebriefView.Hide();
         }
     }
 }

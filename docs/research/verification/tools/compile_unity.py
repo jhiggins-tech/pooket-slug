@@ -158,7 +158,7 @@ if a.stage in ("game", "all") and ok:
             if why:
                 print(f"[game] {n}: skipped ({', '.join(why)})")
                 continue
-            absent = [r for r in d.get("references", []) if r not in ASMDEFS and r not in sdk_asm]
+            absent = [r for r in d.get("references", []) if r not in ASMDEFS and r not in sdk_asm and r + ".dll" not in [os.path.basename(x) for x in EXTRA]]
             if absent: print(f"[game] {n}: without {', '.join(absent)} (package assemblies, not extracted)")
             refs_n = engine + (editor if editor_only(d) else []) + EXTRA + [built[r] for r in own] + [a.nunit for r in pre]
             refs_n += [sdk_asm[r] for r in d.get("references", []) if r in sdk_asm]

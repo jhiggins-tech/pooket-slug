@@ -4,7 +4,7 @@ A link that sets up a map, goons, a boss and tuning, so a tuning tweak or a move
 only, and a visit that opens a sandbox plays nothing else: nothing in it goes on the profile (no scores, XP, ranks
 or "seen" marks), and MENU starts it again. Agreed in the workflow review, session 2 (16 Oct); code in
 `Assets/Scripts/Core/Platform/Sandbox.cs` (the setup), `SetupText.cs` (the link reader, which cutscenes as data will reuse),
-`Knobs.cs` (the tuning by name) and `Game.cs` (`?sandbox`).
+`Knobs.cs` (the tuning by name) and `SandboxFlow.cs` (`?sandbox`).
 
 ## Two ways to open one
 

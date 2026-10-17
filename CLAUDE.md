@@ -47,7 +47,7 @@ Each file starts with a summary comment saying what it's for.
 | Where | What |
 |---|---|
 | `Core/` (assembly `PooketSlug.Core`, no references) | The rules, as plain C#, tested. At its root: `Content.cs` (soldiers, weapons, enemies, pickups as definitions with stable ids), `Definitions.cs`, `Tuning.cs` (shared numbers). Then, mirroring the game's folders: `Crew/` (`Crew.cs`: who you play; `<name>Tuning.cs` and specs, `Controls.cs`: the kit's meters, `KitGuide`, `TeamSuper`, `Lives`, `AvatarPose`), `Bosses/` (the boss tabks' specs, `PilotBrain`, `BossIntroShow`, `CraterGround`), `Tabks/` (`PlayerTankSpec`, `CallInCoach`), `Missions/` (`Level.cs` + `Missions.cs`: maps as text, `MissionStory`: a mission's scenes and once-only beats, `MissionBoard`, `CodaCoach`), `Story/` (`SceneScript` (the scene files' reader), `SceneLibrary` (which copy plays, and the check), `Staging`, `Cutscene.cs` (the player) + `Cues.cs`: the cue ids, `CrewReveal`), `Lobby/` (`Den`, `Debrief`: XP, `Ranks`, `Profile`: what's saved and reveals, `Options`, `InviteCode`), `Audio/` (`MusicTracks` / `Notation` / `Chip`: the chip music, its notation and the synth, `Wav`, `MusicMidi`), `Input/` (`ArcadePad`: the touch pad's logic, `SoldierInput`), `World/` (`TilePhysics`), `Platform/` (`LaunchFlags`: `?test=`, `?unlock=` and the rest, `Spike.cs`: `?spike=` flags, `PageQuery`, `Sandbox` + `Knobs` + `SetupText`, `NetContracts` / `NetIds` / `NetConfig`: co-op's interfaces and ids, `Rng`, `Log`) |
-| `Game/` | `Game.cs`: `Bootstrap` and `Game`, the state machine (`GameState`: Title, Settings, Online, Lobby, Den, Cutscene, Playing, GameOver, Victory, Demo), the launch flags, menus to world |
+| `Game/` | `Game.cs`: `Bootstrap` and `Game`, the state machine (`GameState`: Title, Settings, Online, Lobby, Den, Cutscene, Playing, GameOver, Victory, Demo, Rooms), the world, the launch flags and the mission's story beats (from its `MissionStory`); then a flow per part of the game it hands frames to: `SceneFlow` (cutscenes, the site's copies, `?scene=` drafts), `DenFlow`, `KitFlow` (the ⓘ kit screen), `BoardFlow` (the mission screen), `DemoFlow` (`?demo=`), `SandboxFlow` (`?sandbox=`), `BossIntroFlow`, `MusicFlow`, `RoomsFlow` (the room browser), `DebriefFlow`, `RevealFlow` (two of the crew) |
 | `World/` | One play-through (`World.cs`), rebuilt on restart, split by concern: `ScrollCamera`, `Spawner`, `Combat` (shots, hits, who owns damage), `Scoring`, `NetSync` (the world's side of co-op), `Hazards` (the fence, vents and icicles), `Barrel`, `Lift`, `Checkpoint`, `Liquids` (tones2's); and what every play-through is made of: `Entity` / `EntityPool`, `Projectile`, `Effect`, `Particle`, `Pickup`, `Prop`, `HitFeel`, `LevelView` |
 | `Crew/` | `Shared/` (`Player`: your soldier, `RemotePlayer`: your partner's, `PlayerVisual`, `TeamSuperShow`), then one folder per crew member: `Tones2/` (kit, art, tabk guns), `Kie/` (kit, roulette), `Kcaj/` (kit) |
 | `Enemies/` | `Enemies` (`Enemy` and the goons: `Rifleman`, `Runner`, `Drone`), `HoloLook` (Trollogram goons), `Weasels`, `Pilot` |
@@ -66,8 +66,9 @@ Each file starts with a summary comment saying what it's for.
 | `docs/design/` | The game design. `docs/research/`: how the pipeline, netcode, accounts and verification work, and [lessons learned](docs/research/lessons-learned.md) |
 
 ## How the game fits together
-- **Flow**: `Game` owns the state and one `World`. Title (START, SETTINGS; CREW, MISSIONS and co-op appear as they're
-  unlocked: progressive disclosure, `Profile` reveals) → cutscene → playing → the debrief, XP and rank.
+- **Flow**: `Game` owns the state and one `World`, and hands each frame to the flow for what's up (`Game/*Flow.cs`).
+  Title (START, SETTINGS; CREW, MISSIONS and co-op appear as they're unlocked: progressive disclosure, `Profile`
+  reveals) → cutscene → playing → the debrief, XP and rank.
 - **Core and the rest**: rules live in Core with tests; entities and views draw, play sounds and call into Core.
   Core knows nothing of Unity's scene or the network.
 - **Co-op** ([netcode](docs/research/netcode/README.md)): Shared Mode, so every client simulates its own soldier and
