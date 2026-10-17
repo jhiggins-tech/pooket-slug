@@ -147,7 +147,7 @@ namespace PooketSlug.Tests
         [Test]
         public void EverySandboxFile_ReadsCleanly()
         {
-            string folder = System.IO.Path.Combine(UnityEngine.Application.dataPath, "..", "sandbox");
+            string folder = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "sandbox"); // the project's folder, as for TestScenes
             string[] files = System.IO.Directory.GetFiles(folder, "*.txt");
             Assert.IsNotEmpty(files, "the examples in sandbox/");
             foreach (string file in files)

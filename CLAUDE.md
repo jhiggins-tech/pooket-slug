@@ -28,14 +28,15 @@ sign-in for cloud saves. Mission one is solo and teaches the game; beating it op
 ## Checking your work
 There is no Unity licence in a cloud session, so CI is the build and test run: push your branch and read the run
 (EditMode tests, the WebGL build, the kit demo recording and the two-player co-op tests; spike branches skip the
-last two). Before pushing, the toolkit in [docs/research/verification](docs/research/verification/README.md)
-compiles every assembly against the CI image's own DLLs, runs Fusion's weaver and runs the EditMode tests:
+last two). Before pushing, run the same checks yourself in one command:
 ```sh
-T=docs/research/verification/tools   # the full sequence is in $T/README.md
-python3 -I $T/compile_unity.py ... all   # type-check Core, its tests, Net and the game, as Unity would for WebGL
-$T/weave.sh ...                           # Fusion's IL weaver over the game assembly
-python3 -I $T/run_tests.py ...            # the EditMode tests outside Unity
+tools/check.sh           # compile every assembly as Unity would for WebGL, run Fusion's weaver, run the EditMode tests
+tools/check.sh compile   # only the type-check
 ```
+The first run in a session downloads the Unity kit for the project's Unity version and the Photon SDK from the private
+vendor repository (about a minute). After a Unity upgrade, run the vendor repository's *Unity kit* workflow with the
+new version first. The scripts underneath are in [docs/research/verification](docs/research/verification/README.md).
+
 github.io is blocked from cloud sessions: to smoke-test a deploy, fetch the `gh-pages` branch and serve it locally
 (`smoke.mjs`, `touch.mjs`; `tools/coop.mjs` is the two-browser co-op test CI runs). New `.cs` files go in the folder for what they're about (Core's tests in the matching test folder) and need a `.meta`, as does a new folder
 (`tools/new_meta.py`).
@@ -62,7 +63,7 @@ Each file starts with a summary comment saying what it's for.
 | `Save/` | `LocalProfileStore` / `OptionsStore` (PlayerPrefs), `CloudAccount` (sign-in and cloud saves through the page's `pooket-auth.js`), `SiteFile` (a text file fetched from beside the game) |
 | `Assets/Editor/WebGLBuild.cs` | The build: the scene, the WebGL template (`Assets/WebGLTemplates/PooketSlug`), the commit and secrets baked in |
 | `Assets/Tests/EditMode/` | NUnit tests against Core, in the same folders as Core, run by CI before every build |
-| `tools/` | `pages_deploy.sh` (the gh-pages deploy), `coop.mjs` (co-op tests), `demos.mjs` (kit demo clips), `unpack_unitypackage.py`, `new_meta.py` |
+| `tools/` | `check.sh` (the local checks), `pages_deploy.sh` (the gh-pages deploy), `coop.mjs` (co-op tests), `demos.mjs` (kit demo clips), `unpack_unitypackage.py`, `new_meta.py` |
 | `docs/design/` | The game design. `docs/research/`: how the pipeline, netcode, accounts and verification work, and [lessons learned](docs/research/lessons-learned.md) |
 
 ## How the game fits together
