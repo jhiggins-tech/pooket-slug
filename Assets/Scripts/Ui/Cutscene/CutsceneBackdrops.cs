@@ -1,0 +1,175 @@
+using UnityEngine;
+using static PooketSlug.StageKit;
+
+namespace PooketSlug
+{
+    /// <summary>
+    /// The cutscenes' painted sets (<see cref="Staging.Sets"/>): the street outside the hangout, the wrecked room, and
+    /// the motor pool from outside with its blast shutter. Each is painted pixel by pixel once, the first time a scene
+    /// plays, and kept. The motor pool's layout (the shutter's opening, where the row's tabks park) is here too, since
+    /// the shutter, the work lights and the row are drawn to fit it.
+    /// </summary>
+    public static class CutsceneBackdrops
+    {
+        /// <summary>The motor pool: the shutter's opening (its left edge, width and height, in art pixels).</summary>
+        public const float MotorOpenX = 100f, MotorOpenW = 216f, MotorOpenH = 100f;
+        /// <summary>Where the row's tabks park (the first space is tones2's).</summary>
+        public static readonly float[] MotorRow = { 186f, 236f, 286f };
+
+        static Sprite s_Street, s_Room, s_MotorPool, s_Slats;
+
+        /// <summary>The backdrop for set <paramref name="set"/> (the street for none, or one it doesn't know).</summary>
+        public static Sprite For(string set)
+        {
+            Make();
+            return set == "room" ? s_Room : set == "motorpool" ? s_MotorPool : s_Street;
+        }
+
+        /// <summary>The motor pool's blast shutter, the size of its opening.</summary>
+        public static Sprite Slats
+        {
+            get
+            {
+                Make();
+                return s_Slats;
+            }
+        }
+
+        static void Make()
+        {
+            if (s_Street != null) return;
+            s_Street = Backdrop(DrawStreet);
+            s_Room = Backdrop(DrawRoom);
+            s_MotorPool = Backdrop(DrawMotorPool);
+            var slats = new PixelCanvas((int)MotorOpenW, (int)MotorOpenH);
+            DrawShutter(slats);
+            s_Slats = Sprite.Create(Art.ToTexture(slats), new Rect(0, 0, MotorOpenW, MotorOpenH), Vector2.zero, 1f);
+        }
+
+        static void DrawStreet(PixelCanvas c)
+        {
+            int street = Staging.Sets["street"];
+            Sky(c, 0x0b0f24, 0x1d2448);
+            var rng = new System.Random(7);
+            for (int i = 0; i < 60; i++) c.Set(rng.Next(StageW), 70 + rng.Next(StageH - 70), Art.Hex(0xc8d0ff, (byte)(120 + rng.Next(120))));
+            // the town behind
+            for (int x = 0, i = 0; x < 150; x += 22 + i % 3 * 6, i++) c.Rect(x, street, 18 + i % 2 * 8, 30 + (i * 13) % 34, Art.Hex(0x161a33));
+            for (int i = 0; i < 18; i++) c.Rect(4 + i * 8 % 140, street + 8 + i * 11 % 40, 2, 3, Art.Hex(0x6a5a2a));
+            // the hangout: a garage with a roll door and a side door
+            c.Rect(150, street, 156, 96, Art.Hex(0x3a2a2e));
+            for (int y = street + 4; y < street + 96; y += 6)
+                for (int x = 150 + (y / 6 % 2) * 6; x < 306; x += 12) c.Rect(x, y, 1, 5, Art.Hex(0x2e2024));
+            c.Rect(146, street + 96, 164, 6, Art.Hex(0x241820));
+            c.Rect(160, street, 50, 54, Art.Hex(0x5b5f66));
+            for (int y = street + 3; y < street + 54; y += 5) c.Rect(160, y, 50, 1, Art.Hex(0x45484e));
+            c.Rect(221, street, 22, 42, Art.Hex(0x1c1214)); // the side door's frame
+            c.Rect(246, street + 36, 32, 24, Art.Hex(0x1c1214)); // the window's frame
+            // the street
+            c.Rect(0, 0, StageW, street, Art.Hex(0x2a2c38));
+            c.Rect(0, street - 3, StageW, 3, Art.Hex(0x4a4c5a));
+            for (int x = 6; x < StageW; x += 28) c.Rect(x, 9, 12, 2, Art.Hex(0x55576a));
+            // snow on the ground and roof
+            c.Rect(0, street - 1, StageW, 1, Art.Hex(0xdfe6ff));
+            c.Rect(146, street + 102, 164, 2, Art.Hex(0xdfe6ff));
+            // a streetlight
+            c.Rect(110, street, 2, 70, Art.Hex(0x22242e));
+            c.Rect(106, street + 68, 10, 3, Art.Hex(0x22242e));
+            c.Circle(111, street + 66, 2.5f, Art.Hex(0xffe6a0));
+        }
+
+        /// <summary>The motor pool, from outside: the base's wall at night, and the big opening the shutter covers, with the bay behind it.</summary>
+        static void DrawMotorPool(PixelCanvas c)
+        {
+            int floor = Staging.Sets["motorpool"], ox = (int)MotorOpenX, ow = (int)MotorOpenW, oh = (int)MotorOpenH;
+            Sky(c, 0x0b0f24, 0x1d2448);
+            var rng = new System.Random(11);
+            for (int i = 0; i < 50; i++) c.Set(rng.Next(StageW), 140 + rng.Next(StageH - 140), Art.Hex(0xc8d0ff, (byte)(120 + rng.Next(120))));
+            // the base's wall: steel panels, rivets
+            c.Rect(0, floor, StageW, 128, Art.Hex(0x2c3442));
+            for (int x = 0; x < StageW; x += 32) c.Rect(x, floor, 1, 128, Art.Hex(0x232a36));
+            for (int y = floor + 20; y < floor + 128; y += 26)
+                for (int x = 6; x < StageW; x += 16) c.Set(x, y, Art.Hex(0x4a5466));
+            c.Rect(0, floor + 126, StageW, 4, Art.Hex(0x1c222c));
+            // the bay behind the shutter: dark, with a back wall, a gantry and the lamps' fittings
+            c.Rect(ox - 6, floor, ow + 12, oh + 8, Art.Hex(0x1a1e26)); // the frame
+            c.Rect(ox, floor, ow, oh, Art.Hex(0x101318));
+            for (int x = ox + 4; x < ox + ow; x += 24) c.Rect(x, floor + 10, 1, oh - 10, Art.Hex(0x161a22));
+            c.Rect(ox, floor + oh - 14, ow, 3, Art.Hex(0x242a34)); // the gantry
+            for (int x = ox + 6; x < ox + ow; x += 10) c.Rect(x, floor + oh - 11, 1, 6, Art.Hex(0x242a34));
+            foreach (float rx in MotorRow) c.Rect((int)rx + 2, floor + oh - 14, 8, 3, Art.Hex(0x5a5a50));
+            // cables snaking over the bay floor, and the paint of the parking spaces
+            for (int x = ox; x < ox + ow; x++) c.Set(x, floor + 3 + (int)(System.Math.Sin(x * 0.11) * 1.5), Art.Hex(0x0a0c10));
+            for (int x = ox + 12; x < ox + ow; x += 50) c.Rect(x, floor, 2, 2, Art.Hex(0xc8b040));
+            // hazard stripes over the opening
+            for (int x = ox - 6; x < ox + ow + 6; x++)
+                c.Rect(x, floor + oh + 8, 1, 6, ((x - ox) / 5) % 2 == 0 ? Art.Hex(0xe0b020) : Art.Hex(0x1a1a1a));
+            c.Rect(14, floor + 54, 40, 8, Art.Hex(0x1a1e26)); // a sign plate by the door
+            c.Rect(16, floor + 56, 36, 4, Art.Hex(0xc0a030));
+            // the apron outside
+            c.Rect(0, 0, StageW, floor, Art.Hex(0x30343e));
+            c.Rect(0, floor - 1, StageW, 1, Art.Hex(0x4c5262));
+            for (int x = 4; x < StageW; x += 26) c.Rect(x, 6, 14, 2, Art.Hex(0x4a4a3c));
+        }
+
+        /// <summary>The motor pool's blast shutter: steel slats with a hazard edge along the bottom.</summary>
+        static void DrawShutter(PixelCanvas c)
+        {
+            c.Rect(0, 0, c.W, c.H, Art.Hex(0x5b5f66));
+            for (int y = 3; y < c.H; y += 6) c.Rect(0, y, c.W, 1, Art.Hex(0x45484e));
+            for (int y = 0; y < c.H; y += 6) c.Rect(0, y + 1, c.W, 1, Art.Hex(0x6c717a));
+            for (int x = 0; x < c.W; x++) c.Rect(x, 0, 1, 4, (x / 6) % 2 == 0 ? Art.Hex(0xe0b020) : Art.Hex(0x1a1a1a));
+        }
+
+        static void DrawRoom(PixelCanvas c)
+        {
+            int floor = Staging.Sets["room"];
+            // walls, with cyan scorch marks
+            c.Rect(0, 0, StageW, StageH, Art.Hex(0x2b2236));
+            for (int x = 0; x < StageW; x += 40) c.Rect(x, floor, 1, StageH - floor, Art.Hex(0x241c2e));
+            var rng = new System.Random(3);
+            for (int i = 0; i < 7; i++)
+            {
+                int sx = 20 + rng.Next(StageW - 40), sy = 60 + rng.Next(90);
+                for (int k = 0; k < 14; k++) c.Set(sx + rng.Next(-6, 7), sy + rng.Next(-8, 9), Art.Hex(0x3fd4e0, (byte)(90 + rng.Next(120))));
+            }
+            // the window, on the night and the base on its hill
+            c.Rect(236, 92, 70, 60, Art.Hex(0x14101a));
+            for (int y = 95; y < 149; y++) c.Rect(239, y, 64, 1, Color32.Lerp(Art.Hex(0x232a52), Art.Hex(0x0b0f24), (y - 95) / 54f));
+            for (int x = 239; x < 303; x++)
+            {
+                int h = (int)(14 - System.Math.Abs(x - 272) * 0.45f);
+                if (h > 0) c.Rect(x, 95, 1, h, Art.Hex(0x101425));
+            }
+            c.Rect(262, 107, 20, 4, Art.Hex(0x2a2e40));
+            c.Rect(266, 111, 3, 3, Art.Hex(0xffd860));
+            c.Rect(276, 111, 3, 3, Art.Hex(0xffd860));
+            c.Rect(270, 92, 2, 60, Art.Hex(0x14101a));
+            c.Rect(236, 121, 70, 2, Art.Hex(0x14101a));
+            // a crew poster, torn
+            c.Rect(30, 100, 26, 34, Art.Hex(0xb24a5a));
+            c.Rect(36, 108, 14, 16, Art.Hex(0xe8c088));
+            c.Rect(48, 100, 8, 12, Art.Hex(0x2b2236));
+            // the floor
+            c.Rect(0, 0, StageW, floor, Art.Hex(0x4a3a30));
+            for (int x = 0; x < StageW; x += 16) c.Rect(x, 0, 1, floor, Art.Hex(0x3c2e26));
+            c.Rect(0, floor - 1, StageW, 1, Art.Hex(0x6a5444));
+            // the gaming setup, wrecked: a cracked screen on a low table
+            c.Rect(108, floor, 40, 14, Art.Hex(0x5a3e2e));
+            c.Rect(112, floor + 14, 32, 22, Art.Hex(0x101014));
+            c.Rect(114, floor + 16, 28, 18, Art.Hex(0x1e3a48));
+            for (int i = 0; i < 12; i++) c.Set(118 + i * 2, floor + 30 - i, Art.Hex(0xd0f0ff));
+            // controllers on the floor
+            c.Rect(92, floor, 7, 3, Art.Hex(0x22222a));
+            c.Rect(156, floor, 7, 3, Art.Hex(0xe8e8ee));
+            // the couch, flipped on its back
+            c.Rect(166, floor, 52, 10, Art.Hex(0x3c6a5a));
+            c.Rect(170, floor + 10, 44, 12, Art.Hex(0x335a4c));
+            c.Rect(166, floor + 10, 6, 6, Art.Hex(0x2a4a3e));
+            c.Rect(212, floor + 10, 6, 6, Art.Hex(0x2a4a3e));
+            c.Rect(174, floor + 22, 4, 3, Art.Hex(0x1c1214));
+            c.Rect(206, floor + 22, 4, 3, Art.Hex(0x1c1214));
+            // the doorway they came in by, on the left
+            c.Rect(14, floor, 22, 44, Art.Hex(0x14101a));
+        }
+    }
+}

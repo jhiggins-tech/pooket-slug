@@ -168,8 +168,7 @@ namespace PooketSlug
                 m_XpBlock.anchoredPosition = new Vector2(60f + (1f - slide) * 400f, -18f);
                 int shown = r.XpBefore + Mathf.RoundToInt(r.XpGained * xpK);
                 m_XpTotal.text = shown.ToString();
-                const int Token = 600; // every 600 XP earns a looks token (docs/design/player.md)
-                m_XpFill.rectTransform.localScale = new Vector3((shown % Token) / (float)Token, 1f, 1f);
+                m_XpFill.rectTransform.localScale = new Vector3(Progression.TokenProgress(shown), 1f, 1f);
                 var parts = new System.Text.StringBuilder();
                 int upTo = Mathf.CeilToInt(xpK * r.Xp.Count);
                 for (int i = 0; i < upTo && i < r.Xp.Count; i++)
@@ -207,13 +206,9 @@ namespace PooketSlug
                 }
             }
 
-            // kie's lines, the first time
-            string say = null;
-            if (r.First && p.Now == DebriefPlayer.Part.Xp) say = "YOU GET XP FOR THAT.";
-            if (p.Now == DebriefPlayer.Part.SignIn) say = "SIGN IN SO THIS DOESN'T VANISH.";
-            m_Bubble.Say(say);
-
-            Ui.Show(m_SignIn, p.Now == DebriefPlayer.Part.SignIn || (p.Now == DebriefPlayer.Part.Continue && r.OfferSignIn));
+            // kie's lines, the first time, and the sign-in offer
+            m_Bubble.Say(p.KieSays);
+            Ui.Show(m_SignIn, p.ShowsSignIn);
             bool end = p.Now == DebriefPlayer.Part.Continue;
             Ui.Show(m_Continue, end);
             Ui.Show(m_Hint, !end && p.Counted);

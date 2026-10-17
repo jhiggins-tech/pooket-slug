@@ -96,5 +96,59 @@ namespace PooketSlug.Tests
             Assert.AreEqual(DebriefPlayer.Part.Continue, p.Now);
             Assert.IsFalse(p.Tap(), "at CONTINUE a tap means leave");
         }
+
+        [Test]
+        public void ALooksTokenEverySixHundredXp()
+        {
+            Assert.AreEqual(600, Progression.LooksTokenXp);
+            Assert.AreEqual(0f, Progression.TokenProgress(0));
+            Assert.AreEqual(0.5f, Progression.TokenProgress(300));
+            Assert.AreEqual(0f, Progression.TokenProgress(1200), "a token earned: the bar starts again");
+            Assert.AreEqual(0.25f, Progression.TokenProgress(750));
+        }
+
+        static void To(DebriefPlayer p, DebriefPlayer.Part part)
+        {
+            while (p.Now != part)
+            {
+                p.Tick(10f);
+                p.Tap();
+                p.Tap();
+            }
+        }
+
+        [Test]
+        public void KieExplainsTheXpTheFirstTimeAndAsksForTheSignIn()
+        {
+            var first = new DebriefPlayer(Result(true));
+            Assert.IsNull(first.KieSays, "the tally");
+            To(first, DebriefPlayer.Part.Xp);
+            Assert.AreEqual("YOU GET XP FOR THAT.", first.KieSays);
+            To(first, DebriefPlayer.Part.Rank);
+            Assert.IsNull(first.KieSays);
+            To(first, DebriefPlayer.Part.SignIn);
+            Assert.AreEqual("SIGN IN SO THIS DOESN'T VANISH.", first.KieSays);
+
+            DebriefResult later = Result(false);
+            later.First = false;
+            var p = new DebriefPlayer(later);
+            To(p, DebriefPlayer.Part.Xp);
+            Assert.IsNull(p.KieSays, "after the first debrief kie's quiet");
+        }
+
+        [Test]
+        public void TheSignInButtonShowsInItsPartAndStaysAtContinue()
+        {
+            var p = new DebriefPlayer(Result(true));
+            Assert.IsFalse(p.ShowsSignIn);
+            To(p, DebriefPlayer.Part.SignIn);
+            Assert.IsTrue(p.ShowsSignIn);
+            To(p, DebriefPlayer.Part.Continue);
+            Assert.IsTrue(p.ShowsSignIn, "still on offer at CONTINUE");
+
+            var signedIn = new DebriefPlayer(Result(false));
+            To(signedIn, DebriefPlayer.Part.Continue);
+            Assert.IsFalse(signedIn.ShowsSignIn, "signed in: never");
+        }
     }
 }
