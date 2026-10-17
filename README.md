@@ -67,7 +67,7 @@ Project layout:
 
 | Path | What |
 | --- | --- |
-| `Assets/Scripts/Game/Game.cs` | Bootstrap, camera, and the game's flow (title, online menus, play, pause, game over, victory), which hands the views what to show |
+| `Assets/Scripts/Game/` | `Game.cs`: bootstrap, camera, and the game's state machine (title, online menus, play, pause, game over, victory), which hands the views what to show; a flow per part beside it (`SceneFlow`, `DenFlow`, `DebriefFlow` and the rest) |
 | `Assets/Scripts/Save/`, `Core/Lobby/Profile.cs` | The player's profile (`Profile`, in Core and tested) and where it's kept (`IProfileStore`): this browser for now (`LocalProfileStore`), the cloud once sign-in arrives |
 | `Assets/Scripts/Ui/` | uGUI built in code: the HUD (`HudView`) with the touch pad, the menus (`MenuView`), and the helpers that build them (`Ui`) |
 | `Assets/Scripts/World/` | `World` (the entities, their pools and the order things run in) and its systems: `ScrollCamera` (scrolling, shake, parallax), `Spawner`, `Combat` (hits, damage, explosions), `Scoring` and `NetSync` (the co-op session's side) |
