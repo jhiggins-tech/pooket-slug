@@ -35,11 +35,11 @@ How secrets behave:
 
 ## Steps
 
-### 1. Free disk space
+### 1. Room for the editor image
 
-- `jlumbroso/free-disk-space@v1.3.1` removes Android, .NET, Haskell and pre-pulled Docker images (`tool-cache: false`, `large-packages: false`, `swap-storage: false`).
-- The `unityci/editor` WebGL image is about 7 GB compressed.
-- It took 51 to 145 s across measured runs. We never tested whether today's runner would manage without it.
+- The `unityci/editor` WebGL image is about 7 GB compressed, more than the runner's main disk has free.
+- Docker's storage moves to the runner's second disk, `/mnt`, which is mostly empty: about 8 s.
+- Until 17 Oct, `jlumbroso/free-disk-space@v1.3.1` deleted Android, .NET, Haskell and pre-pulled Docker images instead, which took 51 to 145 s. The `spike-ci-disk` run showed the second disk is enough.
 
 ### 2. Checkout
 
@@ -82,7 +82,7 @@ Four steps run the [EditMode tests](../verification/edit-mode-tests.md) before t
 
 ### 6. The build step
 
-`game-ci/unity-builder@v4`, with the three Unity secrets passed as `env`:
+`game-ci/unity-builder@v4.8.2` (pinned: the floating `v4` tag could change under us), with the three Unity secrets passed as `env`:
 
 | Input | Value | Why |
 |---|---|---|

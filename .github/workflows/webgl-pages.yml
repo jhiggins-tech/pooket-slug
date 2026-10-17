@@ -45,12 +45,17 @@ jobs:
       light: ${{ steps.plan.outputs.light }}
       slug: ${{ steps.plan.outputs.slug }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          sparse-checkout: tools
+
       - name: Main line, preview or spike
         id: plan
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          slug=$(echo "$GITHUB_REF_NAME" | sed -e 's#^claude/##' -e 's/[^A-Za-z0-9-]/-/g' | tr 'A-Z' 'a-z')
+          slug=$(tools/slug.sh "$GITHUB_REF_NAME")
           light=false; build=true
           if [ "$GITHUB_REF_NAME" = "$MAIN_LINE" ]; then
             slug=; echo "### Main line: deploys to the live game" >> "$GITHUB_STEP_SUMMARY"
@@ -87,19 +92,10 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      - name: Fetch the narrator's lines
+      - name: Check the scenes
         env:
           GH_TOKEN: ${{ secrets.VENDOR_PAT }}
-        run: |
-          mkdir -p "$RUNNER_TEMP/narration"
-          if gh release download narration -R jhiggins-tech/pooket-slug-vendor -p narration.zip -D vendor; then
-            unzip -o -q vendor/narration.zip '*.wav' -x sample.wav -d "$RUNNER_TEMP/narration"
-          else
-            echo "::warning::No narration.zip on the vendor repository's narration release: narrator lines are checked for reading time only."
-          fi
-
-      - name: Check the scenes
-        run: dotnet run --project tools/scenecheck -- scenes "$RUNNER_TEMP/narration" site-scenes
+        run: tools/check_scenes.sh site-scenes
 
       - name: Upload the scenes for the site
         uses: actions/upload-artifact@v6
@@ -107,6 +103,7 @@ jobs:
           name: site-scenes
           path: site-scenes
           if-no-files-found: error
+          retention-days: 7 # GitHub's default is 90; a run's files are only read for a few days
 
   build-and-deploy:
     name: Build WebGL with GameCI and deploy
@@ -115,17 +112,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      # The unityci/editor WebGL image is ~7 GB compressed; make room for it on the hosted runner.
-      - name: Free disk space
-        uses: jlumbroso/free-disk-space@v1.3.1
-        with:
-          tool-cache: false
-          android: true
-          dotnet: true
-          haskell: true
-          large-packages: false
-          docker-images: true
-          swap-storage: false
+      # The unityci/editor WebGL image is ~7 GB compressed. Rather than spend 2 minutes deleting preinstalled tools to
+      # make room for it, Docker keeps its images on the runner's second disk (/mnt), which is mostly empty
+      # (spike-ci-disk: 8 s instead of 126).
+      - name: Move Docker's storage to the second disk
+        run: |
+          sudo systemctl stop docker docker.socket
+          sudo mkdir -p /mnt/docker
+          echo '{"data-root": "/mnt/docker"}' | sudo tee /etc/docker/daemon.json
+          sudo systemctl start docker
+          docker info --format 'Docker storage: {{.DockerRootDir}}'
+          df -h / /mnt
 
       - name: Checkout
         uses: actions/checkout@v5
@@ -149,53 +146,20 @@ jobs:
           # our committed Fusion config wins over anything the package ships
           git checkout -- Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion
 
-      # The arcade announcer's lines are made with text-to-speech by the vendor repository's CI (voice/lines.json
-      # there) and published as announcer.zip. Without them the game still builds, and the announcer stays quiet.
-      - name: Fetch the announcer's voice
+      # Sounds the vendor repository's CI makes and publishes as zips of WAVs; without any of them the game still
+      # builds, a little quieter:
+      # - the arcade announcer's lines (text-to-speech, voice/lines.json there): announcer.zip;
+      # - the cutscene narrator's lines (voice F from the narrator voice spike, voice/narration.json there):
+      #   narration.zip, <line>.wav for each line;
+      # - the boss music's final section played by an orchestra (?spike=music crossfades to it), rendered from the
+      #   game's own notes (music/ there): orchestra.zip.
+      - name: Fetch the announcer, narrator and orchestra
         env:
           GH_TOKEN: ${{ secrets.VENDOR_PAT }}
         run: |
-          if gh release download announcer -R jhiggins-tech/pooket-slug-vendor -p announcer.zip -D vendor; then
-            mkdir -p Assets/Resources/Voice
-            unzip -o -q vendor/announcer.zip '*.wav' -d Assets/Resources/Voice
-            # .bytes, so Unity keeps them as raw WAV bytes (Sfx.Say makes the clips) instead of encoding them as AAC
-            for f in Assets/Resources/Voice/*.wav; do mv "$f" "${f%.wav}.bytes"; done
-            ls -l Assets/Resources/Voice
-          else
-            echo "::warning::No announcer.zip on the vendor repository's announcer release: the announcer stays quiet in this build."
-          fi
-
-      # The cutscene narrator's lines, in the narrator's voice (voice F from the narrator voice spike), made by the vendor
-      # repository's Narration workflow (voice/narration.json there) and published as narration.zip: <line>.wav for each
-      # line. Without them the narrator is subtitles only.
-      - name: Fetch the narrator's lines
-        env:
-          GH_TOKEN: ${{ secrets.VENDOR_PAT }}
-        run: |
-          if gh release download narration -R jhiggins-tech/pooket-slug-vendor -p narration.zip -D vendor; then
-            mkdir -p Assets/Resources/Narration
-            unzip -o -q vendor/narration.zip '*.wav' -x sample.wav -d Assets/Resources/Narration
-            for f in Assets/Resources/Narration/*.wav; do mv "$f" "${f%.wav}.bytes"; done
-            ls -l Assets/Resources/Narration
-          else
-            echo "::warning::No narration.zip on the vendor repository's narration release: the narrator is subtitles only."
-          fi
-
-      # The boss music's final section played by an orchestra (?spike=music crossfades to it), rendered from the
-      # game's own notes by the vendor repository's CI (music/ there) and published as orchestra.zip. Without it the
-      # final section stays chip all the way.
-      - name: Fetch the orchestral music
-        env:
-          GH_TOKEN: ${{ secrets.VENDOR_PAT }}
-        run: |
-          if gh release download orchestra -R jhiggins-tech/pooket-slug-vendor -p orchestra.zip -D vendor; then
-            mkdir -p Assets/Resources/Music
-            unzip -o -q vendor/orchestra.zip '*.wav' -d Assets/Resources/Music
-            for f in Assets/Resources/Music/*.wav; do mv "$f" "${f%.wav}.bytes"; done
-            ls -l Assets/Resources/Music
-          else
-            echo "::warning::No orchestra.zip on the vendor repository's orchestra release: the boss music stays chip."
-          fi
+          tools/vendor_fetch.sh --bytes announcer Assets/Resources/Voice "the announcer stays quiet in this build"
+          tools/vendor_fetch.sh --bytes narration Assets/Resources/Narration "the narrator is subtitles only"
+          tools/vendor_fetch.sh --bytes orchestra Assets/Resources/Music "the boss music stays chip"
 
       # The cutscenes built into the game (scenes/*.txt as Resources/Scenes), the copy that plays when the site's can't
       # be reached or has a problem.
@@ -273,9 +237,10 @@ jobs:
           name: tests
           path: test-results
           if-no-files-found: ignore
+          retention-days: 7 # GitHub's default is 90; a run's files are only read for a few days
 
       - name: Build WebGL (GameCI)
-        uses: game-ci/unity-builder@v4
+        uses: game-ci/unity-builder@v4.8.2 # pinned, as the test runner is: the floating v4 tag could change under us
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -335,6 +300,7 @@ jobs:
           name: kit-demos
           path: demos
           if-no-files-found: ignore
+          retention-days: 7 # GitHub's default is 90; a run's files are only read for a few days
 
       # The sandbox's setups (sandbox-files.yml puts them up between builds), so a deploy keeps them.
       - name: Add the sandbox's setups
@@ -363,6 +329,7 @@ jobs:
           name: PooketSlug-WebGL
           path: build/WebGL/WebGL
           if-no-files-found: error
+          retention-days: 7 # GitHub's default is 90; a run's files are only read for a few days
 
       # Into the root for the main line, into previews/<slug>/ for any other branch, leaving the rest of the site be.
       - name: Deploy to gh-pages branch
@@ -557,3 +524,4 @@ jobs:
           name: coop-test
           path: coop-test
           if-no-files-found: ignore
+          retention-days: 7 # GitHub's default is 90; a run's files are only read for a few days

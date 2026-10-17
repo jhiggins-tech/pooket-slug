@@ -11,12 +11,12 @@ git push to main or claude/**        (pushes that only touch *.md or docs/** are
    │
    ▼
 GitHub Actions: .github/workflows/webgl-pages.yml   (two jobs on ubuntu-latest)
-   1. Free disk space                ~1 min; the Unity editor image is ~7 GB
+   1. Docker on the second disk      ~8 s; the Unity editor image is ~7 GB
    2. Checkout
    3. Fetch Photon Fusion SDK        private release → SHA-256 check → unpack into Assets/Photon/
    4. Restore the Library cache
    5. game-ci/unity-test-runner      v4.3.2: EditMode tests; a failure stops here
-   6. game-ci/unity-builder@v4       Docker image unityci/editor:ubuntu-6000.3.26f1-webgl-3
+   6. game-ci/unity-builder@v4.8.2   Docker image unityci/editor:ubuntu-6000.3.26f1-webgl-3
         └─ Unity -executeMethod PooketSlug.EditorTools.WebGLBuild.Build
              bake the Photon AppId, create the scene, set PlayerSettings, BuildPlayer(WebGL)
    7. Upload the build as an artifact

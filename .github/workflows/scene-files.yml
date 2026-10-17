@@ -41,27 +41,20 @@ jobs:
         with:
           dotnet-version: '8.0.x'
 
-      # The narrator's recordings (as the build fetches them), so the check can time each line against its clip.
-      - name: Fetch the narrator's lines
+      # Against the narrator's recordings (as the build fetches them), so each line is timed against its clip.
+      - name: Check the scenes
         env:
           GH_TOKEN: ${{ secrets.VENDOR_PAT }}
         run: |
-          mkdir -p "$RUNNER_TEMP/narration"
-          if gh release download narration -R jhiggins-tech/pooket-slug-vendor -p narration.zip -D vendor; then
-            unzip -o -q vendor/narration.zip '*.wav' -x sample.wav -d "$RUNNER_TEMP/narration"
-          else
-            echo "::warning::No narration.zip on the vendor repository's narration release: narrator lines are checked for reading time only."
-          fi
-
-      - name: Check the scenes
-        run: dotnet run --project tools/scenecheck -- scenes "$RUNNER_TEMP/narration" "$RUNNER_TEMP/scenes" | tee "$RUNNER_TEMP/check.log"
+          set -o pipefail
+          tools/check_scenes.sh "$RUNNER_TEMP/scenes" | tee "$RUNNER_TEMP/check.log"
 
       - name: Deploy to gh-pages branch
         run: |
           set -o pipefail
           slug=-
           if [ "$GITHUB_REF_NAME" != "$MAIN_LINE" ]; then
-            slug=$(echo "$GITHUB_REF_NAME" | sed -e 's#^claude/##' -e 's/[^A-Za-z0-9-]/-/g' | tr 'A-Z' 'a-z')
+            slug=$(tools/slug.sh "$GITHUB_REF_NAME")
           fi
           tools/pages_deploy.sh files "$slug" "$RUNNER_TEMP/scenes" scenes | tee "$RUNNER_TEMP/deploy.log"
           {
