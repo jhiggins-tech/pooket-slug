@@ -270,6 +270,7 @@ namespace PooketSlug
         {
             m_Paused = false;
             SetState(GameState.Playing);
+            Log.Game.Info("Mission start: " + Mission.Name); // tools/touch.mjs waits for it
             Sfx.Play(Sfx.Start);
             if (!Scenes.TakeSaidStart()) Sfx.Say("mission-start", 0.3f); // the opening's caption card already called it
             if (m_Flags.Debrief) m_World.OnBossDestroyed();
