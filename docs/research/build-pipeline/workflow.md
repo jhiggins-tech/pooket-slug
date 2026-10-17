@@ -9,7 +9,7 @@ Up: [Build pipeline](README.md)
 ## Triggers, permissions and concurrency
 
 - **Triggers:**
-  - Pushes to `main` and `claude/**`, branch deletions, and manual dispatch. A plan job decides what a push builds: the main line deploys to the root, other branches to a preview folder (spikes, `claude/spike-*`, without the demos and co-op tests), and a commit the main line already has builds nothing.
+  - Pushes to `main` and `claude/**`, branch deletions, and manual dispatch. A plan job decides what a push builds: the main line deploys to the root, other branches to a preview folder, and a commit the main line already has builds nothing. A preview runs the co-op tests only when the branch changes the netcode (`Net/`, `World/NetSync.cs`, `Core/Platform/NetContracts.cs`, `tools/coop.mjs`) and the kit demos only when it changes the crew (`Crew/`, `Core/Crew/KitGuide.cs`, `PooketDemo.jslib`, `tools/demos.mjs`), or this workflow; a commit message line `CI: co-op` or `CI: demos` asks for either. Spikes (`claude/spike-*`) skip both. The main line always runs everything.
   - `paths-ignore` skips pushes that only touch `**.md` or `docs/**`. A doc change never redeploys the game, and a redeploy changes the build version, which [splits co-op players](../netcode/sessions.md#build-versions).
 - **`permissions: contents: write`:** needed to push the `gh-pages` branch.
 - **Concurrency:** a group per branch (`webgl-pages-<branch>`) with `cancel-in-progress: false`, so branches build side by side, and within a branch a build in flight always finishes and deploys; pushes that land meanwhile queue, and only the newest of them runs next.
@@ -113,15 +113,14 @@ Writes the commit, Unity version, build size and live URL to the job summary.
 
 ## The two-player co-op test job
 
-A second job, `coop-test`, runs after the build on every push. It tests co-op on the exact build just made:
+`coop-test` runs after the build, as one job per scenario, three at a time (a matrix). It tests co-op on the exact build just made:
 1. **It downloads the build artifact** and serves it on the runner with `python3 -m http.server`, so it doesn't wait for GitHub Pages to update.
 2. **It installs Playwright 1.56.1 and Chromium.**
-3. **It runs [`tools/coop.mjs`](../../../tools/coop.mjs)** in two separate headless Chromium instances. A hosts, B joins with the invite link, both play, then A leaves and B must take over the shared world ([details](../verification/browser-tests.md#two-browser-co-op-test)). GitHub's runners can open the WebSockets Photon needs; the cloud sandbox can't.
-4. **It runs `coop.mjs` again in boss mode** (`?test=boss`): both start at Mission one's boss and fight it, and B must see the boss tank swing its turret and fire from A's world (its network object). Its results land in `coop-test/boss`.
-5. **The job summary lists each check of both runs,** and how many pickups were given out. The `coop-test` artifact keeps both players' screenshots and console logs, even when the test fails.
+3. **It runs [`tools/coop.mjs`](../../../tools/coop.mjs)** in its scenario's mode, in separate headless Chromium instances: `code` (A hosts, B joins with the invite link, both play, then A leaves and B must take over the shared world: [details](../verification/browser-tests.md#two-browser-co-op-test)), `boss`, `scene`, `dropin` (a spike: its failure doesn't fail the job), `handover` and `watch` (three phones). GitHub's runners can open the WebSockets Photon needs; the cloud sandbox can't.
+4. **Each job's summary lists its checks.** Its `coop-test-<mode>` artifact keeps the players' screenshots and console logs, even when the test fails.
 
-- **It runs after the deploy, not before,** so a failure doesn't hold back the live build. It marks the push red instead.
-- **Each run briefly uses two of the free Photon plan's 20 concurrent users.**
+- **On the main line, the live deploy waits for it.** The `deploy-live` job puts the build live only once every scenario has passed, so the live game never gets a build co-op failed. Previews deploy straight after the build.
+- **Three at a time keeps Photon's free plan in reach:** at most 7 of its 20 concurrent users per branch, so two branches testing together still fit.
 
 ## Action versions
 
