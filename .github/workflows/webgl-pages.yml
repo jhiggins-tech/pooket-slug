@@ -1,9 +1,12 @@
 name: WebGL build → GitHub Pages
 
 # One site on the gh-pages branch, many builds (the pipeline agreed in the workflow review, 16 Oct):
-# - the main line, claude/gallant-keller-3qzp97, deploys the game to the root, with every check;
-# - every other branch deploys a preview to previews/<branch without claude/>/ (its item's Try it link), with every
-#   check too, except spike branches (claude/spike-<name>), which skip the kit demos and the co-op tests;
+# - the main line, claude/gallant-keller-3qzp97, runs every check and deploys the game to the root only once the
+#   co-op tests have passed (the live game never gets a build they failed);
+# - every other branch deploys a preview to previews/<branch without claude/>/ (its item's Try it link) straight after
+#   the build. The co-op tests run only when the branch changes the netcode, the kit demos only when it changes the
+#   crew (what counts: the plan job), or when a commit message asks with a line "CI: co-op" or "CI: demos". Spike
+#   branches (claude/spike-<name>) skip both;
 # - a branch whose commit the main line already has builds nothing (a mirror of the main line, or a merged branch);
 # - a deleted or merged branch's preview goes at the next deploy (tools/pages_deploy.sh); a deleted one's goes at once
 #   by the delete trigger, since this file is on the default branch (GitHub runs delete triggers from there only).
@@ -44,27 +47,40 @@ jobs:
       build: ${{ steps.plan.outputs.build }}
       light: ${{ steps.plan.outputs.light }}
       slug: ${{ steps.plan.outputs.slug }}
+      coop: ${{ steps.plan.outputs.coop }}
+      demos: ${{ steps.plan.outputs.demos }}
     steps:
       - name: Main line, preview or spike
         id: plan
         env:
           GH_TOKEN: ${{ github.token }}
+          MESSAGE: ${{ github.event.head_commit.message }}
         run: |
           slug=$(echo "$GITHUB_REF_NAME" | sed -e 's#^claude/##' -e 's/[^A-Za-z0-9-]/-/g' | tr 'A-Z' 'a-z')
-          light=false; build=true
+          light=false; build=true; coop=true; demos=true
           if [ "$GITHUB_REF_NAME" = "$MAIN_LINE" ]; then
             slug=; echo "### Main line: deploys to the live game" >> "$GITHUB_STEP_SUMMARY"
           else
             case $slug in spike-*) light=true ;; esac
-            status=$(gh api "repos/$GITHUB_REPOSITORY/compare/$MAIN_LINE...$GITHUB_SHA" --jq .status || echo unknown)
+            compare=$(gh api "repos/$GITHUB_REPOSITORY/compare/$MAIN_LINE...$GITHUB_SHA" || echo '{}')
+            status=$(jq -r '.status // "unknown"' <<<"$compare")
+            # What the branch changes from the main line. If the list can't be had (or is cut off at 300 files),
+            # everything runs.
+            files=$(jq -r 'if (.files | length) < 300 then .files[].filename else "?" end' <<<"$compare" 2>/dev/null || echo '?')
+            changes() { grep -qE "^(\?|.github/workflows/webgl-pages.yml|$1)" <<<"$files"; }
+            changes 'Assets/Scripts/Net/|Assets/Scripts/World/NetSync.cs|Assets/Scripts/Core/Platform/NetContracts.cs|tools/coop.mjs' ||
+              grep -qix 'CI: co-op' <<<"$MESSAGE" || coop=false
+            changes 'Assets/Scripts/Crew/|Assets/Scripts/Core/Crew/KitGuide.cs|Assets/Plugins/WebGL/PooketDemo.jslib|tools/demos.mjs' ||
+              grep -qix 'CI: demos' <<<"$MESSAGE" || demos=false
+            if [ $light = true ]; then coop=false; demos=false; fi
             if [ "$status" = identical ] || [ "$status" = behind ]; then
               build=false
               echo "### Nothing to preview: the main line already has \`${GITHUB_SHA::7}\`" >> "$GITHUB_STEP_SUMMARY"
             else
-              echo "### Preview: previews/$slug/$([ $light = true ] && echo ' (spike: no demos or co-op tests)')" >> "$GITHUB_STEP_SUMMARY"
+              echo "### Preview: previews/$slug/ (co-op tests: $([ $coop = true ] && echo yes || echo no), kit demos: $([ $demos = true ] && echo yes || echo no))" >> "$GITHUB_STEP_SUMMARY"
             fi
           fi
-          { echo "build=$build"; echo "light=$light"; echo "slug=$slug"; } >> "$GITHUB_OUTPUT"
+          { echo "build=$build"; echo "light=$light"; echo "slug=$slug"; echo "coop=$coop"; echo "demos=$demos"; } >> "$GITHUB_OUTPUT"
 
   # The cutscenes pass the scene check (tools/scenecheck, as scene-files.yml runs it) before the build, which carries
   # them and the narrator's recordings to the site as scenes/ (the game fetches them at start-up, Game.FetchScenes).
@@ -291,14 +307,14 @@ jobs:
       # clips always match the build they ship with. If recording fails, the build still deploys, and the kit screen
       # says there's no demo yet.
       - name: Set up Node
-        if: needs.plan.outputs.light != 'true'
+        if: needs.plan.outputs.demos == 'true'
         uses: actions/setup-node@v7
         with:
           node-version: 22
 
       - name: Record the kit screen's demos
         id: demos
-        if: needs.plan.outputs.light != 'true'
+        if: needs.plan.outputs.demos == 'true'
         continue-on-error: true
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
@@ -364,13 +380,13 @@ jobs:
           path: build/WebGL/WebGL
           if-no-files-found: error
 
-      # Into the root for the main line, into previews/<slug>/ for any other branch, leaving the rest of the site be.
-      - name: Deploy to gh-pages branch
+      # A preview goes into previews/<slug>/ now, leaving the rest of the site be. The main line's build waits for the
+      # co-op tests (the deploy-live job).
+      - name: Deploy the preview to gh-pages
+        if: needs.plan.outputs.slug != ''
         env:
           SLUG: ${{ needs.plan.outputs.slug }}
-        run: |
-          if [ -z "$SLUG" ]; then tools/pages_deploy.sh main build/WebGL/WebGL
-          else tools/pages_deploy.sh preview "$SLUG" build/WebGL/WebGL; fi
+        run: tools/pages_deploy.sh preview "$SLUG" build/WebGL/WebGL
 
       - name: Summary
         env:
@@ -383,7 +399,7 @@ jobs:
             echo "- Commit: \`${GITHUB_SHA::7}\` on \`${GITHUB_REF_NAME}\`"
             echo "- Unity: \`$(sed -n 's/^m_EditorVersion: //p' ProjectSettings/ProjectVersion.txt)\`"
             echo "- Build size: $(du -sh build/WebGL/WebGL | cut -f1)"
-            if [ -z "$SLUG" ]; then echo "- Live: $site"; else echo "- Preview: ${site}previews/$SLUG/ (all previews: ${site}previews/)"; fi
+            if [ -z "$SLUG" ]; then echo "- Goes live at $site once the co-op tests pass"; else echo "- Preview: ${site}previews/$SLUG/ (all previews: ${site}previews/)"; fi
           } >> "$GITHUB_STEP_SUMMARY"
 
   # A deleted branch's preview goes now rather than at the next deploy. GitHub runs delete triggers only from the
@@ -402,14 +418,27 @@ jobs:
         run: tools/pages_deploy.sh prune
 
   # Two players in two headless browsers, against the build just made: A hosts, B joins by invite link,
-  # both play, then A leaves and B must take over the shared world. GitHub's runners can open the
-  # WebSockets Photon needs (the cloud sandbox can't), so this is where co-op gets tested on every push.
+  # both play, then A leaves and B must take over the shared world, and the other scenarios below. GitHub's runners
+  # can open the WebSockets Photon needs (the cloud sandbox can't), so this is where co-op gets tested. Three run at
+  # once: at most 7 players per branch, so two branches testing together stay under Photon's free 20.
   coop-test:
-    name: Two-player co-op test
+    name: Co-op test (${{ matrix.mode }})
     needs: [plan, build-and-deploy]
-    if: needs.plan.outputs.light != 'true'
+    if: needs.plan.outputs.coop == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        include:
+          - mode: code # host, join, play, and hand over the world
+          - mode: boss # fight the boss together (a stand-in, as Mission one is solo only)
+          - mode: scene # watch a scene together (a stand-in, as Mission one is solo only)
+          - mode: dropin # drop in to a mission under way (spike drop-in, doesn't fail the build)
+            optional: true
+          - mode: handover # hand the world over when the host's phone goes to the background
+          - mode: watch # browse rooms, join one and watch one (three phones)
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -440,37 +469,19 @@ jobs:
           echo "::error::The build didn't start serving on port 8000."
           exit 1
 
-      - name: Host, join, play, and hand over the world
-        run: node tools/coop.mjs http://127.0.0.1:8000/index.html coop-test code
-
-      - name: Fight the boss together (a stand-in, as Mission one is solo only)
-        if: success() || failure()
-        run: node tools/coop.mjs http://127.0.0.1:8000/index.html coop-test/boss boss
-
-      - name: Watch a scene together (a stand-in, as Mission one is solo only)
-        if: success() || failure()
-        run: node tools/coop.mjs http://127.0.0.1:8000/index.html coop-test/scene scene
-
-      - name: Drop in to a mission under way (spike drop-in, doesn't fail the build)
-        if: success() || failure()
-        continue-on-error: true
-        run: node tools/coop.mjs http://127.0.0.1:8000/index.html coop-test/dropin dropin
-
-      - name: Hand the world over when the host's phone goes to the background
-        if: success() || failure()
-        run: node tools/coop.mjs http://127.0.0.1:8000/index.html coop-test/handover handover
-
-      - name: Browse rooms, join one and watch one (three phones)
-        if: success() || failure()
-        run: node tools/coop.mjs http://127.0.0.1:8000/index.html coop-test/watch watch
+      - name: Play the scenario
+        continue-on-error: ${{ matrix.optional == true }}
+        run: node tools/coop.mjs http://127.0.0.1:8000/index.html coop-test ${{ matrix.mode }}
 
       - name: Summary
         if: always()
+        env:
+          MODE: ${{ matrix.mode }}
         run: |
           python3 - >> "$GITHUB_STEP_SUMMARY" <<'EOF'
-          import json
-          runs = [
-              ("Two-player co-op test", "coop-test/result.json", [
+          import json, os
+          runs = {
+              "code": ("Two-player co-op test", [
                   ("hostOnline", "A hosts a room"),
                   ("guestOnline", "B joins with the invite link"),
                   ("joined", "A sees B join"),
@@ -479,7 +490,7 @@ jobs:
                   ("pickup", "A's world hands out the test crate (?test=crate)"),
                   ("takeover", "B takes over the world when A leaves"),
               ]),
-              ("Two-player boss fight", "coop-test/boss/result.json", [
+              "boss": ("Two-player boss fight", [
                   ("hostOnline", "A hosts a room"),
                   ("guestOnline", "B joins with the invite link"),
                   ("joined", "A sees B join"),
@@ -489,7 +500,7 @@ jobs:
                   ("bossFollowed", "B's boss tank follows the turret of A's"),
                   ("bossFired", "B sees the boss tank fire in A's world"),
               ]),
-              ("Two-player scene (?test=scene)", "coop-test/scene/result.json", [
+              "scene": ("Two-player scene (?test=scene)", [
                   ("hostOnline", "A hosts a room"),
                   ("guestOnline", "B joins with the invite link"),
                   ("joined", "A sees B join"),
@@ -499,14 +510,14 @@ jobs:
                   ("together", "It ends on both phones together"),
                   ("played", "Both play on with no errors or disconnects"),
               ]),
-              ("Drop-in (spike, ?spike=dropin)", "coop-test/dropin/result.json", [
+              "dropin": ("Drop-in (spike, ?spike=dropin)", [
                   ("hostOnline", "A hosts a room and plays on alone"),
                   ("guestOnline", "B joins with the invite link"),
                   ("joined", "A sees B join"),
                   ("droppedIn", "B drops in to the mission under way"),
                   ("played", "Both play on with no errors or disconnects"),
               ]),
-              ("Host goes to the background", "coop-test/handover/result.json", [
+              "handover": ("Host goes to the background", [
                   ("hostOnline", "A hosts a room"),
                   ("guestOnline", "B joins with the invite link"),
                   ("joined", "A sees B join"),
@@ -516,7 +527,7 @@ jobs:
                   ("quick", "Within 10 s of A freezing, before Photon would time A out"),
                   ("playedOn", "B plays on with no errors or disconnects"),
               ]),
-              ("Room browser and watching", "coop-test/watch/result.json", [
+              "watch": ("Room browser and watching", [
                   ("hostOnline", "A quick-matches and opens a listed room"),
                   ("listed", "B sees it in the room browser and picks JOIN"),
                   ("browsedIn", "B gets in"),
@@ -526,34 +537,57 @@ jobs:
                   ("counted", "A's room counts C watching"),
                   ("played", "Nobody has errors or disconnects"),
               ]),
-          ]
-          for title, path, checks in runs:
-              try:
-                  r = json.load(open(path))
-              except Exception:
-                  print(f"### {title}\n\nNo result: the test stopped before writing one.\n")
-                  continue
-              print(f"### {title}: " + ("passed" if r["ok"] else "failed"))
+          }
+          title, checks = runs[os.environ["MODE"]]
+          try:
+              r = json.load(open("coop-test/result.json"))
+          except Exception:
+              print(f"### {title}\n\nNo result: the test stopped before writing one.\n")
+              raise SystemExit
+          print(f"### {title}: " + ("passed" if r["ok"] else "failed"))
+          print()
+          print("| Check | Result |")
+          print("|---|---|")
+          for key, label in checks:
+              print(f"| {label} | {'✅' if r['checks'].get(key) else '❌'} |")
+          if r.get("failure"):
               print()
-              print("| Check | Result |")
-              print("|---|---|")
-              for key, label in checks:
-                  print(f"| {label} | {'✅' if r['checks'].get(key) else '❌'} |")
-              if r.get("failure"):
-                  print()
-                  print("Stopped: " + r["failure"])
+              print("Stopped: " + r["failure"])
+          print()
+          if "pickups" in r and r.get("mode") != "boss":
+              print(f"Pickups given out while playing: {r['pickups']}.")
               print()
-              if "pickups" in r and r.get("mode") != "boss":
-                  print(f"Pickups given out while playing: {r['pickups']}.")
-                  print()
-              print(f"Took {r['seconds']} s. Screenshots and console logs are in the coop-test artifact.")
-              print()
+          print(f"Took {r['seconds']} s. Screenshots and console logs are in this job's artifact.")
           EOF
 
       - name: Upload screenshots and logs
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: coop-test
+          name: coop-test-${{ matrix.mode }}
           path: coop-test
           if-no-files-found: ignore
+
+  # The main line goes live only once every co-op test has passed (the drop-in spike's may fail), from the build
+  # the tests played.
+  deploy-live:
+    name: Deploy the live game
+    needs: [plan, build-and-deploy, coop-test]
+    if: needs.plan.outputs.slug == '' && needs.build-and-deploy.result == 'success' && needs.coop-test.result == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          sparse-checkout: tools
+
+      - name: Download the build
+        uses: actions/download-artifact@v8
+        with:
+          name: PooketSlug-WebGL
+          path: site
+
+      - name: Deploy to gh-pages
+        run: |
+          tools/pages_deploy.sh main site
+          echo "### Live: https://${GITHUB_REPOSITORY_OWNER}.github.io/${GITHUB_REPOSITORY#*/}/" >> "$GITHUB_STEP_SUMMARY"
