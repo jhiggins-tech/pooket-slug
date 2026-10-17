@@ -172,10 +172,11 @@ namespace PooketSlug
         readonly SpriteRenderer m_Legs, m_Torso, m_Flash;
         float m_Cooldown, m_Muzzle;
 
-        // spike gen-sprites (?spike=sheets): the walk cycle from a generated sheet, in one renderer, when there is one
-        static Sprite[] s_Walk;
-        static bool s_WalkLoaded;
+        // spike gen-sprites (?spike=sheets): the walk, the shot and the death from generated sheets, in one renderer
+        static Sprite[] s_Walk, s_Shoot, s_Death;
+        static bool s_SheetsLoaded;
         readonly SpriteRenderer m_Sheet;
+        float m_ShotAnim;
 
         public Rifleman(World world, EnemyDef def, Vector2 feet) : base(world, def, feet)
         {
@@ -185,10 +186,12 @@ namespace PooketSlug
             m_Flash.transform.localPosition = new Vector3(14f / Art.PPU, 14.5f / Art.PPU, 0f);
             m_Flash.enabled = false;
             m_Cooldown = World.Rng.Range(0.6f, 1.4f);
-            if (Spike.Sheets && !s_WalkLoaded)
+            if (Spike.Sheets && !s_SheetsLoaded)
             {
                 s_Walk = GeneratedSheets.Load("rifleman-walk");
-                s_WalkLoaded = true;
+                s_Shoot = GeneratedSheets.Load("rifleman-shoot");
+                s_Death = GeneratedSheets.Load("rifleman-death");
+                s_SheetsLoaded = true;
             }
             if (Spike.Sheets && s_Walk != null)
             {
@@ -212,11 +215,13 @@ namespace PooketSlug
 
             m_Cooldown -= dt;
             m_Muzzle -= dt;
+            m_ShotAnim -= dt;
             if (onScreen && dist < 9f && m_Cooldown <= 0f && !Target.IsDown)
             {
                 var origin = Pos + new Vector2(Facing * 0.8f, 0.95f);
                 World.Combat.FireEnemyShot(Content.Rifle, origin, new Vector2(Facing * Content.Rifle.Speed, 0f));
                 m_Muzzle = 0.06f;
+                m_ShotAnim = 0.36f;
                 m_Cooldown = World.Rng.Range(1.5f, 2.6f);
             }
         }
@@ -228,7 +233,17 @@ namespace PooketSlug
             m_Flash.enabled = m_Muzzle > 0f && !Dying;
             if (m_Sheet != null)
             {
-                m_Sheet.sprite = walking ? s_Walk[(int)(Anim * 9f) % s_Walk.Length] : s_Walk[0];
+                if (Dying && s_Death != null)
+                {
+                    // the sheet falls over by itself, so no tipping over
+                    Visual.localRotation = Quaternion.identity;
+                    m_Sheet.sprite = s_Death[Mathf.Min((int)(DyingTime * 10f), s_Death.Length - 1)];
+                }
+                else if (m_ShotAnim > 0f && s_Shoot != null)
+                    m_Sheet.sprite = s_Shoot[Mathf.Min((int)((0.36f - m_ShotAnim) / 0.36f * s_Shoot.Length), s_Shoot.Length - 1)];
+                else
+                    m_Sheet.sprite = walking ? s_Walk[(int)(Anim * 9f) % s_Walk.Length] : s_Walk[0];
+                m_Flash.enabled = m_Flash.enabled && s_Shoot == null;
                 m_Sheet.color = Flashed(Art.SoldierTorso) != Art.SoldierTorso ? new Color(1f, 0.55f, 0.55f) : Color.white;
                 return;
             }
