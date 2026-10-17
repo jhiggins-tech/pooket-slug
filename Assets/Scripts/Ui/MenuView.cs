@@ -534,7 +534,7 @@ namespace PooketSlug
         {
             const float RowY = -4f, Gap = 125f, DropFrom = 70f;
             CrewReveal reveal = info.Reveal;
-            bool grown = info.CrewOpen && (reveal == null || !reveal.OldStart);
+            bool grown = CrewReveal.MenuGrown(info.CrewOpen, reveal);
             var play = m_Play.GetComponent<RectTransform>();
             Label(m_Play).text = grown ? "MISSIONS" : "START";
             play.sizeDelta = grown ? Narrow : Wide;

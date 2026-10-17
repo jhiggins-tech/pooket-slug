@@ -75,6 +75,12 @@ namespace PooketSlug
         /// <summary>The title's old START button still shows (cracking, in the menu shot's first moments).</summary>
         public bool OldStart => Now < Shot.MenuGrows || Now == Shot.MenuGrows && T < CrackSeconds;
 
+        /// <summary>
+        /// The title has grown from START to MISSIONS, CO-OP and CREW: once the crew's open, and, while this reveal
+        /// plays, once START has cracked (<paramref name="reveal"/> is the reveal playing, or null).
+        /// </summary>
+        public static bool MenuGrown(bool crewOpen, CrewReveal reveal) => crewOpen && (reveal == null || !reveal.OldStart);
+
         /// <summary>What kie says now, or null.</summary>
         public string Line => Now == Shot.KieWalksIn && T > 1.2f ? "MISSED ME?" : Now == Shot.KiesLine ? "TWO OF US NOW. BRING A MATE." : null;
     }

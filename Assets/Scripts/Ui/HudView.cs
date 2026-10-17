@@ -312,23 +312,8 @@ namespace PooketSlug
         {
             LifeBank lives = p.Lives;
             if (lives.Lives != m_LivesShown) m_Lives.text = "LIVES " + (m_LivesShown = lives.Lives);
-            string down = null, note = null;
-            if (p.Dead && !lives.OutOfLives)
-            {
-                down = "DOWN!  BACK IN " + Mathf.Max(1, Mathf.CeilToInt(Tuning.Lives.RespawnDelay - p.DeadTime));
-                if (lives.Lives == 0 && p.DeadTime < Tuning.Lives.RespawnDelay) note = "NO LIVES LEFT AFTER THIS ONE";
-            }
-            else if (lives.Offering)
-            {
-                down = "CONTINUE?  " + Mathf.CeilToInt(lives.OfferLeft);
-                string press = GameInput.TouchActive ? "TAP FIRE" : "PRESS FIRE";
-                note = press + " TO CONTINUE  ·  " + lives.Continues + (lives.Continues == 1 ? " CONTINUE LEFT" : " CONTINUES LEFT");
-            }
-            else if (lives.IsOut && coop)
-            {
-                down = "OUT!";
-                note = "YOUR PARTNER'S NEXT 1UP BRINGS YOU BACK";
-            }
+            DownLine line = DownLine.For(lives, p.Dead, p.DeadTime, coop, GameInput.TouchActive);
+            string down = line.Down, note = line.Note;
             Ui.Show(m_Down, down != null);
             Ui.Show(m_DownNote, note != null);
             if (down != null && down != m_Down.text) m_Down.text = down;

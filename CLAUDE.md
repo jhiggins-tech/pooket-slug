@@ -70,7 +70,7 @@ Each file starts with a summary comment saying what it's for.
 | `Missions/One/` | Mission one's own pieces: the coda's `BackGate`, `ToppleTower` (the watchtower in the road), `ExitGate` and `SleepingKie`, drawn by `CodaArt` |
 | `Stage/` | `StageKit`: the shared stage for cutscenes, the den and the debrief |
 | `Art/`, `Audio/` | `Art` + `ArtData` (ASCII pixel art); `Sfx` + `ChipSounds`, `Music` |
-| `Ui/` | uGUI built in code (`Ui.cs`): `HudView`, `MenuView`, `DenView` (the lobby), `CutsceneView`, `DebriefView`, `CrewRevealView`, `DemoClip`, `Invite` (sharing an invite link) |
+| `Ui/` | uGUI built in code (`Ui.cs`): `HudView`, `MenuView`, `DebriefView`, `CrewRevealView`, `DemoClip`, `Invite` (sharing an invite link); `Cutscene/` (`CutsceneView` and its parts: backdrops, cast, effects, bubbles, captions, camera, cue sounds) and `Den/` (`DenView`, the lobby, and its parts: room, crew, bits, TV and buttons) |
 | `Input/` | `InputSources` (a keyboard, a gamepad or the touch pad) into one `SoldierInput` a frame, and `GameInput` (the menu and system buttons) |
 | `Net/` (assembly `PooketSlug.Net`) | Photon Fusion 2, Shared Mode: `NetSession` (host, join, quick match), `NetReplication` (`PlayerNet`, `WorldNet`, `BossNet`), `NetPrefabs` (network objects built in code) |
 | `Save/` | `LocalProfileStore` / `OptionsStore` (PlayerPrefs), `CloudAccount` (sign-in and cloud saves through the page's `pooket-auth.js`), `SiteFile` (a text file fetched from beside the game) |
@@ -91,7 +91,7 @@ Each file starts with a summary comment saying what it's for.
   World talks to the network only through `INetLink`. Things share ids by rule (`NetIds`: a level spawn's id is its
   index). Only identical builds match, so each preview is its own co-op world.
 - **Cutscenes** are text files in `scenes/` ([how to write them](docs/scenes.md)), read by `SceneScript` and staged by
-  `CutsceneView`. `scene-files.yml` checks them and puts them up beside the game without a build; the game fetches
+  `CutsceneView` (`Ui/Cutscene/`). `scene-files.yml` checks them and puts them up beside the game without a build; the game fetches
   them at start-up (its built-in copy is the fallback) and `?scene=<name>` plays a draft. The narrator's audio is made
   in the vendor repository (`voice/narration.json`) and fetched by CI; lengths come from the clips.
 - **Launch flags**, read once as the game starts: `?spike=` (spikes, `Spike.cs`) and the rest into `LaunchFlags` (Core, tested): `?test=` (crate, tank, 1up, pilot,
@@ -109,7 +109,7 @@ then where it plays in `Game`.
 (ids ride the network: never change or reuse one), its sprite in `Art` / `ArtData` (keyed by the projectile's id),
 its sound in `Sfx` / `ChipSounds`, and the kit that fires it.
 
-**Add a sound cue**: in a scene, its constant in `Cues` and what it does in `CutsceneView`; in the boss intro, its
+**Add a sound cue**: in a scene, its constant and effect in `Cues` (a new `CueSound`: its clip in `CueSounds`); in the boss intro, its
 place on the `Cue` timeline in `BossIntroShow`. Either way its sound goes in `Sfx` / `ChipSounds`.
 
 **Add a mission**: a `MissionDef` in `Missions` (map rows: `Level.cs` says what each character is), its story
