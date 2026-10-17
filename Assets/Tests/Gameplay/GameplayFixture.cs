@@ -73,6 +73,8 @@ namespace PooketSlug.Tests
         public void SendAvatar(SoldierDef soldier, Vector2 pos, Vector2 vel, int poseFlags, int hp, int tankFlags, Vector2 tankPos) { }
         public void SendDen(SoldierDef soldier, int flags) { }
         public void SendScene(int taps) { }
+        public void SendSceneVersions(int versions) { }
+        public int SceneVersions => 0;
         public void SendShot(in ShotEvent shot) { }
         public void SendScore(int points) { }
 
