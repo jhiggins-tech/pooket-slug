@@ -16,7 +16,7 @@ There are two kinds of music: **loops**, which play under a whole stretch of the
 
 | Track | Plays | Feel | Tempo | Length of one pass |
 |---|---|---|---|---|
-| **Title theme** ("Snack Run") | The title screen and every menu: missions, crew, looks, settings, the co-op lobby | Upbeat and catchy, major key. The hook the game is remembered by: a pulse melody that's easy to hum | 132 bpm | About 30 s (16 bars) |
+| **Title theme** | The splash screen (the new start: key art, Start and Settings) | A Final Fantasy-style title: harp arpeggios, then strings and a solo flute on a gentle, majestic melody. A recording, not chip: Lyria 3 take D, picked by the owner 2026-10-18 ([start-music](#the-title-theme)) | About 84 bpm | About 28 s (a crossfaded loop) |
 | **Mission one theme** ("Steel Night") | The run through the military base, from the caption card to the boss door | A snare-led military march, minor key and driving, with searchlight-sweep arpeggios. Metal Slug's base levels, on a Game Boy | 150 bpm | About 50 s: an A part and a B part, 32 bars |
 | **Boss theme** ("Tabk Alert") | Every tabk boss fight and its pilot round | Faster and in a minor key, as picked for the boss intro: a pounding triangle bass, alarm-like pulse stabs, double-time hi-hats | 172 bpm | About 25 s (16 bars) |
 | **Boss theme, final section** ("Tabk Alert (final)") | The boss fight's second stage: the pilot round, once the tabk is wrecked (asked for 2026-10-15) | The boss theme even faster: its climbing half first, a hi-hat on every sixteenth, sweeps on top | 200 bpm | About 19 s (16 bars) |
@@ -70,7 +70,14 @@ Everything is code: no audio files, nothing to download, and a track is a few li
 
 **Chip to orchestra** (spike extension, 2026-10-16): in the boss's final section, after one pass in chip, the music crossfades over four seconds to an orchestra playing the same notes, in step. None of OpenRouter's music models takes an audio reference or a melody: its two music models, Google's Lyria 3 Clip and Lyria 3 Pro, take text or an image, and its other audio models (GPT Audio) are for speech. So the orchestra plays the game's own notes instead: `Core/Audio/MusicMidi.cs` writes a track as a General MIDI file scored for strings, horns, pizzicato, contrabass, tuba and concert percussion, and the vendor repository's Orchestra workflow renders it with FluidSynth and a General MIDI soundfont, looped to the chip version's length, into `orchestra.zip`; the game's CI puts it in `Resources/Music`. A better soundfont, or a real orchestral sample library, would make it sound richer with no change to the notes. Lyria could still make a loose orchestral take from a text prompt spelling out the melody, but it wouldn't be in step with the chip version.
 
-**Build order:** the notation and player first, with the boss theme (the intro already waits on it), then Mission one's theme, the stings, and the title and debrief.
+**Build order:** the notation and player first, with the boss theme (the intro already waits on it), then Mission one's theme, the stings, and the debrief. The title theme is a recording (below).
+
+## The title theme
+
+Picked by the owner on 2026-10-18 (Roadmap item start-music): **Lyria 3 take D**, a 30-second clip Google's Lyria 3 made from a written brief (harp arpeggios, then strings and a solo flute; gentle, nostalgic, majestic; about 84 bpm, C major; no vocals or drums). It beat two versions of an original chip theme (chip, and the same notes for orchestra) and another Lyria clip. Unlike the rest of the music it is a recording, so it has no chip version and isn't in the score notation.
+
+- **The loop:** the clip's trailing silence is trimmed and its last 2.5 s are crossfaded (equal power) into its first, giving a 27.7 s seamless loop, `title.wav` (44.1 kHz stereo).
+- **Where it lives:** the vendor repository's `start-music` release (made by the Media generation role). The game's CI would fetch it like the orchestra (`tools/vendor_fetch.sh --bytes start-music Assets/Resources/Music`) and play it with `Music.cs`'s recorded layers when the splash screen opens. The menus after the splash keep the plan above until the owner says otherwise.
 
 ## Open questions
 
