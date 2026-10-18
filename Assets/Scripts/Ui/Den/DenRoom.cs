@@ -11,10 +11,60 @@ namespace PooketSlug
     /// </summary>
     public static class DenRoom
     {
-        public const int Loft = 100;
-        public const float SeatY = Floor + 12f;
-        public static readonly float[] SeatX = { 101f, 131f };
-        public static readonly Vector2 TvCentre = new Vector2(116f, 69f);
+        /// <summary>
+        /// Where things are in the room: the drawn den's, or (gen-lobby-bg, <c>?spike=denbg</c>) the generated
+        /// backdrop's, where the painting leads and the room's pieces move to fit it (Jack, 18 Oct).
+        /// </summary>
+        public sealed class Layout
+        {
+            public int Loft;
+            public float[] SeatX;
+            public Vector2 TvCentre, Sign, Board, Ports, Holo, Weasel;
+            public Station[] Stations;
+        }
+
+        // docs/design/lobby.md, Who lives where (tones2's corner is the slushie machine and a beanbag: the couch is the players')
+        public static readonly Layout Drawn = new Layout
+        {
+            Loft = 100, SeatX = new[] { 101f, 131f }, TvCentre = new Vector2(116f, 69f), Sign = new Vector2(299f, 97f),
+            Board = new Vector2(250f, 69f), Ports = new Vector2(66f, Floor + 12f), Holo = new Vector2(22f, Floor + 26f), Weasel = new Vector2(14f, Floor + 5f),
+            Stations = new[]
+            {
+                new Station("kie", Content.Kie, false, 4, 58, 40f),
+                new Station("tones2", Content.Tones2, false, 156, 194, 184f),
+                new Station("kiwicore", null, false, 198, 236, 216f),
+                new Station("garyoldmancorp", null, false, 238, 262, 250f),
+                new Station("kcaj", null, true, 4, 62, 34f),
+                new Station("torikloud", null, true, 68, 126, 96f),
+                new Station("ciarra", null, true, 132, 190, 160f),
+                new Station("larinovsky", null, true, 196, 256, 226f),
+            },
+        };
+
+        /// <summary>The generated backdrop (vendor art/den.json, seedream-combo__1): the loft higher, the TV and couch right of centre.</summary>
+        public static readonly Layout Painted = new Layout
+        {
+            Loft = 140, SeatX = new[] { 134f, 167f }, TvCentre = new Vector2(144f, 78f), Sign = new Vector2(298f, 104f),
+            Board = new Vector2(233f, 76f), Ports = new Vector2(96f, Floor + 16f), Holo = new Vector2(45f, Floor + 32f), Weasel = new Vector2(27f, 72f),
+            Stations = new[]
+            {
+                new Station("kie", Content.Kie, false, 8, 88, 45f),
+                new Station("tones2", Content.Tones2, false, 188, 240, 210f),
+                new Station("kiwicore", null, false, 240, 258, 250f),
+                new Station("garyoldmancorp", null, false, 284, 318, 300f),
+                new Station("kcaj", null, true, 4, 80, 36f),
+                new Station("torikloud", null, true, 84, 160, 120f),
+                new Station("ciarra", null, true, 164, 240, 200f),
+                new Station("larinovsky", null, true, 290, 318, 305f),
+            },
+        };
+
+        public static Layout Now => Spike.DenBg ? Painted : Drawn;
+        public static int Loft => Now.Loft;
+        public static float SeatY => Floor + 12f;
+        public static float[] SeatX => Now.SeatX;
+        public static Vector2 TvCentre => Now.TvCentre;
+        public static Station[] Stations => Now.Stations;
         /// <summary>The controllers' purple, on the couch and in hand.</summary>
         public static readonly Color Pad = new Color(0.42f, 0.31f, 0.69f);
 
@@ -37,19 +87,6 @@ namespace PooketSlug
                 Spot = spot;
             }
         }
-
-        // docs/design/lobby.md, Who lives where (tones2's corner is the slushie machine and a beanbag: the couch is the players')
-        public static readonly Station[] Stations =
-        {
-            new Station("kie", Content.Kie, false, 4, 58, 40f),
-            new Station("tones2", Content.Tones2, false, 156, 194, 184f),
-            new Station("kiwicore", null, false, 198, 236, 216f),
-            new Station("garyoldmancorp", null, false, 238, 262, 250f),
-            new Station("kcaj", null, true, 4, 62, 34f),
-            new Station("torikloud", null, true, 68, 126, 96f),
-            new Station("ciarra", null, true, 132, 190, 160f),
-            new Station("larinovsky", null, true, 196, 256, 226f),
-        };
 
         public static bool Has(IReadOnlyList<SoldierDef> crew, SoldierDef s)
         {
@@ -130,8 +167,8 @@ namespace PooketSlug
             c.Rect(65, Floor + 22, 8, 3, Art.Hex(0x2a2050));
             c.Rect(66, Floor + 23, 6, 1, Art.Hex(0x4a3a8a)); // the handle
             c.Circle(69, Floor + 17, 1.8f, Art.Hex(0x8f74d8));
-            Cable(c, 66, Floor + 11, (int)SeatX[0], (int)SeatY);
-            Cable(c, 74, Floor + 11, (int)SeatX[1], (int)SeatY);
+            Cable(c, (int)Drawn.Ports.x, Floor + 11, (int)SeatX[0], (int)SeatY);
+            Cable(c, (int)Drawn.Ports.x + 8, Floor + 11, (int)SeatX[1], (int)SeatY);
             // the couch, facing us: two seats
             c.Rect(84, Floor, 64, 12, Art.Hex(0x8a3a5a));
             c.Rect(84, Floor + 11, 64, 1, Art.Hex(0xa8507a));

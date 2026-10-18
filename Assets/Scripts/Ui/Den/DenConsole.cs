@@ -41,16 +41,16 @@ namespace PooketSlug
         /// <summary>In the room: the TV's words, the board's, the sign, the console's lights, the loose controllers and the tags.</summary>
         public void MakeTv()
         {
-            m_TvTitle = WorldLabel("TV title", 89f, 82f, 10, TextAnchor.UpperLeft, Gold);
-            m_TvRoom = WorldLabel("TV room", 89f, 74f, 7, TextAnchor.UpperLeft, new Color(0.67f, 0.86f, 1f));
-            m_TvLights = WorldLabel("TV lights", 89f, 60f, 8, TextAnchor.LowerLeft, Color.white);
+            m_TvTitle = WorldLabel("TV title", TvCentre.x - 27f, TvCentre.y + 13f, 10, TextAnchor.UpperLeft, Gold);
+            m_TvRoom = WorldLabel("TV room", TvCentre.x - 27f, TvCentre.y + 5f, 7, TextAnchor.UpperLeft, new Color(0.67f, 0.86f, 1f));
+            m_TvLights = WorldLabel("TV lights", TvCentre.x - 27f, TvCentre.y - 9f, 8, TextAnchor.LowerLeft, Color.white);
             m_TvCount = WorldLabel("TV countdown", TvCentre.x, TvCentre.y, 30, TextAnchor.MiddleCenter, Gold);
-            m_Board = WorldLabel("Mission board", 250f, 70f, 6, TextAnchor.MiddleCenter, Ink);
+            m_Board = WorldLabel("Mission board", DenRoom.Now.Board.x, DenRoom.Now.Board.y + 1f, 6, TextAnchor.MiddleCenter, Ink);
             m_Board.GetComponent<Shadow>().enabled = false;
-            WorldLabel("POOKET sign", 299f, 97f, 9, TextAnchor.MiddleCenter, Gold).text = "POOKET";
+            WorldLabel("POOKET sign", DenRoom.Now.Sign.x, DenRoom.Now.Sign.y, 9, TextAnchor.MiddleCenter, Gold).text = "POOKET";
             for (int i = 0; i < 2; i++)
             {
-                m_Lights[i] = Picture("Port light", 66f + i * 8f, Floor + 12f, 2f, 2f, Color.black);
+                m_Lights[i] = Picture("Port light", DenRoom.Now.Ports.x + i * 8f, DenRoom.Now.Ports.y, 2f, 2f, Color.black);
                 m_LoosePads[i] = Picture("Controller", SeatX[i], SeatY, 6f, 3f, Pad);
                 m_Tags[i] = WorldLabel("Tag", SeatX[i], Floor + 3f, 9, TextAnchor.LowerCenter, Palette.Players[i]);
                 m_Tags[i].text = "P" + (i + 1);

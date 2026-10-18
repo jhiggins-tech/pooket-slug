@@ -77,8 +77,8 @@ namespace PooketSlug
         public void MakeProps()
         {
             for (int i = 0; i < m_Drops.Length; i++) m_Drops[i] = Picture("Water", 0f, 0f, 3f, 2f, new Color(0.45f, 0.75f, 1f));
-            m_Holo = Picture("Tiny Trollogram", 22f, Floor + 26f, 6f, 9f, new Color(0.45f, 1f, 1f, 0.7f));
-            m_Weasel = Picture("Weasel", 14f, Floor + 6f, 5f, 4f, new Color(0.72f, 0.5f, 0.3f));
+            m_Holo = Picture("Tiny Trollogram", DenRoom.Now.Holo.x, DenRoom.Now.Holo.y, 6f, 9f, new Color(0.45f, 1f, 1f, 0.7f));
+            m_Weasel = Picture("Weasel", DenRoom.Now.Weasel.x, DenRoom.Now.Weasel.y + 1f, 5f, 4f, new Color(0.72f, 0.5f, 0.3f));
             m_Splash = Picture("Splash", 0f, Floor, 10f, 2f, new Color(0.55f, 0.35f, 0.95f));
         }
 
@@ -297,12 +297,12 @@ namespace PooketSlug
             DenActor first = Bits.First;
             bool holoBit = Bits.Slushie && Bits.T > 2.6f && Bits.T < 3.6f;
             Ui.Show(m_Holo, tinkering || holoBit);
-            if (tinkering) m_Holo.rectTransform.anchoredPosition = new Vector2(22f + ((int)(m_Clock * 14f) % 5 == 0 ? 1f : 0f), Floor + 26f) * Px;
+            if (tinkering) m_Holo.rectTransform.anchoredPosition = new Vector2(DenRoom.Now.Holo.x + ((int)(m_Clock * 14f) % 5 == 0 ? 1f : 0f), DenRoom.Now.Holo.y) * Px;
             if (holoBit && first != null) m_Holo.rectTransform.anchoredPosition = new Vector2(first.X + 10f, Floor + 14f) * Px;
             m_Holo.color = new Color(0.45f, 1f, 1f, (int)(m_Clock * 20f) % 3 == 0 ? 0.35f : 0.75f);
             bool weasel = kie != null && kie.Doing == DenDoing.Station && kie.Cycle == 1;
             Ui.Show(m_Weasel, weasel);
-            if (weasel) m_Weasel.rectTransform.anchoredPosition = new Vector2(14f, Floor + 5f + Mathf.Max(0f, Mathf.Sin(kie.CycleT * 2.4f)) * 7f) * Px;
+            if (weasel) m_Weasel.rectTransform.anchoredPosition = new Vector2(DenRoom.Now.Weasel.x, DenRoom.Now.Weasel.y + Mathf.Max(0f, Mathf.Sin(kie.CycleT * 2.4f)) * 7f) * Px;
             bool splash = Bits.Slushie && Bits.T > 3.5f;
             Ui.Show(m_Splash, splash);
             if (splash && first != null) m_Splash.rectTransform.anchoredPosition = new Vector2(first.X + 9f, Floor) * Px;

@@ -62,11 +62,11 @@ namespace PooketSlug
             }
 
             // the mission board, over the stations: a tap opens the mission screen
-            RectTransform board = Ui.Rect(m_World, "Tap mission board", Vector2.zero, Vector2.zero, new Vector2(234f, 54f) * Px, new Vector2(32f, 30f) * Px);
+            RectTransform board = Ui.Rect(m_World, "Tap mission board", Vector2.zero, Vector2.zero, (DenRoom.Now.Board - new Vector2(16f, 15f)) * Px, new Vector2(32f, 30f) * Px);
             Ui.Tap(board, () => m_BoardPressed = true);
 
             // the TV, in a co-op room: a tap shares the invite link. It's armed as the finger goes down (Invite)
-            m_InviteTap = Ui.Rect(m_World, "Tap TV", Vector2.zero, Vector2.zero, new Vector2(86f, 54f) * Px, new Vector2(62f, 34f) * Px);
+            m_InviteTap = Ui.Rect(m_World, "Tap TV", Vector2.zero, Vector2.zero, (TvCentre - new Vector2(30f, 15f)) * Px, new Vector2(62f, 34f) * Px);
             Ui.Catcher(m_InviteTap);
             var down = new UnityEngine.EventSystems.EventTrigger.Entry { eventID = UnityEngine.EventSystems.EventTriggerType.PointerDown };
             down.callback.AddListener(_ => m_InviteDown = true);
@@ -105,11 +105,11 @@ namespace PooketSlug
         /// <summary>
         /// gen-lobby-bg (<c>?spike=denbg</c>): the den's room as a generated backdrop from Resources/Den (a PNG kept as
         /// .bytes, 320 x 180), <c>&amp;take=</c> picking one by the start of its name (<c>seedream__2</c>, <c>gemini</c>),
-        /// else Seedream's first. Null if there's none, and the drawn room shows.
+        /// else the combined take the layout fits (DenRoom.Painted). Null if there's none, and the drawn room shows.
         /// </summary>
         static Sprite GeneratedBackdrop()
         {
-            string want = string.IsNullOrEmpty(Spike.DenBgTake) ? "seedream__1" : Spike.DenBgTake;
+            string want = string.IsNullOrEmpty(Spike.DenBgTake) ? "seedream-combo__1" : Spike.DenBgTake;
             TextAsset file = null;
             foreach (TextAsset t in Resources.LoadAll<TextAsset>("Den"))
                 if (t.name.StartsWith(want, System.StringComparison.OrdinalIgnoreCase) && (file == null || string.CompareOrdinal(t.name, file.name) < 0)) file = t;
