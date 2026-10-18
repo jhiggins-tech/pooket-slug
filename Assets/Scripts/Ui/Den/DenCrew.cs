@@ -267,7 +267,7 @@ namespace PooketSlug
             if (a.Doing == DenDoing.Station) Idle(a, out bob, out shiver);
             else if (climbing) shiver = (int)(m_Clock * 6f) % 2 == 0 ? 0.5f : -0.5f; // hand over hand
             f.Torso.rectTransform.anchoredPosition = new Vector2(0f, (seated ? -6f : bob) * Px);
-            float x = seated ? SeatX[a.Seat] : a.X, y = seated ? SeatY - 5f : a.Y;
+            float x = seated ? SeatX[a.Seat] : a.X, y = seated ? SitY : a.Y;
             f.Rt.anchoredPosition = new Vector2(x + shiver, y) * Px;
             f.Rt.localScale = new Vector3(a.Walk.FaceLeft && !seated && !climbing ? -1f : 1f, 1f, 1f);
             bool cup = a.Soldier == Content.Tones2 && (a.Doing == DenDoing.Station && a.Cycle == 0 || a.Doing == DenDoing.Bit && Bits.Slushie && Bits.T < 3.4f);
@@ -342,7 +342,7 @@ namespace PooketSlug
             foreach (DenActor a in m_Actors)
             {
                 if (a == Mine || a.Doing == DenDoing.Away) continue;
-                float x = a.OnCouch ? SeatX[a.Seat] : a.X, y = a.OnCouch ? SeatY - 5f : a.Y;
+                float x = a.OnCouch ? SeatX[a.Seat] : a.X, y = a.OnCouch ? SitY : a.Y;
                 if (Mathf.Abs(p.x - x) <= 9f && p.y >= y - 2f && p.y <= y + 30f) return a;
             }
             return null;

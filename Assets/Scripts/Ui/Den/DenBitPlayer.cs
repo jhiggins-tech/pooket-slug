@@ -123,7 +123,7 @@ namespace PooketSlug
             b.Rt.SetAsLastSibling();
             float w = b.Say(text);
             bool seated = who.OnCouch;
-            Vector2 head = new Vector2(seated ? SeatX[who.Seat] : who.X, (seated ? SeatY - 5f : who.Y) + 30f) * Px;
+            Vector2 head = new Vector2(seated ? SeatX[who.Seat] : who.X, (seated ? SitY : who.Y) + 30f) * Px;
             Vector2 at = head + new Vector2(0f, 16f);
             float half = w / 2f + 4f;
             at.x = Mathf.Clamp(at.x, half, StageW * Px - half);

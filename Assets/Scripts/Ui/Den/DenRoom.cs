@@ -16,6 +16,8 @@ namespace PooketSlug
         /// <summary>The couch's cushions (a seated soldier sits on them), and its two seats.</summary>
         public const float SeatY = 36f;
         public static readonly float[] SeatX = { 110f, 143f };
+        /// <summary>Where a seated figure stands, so the side-on sitting legs (<see cref="ArtData.LegsSit"/>) put their hips on the cushions.</summary>
+        public const float SitY = SeatY - 2f;
         public static readonly Vector2 TvCentre = new Vector2(127f, 70f), Board = new Vector2(234f, 65f), Ports = new Vector2(86f, 27f);
         /// <summary>kie's tiny Trollogram over his bench, and the weasel's hole in the birdhouse.</summary>
         public static readonly Vector2 Holo = new Vector2(48f, 44f), WeaselHole = new Vector2(60f, 78f);
