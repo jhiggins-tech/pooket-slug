@@ -267,8 +267,8 @@ namespace PooketSlug.Tests
         public void KiesTrollogramReadsApartFromTheGoons(EnemyBrain kind)
         {
             Color goon = Palette.Hostile(kind), kies = Palette.Friendly;
-            Assert.Greater(goon.r, goon.g, "the goons' are the bad guys' reds");
-            Assert.Greater(kies.g, kies.r, "kie's is a friendly green");
+            Assert.Greater(goon.b, kies.b + 0.4f, "the goons' are cold");
+            Assert.Greater(kies.r, kies.b, "kie's is warm");
             float apart = Mathf.Abs(goon.r - kies.r) + Mathf.Abs(goon.g - kies.g) + Mathf.Abs(goon.b - kies.b);
             Assert.Greater(apart, 0.8f, "far apart at a glance");
         }
