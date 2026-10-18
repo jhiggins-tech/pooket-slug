@@ -45,7 +45,7 @@ namespace PooketSlug
             m_TvRoom = WorldLabel("TV room", TvCentre.x - 27f, TvCentre.y + 5f, 7, TextAnchor.UpperLeft, new Color(0.67f, 0.86f, 1f));
             m_TvLights = WorldLabel("TV lights", TvCentre.x - 27f, TvCentre.y - 9f, 8, TextAnchor.LowerLeft, Color.white);
             m_TvCount = WorldLabel("TV countdown", TvCentre.x, TvCentre.y, 30, TextAnchor.MiddleCenter, Gold);
-            m_Board = WorldLabel("Mission board", Now.Board.x, Now.Board.y + 1f, 6, TextAnchor.MiddleCenter, Ink);
+            m_Board = WorldLabel("Mission board", Now.Board.x, Now.Board.y + 1f, 6, TextAnchor.MiddleCenter, Now.BoardInk);
             m_Board.GetComponent<Shadow>().enabled = false;
             WorldLabel("POOKET sign", Now.Sign.x, Now.Sign.y, 9, TextAnchor.MiddleCenter, Gold).text = "POOKET";
             for (int i = 0; i < 2; i++)

@@ -24,6 +24,8 @@ namespace PooketSlug
             public float[] SeatX, CouchArms;
             /// <summary>The TV's middle, the POOKET sign, the mission board's card, the console's two lights, kie's projector and the weasel's hutch.</summary>
             public Vector2 TvCentre, Sign, Board, Ports, Holo, Weasel;
+            /// <summary>The mission's name on the board: dark on the drawn room's card, light on the painting's brown board.</summary>
+            public Color BoardInk;
             public Station[] Stations;
         }
 
@@ -32,7 +34,7 @@ namespace PooketSlug
         {
             Loft = 140, SeatX = new[] { 134f, 167f }, CouchArms = new[] { 109f, 193f }, TvCentre = new Vector2(144f, 78f),
             Sign = new Vector2(298f, 104f), Board = new Vector2(233f, 76f), Ports = new Vector2(96f, Floor + 16f),
-            Holo = new Vector2(45f, Floor + 32f), Weasel = new Vector2(27f, 72f),
+            Holo = new Vector2(45f, Floor + 32f), Weasel = new Vector2(27f, 72f), BoardInk = Paper,
             // docs/design/lobby.md, Who lives where (tones2's corner is the slushie machine and a beanbag: the couch is the players')
             Stations = new[]
             {
@@ -52,7 +54,7 @@ namespace PooketSlug
         {
             Loft = 100, SeatX = new[] { 101f, 131f }, CouchArms = new[] { 78f, 154f }, TvCentre = new Vector2(116f, 69f),
             Sign = new Vector2(299f, 97f), Board = new Vector2(250f, 69f), Ports = new Vector2(66f, Floor + 12f),
-            Holo = new Vector2(22f, Floor + 26f), Weasel = new Vector2(14f, Floor + 5f),
+            Holo = new Vector2(22f, Floor + 26f), Weasel = new Vector2(14f, Floor + 5f), BoardInk = Ink,
             Stations = new[]
             {
                 new Station("kie", Content.Kie, false, 4, 58, 40f),
