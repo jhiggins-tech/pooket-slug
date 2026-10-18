@@ -85,6 +85,10 @@ namespace PooketSlug
         Trollogram = 2,
         /// <summary>tones2's rocket jump, or his tabk's mud gun, spilled mud at <see cref="KitEvent.At"/>.</summary>
         Mud = 3,
+        /// <summary>kcaj's beam stuck to, or let go of, the enemy whose network id is <see cref="KitEvent.Data"/>.x (y is 1 while it holds).</summary>
+        Fixate = 4,
+        /// <summary>kcaj's pills started raining over the screen from <see cref="KitEvent.At"/> (its left, its top) to Data.x, from the seed in Data.y.</summary>
+        Pills = 5,
     }
 
     /// <summary>

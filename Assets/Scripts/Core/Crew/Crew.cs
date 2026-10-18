@@ -43,7 +43,7 @@ namespace PooketSlug
     /// <summary>
     /// The crew, and who's been freed (<c>docs/design/levels.md</c>, The order things open up). Everyone is tones2 until
     /// Mission one is beaten solo; then the crew opens, with kie (freed from his tank), and each later mission frees
-    /// another. Nothing about it is saved: a crewmate is freed once their mission has been beaten (the owner's call,
+    /// another: Mission two frees kcaj (from the cold store). Nothing about it is saved: a crewmate is freed once their mission has been beaten (the owner's call,
     /// 16 Oct), so it comes from the mission records (<see cref="Profile"/>). Who you play is kept with the settings
     /// (<see cref="Options.Crew"/>) and picked in the den. Two partners may play the same soldier.
     /// </summary>
@@ -59,8 +59,13 @@ namespace PooketSlug
             new Dictionary<char, uint> { { 'r', 0x4ea8ff }, { 'R', 0x2a70c0 }, { 'g', 0x46d27a }, { 'G', 0x2a9050 }, { 'c', 0x2dd4bf }, { 'C', 0x1a9488 } },
             new Dictionary<char, uint> { { 'r', 0xa8d8ff }, { 'R', 0x6898c8 }, { 'g', 0x46d27a }, { 'G', 0x2a9050 }, { 'c', 0x2dd4bf }, { 'C', 0x1a9488 } });
 
+        /// <summary>kcaj, freed by clearing Mission two, in his Pooket Tabks colours (purple, gold and silver), a pink bandana for player two.</summary>
+        public static readonly CrewMember Kcaj = new CrewMember(Content.Kcaj, Missions.Two, new Color(1f, 0.24f, 0.95f, 0.95f), KitGuide.Kcaj,
+            new Dictionary<char, uint> { { 'r', 0xc77dff }, { 'R', 0x8a4cc0 }, { 'g', 0xffc53d }, { 'G', 0xc08a1c }, { 'c', 0xe2e8f0 }, { 'C', 0x98a2b4 } },
+            new Dictionary<char, uint> { { 'r', 0xff3df2 }, { 'R', 0xb02aa8 }, { 'g', 0xffc53d }, { 'G', 0xc08a1c }, { 'c', 0xe2e8f0 }, { 'C', 0x98a2b4 } });
+
         /// <summary>The whole crew, in the order they're freed (and stand in the den).</summary>
-        public static readonly IReadOnlyList<CrewMember> All = new[] { Tones2, Kie };
+        public static readonly IReadOnlyList<CrewMember> All = new[] { Tones2, Kie, Kcaj };
 
         /// <summary>The crewmate who plays <paramref name="soldier"/>, or null (the trooper isn't one of the crew).</summary>
         public static CrewMember Of(SoldierDef soldier)

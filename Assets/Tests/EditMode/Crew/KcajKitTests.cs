@@ -3,11 +3,105 @@ using UnityEngine;
 
 namespace PooketSlug.Tests
 {
-    /// <summary>kcaj's spikes as rules (<see cref="KcajTuning"/>): Hyperfixate's lock and burn, and Unmedicated's pill rain.</summary>
+    /// <summary>kcaj's kit as rules (<see cref="KcajTuning"/>): Double Park's lobbed cones, Hyperfixate's lock and burn, and Unmedicated's pill rain.</summary>
     public class KcajKitTests
     {
         const float Frame = 1f / 60f;
         const float ScreenWidth = 20f; // Tuning.Camera.ViewHeight on a 16:9 phone held sideways
+
+        // ------------------------------------------------------------------ Double Park
+
+        [Test]
+        public void KcajsKitIsHisOwn()
+        {
+            Assert.AreSame(Content.DoublePark, Content.Kcaj.Primary);
+            Assert.AreSame(Content.Hyperfixate, Content.Kcaj.Special);
+            Assert.AreSame(Content.Unmedicated, Content.Kcaj.Super);
+            Assert.AreEqual(WeaponBehaviour.Lob, Content.DoublePark.Behaviour, "the cones are lobbed");
+            Assert.AreSame(Content.Cone, Content.DoublePark.Projectile);
+            Assert.AreEqual(KcajTuning.Cones.Gravity, Content.Cone.Gravity, "the cone falls as the rule says");
+            Assert.IsTrue(Content.Cone.Explodes, "a cone splats on whatever it lands on");
+            Assert.AreEqual(KcajTuning.Beam.Charges, Content.Kcaj.StartSpecials);
+            Assert.AreEqual(KcajTuning.Beam.Charges, Content.Kcaj.SpecialMax);
+            Assert.AreEqual(KcajTuning.Beam.RechargeTime, Content.Kcaj.SpecialRefill);
+        }
+
+        [Test]
+        public void AimingAheadLobsBothConesInAnArc()
+        {
+            var cones = new DoubleParkSpec();
+            for (int i = 0; i < cones.Count; i++)
+            {
+                Vector2 v = cones.Velocity(i, Vector2.right, 1, Vector2.zero);
+                Assert.Greater(v.x, 0f, "ahead");
+                Assert.Greater(v.y, 0f, "and up: it's lobbed, not fired flat");
+                Assert.AreEqual(cones.Speed, v.magnitude, 1e-4f);
+            }
+            Assert.AreEqual(cones.Lift, cones.Throw(Vector2.right, 1), 1e-4f);
+        }
+
+        [Test]
+        public void TheTwoConesLandEitherSideOfTheAim()
+        {
+            var cones = new DoubleParkSpec();
+            Vector2 low = cones.Velocity(0, Vector2.right, 1, Vector2.zero), high = cones.Velocity(1, Vector2.right, 1, Vector2.zero);
+            float lowAngle = Mathf.Atan2(low.y, low.x) * Mathf.Rad2Deg, highAngle = Mathf.Atan2(high.y, high.x) * Mathf.Rad2Deg;
+            Assert.AreEqual(cones.Lift - cones.Spread, lowAngle, 1e-3f);
+            Assert.AreEqual(cones.Lift + cones.Spread, highAngle, 1e-3f);
+            Assert.Greater(Mathf.Abs(cones.Reach(lowAngle) - cones.Reach(highAngle)), 0.3f, "one lands short and one long");
+            Assert.Greater(cones.Reach(lowAngle), 4f, "a lob lands well ahead");
+            Assert.Less(cones.Reach(highAngle), ScreenWidth * 0.5f, "inside the screen ahead of him");
+        }
+
+        [Test]
+        public void FacingLeftMirrorsTheThrow()
+        {
+            var cones = new DoubleParkSpec();
+            Vector2 right = cones.Velocity(0, Vector2.right, 1, Vector2.zero), left = cones.Velocity(0, Vector2.left, -1, Vector2.zero);
+            Assert.AreEqual(-right.x, left.x, 1e-4f);
+            Assert.AreEqual(right.y, left.y, 1e-4f);
+        }
+
+        [Test]
+        public void AimingUpOrDownBendsTheThrow()
+        {
+            var cones = new DoubleParkSpec();
+            Assert.AreEqual(cones.Highest, cones.Throw(Vector2.up, 1), 1e-4f, "straight up is as steep as it goes, still a little ahead");
+            Assert.Less(cones.Throw(Vector2.up, 1), 90f);
+            float down = cones.Throw(Vector2.down, 1);
+            Assert.AreEqual(Mathf.Max(cones.Lowest, -90f + cones.Lift), down, 1e-4f);
+            Assert.Less(cones.Velocity(1, Vector2.down, 1, Vector2.zero).y, 0f, "aiming down in the air throws them down");
+            Assert.Greater(cones.Throw(new Vector2(1f, 1f), 1), cones.Throw(Vector2.right, 1), "aiming up the diagonal throws higher");
+        }
+
+        [Test]
+        public void ARunningThrowCarriesSomeOfHisSpeed()
+        {
+            var cones = new DoubleParkSpec();
+            Vector2 still = cones.Velocity(0, Vector2.right, 1, Vector2.zero), running = cones.Velocity(0, Vector2.right, 1, new Vector2(6f, 0f));
+            Assert.AreEqual(still.x + 6f * cones.Carry, running.x, 1e-4f);
+        }
+
+        [Test]
+        public void ARainFromTheSameSeedFallsTheSameOnBothScreens()
+        {
+            var spec = new UnmedicatedSpec();
+            uint seed = PillRain.Seed(new Rng(42));
+            Assert.Greater(seed, 0u);
+            Assert.Less(seed, 1u << 24, "it crosses the network in a float, exactly");
+            Assert.AreEqual(seed, (uint)(float)seed);
+            var mine = new PillRain(spec);
+            var theirs = new PillRain(spec);
+            mine.Start(seed, 0f, ScreenWidth, 11f);
+            theirs.Start((uint)(float)seed, 0f, ScreenWidth, 11f);
+            var flat = new Flat();
+            for (int f = 0; f < 60; f++)
+            {
+                mine.Step(Frame, flat, null);
+                theirs.Step(Frame, flat, null);
+            }
+            for (int i = 0; i < mine.Capacity; i++) Assert.AreEqual(mine.Position(i), theirs.Position(i), "pill " + i);
+        }
 
         // ------------------------------------------------------------------ Hyperfixate
 

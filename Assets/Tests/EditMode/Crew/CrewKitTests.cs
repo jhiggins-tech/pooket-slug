@@ -34,6 +34,8 @@ namespace PooketSlug.Tests
             Assert.AreEqual(1, (int)KitMove.Weasel);
             Assert.AreEqual(2, (int)KitMove.Trollogram);
             Assert.AreEqual(3, (int)KitMove.Mud);
+            Assert.AreEqual(4, (int)KitMove.Fixate);
+            Assert.AreEqual(5, (int)KitMove.Pills);
         }
 
         [Test]

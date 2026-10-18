@@ -37,6 +37,9 @@ namespace PooketSlug
         /// <summary>Driving their tank: the soldier is inside it.</summary>
         public bool Driving => m_TankPose.State == TankPose.Mode.Driven;
 
+        /// <summary>What their kit shows here, or null when it shows nothing (<see cref="KitCopy"/>).</summary>
+        public KitCopy Kit => m_Kit;
+
         public override bool IsDown => m_Pose.Dead;
         public bool Invulnerable => m_Pose.Blink || m_Pose.Dead;
         /// <summary>Out of lives: a 1-up goes to them first.</summary>
@@ -113,7 +116,11 @@ namespace PooketSlug
                 bool blink = m_TankPose.State == TankPose.Mode.Runaway && (int)(m_TankClock * 12f) % 2 == 0;
                 m_Tank.Apply(at, m_TankPose.Facing, m_TankAngle, m_TankPose.Flash, m_TankPose.Muzzle, blink);
             }
-            if (m_Kit != null) Go.transform.localPosition += (Vector3)m_Kit.ShakeOffset(m_Pose);
+            if (m_Kit != null)
+            {
+                Go.transform.localPosition += (Vector3)m_Kit.ShakeOffset(m_Pose);
+                m_Kit.Render(m_Pose);
+            }
             m_Visual.Skin = Art.SkinFor(Link.Soldier, Link.Skin);
             m_Visual.Apply(m_Pose);
             bool frozen = m_Pose.Frozen && !Driving;

@@ -26,7 +26,7 @@ From [player mechanics](player.md#the-kit): the primary has unlimited ammo, the 
 - **Steal** (super): the roulette spins and kie lifts a random power-up off the toughest enemy on screen. The tougher it is, the bigger the prize: a burst of the goon's own weapon, say, or a whole crew gun off a boss tabk.
 
 ## kcaj
-- **Double Park** (primary): twin cones, either side of your aim.
+- **Double Park** (primary): twin cones, lobbed in an arc like a grenade launcher, one either side of your aim (Jack, 18 Oct); they splat on whatever they land on.
 - **Fork at II**: Triple Scoop (a third cone) or Brain Freeze (cones slow what they hit).
 - **Hyperfixate** (special): the beam sticks to the first thing it touches and follows it while you hold the special. It does damage over time: the longer the fixate, the bigger each damage tick (Jack, approving the spike, 16 Oct). Meanwhile the screen edges dim, and anything else is free to shoot you.
 - **Unmedicated** (super): 120 pills rain across the whole screen, bounce twice and pop. They never hurt kcaj or a co-op partner.

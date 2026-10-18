@@ -45,7 +45,7 @@ namespace PooketSlug
             new Station("tones2", Content.Tones2, false, 156, 194, 184f),
             new Station("kiwicore", null, false, 198, 236, 216f),
             new Station("garyoldmancorp", null, false, 238, 262, 250f),
-            new Station("kcaj", null, true, 4, 62, 34f),
+            new Station("kcaj", Content.Kcaj, true, 4, 62, 34f),
             new Station("torikloud", null, true, 68, 126, 96f),
             new Station("ciarra", null, true, 132, 190, 160f),
             new Station("larinovsky", null, true, 196, 256, 226f),
@@ -152,12 +152,12 @@ namespace PooketSlug
             }
         }
 
-        static void Cable(PixelCanvas c, int x0, int y0, int x1, int y1)
+        static void Cable(PixelCanvas c, int x0, int y0, int x1, int y1, uint colour = 0x2a2050)
         {
             for (int i = 0; i <= 40; i++)
             {
                 float t = i / 40f;
-                c.Set((int)Mathf.Lerp(x0, x1, t), (int)(Mathf.Lerp(y0, y1, t) - 5f * Mathf.Sin(t * Mathf.PI)), Art.Hex(0x2a2050));
+                c.Set((int)Mathf.Lerp(x0, x1, t), (int)(Mathf.Lerp(y0, y1, t) - 5f * Mathf.Sin(t * Mathf.PI)), Art.Hex(colour));
             }
         }
 
@@ -185,6 +185,21 @@ namespace PooketSlug
                     c.Rect(163, Floor + 5, 3, 3, Art.Hex(0x454b5c));
                     c.Circle(184, Floor + 4, 7f, Art.Hex(0xff8c42));
                     c.Rect(176, Floor, 17, 4, Art.Hex(0xc06428));
+                    break;
+                case "kcaj": // a chest freezer of ice cream, and a desk buried in sticky notes under his red string board
+                    c.Rect(6, Loft, 18, 12, Art.Hex(0xe2e8f0));
+                    c.Rect(6, Loft + 12, 18, 2, Art.Hex(0xb8c0cc));
+                    c.Rect(8, Loft + 4, 14, 1, Art.Hex(0x98a2b4));
+                    c.Rect(20, Loft + 7, 2, 3, Art.Hex(0x98a2b4));
+                    c.Rect(30, Loft + 13, 26, 2, Art.Hex(0x8a6448));
+                    c.Rect(32, Loft, 2, 13, Art.Hex(0x5a3e34));
+                    c.Rect(52, Loft, 2, 13, Art.Hex(0x5a3e34));
+                    for (int i = 0; i < 6; i++) c.Rect(34 + i * 3, Loft + 15 + (i % 2), 3, 2, Art.Hex(i % 2 == 0 ? 0xffc53du : 0xff8cc0u));
+                    c.Rect(30, Loft + 20, 28, 18, Art.Hex(0x6a4a30));
+                    c.Rect(31, Loft + 21, 26, 16, Art.Hex(0xb08a5a));
+                    int[] pins = { 34, Loft + 33, 44, Loft + 25, 54, Loft + 34, 40, Loft + 30, 50, Loft + 24 };
+                    for (int i = 0; i < pins.Length - 2; i += 2) Cable(c, pins[i], pins[i + 1], pins[i + 2], pins[i + 3], 0xd82a3a);
+                    for (int i = 0; i < pins.Length; i += 2) c.Rect(pins[i] - 1, pins[i + 1] - 1, 3, 3, Art.Hex(i % 4 == 0 ? 0xf4f0e0u : 0xffc53du));
                     break;
             }
         }

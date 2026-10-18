@@ -37,7 +37,13 @@ namespace PooketSlug
         /// <summary>tones2 + kie: tones2 floods the floor with sludge and kie's weasels surf the wave across the screen.</summary>
         public static readonly TeamCombo SewerRats = new TeamCombo(1, "SEWER RATS", Content.Tones2, Content.Kie);
 
-        public static readonly IReadOnlyList<TeamCombo> All = new[] { SewerRats };
+        /// <summary>tones2 + kcaj: kcaj's pills rain into tones2's flood, and every pill that lands fizzes up into a geyser.</summary>
+        public static readonly TeamCombo MentosAndCola = new TeamCombo(2, "MENTOS AND COLA", Content.Tones2, Content.Kcaj);
+
+        /// <summary>kie + kcaj: a weasel for every goon on screen, each carrying a pill; they scurry under their goon and burst into pills.</summary>
+        public static readonly TeamCombo PillWeasels = new TeamCombo(3, "PILL WEASELS", Content.Kie, Content.Kcaj);
+
+        public static readonly IReadOnlyList<TeamCombo> All = new[] { SewerRats, MentosAndCola, PillWeasels };
 
         public static readonly TeamSuperSpec Spec = new TeamSuperSpec();
 
@@ -63,8 +69,11 @@ namespace PooketSlug
     }
 
     /// <summary>
-    /// How a team super plays out, in seconds from the press: the freeze with the split card, then the combo (for Sewer
-    /// Rats, the flood rising, then the weasels surfing across), then every enemy on screen pops at once.
+    /// How a team super plays out, in seconds from the press: the freeze with the split card, then the combo in two
+    /// beats, its build-up (<see cref="Stage.Flood"/>) and its run (<see cref="Stage.Surf"/>), then every enemy on screen
+    /// pops at once. Every combo keeps the same timing; the stages are named for Sewer Rats', the first: the flood
+    /// rising, then the weasels surfing across. Mentos and Cola floods the floor, then rains pills into it; Pill Weasels
+    /// sends the weasels out, then they run under their goons.
     /// </summary>
     public sealed class TeamSuperSpec
     {

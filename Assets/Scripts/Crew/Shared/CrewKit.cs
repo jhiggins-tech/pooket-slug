@@ -22,10 +22,10 @@ namespace PooketSlug
         /// <summary>The kit <paramref name="player"/>'s crewmate fights with.</summary>
         public static CrewKit For(Player player)
         {
-            CrewKit own = player.Def == Content.Tones2 ? new Tones2Kit(player)
-                : player.Def == Content.Kie ? new KieKit(player)
-                : (CrewKit)new PlainKit(player);
-            return Spike.Kcaj && player.World.Net == null ? new KcajKit(player, own) : own; // spikes are solo only
+            if (player.Def == Content.Tones2) return new Tones2Kit(player);
+            if (player.Def == Content.Kie) return new KieKit(player);
+            if (player.Def == Content.Kcaj) return new KcajKit(player);
+            return new PlainKit(player);
         }
 
         // ------------------------------------------------------------------ how it changes the soldier
@@ -104,6 +104,10 @@ namespace PooketSlug
                 case KitMove.Weasel: KieKit.CopyWeasel(w, move); break;
                 case KitMove.Trollogram: KieKit.OnTrollEvent(w, move); break;
                 case KitMove.Mud: Tones2Kit.CopyMud(w, move.At); break;
+                default:
+                    // the rest are played by the partner's copy (kcaj's beam and pills)
+                    foreach (RemotePlayer r in w.Remotes) r.Kit?.OnMove(move);
+                    break;
             }
         }
     }
@@ -116,7 +120,8 @@ namespace PooketSlug
 
     /// <summary>
     /// A partner's crewmate on our screen: what their kit shows from their pose alone (tones2's liquids, his shaking),
-    /// as harmless copies. Moves that aren't in the pose arrive as <see cref="KitEvent"/>s (<see cref="CrewKit.OnPartnerMove"/>).
+    /// as harmless copies. Moves that aren't in the pose arrive as <see cref="KitEvent"/>s (<see cref="CrewKit.OnPartnerMove"/>),
+    /// some of them for the copy to play (<see cref="OnMove"/>: kcaj's beam and pills).
     /// </summary>
     public abstract class KitCopy
     {
@@ -125,9 +130,20 @@ namespace PooketSlug
         protected KitCopy(RemotePlayer remote) => Remote = remote;
 
         /// <summary>The copy for <paramref name="remote"/>'s crewmate, or null when their pose shows nothing of their kit.</summary>
-        public static KitCopy For(RemotePlayer remote) => remote.Link.Soldier == Content.Tones2 ? new Tones2Copy(remote) : null;
+        public static KitCopy For(RemotePlayer remote)
+        {
+            if (remote.Link.Soldier == Content.Tones2) return new Tones2Copy(remote);
+            if (remote.Link.Soldier == Content.Kcaj) return new KcajCopy(remote);
+            return null;
+        }
 
         public abstract void Tick(float dt, in AvatarPose pose, Vector2 vel);
+
+        /// <summary>Draws the copy's own pieces (kcaj's beam and pills).</summary>
+        public virtual void Render(in AvatarPose pose) { }
+
+        /// <summary>A move of theirs that isn't in the pose, for the copy to play.</summary>
+        public virtual void OnMove(in KitEvent move) { }
 
         /// <summary>How far the kit shakes them this frame.</summary>
         public virtual Vector2 ShakeOffset(in AvatarPose pose) => Vector2.zero;
