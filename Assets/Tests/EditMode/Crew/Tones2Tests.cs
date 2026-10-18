@@ -77,7 +77,8 @@ namespace PooketSlug.Tests
         public void TheRocketJumpGoesHigherThanAJump()
         {
             Assert.Greater(Tones2Tuning.Rocket.LaunchVelocity, Content.Tones2.JumpVelocity);
-            Assert.AreEqual(Tones2Tuning.Rocket.Charges, Content.Tones2.StartSpecials, "the special starts with all its charges");
+            Assert.AreEqual(3, Content.Tones2.SpecialMax);
+            Assert.AreEqual(5f, Content.Tones2.SpecialRefill, 1e-6f, "a rocket jump comes back every 5 seconds");
         }
 
         [Test]

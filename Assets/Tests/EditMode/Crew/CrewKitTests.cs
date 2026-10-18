@@ -41,5 +41,21 @@ namespace PooketSlug.Tests
         {
             Assert.AreEqual(WireMeter.Bytes(WireKind.Shot), WireMeter.Bytes(WireKind.Kit), "a byte for the move, where, and its data");
         }
+
+        [Test]
+        public void EveryCrewmatesChargesAndRefillAreOnTheirCard()
+        {
+            // One place for the special's numbers: the soldier card, which the kit meters read (no kit overwrites them).
+            foreach (CrewMember m in Crew.All)
+            {
+                SoldierDef s = m.Soldier;
+                Assert.Greater(s.SpecialMax, 0, s.Name);
+                Assert.Greater(s.SpecialRefill, 0f, s.Name);
+                Assert.AreEqual(s.SpecialMax, s.StartSpecials, s.Name + " starts with all their charges");
+                var meters = new KitMeters(s.StartSpecials, s.SpecialMax, s.SpecialRefill, Tuning.Kit.SuperKills, s.AbilityCooldown);
+                Assert.AreEqual(s.SpecialMax, meters.SpecialMax, s.Name);
+                Assert.AreEqual(s.SpecialRefill, meters.SpecialRefill, 1e-6f, s.Name);
+            }
+        }
     }
 }

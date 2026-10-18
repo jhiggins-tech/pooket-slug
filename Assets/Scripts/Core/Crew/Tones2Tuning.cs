@@ -60,9 +60,6 @@ namespace PooketSlug
         public float ShakeTime = 0.5f;
         /// <summary>Upward speed at launch. A normal jump is 17; this reaches about twice as high.</summary>
         public float LaunchVelocity = 24f;
-        /// <summary>The special's charges, and the seconds each one takes to come back.</summary>
-        public int Charges = 3;
-        public float RechargeTime = 5f;
         /// <summary>How far either side of the launch the mud spreads, and how long it stays.</summary>
         public float MudHalfWidth = 1.75f, MudLife = 7f;
         /// <summary>Goons standing in the mud take a point of poison this often.</summary>

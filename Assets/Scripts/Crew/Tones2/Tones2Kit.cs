@@ -136,8 +136,8 @@ namespace PooketSlug
     /// <summary>
     /// tones2's ten-2, the rocket jump. Press SP on the ground: he shakes on the spot for half a second, then
     /// blasts straight up, about twice as high as a jump, and steers in the air like a normal jump. The launch
-    /// carpets the floor in toxic mud that poisons goons who walk through it. Three charges, which come back
-    /// one at a time (<see cref="RocketSpec"/>).
+    /// carpets the floor in toxic mud that poisons goons who walk through it (<see cref="RocketSpec"/>). Its charges
+    /// and their refill are on his soldier card, as everyone's are.
     /// </summary>
     public sealed class RocketJump
     {
@@ -149,8 +149,6 @@ namespace PooketSlug
         {
             m_Player = player;
             m_Spec = spec;
-            player.Specials = spec.Charges;
-            player.Kit.Recharge(spec.Charges, spec.RechargeTime);
         }
 
         /// <summary>Shaking before the launch: he can't move, jump or fire.</summary>
