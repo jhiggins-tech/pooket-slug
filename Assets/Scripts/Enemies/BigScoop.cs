@@ -100,6 +100,7 @@ namespace PooketSlug
             if (!m_Awake)
             {
                 if (World.View.Right < Pos.x + HalfW + 1f) return; // waits up out of sight
+                if (Pos.x < World.View.Left) return; // passed by (a restart further on, ?test=boss): he's left behind
                 m_Awake = true;
                 m_Drop = DropHeight;
                 Wake(true);
