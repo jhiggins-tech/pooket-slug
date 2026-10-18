@@ -31,6 +31,12 @@ namespace PooketSlug
     {
         public const int Bar = 16;
 
+        /// <summary>
+        /// The title theme: a recording (Lyria take D, a 27.7 s seamless loop), not chip, so it isn't in the notation.
+        /// CI fetches it from the vendor repository's start-music release into <c>Resources/Music/title.bytes</c>.
+        /// </summary>
+        public const string TitleRecording = "title";
+
         // Chords as arpeggio notes (root, third, fifth, octave) and a bass root and fifth.
         struct Chord
         {

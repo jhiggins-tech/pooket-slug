@@ -1,7 +1,7 @@
 namespace PooketSlug
 {
     /// <summary>
-    /// The mission's music as it plays out (<c>?spike=music</c>, solo only): the start sting into the mission's theme,
+    /// The title theme on the splash, and the mission's music as it plays out (<c>?spike=music</c>, solo only): the start sting into the mission's theme,
     /// cut at the boss's screen lock, the boss theme from its first shot, a victory sting into the pilot round's final
     /// section, and the tabk alert for the coda.
     /// </summary>
@@ -18,6 +18,16 @@ namespace PooketSlug
         public static void Prepare()
         {
             if (Spike.Music) Music.Prepare(MusicTracks.All);
+        }
+
+        /// <summary>
+        /// Each frame: the title theme loops while the splash (or the settings over it) is up, and fades as it's left
+        /// (<c>docs/design/music.md</c>, The title theme). It plays without <c>?spike=music</c>.
+        /// </summary>
+        public void Title(bool showing)
+        {
+            if (showing) Music.Loop(MusicTracks.TitleRecording);
+            else if (Music.Recording == MusicTracks.TitleRecording) Music.Stop(fade: true);
         }
 
         /// <summary>A solo mission starting: the start sting, then the mission's theme.</summary>

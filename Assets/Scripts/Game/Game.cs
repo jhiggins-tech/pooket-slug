@@ -496,6 +496,7 @@ namespace PooketSlug
             float dt = Mathf.Min(Time.unscaledDeltaTime, 1f / 30f);
             m_StateTime += dt;
             Music.Tick(dt);
+            MissionMusic.Title(m_State == GameState.Title || m_State == GameState.Settings);
             Music.Paused = m_Paused;
 
             m_Frames++;
@@ -524,21 +525,13 @@ namespace PooketSlug
                     break;
 
                 case GameState.Title:
-                    if (Reveal.Now == null && Reveal.Due) Reveal.Begin();
-                    if (Reveal.Now != null)
-                    {
-                        Reveal.Tick(dt, keys, soldier);
-                        break;
-                    }
-                    if (CoopReady)
-                    {
-                        if (click == MenuAction.Online || keys.Host) { JoinCoop(); break; }
-                    }
+                    // The splash: START and SETTINGS (Start flow 5). Once the crew's open, START goes to the den, where
+                    // the couch (who you play), the mission board and co-op are. Two of the crew no longer plays here:
+                    // the title doesn't grow any more.
                     if (click == MenuAction.Settings || keys.Settings) SetState(GameState.Settings);
-                    else if (CrewOpen && (click == MenuAction.Crew || soldier.SpecialPressed)) Den.Show(DenMode.Crew);
                     else if (click == MenuAction.Play || keys.Start || soldier.FirePressed || soldier.JumpPressed)
                     {
-                        if (CrewOpen) Board.Show(fromDen: false); // MISSIONS: the mission screen, then the den
+                        if (CrewOpen) Den.Show(DenMode.Solo);
                         else StartFromTitle(); // before the crew's freed, tones2 is all there is: straight in
                     }
                     break;
@@ -703,14 +696,7 @@ namespace PooketSlug
                 Screen = MenuScreenNow(),
                 StateTime = m_StateTime,
                 Touch = GameInput.TouchActive,
-                Online = m_Net != null,
-                OnlineOff = m_Net == null && NetSessions.Factory != null,
-                CoopOpen = CoopOpen,
-                CrewOpen = CrewOpen,
-                Crew = Soldier.Name.ToUpperInvariant(),
-                CoopNew = CoopOpen && !m_Profile.HasSeen(Reveals.Coop),
                 CoopJustOpened = m_CoopJustOpened,
-                Reveal = Reveal.Now,
                 InCoop = m_Coop,
                 Notice = m_Notice != null && Time.unscaledTime - m_NoticeTime < 8f ? m_Notice : null,
                 Status = m_Net?.Status,

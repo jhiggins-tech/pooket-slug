@@ -8,7 +8,7 @@ namespace PooketSlug
     public enum MenuScreen { None, Title, Settings, Connecting, Paused, GameOver, Victory, Kit, Missions }
 
     /// <summary>What a menu button (or its key) asks the game to do.</summary>
-    public enum MenuAction { None, Play, Settings, Crew, Sound, Shake, Online, Back, Resume, Restart, Menu, Kit, Move1, Move2, Move3, Move4, Card1, Card2, Card3, Card4, Hard, Effects, Voices, LeftHanded }
+    public enum MenuAction { None, Play, Settings, Sound, Shake, Back, Resume, Restart, Menu, Kit, Move1, Move2, Move3, Move4, Card1, Card2, Card3, Card4, Hard, Effects, Voices, LeftHanded }
 
     /// <summary>What the menus show, gathered by <see cref="Game"/> each frame.</summary>
     public struct MenuInfo
@@ -17,19 +17,6 @@ namespace PooketSlug
         public float StateTime;
         /// <summary>Show touch hints instead of keys.</summary>
         public bool Touch;
-        /// <summary>Online co-op is in this build (the Photon SDK and an AppId).</summary>
-        public bool Online;
-        /// <summary>The Photon SDK is in, but the build has no AppId.</summary>
-        public bool OnlineOff;
-        /// <summary>Co-op is open to this player (progressive disclosure).</summary>
-        public bool CoopOpen;
-        /// <summary>The crew is open (the CREW pick shows), and who's picked.</summary>
-        public bool CrewOpen;
-        public string Crew;
-        /// <summary>Co-op has opened, and its menu hasn't been visited yet.</summary>
-        public bool CoopNew;
-        /// <summary>Two of the crew is playing on the title screen: the menu grows as it says (null when not).</summary>
-        public CrewReveal Reveal;
         /// <summary>This win opened co-op.</summary>
         public bool CoopJustOpened;
         /// <summary>A shared game is on (the victory screen's second button leaves it).</summary>
@@ -53,11 +40,10 @@ namespace PooketSlug
     }
 
     /// <summary>
-    /// The menus in uGUI: title, settings, connecting to co-op, pause, game over, victory, the ⓘ kit screen
+    /// The menus in uGUI: the title (<see cref="TitleView"/>, the splash), settings, connecting to co-op, pause, game over, victory, the ⓘ kit screen
     /// (from the den's couch pick, and the pause menu), which plays a demo of each move, and the mission screen
     /// (<see cref="MissionBoard"/>, from MISSIONS and the den's mission board). Buttons work by
-    /// click and tap; each also has a key, which <see cref="Game"/> reads, shown under it on a keyboard. Only
-    /// what the player has met is shown: co-op appears once Mission one is beaten solo.
+    /// click and tap; each also has a key, which <see cref="Game"/> reads, shown under it on a keyboard.
     /// </summary>
     public sealed class MenuView
     {
@@ -67,13 +53,12 @@ namespace PooketSlug
 
         readonly RectTransform m_Root;
         readonly Image m_Dim;
-        readonly RectTransform m_Title, m_Settings, m_Connecting, m_Paused, m_GameOver, m_Victory;
+        readonly TitleView m_Title;
+        readonly RectTransform m_Settings, m_Connecting, m_Paused, m_GameOver, m_Victory;
         readonly Text m_EffectsLabel, m_VoicesLabel, m_LeftyLabel, m_EffectsKey, m_VoicesKey, m_LeftyKey;
-        readonly Text m_Hint, m_Controls1, m_Controls2, m_Controls3, m_OnlineOff, m_SoundLabel, m_ShakeLabel, m_Account, m_Notice, m_NewBadge, m_Status, m_Score, m_Result, m_Opened;
-        readonly Button m_SettingsButton, m_Crew;
-        readonly Text m_CrewKey, m_CrewLabel;
-        readonly Button m_Play, m_Coop, m_Retry, m_GameOverMenu, m_Again, m_SecondVictory;
-        readonly Text m_PlayKey, m_SettingsKey, m_SoundKey, m_ShakeKey, m_SettingsBackKey, m_CoopKey, m_CancelKey;
+        readonly Text m_Controls1, m_Controls2, m_Controls3, m_SoundLabel, m_ShakeLabel, m_Notice, m_Status, m_Score, m_Result, m_Opened;
+        readonly Button m_Retry, m_GameOverMenu, m_Again, m_SecondVictory;
+        readonly Text m_SoundKey, m_ShakeKey, m_SettingsBackKey, m_CancelKey;
         readonly Text m_ResumeKey, m_RestartKey, m_MenuKey, m_RetryKey, m_GameOverMenuKey, m_AgainKey, m_SecondKey, m_SecondLabel;
         // the kit screen (from the den's couch pick, and the pause menu)
         readonly RectTransform m_Kit;
@@ -106,23 +91,8 @@ namespace PooketSlug
             events.AddComponent<StandaloneInputModule>();
 #endif
 
+            m_Title = new TitleView(m_Root, Click); // under the dim, so settings dims the splash behind it
             m_Dim = Ui.Cover(m_Root, "Dim", Color.clear);
-
-            // title
-            m_Title = Ui.Fill(m_Root, "Title");
-            Line(m_Title, 110f, 44, Orange).text = "POOKET SLUG";
-            Line(m_Title, 74f, 12, Color.white).text = "built by GameCI · hosted on GitHub Pages";
-            m_Hint = Line(m_Title, 34f, 10, Keys);
-            m_Play = Ui.Button(m_Title, "START", new Vector2(0f, -4f), Wide, () => Click(MenuAction.Play), out m_PlayKey);
-            m_Coop = Ui.Button(m_Title, "CO-OP", new Vector2(85f, -4f), Narrow, () => Click(MenuAction.Online), out m_CoopKey);
-            m_SettingsButton = Ui.Button(m_Title, "SETTINGS", new Vector2(0f, -48f), Narrow, () => Click(MenuAction.Settings), out m_SettingsKey);
-            m_Crew = Ui.Button(m_Title, "CREW", new Vector2(-85f, -48f), Narrow, () => Click(MenuAction.Crew), out m_CrewKey);
-            m_CrewLabel = Label(m_Crew);
-            m_NewBadge = Ui.Label(m_Coop.GetComponent<RectTransform>(), "New", Ui.TopRight, new Vector2(6f, 7f), 9, TextAnchor.MiddleCenter, Palette.Gold);
-            m_NewBadge.text = "NEW!";
-            m_OnlineOff = Line(m_Title, -90f, 9, new Color(1f, 1f, 1f, 0.6f));
-            m_OnlineOff.text = "ONLINE CO-OP IS OFF IN THIS BUILD (NO PHOTON APP ID)";
-            m_Account = Line(m_Title, -125f, 9, new Color(1f, 1f, 1f, 0.75f));
             m_Notice = Line(m_Root, -100f, 12, new Color(1f, 0.5f, 0.4f));
 
             // settings
@@ -239,18 +209,8 @@ namespace PooketSlug
             switch (info.Screen)
             {
                 case MenuScreen.Title:
-                    Dim(new Color(0f, 0f, 0f, 0.35f));
-                    m_Hint.text = info.Touch ? (info.Options.LeftHanded ? "RIGHT THUMB RUNS · LEFT THUMB FIRES AND JUMPS · MORE IN SETTINGS" : "LEFT THUMB RUNS · RIGHT THUMB FIRES AND JUMPS · MORE IN SETTINGS")
-                        : "MOVE  Arrows      JUMP  Z      FIRE  X      MORE IN SETTINGS";
-                    LayOutTitle(info);
-                    Key(m_PlayKey, keys, "ENTER");
-                    Key(m_CoopKey, keys, "H");
-                    Key(m_SettingsKey, keys, "O");
-                    if (info.CrewOpen) m_CrewLabel.text = "CREW: " + info.Crew;
-                    Key(m_CrewKey, keys, "C");
-                    Ui.Show(m_OnlineOff, info.OnlineOff && info.CoopOpen);
-                    Ui.Show(m_Account, info.Account != null);
-                    if (info.Account != null && m_Account.text != info.Account) m_Account.text = info.Account;
+                    Dim(Color.clear);
+                    m_Title.Refresh(info);
                     break;
                 case MenuScreen.Settings:
                     Dim(new Color(0f, 0f, 0f, 0.6f));
@@ -329,7 +289,7 @@ namespace PooketSlug
         {
             m_Shown = screen;
             Ui.Show(m_Dim, screen != MenuScreen.None);
-            Ui.Show(m_Title, screen == MenuScreen.Title);
+            m_Title.Show(screen);
             Ui.Show(m_Settings, screen == MenuScreen.Settings);
             Ui.Show(m_Connecting, screen == MenuScreen.Connecting);
             Ui.Show(m_Paused, screen == MenuScreen.Paused);
@@ -424,50 +384,6 @@ namespace PooketSlug
         void Click(MenuAction action) => m_Clicked = action;
 
         void Dim(Color color) => m_Dim.color = color;
-
-        /// <summary>
-        /// The title's buttons. Before Mission one's beaten: START, with SETTINGS under it. Once the crew's open, the
-        /// menu has grown (<c>docs/design/story.md</c>, Two of the crew): MISSIONS, CO-OP and CREW in a row, SETTINGS
-        /// still under. While that scene plays, START cracks and the new buttons drop in one at a time.
-        /// </summary>
-        void LayOutTitle(in MenuInfo info)
-        {
-            const float RowY = -4f, Gap = 125f, DropFrom = 70f;
-            CrewReveal reveal = info.Reveal;
-            bool grown = CrewReveal.MenuGrown(info.CrewOpen, reveal);
-            var play = m_Play.GetComponent<RectTransform>();
-            Label(m_Play).text = grown ? "MISSIONS" : "START";
-            play.sizeDelta = grown ? Narrow : Wide;
-            m_SettingsButton.GetComponent<RectTransform>().anchoredPosition = new Vector2(0f, -48f);
-            Ui.Show(m_NewBadge, reveal == null && info.CoopNew && (int)(Time.unscaledTime * 2.5f) % 2 == 0);
-            if (!grown)
-            {
-                // the old title (and, as the menu starts to grow, START shaking as it cracks)
-                float shake = reveal != null && reveal.Now == CrewReveal.Shot.MenuGrows ? Mathf.Sin(reveal.T * 70f) * 2.5f : 0f;
-                play.anchoredPosition = new Vector2(shake, RowY);
-                play.localRotation = Quaternion.Euler(0f, 0f, shake);
-                Ui.Show(m_Play, true);
-                Ui.Show(m_Coop, false);
-                Ui.Show(m_Crew, false);
-                return;
-            }
-            play.localRotation = Quaternion.identity;
-            bool coop = info.Online && info.CoopOpen;
-            Button[] row = { m_Play, coop ? m_Coop : null, m_Crew };
-            if (!coop) Ui.Show(m_Coop, false);
-            int count = coop ? 3 : 2, slot = 0;
-            for (int i = 0; i < row.Length; i++)
-            {
-                if (row[i] == null) continue;
-                float drop = reveal != null ? reveal.Drop(i) : 1f;
-                Ui.Show(row[i], drop > 0f);
-                var rt = row[i].GetComponent<RectTransform>();
-                rt.anchoredPosition = new Vector2((slot - (count - 1) * 0.5f) * Gap, RowY + (1f - drop) * (1f - drop) * DropFrom);
-                float pulse = reveal != null && i == 1 && reveal.Now == CrewReveal.Shot.KiesLine && reveal.T < 0.5f ? Mathf.Sin(reveal.T / 0.5f * Mathf.PI) * 0.15f : 0f;
-                rt.localScale = new Vector3(1f + pulse, 1f + pulse, 1f);
-                slot++;
-            }
-        }
 
         static Text Label(Button button) => button.transform.Find("Label").GetComponent<Text>();
 

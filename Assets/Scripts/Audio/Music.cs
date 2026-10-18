@@ -9,7 +9,8 @@ namespace PooketSlug
     /// track rendered on the chip synth the first time it's wanted (<see cref="MusicRender"/>). It sits under the sound
     /// effects, and goes quiet while paused. A track can have a layer, a recording of the same notes in step with it
     /// (the boss's final section played by an orchestra, from the vendor repository's CI into <c>Resources/Music</c>),
-    /// which it crossfades to after a while. First cut: only <c>?spike=music</c> plays anything.
+    /// which it crossfades to after a while; or a recording can loop on its own (the title theme, <see cref="Loop"/>).
+    /// First cut: only the title theme and <c>?spike=music</c> play anything.
     /// </summary>
     public static class Music
     {
@@ -20,6 +21,7 @@ namespace PooketSlug
         static readonly Dictionary<MusicTrack, AudioClip> s_Clips = new Dictionary<MusicTrack, AudioClip>();
         static readonly Dictionary<string, AudioClip> s_Layers = new Dictionary<string, AudioClip>();
         static MusicTrack s_Playing;
+        static string s_Recording; // the recording looping on its own, or null
         static float s_Fade = -1f;
         /// <summary>Seconds until the crossfade to the layer starts (below 0: none coming), and how far it's got (0..1).</summary>
         static float s_CrossIn = -1f, s_Mix;
@@ -27,6 +29,9 @@ namespace PooketSlug
 
         /// <summary>The track playing, or null.</summary>
         public static MusicTrack Playing => s_Playing;
+
+        /// <summary>The recording looping on its own (<see cref="Loop"/>), or null.</summary>
+        public static string Recording => s_Recording;
 
         public static bool Muted
         {
@@ -112,6 +117,7 @@ namespace PooketSlug
             AudioClip clip = ClipOf(track);
             if (clip == null) return;
             s_Playing = track;
+            s_Recording = null;
             s_Fade = -1f;
             s_Loop.Stop();
             s_Loop.clip = clip;
@@ -132,12 +138,35 @@ namespace PooketSlug
             Log.Audio.Info("Music: " + track.Name + (layer != null ? " (with a layer to crossfade to)" : ""));
         }
 
+        /// <summary>
+        /// Loops the recording <c>Resources/Music/&lt;id&gt;.bytes</c> on its own, from the start (a seamless loop, like the
+        /// title theme), unless it's already playing. Nothing plays in a build without it.
+        /// </summary>
+        public static void Loop(string id)
+        {
+            if (s_Loop == null || s_Recording == id && s_Loop.isPlaying && s_Fade < 0f) return;
+            AudioClip clip = Layer(id);
+            if (clip == null) return;
+            s_Playing = null;
+            s_Recording = id;
+            s_Fade = -1f;
+            s_CrossIn = -1f;
+            s_Mix = 0f;
+            if (s_Layer != null) s_Layer.Stop();
+            s_Loop.Stop();
+            s_Loop.clip = clip;
+            ApplyVolume();
+            s_Loop.Play();
+            Log.Audio.Info("Music: the " + id + " recording, looped");
+        }
+
         /// <summary>Stops the track: at once (the boss intro cuts it), or with a quick fade.</summary>
         public static void Stop(bool fade = false)
         {
-            if (s_Loop == null || s_Playing == null) return;
-            Log.Audio.Info("Music stopped: " + s_Playing.Name);
+            if (s_Loop == null || s_Playing == null && s_Recording == null) return;
+            Log.Audio.Info("Music stopped: " + (s_Playing?.Name ?? s_Recording));
             s_Playing = null;
+            s_Recording = null;
             s_CrossIn = -1f;
             if (fade && s_Loop.isPlaying) s_Fade = FadeTime;
             else

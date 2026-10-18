@@ -65,7 +65,7 @@ kcaj's mission (picked by the owner, 2026-10-16, from three concepts; the sheets
 1. **First launch:** the title screen offers Start, which begins Mission one, plus settings and a small sign-in button. Returning players on a new device can sign in straight away and keep their progress.
 2. **Mission one,** single player only, the prelude. The first tabk, the first call-in and the first drive happen here.
 3. **Once Mission one has been beaten:**
-   - **Co-op appears** in the menu: host a room, join with a code, quick match, browse rooms, or watch a game.
+   - **Co-op appears** in the den: host a room, join with a code, quick match, browse rooms, or watch a game.
    - **The mission screen** appears, with replays and kcaj's mission.
    - **The crew screen** appears, with tones2 and kie: it's the gaming den ([the lobby](lobby.md)).
    - **The debrief** shows XP and rank for the first time, and offers sign-in to players who haven't.
@@ -78,7 +78,7 @@ The game shows only what the player has already met. Nothing on the title screen
 
 | | First launch | After Mission one | Later |
 |---|---|---|---|
-| Title menu | Start, plus settings and a small sign-in button | Missions, Co-op, Crew | |
+| Title menu | Start, plus settings and a small sign-in button | The same: Start opens the den, which has the missions, the crew and co-op | |
 | Online | Hidden | Host, join, quick match, browse, watch | |
 | Crew | tones2, with no crew screen | The crew screen: tones2 and kie | One more per mission |
 | Tabks | Never mentioned | tones2's tabk, and the call-in | One more per mission |
