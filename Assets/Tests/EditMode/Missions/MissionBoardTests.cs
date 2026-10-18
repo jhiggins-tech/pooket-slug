@@ -20,16 +20,29 @@ namespace PooketSlug.Tests
         }
 
         [Test]
-        public void OnceMissionOneIsCleared_ItsReplayShows_AndTheNextMissionIsComingSoon()
+        public void OnceMissionOneIsCleared_ItsReplayShows_AndMissionTwoIsReached()
         {
             var p = new Profile();
             p.RecordRun(Missions.One, Setting.Normal, 12400, won: true, solo: true);
             p.RecordRun(Missions.One, Setting.Normal, 9000, won: true, solo: true);
             List<MissionCard> cards = MissionBoard.Cards(p, coop: false);
-            Assert.AreEqual(Missions.All.Count + 1, cards.Count, "every mission, then the next");
+            Assert.AreEqual(2, cards.Count, "Mission one, then Mission two, not yet cleared");
             Assert.AreEqual(12400, cards[0].Best);
             Assert.AreEqual(2, cards[0].Clears);
             Assert.AreEqual("BEST 12,400 · CLEARED 2 TIMES", MissionBoard.RecordLine(cards[0], Setting.Normal));
+            Assert.AreSame(Missions.Two, cards[1].Mission);
+            Assert.AreEqual(2, cards[1].Number);
+            Assert.IsFalse(cards[1].SoloOnly, "Mission two is open to co-op");
+            Assert.AreEqual("NOT CLEARED YET", MissionBoard.RecordLine(cards[1], Setting.Normal));
+        }
+
+        [Test]
+        public void OnceEveryMissionIsCleared_TheNextIsComingSoon()
+        {
+            var p = new Profile();
+            foreach (MissionDef m in Missions.All) p.RecordRun(m, Setting.Normal, 1000, won: true, solo: true);
+            List<MissionCard> cards = MissionBoard.Cards(p, coop: false);
+            Assert.AreEqual(Missions.All.Count + 1, cards.Count, "every mission, then the next");
             MissionCard next = cards[cards.Count - 1];
             Assert.IsTrue(next.ComingSoon);
             Assert.AreEqual(Missions.All.Count + 1, next.Number);

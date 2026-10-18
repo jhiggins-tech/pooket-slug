@@ -149,6 +149,10 @@ namespace PooketSlug
         ToppleTower,
         /// <summary>The base's last gate, at the end of the coda: shoot it or ram it, and the mission's won.</summary>
         ExitGate,
+        /// <summary>Mission two's box of cones: stands still, and drops an item when it's broken (<see cref="Creamery.ConeBoxDrop"/>).</summary>
+        ConeBox,
+        /// <summary>Mission two's nitrogen tank: a barrel whose blast freezes everyone near it as well (<see cref="Creamery"/>).</summary>
+        NitrogenTank,
     }
 
     /// <summary>One kind of enemy: its body, health and worth. The co-op snapshot carries its id.</summary>

@@ -95,6 +95,7 @@ namespace PooketSlug
             }
             LevelView.Create(Level, Root, Level.Craters?.X0 ?? int.MaxValue);
             if (Level.Craters != null) CraterView = new CraterView(Level, Level.Craters, Root);
+            BeltTread.Lay(this);
             View = new ScrollCamera(this);
             Spawner = new Spawner(this);
             Combat = new Combat(this);
@@ -171,7 +172,7 @@ namespace PooketSlug
         public bool SkipToPilot;
         /// <summary>Testing (<c>?test=pilot,weak</c>): the pilot jumps out on one point of health, and goes down on his own a few seconds in.</summary>
         public bool WeakPilot;
-        /// <summary>The boss tabk is kcaj's (<see cref="KcajBoss"/>), Mission two's, in whatever arena this is (<c>?test=kcajtank</c>).</summary>
+        /// <summary>The boss tabk is kcaj's (<see cref="KcajBoss"/>): Mission two's, or in whatever arena this is with <c>?test=kcajtank</c>.</summary>
         public bool KcajTank;
 
         public void OnBossIntro(BossEnemy boss, bool firstTime)
@@ -386,7 +387,8 @@ namespace PooketSlug
 
         /// <summary>
         /// A boss tank is wrecked: its hologram pilot jumps out to fight on foot (<c>docs/design/tanks.md</c>, The pilot
-        /// round). The authority (or a solo game) puts him in; a co-op follower gets him in the snapshot.
+        /// round). The authority (or a solo game) puts him in; a co-op follower gets him in the snapshot. A mission with
+        /// no pilot (<see cref="MissionDef.Pilot"/>) is won there and then.
         /// </summary>
         public void OnTankWrecked(TankBoss tank)
         {
@@ -394,7 +396,12 @@ namespace PooketSlug
             Scoring.Popup("TABK WRECKED!", tank.Center + Vector2.up * 1.6f, Palette.Gold);
             TankWrecked?.Invoke();
             if (!IsAuthority) return;
-            if (Spawner.SpawnEnemy(Content.Pilot, tank.Pos + Vector2.up * 0.6f) is Pilot pilot)
+            if (Mission.Pilot == null)
+            {
+                OnBossDestroyed(); // no pilot round (yet: Trollogram kcaj, Mission two's): the wreck wins it
+                return;
+            }
+            if (Spawner.SpawnEnemy(Mission.Pilot, tank.Pos + Vector2.up * 0.6f) is Pilot pilot)
             {
                 pilot.JumpOut(Player.Pos.x < tank.Pos.x ? -1 : 1);
                 if (WeakPilot) pilot.Hp = 1;

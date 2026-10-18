@@ -3,7 +3,8 @@ using UnityEngine;
 
 namespace PooketSlug
 {
-    public enum SpawnKind { Rifleman, Runner, Drone, Tank, CrateHeavy, CrateBombs, Medkit, Flag, OneUp, TowerScenery, MotorPool, Barrel, LiveFence, SteamVent, Icicles, Lift, Checkpoint, BackGate, ToppleTower, ExitGate }
+    public enum SpawnKind { Rifleman, Runner, Drone, Tank, CrateHeavy, CrateBombs, Medkit, Flag, OneUp, TowerScenery, MotorPool, Barrel, LiveFence, SteamVent, Icicles, Lift, Checkpoint, BackGate, ToppleTower, ExitGate,
+        ScoopDropper, NitrogenVent, ConeBox, NitrogenTank, ColdStore }
 
     public struct Spawn
     {
@@ -17,7 +18,10 @@ namespace PooketSlug
     /// spawn markers ('W' and 'M' are scenery: a watchtower, the motor pool's gate; 'x' an explosive barrel; 'Z', 'V' and
     /// 'I' hazards: a live fence, a steam vent, icicles hanging from the tile above; 'L' a lift's left tile at the
     /// bottom of its run; 'K' a checkpoint; 'G' the motor pool's back gate, where the coda starts; 'Y' a watchtower that
-    /// topples when it's shot down; 'E' the base's last gate). LevelView draws it.
+    /// topples when it's shot down; 'E' the base's last gate). Mission two's creamery adds '&gt;' and '&lt;', conveyor
+    /// belts (ground that carries what stands on it that way, <see cref="BeltSpeedUnder"/>), and markers: 'Q' a scoop
+    /// dropper overhead, 'N' a nitrogen vent, 'c' a box of cones, 'n' a nitrogen tank, 'C' the cold store's doors, where
+    /// the boss tabk rolls out from. LevelView draws it.
     /// <para>
     /// The coda (<c>docs/design/story.md</c>, The coda) is the stretch past the back gate. Until it opens, the gate's
     /// column is a wall and nothing past it scrolls into view or spawns (<see cref="ScrollLimit"/>). Things that stand
@@ -27,11 +31,14 @@ namespace PooketSlug
     public sealed class Level
     {
         public const char Empty = '.', Ground = '#', Block = '=', Bridge = '-';
+        /// <summary>Conveyor belts: ground, carrying right or left.</summary>
+        public const char BeltRight = '>', BeltLeft = '<';
 
         public readonly int Width, Height;
         public readonly List<Spawn> Spawns = new List<Spawn>();
         public Vector2 PlayerStart;
         readonly char[,] m_Tiles; // [x, y], y up
+        readonly sbyte[,] m_Belts; // [x, y]: which way a belt tile carries, 1 right, -1 left, 0 none
         /// <summary>Spike: ground that blasts dig into, over the boss arena (null for plain tiles everywhere).</summary>
         public CraterGround Craters;
         /// <summary>Where the coda's back gate stands ('G'), or -1 for a map without one.</summary>
@@ -45,6 +52,7 @@ namespace PooketSlug
             Height = map.Length;
             foreach (string row in map) Width = Mathf.Max(Width, row.Length);
             m_Tiles = new char[Width, Height];
+            m_Belts = new sbyte[Width, Height];
 
             for (int r = 0; r < Height; r++)
             {
@@ -53,7 +61,8 @@ namespace PooketSlug
                 for (int x = 0; x < Width; x++)
                 {
                     char ch = x < row.Length ? row[x] : Empty;
-                    m_Tiles[x, y] = ch == Ground || ch == Block || ch == Bridge ? ch : Empty;
+                    m_Tiles[x, y] = ch == Ground || ch == Block || ch == Bridge ? ch : ch == BeltRight || ch == BeltLeft ? Ground : Empty;
+                    if (ch == BeltRight || ch == BeltLeft) m_Belts[x, y] = (sbyte)(ch == BeltRight ? 1 : -1);
                     var feet = new Vector2(x + 0.5f, y);
                     switch (ch)
                     {
@@ -81,6 +90,11 @@ namespace PooketSlug
                             break;
                         case 'Y': Spawns.Add(new Spawn { Kind = SpawnKind.ToppleTower, Pos = feet }); break;
                         case 'E': Spawns.Add(new Spawn { Kind = SpawnKind.ExitGate, Pos = feet }); break;
+                        case 'Q': Spawns.Add(new Spawn { Kind = SpawnKind.ScoopDropper, Pos = feet }); break;
+                        case 'N': Spawns.Add(new Spawn { Kind = SpawnKind.NitrogenVent, Pos = feet }); break;
+                        case 'c': Spawns.Add(new Spawn { Kind = SpawnKind.ConeBox, Pos = feet }); break;
+                        case 'n': Spawns.Add(new Spawn { Kind = SpawnKind.NitrogenTank, Pos = feet }); break;
+                        case 'C': Spawns.Add(new Spawn { Kind = SpawnKind.ColdStore, Pos = feet }); break;
                     }
                 }
             }
@@ -136,6 +150,19 @@ namespace PooketSlug
             if (Barred(Mathf.FloorToInt(p.x)) && p.y >= 0f) return true;
             if (Craters != null && Craters.Covers(p.x) && p.y < Height) return Craters.IsSolidAt(p);
             return IsSolid(Mathf.FloorToInt(p.x), Mathf.FloorToInt(p.y));
+        }
+
+        /// <summary>Which way the tile at (<paramref name="x"/>, <paramref name="y"/>) carries: 1 right, -1 left, 0 not a belt.</summary>
+        public int Belt(int x, int y) => x >= 0 && x < Width && y >= 0 && y < Height ? m_Belts[x, y] : 0;
+
+        /// <summary>
+        /// How fast the belt under an actor standing at <paramref name="feet"/> carries it (tiles a second, + right), or 0
+        /// off a belt or off the ground. Whichever belt is under the middle of its feet wins.
+        /// </summary>
+        public float BeltSpeedUnder(Vector2 feet, bool grounded)
+        {
+            if (!grounded) return 0f;
+            return Belt(Mathf.FloorToInt(feet.x), Mathf.FloorToInt(feet.y - 0.05f)) * Creamery.BeltSpeed;
         }
 
         /// <summary>Top of the highest standable tile (ground, sandbags or bridge) in the column at x.</summary>

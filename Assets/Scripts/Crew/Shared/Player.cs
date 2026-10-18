@@ -43,6 +43,7 @@ namespace PooketSlug
         Vector2 m_Aim = Vector2.right;
         readonly PlayerVisual m_Visual;
         readonly CrewKit m_Kit;
+        FrostLook m_Ice;
 
         public Player(World world, SoldierDef def, Vector2 feet, int skin)
             : base(world, "Player", feet, def.HalfWidth, def.StandHeight, def.MaxHp)
@@ -83,17 +84,28 @@ namespace PooketSlug
                     Anim = m_Anim,
                     DeadTime = DeadTime,
                     SuperReady = Kit.SuperReady,
+                    Frozen = Frost.Frozen,
                 };
                 m_Kit.Pose(ref pose);
                 return pose;
             }
         }
 
+        /// <summary>Mission two's nitrogen got our soldier, on foot: frozen for <paramref name="seconds"/>, unless just thawed.</summary>
+        public bool Freeze(float seconds)
+        {
+            if (Dead || Riding != null || NoDamage || !Frost.Freeze(seconds, Creamery.ThawGrace)) return false;
+            Sfx.Play(Sfx.Sizzle, 0.6f);
+            return true;
+        }
+
         public override void Tick(float dt)
         {
             m_Kit.Always(dt);
+            Frost.Tick(dt);
             if (Dead)
             {
+                Frost.Clear();
                 m_Kit.LetGo();
                 m_CallIn.Reset();
                 DeadTime += dt;
@@ -110,7 +122,7 @@ namespace PooketSlug
                 return;
             }
 
-            SoldierInput input = InputEnabled && !m_LeftTank ? Input : default; // the press that ejected doesn't jump too
+            SoldierInput input = InputEnabled && !m_LeftTank && !Frost.Frozen ? Input : default; // the press that ejected doesn't jump too; frozen, nothing
             m_LeftTank = false;
             float moveX = input.MoveX;
             bool up = input.Up, down = input.Down;
@@ -423,6 +435,8 @@ namespace PooketSlug
             base.Render();
             Go.transform.localPosition += (Vector3)m_Kit.ShakeOffset;
             m_Visual.Apply(Pose);
+            if (Frost.Frozen && m_Ice == null) m_Ice = new FrostLook(Go.transform);
+            m_Ice?.Render(this, Frost.Frozen);
         }
     }
 }

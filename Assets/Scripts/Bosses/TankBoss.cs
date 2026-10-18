@@ -75,17 +75,23 @@ namespace PooketSlug
             set => m_HomeX = value;
         }
 
-        /// <summary>The motor pool gate just short of its patrol, where it makes its entrance from.</summary>
+        /// <summary>
+        /// Where it makes its entrance from: the motor pool gate just short of its patrol (Mission one), or the cold store's
+        /// doors just past it (Mission two). The nearest within reach.
+        /// </summary>
         static bool ShutterX(World world, float homeX, out float x)
         {
             x = 0f;
             bool found = false;
             foreach (Spawn s in world.Level.Spawns)
-                if (s.Kind == SpawnKind.MotorPool && s.Pos.x < homeX && homeX - s.Pos.x < 16f && (!found || s.Pos.x > x))
+            {
+                bool shutter = s.Kind == SpawnKind.MotorPool && s.Pos.x < homeX, door = s.Kind == SpawnKind.ColdStore;
+                if ((shutter || door) && Mathf.Abs(homeX - s.Pos.x) < 16f && (!found || Mathf.Abs(homeX - s.Pos.x) < Mathf.Abs(homeX - x)))
                 {
                     x = s.Pos.x;
                     found = true;
                 }
+            }
             return found;
         }
 
@@ -157,7 +163,7 @@ namespace PooketSlug
             }
             if (!Engaged)
             {
-                if (World.View.Right < Pos.x + HalfW + 0.5f) return;
+                if (!BossTankSpec.Wakes(World.View.Right, Mathf.Min(Pos.x, m_HomeX), HalfW, World.Level.ScrollLimit)) return; // its shutter's in view, or its patrol (rolling out of doors past the map's end)
                 Engaged = true;
                 if (!Decoy) World.OnBossIntro(this, Entering);
             }

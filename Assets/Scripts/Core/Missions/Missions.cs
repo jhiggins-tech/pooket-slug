@@ -2,7 +2,10 @@ using System.Collections.Generic;
 
 namespace PooketSlug
 {
-    /// <summary>A mission: its map, and what the menus and saves call it.</summary>
+    /// <summary>Whose tabk a mission's boss is: kie's (Mission one's) or kcaj's (Mission two's, <c>docs/design/tanks.md</c>).</summary>
+    public enum BossTabk : byte { Kie, Kcaj }
+
+    /// <summary>A mission: its map, its boss, and what the menus and saves call it.</summary>
     public sealed class MissionDef
     {
         /// <summary>What saves call it. It never changes.</summary>
@@ -16,9 +19,16 @@ namespace PooketSlug
         public readonly string[] Map;
         /// <summary>Its story: scenes, solo only, the coda (<see cref="MissionStory.None"/> for none).</summary>
         public readonly MissionStory Story;
+        /// <summary>Whose tabk the boss is.</summary>
+        public readonly BossTabk Boss;
+        /// <summary>Who jumps out of the wrecked tabk to fight on foot, or null: the wreck wins the mission.</summary>
+        public readonly EnemyDef Pilot;
 
-        public MissionDef(string id, byte netId, string name, string place, string[] map, MissionStory story = null)
+        public MissionDef(string id, byte netId, string name, string place, string[] map, MissionStory story = null,
+            BossTabk boss = BossTabk.Kie, EnemyDef pilot = null)
         {
+            Boss = boss;
+            Pilot = pilot;
             Story = story ?? MissionStory.None;
             Id = id;
             NetId = netId;
@@ -63,9 +73,43 @@ namespace PooketSlug
             SoloOnly = true,
             OpensCoop = true,
             CoopName = "TEST MISSION",
-        });
+        }, pilot: Content.Pilot);
 
-        public static readonly IReadOnlyList<MissionDef> All = new[] { One };
+        /// <summary>
+        /// The Brain Freeze creamery (<c>docs/design/levels.md</c>, Mission two; the m2-map page): the loading bay, the
+        /// production line's belts and scoop droppers, the sign yard, the nitrogen hall, the freezer corridor, and the
+        /// cold store's yard, one flat screen where kcaj's tabk rolls out of the doors. The first mission open to co-op.
+        /// Trollogram kcaj on foot, and the briefing and freeing scenes, come later: for now the wrecked tabk wins it.
+        /// </summary>
+        public static readonly MissionDef Two = new MissionDef("mission-2", 1, "MISSION 2", "THE BRAIN FREEZE CREAMERY", new[]
+        {
+            "..................................................................................................................................................................................................................",
+            "..................................................................................................................................................................................................................",
+            "....................................Q....Q..............Q...Q...........Q...................................................................d.........d...........d...............................................",
+            "..................................................................................................................................................................................................................",
+            "..................................................................................................................................................................................................................",
+            "..................s...............................................................................s..............s................................................................................................",
+            "................------................................................s.....s..................-------........-------.............................................................................................",
+            "..................................................................>>>>>>>>>>>>>...................................................................................................................................",
+            "...........=..................................................................................................................................==..................................................................",
+            "...P...c..==.s......s..c...s==..............=..s......r...s.....s...r...........s.n.+....c..s...........n..n.s.......r.n..r...K.....N..s..N...==..N..s..N..n..N.s...+...s.c.r...s.n.r...s..K..................T.CF",
+            "################################>>>>>>>>>>>>>>####<<<<<<<<<<<<<###################################################################################################################################################",
+            "##################################################################################################################################################################################################################",
+        }, boss: BossTabk.Kcaj);
+
+        public static readonly IReadOnlyList<MissionDef> All = new[] { One, Two };
+
+        /// <summary>
+        /// What a co-op room plays when <paramref name="picked"/> is asked for: a solo-only mission (Mission one, the
+        /// prelude) gives way to the first one open to co-op.
+        /// </summary>
+        public static MissionDef ForCoop(MissionDef picked)
+        {
+            if (picked != null && !picked.Story.SoloOnly) return picked;
+            foreach (MissionDef m in All)
+                if (!m.Story.SoloOnly) return m;
+            return picked;
+        }
 
         /// <summary>The mission with this id, or null.</summary>
         public static MissionDef ById(string id)

@@ -22,7 +22,7 @@ Up: [Design](README.md)
 - **The look: a steel base at night** (picked 2026-10-15). Snow on concrete and steel, hazard stripes, searchlights, live fences and steam vents, with the motor pool's blast shutter as the boss door. The cold palette makes the Trollogram goons and the fire stand out. The concept sheets are in the project's files, under concepts/m1-map.
 - **About five minutes long.**
 - **Single player only** (owner, 2026-10-16), as tones2, straight in with no tutorial. It's the game's prelude: beating it opens the lobby and co-op, so it is never played with two, replays included. It stays on the den's mission board, but picking it forces single player: player two's seat closes and nobody can watch (owner, 2026-10-16).
-- **For now, co-op plays Mission one as a stand-in,** until Mission two is built, so the two-phone game can be tested: the den's TV calls it TEST MISSION. It's a stop-gap in the build, not a change to the rule above.
+- **Co-op plays Mission two,** the first mission open to it (`Missions.ForCoop`); Mission one is never played with two.
 - **Goons:** riflemen (crouch under their shots), knife runners and bomb-dropping drones, all as flickering Trollograms.
 - **The boss** is kie's tabk, then Trollogram kie ([tabks](tanks.md#tabk-bosses)).
 - **Two reveals:** the first tabk, then your own. Freed, kie frees tones2's tabk and bows out, and in the coda, a short explosive mini-level after the boss, you call it in and drive it out of the base ([the coda](story.md#the-coda), owner 2026-10-16).
@@ -40,6 +40,7 @@ kcaj's mission (picked by the owner, 2026-10-16, from three concepts; the sheets
 - **The boss door** is the cold store: it fogs open and the tabk rolls out of the mist. The boss is kcaj's tabk, then Trollogram kcaj ([tabks](tanks.md#tabk-bosses)).
 - **Story beats on the map:** Trollogram projectors behind frosted glass (shoot one and the goons near it flicker out), a goon frozen solid riding a conveyor, and a fogged freezer corridor before the cold store. The tabk wears a cone on its antenna.
 - **The story side** (why the Trollograms are here, the briefing and the freeing): [Mission two: the creamery](story.md#mission-two-the-creamery).
+- **Built so far** (m2-map-build, 2026-10-18; `Missions.Two`, `Core/Missions/Creamery.cs`, `Missions/Two/`): the six sections as a text map (210 tiles), with Mission one's goons; belts ('>' '<') that carry soldiers and goons; scoop droppers that shake and drop a scoop (a heart); nitrogen vents that freeze a soldier for about a second and a goon for longer, with a grace after so you can walk out; boxes of cones that drop a medkit or bombs; nitrogen tanks that freeze everyone near them as they blow; and the cold store's doors, fog spilling out, where kcaj's tabk rolls out. Stand-ins until Design's art lands: Mission one's tiles and night backdrop, and the creamery's pieces drawn in code. Not yet: the new goons and the Big Scoop, the fog, projectors and the secret 1-up, Trollogram kcaj (the wrecked tabk wins the mission for now), and the scenes.
 
 ## Difficulty
 

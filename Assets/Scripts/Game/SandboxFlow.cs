@@ -80,7 +80,7 @@ namespace PooketSlug
                 TanksToCall = s.Tank ? 99 : 0,
                 SkipToPilot = s.Boss == SandboxBoss.Pilot || s.Boss == SandboxBoss.WeakPilot,
                 WeakPilot = s.Boss == SandboxBoss.WeakPilot,
-                KcajTank = s.Boss == SandboxBoss.Kcaj,
+                KcajTank = s.Boss == SandboxBoss.Kcaj || s.Mission.Boss == BossTabk.Kcaj,
             };
             m_Game.Wire(world, coda: false);
             world.Player.NoDamage = s.Invincible;

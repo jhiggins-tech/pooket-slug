@@ -83,6 +83,14 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void FrozenSurvivesPacking()
+        {
+            Assert.IsTrue(AvatarPose.Unpack(new AvatarPose { Facing = 1, Frozen = true }.Pack(), 0f, 0f).Frozen);
+            Assert.IsFalse(AvatarPose.Unpack(new AvatarPose { Facing = 1 }.Pack(), 0f, 0f).Frozen);
+            Assert.IsFalse(new AvatarPose { Frozen = true }.Still().Frozen, "a Trollogram isn't iced over");
+        }
+
+        [Test]
         public void AStillPoseStandsAndNeverFires()
         {
             var pose = new AvatarPose { Facing = -1, AimY = 1, Crouching = true, Dead = true, Muzzle = true, Blink = true, Flash = true, Running = true };

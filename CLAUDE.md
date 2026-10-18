@@ -55,11 +55,11 @@ Each file starts with a summary comment saying what it's for.
 | `Core/Crew/` | `Crew.cs` (who you play, who's freed), `<name>Tuning.cs` (each one's numbers), `Tones2TabkSpec` (his tabk's guns), `Controls.cs` (the kit's meters), `Drip` (a flow spread over frames), `KitGuide` (the ⓘ screen's moves and demo scripts), `TeamSuper`, `Lives`, `DownLine` (what the HUD says while you're down), `AvatarPose` |
 | `Core/Bosses/` | `BossTankSpec` (the artillery boss tabk), `KieTankSpec` / `KcajTankSpec` (their tabks' charged shots), `PilotBrain`, `BossIntroShow`, `CraterGround` |
 | `Core/Tabks/` | `PlayerTankSpec`, `CallInCoach` |
-| `Core/Missions/` | `Level.cs` + `Missions.cs` (maps as text), `MissionStory` (a mission's scenes and once-only beats), `MissionBoard` (the mission screen, and whether a mission's cleared), `CodaCoach` |
+| `Core/Missions/` | `Level.cs` + `Missions.cs` (maps as text), `MissionStory` (a mission's scenes and once-only beats), `MissionBoard` (the mission screen, and whether a mission's cleared), `CodaCoach`, `Creamery` (Mission two's hazards: belts, vents, droppers, its boxes and tanks) |
 | `Core/Story/` | `SceneScript` (the scene files' reader), `SceneLibrary` (which copy plays, and the check), `Staging`, `Cutscene.cs` (the player) + `Cues.cs` (the cue ids) |
 | `Core/Lobby/` | `Den`, `Debrief` (XP), `Ranks`, `Profile` (what's saved, and reveals), `Options`, `CoopRoom` (the one co-op room, MATES) |
 | `Core/Audio/` | `MusicTracks` / `Notation` / `Chip` (the chip music, its notation and the synth), `Soundtrack` (when a mission's music changes), `MusicRender` (a track into samples), `Wav`, `MusicMidi` |
-| `Core/Input/`, `Core/World/` | `ArcadePad` (the touch pad's logic), `SoldierInput`; `TilePhysics` |
+| `Core/Input/`, `Core/World/` | `ArcadePad` (the touch pad's logic), `SoldierInput`; `TilePhysics`, `Frost` (frozen by nitrogen) |
 | `Core/Platform/` | `LaunchFlags` (`?test=`, `?unlock=` and the rest), `Spike.cs` (`?spike=` flags), `PageQuery`, `Sandbox` + `Knobs` + `SetupText`, `Rng`, `Log`; co-op's side: `NetContracts` / `NetIds` / `NetConfig` (interfaces and ids), `Rooms` (a room's listing), `Handover` (the world moving to the partner), `DropIn` (the drop-in spike), `PartnerBeacon` (the partner arrow spike), `WireMeter` (the kinds of message a phone sends its partner) |
 | `Game/` | `Game.cs`: `Bootstrap` and `Game`, the state machine (`GameState`: Title, Settings, Lobby, Den, Cutscene, Playing, GameOver, Victory, Demo), the world, the launch flags and the mission's story beats (from its `MissionStory`); then a flow per part of the game it hands frames to: `SceneFlow` (cutscenes, the site's copies, `?scene=` drafts), `DenFlow`, `KitFlow` (the ⓘ kit screen), `BoardFlow` (the mission screen), `DemoFlow` (`?demo=`), `SandboxFlow` (`?sandbox=`), `BossIntroFlow`, `MusicFlow`, `DebriefFlow` |
 | `World/` | One play-through (`World.cs`), rebuilt on restart, split by concern: `ScrollCamera`, `Spawner`, `Combat` (shots, hits, who owns damage), `Scoring`, `NetSync` (the world's side of co-op), `Hazards` (the fence, vents and icicles), `Barrel`, `Lift`, `Checkpoint`, `Liquids` (tones2's); and what every play-through is made of: `Entity` / `EntityPool`, `Projectile`, `Effect`, `Particle`, `Pickup`, `Prop`, `HitFeel`, `LevelView` |
@@ -68,6 +68,7 @@ Each file starts with a summary comment saying what it's for.
 | `Bosses/` | `TankBoss` (the artillery boss tabk) + `BossKit` (a crew member's attacks on it: `KieBoss`, `KcajBoss`), `CraterView` (the diggable arena spike) |
 | `Tabks/` | `PlayerTank` (your tabk) + `TankLook`, `TabkKit` (a crew member's tabk) |
 | `Missions/One/` | Mission one's own pieces: the coda's `BackGate`, `ToppleTower` (the watchtower in the road), `ExitGate` and `SleepingKie`, drawn by `CodaArt` |
+| `Missions/Two/` | Mission two's (the creamery): `CreameryHazards` (belt treads, nitrogen vents, scoop droppers, the cold store's doors), `ConeBox`, drawn by `CreameryArt`; the nitrogen tank is a `Barrel`, and `FrostLook` (in `World/`) is the ice on whoever's frozen |
 | `Stage/` | `StageKit`: the shared stage for cutscenes, the den and the debrief |
 | `Art/`, `Audio/` | `Art` + `ArtData` (ASCII pixel art; `Art.Renderer` makes a sprite's child object); `Sfx` + `ChipSounds`, `Music` |
 | `Ui/` | uGUI built in code (`Ui.cs`, with the shared helpers: `Cover`, `Tap`, `Stretch`): `HudView`, `MenuView`, `TitleView` (the splash: logo, colour ramp, START and SETTINGS), `DebriefView`, `DemoClip`, `Invite` (sharing an invite link); `Cutscene/` (`CutsceneView` and its parts: backdrops, cast, effects, bubbles, captions, camera, cue sounds) and `Den/` (`DenView`, the lobby, and its parts: room, crew, bits, TV and buttons) |
@@ -97,7 +98,8 @@ Each file starts with a summary comment saying what it's for.
   in the vendor repository (`voice/narration.json`) and fetched by CI; lengths come from the clips.
 - **Launch flags**, read once as the game starts: `?spike=` (spikes, `Spike.cs`) and the rest into `LaunchFlags` (Core, tested): `?test=` (crate, tank, 1up, pilot,
   weak, team, kcajtank, boss, reveal, coda, debrief, scene: jump straight to a part), `?unlock=` (coop, tank,
-  crew), `?demo=` (a kit move's scripted demo; `all` records them for CI), `?room=` (an invite), `?log=` (log levels).
+  crew), `?demo=` (a kit move's scripted demo; `all` records them for CI), `?room=` (an invite), `?log=` (log levels),
+  `?mission=2` (START plays that mission).
 - **Sound and music**: Tabks' 8-bit recipes on the `Chip` synth, rendered at startup; the announcer, narration and
   orchestral music are WAVs CI fetches from vendor releases into `Resources` (`.bytes`, made into clips in code).
 

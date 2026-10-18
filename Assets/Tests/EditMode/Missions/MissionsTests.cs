@@ -15,6 +15,32 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void MissionTwosIdsNeverChange()
+        {
+            Assert.AreEqual("mission-2", Missions.Two.Id);
+            Assert.AreEqual(1, Missions.Two.NetId);
+            Assert.AreSame(Missions.Two, Missions.All[1]);
+        }
+
+        [Test]
+        public void MissionOnesBossIsKiesTabkWithHisPilot_MissionTwosIsKcajsTabk()
+        {
+            Assert.AreEqual(BossTabk.Kie, Missions.One.Boss);
+            Assert.AreSame(Content.Pilot, Missions.One.Pilot);
+            Assert.AreEqual(BossTabk.Kcaj, Missions.Two.Boss);
+            Assert.IsNull(Missions.Two.Pilot, "until Trollogram kcaj is built, the wrecked tabk wins it");
+        }
+
+        [Test]
+        public void ACoopRoomPlaysTheFirstMissionOpenToCoop()
+        {
+            Assert.IsTrue(Missions.One.Story.SoloOnly);
+            Assert.AreSame(Missions.Two, Missions.ForCoop(Missions.One), "Mission one is solo only");
+            Assert.AreSame(Missions.Two, Missions.ForCoop(Missions.Two));
+            Assert.AreSame(Missions.Two, Missions.ForCoop(null));
+        }
+
+        [Test]
         public void EveryMissionHasItsOwnIds()
         {
             var ids = new HashSet<string>();
