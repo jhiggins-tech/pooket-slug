@@ -10,8 +10,18 @@ namespace PooketSlug
     {
         /// <summary>The game's gold: big popups, the super, charge meters, the title's buttons.</summary>
         public static readonly Color Gold = new Color(1f, 0.85f, 0.3f);
-        /// <summary>Trollograms, the pilot's lines and the stage's cool light.</summary>
+        /// <summary>The pilot's lines and the stage's cool light.</summary>
         public static readonly Color Cyan = new Color(0.45f, 1f, 1f);
+
+        // Trollograms read apart at a glance (Jack, 18 Oct): the goons' are the bad guys' reds, by kind, and kie's own
+        // is a friendly green. The goons' Trollograms include kie's tabk's copies and his pilot.
+        /// <summary>The goons' Trollograms: riflemen (and kie's tabk copies and pilot), knife runners, drones.</summary>
+        public static readonly Color HostileRifle = new Color(1f, 0.3f, 0.32f), HostileRunner = new Color(1f, 0.3f, 0.75f), HostileDrone = new Color(1f, 0.55f, 0.2f);
+        /// <summary>kie's own Trollogram: his decoys, and the popups and bursts they make.</summary>
+        public static readonly Color Friendly = new Color(0.45f, 1f, 0.55f);
+
+        /// <summary>The tint of a goon's Trollogram, by what kind of goon it is.</summary>
+        public static Color Hostile(EnemyBrain brain) => brain == EnemyBrain.Runner ? HostileRunner : brain == EnemyBrain.Drone ? HostileDrone : HostileRifle;
         /// <summary>kie's colour: the roulette and the steals.</summary>
         public static readonly Color Pink = new Color(1f, 0.45f, 0.8f);
         /// <summary>Co-op's lines and the ability meter.</summary>

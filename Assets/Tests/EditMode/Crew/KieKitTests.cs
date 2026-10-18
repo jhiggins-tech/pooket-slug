@@ -259,5 +259,18 @@ namespace PooketSlug.Tests
             Assert.Greater(early, late, "it slows down");
             for (float t = 0f; t < 1f; t += 0.05f) Assert.That(RouletteSpin.Face(t, 3), Is.InRange(0, 2));
         }
+
+        [TestCase(EnemyBrain.Rifleman)]
+        [TestCase(EnemyBrain.Runner)]
+        [TestCase(EnemyBrain.Drone)]
+        [TestCase(EnemyBrain.Tank)]
+        public void KiesTrollogramReadsApartFromTheGoons(EnemyBrain kind)
+        {
+            Color goon = Palette.Hostile(kind), kies = Palette.Friendly;
+            Assert.Greater(goon.r, goon.g, "the goons' are the bad guys' reds");
+            Assert.Greater(kies.g, kies.r, "kie's is a friendly green");
+            float apart = Mathf.Abs(goon.r - kies.r) + Mathf.Abs(goon.g - kies.g) + Mathf.Abs(goon.b - kies.b);
+            Assert.Greater(apart, 0.8f, "far apart at a glance");
+        }
     }
 }
