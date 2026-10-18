@@ -6,10 +6,10 @@ using static PooketSlug.StageKit;
 namespace PooketSlug
 {
     /// <summary>
-    /// The den's room (<c>docs/design/lobby.md</c>, Den 2.0): its paintings (the den screen, and the long loft up the
-    /// ladder, with a moved-in layer over each corner whose crewmate is freed) and where the room's pieces sit on them
-    /// (the couch's seats, the TV, the board, each crewmate's station). In <see cref="DenMap"/>'s art pixels: the den
-    /// screen is 320 x 180 and the loft sits on top of it.
+    /// The den's room (<c>docs/design/lobby.md</c>, Den 2.0): its paintings (the den screen, and the loft up the ladder,
+    /// with a moved-in layer over each corner whose crewmate is freed) and where the room's pieces sit on them (the
+    /// couch's seats, the TV, the board, each crewmate's station). In <see cref="DenMap"/>'s art pixels: the den screen is
+    /// 320 x 180 and the loft sits on top of it.
     /// </summary>
     public static class DenRoom
     {
@@ -53,9 +53,9 @@ namespace PooketSlug
             new Station("kcaj", null, DenFloor.Upper, 12, 108, 60f),
             new Station("torikloud", null, DenFloor.Upper, 108, 196, 150f),
             new Station("larinovsky", null, DenFloor.Upper, 224, 308, 266f),
-            new Station("kiwicore", null, DenFloor.Loft, -172, -72, -122f),
-            new Station("ciarra", null, DenFloor.Loft, -70, 0, -33f),
-            new Station("garyoldmancorp", null, DenFloor.Loft, 510, 580, 520f),
+            new Station("kiwicore", null, DenFloor.Loft, 95, 139, 117f),
+            new Station("ciarra", null, DenFloor.Loft, 142, 165, 153f),
+            new Station("garyoldmancorp", null, DenFloor.Loft, 366, 395, 380f),
         };
 
         /// <summary>A corner's moved-in layer: whose, which painting it's over, and where (its top-left, in that painting's pixels).</summary>
@@ -74,14 +74,15 @@ namespace PooketSlug
             }
         }
 
-        // den2-art's layers, each cut to the corner it changes (the wintergarden's has no crewmate yet)
+        // den2-art's den layers and den2-loft-rescale's loft ones, each cut to the corner it changes (the wintergarden's
+        // has no crewmate yet)
         static readonly Layer[] Layers =
         {
             new Layer("kcaj", false, 12, 14),
             new Layer("torikloud", false, 108, 14),
             new Layer("larinovsky", false, 224, 14),
-            new Layer("kiwicore", true, 178, 0),
-            new Layer("ciarra", true, 280, 0),
+            new Layer("kiwicore", true, 74, 96),
+            new Layer("ciarra", true, 120, 120),
         };
         static readonly Dictionary<string, string> LayerFile = new Dictionary<string, string> { { "kiwicore", "showers" }, { "ciarra", "laundry" } };
 
@@ -119,7 +120,7 @@ namespace PooketSlug
                 if (!Freed(crew, l.Crewmate)) continue;
                 Sprite s = Painting(LayerFile.TryGetValue(l.Crewmate, out string file) ? file : l.Crewmate);
                 if (s == null) continue;
-                float x = l.Loft ? DenMap.LoftLeft + l.X : l.X, y = (l.Loft ? DenMap.LoftY : 0f) + StageH - l.Top - s.rect.height;
+                float x = l.Loft ? DenMap.LoftLeft + l.X : l.X, y = (l.Loft ? DenMap.LoftY + DenMap.LoftH : StageH) - l.Top - s.rect.height;
                 made.Add(Ui.Picture(world, l.Crewmate + " moved in", s, Vector2.zero, Vector2.zero, new Vector2(x, y) * Px, s.rect.size * Px, Color.white).gameObject);
             }
             foreach (GameObject g in made) g.GetComponent<Image>().raycastTarget = false;

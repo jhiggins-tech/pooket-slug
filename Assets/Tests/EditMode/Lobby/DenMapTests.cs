@@ -43,6 +43,7 @@ namespace PooketSlug.Tests
                     Assert.AreEqual(DenMap.LadderX, w.X, 0.01f, "only on the ladder");
                 }
             }
+            Run(w, 0.5f); // the last step onto the spot
             Assert.IsTrue(climbed);
             Assert.AreEqual(DenFloor.Loft, w.Floor);
             Assert.AreEqual(DenMap.FloorY(DenFloor.Loft), w.Y, 0.01f);
@@ -84,7 +85,68 @@ namespace PooketSlug.Tests
             Assert.IsTrue(w.Climb(1));
             Run(w, 4f);
             Assert.AreEqual(DenFloor.Loft, w.Floor);
-            Assert.IsFalse(w.Climb(1), "the loft's the top");
+            Assert.IsFalse(w.Climb(1), "the hatch's ladder stops at the loft");
+            w.Place(DenFloor.Loft, DenMap.BunkLadderX);
+            Assert.IsTrue(w.Climb(1), "the bunks' ladder");
+            Run(w, 4f);
+            Assert.AreEqual(DenFloor.Bunks, w.Floor);
+            Assert.IsFalse(w.Climb(1), "the bunks are the top");
+        }
+
+        [Test]
+        public void FromTheBunks_DownBothLadders_ToTheCouch()
+        {
+            var w = new DenWalker(DenFloor.Bunks, 300f);
+            w.Go(DenPlace.Couch);
+            bool onBunkLadder = false, onDenLadder = false;
+            DenPlace reached = DenPlace.None;
+            for (int i = 0; i < 60 * 20 && reached == DenPlace.None; i++)
+            {
+                reached = w.Step(1f / 60f);
+                if (w.Climbing && w.X == DenMap.BunkLadderX) onBunkLadder = true;
+                if (w.Climbing && w.X == DenMap.LadderX) onDenLadder = true;
+            }
+            Assert.AreEqual(DenPlace.Couch, reached);
+            Assert.IsTrue(onBunkLadder && onDenLadder, "down the bunks' ladder, along the loft, then down the den's");
+            Assert.AreEqual(DenFloor.Ground, w.Floor);
+        }
+
+        [Test]
+        public void TurningBackOnTheBunksLadder_ClimbsDownItBeforeHeadingForTheOtherOne()
+        {
+            var w = new DenWalker(DenFloor.Loft, DenMap.BunkLadderX);
+            w.WalkTo(DenFloor.Bunks, 200f);
+            Run(w, 0.4f);
+            Assert.IsTrue(w.Climbing);
+            w.WalkTo(DenFloor.Ground, 60f);
+            for (int i = 0; i < 60 * 15; i++)
+            {
+                w.Step(1f / 60f);
+                if (w.Climbing && w.Y < DenMap.FloorY(DenFloor.Loft)) Assert.AreEqual(DenMap.LadderX, w.X, "below the loft only by the den's ladder");
+            }
+            Assert.AreEqual(DenFloor.Ground, w.Floor);
+            Assert.AreEqual(60f, w.X, 0.01f);
+        }
+
+        // docs/design/lobby.md, Den 2.0, Scale: everything is drawn for the 22 px soldier, doors about 1.7 times him
+        [Test]
+        public void TheLoft_IsDrawnToTheSoldiersScale()
+        {
+            foreach (DenMap.Fixture d in DenMap.Doors)
+                if (d.Floor >= DenFloor.Loft) Assert.That(d.Height / DenMap.SoldierHeight, Is.InRange(1.5f, 1.9f), d.Name);
+            foreach (DenMap.Fixture r in DenMap.Rungs)
+                if (r.Floor >= DenFloor.Loft) Assert.That(r.Height, Is.InRange(3f, 8f), r.Name + ": a rung a step apart");
+            foreach (DenFloor f in System.Enum.GetValues(typeof(DenFloor)))
+                Assert.That(DenMap.Headroom(f), Is.GreaterThanOrEqualTo(DenMap.SoldierHeight), f + ": room to stand");
+        }
+
+        [Test, Ignore("The den's painting predates the scale rule (its doors are about 2.8 times the soldier): Design's call whether it's repainted")]
+        public void TheDen_IsDrawnToTheSoldiersScale()
+        {
+            foreach (DenMap.Fixture d in DenMap.Doors)
+                if (d.Floor < DenFloor.Loft) Assert.That(d.Height / DenMap.SoldierHeight, Is.InRange(1.5f, 1.9f), d.Name);
+            foreach (DenMap.Fixture r in DenMap.Rungs)
+                if (r.Floor < DenFloor.Loft) Assert.That(r.Height, Is.InRange(3f, 8f), r.Name);
         }
 
         [Test]
@@ -120,7 +182,8 @@ namespace PooketSlug.Tests
         {
             Assert.AreEqual(DenFloor.Ground, DenMap.FloorAt(40f));
             Assert.AreEqual(DenFloor.Upper, DenMap.FloorAt(140f));
-            Assert.AreEqual(DenFloor.Loft, DenMap.FloorAt(250f));
+            Assert.AreEqual(DenFloor.Loft, DenMap.FloorAt(220f));
+            Assert.AreEqual(DenFloor.Bunks, DenMap.FloorAt(270f));
             Assert.AreEqual(DenPlace.None, DenMap.PlaceAt(200f, 20f), "the floor by the ladder: just walk there");
         }
     }
