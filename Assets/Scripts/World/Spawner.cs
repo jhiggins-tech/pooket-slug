@@ -57,13 +57,14 @@ namespace PooketSlug
                 case EnemyBrain.Shield: e = new ShieldSoldier(w, def, pos); break;
                 case EnemyBrain.Grenadier: e = new Grenadier(w, def, pos); break;
                 case EnemyBrain.BigScoop: e = new BigScoop(w, def, pos); break;
+                case EnemyBrain.Projector: e = new Projector(w, def, pos); break;
                 default: return null;
             }
             e.NetId = id;
             if (def.Brain != EnemyBrain.Tank && def.Brain != EnemyBrain.Barrel && def.Brain != EnemyBrain.Weasel &&
                 def.Brain != EnemyBrain.ToppleTower && def.Brain != EnemyBrain.ExitGate && def.Brain != EnemyBrain.ConeBox &&
-                def.Brain != EnemyBrain.NitrogenTank)
-                e.Look = new HoloLook(e); // the goons, kie's tank copies and its pilot are holograms (on every screen in co-op); the tank, barrels, weasels, the watchtower, the last gate and the creamery's boxes and tanks are real
+                def.Brain != EnemyBrain.NitrogenTank && def.Brain != EnemyBrain.Projector)
+                e.Look = new HoloLook(e); // the goons, kie's tank copies and its pilot are holograms (on every screen in co-op); the tank, barrels, weasels, the watchtower, the last gate and the creamery's boxes, tanks and projectors are real
             return e;
         }
 
@@ -114,6 +115,11 @@ namespace PooketSlug
             else if (s.Kind == SpawnKind.NitrogenVent) w.Props.Add(new NitrogenVent(w, s.Pos));
             else if (s.Kind == SpawnKind.ScoopDropper) w.Props.Add(new ScoopDropper(w, s.Pos));
             else if (s.Kind == SpawnKind.ColdStore) w.Props.Add(new ColdStoreDoor(w, s.Pos));
+            else if (s.Kind == SpawnKind.Fog)
+            {
+                float end = w.Level.FogEnd(s.Pos.x);
+                if (end > 0f) w.Props.Add(new FogBank(w, s.Pos, end));
+            }
         }
 
         public void SpawnAhead()
@@ -149,6 +155,7 @@ namespace PooketSlug
                 Spawn s = level.Spawns[index];
                 EnemyDef enemy = Content.EnemyFor(s.Kind);
                 if (s.Pos.x < SkipBefore && (enemy != null || Content.PickupFor(s.Kind) != null)) continue;
+                if (enemy != null && Creamery.SwitchedOff(enemy.Brain, s.Pos.x, w.DarkProjectors)) continue; // its projector's out
                 if (enemy != null) w.Enemies.Add(CreateEnemy(enemy, s.Pos, index));
                 else SpawnStatic(s, index);
             }

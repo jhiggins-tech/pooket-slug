@@ -69,7 +69,7 @@ Each file starts with a summary comment saying what it's for.
 | `Bosses/` | `TankBoss` (the artillery boss tabk) + `BossKit` (a crew member's attacks on it: `KieBoss`, `KcajBoss`), `CraterView` (the diggable arena spike) |
 | `Tabks/` | `PlayerTank` (your tabk) + `TankLook`, `TabkKit` (a crew member's tabk) |
 | `Missions/One/` | Mission one's own pieces: the coda's `BackGate`, `ToppleTower` (the watchtower in the road), `ExitGate` and `SleepingKie`, drawn by `CodaArt` |
-| `Missions/Two/` | Mission two's (the creamery): `CreameryHazards` (belt treads, nitrogen vents, scoop droppers, the cold store's doors), `ConeBox`, drawn by `CreameryArt`; the nitrogen tank is a `Barrel`, and `FrostLook` (in `World/`) is the ice on whoever's frozen |
+| `Missions/Two/` | Mission two's (the creamery): `CreameryHazards` (belt treads, nitrogen vents, scoop droppers, the cold store's doors, the corridor's `FogBank`), `ConeBox`, `Projector` (a Trollogram projector: shot out, its goons go), drawn by `CreameryArt`; the nitrogen tank is a `Barrel`, and `FrostLook` (in `World/`) is the ice on whoever's frozen |
 | `Stage/` | `StageKit`: the shared stage for cutscenes, the den and the debrief |
 | `Art/`, `Audio/` | `Art` + `ArtData` (ASCII pixel art; `Art.Renderer` makes a sprite's child object); `Sfx` + `ChipSounds`, `Music` |
 | `Ui/` | uGUI built in code (`Ui.cs`, with the shared helpers: `Cover`, `Tap`, `Stretch`): `HudView`, `MenuView`, `TitleView` (the splash: logo, colour ramp, START and SETTINGS), `DebriefView`, `DemoClip`, `Invite` (sharing an invite link); `Cutscene/` (`CutsceneView` and its parts: backdrops, cast, effects, bubbles, captions, camera, cue sounds) and `Den/` (`DenView`, the lobby, and its parts: room, crew, bits, TV and buttons) |

@@ -46,6 +46,8 @@ namespace PooketSlug
         public readonly List<Entity> Effects = new List<Entity>();
         public readonly List<RemotePlayer> Remotes = new List<RemotePlayer>();
         public readonly List<Entity> Props = new List<Entity>();
+        /// <summary>Where Mission two's shot-out Trollogram projectors stood: the goons near them are switched off (<see cref="Creamery.SwitchedOff"/>).</summary>
+        public readonly List<float> DarkProjectors = new List<float>();
 
         // Bullets, explosions and debris are reused rather than made and destroyed each time (see EntityPool).
         readonly EntityPool<Projectile> m_ProjectilePool;

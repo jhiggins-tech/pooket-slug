@@ -4,7 +4,7 @@ namespace PooketSlug
 {
     /// <summary>
     /// Mission two's hazards in the world (their numbers and rules are <see cref="Creamery"/>'s): the conveyor belts'
-    /// moving tread, the nitrogen vents, the scoop droppers and their scoops, and the cold store's doors. Like Mission
+    /// moving tread, the nitrogen vents, the scoop droppers and their scoops, the cold store's doors and the corridor's fog. Like Mission
     /// one's (<see cref="Hazard"/>), they run on every phone and hurt or freeze only that phone's own soldier; the
     /// authority freezes the goons. Nothing about them goes over the network.
     /// </summary>
@@ -145,6 +145,46 @@ namespace PooketSlug
             World.Burst(Pos + Vector2.up * 0.3f, 12, Splash);
             Sfx.Play(Sfx.Splat, 0.5f);
             Remove();
+        }
+    }
+
+    /// <summary>
+    /// Fog along the floor of the freezer corridor, from one 'f' to the next (<see cref="Level.FogEnd"/>): soft blobs
+    /// that drift and swell, knee-high, in front of the goons and behind the soldiers. Only for looks.
+    /// </summary>
+    public sealed class FogBank : Entity
+    {
+        const float Spacing = 1.1f;
+        readonly SpriteRenderer[] m_Blobs;
+        readonly float[] m_Phase, m_Home;
+
+        public FogBank(World world, Vector2 from, float to) : base(world, "Fog", from)
+        {
+            int n = Mathf.Max(1, Mathf.CeilToInt((to - from.x) / Spacing));
+            m_Blobs = new SpriteRenderer[n];
+            m_Phase = new float[n];
+            m_Home = new float[n];
+            for (int i = 0; i < n; i++)
+            {
+                m_Blobs[i] = AddRenderer(Go.transform, "Blob", CreameryArt.Fog, SortOrder.Enemies + 6);
+                m_Phase[i] = Rng.Fx.Range(0f, 6.3f);
+                m_Home[i] = i * Spacing + Rng.Fx.Range(-0.3f, 0.3f);
+            }
+        }
+
+        public override void Tick(float dt) { }
+
+        public override void Render()
+        {
+            base.Render();
+            float t = World.Elapsed;
+            for (int i = 0; i < m_Blobs.Length; i++)
+            {
+                float p = m_Phase[i];
+                m_Blobs[i].transform.localPosition = new Vector3(m_Home[i] + Mathf.Sin(t * 0.4f + p) * 0.5f, -0.1f + Mathf.Sin(t * 0.7f + p * 2f) * 0.06f, 0f);
+                float s = 1.4f + 0.25f * Mathf.Sin(t * 0.55f + p * 1.7f);
+                m_Blobs[i].transform.localScale = new Vector3(s, s * 0.9f, 1f);
+            }
         }
     }
 

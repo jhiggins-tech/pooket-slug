@@ -27,6 +27,38 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void FogRunsFromOneMarkerToTheNext()
+        {
+            var level = new Level(new[]
+            {
+                "Pf...f.f..f",
+                "###########",
+            });
+            Assert.AreEqual(5.5f, level.FogEnd(1.5f), 1e-5f);
+            Assert.AreEqual(-1f, level.FogEnd(5.5f), "the second marker ends the bank");
+            Assert.AreEqual(10.5f, level.FogEnd(7.5f), 1e-5f, "a second bank");
+            Assert.AreEqual(-1f, level.FogEnd(3.5f), "no marker there");
+        }
+
+        [Test]
+        public void AShotOutProjectorSwitchesOffTheGoonsNearIt()
+        {
+            var dark = new System.Collections.Generic.List<float>();
+            Assert.IsFalse(Creamery.SwitchedOff(EnemyBrain.Rifleman, 50f, dark), "nothing's been shot out yet");
+            dark.Add(48f);
+            Assert.IsTrue(Creamery.SwitchedOff(EnemyBrain.Rifleman, 48f + Creamery.ProjectorReach, dark));
+            Assert.IsTrue(Creamery.SwitchedOff(EnemyBrain.Shield, 44f, dark));
+            Assert.IsTrue(Creamery.SwitchedOff(EnemyBrain.Grenadier, 50f, dark));
+            Assert.IsTrue(Creamery.SwitchedOff(EnemyBrain.Runner, 50f, dark));
+            Assert.IsTrue(Creamery.SwitchedOff(EnemyBrain.Drone, 50f, dark));
+            Assert.IsFalse(Creamery.SwitchedOff(EnemyBrain.Rifleman, 48f + Creamery.ProjectorReach + 0.5f, dark), "out of its reach");
+            Assert.IsFalse(Creamery.SwitchedOff(EnemyBrain.BigScoop, 50f, dark), "too big for it");
+            Assert.IsFalse(Creamery.SwitchedOff(EnemyBrain.ConeBox, 50f, dark), "the real things stay");
+            Assert.IsFalse(Creamery.SwitchedOff(EnemyBrain.NitrogenTank, 50f, dark));
+            Assert.IsFalse(Creamery.SwitchedOff(EnemyBrain.Projector, 50f, dark));
+        }
+
+        [Test]
         public void TheCreamerysMarkersPlaceTheirPieces()
         {
             var level = new Level(new[]
@@ -118,7 +150,8 @@ namespace PooketSlug.Tests
                     belts |= level.Belt(x, y) != 0;
             Assert.IsTrue(belts, "the production line has belts");
             float tank = -1f, door = -1f;
-            int vents = 0, droppers = 0, nitrogen = 0, boxes = 0;
+            int vents = 0, droppers = 0, nitrogen = 0, boxes = 0, projectors = 0, fog = 0;
+            float lift = -1f, oneUp = -1f;
             foreach (Spawn s in level.Spawns)
             {
                 if (s.Kind == SpawnKind.Tank) tank = s.Pos.x;
@@ -127,11 +160,19 @@ namespace PooketSlug.Tests
                 if (s.Kind == SpawnKind.ScoopDropper) { droppers++; Assert.That(s.Pos.x, Is.InRange(30f, 85f), "droppers are over the production line"); }
                 if (s.Kind == SpawnKind.NitrogenTank) nitrogen++;
                 if (s.Kind == SpawnKind.ConeBox) boxes++;
+                if (s.Kind == SpawnKind.Projector) projectors++;
+                if (s.Kind == SpawnKind.Fog) { fog++; Assert.That(s.Pos.x, Is.InRange(165f, 190f), "the fog's in the freezer corridor"); }
+                if (s.Kind == SpawnKind.Lift) lift = s.Pos.x;
+                if (s.Kind == SpawnKind.OneUp) oneUp = s.Pos.x;
             }
             Assert.Greater(vents, 0);
             Assert.Greater(droppers, 0);
             Assert.Greater(nitrogen, 0);
             Assert.Greater(boxes, 0);
+            Assert.AreEqual(2, projectors);
+            Assert.AreEqual(2, fog, "one bank: a start and an end");
+            Assert.That(lift, Is.InRange(125f, 165f), "the lift's in the nitrogen hall");
+            Assert.That(oneUp - lift, Is.InRange(1f, 9f), "its 1-up is on the catwalk the lift goes up to");
             Assert.Greater(door, tank, "the doors are behind the tabk: it rolls out of them");
             Assert.Less(door - tank, 16f);
             float arena = level.Width - Tuning.Coop.HalfWidth * 2f; // a 16:9 screen

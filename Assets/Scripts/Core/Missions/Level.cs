@@ -4,7 +4,8 @@ using UnityEngine;
 namespace PooketSlug
 {
     public enum SpawnKind { Rifleman, Runner, Drone, Tank, CrateHeavy, CrateBombs, Medkit, Flag, OneUp, TowerScenery, MotorPool, Barrel, LiveFence, SteamVent, Icicles, Lift, Checkpoint, BackGate, ToppleTower, ExitGate,
-        ScoopDropper, NitrogenVent, ConeBox, NitrogenTank, ColdStore, ShieldSoldier, Grenadier, BigScoop }
+        ScoopDropper, NitrogenVent, ConeBox, NitrogenTank, ColdStore, ShieldSoldier, Grenadier, BigScoop,
+        Fog, Projector }
 
     public struct Spawn
     {
@@ -21,8 +22,8 @@ namespace PooketSlug
     /// topples when it's shot down; 'E' the base's last gate). Mission two's creamery adds '&gt;' and '&lt;', conveyor
     /// belts (ground that carries what stands on it that way, <see cref="BeltSpeedUnder"/>), and markers: 'Q' a scoop
     /// dropper overhead, 'N' a nitrogen vent, 'c' a box of cones, 'n' a nitrogen tank, 'C' the cold store's doors, where
-    /// the boss tabk rolls out from; and its goons: 'h' a shield soldier, 'g' a grenadier, 'S' the Big Scoop. LevelView
-    /// draws it.
+    /// the boss tabk rolls out from; and its goons: 'h' a shield soldier, 'g' a grenadier, 'S' the Big Scoop; 'J' a
+    /// Trollogram projector; 'f' fog along the floor, from one 'f' to the next (<see cref="FogEnd"/>). LevelView draws it.
     /// <para>
     /// The coda (<c>docs/design/story.md</c>, The coda) is the stretch past the back gate. Until it opens, the gate's
     /// column is a wall and nothing past it scrolls into view or spawns (<see cref="ScrollLimit"/>). Things that stand
@@ -99,6 +100,8 @@ namespace PooketSlug
                         case 'h': Spawns.Add(new Spawn { Kind = SpawnKind.ShieldSoldier, Pos = feet }); break;
                         case 'g': Spawns.Add(new Spawn { Kind = SpawnKind.Grenadier, Pos = feet }); break;
                         case 'S': Spawns.Add(new Spawn { Kind = SpawnKind.BigScoop, Pos = feet }); break;
+                        case 'f': Spawns.Add(new Spawn { Kind = SpawnKind.Fog, Pos = feet }); break;
+                        case 'J': Spawns.Add(new Spawn { Kind = SpawnKind.Projector, Pos = feet }); break;
                     }
                 }
             }
@@ -154,6 +157,28 @@ namespace PooketSlug
             if (Barred(Mathf.FloorToInt(p.x)) && p.y >= 0f) return true;
             if (Craters != null && Craters.Covers(p.x) && p.y < Height) return Craters.IsSolidAt(p);
             return IsSolid(Mathf.FloorToInt(p.x), Mathf.FloorToInt(p.y));
+        }
+
+        /// <summary>
+        /// Where the fog that starts at the 'f' at <paramref name="x"/> ends: the next 'f' along, or -1 if this one ends a
+        /// bank (or there's no other). Fog markers go in pairs, start and end.
+        /// </summary>
+        public float FogEnd(float x)
+        {
+            int seen = 0;
+            for (int i = 0; i < Spawns.Count; i++)
+            {
+                if (Spawns[i].Kind != SpawnKind.Fog) continue;
+                if (Mathf.Approximately(Spawns[i].Pos.x, x))
+                {
+                    if (seen % 2 == 1) return -1f; // this one ends a bank
+                    for (int j = i + 1; j < Spawns.Count; j++)
+                        if (Spawns[j].Kind == SpawnKind.Fog) return Spawns[j].Pos.x;
+                    return -1f;
+                }
+                seen++;
+            }
+            return -1f;
         }
 
         /// <summary>Which way the tile at (<paramref name="x"/>, <paramref name="y"/>) carries: 1 right, -1 left, 0 not a belt.</summary>

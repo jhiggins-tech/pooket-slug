@@ -5,8 +5,8 @@ namespace PooketSlug
     /// <summary>
     /// Mission two's hazards, the Brain Freeze creamery's (<c>docs/design/levels.md</c>, Mission two): the numbers and
     /// the rules of the conveyor belts (the map's '&gt;' and '&lt;', <see cref="Level.BeltSpeedUnder"/>), the nitrogen
-    /// vents and tanks that freeze soldiers and goons alike (<see cref="Frost"/>), the scoop droppers overhead and the
-    /// boxes of cones. The pieces that draw them are in <c>Missions/Two/</c>. Their timing comes from the world's
+    /// vents and tanks that freeze soldiers and goons alike (<see cref="Frost"/>), the scoop droppers overhead, the
+    /// boxes of cones and the Trollogram projectors (<see cref="SwitchedOff"/>). The pieces that draw them are in <c>Missions/Two/</c>. Their timing comes from the world's
     /// clock, so they pulse together closely enough on each phone in co-op.
     /// </summary>
     public static class Creamery
@@ -26,6 +26,26 @@ namespace PooketSlug
         /// <summary>A nitrogen tank's blast: a little damage, and a wide freeze.</summary>
         public const float TankRadius = 2.6f, TankSoldierFreeze = 1.2f, TankGoonFreeze = 3.5f;
         public const int TankDamage = 1, TankGoonDamage = 3;
+
+        /// <summary>A Trollogram projector, shot out, switches off the goons within this reach (and its health).</summary>
+        public const float ProjectorReach = 8f;
+
+        /// <summary>The goons a projector casts: every Trollogram goon, but not the Big Scoop, who's too big for it.</summary>
+        public static bool Projects(EnemyBrain brain) =>
+            brain == EnemyBrain.Rifleman || brain == EnemyBrain.Runner || brain == EnemyBrain.Drone ||
+            brain == EnemyBrain.Shield || brain == EnemyBrain.Grenadier;
+
+        /// <summary>
+        /// Whether a goon at <paramref name="x"/> is cast by a projector that's been shot out (at one of
+        /// <paramref name="dark"/>): it's switched off, so it never appears, and any already up flicker out.
+        /// </summary>
+        public static bool SwitchedOff(EnemyBrain brain, float x, System.Collections.Generic.IReadOnlyList<float> dark)
+        {
+            if (!Projects(brain)) return false;
+            for (int i = 0; i < dark.Count; i++)
+                if (Mathf.Abs(x - dark[i]) <= ProjectorReach) return true;
+            return false;
+        }
 
         /// <summary>What a box of cones drops when it's broken, by weight: mostly a medkit, sometimes bombs.</summary>
         public static readonly (PickupDef pickup, int weight)[] ConeBoxDrops = { (Content.Medkit, 2), (Content.BombCrate, 1) };

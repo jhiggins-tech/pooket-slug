@@ -5,7 +5,8 @@ namespace PooketSlug
     /// <summary>
     /// Mission two's pieces, drawn in code in the creamery's pastels (concept A: pink icing, lilac, waffle) as stand-ins
     /// until Design's art lands: the conveyor belts' tiles and their moving tread, the scoop droppers and their scoops,
-    /// the nitrogen vents and tanks, the boxes of cones and the cold store's doors.
+    /// the nitrogen vents and tanks, the boxes of cones, the cold store's doors, the Trollogram projectors behind their
+    /// frosted glass and the freezer corridor's fog.
     /// </summary>
     static class CreameryArt
     {
@@ -17,7 +18,7 @@ namespace PooketSlug
         static readonly Color32 Ice = Art.Hex(0xc8eeff), IceDark = Art.Hex(0x6ab4e0), Steel = Art.Hex(0xe8eef6), SteelDark = Art.Hex(0x98a4b8);
         static readonly Color32 Card = Art.Hex(0xc89a64), CardDark = Art.Hex(0x8a6234), Frost = Art.Hex(0xf4fbff);
 
-        static Sprite s_Dropper, s_Scoop, s_Shadow, s_Vent, s_Box, s_Tank, s_Door, s_Shield, s_Heavy, s_BigScoop, s_Wave;
+        static Sprite s_Dropper, s_Scoop, s_Shadow, s_Vent, s_Box, s_Tank, s_Door, s_Shield, s_Heavy, s_BigScoop, s_Wave, s_Projector, s_Glow, s_Glass, s_Fog;
         static Sprite[] s_Tread;
 
         /// <summary>Draws a belt tile: the frame and rollers under a dark tread (the tread's chevrons move: <see cref="Tread"/>).</summary>
@@ -225,6 +226,78 @@ namespace PooketSlug
                 c.Circle(23f, 7.5f, 4.2f, Pink); // a scoop's worth in it
                 c.Outline(Ink);
                 return s_BigScoop = Art.ToSprite(c, new Vector2(0f, 0.5f), withFlash: true);
+            }
+        }
+
+        /// <summary>A Trollogram projector: a dark box on a stand with a cyan lens looking up.</summary>
+        public static Sprite Projector
+        {
+            get
+            {
+                if (s_Projector != null) return s_Projector;
+                var c = new PixelCanvas(18, 20);
+                c.Rect(7, 0, 4, 8, SteelDark); // the stand
+                c.Rect(3, 0, 12, 2, SteelDark);
+                c.Rect(1, 8, 16, 9, Rubber);
+                c.Rect(1, 15, 16, 2, RubberLight);
+                c.Circle(9f, 16.5f, 3.2f, Art.Hex(0x3cf0ff)); // the lens
+                c.Circle(9f, 17f, 1.4f, Frost);
+                c.Rect(3, 10, 2, 2, Pink); // a status light
+                c.Outline(Ink);
+                return s_Projector = Art.ToSprite(c, new Vector2(0.5f, 0f), withFlash: true);
+            }
+        }
+
+        /// <summary>The projector's light: a soft cone opening upward (tinted and pulsed by <see cref="PooketSlug.Projector"/>).</summary>
+        public static Sprite ProjectorGlow
+        {
+            get
+            {
+                if (s_Glow != null) return s_Glow;
+                var c = new PixelCanvas(40, 40);
+                for (int y = 0; y < 40; y++)
+                {
+                    float half = 3f + y * 0.45f, fade = 1f - y / 40f;
+                    for (int x = 0; x < 40; x++)
+                    {
+                        float d = Mathf.Abs(x - 19.5f) / half;
+                        if (d > 1f) continue;
+                        c.Set(x, y, new Color32(255, 255, 255, (byte)(255f * fade * (1f - d * d))));
+                    }
+                }
+                return s_Glow = Art.ToSprite(c, new Vector2(0.5f, 0f));
+            }
+        }
+
+        /// <summary>The frosted glass the projectors stand behind: a pale pane in a steel frame, see-through enough.</summary>
+        public static Sprite FrostedGlass
+        {
+            get
+            {
+                if (s_Glass != null) return s_Glass;
+                var c = new PixelCanvas(26, 28);
+                c.Rect(0, 0, 26, 28, SteelDark);
+                c.Rect(2, 2, 22, 24, new Color32(232, 246, 255, 110));
+                for (int i = 0; i < 4; i++) c.Rect(4 + i * 5, 6 + i * 4, 3, 1, new Color32(255, 255, 255, 170)); // frost streaks
+                c.Rect(2, 2, 22, 3, new Color32(244, 251, 255, 190));
+                return s_Glass = Art.ToSprite(c, new Vector2(0.5f, 0f));
+            }
+        }
+
+        /// <summary>A blob of floor fog: a soft white oval (smoothly filtered, so the bank reads as mist).</summary>
+        public static Sprite Fog
+        {
+            get
+            {
+                if (s_Fog != null) return s_Fog;
+                var c = new PixelCanvas(32, 14);
+                for (int y = 0; y < 14; y++)
+                    for (int x = 0; x < 32; x++)
+                    {
+                        float dx = (x - 15.5f) / 16f, dy = (y - 5f) / 7f, d = dx * dx + dy * dy;
+                        if (d < 1f) c.Set(x, y, new Color32(240, 246, 255, (byte)(150f * (1f - d))));
+                    }
+                return s_Fog = Art.ToSprite(c, new Vector2(0.5f, 0f), filter: FilterMode.Bilinear);
             }
         }
 
