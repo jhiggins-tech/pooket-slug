@@ -41,7 +41,7 @@ namespace PooketSlug
             },
         };
 
-        /// <summary>The generated backdrop (vendor art/den.json, seedream-combo__1): the loft higher, the TV and couch right of centre.</summary>
+        /// <summary>The generated backdrop (vendor art/den.json, combo-ladder__1: seedream-combo__1 with one ladder): the loft higher, the TV and couch right of centre.</summary>
         public static readonly Layout Painted = new Layout
         {
             Loft = 140, SeatX = new[] { 134f, 167f }, TvCentre = new Vector2(144f, 78f), Sign = new Vector2(298f, 104f),

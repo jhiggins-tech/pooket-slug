@@ -109,7 +109,7 @@ namespace PooketSlug
         /// </summary>
         static Sprite GeneratedBackdrop()
         {
-            string want = string.IsNullOrEmpty(Spike.DenBgTake) ? "seedream-combo__1" : Spike.DenBgTake;
+            string want = string.IsNullOrEmpty(Spike.DenBgTake) ? "combo-ladder__1" : Spike.DenBgTake;
             TextAsset file = null;
             foreach (TextAsset t in Resources.LoadAll<TextAsset>("Den"))
                 if (t.name.StartsWith(want, System.StringComparison.OrdinalIgnoreCase) && (file == null || string.CompareOrdinal(t.name, file.name) < 0)) file = t;
