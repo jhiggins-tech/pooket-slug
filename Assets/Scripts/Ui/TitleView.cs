@@ -86,10 +86,14 @@ namespace PooketSlug
         {
             Button b = Ui.Button(parent, label, offset, ButtonSize, onClick, out hint);
             b.GetComponent<Outline>().effectColor = Palette.Gold;
+            // The fill is the image's own colour and the tint stays near white: uGUI tints the outline too, so a dark
+            // tint (as Ui.Button's) would turn the gold edge black. The multiplier lets a press brighten it.
+            ((Image)b.targetGraphic).color = ButtonFill;
             ColorBlock colors = b.colors;
-            colors.normalColor = colors.selectedColor = ButtonFill;
-            colors.highlightedColor = new Color(0.12f, 0.14f, 0.36f, 0.92f);
-            colors.pressedColor = Palette.Gold;
+            colors.colorMultiplier = 4f;
+            colors.normalColor = colors.selectedColor = new Color(0.25f, 0.25f, 0.25f, 1f);
+            colors.highlightedColor = new Color(0.32f, 0.32f, 0.36f, 1f);
+            colors.pressedColor = new Color(0.9f, 0.75f, 0.3f, 1f);
             b.colors = colors;
             Text text = b.transform.Find("Label").GetComponent<Text>();
             text.color = Palette.Gold;
