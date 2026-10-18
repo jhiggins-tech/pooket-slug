@@ -22,6 +22,14 @@ Concept: `concepts/lobby/den-lobby.png` in the project's files (second pass; the
 - **The TV is the room's screen** for anything the lobby has to say: the console's start screen with the chosen mission, the room code, who's watching, the countdown. It's the gaming setup from the opening, plugged back in.
 - **Thumbs stay clear:** READY sits bottom right, BACK top left, and no station's tap area reaches into the bottom corners ([controls](player.md#controls)).
 
+### The backdrop
+
+The room is a generated painting, picked by the owner on 2026-10-18 (gen-lobby-bg: https://claude.ai/artifact/5u2cYLcHaftoLm9uAyBtCN). It's `combo-ladder__1` on the vendor repository's `den` release, drawn the way [the art look](art.md) says and cut to the stage's 320 × 180 pixels.
+
+- **How it was made:** Seedream's ground floor from one prompt-only take and its loft from another, stitched and repainted at the join. The loft railing has every second slat taken out and a thin top rail, so the crew upstairs show behind it. One ladder runs from the floor to the loft.
+- **The art leads:** the room's pieces sit where the painting puts them, not the other way round. The TV's text, the POOKET sign, the couch seats, the console's lights, the mission board and each station's spot are placed on the painting (`DenRoom.Painted` on the gen-lobby-bg branch; the loft is at 140 of 180).
+- **The painting is one moment:** kie's and tones2's corners lit and the rest under tarps. Each crewmate's corner, lit and wrecked, will need its own layer over the room, so the den can fill up as they're freed.
+
 ### Who lives where
 
 Each station is built from the soldier's kit ([kits](kits.md)), so it shows what they do before they're picked.
