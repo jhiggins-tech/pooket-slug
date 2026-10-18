@@ -154,6 +154,11 @@ namespace PooketSlug
                 foreach (Enemy e in w.Enemies)
                 {
                     if (!e.Shootable || !Overlaps(e.Bounds, p.Pos, p.Radius)) continue;
+                    if (e is ShieldSoldier shield && shield.Blocks(p.Pos, p.Vel))
+                    {
+                        Clank(p); // stopped on the shield: nothing gets through but a blast
+                        break;
+                    }
                     if (!p.Cosmetic) w.ShotsHit++;
                     if (p.Def.ContactDamage)
                     {
@@ -182,6 +187,14 @@ namespace PooketSlug
                     }
                 }
             }
+        }
+
+        /// <summary>A shot stopped on a shield: it glances off with a spark (a bomb still goes off, and its blast still hurts).</summary>
+        void Clank(Projectile p)
+        {
+            m_World.HitFeel.Spark(p.Pos, -p.Vel, false, ours: !p.Cosmetic);
+            if (!p.Cosmetic) Sfx.Play(Sfx.Servo, 0.5f); // a stand-in clank, until Audio's
+            p.Detonate();
         }
 
         static bool Overlaps(Rect r, Vector2 c, float radius)

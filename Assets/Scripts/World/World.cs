@@ -172,6 +172,25 @@ namespace PooketSlug
         public bool SkipToPilot;
         /// <summary>Testing (<c>?test=pilot,weak</c>): the pilot jumps out on one point of health, and goes down on his own a few seconds in.</summary>
         public bool WeakPilot;
+        /// <summary>The camera can't pass this x, and nor can anyone (a miniboss's yard, held until he's down); none when it's huge.</summary>
+        public float ArenaEdge { get; private set; } = float.MaxValue;
+        public bool ArenaHeld => ArenaEdge < float.MaxValue;
+
+        /// <summary>Holds the view and the soldiers short of <paramref name="edge"/> (the Big Scoop's yard).</summary>
+        public void HoldArena(float edge)
+        {
+            ArenaEdge = Mathf.Min(edge, Level.Width);
+            Level.Bar(Mathf.FloorToInt(ArenaEdge), true);
+        }
+
+        /// <summary>The yard's open again.</summary>
+        public void ReleaseArena()
+        {
+            if (!ArenaHeld) return;
+            Level.Bar(Mathf.FloorToInt(ArenaEdge), false);
+            ArenaEdge = float.MaxValue;
+        }
+
         /// <summary>The boss tabk is kcaj's (<see cref="KcajBoss"/>): Mission two's, or in whatever arena this is with <c>?test=kcajtank</c>.</summary>
         public bool KcajTank;
 

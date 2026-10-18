@@ -159,6 +159,13 @@ namespace PooketSlug
         void Soak(Enemy e, Vector2 at)
         {
             Remove();
+            if (e is ShieldSoldier shield && shield.Blocks(at, m_Vel))
+            {
+                // the jet runs off the shield, but it still pushes him back
+                e.Shove = Vector2.ClampMagnitude(e.Shove + m_Vel.normalized * m_Push, Tones2Tuning.Jet.MaxShove);
+                if (Rng.Fx.Value < 0.3f) World.SpawnParticle(at, new Vector2(-m_Vel.x * 0.1f, Rng.Fx.Range(1f, 3f)), Tones2Art.Water, 1.5f, 0.3f);
+                return;
+            }
             World.ShotsHit++;
             e.Soak += m_Damage;
             while (e.Soak >= 1f && e.Shootable)

@@ -23,6 +23,9 @@ namespace PooketSlug.Tests
             Assert.AreEqual(12, Content.Trollogram.Id);
             Assert.AreEqual(13, Content.Steal.Id);
             Assert.AreEqual(17, Content.StolenCannon.Id);
+            Assert.AreEqual(21, Content.GoonGrenadeThrow.Id);
+            Assert.AreEqual(22, Content.ScoopSlam.Id);
+            Assert.AreEqual(23, Content.ScoopHurl.Id);
         }
 
         [Test]
@@ -38,6 +41,9 @@ namespace PooketSlug.Tests
             Assert.AreEqual(6, Content.TankCopy.Id);
             Assert.AreEqual(11, Content.ConeBox.Id);
             Assert.AreEqual(12, Content.NitrogenTank.Id);
+            Assert.AreEqual(13, Content.ShieldSoldier.Id);
+            Assert.AreEqual(14, Content.Grenadier.Id);
+            Assert.AreEqual(15, Content.BigScoop.Id);
         }
 
         [Test]
@@ -110,6 +116,9 @@ namespace PooketSlug.Tests
         [TestCase(SpawnKind.Barrel, EnemyBrain.Barrel)]
         [TestCase(SpawnKind.ConeBox, EnemyBrain.ConeBox)]
         [TestCase(SpawnKind.NitrogenTank, EnemyBrain.NitrogenTank)]
+        [TestCase(SpawnKind.ShieldSoldier, EnemyBrain.Shield)]
+        [TestCase(SpawnKind.Grenadier, EnemyBrain.Grenadier)]
+        [TestCase(SpawnKind.BigScoop, EnemyBrain.BigScoop)]
         public void EachEnemyMarkerPlacesItsEnemy(SpawnKind marker, EnemyBrain brain)
         {
             Assert.AreEqual(brain, Content.EnemyFor(marker).Brain);
@@ -149,7 +158,7 @@ namespace PooketSlug.Tests
         }
 
         [TestCase(-1)]
-        [TestCase(13)]
+        [TestCase(16)]
         public void AnUnknownEnemyIdFindsNothing(int id)
         {
             Assert.IsNull(Content.Enemy(id));

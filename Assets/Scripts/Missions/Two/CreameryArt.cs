@@ -17,7 +17,7 @@ namespace PooketSlug
         static readonly Color32 Ice = Art.Hex(0xc8eeff), IceDark = Art.Hex(0x6ab4e0), Steel = Art.Hex(0xe8eef6), SteelDark = Art.Hex(0x98a4b8);
         static readonly Color32 Card = Art.Hex(0xc89a64), CardDark = Art.Hex(0x8a6234), Frost = Art.Hex(0xf4fbff);
 
-        static Sprite s_Dropper, s_Scoop, s_Shadow, s_Vent, s_Box, s_Tank, s_Door;
+        static Sprite s_Dropper, s_Scoop, s_Shadow, s_Vent, s_Box, s_Tank, s_Door, s_Shield, s_Heavy, s_BigScoop, s_Wave;
         static Sprite[] s_Tread;
 
         /// <summary>Draws a belt tile: the frame and rollers under a dark tread (the tread's chevrons move: <see cref="Tread"/>).</summary>
@@ -173,6 +173,76 @@ namespace PooketSlug
                 for (int x = 2; x < 46; x += 5) c.Rect(x, 68 - x % 3 * 2, 2, 4 + x % 3 * 2, Frost); // icicles
                 c.Outline(Ink);
                 return s_Door = Art.ToSprite(c, new Vector2(0.5f, 0f));
+            }
+        }
+        /// <summary>The shield soldier's riot shield: a tall slab with a viewport, held in front.</summary>
+        public static Sprite Shield
+        {
+            get
+            {
+                if (s_Shield != null) return s_Shield;
+                var c = new PixelCanvas(7, 20);
+                c.Rect(0, 0, 7, 20, SteelDark);
+                c.Rect(1, 1, 5, 18, Steel);
+                c.Rect(2, 13, 3, 3, Rubber); // the viewport
+                c.Rect(1, 6, 5, 1, SteelDark);
+                c.Outline(Ink);
+                return s_Shield = Art.ToSprite(c, new Vector2(0.5f, 0f), withFlash: true);
+            }
+        }
+
+        /// <summary>The Big Scoop: an oversized heavy in a creamery apron, 2.5 tiles tall.</summary>
+        public static Sprite Heavy
+        {
+            get
+            {
+                if (s_Heavy != null) return s_Heavy;
+                var c = new PixelCanvas(28, 42);
+                c.Rect(6, 0, 7, 12, SteelDark); // legs
+                c.Rect(15, 0, 7, 12, SteelDark);
+                c.Rect(3, 12, 22, 20, Steel); // the body
+                c.Rect(7, 12, 14, 18, PinkLight); // the apron
+                c.Rect(7, 26, 14, 2, Pink);
+                c.Rect(0, 16, 4, 14, Steel); // arms
+                c.Rect(24, 16, 4, 14, Steel);
+                c.Rect(8, 32, 12, 9, Steel); // the head, a hairnet on top
+                c.Rect(8, 38, 12, 3, Frost);
+                c.Rect(15, 34, 3, 2, Rubber); // an eye, looking ahead
+                c.Outline(Ink);
+                return s_Heavy = Art.ToSprite(c, new Vector2(0.5f, 0f), withFlash: true);
+            }
+        }
+
+        /// <summary>His giant scoop: a long handle and a bowl, held out in front (it turns as he swings).</summary>
+        public static Sprite BigScoop
+        {
+            get
+            {
+                if (s_BigScoop != null) return s_BigScoop;
+                var c = new PixelCanvas(30, 12);
+                c.Rect(0, 5, 18, 3, SteelDark); // the handle, from the pivot at its left end
+                c.Circle(23f, 6f, 6f, Steel);
+                c.Circle(23f, 7.5f, 4.2f, Pink); // a scoop's worth in it
+                c.Outline(Ink);
+                return s_BigScoop = Art.ToSprite(c, new Vector2(0f, 0.5f), withFlash: true);
+            }
+        }
+
+        /// <summary>The slam's shockwave: a curl of broken floor and icing, running along the ground.</summary>
+        public static Sprite Shockwave
+        {
+            get
+            {
+                if (s_Wave != null) return s_Wave;
+                var c = new PixelCanvas(14, 12);
+                for (int x = 0; x < 14; x++)
+                {
+                    int h = 3 + (int)(8f * Mathf.Sin(x / 13f * Mathf.PI));
+                    c.Rect(x, 0, 1, h, x % 3 == 0 ? WaffleDark : Waffle);
+                    c.Set(x, h - 1, PinkLight);
+                }
+                c.Outline(Ink);
+                return s_Wave = Art.ToSprite(c, new Vector2(0.5f, 0.5f));
             }
         }
     }

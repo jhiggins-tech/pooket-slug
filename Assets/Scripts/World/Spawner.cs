@@ -54,6 +54,9 @@ namespace PooketSlug
                 case EnemyBrain.ExitGate: e = new ExitGate(w, def, pos); break;
                 case EnemyBrain.ConeBox: e = new ConeBox(w, def, pos); break;
                 case EnemyBrain.NitrogenTank: e = new Barrel(w, def, pos); break;
+                case EnemyBrain.Shield: e = new ShieldSoldier(w, def, pos); break;
+                case EnemyBrain.Grenadier: e = new Grenadier(w, def, pos); break;
+                case EnemyBrain.BigScoop: e = new BigScoop(w, def, pos); break;
                 default: return null;
             }
             e.NetId = id;
