@@ -16,6 +16,8 @@ namespace PooketSlug
     {
         /// <summary>The music's volume: about half the sound effects'.</summary>
         const float Volume = 0.45f, PausedVolume = 0.15f, FadeTime = 0.35f, CrossTime = 4f;
+        /// <summary>How far the music dips under a big blast or a spoken line, and how fast it goes down and comes back.</summary>
+        const float DuckedTo = 0.4f, DuckDown = 8f, DuckUp = 2f;
 
         static AudioSource s_Loop, s_Sting, s_Layer;
         static readonly Dictionary<MusicTrack, AudioClip> s_Clips = new Dictionary<MusicTrack, AudioClip>();
@@ -26,6 +28,8 @@ namespace PooketSlug
         /// <summary>Seconds until the crossfade to the layer starts (below 0: none coming), and how far it's got (0..1).</summary>
         static float s_CrossIn = -1f, s_Mix;
         static bool s_Muted, s_Paused;
+        /// <summary>Seconds left of a blast's dip, and the dip as it stands (1: none).</summary>
+        static float s_DuckFor, s_Duck = 1f;
 
         /// <summary>The track playing, or null.</summary>
         public static MusicTrack Playing => s_Playing;
@@ -44,6 +48,18 @@ namespace PooketSlug
                 if (s_Layer != null) s_Layer.mute = value;
             }
         }
+
+        /// <summary>The MUSIC setting's level (<see cref="Options.Gain"/>), on top of the music's own volume.</summary>
+        public static float Gain
+        {
+            get => s_Gain;
+            set
+            {
+                s_Gain = value;
+                ApplyVolume();
+            }
+        }
+        static float s_Gain = 1f;
 
         public static bool Paused
         {
@@ -196,10 +212,16 @@ namespace PooketSlug
             if (s_Sting != null) s_Sting.Stop();
         }
 
-        /// <summary>Moves a fade on; call every frame.</summary>
+        /// <summary>Dips the music for <paramref name="seconds"/> under a big blast (<c>docs/design/music.md</c>, ducking).</summary>
+        public static void Duck(float seconds) => s_DuckFor = Mathf.Max(s_DuckFor, seconds);
+
+        /// <summary>Moves a fade and the ducking on; call every frame.</summary>
         public static void Tick(float dt)
         {
             if (s_Loop == null) return;
+            s_DuckFor = Mathf.Max(0f, s_DuckFor - dt);
+            float duck = s_DuckFor > 0f || Sfx.Speaking ? DuckedTo : 1f;
+            s_Duck = Mathf.MoveTowards(s_Duck, duck, (duck < s_Duck ? DuckDown : DuckUp) * dt);
             if (s_CrossIn >= 0f)
             {
                 float was = s_CrossIn;
@@ -228,9 +250,11 @@ namespace PooketSlug
         static void ApplyVolume()
         {
             if (s_Loop == null) return;
-            float v = (s_Paused ? PausedVolume : Volume) * (s_Fade >= 0f ? s_Fade / FadeTime : 1f);
+            float level = (s_Paused ? PausedVolume : Volume) * s_Duck * s_Gain;
+            float v = level * (s_Fade >= 0f ? s_Fade / FadeTime : 1f);
             s_Loop.volume = v * (1f - s_Mix);
             if (s_Layer != null) s_Layer.volume = v * s_Mix;
+            if (s_Sting != null) s_Sting.volume = level;
         }
 
         static AudioClip ClipOf(MusicTrack track)

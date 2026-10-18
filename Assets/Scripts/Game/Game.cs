@@ -104,13 +104,13 @@ namespace PooketSlug
             string url = Application.absoluteURL;
             m_Flags = LaunchFlags.Read(url);
             Log.Configure(m_Flags.LogLevels); // ?log=net:debug,game:warn for this visit
-            Spike.Configure(url); // ?spike=craters,music for this visit (before the art and sounds, which make what spikes need)
+            Spike.Configure(url); // ?spike=craters,partner for this visit (before the art and sounds, which make what spikes need)
             Art.Init();
             Sfx.Init(gameObject);
             Music.Init(gameObject);
-            MusicFlow.Prepare();
             m_Options = OptionsStore.Load();
             ApplyOptions();
+            MusicFlow.Prepare(); // after the options: with the music off, nothing's rendered up front
 
             var camGo = new GameObject("Main Camera") { tag = "MainCamera" };
             camGo.transform.SetParent(transform, false);
@@ -423,7 +423,8 @@ namespace PooketSlug
         void ApplyOptions()
         {
             Sfx.Muted = !m_Options.Sound;
-            Music.Muted = !m_Options.Sound;
+            Music.Muted = !m_Options.Sound || m_Options.Music == Volume.Off;
+            Music.Gain = Options.Gain(m_Options.Music);
             Sfx.EffectsVolume = Options.Gain(m_Options.Effects);
             Sfx.VoicesVolume = Options.Gain(m_Options.Voices);
             ScrollCamera.Shaking = m_Options.Shake;
@@ -470,7 +471,7 @@ namespace PooketSlug
             else if (DropIn.UnderWay(m_Net.Link.IsAuthority, m_Net.Link.CamX)) // the co-op test's drop-in round looks for it
                 Log.Net.Info($"Dropped in to a mission under way, {m_Net.Link.CamX:0} m in, with {m_World.Player.Lives.Lives} lives and our own score at 0");
             m_Coop = true;
-            Music.Silence(); // spikes are solo only
+            MissionMusic.MissionStart(); // each phone plays the mission's music, following its own screen
             m_Paused = false;
             m_LeaveArmed = 0f;
             m_StartNote = null;
@@ -517,7 +518,7 @@ namespace PooketSlug
             float dt = Mathf.Min(Time.unscaledDeltaTime, 1f / 30f);
             m_StateTime += dt;
             Music.Tick(dt);
-            MissionMusic.Title(m_State == GameState.Title || m_State == GameState.Settings);
+            MissionMusic.Title(m_State == GameState.Title || m_State == GameState.Settings || m_State == GameState.Den || m_State == GameState.Lobby);
             Music.Paused = m_Paused;
 
             m_Frames++;
@@ -577,6 +578,12 @@ namespace PooketSlug
                         ChangeOptions(o);
                         Sfx.Say("mission-start"); // a taste of the new level
                     }
+                    else if (click == MenuAction.Music)
+                    {
+                        Options o = m_Options;
+                        o.Music = Options.Next(o.Music);
+                        ChangeOptions(o);
+                    }
                     else if (click == MenuAction.LeftHanded)
                     {
                         Options o = m_Options;
@@ -632,6 +639,7 @@ namespace PooketSlug
                         // no pausing a shared game; it's over when everyone is out of lives and continues
                         m_World.Tick(dt, soldier);
                         NoteSuper(dt);
+                        MissionMusic.Tick(m_World);
                         m_OutFor = m_World.AllOut ? m_OutFor + dt : 0f;
                         if (m_OutFor > Tuning.Lives.GameOverDelay) EndRun(GameState.GameOver);
                         else if (m_World.Victory && m_World.VictoryTime > 1f) EndRun(GameState.Victory);
@@ -780,13 +788,17 @@ namespace PooketSlug
         {
             SetState(state);
             if (m_World.Spectating) return; // watching a room isn't a run of our own
-            if (state == GameState.GameOver) Music.Silence();
+            if (state == GameState.GameOver) MissionMusic.GameOver();
             if (Sandbox.Active) return; // nothing a sandbox does goes on the profile
             bool wasOpen = m_Profile.coop, won = state == GameState.Victory;
             int best = m_Profile.Best(m_World.Mission), clears = m_Profile.Clears(m_World.Mission);
             m_Profile.RecordRun(m_World.Mission, m_Coop ? Setting.Normal : Setting, m_World.Scoring.Points, won, solo: !m_Coop);
             m_CoopJustOpened = !wasOpen && m_Profile.coop;
-            if (won && !m_Coop) Debrief.Show(best, firstClear: clears == 0 || m_Flags.Debrief);
+            if (won && !m_Coop)
+            {
+                Debrief.Show(best, firstClear: clears == 0 || m_Flags.Debrief);
+                MissionMusic.Debrief(m_World.VictoryTime);
+            }
             m_Store.Save(m_Profile);
         }
     }

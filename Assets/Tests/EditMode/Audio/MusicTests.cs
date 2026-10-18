@@ -71,6 +71,34 @@ namespace PooketSlug.Tests
             Assert.That(MusicTracks.TankAlert.Seconds, Is.InRange(20f, 30f));
             Assert.Less(MusicTracks.MissionStart.Seconds, 3f);
             Assert.Less(MusicTracks.BossVictory.Seconds, 3f);
+            // the debrief's loop is calm (about 100 bpm, about 20 s) and the stings are short
+            Assert.That(MusicTracks.Debrief.Bpm, Is.InRange(90f, 110f));
+            Assert.That(MusicTracks.Debrief.Seconds, Is.InRange(15f, 25f));
+            Assert.That(MusicTracks.MissionComplete.Seconds, Is.InRange(2.5f, 3.5f));
+            Assert.That(MusicTracks.RankUp.Seconds, Is.InRange(1.5f, 2.5f));
+            Assert.That(MusicTracks.GameOver.Seconds, Is.InRange(2.5f, 3.5f));
+            Assert.That(MusicTracks.NewCrewmate.Seconds, Is.InRange(1.5f, 2.5f));
+        }
+
+        [Test]
+        public void TheCountdownTicksOncePerSecondOfTheContinue()
+        {
+            MusicTrack t = MusicTracks.ContinueCountdown;
+            Assert.AreEqual(Tuning.Lives.ContinueSeconds, t.Seconds, 0.001f, "it runs exactly as long as the continue is offered");
+            var ticks = Notation.Read(t.Bass).FindAll(n => n.Pitches.Length > 0);
+            Assert.AreEqual(Tuning.Lives.ContinueSeconds, ticks.Count, 0.001f);
+            for (int i = 0; i < ticks.Count; i++)
+            {
+                Assert.AreEqual(i * 4, ticks[i].At, "a tick on every beat, a second each at 60 bpm");
+                if (i > 0) Assert.AreEqual(ticks[i - 1].Pitches[0] + 1, ticks[i].Pitches[0], "each a semitone higher");
+            }
+        }
+
+        [Test]
+        public void EveryTrackHasADifferentName()
+        {
+            var names = new System.Collections.Generic.HashSet<string>();
+            foreach (MusicTrack t in MusicTracks.All) Assert.IsTrue(names.Add(t.Name), t.Name);
         }
 
         [Test]

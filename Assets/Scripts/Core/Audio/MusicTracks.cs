@@ -24,8 +24,8 @@ namespace PooketSlug
     }
 
     /// <summary>
-    /// The music's first cut (<c>?spike=music</c>): Mission one's theme, the boss theme and two stings, as in
-    /// <c>docs/design/music.md</c>. A bar is 16 steps.
+    /// The game's chip music, as in <c>docs/design/music.md</c>: Mission one's theme, the boss theme, the debrief's loop
+    /// and the stings. A bar is 16 steps.
     /// </summary>
     public static class MusicTracks
     {
@@ -54,6 +54,12 @@ namespace PooketSlug
         static readonly Chord C = new Chord("c4", "e4", "g4", "c5", "c2", "g2");
         static readonly Chord D = new Chord("d4", "f#4", "a4", "d5", "d2", "a2");
         static readonly Chord B = new Chord("b3", "d#4", "f#4", "b4", "b1", "f#2");
+
+        // the debrief's sevenths: a lounge after the base
+        static readonly Chord Fmaj7 = new Chord("f3", "a3", "c4", "e4", "f2", "c3");
+        static readonly Chord Dm7 = new Chord("d3", "f3", "a3", "c4", "d2", "a2");
+        static readonly Chord Gm7 = new Chord("g3", "bb3", "d4", "f4", "g2", "d3");
+        static readonly Chord C7 = new Chord("c3", "e3", "g3", "bb3", "c2", "g2");
 
         static string Join(params string[] parts) => string.Join(" ", parts);
 
@@ -243,6 +249,109 @@ namespace PooketSlug
             Drums = "s:1 s s s k:2 c:8",
         };
 
-        public static readonly MusicTrack[] All = { SteelNight, TankAlert, TankAlertFinal, MissionStart, BossVictory };
+        /// <summary>The mission's won: the start sting's run, grown into a held major chord.</summary>
+        public static readonly MusicTrack MissionComplete = new MusicTrack
+        {
+            Name = "Mission complete",
+            Bpm = 150f,
+            LeadDuty = 0.25f,
+            Lead = "a4:1 c#5 e5 a5:3 r:1 e5:2 a5:2 c#6:2 b5:2 c#6:2 e6:2 a6:11",
+            Harmony = "e4:1 a4 c#5 e5:3 r:1 c#5:2 e5:2 a5:2 g#5:2 a5:2 c#6:2 e5+a5+c#6:11",
+            Bass = "a2:4 e3:4 a2:2 e3:2 a2:2 e2:2 a2:14",
+            Drums = "s:1 s s s:3 r:1 s:2 s s s s s c:11",
+        };
+
+        /// <summary>The debrief's rank stamp: a short fanfare, over the debrief's loop.</summary>
+        public static readonly MusicTrack RankUp = new MusicTrack
+        {
+            Name = "Rank up",
+            Bpm = 150f,
+            LeadDuty = 0.125f,
+            Lead = "c5:1 e5 g5 c6:3 r:1 g5:1 c6:2 e6:10",
+            Harmony = "g4:1 c5 e5 g5:3 r:1 e5:1 g5:2 c5+e5+g5:10",
+            Bass = "c3:4 g2:4 c2:12",
+            Drums = "k:4 s:2 s s:1 s c:10",
+        };
+
+        /// <summary>Out of lives: a sad run down, sliding off the end into a rattle.</summary>
+        public static readonly MusicTrack GameOver = new MusicTrack
+        {
+            Name = "Game over",
+            Bpm = 120f,
+            LeadDuty = 0.25f,
+            Lead = "e5:2 d5 c5 b4 a4 g#4 a4~:4 a3:8",
+            Harmony = "c5:2 b4 a4 g#4 f4 e4 e4+c4:12",
+            Bass = "a2:4 f2:4 e2:4 a1:12",
+            Drums = "r:16 k:1 k k k k k k k",
+        };
+
+        /// <summary>While a continue is offered: a ticking bass note a second, a semitone higher each time.</summary>
+        public static readonly MusicTrack ContinueCountdown = new MusicTrack
+        {
+            Name = "Continue countdown",
+            Bpm = 60f,
+            LeadDuty = 0.125f,
+            Lead = "a4:1 r:3 bb4:1 r:3 b4:1 r:3 c5:1 r:3 c#5:1 r:3 d5:1 r:3 eb5:1 r:3 e5:1 r:3 f5:1 r:3",
+            Harmony = "r:36",
+            Bass = "a2:1 r:3 bb2:1 r:3 b2:1 r:3 c3:1 r:3 c#3:1 r:3 d3:1 r:3 eb3:1 r:3 e3:1 r:3 f3:1 r:3",
+            Drums = "k:1 r:3 k:1 r:3 k:1 r:3 k:1 r:3 k:1 r:3 k:1 r:3 k:1 r:3 k:1 r:3 k:1 r:3",
+        };
+
+        /// <summary>A crewmate's freed: a bright run up in G. Written; a crew reveal will play it.</summary>
+        public static readonly MusicTrack NewCrewmate = new MusicTrack
+        {
+            Name = "New crewmate",
+            Bpm = 150f,
+            LeadDuty = 0.25f,
+            Lead = "d5:1 g5 b5 d6:2 b5:2 c6:2 d6:2 g6:9",
+            Harmony = "b4:1 d5 g5 b5:2 g5:2 a5:2 b5:2 b5+d6:9",
+            Bass = "g2:4 d3:4 g2:12",
+            Drums = "h:2 h h h s:2 s c:8",
+        };
+
+        // ---------------------------------------------------------------- the debrief
+
+        static readonly Chord[] DebriefChords = { Fmaj7, Dm7, Gm7, C7, Fmaj7, Dm7, Gm7, C7 };
+
+        static string Comps(params Chord[] chords)
+        {
+            var sb = new StringBuilder();
+            foreach (Chord c in chords) sb.Append(Repeat($"r:4 {c.A}+{c.B}+{c.C}+{c.D}:2 r:2", 2));
+            return sb.ToString();
+        }
+
+        static string Walks(params Chord[] chords)
+        {
+            var sb = new StringBuilder();
+            foreach (Chord c in chords) sb.Append($"{c.Root}:3 {c.Root}:1 {c.Fifth}:4 {c.Root}:3 {c.Root}:1 {c.Fifth}:4 ");
+            return sb.ToString();
+        }
+
+        /// <summary>Under the debrief's XP and rank: easy and swung (dotted pairs), in F with sevenths, 8 bars.</summary>
+        public static readonly MusicTrack Debrief = new MusicTrack
+        {
+            Name = "Debrief",
+            Bpm = 100f,
+            Loop = true,
+            LeadDuty = 0.25f,
+            Lead =
+                "r:4 a4:3 c5:1 e5:4 c5:4 " +
+                "d5:6 c5:2 a4:8 " +
+                "r:4 bb4:3 d5:1 f5:4 d5:4 " +
+                "e5:3 d5:1 c5:4 bb4:4 g4:4 " +
+                "r:4 a4:3 c5:1 f5:4 e5:4 " +
+                "d5:3 e5:1 f5:4 a5:8 " +
+                "g5:3 f5:1 d5:4 bb4:4 d5:4 " +
+                "c5:8 r:8",
+            Harmony = Comps(DebriefChords),
+            Bass = Walks(DebriefChords),
+            Drums = Repeat("k:3 h:1 s:3 h:1 k:3 h:1 s:3 h:1 ", 8),
+        };
+
+        public static readonly MusicTrack[] All =
+        {
+            SteelNight, TankAlert, TankAlertFinal, Debrief,
+            MissionStart, BossVictory, MissionComplete, RankUp, GameOver, ContinueCountdown, NewCrewmate,
+        };
     }
 }
