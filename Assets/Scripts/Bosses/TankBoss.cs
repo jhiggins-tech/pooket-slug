@@ -163,7 +163,7 @@ namespace PooketSlug
             }
             if (!Engaged)
             {
-                if (World.View.Right < Mathf.Min(Pos.x, m_HomeX) + HalfW + 0.5f) return; // its shutter's in view, or its patrol (rolling out of doors past the map's end)
+                if (!BossTankSpec.Wakes(World.View.Right, Mathf.Min(Pos.x, m_HomeX), HalfW, World.Level.ScrollLimit)) return; // its shutter's in view, or its patrol (rolling out of doors past the map's end)
                 Engaged = true;
                 if (!Decoy) World.OnBossIntro(this, Entering);
             }
