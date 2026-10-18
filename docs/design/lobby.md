@@ -12,6 +12,18 @@ Up: [Design](README.md)
 
 Concept: `concepts/lobby/den-lobby.png` in the project's files (second pass; the first is `den-lobby-v1.png`).
 
+## Den 2.0: the den and the long loft
+
+**Layout picked by the owner on 2026-10-18** (den2-layout, layout C: https://claude.ai/artifact/98a63GBzVDfhSL9SQN71tY). One screen can't hold eight crew, so the den grows past it. Where this section and the rest of the page differ, this section wins; the rest still holds for the den screen itself.
+
+- **The den stays one screen,** the painting below with the loft railing gone: the couch, the TV and console, the mission board, kie's bench and tones2's slushie. Picking, readying and starting a mission never needs a scroll, and the crew you'd swap to are close by.
+- **The loft scrolls,** three screens wide, up the ladder: the camera rises with you, so the loft gets about 90 pixels of height instead of 40. The ladder comes up at the gym. Left of it the bunk room, bathroom, shower block and laundry; the landing with the trophy wall; right of it the server cupboard, the wintergarden and the vending machine. Rooms behind a door stay tarped, one corner ripped as a clue, until the crewmate who brings them moves in.
+- **The outer places are their own screens,** through a door: the kitchen (a side door, and the back yard out its back door), the tabk bay (the roller door), the basement down a trapdoor in front of the couch (the bunker beyond it, dug later), and the rooftop through a hatch at the loft's end. Most of these rooms come after Mission two ([den2-story](https://claude.ai/code/artifact/f6915f40-b462-4063-8250-a8c245d35353) says what each is for).
+- **Walking to a station is the menu.** The soldier you play is the one you move: tap the floor to walk, tap a station or a door to walk there and use it (keyboard and gamepad: left and right walk, up and down take ladders and doors, jump uses). The couch is ready; the mission board is mission select; the gym is the kit screen (moves and how to play); the bunk room the crew roster; the trophy wall your rank and stats; the laundry and shower block looks; the tabk bay tabks; the rooftop telescope replays; the vending machine the shop, once gary opens it; the basement arcade a link to Pooket Tabks.
+- **Shortcuts:** READY (bottom right) runs your soldier to the couch and sits; a MAP button (top right) shows the house as a cut-away, tarped rooms greyed, and tapping a room takes you there with a quick cut. BACK stays top left and nothing is tappable in the bottom corners.
+- **Swapping crew** (an Idea, den2-group-chat): a laptop on kie's bench opens a group chat; tap a crewmate's name and your soldier messages them to come to the GameCube, they answer in character, walk in from the side door or down the ladder and take the couch.
+- **Co-op:** each phone follows its own soldier, and the partner walks around the den too.
+
 ## The room
 
 - **It's the hangout from [the opening](story.md#the-opening-scene),** the garage with the hand-painted POOKET sign, now cleaned up and lived in. The raid's cyan scorch marks are still on the walls, painted over badly. It's warm where Mission one is cold: lamp light, string lights, screens glowing.
