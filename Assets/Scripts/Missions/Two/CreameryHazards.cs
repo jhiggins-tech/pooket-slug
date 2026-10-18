@@ -57,6 +57,8 @@ namespace PooketSlug
     {
         static readonly Color Mist = new Color(0.85f, 0.95f, 1f, 0.75f);
 
+        bool m_Soon, m_On;
+
         public NitrogenVent(World world, Vector2 feet) : base(world, "NitrogenVent", feet)
         {
             AddRenderer(Go.transform, "Sprite", CreameryArt.Vent, SortOrder.Pickups);
@@ -64,7 +66,12 @@ namespace PooketSlug
 
         public override void Tick(float dt)
         {
-            bool on = Creamery.VentOn(World.Elapsed, Pos.x);
+            bool on = Creamery.VentOn(World.Elapsed, Pos.x), soon = !on && Creamery.VentSoon(World.Elapsed, Pos.x);
+            // the hiss as it warns, the whoosh as it blows: only the vents in view, so a row of them isn't a din
+            if (soon && !m_Soon && World.OnScreen(Pos.x)) Sfx.Play(Sfx.VentHiss, 0.6f);
+            if (on && !m_On && World.OnScreen(Pos.x)) Sfx.Play(Sfx.VentBlast, 0.6f);
+            m_Soon = soon;
+            m_On = on;
             if (!on)
             {
                 if (Creamery.VentSoon(World.Elapsed, Pos.x) && Rng.Fx.Range(0f, 1f) < 0.25f) Puff(1.5f, 0.25f); // the tell: a hiss of mist
@@ -109,7 +116,7 @@ namespace PooketSlug
             if (Creamery.ScoopDrops(World.Elapsed, dt, Pos.x))
             {
                 World.Props.Add(new FallingScoop(World, Pos, m_Floor));
-                Sfx.Play(Sfx.Throw, 0.4f);
+                if (World.OnScreen(Pos.x)) Sfx.Play(Sfx.ScoopDispense, 0.5f);
             }
         }
 
@@ -143,7 +150,7 @@ namespace PooketSlug
             if (Pos.y > m_Floor) return;
             Pos.y = m_Floor;
             World.Burst(Pos + Vector2.up * 0.3f, 12, Splash);
-            Sfx.Play(Sfx.Splat, 0.5f);
+            if (World.OnScreen(Pos.x)) Sfx.Play(Sfx.ScoopPlop, 0.7f);
             Remove();
         }
     }

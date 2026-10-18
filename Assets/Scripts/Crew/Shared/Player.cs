@@ -95,7 +95,7 @@ namespace PooketSlug
         public bool Freeze(float seconds)
         {
             if (Dead || Riding != null || NoDamage || !Frost.Freeze(seconds, Creamery.ThawGrace)) return false;
-            Sfx.Play(Sfx.Sizzle, 0.6f);
+            Sfx.Play(Sfx.FreezeCrack, 0.7f);
             return true;
         }
 

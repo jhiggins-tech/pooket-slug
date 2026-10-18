@@ -82,7 +82,7 @@ namespace PooketSlug
         const int WindingFlag = 32; // a follower's copy winds up too
         readonly SpriteRenderer m_Legs, m_Torso, m_Grenade;
         float m_Cooldown, m_Wind = -1f;
-        bool m_NetWinding;
+        bool m_NetWinding, m_Pinned;
 
         public Grenadier(World world, EnemyDef def, Vector2 feet) : base(world, def, feet)
         {
@@ -132,6 +132,8 @@ namespace PooketSlug
             m_Legs.sprite = Flashed(Art.SoldierLegsIdle);
             m_Torso.sprite = Flashed(Art.SoldierTorso);
             bool winding = Winding && !Dying;
+            if (winding && !m_Pinned) Sfx.Play(Sfx.GrenadePin, 0.6f); // the pin pulled: the tell's sound
+            m_Pinned = winding;
             m_Grenade.enabled = winding; // held up over his head: the tell
             m_Torso.transform.localPosition = winding ? new Vector3(-1f / Art.PPU, 1f / Art.PPU, 0f) : Vector3.zero;
         }

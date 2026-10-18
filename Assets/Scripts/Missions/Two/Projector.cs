@@ -47,7 +47,7 @@ namespace PooketSlug
             m_Out = true;
             World.DarkProjectors.Add(Pos.x);
             World.Burst(Center, 18, Sparks);
-            Sfx.Play(Sfx.Glitch, 0.7f);
+            Sfx.Play(Sfx.ProjectorSputter, 0.8f);
             World.Scoring.Popup("PROJECTOR DOWN!", Pos + Vector2.up * 2.4f, Sparks);
             if (!World.IsAuthority) return;
             foreach (Enemy e in World.Enemies)
