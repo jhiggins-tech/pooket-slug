@@ -28,7 +28,7 @@ Up: [Repository README](../../README.md)
 
 Use these words in everything players or readers see: in-game text, voice lines, and these documents (owner, 2026-10-16). Code identifiers keep their old names (`PlayerTank`, `HoloLook` and so on), and so does the file name of [tanks.md](tanks.md).
 - **Tabk**, never tank. The typo is on purpose, after Pooket Tabks: a tabk, tabks, TABK WRECKED!. The one exception is Pocket Tanks, the real game.
-- **Mission one is single player only** (owner, 2026-10-16): the prelude. Before it's beaten the title screen is just START and SETTINGS, and START goes straight into it; beating it opens the den and co-op. It's never played with two, replays included: picking it on the den's mission board closes player two's seat and spectating.
+- **Mission one is single player only** (owner, 2026-10-16): the prelude. Before it's beaten the title screen is just START and SETTINGS, and START goes straight into it; beating it opens the den and co-op. It's never played with two, replays included: picking it on the den's mission board closes player two's seat and spectating. Until Mission two is built, co-op plays it as a stand-in (TEST MISSION) for testing ([levels](levels.md#mission-one-the-military-base)).
 - **Trollogram**, never hologram. kie's projections are Trollograms, from the raiders to Trollogram kie; in a character intro the title is TROLLO-KIE.
 
 ## Safe flashing

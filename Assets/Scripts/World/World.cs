@@ -515,8 +515,9 @@ namespace PooketSlug
             {
                 Player.Heal(Player.MaxHp); // kie's snacks: a fresh start for the run out, whatever the boss left you with
                 Scoring.Popup("THE ALARMS ARE GOING!", Player.Pos + Vector2.up * 2.6f, new Color(1f, 0.45f, 0.4f));
-                Props.Add(new SleepingKie(this, new Vector2(Level.CodaX - 3.5f, Level.TopSurfaceY(Level.CodaX - 3.5f))));
             }
+            // kie's left asleep by the wall, on a retry from the coda's checkpoint too
+            Props.Add(new SleepingKie(this, new Vector2(Level.CodaX - 3.5f, Level.TopSurfaceY(Level.CodaX - 3.5f))));
             Log.Game.Info("The coda's open");
         }
 
