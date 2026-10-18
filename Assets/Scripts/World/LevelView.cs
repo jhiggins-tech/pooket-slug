@@ -22,7 +22,8 @@ namespace PooketSlug
                         char t = level.Get(cx + x, y);
                         if (t == Level.Empty || cx + x >= skipFrom) continue;
                         bool exposed = y + 1 >= level.Height || !level.TileSolid(cx + x, y + 1);
-                        Art.DrawTile(canvas, x * 16, y * 16, t, exposed, (cx + x) * 31 + y * 17);
+                        if (level.Belt(cx + x, y) != 0) CreameryArt.DrawBelt(canvas, x * 16, y * 16); // its tread moves: BeltTread
+                        else Art.DrawTile(canvas, x * 16, y * 16, t, exposed, (cx + x) * 31 + y * 17);
                     }
                 var go = new GameObject("Chunk" + cx / Chunk);
                 go.transform.SetParent(root.transform, false);

@@ -37,10 +37,10 @@ namespace PooketSlug
         {
             Game g = m_Game;
             bool coop = m_Den.Mode == DenMode.Coop;
-            MissionDef mission = coop ? Missions.ByNetId(g.Net.Link.Mission) ?? g.Mission : g.Mission;
+            MissionDef mission = coop ? Missions.ForCoop(Missions.ByNetId(g.Net.Link.Mission) ?? g.Mission) : g.Mission;
             return new DenInfo
             {
-                // Mission one is solo only (docs/design/lobby.md, Co-op): until Mission two is built, co-op plays it as a stand-in
+                // Mission one is solo only (docs/design/lobby.md, Co-op): a co-op room plays the first mission open to it
                 Mission = m_Den.Mode == DenMode.Crew ? null : coop && mission.Story.CoopName != null ? mission.Story.CoopName : mission.Name.ToUpperInvariant(),
                 Room = coop ? g.Net.RoomCode : null,
                 InviteLink = coop ? CoopRoom.Link(g.PageUrl, g.Net.RoomCode) : null,

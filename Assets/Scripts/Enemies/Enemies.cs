@@ -22,7 +22,8 @@ namespace PooketSlug
         protected static float Gravity => Tuning.Physics.Gravity;
         protected static float MaxFall => Tuning.Physics.MaxFall;
         Vector2 m_NetPos;
-        bool m_NetPlaced;
+        bool m_NetPlaced, m_NetFrozen;
+        FrostLook m_Ice;
 
         protected Enemy(World world, EnemyDef def, Vector2 feet)
             : base(world, def.Name, feet, def.HalfWidth, def.Height, def.Hp)
@@ -35,6 +36,17 @@ namespace PooketSlug
         public float DyingSeconds => DyingTime;
 
         public bool Shootable => !Dying && !Removed;
+
+        /// <summary>Mission two's nitrogen can freeze it: the goons can (not the boss, the props or the weasels).</summary>
+        public virtual bool Freezable => false;
+        /// <summary>Frozen, as this screen sees it (a co-op follower's comes from the snapshot).</summary>
+        public bool LooksFrozen => World.IsAuthority ? Frost.Frozen : m_NetFrozen;
+
+        /// <summary>Authority: nitrogen got it, for <paramref name="seconds"/> (if it can be frozen, and isn't just thawing).</summary>
+        public void Freeze(float seconds)
+        {
+            if (Freezable && Shootable && World.IsAuthority) Frost.Freeze(seconds, Creamery.ThawGrace);
+        }
         /// <summary>Nearest soldier (local or remote), refreshed every authoritative tick.</summary>
         protected Actor Target { get; private set; }
 
@@ -88,12 +100,22 @@ namespace PooketSlug
                 return;
             }
             Target = World.Combat.NearestAvatar(Pos);
-            TickAlive(dt);
+            Frost.Tick(dt);
+            if (Frost.Frozen) TickFrozen(dt);
+            else TickAlive(dt);
             Shove = Vector2.MoveTowards(Shove, Vector2.zero, 10f * dt);
             if (Pos.x < World.View.Left - 4f) Remove(); // left behind
         }
 
         protected abstract void TickAlive(float dt);
+
+        /// <summary>Frozen solid: it only falls, and rides whatever belt it's on.</summary>
+        void TickFrozen(float dt)
+        {
+            Vel.x = 0f;
+            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
+            MoveWithTiles(dt);
+        }
 
         /// <summary>Co-op follower: anything beyond gliding to the snapshot, each tick while it's alive.</summary>
         protected virtual void TickFollower(float dt) { }
@@ -110,7 +132,7 @@ namespace PooketSlug
         /// <summary>State the authority replicates for this enemy.</summary>
         public int SnapshotFlags =>
             (Dying ? NetEnemyState.Dying : 0) | (Facing > 0 ? NetEnemyState.FacingRight : 0) |
-            (Mathf.Abs(Vel.x) > 0.05f ? NetEnemyState.Moving : 0) | (Grounded ? NetEnemyState.Grounded : 0) | ExtraFlags;
+            (Mathf.Abs(Vel.x) > 0.05f ? NetEnemyState.Moving : 0) | (Grounded ? NetEnemyState.Grounded : 0) | (Frost.Frozen ? NetEnemyState.Frozen : 0) | ExtraFlags;
 
         protected virtual int ExtraFlags => 0;
         protected virtual void OnSnapshot(int flags) { }
@@ -129,6 +151,7 @@ namespace PooketSlug
             Vel = new Vector2((s.Flags & NetEnemyState.Moving) != 0 ? Facing : 0f, 0f);
             Grounded = (s.Flags & NetEnemyState.Grounded) != 0;
             Hp = s.Hp;
+            m_NetFrozen = (s.Flags & NetEnemyState.Frozen) != 0;
             OnSnapshot(s.Flags);
             if ((s.Flags & NetEnemyState.Dying) != 0)
             {
@@ -152,6 +175,9 @@ namespace PooketSlug
         public override void Render()
         {
             base.Render();
+            bool frozen = LooksFrozen && !Dying;
+            if (frozen && m_Ice == null) m_Ice = new FrostLook(Go.transform);
+            m_Ice?.Render(this, frozen);
             if (Dying && Look == null)
             {
                 Visual.localRotation = Quaternion.Euler(0f, 0f, Mathf.Min(90f, DyingTime * 400f) * Facing);
@@ -169,6 +195,7 @@ namespace PooketSlug
     /// <summary>Rifleman: advances, stops at range and fires level shots (crouch to dodge).</summary>
     public sealed class Rifleman : Enemy
     {
+        public override bool Freezable => true;
         readonly SpriteRenderer m_Legs, m_Torso, m_Flash;
         float m_Cooldown, m_Muzzle;
 
@@ -219,6 +246,7 @@ namespace PooketSlug
     /// <summary>Knife runner: sprints at the player and slashes up close.</summary>
     public sealed class Runner : Enemy
     {
+        public override bool Freezable => true;
         readonly SpriteRenderer m_Legs, m_Torso;
         float m_AttackCooldown;
 
@@ -267,6 +295,7 @@ namespace PooketSlug
     /// <summary>Hover drone: shadows the player from above and drops bombs.</summary>
     public sealed class Drone : Enemy
     {
+        public override bool Freezable => true;
         readonly SpriteRenderer m_Sr;
         readonly float m_Phase;
         float m_BombCooldown = 1.2f;

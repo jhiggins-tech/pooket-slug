@@ -50,6 +50,8 @@ namespace PooketSlug
         public int Hp, MaxHp;
         public int Facing = 1;
         public bool Grounded;
+        /// <summary>Frozen by Mission two's nitrogen: a soldier or a goon can't move or fire of their own accord.</summary>
+        public Frost Frost;
         protected float FlashTimer;
         protected readonly Transform Visual; // flipped with Facing
 
@@ -78,9 +80,10 @@ namespace PooketSlug
 
         protected Sprite Flashed(Sprite s) => FlashTimer > 0f ? Art.Flash(s) : s;
 
+        /// <summary>Moves with the tiles: walls, floors and bridges, and a conveyor belt underfoot carries it along.</summary>
         protected internal MoveResult MoveWithTiles(float dt, bool dropThrough = false)
         {
-            float push = Shove.x;
+            float push = Shove.x + World.Level.BeltSpeedUnder(Pos, Grounded);
             Vel.x += push;
             MoveResult r = TilePhysics.Move(World.Level, ref Pos, HalfW, Height, ref Vel, dt, dropThrough);
             if (r.HitWall) Shove.x = 0f;

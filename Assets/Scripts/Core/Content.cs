@@ -107,6 +107,9 @@ namespace PooketSlug
         /// <summary>The coda's watchtower and the base's last gate (<c>docs/design/story.md</c>, The coda).</summary>
         public static readonly EnemyDef ToppleTower = new EnemyDef(9, "Watchtower", EnemyBrain.ToppleTower, halfWidth: 1.1f, height: 5.2f, hp: 14, score: 1000);
         public static readonly EnemyDef ExitGate = new EnemyDef(10, "Last gate", EnemyBrain.ExitGate, halfWidth: 1.0f, height: 4f, hp: 24, score: 2000);
+        /// <summary>Mission two's breakables: a box of cones and a nitrogen tank (<see cref="Creamery"/>).</summary>
+        public static readonly EnemyDef ConeBox = new EnemyDef(11, "Box of cones", EnemyBrain.ConeBox, halfWidth: 0.45f, height: 0.9f, hp: 3, score: 50);
+        public static readonly EnemyDef NitrogenTank = new EnemyDef(12, "Nitrogen tank", EnemyBrain.NitrogenTank, halfWidth: 0.38f, height: 1.25f, hp: 3, score: 100);
 
         // ------------------------------------------------------------------ pickups
 
@@ -148,7 +151,7 @@ namespace PooketSlug
         public static readonly IReadOnlyList<WeaponDef> Weapons = ById(w => w.Id, Pistol, HeavyMachineGun, Rifle, Cannon, GrenadeThrow, DroneBomb, TankGun,
             WaterJet, RocketJump, Spew, BossCannon, WeaselPop, Trollogram,
             Steal, StolenRifle, StolenKnives, StolenBombs, StolenCannon, PlayerTankCannon, PlayerTankMortar, TeamSuper);
-        public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank, Barrel, Weasel, TankCopy, Pilot, PilotDecoy, ToppleTower, ExitGate);
+        public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank, Barrel, Weasel, TankCopy, Pilot, PilotDecoy, ToppleTower, ExitGate, ConeBox, NitrogenTank);
         public static readonly IReadOnlyList<PickupDef> Pickups = ById(p => p.Id, HeavyMachineGunCrate, BombCrate, Medkit, OneUp);
         public static readonly IReadOnlyList<SoldierDef> Soldiers = ById(s => s.Id, Trooper, Tones2, Kie);
 
@@ -202,6 +205,8 @@ namespace PooketSlug
                 case SpawnKind.Barrel: return Barrel;
                 case SpawnKind.ToppleTower: return ToppleTower;
                 case SpawnKind.ExitGate: return ExitGate;
+                case SpawnKind.ConeBox: return ConeBox;
+                case SpawnKind.NitrogenTank: return NitrogenTank;
                 default: return null;
             }
         }

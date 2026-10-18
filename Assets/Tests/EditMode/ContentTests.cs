@@ -36,6 +36,8 @@ namespace PooketSlug.Tests
             Assert.AreEqual(4, Content.Barrel.Id);
             Assert.AreEqual(5, Content.Weasel.Id);
             Assert.AreEqual(6, Content.TankCopy.Id);
+            Assert.AreEqual(11, Content.ConeBox.Id);
+            Assert.AreEqual(12, Content.NitrogenTank.Id);
         }
 
         [Test]
@@ -106,6 +108,8 @@ namespace PooketSlug.Tests
         [TestCase(SpawnKind.Drone, EnemyBrain.Drone)]
         [TestCase(SpawnKind.Tank, EnemyBrain.Tank)]
         [TestCase(SpawnKind.Barrel, EnemyBrain.Barrel)]
+        [TestCase(SpawnKind.ConeBox, EnemyBrain.ConeBox)]
+        [TestCase(SpawnKind.NitrogenTank, EnemyBrain.NitrogenTank)]
         public void EachEnemyMarkerPlacesItsEnemy(SpawnKind marker, EnemyBrain brain)
         {
             Assert.AreEqual(brain, Content.EnemyFor(marker).Brain);
@@ -122,6 +126,9 @@ namespace PooketSlug.Tests
         [TestCase(SpawnKind.TowerScenery)]
         [TestCase(SpawnKind.Lift)]
         [TestCase(SpawnKind.Checkpoint)]
+        [TestCase(SpawnKind.ScoopDropper)]
+        [TestCase(SpawnKind.NitrogenVent)]
+        [TestCase(SpawnKind.ColdStore)]
         public void OtherMarkersPlaceNoEnemy(SpawnKind marker)
         {
             Assert.IsNull(Content.EnemyFor(marker));
@@ -142,7 +149,7 @@ namespace PooketSlug.Tests
         }
 
         [TestCase(-1)]
-        [TestCase(11)]
+        [TestCase(13)]
         public void AnUnknownEnemyIdFindsNothing(int id)
         {
             Assert.IsNull(Content.Enemy(id));

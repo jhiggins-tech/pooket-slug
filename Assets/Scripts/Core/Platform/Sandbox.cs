@@ -163,7 +163,7 @@ namespace PooketSlug
             return s;
         }
 
-        static MissionDef Custom(string[] map) => new MissionDef("sandbox", byte.MaxValue, "SANDBOX", "", map);
+        static MissionDef Custom(string[] map) => new MissionDef("sandbox", byte.MaxValue, "SANDBOX", "", map, pilot: Content.Pilot);
 
         static bool Seconds(string value, out float seconds) =>
             float.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out seconds) && seconds >= 0f && seconds < 600f;

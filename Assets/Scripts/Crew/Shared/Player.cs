@@ -39,6 +39,7 @@ namespace PooketSlug
         readonly CallInGesture m_CallIn = new CallInGesture(Tuning.Kit.CallInTapTime, Tuning.Kit.CallInChargeTime);
         Vector2 m_Aim = Vector2.right;
         readonly PlayerVisual m_Visual;
+        FrostLook m_Ice;
         // tones2's kit: a primary, special and super that aren't plain shots
         readonly WaterJet m_Jet;
         readonly RocketJump m_Rocket;
@@ -100,13 +101,24 @@ namespace PooketSlug
             Spewing = Spewing,
             Rooted = m_Rocket != null && m_Rocket.Rooted,
             SuperReady = Kit.SuperReady,
+            Frozen = Frost.Frozen,
         };
+
+        /// <summary>Mission two's nitrogen got our soldier, on foot: frozen for <paramref name="seconds"/>, unless just thawed.</summary>
+        public bool Freeze(float seconds)
+        {
+            if (Dead || Riding != null || NoDamage || !Frost.Freeze(seconds, Creamery.ThawGrace)) return false;
+            Sfx.Play(Sfx.Sizzle, 0.6f);
+            return true;
+        }
 
         public override void Tick(float dt)
         {
             m_Pills?.Tick(dt); // the rain carries on whatever happens to him
+            Frost.Tick(dt);
             if (Dead)
             {
+                Frost.Clear();
                 m_Beam?.Cancel();
                 m_CallIn.Reset();
                 m_Jet?.Tick(dt, false);
@@ -124,7 +136,7 @@ namespace PooketSlug
                 return;
             }
 
-            SoldierInput input = InputEnabled && !m_LeftTank ? Input : default; // the press that ejected doesn't jump too
+            SoldierInput input = InputEnabled && !m_LeftTank && !Frost.Frozen ? Input : default; // the press that ejected doesn't jump too; frozen, nothing
             m_LeftTank = false;
             float moveX = input.MoveX;
             bool up = input.Up, down = input.Down;
@@ -474,6 +486,8 @@ namespace PooketSlug
             if (m_Rocket != null) Go.transform.localPosition += (Vector3)m_Rocket.ShakeOffset;
             m_Visual.Apply(Pose);
             m_Jet?.Render();
+            if (Frost.Frozen && m_Ice == null) m_Ice = new FrostLook(Go.transform);
+            m_Ice?.Render(this, Frost.Frozen);
         }
     }
 }

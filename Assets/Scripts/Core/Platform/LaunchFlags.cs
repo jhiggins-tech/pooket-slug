@@ -5,7 +5,8 @@ namespace PooketSlug
     /// <summary>
     /// What the page address asks of this visit, read once as the game starts. <c>?unlock=</c> opens what's normally
     /// earned and <c>?test=</c> jumps straight to a part of the game, both for testing by hand and in CI (several at
-    /// once, comma separated: <c>?test=boss,reveal</c>). <c>?demo=</c>, <c>?room=</c> and <c>?log=</c> are passed on.
+    /// once, comma separated: <c>?test=boss,reveal</c>). <c>?mission=</c> picks the mission; <c>?demo=</c>,
+    /// <c>?room=</c> and <c>?log=</c> are passed on.
     /// Spikes (<c>?spike=</c>) are <see cref="Spike"/>'s, read before the art and sounds are made.
     /// </summary>
     public sealed class LaunchFlags
@@ -45,6 +46,9 @@ namespace PooketSlug
         /// <summary>?test=reveal: the motor pool reveal plays even if it's been seen (with the boss: <c>?test=boss,reveal</c>).</summary>
         public readonly bool Reveal;
 
+        /// <summary>?mission=2: the mission START plays (its number), reached or not; null for the usual one.</summary>
+        public readonly MissionDef Mission;
+
         /// <summary>?demo=: a kit move's scripted demo to play (<c>all</c> records every one, for CI), or null.</summary>
         public readonly string Demo;
         /// <summary>?room=: the room an invite link joins, upper case, or null.</summary>
@@ -73,6 +77,8 @@ namespace PooketSlug
             Team = Has(test, "team");
             Scene = Has(test, "scene");
             Reveal = Has(test, "reveal");
+            string mission = PageQuery.Get(url, "mission");
+            Mission = mission != null ? Missions.ById("mission-" + mission.Trim()) : null;
             Demo = PageQuery.Get(url, "demo");
             Room = PageQuery.Get(url, "room")?.Trim().ToUpperInvariant();
             LogLevels = PageQuery.Get(url, "log");

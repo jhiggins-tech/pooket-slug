@@ -15,6 +15,8 @@ namespace PooketSlug
         const int SuperReadyBit = 1 << 19;
         // presence (spike coop-camera): the page has lost focus, and a beat that ticks while the game runs
         const int AwayBit = 1 << 20, BeatShift = 21, BeatMask = 3 << BeatShift;
+        // frozen solid by Mission two's nitrogen
+        const int FrozenBit = 1 << 23;
 
         public int Facing;  // 1 = right, -1 = left
         public int AimY;    // 1 = up, -1 = down, 0 = forward
@@ -29,6 +31,8 @@ namespace PooketSlug
         public bool Jetting, Spewing, Rooted;
         /// <summary>The super is charged: with the partner's too, a team super can be fired.</summary>
         public bool SuperReady;
+        /// <summary>Frozen solid by Mission two's nitrogen (<see cref="Frost"/>).</summary>
+        public bool Frozen;
         /// <summary>The player's page has lost focus (they've switched to another window or app).</summary>
         public bool Away;
         /// <summary>
@@ -46,7 +50,7 @@ namespace PooketSlug
             (Diagonal && AimY != 0 ? DiagonalBit : 0) | (Out ? OutBit : 0) | (Gone ? GoneBit : 0) |
             (Jetting ? JetBit | (Mathf.Clamp(Mathf.RoundToInt(Pressure * 7f), 0, 7) << PressureShift) : 0) |
             (Spewing ? SpewBit : 0) | (Rooted ? RootedBit : 0) | (SuperReady ? SuperReadyBit : 0) |
-            (Away ? AwayBit : 0) | ((Beat & 3) << BeatShift);
+            (Away ? AwayBit : 0) | ((Beat & 3) << BeatShift) | (Frozen ? FrozenBit : 0);
 
         /// <summary>
         /// This pose held still, as a Trollogram holds it (kie's, <c>TrollDecoy</c>, and his pilot's,
@@ -55,7 +59,7 @@ namespace PooketSlug
         public AvatarPose Still()
         {
             AvatarPose p = this;
-            p.Muzzle = p.Blink = p.Flash = p.Running = p.Dead = false;
+            p.Muzzle = p.Blink = p.Flash = p.Running = p.Dead = p.Frozen = false;
             return p;
         }
 
@@ -81,6 +85,7 @@ namespace PooketSlug
             SuperReady = (flags & SuperReadyBit) != 0,
             Away = (flags & AwayBit) != 0,
             Beat = (flags & BeatMask) >> BeatShift,
+            Frozen = (flags & FrozenBit) != 0,
             Anim = anim,
             DeadTime = deadTime,
         };

@@ -78,6 +78,15 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void TheMissionIsPickedByItsNumber()
+        {
+            Assert.AreSame(Missions.Two, LaunchFlags.Read(Page + "?mission=2").Mission);
+            Assert.AreSame(Missions.One, LaunchFlags.Read(Page + "?mission=1&test=boss").Mission);
+            Assert.IsNull(LaunchFlags.Read(Page + "?mission=99").Mission, "a mission this build doesn't have");
+            Assert.IsNull(LaunchFlags.Read(Page).Mission);
+        }
+
+        [Test]
         public void SpikesAreNotLaunchFlags()
         {
             LaunchFlags f = LaunchFlags.Read(Page + "?spike=boss,crate");

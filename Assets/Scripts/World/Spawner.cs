@@ -52,12 +52,15 @@ namespace PooketSlug
                 case EnemyBrain.PilotDecoy: e = new PilotDecoy(w, def, pos); break;
                 case EnemyBrain.ToppleTower: e = new ToppleTower(w, def, pos); break;
                 case EnemyBrain.ExitGate: e = new ExitGate(w, def, pos); break;
+                case EnemyBrain.ConeBox: e = new ConeBox(w, def, pos); break;
+                case EnemyBrain.NitrogenTank: e = new Barrel(w, def, pos); break;
                 default: return null;
             }
             e.NetId = id;
             if (def.Brain != EnemyBrain.Tank && def.Brain != EnemyBrain.Barrel && def.Brain != EnemyBrain.Weasel &&
-                def.Brain != EnemyBrain.ToppleTower && def.Brain != EnemyBrain.ExitGate)
-                e.Look = new HoloLook(e); // the goons, kie's tank copies and its pilot are holograms (on every screen in co-op); the tank, barrels, weasels, the watchtower and the last gate are real
+                def.Brain != EnemyBrain.ToppleTower && def.Brain != EnemyBrain.ExitGate && def.Brain != EnemyBrain.ConeBox &&
+                def.Brain != EnemyBrain.NitrogenTank)
+                e.Look = new HoloLook(e); // the goons, kie's tank copies and its pilot are holograms (on every screen in co-op); the tank, barrels, weasels, the watchtower, the last gate and the creamery's boxes and tanks are real
             return e;
         }
 
@@ -105,6 +108,9 @@ namespace PooketSlug
             }
             else if (s.Kind == SpawnKind.Checkpoint) w.Props.Add(new Checkpoint(w, s.Pos));
             else if (s.Kind == SpawnKind.BackGate) w.Props.Add(w.BackGate = new BackGate(w, s.Pos));
+            else if (s.Kind == SpawnKind.NitrogenVent) w.Props.Add(new NitrogenVent(w, s.Pos));
+            else if (s.Kind == SpawnKind.ScoopDropper) w.Props.Add(new ScoopDropper(w, s.Pos));
+            else if (s.Kind == SpawnKind.ColdStore) w.Props.Add(new ColdStoreDoor(w, s.Pos));
         }
 
         public void SpawnAhead()

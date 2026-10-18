@@ -103,6 +103,7 @@ namespace PooketSlug
         {
             string url = Application.absoluteURL;
             m_Flags = LaunchFlags.Read(url);
+            if (m_Flags.Mission != null) Mission = m_Flags.Mission; // ?mission=2
             Log.Configure(m_Flags.LogLevels); // ?log=net:debug,game:warn for this visit
             Spike.Configure(url); // ?spike=craters,music for this visit (before the art and sounds, which make what spikes need)
             Art.Init();
@@ -166,7 +167,8 @@ namespace PooketSlug
         World NewWorld(MissionDef mission, INetLink net = null)
         {
             if (Sandbox.Active) return Sandbox.MakeWorld(m_Camera);
-            var world = new World(m_Camera, mission, net, Soldier) { TanksToCall = m_Flags.UnlockTank || m_Flags.Tank ? 1 : 0, SkipToPilot = m_Flags.Pilot, WeakPilot = m_Flags.WeakPilot, TestTeam = m_Flags.Team, KcajTank = m_Flags.KcajTank };
+            var world = new World(m_Camera, mission, net, Soldier) { TanksToCall = m_Flags.UnlockTank || m_Flags.Tank ? 1 : 0, SkipToPilot = m_Flags.Pilot, WeakPilot = m_Flags.WeakPilot, TestTeam = m_Flags.Team,
+                KcajTank = m_Flags.KcajTank || mission.Boss == BossTabk.Kcaj };
             // a replay meets the boss a second time: the quick intro (?test=reveal plays the first meeting whatever's saved)
             world.QuickBossIntro = !m_Flags.Reveal && Story.QuickBossIntro(mission, lostAtBoss: false);
             Wire(world, coda: true);
@@ -463,7 +465,7 @@ namespace PooketSlug
         internal void BeginCoop()
         {
             m_World.Dispose();
-            m_World = NewWorld(Missions.ByNetId(m_Net.Link.Mission) ?? Mission, m_Net.Link);
+            m_World = NewWorld(Missions.ForCoop(Missions.ByNetId(m_Net.Link.Mission) ?? Mission), m_Net.Link); // Mission one is solo only
             if (m_Net.Watching) m_World.Spectate();
             m_Net.Events = m_World.Sync;
             if (m_Net.Watching) Log.Net.Info($"Watching room {m_Net.RoomCode}, {m_Net.Link.CamX:0} m in");

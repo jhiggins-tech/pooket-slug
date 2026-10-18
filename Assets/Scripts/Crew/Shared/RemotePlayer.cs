@@ -13,6 +13,7 @@ namespace PooketSlug
         readonly PlayerVisual m_Visual;
         readonly Tones2Copy m_Tones2; // their liquids, as harmless copies
         AvatarPose m_Pose;
+        FrostLook m_Ice; // frozen by Mission two's nitrogen, on their screen
         readonly Presence m_Presence = new Presence();
         float m_Anim, m_DeadTime;
         bool m_Placed;
@@ -115,6 +116,9 @@ namespace PooketSlug
             if (m_Tones2 != null) Go.transform.localPosition += (Vector3)Tones2Copy.ShakeOffset(m_Pose);
             m_Visual.Skin = Art.SkinFor(Link.Soldier, Link.Skin);
             m_Visual.Apply(m_Pose);
+            bool frozen = m_Pose.Frozen && !Driving;
+            if (frozen && m_Ice == null) m_Ice = new FrostLook(Go.transform);
+            m_Ice?.Render(this, frozen);
         }
     }
 }
