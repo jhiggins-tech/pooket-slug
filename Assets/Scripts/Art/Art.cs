@@ -78,6 +78,8 @@ namespace PooketSlug
     public sealed class PlayerSkin
     {
         public Sprite TorsoForward, TorsoUp, TorsoDown, TorsoUpDiag, TorsoDownDiag, LegsIdle, LegsJump, LegsCrouch;
+        /// <summary>Off duty, in the den: no gun (standing, gaming, lounging), and sitting on the couch.</summary>
+        public Sprite TorsoUnarmed, TorsoPad, TorsoLounge, LegsSit;
         public Sprite[] LegsRun;
     }
 
@@ -142,6 +144,7 @@ namespace PooketSlug
                 { 'm', Hex(0xa8b0c0) }, { 'M', Hex(0x586078) }, { 'W', Hex(0xffffff) }, { 'o', Hex(0xf08830) },
                 { 'O', Hex(0xc05020) }, { 'x', Hex(0xffe860) }, { 'd', Hex(0x707888) }, { 'D', Hex(0x454b5c) },
                 { 't', Hex(0x8a9a4a) }, { 'T', Hex(0x5a6a30) }, { 'u', Hex(0x3a3a48) }, { 'z', Hex(0xc8d0e0) },
+                { 'v', Hex(0x6b4fb0) }, { 'V', Hex(0x45307a) }, // the den's controllers
             };
 
             var soldier = Swap(new Dictionary<char, uint>
@@ -252,6 +255,10 @@ namespace PooketSlug
                 LegsIdle = Part(ArtData.LegsIdle, ArtData.LegsTop, pal),
                 LegsJump = Part(ArtData.LegsJump, ArtData.LegsTop, pal),
                 LegsCrouch = Part(ArtData.LegsCrouch, ArtData.LegsCrouchTop, pal),
+                TorsoUnarmed = Part(ArtData.TorsoUnarmed, ArtData.TorsoForwardTop, pal),
+                TorsoPad = Part(ArtData.TorsoPad, ArtData.TorsoForwardTop, pal),
+                TorsoLounge = Part(ArtData.TorsoLounge, ArtData.TorsoForwardTop, pal),
+                LegsSit = Part(ArtData.LegsSit, ArtData.LegsSitTop, pal),
                 LegsRun = new Sprite[4],
             };
             for (int i = 0; i < 4; i++) skin.LegsRun[i] = Part(run[i], ArtData.LegsTop, pal);
