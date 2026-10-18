@@ -27,6 +27,10 @@ namespace PooketSlug
         /// <summary>The boss intro under way, and the boss's name for its card; null name when there's none.</summary>
         public BossIntroShow Intro;
         public string IntroName;
+        /// <summary>The super's been met (it's charged once): its meter and SU button show. Hidden before that.</summary>
+        public bool SuperShown;
+        /// <summary>The one-off prompt for the super's first charge while it shows, or null.</summary>
+        public string SuperPrompt;
     }
 
     /// <summary>
@@ -387,8 +391,8 @@ namespace PooketSlug
                 HideFrom(m_Hearts, info.Watching ? 0 : Hearts(m_Hearts, m_NewHeart, 0, p.MaxHp, p.Hp, new Vector2(8f, -24f), 13f, 12f, Color.white));
                 // watching: no soldier of our own, so none of its meters, lives or warnings
                 Ui.Show(m_Lives, !info.Watching);
-                Ui.Show(m_SuperLabel, !info.Watching);
-                Ui.Show(m_SuperBack, !info.Watching);
+                Ui.Show(m_SuperLabel, !info.Watching && info.SuperShown);
+                Ui.Show(m_SuperBack, !info.Watching && info.SuperShown);
                 if (info.Watching)
                 {
                     Ui.Show(m_AbilityLabel, false);
@@ -415,12 +419,13 @@ namespace PooketSlug
             Ui.Show(m_Banner, banner);
             if (banner)
             {
-                m_Banner.text = w.Victory ? "MISSION COMPLETE!" : w.Mission.Name + "  START!";
+                m_Banner.text = w.Victory ? "MISSION COMPLETE!" : MissionBoard.StartBanner(w.Mission, info.Net != null);
                 m_Banner.fontSize = w.Victory ? 28 : 26;
             }
             // the call-in prompt, the first time, until you call: blinking so it's seen
             // then the coda's, teaching the tabk one thing at a time
             string coach = w.CallInCoach != null && w.CallInCoach.Showing ? CallInPrompt : w.CodaCoach?.Prompt;
+            coach ??= info.SuperPrompt;
             if (coach != null && m_Coach.text != coach) m_Coach.text = coach;
             Ui.Show(m_Coach, info.Playing && !banner && coach != null && Time.unscaledTime % 0.8f < 0.55f);
             bool note = banner && !w.Victory && info.Note != null;

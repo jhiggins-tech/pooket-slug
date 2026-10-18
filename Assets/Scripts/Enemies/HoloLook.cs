@@ -8,7 +8,7 @@ namespace PooketSlug
     /// is one; the tank and the barrels are real.
     /// <para>
     /// The look: every sprite is swapped for its hologram (<see cref="Art.Holo"/>: greys, scanlines, a bright edge)
-    /// and tinted by kind (riflemen cyan, knife runners magenta, drones amber), with a shimmer, and every so often a
+    /// and tinted by kind in the bad guys' reds (<see cref="Palette.Hostile"/>), with a shimmer, and every so often a
     /// glitch: the figure jumps a pixel or two with colour-split ghosts. Getting hit sets one off.
     /// </para>
     /// <para>
@@ -27,7 +27,6 @@ namespace PooketSlug
         const float FlashEnd = 0.08f, TearEnd = 0.42f, SquashEnd = 0.58f, End = 0.72f;
         const int BandPx = 3;
 
-        static readonly Color Magenta = new Color(1f, 0.45f, 0.9f), Amber = new Color(1f, 0.82f, 0.35f);
         static readonly Color Poisoned = new Color(0.62f, 1f, 0.2f), Burning = new Color(1f, 0.5f, 0.15f);
 
         readonly Enemy m_Enemy;
@@ -45,7 +44,7 @@ namespace PooketSlug
         public HoloLook(Enemy enemy)
         {
             m_Enemy = enemy;
-            m_Tint = enemy.Def.Brain == EnemyBrain.Runner ? Magenta : enemy.Def.Brain == EnemyBrain.Drone ? Amber : Palette.Cyan;
+            m_Tint = Palette.Hostile(enemy.Def.Brain);
             m_Phase = Rng.Fx.Range(0f, 10f);
             m_NextGlitch = enemy.World.Elapsed + Rng.Fx.Range(0.5f, 2f);
         }

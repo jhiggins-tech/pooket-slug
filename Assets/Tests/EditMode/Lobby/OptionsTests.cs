@@ -52,6 +52,7 @@ namespace PooketSlug.Tests
             Options old = Options.FromBits(Options.FromBits(0).Bits | 2); // shake off, as an older build stored it
             Assert.AreEqual(Volume.High, old.Effects);
             Assert.AreEqual(Volume.High, old.Voices);
+            Assert.AreEqual(Volume.High, old.Music, "a save from before the music setting has the music on");
             Assert.IsFalse(old.LeftHanded);
             Assert.IsFalse(old.Shake);
         }
@@ -62,7 +63,7 @@ namespace PooketSlug.Tests
             foreach (Volume fx in new[] { Volume.High, Volume.Mid, Volume.Low, Volume.Off })
                 foreach (Volume voices in new[] { Volume.High, Volume.Off })
                 {
-                    var o = new Options { Sound = true, Shake = false, Effects = fx, Voices = voices, LeftHanded = fx == Volume.Low, Crew = Content.Kie.Id };
+                    var o = new Options { Sound = true, Shake = false, Effects = fx, Voices = voices, Music = Options.Next(fx), LeftHanded = fx == Volume.Low, Crew = Content.Kie.Id };
                     Assert.AreEqual(o, Options.FromBits(o.Bits), fx + " / " + voices);
                 }
         }

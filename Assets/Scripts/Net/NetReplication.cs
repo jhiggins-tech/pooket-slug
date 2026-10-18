@@ -341,6 +341,11 @@ namespace PooketSlug
             if (m_Local != null && m_Local.Object.IsValid) { m_Local.RPC_Shot(shot.Weapon.Id, shot.Origin, shot.Velocity); WireMeter.Out.Count(WireKind.Shot); }
         }
 
+        public void SendKit(in KitEvent move)
+        {
+            if (m_Local != null && m_Local.Object.IsValid) { m_Local.RPC_Kit((byte)move.Move, move.At, move.Data); WireMeter.Out.Count(WireKind.Kit); }
+        }
+
         public void SendEnemyShot(in ShotEvent shot)
         {
             if (IsAuthority) { m_Shared.RPC_EnemyShot(shot.Weapon.Id, shot.Origin, shot.Velocity); WireMeter.Out.Count(WireKind.EnemyShot); }

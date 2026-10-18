@@ -7,14 +7,27 @@ namespace PooketSlug
     /// <see cref="PopWeasel"/>), Trollogram (<see cref="Trollogram"/>, <see cref="TrollDecoy"/>) and Steal
     /// (<see cref="StealRoulette"/>).
     /// <para>
-    /// Co-op: weasels and holograms go to the partner as shot events (<see cref="Combat.FirePlayerShot"/>'s channel).
-    /// The partner's screen throws harmless copies of the weasels (only the thrower's do damage, as with shots), and
-    /// keeps copies of the holograms so its goons shoot them too (<see cref="TrollEvent"/>). Steal lifts a weapon on
-    /// the thrower's own screen; its shots go out like any gun's.
+    /// Co-op: weasels and holograms go to the partner as kit moves (<see cref="KitEvent"/>). The partner's screen throws
+    /// harmless copies of the weasels (only the thrower's do damage, as with shots), and keeps copies of the holograms so
+    /// its goons shoot them too (<see cref="TrollEvent"/>). Steal lifts a weapon on the thrower's own screen; its shots
+    /// go out like any gun's.
     /// </para>
     /// </summary>
-    public static class KieKit
+    public sealed class KieKit : CrewKit
     {
+        readonly Trollogram m_Troll;
+
+        public KieKit(Player player) : base(player) => m_Troll = new Trollogram(player);
+
+        public override bool OwnPrimary => true;
+        public override bool FirePrimary(Vector2 muzzle) => ThrowWeasels(World, muzzle, Player.Aim, Player.Vel);
+        public override void Special(float dt, bool pressed, bool held) => m_Troll.Tick(dt, pressed, held);
+
+        public override void Super()
+        {
+            if (StealRoulette.Start(World, Player)) Player.Kit.UseSuper(); // nobody to rob: the super isn't spent
+        }
+
         /// <summary>kie fires Weasel Pop from <paramref name="muzzle"/>: false when too many weasels are already out.</summary>
         public static bool ThrowWeasels(World w, Vector2 muzzle, Vector2 aim, Vector2 carry)
         {
@@ -23,27 +36,27 @@ namespace PooketSlug
             foreach (Vector2 v in spec.Volley(aim, carry))
             {
                 w.Props.Add(new PopWeasel(w, muzzle, v));
-                w.Net?.SendShot(new ShotEvent(Content.WeaselPop, muzzle, v));
+                Send(w, KitMove.Weasel, muzzle, v);
             }
             Sfx.Play(Sfx.WeaselThrow, 0.7f);
             return true;
         }
 
         /// <summary>The partner threw a weasel: a harmless copy of it here.</summary>
-        public static void CopyWeasel(World w, in ShotEvent shot)
+        public static void CopyWeasel(World w, in KitEvent move)
         {
-            w.Props.Add(new PopWeasel(w, shot.Origin, shot.Velocity, cosmetic: true));
-            Sfx.Play(Sfx.WeaselThrow, 0.35f);
+            w.Props.Add(new PopWeasel(w, move.At, move.Data, cosmetic: true));
+            Sfx.Play(Sfx.WeaselThrow, PartnerVolume);
         }
 
         /// <summary>Tells the partner what happened to one of our holograms, or to one of theirs here.</summary>
         public static void Send(World w, TrollEvent e, TrollDecoy d) =>
-            w.Net?.SendShot(new ShotEvent(Content.Trollogram, d.Pos, TrollNet.Pack(e, d.Id, d.Facing, d.Crouching)));
+            Send(w, KitMove.Trollogram, d.Pos, TrollNet.Pack(e, d.Id, d.Facing, d.Crouching));
 
         /// <summary>The partner's hologram dropped, moved, blew up or switched off; or a goon hit ours on their screen.</summary>
-        public static void OnTrollEvent(World w, in ShotEvent shot)
+        public static void OnTrollEvent(World w, in KitEvent move)
         {
-            TrollEvent e = TrollNet.Unpack(shot.Velocity, out int id, out int facing, out bool crouching);
+            TrollEvent e = TrollNet.Unpack(move.Data, out int id, out int facing, out bool crouching);
             if (e == TrollEvent.None) return;
             TrollDecoy d = null;
             foreach (TrollDecoy x in w.Decoys)
@@ -56,13 +69,13 @@ namespace PooketSlug
                     foreach (RemotePlayer r in w.Remotes)
                         if (r.Link.Soldier.Special.Behaviour == WeaponBehaviour.Trollogram) owner = r;
                     var pose = new AvatarPose { Facing = facing, Crouching = crouching, Grounded = true };
-                    var copy = new TrollDecoy(w, shot.Origin, pose, Content.Kie, owner != null ? owner.Link.Skin : 1, id, mine: false);
+                    var copy = new TrollDecoy(w, move.At, pose, Content.Kie, owner != null ? owner.Link.Skin : 1, id, mine: false);
                     w.Decoys.Add(copy);
                     w.Props.Add(copy);
-                    Sfx.Play(Sfx.TrollDrop, 0.4f);
+                    Sfx.Play(Sfx.TrollDrop, PartnerVolume);
                     break;
                 case TrollEvent.Moved:
-                    d?.SwapTo(shot.Origin, new AvatarPose { Facing = facing, Crouching = crouching, Grounded = true });
+                    d?.SwapTo(move.At, new AvatarPose { Facing = facing, Crouching = crouching, Grounded = true });
                     break;
                 case TrollEvent.Blown:
                 case TrollEvent.HitYours:
@@ -222,7 +235,7 @@ namespace PooketSlug
             switch (action)
             {
                 case TrollAction.Drop:
-                    p.Specials--;
+                    if (!p.Kit.UseSpecial()) return;
                     var decoy = new TrollDecoy(w, p.Pos, p.Pose, p.Def, w.Coop ? w.Net.LocalSkin : 0, m_NextId++ & 255, mine: true);
                     w.Decoys.Add(decoy);
                     w.Props.Add(decoy);
@@ -257,7 +270,7 @@ namespace PooketSlug
     /// </summary>
     public sealed class TrollDecoy : Actor
     {
-        public static readonly Color Tint = new Color(0.49f, 0.97f, 0.83f); // Tabks' Trollogram colour
+        public static readonly Color Tint = Palette.Friendly; // a friendly green, apart from the goons' reds
 
         readonly PlayerVisual m_Visual;
         readonly SpriteRenderer[] m_Parts;

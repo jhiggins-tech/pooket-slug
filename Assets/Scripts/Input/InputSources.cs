@@ -43,8 +43,6 @@ namespace PooketSlug
             menu.Pause |= kb.pKey.wasPressedThisFrame;
             menu.Mute |= kb.mKey.wasPressedThisFrame;
             menu.Host |= kb.hKey.wasPressedThisFrame;
-            menu.Join |= kb.jKey.wasPressedThisFrame;
-            menu.Quick |= kb.qKey.wasPressedThisFrame;
             menu.Back |= kb.escapeKey.wasPressedThisFrame;
             menu.Settings |= kb.oKey.wasPressedThisFrame;
             menu.Shake |= kb.kKey.wasPressedThisFrame;
@@ -71,8 +69,6 @@ namespace PooketSlug
             menu.Pause |= Input.GetKeyDown(KeyCode.P);
             menu.Mute |= Input.GetKeyDown(KeyCode.M);
             menu.Host |= Input.GetKeyDown(KeyCode.H);
-            menu.Join |= Input.GetKeyDown(KeyCode.J);
-            menu.Quick |= Input.GetKeyDown(KeyCode.Q);
             menu.Back |= Input.GetKeyDown(KeyCode.Escape);
             menu.Settings |= Input.GetKeyDown(KeyCode.O);
             menu.Shake |= Input.GetKeyDown(KeyCode.K);

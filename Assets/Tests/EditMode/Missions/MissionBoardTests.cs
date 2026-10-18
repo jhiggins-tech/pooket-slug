@@ -108,5 +108,14 @@ namespace PooketSlug.Tests
         {
             foreach (MissionDef m in Missions.All) Assert.IsFalse(string.IsNullOrEmpty(m.Place), m.Id);
         }
+
+        [Test]
+        public void TheStartBanner_NamesTheMission_ButNotAStandInInCoop()
+        {
+            Assert.AreEqual(Later.Name + "  START!", MissionBoard.StartBanner(Later, coop: false));
+            Assert.AreEqual(Later.Name + "  START!", MissionBoard.StartBanner(Later, coop: true));
+            Assert.AreEqual(Missions.One.Name + "  START!", MissionBoard.StartBanner(Missions.One, coop: false));
+            Assert.AreEqual("START!", MissionBoard.StartBanner(Missions.One, coop: true), "co-op plays Mission one only as a stand-in");
+        }
     }
 }

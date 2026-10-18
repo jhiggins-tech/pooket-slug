@@ -150,7 +150,7 @@ namespace PooketSlug
             }
             m_DecoyTime = Spec.DecoyTime;
             SetDisguised(true);
-            m_World.Scoring.Popup("WHICH ONE?", m_Tank.Pos + Vector2.up * 4.4f, Palette.Cyan);
+            m_World.Scoring.Popup("WHICH ONE?", m_Tank.Pos + Vector2.up * 4.4f, Palette.HostileRifle);
         }
 
         float m_DecoyTime;
@@ -185,7 +185,7 @@ namespace PooketSlug
         {
             if (on == m_Disguised) return;
             m_Disguised = on;
-            m_World.Burst(m_Tank.Center, 14, Palette.Cyan);
+            m_World.Burst(m_Tank.Center, 14, Palette.HostileRifle);
             Sfx.Play(Sfx.Glitch, 0.8f);
             if (on) m_Tank.Look = new HoloLook(m_Tank);
             else

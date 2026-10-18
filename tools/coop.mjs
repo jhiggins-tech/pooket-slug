@@ -1,5 +1,5 @@
 // Two-player co-op check against a build, in two separate headless Chromium instances.
-// There is one co-op room (CoopRoom.cs): CO-OP (H) on the title joins it. Each round names a room of its own with
+// There is one co-op room (CoopRoom.cs): CO-OP (H) in the den (START on the title opens it) joins it. Each round names a room of its own with
 // ?room=, on every phone, so rounds running at once (and real players in the MATES room) never meet.
 //   code mode (default): A joins (H), copies the invite link in the den (H again, as tapping the TV), which must carry
 //                        the round's room, and B joins (H).
@@ -142,8 +142,9 @@ async function pressUntil(p, key, re, tries = 5) {
   return null;
 }
 
-/** CO-OP (H) on the title, into this round's room: true once the game says it's online there. */
+/** START on the title opens the den, then CO-OP (H) there, into this round's room: true once the game says it's online there. */
 async function goOnline(p) {
+  if (!(await pressUntil(p, 'Enter', new RegExp(TAG + ' Den open: Solo')))) throw new Error(`${p.name} never got from the title to the den`);
   if (!(await pressUntil(p, 'h', new RegExp(TAG + ` Joining room ${ROOM}`)))) throw new Error(`${p.name} never pressed CO-OP`);
   return !!(await waitLog(p, new RegExp(TAG + ` Online .*room ${ROOM}`), 90000));
 }

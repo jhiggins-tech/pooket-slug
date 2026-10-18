@@ -9,24 +9,33 @@ namespace PooketSlug
     /// track rendered on the chip synth the first time it's wanted (<see cref="MusicRender"/>). It sits under the sound
     /// effects, and goes quiet while paused. A track can have a layer, a recording of the same notes in step with it
     /// (the boss's final section played by an orchestra, from the vendor repository's CI into <c>Resources/Music</c>),
-    /// which it crossfades to after a while. First cut: only <c>?spike=music</c> plays anything.
+    /// which it crossfades to after a while; or a recording can loop on its own (the title theme, <see cref="Loop"/>).
+    /// First cut: only the title theme and <c>?spike=music</c> play anything.
     /// </summary>
     public static class Music
     {
         /// <summary>The music's volume: about half the sound effects'.</summary>
         const float Volume = 0.45f, PausedVolume = 0.15f, FadeTime = 0.35f, CrossTime = 4f;
+        /// <summary>How far the music dips under a big blast or a spoken line, and how fast it goes down and comes back.</summary>
+        const float DuckedTo = 0.4f, DuckDown = 8f, DuckUp = 2f;
 
         static AudioSource s_Loop, s_Sting, s_Layer;
         static readonly Dictionary<MusicTrack, AudioClip> s_Clips = new Dictionary<MusicTrack, AudioClip>();
         static readonly Dictionary<string, AudioClip> s_Layers = new Dictionary<string, AudioClip>();
         static MusicTrack s_Playing;
+        static string s_Recording; // the recording looping on its own, or null
         static float s_Fade = -1f;
         /// <summary>Seconds until the crossfade to the layer starts (below 0: none coming), and how far it's got (0..1).</summary>
         static float s_CrossIn = -1f, s_Mix;
         static bool s_Muted, s_Paused;
+        /// <summary>Seconds left of a blast's dip, and the dip as it stands (1: none).</summary>
+        static float s_DuckFor, s_Duck = 1f;
 
         /// <summary>The track playing, or null.</summary>
         public static MusicTrack Playing => s_Playing;
+
+        /// <summary>The recording looping on its own (<see cref="Loop"/>), or null.</summary>
+        public static string Recording => s_Recording;
 
         public static bool Muted
         {
@@ -39,6 +48,18 @@ namespace PooketSlug
                 if (s_Layer != null) s_Layer.mute = value;
             }
         }
+
+        /// <summary>The MUSIC setting's level (<see cref="Options.Gain"/>), on top of the music's own volume.</summary>
+        public static float Gain
+        {
+            get => s_Gain;
+            set
+            {
+                s_Gain = value;
+                ApplyVolume();
+            }
+        }
+        static float s_Gain = 1f;
 
         public static bool Paused
         {
@@ -112,6 +133,7 @@ namespace PooketSlug
             AudioClip clip = ClipOf(track);
             if (clip == null) return;
             s_Playing = track;
+            s_Recording = null;
             s_Fade = -1f;
             s_Loop.Stop();
             s_Loop.clip = clip;
@@ -132,12 +154,35 @@ namespace PooketSlug
             Log.Audio.Info("Music: " + track.Name + (layer != null ? " (with a layer to crossfade to)" : ""));
         }
 
+        /// <summary>
+        /// Loops the recording <c>Resources/Music/&lt;id&gt;.bytes</c> on its own, from the start (a seamless loop, like the
+        /// title theme), unless it's already playing. Nothing plays in a build without it.
+        /// </summary>
+        public static void Loop(string id)
+        {
+            if (s_Loop == null || s_Recording == id && s_Loop.isPlaying && s_Fade < 0f) return;
+            AudioClip clip = Layer(id);
+            if (clip == null) return;
+            s_Playing = null;
+            s_Recording = id;
+            s_Fade = -1f;
+            s_CrossIn = -1f;
+            s_Mix = 0f;
+            if (s_Layer != null) s_Layer.Stop();
+            s_Loop.Stop();
+            s_Loop.clip = clip;
+            ApplyVolume();
+            s_Loop.Play();
+            Log.Audio.Info("Music: the " + id + " recording, looped");
+        }
+
         /// <summary>Stops the track: at once (the boss intro cuts it), or with a quick fade.</summary>
         public static void Stop(bool fade = false)
         {
-            if (s_Loop == null || s_Playing == null) return;
-            Log.Audio.Info("Music stopped: " + s_Playing.Name);
+            if (s_Loop == null || s_Playing == null && s_Recording == null) return;
+            Log.Audio.Info("Music stopped: " + (s_Playing?.Name ?? s_Recording));
             s_Playing = null;
+            s_Recording = null;
             s_CrossIn = -1f;
             if (fade && s_Loop.isPlaying) s_Fade = FadeTime;
             else
@@ -167,10 +212,16 @@ namespace PooketSlug
             if (s_Sting != null) s_Sting.Stop();
         }
 
-        /// <summary>Moves a fade on; call every frame.</summary>
+        /// <summary>Dips the music for <paramref name="seconds"/> under a big blast (<c>docs/design/music.md</c>, ducking).</summary>
+        public static void Duck(float seconds) => s_DuckFor = Mathf.Max(s_DuckFor, seconds);
+
+        /// <summary>Moves a fade and the ducking on; call every frame.</summary>
         public static void Tick(float dt)
         {
             if (s_Loop == null) return;
+            s_DuckFor = Mathf.Max(0f, s_DuckFor - dt);
+            float duck = s_DuckFor > 0f || Sfx.Speaking ? DuckedTo : 1f;
+            s_Duck = Mathf.MoveTowards(s_Duck, duck, (duck < s_Duck ? DuckDown : DuckUp) * dt);
             if (s_CrossIn >= 0f)
             {
                 float was = s_CrossIn;
@@ -199,9 +250,11 @@ namespace PooketSlug
         static void ApplyVolume()
         {
             if (s_Loop == null) return;
-            float v = (s_Paused ? PausedVolume : Volume) * (s_Fade >= 0f ? s_Fade / FadeTime : 1f);
+            float level = (s_Paused ? PausedVolume : Volume) * s_Duck * s_Gain;
+            float v = level * (s_Fade >= 0f ? s_Fade / FadeTime : 1f);
             s_Loop.volume = v * (1f - s_Mix);
             if (s_Layer != null) s_Layer.volume = v * s_Mix;
+            if (s_Sting != null) s_Sting.volume = level;
         }
 
         static AudioClip ClipOf(MusicTrack track)

@@ -13,8 +13,6 @@ namespace PooketSlug
         public const string Coop = "coop";
         /// <summary>The key of <c>?unlock=tank</c> (a tabk to call in from the start, for testing); play grants the call-in in the coda.</summary>
         public const string Tank = "tank";
-        /// <summary>Two of the crew has played: kie walked in and the title menu grew (<c>docs/design/story.md</c>).</summary>
-        public const string TwoOfTheCrew = "two-of-the-crew";
     }
 
     /// <summary>A mission's record at one setting.</summary>

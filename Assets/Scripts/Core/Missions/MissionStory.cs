@@ -43,6 +43,8 @@ namespace PooketSlug
         public const string Coda = "coda";
         /// <summary>The first debrief has played (it explains itself the first time).</summary>
         public const string Debrief = "debrief";
+        /// <summary>The super has charged once: its meter, button and controls line show from then on.</summary>
+        public const string Super = "super";
 
         readonly Profile m_Profile;
 
@@ -56,6 +58,29 @@ namespace PooketSlug
 
         /// <summary>The coda's prompts still show: it's never been cleared.</summary>
         public bool CodaPrompts => !m_Profile.HasSeen(Coda);
+
+        /// <summary>
+        /// The super shows (its meter, button and controls line): it's charged once, or co-op is open, so a save from
+        /// before this was kept, past Mission one, has it (docs/design/player.md: it lights up the first time it's charged).
+        /// </summary>
+        public bool SuperShown => ShowsSuper(m_Profile);
+
+        /// <summary><see cref="SuperShown"/> for <paramref name="profile"/>, without making a record (it's asked every frame).</summary>
+        public static bool ShowsSuper(Profile profile) => profile.HasSeen(Super) || profile.coop;
+
+        /// <summary>
+        /// The boss intro is the quick one (banner and siren, the tabk already in place): a replay of a mission that's
+        /// been cleared, or a retry after losing at the boss door (docs/design/tanks.md, the boss intro).
+        /// </summary>
+        public bool QuickBossIntro(MissionDef mission, bool lostAtBoss) => lostAtBoss || Cleared(mission);
+
+        /// <summary><paramref name="mission"/> has been beaten, on any setting.</summary>
+        public bool Cleared(MissionDef mission)
+        {
+            foreach (Setting setting in System.Enum.GetValues(typeof(Setting)))
+                if (m_Profile.Clears(mission, setting) > 0) return true;
+            return false;
+        }
 
         /// <summary>The next debrief is the first.</summary>
         public bool FirstDebrief => !m_Profile.HasSeen(Debrief);

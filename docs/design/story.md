@@ -25,7 +25,7 @@ Up: [Design](README.md)
 1. **The opening:** a short scene. tones2 comes back from a snack run to find the crew's hangout raided and empty, and heads in alone. Nothing in it mentions tabks.
 2. **Mission one, the military base:** tones2 fights through the base to the motor pool. There comes the reveal: the crew's stolen tabks are parked inside, and kie's tabk rolls out to fight, with a Trollogram kie at the controls. Beat the tabk, then Trollogram kie on foot, and the real kie is freed.
 3. **The coda** (owner, 2026-10-16): with the last of his strength, kie frees tones2's own tabk and bows out, exhausted. tones2 calls it in for the first time and blasts his way out of the base in a short, explosive mini-level after the boss, still part of Mission one. It ends the mission and teaches the tabk.
-4. **Two of the crew:** with kie back, co-op opens. kie's first line sets it up as the menu changes.
+4. **With kie back, co-op opens,** in the den. ([Two of the crew](#two-of-the-crew), the title scene that announced it, is retired.)
 5. **Mission two frees kcaj,** at the Brain Freeze creamery ([Mission two](#mission-two-the-creamery)). The night Mission one ended, the Trollograms moved every tabk left in the motor pool, so each is held somewhere new (owner, 2026-10-16). Each mission after that frees one more crewmate from their own tabk.
 6. **The coming-soon crew** (shotdownboyz, lankcity, odsey and doctorfox) arrive later, each with a mission of their own.
 7. **There's no finale for now.** The story stays open-ended and grows one crewmate at a time, like Coming soon in Tabks.
@@ -41,7 +41,7 @@ Cutscenes are **in-engine scenes**: the game's own art, drawn in code, with spee
   - **Freeing:** the fake pilot glitches out, and the real crewmate appears and joins.
   - **Debrief:** the mission's tally, XP and rank, then anything newly unlocked.
 - **A narrator tells each scene,** in subtitles along the bottom of the screen and out loud (turned well down, to sit with the game's sounds), so what's happening is never left to guesswork. The owner asked for this after trying the first cut of the opening, 2026-10-15. The voice is a camp, softly spoken, Louis Theroux-style documentary narrator (voice F from the narrator voice spike, MiniMax, picked by the owner 2026-10-16), generated like the announcer's by the vendor repository's Narration workflow from its `voice/narration.json`. A line made once is kept, so a new or changed line is the only one made again.
-- **Sound:** there's a music track for each mission, and one for bosses. The crew talk in speech bubbles, and an arcade announcer calls the big moments ("Mission complete!"), in a generated voice ([tabks](tanks.md#the-boss-intro)). Bubbles never sit on top of each other: comic-book style, a later one stacks above the ones already up, or below them when there's no room left above. A narrator line always gets its whole voice, plus a breath, before their next line or the end of the shot; if a re-recorded line runs longer, the shot waits for it (up to 3 seconds).
+- **Sound:** there's a music track for each mission, and one for bosses. The crew talk in speech bubbles, and an arcade announcer calls the big moments ("Mission complete!"), in a generated voice ([tabks](tanks.md#the-boss-intro)). As built, the mission and boss music play only in the `?spike=music` spike ([music](music.md)); a normal run has the sound effects, bubbles and voices, and no mission music yet. Bubbles never sit on top of each other: comic-book style, a later one stacks above the ones already up, or below them when there's no room left above. A narrator line always gets its whole voice, plus a breath, before their next line or the end of the shot; if a re-recorded line runs longer, the shot waits for it (up to 3 seconds).
 - **In co-op,** scenes play for both players, on both phones, and a shot moves on early only once both have tapped (the timer still moves it on for both). A line says who's being waited for. A scene seen before skips only once both players have pressed SKIP, so a partner who hasn't seen it gets to watch it; a partner who leaves holds nobody up. A scene plays in co-op when the players start together from the den; someone joining a game already under way drops straight in.
 - **Every character gets an intro the first time they're on screen** (canonical, the owner, 2026-10-16). The first time a character appears in the story's timeline, the camera crash-zooms onto them, their name slams up big ("TONES2"), time goes slow-mo, and a big musical hit plays. It's part of that scene, so it plays whenever the scene does, and never anywhere else. [Who gets theirs where](#character-intros) is set below, and each scene's design names its intro.
 
@@ -103,7 +103,7 @@ The first-ever reveal: tabks exist ([reveals](#reveals-are-story-beats)). It pla
 | # | Shot | What happens | Narrator, bubbles and text | Time |
 |---|---|---|---|---|
 | 1 | **The shutter** | tones2 steps in from the left in front of the base's wall, and the motor pool's blast shutter grinds up, juddering, and cold light pours out across the apron from the bay behind it. | Narrator: "Behind the shutter: the base's motor pool." (the shutter's grind, then a hum) | 4.5 s |
-| 2 | **The tabks** | The camera eases right and in: the crew's tabks parked in a row under work lights, each in its crewmate's paint (tones2's pink among them), with cyan Trollogram junk flickering all over them and cables across the floor. The space at the front is empty, its paint scuffs still steaming. | Narrator: "And parked inside, all in a row: the crew's tabks." · tones2: "...ARE THOSE OURS?" | 5.5 s |
+| 2 | **The tabks** | The camera eases right and in: the crew's tabks parked in a row under work lights, each in its crewmate's paint (tones2's orange and black among them), with cyan Trollogram junk flickering all over them and cables across the floor. The space at the front is empty, its paint scuffs still steaming. | Narrator: "And parked inside, all in a row: the crew's tabks." · tones2: "...ARE THOSE OURS?" | 5.5 s |
 | 3 | **kie's tabk** | An engine roars, and kie's tabk rolls in from the right into the empty space, its turret pointing up and away. The hatch pops, and up comes kie, but cyan, flickering, grinning. His intro builds up as he rises and lands at 4.5 seconds. | TROLLO-KIE (his intro) · Narrator: "That's kie. Or something wearing his face." · Trollogram kie, glitchy bubble: "HEY TONES. WANNA RACE?" | 9.5 s |
 | 4 | **Hatch shut** | Trollogram kie drops into the hatch and it slams. The turret swings round on to tones2. Straight into the boss intro's WARNING! banner, name card and boss music, with control back in your hands. | Narrator: "kie has never once offered to race." · tones2: "THAT'S NOT KIE." | 4.5 s |
 
@@ -115,15 +115,15 @@ The first-ever reveal: tabks exist ([reveals](#reveals-are-story-beats)). It pla
 
 ## Freeing kie
 
-The freeing scene, after Trollogram kie is beaten on foot ([the pilot round](tanks.md#the-pilot-round)). Draft, 2026-10-15, reworked 2026-10-16 for the owner's new ending: kie frees tones2's tabk, then bows out. About 12 seconds, five shots; it can be skipped once seen, on a replay.
+The freeing scene, after Trollogram kie is beaten on foot ([the pilot round](tanks.md#the-pilot-round)). Draft, 2026-10-15, reworked 2026-10-16 for the owner's new ending: kie frees tones2's tabk, then bows out. About 28 seconds, five shots (built 2026-10-16 with the narrator, which took it from about 12: the glitch-out's 3 seconds in the game, then about 25 of scene); it can be skipped once seen, on a replay.
 
 | # | Shot | What happens | Bubbles and text | Time |
 |---|---|---|---|---|
 | 1 | **The glitch-out** | Trollogram kie staggers, freezes mid-taunt, and glitches apart: the big version of the goons' death (the pilot glitch spike). The boss music cuts out. | Trollogram kie: "WAIT, I WAS WINN-" | 3 s |
-| 2 | **The real kie** | Where it stood, a cyan cage of light flickers out, and the real kie drops to the floor, dazed, in his own colours. | kie: "...HOW LONG WAS I IN THERE?" | 3 s |
-| 3 | **The bit** | tones2 holds out the last of the snacks from the opening. kie takes them. | tones2: "BROUGHT SNACKS." · kie: "LEGEND." | 2 s |
-| 4 | **The release** | kie staggers over to tones2's tabk in the row and rips the cyan Trollogram clamp off it. A cargo drone drops through the roof hatch, hooks the tabk and hauls it up and out. kie presses its call-in remote into tones2's hand. | kie: "YOURS. CALL IT WHEN YOU NEED IT." | 2 s |
-| 5 | **Lights out** | Alarms start up somewhere in the base. kie sits down hard against the wall with the snacks in his lap, and nods off. | kie: "I'M GONNA... SIT THIS ONE OUT." | 2 s |
+| 2 | **The real kie** | Where it stood, a cyan cage of light flickers out, and the real kie drops to the floor, dazed, in his own colours. | kie: "...HOW LONG WAS I IN THERE?" | 7.5 s |
+| 3 | **The bit** | tones2 holds out the last of the snacks from the opening. kie takes them. | tones2: "BROUGHT SNACKS." · kie: "LEGEND." | 4.5 s |
+| 4 | **The release** | kie staggers over to tones2's tabk in the row and rips the cyan Trollogram clamp off it. A cargo drone drops through the roof hatch, hooks the tabk and hauls it up and out. kie presses its call-in remote into tones2's hand. | kie: "YOURS. CALL IT WHEN YOU NEED IT." | 6 s |
+| 5 | **Lights out** | Alarms start up somewhere in the base. kie sits down hard against the wall with the snacks in his lap, and nods off. | kie: "I'M GONNA... SIT THIS ONE OUT." | 7.5 s |
 
 **Character intro:** the real kie, in shot 2, as he drops to the floor: KIE ([character intros](#character-intros)). His line comes after it.
 
@@ -162,13 +162,16 @@ Mission one's debrief, the first time: the tally, then XP and rank are revealed 
 2. **The first XP** (about 3 s): a new bar slides in for the first time, labelled XP. It fills from the mission's parts: the mission cleared, kie freed, and the kills ([career XP](player.md#what-the-player-keeps)). kie's bubble: "YOU GET XP FOR THAT."
 3. **The first step up the ladder** (about 3 s): the rank badge appears, and you go up from the lowest rank on the ladder, where everyone starts ([rank](player.md#what-the-player-keeps)), to the one above it, with a RANK UP! stamp and a chip fanfare. Only that rank's name is shown; the ladder's hidden ranks stay hidden ([rank](player.md#what-the-player-keeps)).
 4. **Sign in to keep it** (only for players who aren't signed in): kie's bubble: "SIGN IN SO THIS DOESN'T VANISH." A line points to the sign-in button at the top right, as on the title screen: "SIGN IN AT THE TOP RIGHT TO KEEP YOUR XP AND RANK". Signing in here saves the run's progress straight away; skipping is fine and asks again only on the next debrief.
-5. **Continue:** to the title screen, where the menu grows ([two of the crew](#two-of-the-crew)).
+5. **Continue:** to the title screen.
 
-On a replay, the debrief is the same screen without the first-time lines and the sign-in step, and with any new looks tokens shown.
+On a replay, the debrief is the same screen without the first-time lines, and with any new looks tokens shown. The sign-in step stays: it shows on every debrief while the player is signed out (step 4).
 
 **Built** (2026-10-16, `Core/Lobby/Debrief.cs`, `Ui/DebriefView.cs`): after every solo win, `?test=debrief` to try it. XP is placeholder: 200 for the clear, 300 for kie freed, 1 a kill. Rank is the record's stages beaten: a first clear climbs one rung (4 stages), a replay one stage, using the ladder ported from Pooket Tabks (`Core/Lobby/Ranks.cs`). The sign-in step shows on every debrief while the player is signed out, since step 4 says it asks again. Looks tokens aren't in yet.
 
 ## Two of the crew
+
+**Retired** (owner, 2026-10-18, start-screen): the title is now a splash with only START and SETTINGS, so it never grows, and this scene was taken out of the game with `?test=crew`. Its words are kept below in case kie's line ("TWO OF US NOW. BRING A MATE.") finds a new home, in the den perhaps.
+
 
 The third reveal: co-op exists ([reveals](#reveals-are-story-beats)). It plays once, ever, the first time the title screen loads after Mission one is beaten, which is usually straight after [the first debrief](#the-first-debrief). If the game is closed during the debrief, it plays the next time the title screen loads. Draft, 2026-10-15. About 8 seconds, four shots, played on the title screen itself: the title is the stage, so the menu grows in front of the player. A tap moves on; it can't be skipped, but it's short.
 
@@ -194,7 +197,7 @@ The third reveal: co-op exists ([reveals](#reveals-are-story-beats)). It plays o
 
 **What the engine needs from it:** the title screen as a cutscene stage, with the crew's sprites standing on it; menu buttons that can animate in; and the unlock state that the [menu-grows spike](levels.md#what-the-player-sees-and-when) adds, saying Mission one has been beaten. The lines are placeholders for the owner to rewrite in the crew's own voice.
 
-**Built** (2026-10-16, `Core/Story/CrewReveal.cs`, `Ui/CrewRevealView.cs`, `MenuView.LayOutTitle`): `?test=crew` to try it. kie walks in through the title's own world and stays beside tones2 until the title's left. START shakes, splits with a hit, and MISSIONS, CO-OP and CREW drop into a row one at a time, each with a clunk; CO-OP pulses on kie's line. SETTINGS stays under them. MISSIONS opens the [mission screen](levels.md#missions), then the den. With no online in the build, CO-OP doesn't drop. Not in yet: kie's snacks and the lean on CO-OP.
+**Was built** (2026-10-16 until it was retired on 2026-10-18, `Core/Story/CrewReveal.cs`, `Ui/CrewRevealView.cs`, `MenuView.LayOutTitle`): kie walks in through the title's own world and stays beside tones2 until the title's left. START shakes, splits with a hit, and MISSIONS, CO-OP and CREW drop into a row one at a time, each with a clunk; CO-OP pulses on kie's line. SETTINGS stays under them. MISSIONS opens the [mission screen](levels.md#missions), then the den. With no online in the build, CO-OP doesn't drop. Not in yet: kie's snacks and the lean on CO-OP.
 
 ## Mission two: the creamery
 
@@ -249,7 +252,7 @@ The game hides what's coming ([progressive disclosure](README.md#progressive-dis
 |---|---|---|
 | Tabks exist | The motor pool, at the end of Mission one | kie's tabk rolls out, with its boss intro |
 | Your tabk: calling it in and driving it | The coda, straight after kie is freed | kie frees tones2's own tabk and bows out; you call it in and blast your way out of the base |
-| Co-op exists | Once Mission one has been beaten | [Two of the crew](#two-of-the-crew): the menu grows, and kie's first line sets it up |
+| Co-op exists | Once Mission one has been beaten | In the den (START on the title opens it): its TV hosts and joins the co-op room |
 | Each new crewmate | The end of their mission | The freeing scene |
 | XP and rank | The first debrief | The first XP, and the first step up the ladder |
 

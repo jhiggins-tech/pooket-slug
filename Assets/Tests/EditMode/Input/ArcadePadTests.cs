@@ -175,6 +175,18 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void SuIsHiddenAndDeadUntilTheSuperIsMet()
+        {
+            m_Pad.SuperVisible = false;
+            Assert.IsFalse(m_Pad.Shown(ArcadePad.Button.Super));
+            Assert.IsFalse(Frame(Down(2, On(ArcadePad.Button.Super))).SuperPressed);
+            Frame();
+            m_Pad.SuperVisible = true;
+            Assert.IsTrue(m_Pad.Shown(ArcadePad.Button.Super));
+            Assert.IsTrue(Frame(Down(3, On(ArcadePad.Button.Super))).SuperPressed);
+        }
+
+        [Test]
         public void AbShowsAndAnswersOnlyForASoldierWithAnAbility()
         {
             Assert.IsFalse(m_Pad.Shown(ArcadePad.Button.Ability));

@@ -14,7 +14,8 @@ namespace PooketSlug
         static Tones2TabkSpec Guns => Tones2Tuning.Tabk;
 
         // seconds into a spray cycle and building up a mud jump (-1 when not), the jump in the air, spew left
-        float m_Cycle = -1f, m_Build = -1f, m_JetDue, m_Puff, m_SpewLeft, m_SpewDue;
+        float m_Cycle = -1f, m_Build = -1f, m_Puff, m_SpewLeft;
+        Drip m_Jet, m_Spew;
         bool m_Flying;
         AudioSource m_Hiss;
 
@@ -49,7 +50,7 @@ namespace PooketSlug
         void StartCycle()
         {
             m_Cycle = 0f;
-            m_JetDue = 0f;
+            m_Jet.Reset();
             Sfx.Play(Sfx.Servo, 0.4f);
         }
 
@@ -64,9 +65,7 @@ namespace PooketSlug
                 return;
             }
             float p = Guns.CyclePressure(m_Cycle);
-            m_JetDue += dt * Guns.Water.DropsPerSecond(p);
-            int drops = (int)m_JetDue;
-            m_JetDue -= drops;
+            int drops = m_Jet.Take(dt, Guns.Water.DropsPerSecond(p));
             Tones2Sprays.Jet(tank.World, Guns.Water, tank.MuzzleAlong(tank.Aim), tank.Aim, p, tank.Vel.x, drops, false);
             if (p >= 0.999f) tank.FlashMuzzle();
             if (m_Hiss == null) m_Hiss = Sfx.LoopSource(tank.Go, Sfx.JetLoop);
@@ -112,7 +111,7 @@ namespace PooketSlug
             Tones2Sprays.Exhaust(world, tank.Pos);
             Sfx.Play(Sfx.RocketLaunch);
             world.View.Shake(0.25f);
-            world.Net?.SendShot(new ShotEvent(Content.RocketJump, tank.Pos, Vector2.zero)); // partners lay mud too, harmless, on their screens
+            CrewKit.Send(world, KitMove.Mud, tank.Pos, Vector2.zero); // partners lay mud too, harmless, on their screens
         }
 
         public override void Land(PlayerTank tank)
@@ -128,7 +127,7 @@ namespace PooketSlug
         void StartSpew(PlayerTank tank)
         {
             m_SpewLeft = Guns.Spew.Duration;
-            m_SpewDue = 0f;
+            m_Spew.Reset();
             Sfx.Play(Sfx.Spew);
             tank.World.Scoring.Popup("SPEW!", tank.Pos + Vector2.up * 2.6f, Tones2Art.Spew);
         }
@@ -137,9 +136,7 @@ namespace PooketSlug
         {
             if (m_SpewLeft <= 0f) return;
             m_SpewLeft -= dt;
-            m_SpewDue += dt * Guns.Spew.DropsPerSecond;
-            int drops = (int)m_SpewDue;
-            m_SpewDue -= drops;
+            int drops = m_Spew.Take(dt, Guns.Spew.DropsPerSecond);
             Tones2Sprays.Spew(tank.World, Guns.Spew, tank.MuzzleAlong(tank.Aim), tank.Aim, tank.Vel.x, drops, false);
             tank.World.View.Shake(0.05f);
             tank.FlashMuzzle();

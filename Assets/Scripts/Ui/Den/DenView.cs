@@ -8,7 +8,7 @@ using static PooketSlug.StageKit;
 namespace PooketSlug
 {
     /// <summary>
-    /// The lobby: the crew's den and the loft above it, painted (<c>docs/design/lobby.md</c>, Den 2.0). You walk the
+    /// The lobby: the crew's den and the loft above it (with the bunks in its roof), painted (<c>docs/design/lobby.md</c>, Den 2.0). You walk the
     /// soldier you're playing round it, and walking somewhere is the menu: the couch gets you ready (and the camera zooms
     /// into the TV once everyone is), the mission board opens the mission screen, the gym up the ladder the kit screen.
     /// Freed crewmates live at their stations and run little idle loops; tapping one swaps you to them. Every so often two
@@ -56,8 +56,8 @@ namespace PooketSlug
             m_Crew.MakeProps();
 
             // the whole den and loft: a tap on someone swaps to them, on a place walks there to use it, anywhere else walks there
-            m_RoomTap = Ui.Rect(m_World, "Tap room", Vector2.zero, Vector2.zero, new Vector2(DenMap.LoftLeft, 0f) * Px,
-                new Vector2(DenMap.LoftRight - DenMap.LoftLeft, DenMap.LoftY + StageH) * Px);
+            m_RoomTap = Ui.Rect(m_World, "Tap room", Vector2.zero, Vector2.zero, Vector2.zero,
+                new Vector2(DenMap.LoftRight, DenMap.LoftY + DenMap.LoftH) * Px);
             Ui.Catcher(m_RoomTap);
             OnPointer(m_RoomTap, EventTriggerType.PointerClick, Tapped);
 
@@ -212,9 +212,11 @@ namespace PooketSlug
         void Camera(float dt, Den den)
         {
             DenWalker w = Walker;
+            // up the den's ladder the camera rises to the loft (its top at the painting's roof, the den's ceiling showing
+            // under its floor), then pans the loft's little extra width; the bunks in its roof are in the same view
             float upper = DenMap.FloorY(DenFloor.Upper), loft = DenMap.FloorY(DenFloor.Loft);
             float rise = w == null ? 0f : Mathf.Clamp01((w.Y - upper) / (loft - upper));
-            float camY = rise * DenMap.LoftY;
+            float camY = rise * (DenMap.LoftY + DenMap.LoftH - StageH);
             float toX = w != null && rise >= 1f ? Mathf.Clamp(w.X - StageW / 2f, DenMap.LoftLeft, DenMap.LoftRight - StageW) : 0f;
             m_CamX = Mathf.Lerp(m_CamX, toX, 1f - Mathf.Exp(-8f * dt));
             if (Mathf.Abs(m_CamX - toX) < 0.05f) m_CamX = toX;

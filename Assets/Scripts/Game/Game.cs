@@ -28,8 +28,8 @@ namespace PooketSlug
     /// story beats. The rest of the game's flow is in flows it owns, one per part: the cutscenes (<see cref="SceneFlow"/>),
     /// the den (<see cref="DenFlow"/>), the kit screen (<see cref="KitFlow"/>), the mission screen (<see cref="BoardFlow"/>),
     /// the demos (<see cref="DemoFlow"/>), the sandbox (<see cref="SandboxFlow"/>), the boss intro
-    /// (<see cref="BossIntroFlow"/>), the music (<see cref="MusicFlow"/>), the
-    /// debrief (<see cref="DebriefFlow"/>) and two of the crew (<see cref="RevealFlow"/>). The HUD and the menus are views
+    /// (<see cref="BossIntroFlow"/>), the music (<see cref="MusicFlow"/>) and the
+    /// debrief (<see cref="DebriefFlow"/>). The HUD and the menus are views
     /// (<see cref="HudView"/>, <see cref="MenuView"/>) that it hands what to show each frame.
     /// </summary>
     public sealed class Game : MonoBehaviour
@@ -89,7 +89,6 @@ namespace PooketSlug
         internal BossIntroFlow Intro { get; private set; }
         internal MusicFlow MissionMusic { get; private set; }
         internal DebriefFlow Debrief { get; private set; }
-        internal RevealFlow Reveal { get; private set; }
 
         /// <summary>Co-op shows only once Mission one has been beaten solo (progressive disclosure).</summary>
         bool CoopOpen => m_Profile.coop || m_Flags.UnlockCoop;
@@ -105,13 +104,13 @@ namespace PooketSlug
             string url = Application.absoluteURL;
             m_Flags = LaunchFlags.Read(url);
             Log.Configure(m_Flags.LogLevels); // ?log=net:debug,game:warn for this visit
-            Spike.Configure(url); // ?spike=craters,music for this visit (before the art and sounds, which make what spikes need)
+            Spike.Configure(url); // ?spike=craters,partner for this visit (before the art and sounds, which make what spikes need)
             Art.Init();
             Sfx.Init(gameObject);
             Music.Init(gameObject);
-            MusicFlow.Prepare();
             m_Options = OptionsStore.Load();
             ApplyOptions();
+            MusicFlow.Prepare(); // after the options: with the music off, nothing's rendered up front
 
             var camGo = new GameObject("Main Camera") { tag = "MainCamera" };
             camGo.transform.SetParent(transform, false);
@@ -137,7 +136,6 @@ namespace PooketSlug
             m_Menu = new MenuView(transform);
             Scenes = new SceneFlow(this, transform);
             Debrief = new DebriefFlow(this, transform);
-            Reveal = new RevealFlow(this, transform, m_Flags.Crew);
             Den = new DenFlow(this, transform);
             Kit = new KitFlow();
             Board = new BoardFlow(this);
@@ -169,13 +167,15 @@ namespace PooketSlug
         {
             if (Sandbox.Active) return Sandbox.MakeWorld(m_Camera);
             var world = new World(m_Camera, mission, net, Soldier) { TanksToCall = m_Flags.UnlockTank || m_Flags.Tank ? 1 : 0, SkipToPilot = m_Flags.Pilot, WeakPilot = m_Flags.WeakPilot, TestTeam = m_Flags.Team, KcajTank = m_Flags.KcajTank };
+            // a replay meets the boss a second time: the quick intro (?test=reveal plays the first meeting whatever's saved)
+            world.QuickBossIntro = !m_Flags.Reveal && Story.QuickBossIntro(mission, lostAtBoss: false);
             Wire(world, coda: true);
             if (m_Flags.Crate)
             {
                 // Just past where a joining partner appears (1.25 ahead of the start), so whoever runs first takes
                 // it before any jump. Only the authority places it; a follower gets it from the snapshot.
                 float x = world.Level.PlayerStart.x + 2.75f;
-                world.Spawner.SpawnPickup(Content.HeavyMachineGunCrate, new Vector2(x, world.Level.TopSurfaceY(x)));
+                world.Spawner.SpawnPickup(Content.BombCrate, new Vector2(x, world.Level.TopSurfaceY(x)));
             }
             if (m_Flags.OneUp)
             {
@@ -235,7 +235,8 @@ namespace PooketSlug
             if (x < 0f) return;
             world.Spawner.SkipBefore = x;
             world.OpenCoda(prompts, restart: true);
-            StartAt(world, x + 2f);
+            StartAt(world, x - 1f); // in the open gateway, just past kie asleep by the wall
+
         }
 
         /// <summary>Puts the soldier, and the camera, at <paramref name="x"/>; what's behind is left behind.</summary>
@@ -251,7 +252,6 @@ namespace PooketSlug
 
         internal void SetState(GameState state)
         {
-            if (state != GameState.Title) Reveal?.End(); // kie leaves with the title screen
             m_State = state;
             m_StateTime = 0f;
             m_OutFor = 0f;
@@ -291,7 +291,7 @@ namespace PooketSlug
             else if (checkpoint >= 0f)
             {
                 m_World.CheckpointX = checkpoint;
-                m_World.QuickBossIntro = true; // the second time: the tank's already in place
+                m_World.QuickBossIntro = Story.QuickBossIntro(Mission, lostAtBoss: true); // the second time: the tank's already in place
                 StartAt(m_World, checkpoint);
             }
             m_StartNote = null;
@@ -355,6 +355,27 @@ namespace PooketSlug
         }
 
         /// <summary>
+        /// The super shows on the HUD, the touch pad and the controls line: it's charged once (or co-op is open). Until
+        /// then it's hidden, so a new player meets it when it's ready (docs/design/player.md).
+        /// </summary>
+        internal bool SuperShown => StoryRecord.ShowsSuper(m_Profile);
+
+        /// <summary>Seconds left on the one-off prompt for the super's first charge (it blinks on the HUD's coach line).</summary>
+        float m_SuperPrompt;
+        const float SuperPromptTime = 6f;
+
+        /// <summary>The first time the soldier's super is charged, remember it (it shows from then on) and prompt it once.</summary>
+        void NoteSuper(float dt)
+        {
+            // the prompt shows until the super's fired, or for a few seconds
+            m_SuperPrompt = m_World.Player.Kit.SuperReady ? Mathf.Max(0f, m_SuperPrompt - dt) : 0f;
+            if (Sandbox.Active || !m_World.Player.Kit.SuperReady || SuperShown) return;
+            if (Story.Mark(StoryRecord.Super)) m_Store.Save(m_Profile);
+            Log.Game.Info("The super's charged for the first time");
+            m_SuperPrompt = SuperPromptTime;
+        }
+
+        /// <summary>
         /// The mission's boss reveal (Mission one's motor pool) plays once, ever: the first time the boss wakes, solo
         /// (co-op opens only once Mission one's beaten, so it's been seen by then). Test starts skip it, unless
         /// ?test=reveal.
@@ -402,7 +423,8 @@ namespace PooketSlug
         void ApplyOptions()
         {
             Sfx.Muted = !m_Options.Sound;
-            Music.Muted = !m_Options.Sound;
+            Music.Muted = !m_Options.Sound || m_Options.Music == Volume.Off;
+            Music.Gain = Options.Gain(m_Options.Music);
             Sfx.EffectsVolume = Options.Gain(m_Options.Effects);
             Sfx.VoicesVolume = Options.Gain(m_Options.Voices);
             ScrollCamera.Shaking = m_Options.Shake;
@@ -449,7 +471,7 @@ namespace PooketSlug
             else if (DropIn.UnderWay(m_Net.Link.IsAuthority, m_Net.Link.CamX)) // the co-op test's drop-in round looks for it
                 Log.Net.Info($"Dropped in to a mission under way, {m_Net.Link.CamX:0} m in, with {m_World.Player.Lives.Lives} lives and our own score at 0");
             m_Coop = true;
-            Music.Silence(); // spikes are solo only
+            MissionMusic.MissionStart(); // each phone plays the mission's music, following its own screen
             m_Paused = false;
             m_LeaveArmed = 0f;
             m_StartNote = null;
@@ -496,6 +518,7 @@ namespace PooketSlug
             float dt = Mathf.Min(Time.unscaledDeltaTime, 1f / 30f);
             m_StateTime += dt;
             Music.Tick(dt);
+            MissionMusic.Title(m_State == GameState.Title || m_State == GameState.Settings || m_State == GameState.Den || m_State == GameState.Lobby);
             Music.Paused = m_Paused;
 
             m_Frames++;
@@ -524,21 +547,12 @@ namespace PooketSlug
                     break;
 
                 case GameState.Title:
-                    if (Reveal.Now == null && Reveal.Due) Reveal.Begin();
-                    if (Reveal.Now != null)
-                    {
-                        Reveal.Tick(dt, keys, soldier);
-                        break;
-                    }
-                    if (CoopReady)
-                    {
-                        if (click == MenuAction.Online || keys.Host) { JoinCoop(); break; }
-                    }
+                    // The splash: START and SETTINGS (Start flow 5). Once the crew's open, START goes to the den, where
+                    // the couch (who you play), the mission board and co-op are.
                     if (click == MenuAction.Settings || keys.Settings) SetState(GameState.Settings);
-                    else if (CrewOpen && (click == MenuAction.Crew || soldier.SpecialPressed)) Den.Show(DenMode.Crew);
                     else if (click == MenuAction.Play || keys.Start || soldier.FirePressed || soldier.JumpPressed)
                     {
-                        if (CrewOpen) Board.Show(fromDen: false); // MISSIONS: the mission screen, then the den
+                        if (CrewOpen) Den.Show(DenMode.Solo);
                         else StartFromTitle(); // before the crew's freed, tones2 is all there is: straight in
                     }
                     break;
@@ -563,6 +577,12 @@ namespace PooketSlug
                         o.Voices = Options.Next(o.Voices);
                         ChangeOptions(o);
                         Sfx.Say("mission-start"); // a taste of the new level
+                    }
+                    else if (click == MenuAction.Music)
+                    {
+                        Options o = m_Options;
+                        o.Music = Options.Next(o.Music);
+                        ChangeOptions(o);
                     }
                     else if (click == MenuAction.LeftHanded)
                     {
@@ -618,6 +638,8 @@ namespace PooketSlug
                         }
                         // no pausing a shared game; it's over when everyone is out of lives and continues
                         m_World.Tick(dt, soldier);
+                        NoteSuper(dt);
+                        MissionMusic.Tick(m_World);
                         m_OutFor = m_World.AllOut ? m_OutFor + dt : 0f;
                         if (m_OutFor > Tuning.Lives.GameOverDelay) EndRun(GameState.GameOver);
                         else if (m_World.Victory && m_World.VictoryTime > 1f) EndRun(GameState.Victory);
@@ -639,6 +661,7 @@ namespace PooketSlug
                         if (Sandbox.Tick(dt, soldier)) break;
                     }
                     else m_World.Tick(dt, soldier);
+                    NoteSuper(dt);
                     MissionMusic.Tick(m_World);
                     m_OutFor = m_World.Player.Lives.IsOut && !m_World.Spectating ? m_OutFor + dt : 0f;
                     if (m_OutFor > Tuning.Lives.GameOverDelay) EndRun(GameState.GameOver);
@@ -697,20 +720,16 @@ namespace PooketSlug
                 LeaveArmed = m_LeaveArmed > 0f,
                 Intro = Intro.Show,
                 IntroName = Intro.Name,
+                SuperShown = SuperShown || m_State == GameState.Demo, // a move's demo shows the whole kit
+                SuperPrompt = m_SuperPrompt > 0f ? (GameInput.TouchActive ? "SUPER READY! TAP SU" : "SUPER READY! PRESS V") : null,
             });
             m_Menu.Refresh(new MenuInfo
             {
                 Screen = MenuScreenNow(),
                 StateTime = m_StateTime,
+                SuperShown = SuperShown,
                 Touch = GameInput.TouchActive,
-                Online = m_Net != null,
-                OnlineOff = m_Net == null && NetSessions.Factory != null,
-                CoopOpen = CoopOpen,
-                CrewOpen = CrewOpen,
-                Crew = Soldier.Name.ToUpperInvariant(),
-                CoopNew = CoopOpen && !m_Profile.HasSeen(Reveals.Coop),
                 CoopJustOpened = m_CoopJustOpened,
-                Reveal = Reveal.Now,
                 InCoop = m_Coop,
                 Notice = m_Notice != null && Time.unscaledTime - m_NoticeTime < 8f ? m_Notice : null,
                 Status = m_Net?.Status,
@@ -761,6 +780,7 @@ namespace PooketSlug
             bool touch = GameInput.TouchActive;
             bool playing = m_State == GameState.Playing;
             pad.Visible = touch && playing && !m_Paused;
+            pad.SuperVisible = SuperShown;
             pad.PauseVisible = touch && playing; // solo: pause; co-op: leave (twice)
         }
 
@@ -768,13 +788,17 @@ namespace PooketSlug
         {
             SetState(state);
             if (m_World.Spectating) return; // watching a room isn't a run of our own
-            if (state == GameState.GameOver) Music.Silence();
+            if (state == GameState.GameOver) MissionMusic.GameOver();
             if (Sandbox.Active) return; // nothing a sandbox does goes on the profile
             bool wasOpen = m_Profile.coop, won = state == GameState.Victory;
             int best = m_Profile.Best(m_World.Mission), clears = m_Profile.Clears(m_World.Mission);
             m_Profile.RecordRun(m_World.Mission, m_Coop ? Setting.Normal : Setting, m_World.Scoring.Points, won, solo: !m_Coop);
             m_CoopJustOpened = !wasOpen && m_Profile.coop;
-            if (won && !m_Coop) Debrief.Show(best, firstClear: clears == 0 || m_Flags.Debrief);
+            if (won && !m_Coop)
+            {
+                Debrief.Show(best, firstClear: clears == 0 || m_Flags.Debrief);
+                MissionMusic.Debrief(m_World.VictoryTime);
+            }
             m_Store.Save(m_Profile);
         }
     }

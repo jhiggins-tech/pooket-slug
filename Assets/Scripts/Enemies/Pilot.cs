@@ -58,7 +58,7 @@ namespace PooketSlug
             m_Shield = Spec.JumpOutShield;
             Grounded = false;
             m_Leaping = true;
-            World.Scoring.Popup("THE PILOT!", Center + Vector2.up * 1.4f, Palette.Cyan);
+            World.Scoring.Popup("THE PILOT!", Center + Vector2.up * 1.4f, Palette.HostileRifle);
             Sfx.Play(Sfx.Glitch, 0.8f);
             Sfx.Play(Sfx.Jump, 0.8f);
         }
@@ -227,18 +227,18 @@ namespace PooketSlug
                     m_Specials--;
                     m_Decoy = World.Spawner.SpawnEnemy(Content.PilotDecoy, Pos) as PilotDecoy;
                     m_Decoy?.Hold(Pose(), Height);
-                    World.Scoring.Popup("TROLLOGRAM!", Center + Vector2.up * 1.4f, TrollDecoy.Tint);
+                    World.Scoring.Popup("TROLLOGRAM!", Center + Vector2.up * 1.4f, Palette.HostileRifle);
                     Sfx.Play(Sfx.TrollDrop, 0.8f);
                     break;
                 case TrollAction.Swap:
                     Vector2 here = Pos;
                     AvatarPose pose = Pose();
-                    World.Burst(Center, 10, TrollDecoy.Tint);
+                    World.Burst(Center, 10, Palette.HostileRifle);
                     Pos = m_Decoy.Pos;
                     Vel = Vector2.zero;
                     m_Decoy.Pos = here;
                     m_Decoy.Hold(pose, Height);
-                    World.Burst(Center, 10, TrollDecoy.Tint);
+                    World.Burst(Center, 10, Palette.HostileRifle);
                     m_SinceSwap = 0f;
                     m_Shield = Mathf.Max(m_Shield, Spec.SwapShield);
                     Sfx.Play(Sfx.TrollSwap, 0.8f);
@@ -270,7 +270,7 @@ namespace PooketSlug
             PilotFreeingSpec spec = KieTuning.Freeing;
             Look?.Big(spec.Freeze, spec.Stretch, spec.TearPx);
             World.BossMusicOff = true;
-            World.Scoring.Popup("WAIT, I WAS WINN-", Center + Vector2.up * 1.2f, Palette.Cyan);
+            World.Scoring.Popup("WAIT, I WAS WINN-", Center + Vector2.up * 1.2f, Palette.HostileRifle);
             World.View.Shake(0.15f);
         }
 
@@ -393,7 +393,7 @@ namespace PooketSlug
             if (m_Blown) return;
             m_Blown = true;
             World.Combat.Explode(Center, 0f, 0, false, KieTuning.Pilot.DecoyBlastSize);
-            World.Scoring.Popup("TROLLED!", Center + Vector2.up * 1.2f, TrollDecoy.Tint);
+            World.Scoring.Popup("TROLLED!", Center + Vector2.up * 1.2f, Palette.HostileRifle);
         }
 
         protected override void OnSnapshot(int flags)

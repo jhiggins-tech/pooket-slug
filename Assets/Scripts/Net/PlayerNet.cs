@@ -67,6 +67,11 @@ namespace PooketSlug
             WeaponDef def = Content.Weapon(weapon);
             if (def != null) NetSession.Instance?.Replication.Events?.OnShot(new ShotEvent(def, origin, vel)); // else a weapon this build doesn't have
         }
+
+        /// <summary>Replays one of our crewmate's moves on the other clients (<see cref="KitEvent"/>, a harmless copy).</summary>
+        [Rpc(RpcSources.StateAuthority, RpcTargets.Proxies, InvokeLocal = false)]
+        public void RPC_Kit(byte move, Vector2 at, Vector2 data) =>
+            NetSession.Instance?.Replication.Events?.OnKit(new KitEvent((KitMove)move, at, data));
     }
 }
 #endif

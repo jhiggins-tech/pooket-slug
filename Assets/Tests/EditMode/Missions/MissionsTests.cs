@@ -75,5 +75,14 @@ namespace PooketSlug.Tests
                 Assert.LessOrEqual(pickups, NetLimits.Pickups, m.Id);
             }
         }
+
+        [Test]
+        public void NoMissionHandsOutAClassicGun()
+        {
+            // player.md: no classic guns; Mission one's heavy machine gun crate became a bomb crate (design audit, 18 Oct)
+            foreach (MissionDef m in Missions.All)
+                foreach (Spawn s in m.Load().Spawns)
+                    Assert.AreNotEqual(PickupEffect.Gun, Content.PickupFor(s.Kind)?.Effect, m.Id + " at " + s.Pos);
+        }
     }
 }

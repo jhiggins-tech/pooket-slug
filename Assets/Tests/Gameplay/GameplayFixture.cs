@@ -76,6 +76,7 @@ namespace PooketSlug.Tests
         public void SendSceneVersions(int versions) { }
         public int SceneVersions => 0;
         public void SendShot(in ShotEvent shot) { }
+        public void SendKit(in KitEvent move) { }
         public void SendScore(int points) { }
 
         public int Mission { get; set; }

@@ -3,7 +3,7 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>The kinds of message a phone sends its partner, besides its replicated state.</summary>
-    public enum WireKind { Shot, EnemyShot, Burst, Hit, Claim, Grant, Hurt, Count }
+    public enum WireKind { Shot, EnemyShot, Burst, Hit, Claim, Grant, Hurt, Kit, Count }
 
     /// <summary>
     /// Spike coop-weapons: what goes over Photon, so liquid and particle weapons don't flood it. The replicated state
@@ -34,6 +34,7 @@ namespace PooketSlug
             {
                 case WireKind.Shot:
                 case WireKind.EnemyShot: return 1 + 8 + 8; // weapon byte, origin, velocity
+                case WireKind.Kit: return 1 + 8 + 8;       // the move, where, and its data
                 case WireKind.Burst: return BurstEvent.Bytes;
                 case WireKind.Hit: return 2 + 1;           // enemy id, damage
                 case WireKind.Claim: return 2;             // pickup id
