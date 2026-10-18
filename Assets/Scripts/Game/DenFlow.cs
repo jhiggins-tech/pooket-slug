@@ -28,6 +28,8 @@ namespace PooketSlug
         public void Show(DenMode mode)
         {
             m_Den = new Den(mode, m_Game.Freed, m_Game.Soldier);
+            m_ToCouch = false;
+            m_HeldDir = 0;
             m_View.Begin(m_Den, InfoNow());
             m_Game.SetState(GameState.Den);
             Log.Game.Info("Den open: " + mode + ", on the couch: " + (m_Den.Pick?.Name ?? "nobody"));
@@ -99,6 +101,7 @@ namespace PooketSlug
         }
 
         int m_HeldDir;
+        bool m_ToCouch;
 
         /// <summary>Where your soldier's told to go: taps, the keys, READY. Setting off from the couch gets you up.</summary>
         void Walking(MenuInput keys, SoldierInput soldier)
@@ -108,7 +111,19 @@ namespace PooketSlug
             bool walk = m_View.TakeWalk(out DenFloor floor, out float x);
             bool keyReady = m_Game.StateTime > 0.3f && (keys.Start || soldier.FirePressed); // not the START that opened the den
             bool ready = m_View.TakeReady() || keyReady;
-            if (w == null || m_Den.Zoom >= 0f) return;
+            if (m_Den.Zoom >= 0f) return;
+            if (ready && m_Den.Pick == null)
+            {
+                // nobody's ours (the partner took our pick): READY picks the next free crewmate, who heads for the couch
+                if (m_Den.TryPick(m_Den.NextFree())) m_ToCouch = true;
+                return;
+            }
+            if (w == null) return;
+            if (m_ToCouch && m_View.Walker != null) // they're ours now
+            {
+                m_ToCouch = false;
+                ready = true;
+            }
             if (ready && m_Den.Ready)
             {
                 Sit(false);
