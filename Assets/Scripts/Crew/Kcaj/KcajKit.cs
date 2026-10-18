@@ -4,6 +4,60 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
+    /// kcaj's special and super in a soldier's hands (<c>?spike=kcaj</c>, solo only): SP is Hyperfixate
+    /// (<see cref="KcajBeam"/>) and SU is Unmedicated (<see cref="KcajPills"/>). The primary stays the soldier's own,
+    /// from their kit.
+    /// </summary>
+    public sealed class KcajKit : CrewKit
+    {
+        readonly CrewKit m_Primary;
+        readonly KcajBeam m_Beam;
+        readonly KcajPills m_Pills;
+
+        public KcajKit(Player player, CrewKit primary) : base(player)
+        {
+            m_Primary = primary;
+            m_Beam = new KcajBeam(player, KcajTuning.Beam);
+            m_Pills = new KcajPills(player, KcajTuning.Pills);
+            player.Kit.FillSuper(); // the super's ready from the start, to try it
+        }
+
+        public override bool Fixated => m_Beam.Locked;
+        public override float SpeedScale => m_Beam.Locked ? KcajTuning.Beam.WalkScale : 1f;
+
+        public override void Always(float dt) => m_Pills.Tick(dt);
+
+        public override void LetGo()
+        {
+            m_Beam.Cancel();
+            m_Primary.LetGo();
+        }
+
+        public override bool Streams => m_Primary.Streams;
+        public override void HoldPrimary(float dt, bool firing) => m_Primary.HoldPrimary(dt, firing);
+        public override bool OwnPrimary => m_Primary.OwnPrimary;
+        public override bool FirePrimary(Vector2 muzzle) => m_Primary.FirePrimary(muzzle);
+
+        public override void Special(float dt, bool pressed, bool held) => m_Beam.Tick(dt, pressed, held);
+
+        public override void Super()
+        {
+            if (m_Pills.Raining || !Player.Kit.UseSuper()) return;
+            World.Scoring.Popup("UNMEDICATED!", Player.Pos + Vector2.up * 2.2f, KcajArt.Beam);
+            m_Pills.Start();
+        }
+
+        public override void Render()
+        {
+            m_Pills.Render();
+            m_Beam.Render();
+            m_Primary.Render();
+        }
+
+        public override void Pose(ref AvatarPose pose) => m_Primary.Pose(ref pose);
+    }
+
+    /// <summary>
     /// kcaj's special, Hyperfixate, on screen (<c>?spike=kcaj</c>, solo only: the soldier's SP becomes it). The rules
     /// are <see cref="HyperfixateSpec"/> and <see cref="Hyperfixation"/>; this finds what the beam touches, draws the
     /// beam and the dimmed screen edges, and burns the target.
@@ -81,7 +135,7 @@ namespace PooketSlug
                 Sfx.Play(Sfx.Glitch, 0.25f);
                 return;
             }
-            p.Specials--;
+            p.Kit.UseSpecial();
             m_Target = hit;
             m_Fix.Lock();
             Sfx.Play(Sfx.Charge, 0.5f);
@@ -235,8 +289,7 @@ namespace PooketSlug
             if (m_Rain.Done)
             {
                 Raining = false;
-                // A spike: the super is charged again for the next go.
-                while (!m_Player.Kit.SuperReady) m_Player.Kit.AddKill();
+                m_Player.Kit.FillSuper(); // a spike: the super is charged again for the next go
             }
         }
 

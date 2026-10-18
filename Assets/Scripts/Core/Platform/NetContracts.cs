@@ -72,6 +72,38 @@ namespace PooketSlug
         }
     }
 
+    /// <summary>
+    /// A crewmate's move that isn't a shot, sent to the partner so their screen can copy it (<see cref="KitEvent"/>).
+    /// The numbers ride the network: never change or reuse one.
+    /// </summary>
+    public enum KitMove : byte
+    {
+        None = 0,
+        /// <summary>kie threw a weasel: from <see cref="KitEvent.At"/>, at <see cref="KitEvent.Data"/>.</summary>
+        Weasel = 1,
+        /// <summary>One of kie's Trollograms dropped, moved, blew up or switched off (<see cref="TrollNet"/> packs <see cref="KitEvent.Data"/>).</summary>
+        Trollogram = 2,
+        /// <summary>tones2's rocket jump, or his tabk's mud gun, spilled mud at <see cref="KitEvent.At"/>.</summary>
+        Mud = 3,
+    }
+
+    /// <summary>
+    /// One crewmate move for the partner's screen, which plays a harmless copy of it (only the mover's screen does
+    /// damage, as with shots). Every kit sends its moves this one way.
+    /// </summary>
+    public readonly struct KitEvent
+    {
+        public readonly KitMove Move;
+        public readonly Vector2 At, Data;
+
+        public KitEvent(KitMove move, Vector2 at, Vector2 data)
+        {
+            Move = move;
+            At = at;
+            Data = data;
+        }
+    }
+
     /// <summary>A follower's shot hit an enemy; the authority applies the damage.</summary>
     public readonly struct HitReport
     {
@@ -114,6 +146,8 @@ namespace PooketSlug
         int Round { get; }
         /// <summary>A partner fired: replay it as a harmless copy.</summary>
         void OnShot(in ShotEvent shot);
+        /// <summary>A partner's crewmate made a move: copy it, harmlessly.</summary>
+        void OnKit(in KitEvent move);
         /// <summary>An enemy on the authority fired: replay it. It only hurts our own soldier.</summary>
         void OnEnemyShot(in ShotEvent shot);
         /// <summary>Authority only: a follower hit an enemy.</summary>
@@ -153,6 +187,8 @@ namespace PooketSlug
         /// <summary>Which copies of the scenes we play (<see cref="SceneLibrary.Versions"/>), so both phones play the same.</summary>
         void SendSceneVersions(int versions);
         void SendShot(in ShotEvent shot);
+        /// <summary>Our crewmate made a move that isn't a shot (<see cref="KitEvent"/>).</summary>
+        void SendKit(in KitEvent move);
         /// <summary>Our own points: the kills our soldier made (the shared score is everyone's, <see cref="IWorldChannel.Score"/>).</summary>
         void SendScore(int points);
     }

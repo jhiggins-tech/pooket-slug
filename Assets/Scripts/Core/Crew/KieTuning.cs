@@ -199,8 +199,8 @@ namespace PooketSlug
     }
 
     /// <summary>
-    /// Co-op: what happened to one of a player's Trollograms, sent to the partner as a shot event (weapon
-    /// <see cref="Content.Trollogram"/>, the hologram's feet as its origin, and this packed into its velocity). Each
+    /// Co-op: what happened to one of a player's Trollograms, sent to the partner as a kit move
+    /// (<see cref="KitMove.Trollogram"/>, the hologram's feet as where, and this packed into its data). Each
     /// screen keeps a copy of the partner's holograms, so the goons shoot them on every screen.
     /// </summary>
     public enum TrollEvent
