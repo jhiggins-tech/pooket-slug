@@ -318,7 +318,7 @@ namespace PooketSlug
                     else
                     {
                         m_Controls1.text = "MOVE  Arrows / WASD      JUMP  Z / Space      FIRE  X / J";
-                        m_Controls2.text = "GRENADE  C / L      SUPER  V / U      AIM  Up / Down (in air), + run for 45°      DROP  Down + Jump";
+                        m_Controls2.text = "SP  C / L      SUPER  V / U      AIM  Up / Down (in air), + run for 45°      DROP  Down + Jump";
                         m_Controls3.text = "PAUSE  P / Enter      RESTART  R      MUTE  M      Gamepad supported";
                     }
                     Key(m_SoundKey, keys, "M");

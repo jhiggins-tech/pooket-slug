@@ -415,7 +415,7 @@ namespace PooketSlug
             Ui.Show(m_Banner, banner);
             if (banner)
             {
-                m_Banner.text = w.Victory ? "MISSION COMPLETE!" : w.Mission.Name + "  START!";
+                m_Banner.text = w.Victory ? "MISSION COMPLETE!" : MissionBoard.StartBanner(w.Mission, info.Net != null);
                 m_Banner.fontSize = w.Victory ? 28 : 26;
             }
             // the call-in prompt, the first time, until you call: blinking so it's seen

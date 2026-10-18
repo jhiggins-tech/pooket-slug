@@ -51,9 +51,12 @@ namespace PooketSlug
             Prop("door", 20f, 40f).rectTransform.pivot = new Vector2(0f, 0f); // it swings on its hinge, on the left
         }
 
-        /// <summary>tones2's tabk, parked in the motor pool's first space.</summary>
-        public void MakeTones2Tabk() =>
-            m_Props["tones2-tabk"] = Picture("tones2-tabk", Art.Tank, 0f, 0f, Art.Tank.rect.width, Art.Tank.rect.height, Color.white);
+        /// <summary>tones2's tabk, in his orange and black, parked in the motor pool's first space.</summary>
+        public void MakeTones2Tabk()
+        {
+            Sprite tabk = Tones2Art.TabkParked;
+            m_Props["tones2-tabk"] = Picture("tones2-tabk", tabk, 0f, 0f, tabk.rect.width, tabk.rect.height, Color.white);
+        }
 
         /// <summary>kie, kie's tabk (a hull and a turret that turns), the clamp, and the cargo drone with its cable and rotors.</summary>
         public void MakeKieAndTheDrone()
