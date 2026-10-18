@@ -53,6 +53,8 @@ namespace PooketSlug
         public bool PauseVisible { get; set; }
         /// <summary>The soldier has an ability, so its button (AB) shows.</summary>
         public bool AbilityVisible { get; set; }
+        /// <summary>The super's been met (it's charged once), so its button (SU) shows; hidden before that (docs/design/player.md).</summary>
+        public bool SuperVisible { get; set; } = true;
         /// <summary>A team super can be fired (<see cref="TeamSupers"/>), so its button (TEAM) shows.</summary>
         public bool TeamVisible { get; set; }
         public float Width { get; private set; }
@@ -70,7 +72,7 @@ namespace PooketSlug
         public float Radius(Button b) => m_Radius[(int)b];
         public bool Held(Button b) => m_Held[(int)b];
         public bool Shown(Button b) => b == Button.Pause ? PauseVisible : b == Button.Ability ? Visible && AbilityVisible
-            : b == Button.Team ? Visible && TeamVisible : Visible;
+            : b == Button.Team ? Visible && TeamVisible : b == Button.Super ? Visible && SuperVisible : Visible;
 
         /// <summary>Places the stick and the buttons on a screen this many HUD units wide, mirrored if <paramref name="leftHanded"/>.</summary>
         public void Layout(float width, bool leftHanded = false)

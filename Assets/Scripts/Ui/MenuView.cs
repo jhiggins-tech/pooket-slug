@@ -15,6 +15,8 @@ namespace PooketSlug
     {
         public MenuScreen Screen;
         public float StateTime;
+        /// <summary>The super's been met (it's charged once), so the controls name it.</summary>
+        public bool SuperShown;
         /// <summary>Show touch hints instead of keys.</summary>
         public bool Touch;
         /// <summary>Online co-op is in this build (the Photon SDK and an AppId).</summary>
@@ -312,13 +314,13 @@ namespace PooketSlug
                     {
                         bool lefty = info.Options.LeftHanded;
                         m_Controls1.text = (lefty ? "RIGHT" : "LEFT") + " THUMB  RUN, AIM UP, CROUCH (AIM DOWN IN THE AIR)";
-                        m_Controls2.text = (lefty ? "LEFT" : "RIGHT") + " THUMB  FIRE (HOLD IT), JUMP, SP, SU (SUPER, FROM KILLS)      DROP  DOWN + JUMP";
+                        m_Controls2.text = (lefty ? "LEFT" : "RIGHT") + " THUMB  FIRE (HOLD IT), JUMP, SP" + (info.SuperShown ? ", SU (SUPER, FROM KILLS)" : "") + "      DROP  DOWN + JUMP";
                         m_Controls3.text = "II  PAUSE";
                     }
                     else
                     {
                         m_Controls1.text = "MOVE  Arrows / WASD      JUMP  Z / Space      FIRE  X / J";
-                        m_Controls2.text = "GRENADE  C / L      SUPER  V / U      AIM  Up / Down (in air), + run for 45°      DROP  Down + Jump";
+                        m_Controls2.text = "GRENADE  C / L      " + (info.SuperShown ? "SUPER  V / U      " : "") + "AIM  Up / Down (in air), + run for 45°      DROP  Down + Jump";
                         m_Controls3.text = "PAUSE  P / Enter      RESTART  R      MUTE  M      Gamepad supported";
                     }
                     Key(m_SoundKey, keys, "M");

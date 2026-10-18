@@ -357,28 +357,31 @@ namespace PooketSlug
         }
 
         /// <summary>
-        /// The mission's boss reveal (Mission one's motor pool) plays once, ever: the first time the boss wakes, solo
-        /// (co-op opens only once Mission one's beaten, so it's been seen by then). Test starts skip it, unless
-        /// ?test=reveal.
-        /// </summary>
-        /// <summary>
         /// The super shows on the HUD, the touch pad and the controls line: it's charged once (or co-op is open). Until
         /// then it's hidden, so a new player meets it when it's ready (docs/design/player.md).
         /// </summary>
         internal bool SuperShown => StoryRecord.ShowsSuper(m_Profile);
 
-        /// <summary>The soldier's super charged for the first time ever, just now: the HUD's one-off prompt.</summary>
-        internal event System.Action SuperFirstCharged;
+        /// <summary>Seconds left on the one-off prompt for the super's first charge (it blinks on the HUD's coach line).</summary>
+        float m_SuperPrompt;
+        const float SuperPromptTime = 6f;
 
-        /// <summary>The first time the soldier's super is charged, remember it (it shows from then on) and say so.</summary>
-        void NoteSuper()
+        /// <summary>The first time the soldier's super is charged, remember it (it shows from then on) and prompt it once.</summary>
+        void NoteSuper(float dt)
         {
+            // the prompt shows until the super's fired, or for a few seconds
+            m_SuperPrompt = m_World.Player.Kit.SuperReady ? Mathf.Max(0f, m_SuperPrompt - dt) : 0f;
             if (Sandbox.Active || !m_World.Player.Kit.SuperReady || SuperShown) return;
             if (Story.Mark(StoryRecord.Super)) m_Store.Save(m_Profile);
             Log.Game.Info("The super's charged for the first time");
-            SuperFirstCharged?.Invoke();
+            m_SuperPrompt = SuperPromptTime;
         }
 
+        /// <summary>
+        /// The mission's boss reveal (Mission one's motor pool) plays once, ever: the first time the boss wakes, solo
+        /// (co-op opens only once Mission one's beaten, so it's been seen by then). Test starts skip it, unless
+        /// ?test=reveal.
+        /// </summary>
         bool PlaysBossReveal => !m_Coop && !Sandbox.Active && Mission.Story.BossReveal != null &&
             (m_Flags.Reveal || Story.Due(Mission.Story.BossReveal) && !m_Flags.Boss && !m_Flags.Team);
 
@@ -638,7 +641,7 @@ namespace PooketSlug
                         }
                         // no pausing a shared game; it's over when everyone is out of lives and continues
                         m_World.Tick(dt, soldier);
-                        NoteSuper();
+                        NoteSuper(dt);
                         m_OutFor = m_World.AllOut ? m_OutFor + dt : 0f;
                         if (m_OutFor > Tuning.Lives.GameOverDelay) EndRun(GameState.GameOver);
                         else if (m_World.Victory && m_World.VictoryTime > 1f) EndRun(GameState.Victory);
@@ -660,7 +663,7 @@ namespace PooketSlug
                         if (Sandbox.Tick(dt, soldier)) break;
                     }
                     else m_World.Tick(dt, soldier);
-                    NoteSuper();
+                    NoteSuper(dt);
                     MissionMusic.Tick(m_World);
                     m_OutFor = m_World.Player.Lives.IsOut && !m_World.Spectating ? m_OutFor + dt : 0f;
                     if (m_OutFor > Tuning.Lives.GameOverDelay) EndRun(GameState.GameOver);
@@ -719,11 +722,14 @@ namespace PooketSlug
                 LeaveArmed = m_LeaveArmed > 0f,
                 Intro = Intro.Show,
                 IntroName = Intro.Name,
+                SuperShown = SuperShown || m_State == GameState.Demo, // a move's demo shows the whole kit
+                SuperPrompt = m_SuperPrompt > 0f ? (GameInput.TouchActive ? "SUPER READY! TAP SU" : "SUPER READY! PRESS V") : null,
             });
             m_Menu.Refresh(new MenuInfo
             {
                 Screen = MenuScreenNow(),
                 StateTime = m_StateTime,
+                SuperShown = SuperShown,
                 Touch = GameInput.TouchActive,
                 Online = m_Net != null,
                 OnlineOff = m_Net == null && NetSessions.Factory != null,
@@ -783,6 +789,7 @@ namespace PooketSlug
             bool touch = GameInput.TouchActive;
             bool playing = m_State == GameState.Playing;
             pad.Visible = touch && playing && !m_Paused;
+            pad.SuperVisible = SuperShown;
             pad.PauseVisible = touch && playing; // solo: pause; co-op: leave (twice)
         }
 
