@@ -6,11 +6,11 @@ using static PooketSlug.StageKit;
 
 namespace PooketSlug
 {
-    /// <summary>A crewmate's figure (<see cref="StageFigure"/>), with a controller for the couch and tones2's slushie; sitting, the torso drops and the legs fold.</summary>
+    /// <summary>A crewmate's figure (<see cref="StageFigure"/>), with tones2's slushie; sitting, the torso drops and the legs fold (the off-duty poses: <see cref="PlayerSkin.TorsoPad"/>).</summary>
     sealed class DenFigure
     {
         public readonly StageFigure Body;
-        public readonly Image Controller, Cup;
+        public readonly Image Cup;
         public RectTransform Rt => Body.Rt;
         public Image Legs => Body.Legs;
         public Image Torso => Body.Torso;
@@ -18,7 +18,6 @@ namespace PooketSlug
         public DenFigure(RectTransform world, string name)
         {
             Body = new StageFigure(world, name);
-            Controller = Ui.Picture(Rt, "Controller", null, Ui.Middle, Ui.Middle, new Vector2(5f, -6f) * Px, new Vector2(5f, 3f) * Px, Pad);
             Cup = Ui.Picture(Rt, "Slushie", null, Ui.Middle, Ui.Middle, new Vector2(6f, 0f) * Px, new Vector2(3f, 5f) * Px, new Color(0.55f, 0.35f, 0.95f));
         }
     }
@@ -260,8 +259,10 @@ namespace PooketSlug
             bool seated = a.OnCouch;
             bool climbing = a.Walk.Climbing;
             bool walking = !seated && !a.Walk.Standing && !climbing;
-            f.Legs.sprite = seated ? skin.LegsCrouch : climbing ? skin.LegsJump : walking ? skin.LegsRun[(int)(m_Clock * 10f) % skin.LegsRun.Length] : skin.LegsIdle;
-            f.Torso.sprite = skin.TorsoForward;
+            f.Legs.sprite = seated ? skin.LegsSit : climbing ? skin.LegsJump : walking ? skin.LegsRun[(int)(m_Clock * 10f) % skin.LegsRun.Length] : skin.LegsIdle;
+            // off duty, no guns: gaming on the couch, lounging at their station between loops (and reaching up the ladder)
+            bool lounging = climbing || a.Doing == DenDoing.Station && a.Cycle == 2;
+            f.Torso.sprite = seated ? skin.TorsoPad : lounging ? skin.TorsoLounge : skin.TorsoUnarmed;
             float bob = 0f, shiver = 0f;
             if (a.Doing == DenDoing.Station) Idle(a, out bob, out shiver);
             else if (climbing) shiver = (int)(m_Clock * 6f) % 2 == 0 ? 0.5f : -0.5f; // hand over hand
@@ -269,9 +270,6 @@ namespace PooketSlug
             float x = seated ? SeatX[a.Seat] : a.X, y = seated ? SeatY - 5f : a.Y;
             f.Rt.anchoredPosition = new Vector2(x + shiver, y) * Px;
             f.Rt.localScale = new Vector3(a.Walk.FaceLeft && !seated && !climbing ? -1f : 1f, 1f, 1f);
-            Ui.Show(f.Controller, seated);
-            bool readyHere = a.Doing == DenDoing.Yours && den.Ready;
-            if (seated) f.Controller.rectTransform.anchoredPosition = new Vector2(5f, -7f + (readyHere ? 0f : Mathf.Sin(m_Clock * 6f + x) * 0.5f)) * Px;
             bool cup = a.Soldier == Content.Tones2 && (a.Doing == DenDoing.Station && a.Cycle == 0 || a.Doing == DenDoing.Bit && Bits.Slushie && Bits.T < 3.4f);
             Ui.Show(f.Cup, cup);
             if (cup) f.Cup.rectTransform.anchoredPosition = new Vector2(5f, a.Doing == DenDoing.Station && a.CycleT > 0.6f && a.CycleT < 2.2f ? 8f : 1f) * Px;

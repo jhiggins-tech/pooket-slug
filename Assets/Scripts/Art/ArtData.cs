@@ -28,6 +28,65 @@ namespace PooketSlug
             "........bbbybb..........",
         };
 
+        // ---- Off duty: the den's poses, no gun (the same canvas and rows as TorsoForward) ----
+
+        /// <summary>Standing or walking round the den, arms down.</summary>
+        public static readonly string[] TorsoUnarmed =
+        {
+            "........................",
+            ".........rrrrr..........",
+            "........rrrrrrr.........",
+            "......RRrrrrrrr.........",
+            ".....R..hhsssss.........",
+            "........hsssses.........",
+            "........hssssss.........",
+            ".........SsssS..........",
+            "........cgggggc.........",
+            ".......ccgggggcc........",
+            ".......cCgGgggCc........",
+            ".......cgGggggCc........",
+            ".......sgGgggg.s........",
+            "........bbbybb..........",
+        };
+
+        /// <summary>Gaming: both hands on a controller (v, V).</summary>
+        public static readonly string[] TorsoPad =
+        {
+            "........................",
+            ".........rrrrr..........",
+            "........rrrrrrr.........",
+            "......RRrrrrrrr.........",
+            ".....R..hhsssss.........",
+            "........hsssses.........",
+            "........hssssss.........",
+            ".........SsssS..........",
+            "........cgggggc.........",
+            ".......ccgggggccc.......",
+            ".......cCgGgggCCcss.....",
+            ".......cgGgggg..vVvv....",
+            "........gGgggg..........",
+            "........bbbybb..........",
+        };
+
+        /// <summary>Lounging at their station, a hand behind the head (and reaching for the next rung, climbing).</summary>
+        public static readonly string[] TorsoLounge =
+        {
+            "........................",
+            ".........rrrrr..........",
+            "........rrrrrrr.........",
+            "......RRrrrrrrr.........",
+            ".....csshhsssss.........",
+            ".....cc.hsssses.........",
+            ".....cc.hssssss.........",
+            "......cc.SsssS..........",
+            ".......ccgggggc.........",
+            "........cgggggc.........",
+            "........gGgggg..........",
+            "........gGgggg..........",
+            "........gGgggg..........",
+            "........bbbybb..........",
+        };
+
         public const int TorsoUpTop = 0;
         public static readonly string[] TorsoUp =
         {
@@ -214,6 +273,17 @@ namespace PooketSlug
             "......PPp.....pppp......",
             ".....wwwP.....wwww......",
             ".....wwww.....wwwww.....",
+        };
+
+        /// <summary>Sitting on the couch, side on: thighs forward, shins down (with the torso dropped by <see cref="CrouchDrop"/>).</summary>
+        public const int LegsSitTop = 27;
+        public static readonly string[] LegsSit =
+        {
+            "........pppppppppp......",
+            "........ppPPpppppPp.....",
+            "................PPp.....",
+            "...............wwww.....",
+            "...............wwwww....",
         };
 
         // ---- Enemies ----
