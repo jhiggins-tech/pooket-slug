@@ -257,7 +257,7 @@ namespace PooketSlug
     /// </summary>
     public sealed class TrollDecoy : Actor
     {
-        public static readonly Color Tint = new Color(0.49f, 0.97f, 0.83f); // Tabks' Trollogram colour
+        public static readonly Color Tint = Palette.Friendly; // a friendly green, apart from the goons' reds
 
         readonly PlayerVisual m_Visual;
         readonly SpriteRenderer[] m_Parts;
