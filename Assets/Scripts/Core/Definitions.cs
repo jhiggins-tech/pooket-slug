@@ -159,6 +159,8 @@ namespace PooketSlug
         Grenadier,
         /// <summary>Mission two's miniboss: slams, hurls and charges, and freezing him opens a damage window (<see cref="BigScoopSpec"/>).</summary>
         BigScoop,
+        /// <summary>Mission two's Trollogram projector: shot out, it switches off the goons near it (<see cref="Creamery.Projects"/>).</summary>
+        Projector,
     }
 
     /// <summary>One kind of enemy: its body, health and worth. The co-op snapshot carries its id.</summary>

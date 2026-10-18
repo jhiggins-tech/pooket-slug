@@ -127,6 +127,7 @@ namespace PooketSlug
         public static readonly EnemyDef ShieldSoldier = new EnemyDef(13, "Shield soldier", EnemyBrain.Shield, halfWidth: 0.35f, height: 1.35f, hp: 6, score: 300);
         public static readonly EnemyDef Grenadier = new EnemyDef(14, "Grenadier", EnemyBrain.Grenadier, halfWidth: 0.3f, height: 1.35f, hp: 3, score: 250);
         public static readonly EnemyDef BigScoop = new EnemyDef(15, "Big Scoop", EnemyBrain.BigScoop, halfWidth: 0.8f, height: 2.6f, hp: 40, score: 4000);
+        public static readonly EnemyDef Projector = new EnemyDef(16, "Trollogram projector", EnemyBrain.Projector, halfWidth: 0.6f, height: 1.4f, hp: 4, score: 500);
 
         // ------------------------------------------------------------------ pickups
 
@@ -170,7 +171,7 @@ namespace PooketSlug
             Steal, StolenRifle, StolenKnives, StolenBombs, StolenCannon, PlayerTankCannon, PlayerTankMortar, TeamSuper,
             GoonGrenadeThrow, ScoopSlam, ScoopHurl);
         public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank, Barrel, Weasel, TankCopy, Pilot, PilotDecoy, ToppleTower, ExitGate, ConeBox, NitrogenTank,
-            ShieldSoldier, Grenadier, BigScoop);
+            ShieldSoldier, Grenadier, BigScoop, Projector);
         public static readonly IReadOnlyList<PickupDef> Pickups = ById(p => p.Id, HeavyMachineGunCrate, BombCrate, Medkit, OneUp);
         public static readonly IReadOnlyList<SoldierDef> Soldiers = ById(s => s.Id, Trooper, Tones2, Kie);
 
@@ -229,6 +230,7 @@ namespace PooketSlug
                 case SpawnKind.ShieldSoldier: return ShieldSoldier;
                 case SpawnKind.Grenadier: return Grenadier;
                 case SpawnKind.BigScoop: return BigScoop;
+                case SpawnKind.Projector: return Projector;
                 default: return null;
             }
         }
