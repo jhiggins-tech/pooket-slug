@@ -33,7 +33,7 @@ Sprites and their animations are hand-made in `ArtData`, and stay that way. Imag
 5. **A person finishes it:** pick a clean run of 4 to 8 frames, tidy stray pixels, and show it on the card's page beside the hand-made one. Only what the owner picks goes into `ArtData`.
 
 ### Where the tools are
-The vendor repository's `art/sprite-anim/`: `video.py` (sends the takes in a JSON file, polls, and downloads the clips; a take already made isn't paid for again) and `recut.py`, with the workflow `sprite-anim.yml`, publishing to the `sprite-anim` release. They were made on the vendor's `claude/sprite-model-research` branch; Media generation is landing them on its main line (until then, `recut.py` is in the shared folder's `concepts/sprite-anim/recut/`). Clips are made by the vendor's CI and logged in its usage ledger, like every generation.
+The vendor repository's `art/sprite-anim/`: `video.py` (sends the takes in a JSON file, polls, and downloads the clips; a take already made isn't paid for again) and `recut.py`, with the workflow `sprite-anim.yml`, publishing to the `sprite-anim` release. The workflow runs only when started by hand, with the parameter file's path, so a push never starts a paid run. Clips are made by the vendor's CI and logged in its usage ledger, like every generation.
 
 ### Watch out for
 - **The cut assumes the first frame is the whole sprite.** A tween that starts small, such as a grenade that becomes an explosion, needs the scale given rather than measured. `recut.py` also re-centres every frame on its own width, which takes out a move's travel (a lunge, a jump); keep the feet's x if the travel matters.
