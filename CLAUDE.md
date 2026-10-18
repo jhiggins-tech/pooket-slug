@@ -52,7 +52,7 @@ Each file starts with a summary comment saying what it's for.
 | Where | What |
 |---|---|
 | `Core/` (assembly `PooketSlug.Core`, no references) | The rules, as plain C#, tested; its folders mirror the game's. At its root: `Content.cs` (soldiers, weapons, enemies, pickups as definitions with stable ids), `Definitions.cs` (their types), `Tuning.cs` (shared numbers), `Palette.cs` (shared colours: gold, the players' colours) |
-| `Core/Crew/` | `Crew.cs` (who you play, who's freed), `<name>Tuning.cs` (each one's numbers), `Tones2TabkSpec` (his tabk's guns), `Controls.cs` (the kit's meters), `KitGuide` (the ⓘ screen's moves and demo scripts), `TeamSuper`, `Lives`, `DownLine` (what the HUD says while you're down), `AvatarPose` |
+| `Core/Crew/` | `Crew.cs` (who you play, who's freed), `<name>Tuning.cs` (each one's numbers), `Tones2TabkSpec` (his tabk's guns), `Controls.cs` (the kit's meters), `Drip` (a flow spread over frames), `KitGuide` (the ⓘ screen's moves and demo scripts), `TeamSuper`, `Lives`, `DownLine` (what the HUD says while you're down), `AvatarPose` |
 | `Core/Bosses/` | `BossTankSpec` (the artillery boss tabk), `KieTankSpec` / `KcajTankSpec` (their tabks' charged shots), `PilotBrain`, `BossIntroShow`, `CraterGround` |
 | `Core/Tabks/` | `PlayerTankSpec`, `CallInCoach` |
 | `Core/Missions/` | `Level.cs` + `Missions.cs` (maps as text), `MissionStory` (a mission's scenes and once-only beats), `MissionBoard` (the mission screen, and whether a mission's cleared), `CodaCoach` |
@@ -63,7 +63,7 @@ Each file starts with a summary comment saying what it's for.
 | `Core/Platform/` | `LaunchFlags` (`?test=`, `?unlock=` and the rest), `Spike.cs` (`?spike=` flags), `PageQuery`, `Sandbox` + `Knobs` + `SetupText`, `Rng`, `Log`; co-op's side: `NetContracts` / `NetIds` / `NetConfig` (interfaces and ids), `Rooms` (a room's listing), `Handover` (the world moving to the partner), `DropIn` (the drop-in spike), `PartnerBeacon` (the partner arrow spike), `WireMeter` (the kinds of message a phone sends its partner) |
 | `Game/` | `Game.cs`: `Bootstrap` and `Game`, the state machine (`GameState`: Title, Settings, Lobby, Den, Cutscene, Playing, GameOver, Victory, Demo), the world, the launch flags and the mission's story beats (from its `MissionStory`); then a flow per part of the game it hands frames to: `SceneFlow` (cutscenes, the site's copies, `?scene=` drafts), `DenFlow`, `KitFlow` (the ⓘ kit screen), `BoardFlow` (the mission screen), `DemoFlow` (`?demo=`), `SandboxFlow` (`?sandbox=`), `BossIntroFlow`, `MusicFlow`, `DebriefFlow` |
 | `World/` | One play-through (`World.cs`), rebuilt on restart, split by concern: `ScrollCamera`, `Spawner`, `Combat` (shots, hits, who owns damage), `Scoring`, `NetSync` (the world's side of co-op), `Hazards` (the fence, vents and icicles), `Barrel`, `Lift`, `Checkpoint`, `Liquids` (tones2's); and what every play-through is made of: `Entity` / `EntityPool`, `Projectile`, `Effect`, `Particle`, `Pickup`, `Prop`, `HitFeel`, `LevelView` |
-| `Crew/` | `Shared/` (`Player`: your soldier, `RemotePlayer`: your partner's, `PlayerVisual`, `TeamSuperShow`), then one folder per crew member: `Tones2/` (`Tones2Kit`, `Tones2Art`: his liquids, `Tones2Tabk`: his tabk's guns), `Kie/` (`KieKit`, `KieRoulette`), `Kcaj/` (`KcajKit`) |
+| `Crew/` | `Shared/` (`Player`: your soldier, `CrewKit`: the kit base every crewmate's kit fills and the soldier calls, with `KitCopy` for a partner's, `RemotePlayer`: your partner's, `PlayerVisual`, `TeamSuperShow`), then one folder per crew member: `Tones2/` (`Tones2Kit`, `Tones2Art`: his liquids, `Tones2Tabk`: his tabk's guns), `Kie/` (`KieKit`, `KieRoulette`), `Kcaj/` (`KcajKit`) |
 | `Enemies/` | `Enemies` (`Enemy` and the goons: `Rifleman`, `Runner`, `Drone`), `HoloLook` (Trollogram goons), `Weasels`, `Pilot` |
 | `Bosses/` | `TankBoss` (the artillery boss tabk) + `BossKit` (a crew member's attacks on it: `KieBoss`, `KcajBoss`), `CraterView` (the diggable arena spike) |
 | `Tabks/` | `PlayerTank` (your tabk) + `TankLook`, `TabkKit` (a crew member's tabk) |
@@ -117,13 +117,13 @@ place on the `Cue` timeline in `BossIntroShow`. Either way its sound goes in `Sf
 (`MissionStory`: its scenes, coda, solo only), its spawns, and where it opens (`Profile`, `MissionBoard`).
 
 **Add a crew member**: a `SoldierDef` in `Content` (stable id), their numbers in `Core/Crew/<Name>Tuning.cs` with tests,
-their kit in `Crew/<Name>/`, art in `ArtData`, sounds in `Sfx` / `ChipSounds`, their place in `Crew`, their kit
+their kit in `Crew/<Name>/` (a `CrewKit`, picked in `CrewKit.For`; moves a partner copies go as a `KitMove`), art in `ArtData`, sounds in `Sfx` / `ChipSounds`, their place in `Crew`, their kit
 screen demos (`KitGuide`), team supers (`TeamSuper`), and their boss tabk if they have one (`BossKit`).
 
 **Add a spike**: a key in `Spike.cs` (solo only unless it says otherwise), on branch `claude/spike-<name>`. Its
 preview link with `?spike=<key>` is the Try it link.
 
-**Change what crosses the network**: the structs in `Net/` and `Core/Platform/NetContracts.cs`; content ids never change or
+**Change what crosses the network**: the structs in `Net/` and `Core/Platform/NetContracts.cs` (a crewmate's move that isn't a shot is a `KitEvent`); content ids never change or
 get reused (the tests pin them).
 
 ## Invariants and gotchas

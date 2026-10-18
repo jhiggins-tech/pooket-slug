@@ -11,7 +11,7 @@ namespace PooketSlug
     {
         public readonly IAvatarLink Link;
         readonly PlayerVisual m_Visual;
-        readonly Tones2Copy m_Tones2; // their liquids, as harmless copies
+        readonly KitCopy m_Kit; // what their kit shows from their pose (tones2's liquids), as harmless copies
         AvatarPose m_Pose;
         readonly Presence m_Presence = new Presence();
         float m_Anim, m_DeadTime;
@@ -27,7 +27,7 @@ namespace PooketSlug
         {
             Link = link;
             m_Visual = new PlayerVisual(Visual, Art.SkinFor(link.Soldier, link.Skin), SortOrder.Player - 5);
-            if (link.Soldier.Primary.Behaviour == WeaponBehaviour.Jet) m_Tones2 = new Tones2Copy(this);
+            m_Kit = KitCopy.For(this);
             TabkKit tabk = TabkKit.For(link.Soldier); // the tabk their crewmate calls in
             m_Tank = new TankLook(Go.transform, SortOrder.Player - 4, tabk.Hull, tabk.Barrel);
             m_Tank.Shown = false;
@@ -73,7 +73,7 @@ namespace PooketSlug
             {
                 Pos = Vector2.Lerp(Pos, target, 1f - Mathf.Exp(-Tuning.Coop.RemoteSoldierSmoothing * dt));
             }
-            m_Tones2?.Tick(dt, m_Pose, Link.Vel);
+            m_Kit?.Tick(dt, m_Pose, Link.Vel);
         }
 
         /// <summary>Their tank: where it is, which way its gun points, and a blast when one of theirs blows up.</summary>
@@ -112,7 +112,7 @@ namespace PooketSlug
                 bool blink = m_TankPose.State == TankPose.Mode.Runaway && (int)(m_TankClock * 12f) % 2 == 0;
                 m_Tank.Apply(at, m_TankPose.Facing, m_TankAngle, m_TankPose.Flash, m_TankPose.Muzzle, blink);
             }
-            if (m_Tones2 != null) Go.transform.localPosition += (Vector3)Tones2Copy.ShakeOffset(m_Pose);
+            if (m_Kit != null) Go.transform.localPosition += (Vector3)m_Kit.ShakeOffset(m_Pose);
             m_Visual.Skin = Art.SkinFor(Link.Soldier, Link.Skin);
             m_Visual.Apply(m_Pose);
         }

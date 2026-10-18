@@ -92,7 +92,7 @@ namespace PooketSlug.Tests
         [Test]
         public void EveryoneIsTones2AndHisKitGoesOnTheWire()
         {
-            // A partner is sent our soldier's id and our rocket jumps, so his kit sits in Content's tables.
+            // A partner is sent our soldier's id, so his kit sits in Content's tables (his rocket jumps go as kit moves).
             CollectionAssert.Contains(Content.Soldiers, Content.Tones2);
             CollectionAssert.Contains(Content.Weapons, Content.WaterJet);
             CollectionAssert.Contains(Content.Weapons, Content.RocketJump);

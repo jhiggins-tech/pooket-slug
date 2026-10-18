@@ -158,22 +158,14 @@ namespace PooketSlug
         {
             if (shot.Weapon.Projectile == null)
             {
-                // kie's weasels and holograms (KieKit)
-                if (shot.Weapon == Content.WeaselPop) KieKit.CopyWeasel(m_World, shot);
-                else if (shot.Weapon == Content.Trollogram) KieKit.OnTrollEvent(m_World, shot);
-                else if (shot.Weapon == Content.TeamSuper) m_World.OnPartnerTeam(shot);
-                // tones2's rocket jump: the same mud on our screen, harmless (it poisons goons on theirs)
-                if (shot.Weapon == Content.RocketJump)
-                {
-                    m_World.Liquids.SpillMud(shot.Origin, Tones2Tuning.Rocket, cosmetic: true);
-                    Tones2Sprays.Exhaust(m_World, shot.Origin);
-                    Sfx.Play(Sfx.RocketLaunch, 0.35f);
-                }
-                return; // the jet and the spew come with their pose (Tones2Copy)
+                if (shot.Weapon == Content.TeamSuper) m_World.OnPartnerTeam(shot);
+                return; // the crew's other moves come as kit moves (OnKit), or with their pose (KitCopy)
             }
             m_World.SpawnProjectile(shot.Weapon.Projectile, shot.Origin, shot.Velocity, false, cosmetic: true);
-            Sfx.PlayShot(shot.Weapon, 0.35f);
+            Sfx.PlayShot(shot.Weapon, CrewKit.PartnerVolume);
         }
+
+        public void OnKit(in KitEvent move) => CrewKit.OnPartnerMove(m_World, move);
 
         public void OnEnemyShot(in ShotEvent shot) => m_World.Combat.SpawnEnemyShot(shot.Weapon, shot.Origin, shot.Velocity);
 

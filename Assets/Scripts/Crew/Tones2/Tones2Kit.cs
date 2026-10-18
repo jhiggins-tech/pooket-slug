@@ -3,6 +3,61 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
+    /// tones2's kit for a player (<c>docs/design/kits.md</c>, numbers in <see cref="Tones2Tuning"/>): the water jet
+    /// (<see cref="WaterJet"/>), the rocket jump (<see cref="RocketJump"/>) and the spew (<see cref="Spew"/>). A partner
+    /// copies the jet and the spew from his pose (<see cref="Tones2Copy"/>) and the rocket jump's mud from a kit move.
+    /// </summary>
+    public sealed class Tones2Kit : CrewKit
+    {
+        readonly WaterJet m_Jet;
+        readonly RocketJump m_Rocket;
+        readonly Spew m_Spew;
+
+        public Tones2Kit(Player player) : base(player)
+        {
+            m_Jet = new WaterJet(player, Tones2Tuning.Jet);
+            m_Rocket = new RocketJump(player, Tones2Tuning.Rocket);
+            m_Spew = new Spew(player, Tones2Tuning.Spew);
+        }
+
+        public override bool Rooted => m_Rocket.Rooted;
+        public override bool Rising => m_Rocket.Rising;
+        public override bool Busy => m_Spew.Active;
+        public override bool Streams => true;
+
+        public override void HoldPrimary(float dt, bool firing) => m_Jet.Tick(dt, firing);
+        public override void LetGo() => m_Jet.Tick(0f, false);
+        public override void Tick(float dt) => m_Spew.Tick(dt);
+        public override void Special(float dt, bool pressed, bool held) => m_Rocket.Tick(dt, pressed && !m_Spew.Active);
+
+        public override void Super()
+        {
+            if (!Player.Kit.UseSuper()) return;
+            Player.SuperFanfare();
+            m_Spew.Start();
+        }
+
+        public override void Render() => m_Jet.Render();
+        public override Vector2 ShakeOffset => m_Rocket.ShakeOffset;
+
+        public override void Pose(ref AvatarPose pose)
+        {
+            pose.Jetting = m_Jet.Pressure > 0f;
+            pose.Pressure = m_Jet.Pressure;
+            pose.Spewing = m_Spew.Active;
+            pose.Rooted = m_Rocket.Rooted;
+        }
+
+        /// <summary>A partner's rocket jump (or their tabk's mud gun): the same mud here, harmless (it poisons goons on theirs).</summary>
+        public static void CopyMud(World w, Vector2 at)
+        {
+            w.Liquids.SpillMud(at, Tones2Tuning.Rocket, cosmetic: true);
+            Tones2Sprays.Exhaust(w, at);
+            Sfx.Play(Sfx.RocketLaunch, PartnerVolume);
+        }
+    }
+
+    /// <summary>
     /// tones2's ten-1, the water jet. Hold FIRE and the pressure builds from a wide spray that falls short to
     /// a clean, long arc in about a second (<see cref="JetSpec"/>); let go and it resets. A gauge over his head
     /// shows the pressure, and the hiss rises with it. The droplets are <see cref="Liquids"/>.
@@ -13,7 +68,8 @@ namespace PooketSlug
         readonly JetSpec m_Spec;
         readonly SpriteRenderer m_GaugeBack, m_GaugeFill;
         AudioSource m_Hiss;
-        float m_Held, m_Due;
+        float m_Held;
+        Drip m_Drip;
 
         public WaterJet(Player player, JetSpec spec)
         {
@@ -39,7 +95,7 @@ namespace PooketSlug
             if (!firing)
             {
                 m_Held = 0f;
-                m_Due = 0f;
+                m_Drip.Reset();
                 Pressure = 0f;
                 if (m_Hiss != null && m_Hiss.isPlaying) m_Hiss.Stop();
                 return;
@@ -48,10 +104,7 @@ namespace PooketSlug
             m_Held += dt;
             Pressure = m_Spec.Pressure(m_Held);
             float p = Pressure;
-            m_Due += dt * m_Spec.DropsPerSecond(p);
-
-            int drops = (int)m_Due;
-            m_Due -= drops;
+            int drops = m_Drip.Take(dt, m_Spec.DropsPerSecond(p));
             Tones2Sprays.Jet(m_Player.World, m_Spec, m_Player.MuzzlePos, m_Player.Aim, p, m_Player.Vel.x, drops, false);
 
             if (m_Hiss == null) m_Hiss = Sfx.LoopSource(m_Player.Go, Sfx.JetLoop);
@@ -130,9 +183,8 @@ namespace PooketSlug
                 return;
             }
 
-            if (pressed && p.Specials > 0 && p.Grounded)
+            if (pressed && p.Grounded && p.Kit.UseSpecial())
             {
-                p.Specials--;
                 m_Shake = 0f;
                 m_Puff = 0f;
                 Sfx.Play(Sfx.RocketRumble, 0.8f);
@@ -150,7 +202,7 @@ namespace PooketSlug
             Tones2Sprays.Exhaust(w, p.Pos);
             Sfx.Play(Sfx.RocketLaunch, 0.9f);
             w.View.Shake(0.12f);
-            w.Net?.SendShot(new ShotEvent(Content.RocketJump, p.Pos, Vector2.zero)); // partners lay the same mud, harmless, on their screens
+            CrewKit.Send(w, KitMove.Mud, p.Pos, Vector2.zero); // partners lay the same mud, harmless, on their screens
         }
     }
 
@@ -163,7 +215,8 @@ namespace PooketSlug
     {
         readonly Player m_Player;
         readonly SpewSpec m_Spec;
-        float m_Left, m_Due;
+        float m_Left;
+        Drip m_Drip;
 
         public Spew(Player player, SpewSpec spec)
         {
@@ -177,7 +230,7 @@ namespace PooketSlug
         public void Start()
         {
             m_Left = m_Spec.Duration;
-            m_Due = 0f;
+            m_Drip.Reset();
             Sfx.Play(Sfx.Spew, 0.8f);
         }
 
@@ -185,9 +238,7 @@ namespace PooketSlug
         {
             if (!Active) return;
             m_Left -= dt;
-            m_Due += dt * m_Spec.DropsPerSecond;
-            int drops = (int)m_Due;
-            m_Due -= drops;
+            int drops = m_Drip.Take(dt, m_Spec.DropsPerSecond);
             Tones2Sprays.Spew(m_Player.World, m_Spec, m_Player.MuzzlePos, m_Player.Aim, m_Player.Vel.x, drops, false);
             m_Player.World.View.Shake(0.05f);
         }
@@ -240,49 +291,44 @@ namespace PooketSlug
     /// <summary>
     /// A co-op partner's tones2, on our screen: it pours out harmless copies of their jet and spew from what their
     /// pose says (whether they're firing, how hard, and where they aim). Their rocket jump's mud arrives as a shot
-    /// event (<see cref="NetSync.OnShot"/>). The damage is all done on their own screen, as with their shots.
+    /// kit move (<see cref="Tones2Kit.CopyMud"/>). The damage is all done on their own screen, as with their shots.
     /// </summary>
-    public sealed class Tones2Copy
+    public sealed class Tones2Copy : KitCopy
     {
-        readonly RemotePlayer m_Remote;
-        float m_JetDue, m_SpewDue;
+        Drip m_Jet, m_Spew;
         bool m_WasSpewing;
 
-        public Tones2Copy(RemotePlayer remote) => m_Remote = remote;
+        public Tones2Copy(RemotePlayer remote) : base(remote) { }
 
-        public void Tick(float dt, in AvatarPose pose, Vector2 vel)
+        public override void Tick(float dt, in AvatarPose pose, Vector2 vel)
         {
             bool spewing = pose.Spewing && !pose.Dead, jetting = pose.Jetting && !pose.Dead && !spewing;
-            if (spewing && !m_WasSpewing) Sfx.Play(Sfx.Spew, 0.35f);
+            if (spewing && !m_WasSpewing) Sfx.Play(Sfx.Spew, CrewKit.PartnerVolume);
             m_WasSpewing = spewing;
-            if (!jetting) m_JetDue = 0f;
-            if (!spewing) m_SpewDue = 0f;
+            if (!jetting) m_Jet.Reset();
+            if (!spewing) m_Spew.Reset();
             if (!jetting && !spewing) return;
 
-            World w = m_Remote.World;
+            World w = Remote.World;
             Vector2 aim = Aiming.FromPose(pose.Facing, pose.AimY, pose.Diagonal);
             Vector2 local = PlayerVisual.MuzzleLocal(pose.AimY, pose.Crouching, pose.Diagonal);
-            Vector2 origin = m_Remote.Pos + new Vector2(local.x * pose.Facing, local.y);
+            Vector2 origin = Remote.Pos + new Vector2(local.x * pose.Facing, local.y);
             if (jetting)
             {
                 JetSpec spec = Tones2Tuning.Jet;
-                m_JetDue += dt * spec.DropsPerSecond(pose.Pressure);
-                int drops = (int)m_JetDue;
-                m_JetDue -= drops;
+                int drops = m_Jet.Take(dt, spec.DropsPerSecond(pose.Pressure));
                 Tones2Sprays.Jet(w, spec, origin, aim, pose.Pressure, vel.x, drops, true);
             }
             else
             {
                 SpewSpec spec = Tones2Tuning.Spew;
-                m_SpewDue += dt * spec.DropsPerSecond;
-                int drops = (int)m_SpewDue;
-                m_SpewDue -= drops;
+                int drops = m_Spew.Take(dt, spec.DropsPerSecond);
                 Tones2Sprays.Spew(w, spec, origin, aim, vel.x, drops, true);
             }
         }
 
         /// <summary>How far shaking before a rocket jump moves them this frame.</summary>
-        public static Vector2 ShakeOffset(in AvatarPose pose) =>
+        public override Vector2 ShakeOffset(in AvatarPose pose) =>
             pose.Rooted && !pose.Dead ? new Vector2(Mathf.Round(Rng.Fx.Range(-2f, 2f)) / Art.PPU, 0f) : Vector2.zero;
     }
 }
