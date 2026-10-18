@@ -41,5 +41,11 @@ The vendor repository's `art/sprite-anim/`: `video.py` (sends the takes in a JSO
 - **Other models:** HeyGen Video 1 flashes red and yellow frames; Grok Imagine 1.5 Lite is soft and noisy; Hailuo 3 Max takes only one keyframe, so it can't loop or tween.
 - **A failed or retried clip is a new paid job:** change the prompt, don't resend it blindly.
 
+## The title logo
+Picked by the owner on 2026-10-18 (the start-art item: https://claude.ai/artifact/Xygy3vrT2fFQdav1WFPa14) for the splash screen: gold pixel lettering, POOKET SLUG on one line, with a small gold tabk sitting above the gap between the words, in the manner of an SNES title screen.
+- **The file:** `/mnt/project-files/concepts/start-art/logo-c1.png` (2136 × 496, its black keyed out to transparency), cut from take `c-1.png` (2560 × 1440 on black). It was made with Seedream 5 Flash, prompt only.
+- **On screen:** it sits in the upper two thirds over the screen's own background (a gentle colour ramp and a vignette, drawn by the game), with START and SETTINGS below it. The page tried it over a royal-blue ramp, `#060b3a` at the top to `#2b3aa8` at the bottom.
+- **Keying:** the dark outline around the letters went with the black, so give the logo a one-pixel dark outline or a soft drop shadow if it looks thin on the ramp.
+
 ## What was tried
 The showcase drew a rifleman, a tabk and a skyline with nine models in three styles (16-bit arcade, 8-bit console, and "match the game" with the hand-made sprites attached). Its page keeps every image, each cut to game pixels beside the hand-made art.
