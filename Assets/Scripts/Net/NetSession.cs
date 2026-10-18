@@ -267,7 +267,7 @@ namespace PooketSlug
             m_Listed = now;
             m_ListingSent = true;
             m_Runner.SessionInfo.UpdateCustomProperties(Properties(now));
-            Log.Net.Debug("Listing: " + RoomBrowser.Line(now));
+            Log.Net.Debug($"Listing: {now.Name} mission {now.Mission}, {now.Soldiers} playing, {now.Watching} watching{(now.UnderWay ? ", under way" : "")}");
         }
 
         /// <summary>

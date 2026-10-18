@@ -5,10 +5,10 @@ using UnityEngine.UI;
 namespace PooketSlug
 {
     /// <summary>Which menu is on screen.</summary>
-    public enum MenuScreen { None, Title, Settings, Online, Join, Connecting, Paused, GameOver, Victory, Kit, Missions, Rooms }
+    public enum MenuScreen { None, Title, Settings, Connecting, Paused, GameOver, Victory, Kit, Missions }
 
     /// <summary>What a menu button (or its key) asks the game to do.</summary>
-    public enum MenuAction { None, Play, Settings, Crew, Sound, Shake, Online, Host, Join, Quick, Submit, Back, Resume, Restart, Menu, Kit, Move1, Move2, Move3, Move4, Card1, Card2, Card3, Card4, Hard, Effects, Voices, LeftHanded, Browse, Room1, Room2, Room3, Room4 }
+    public enum MenuAction { None, Play, Settings, Crew, Sound, Shake, Online, Back, Resume, Restart, Menu, Kit, Move1, Move2, Move3, Move4, Card1, Card2, Card3, Card4, Hard, Effects, Voices, LeftHanded }
 
     /// <summary>What the menus show, gathered by <see cref="Game"/> each frame.</summary>
     public struct MenuInfo
@@ -48,15 +48,12 @@ namespace PooketSlug
         public System.Collections.Generic.IReadOnlyList<MissionCard> Missions;
         public int MissionPick;
         public bool MissionHard, MissionFromDen;
-        /// <summary>The room browser: its lines (<see cref="RoomBrowser.Rows"/>), and what it's doing or why it can't.</summary>
-        public System.Collections.Generic.IReadOnlyList<RoomRow> Rooms;
-        public string RoomsStatus;
         /// <summary>Where the demo clips are (<c>&lt;id&gt;.mp4</c>), or null when this build can't fetch them.</summary>
         public string DemoFolder;
     }
 
     /// <summary>
-    /// The menus in uGUI: title, settings, online co-op, join, connecting, pause, game over, victory, the ⓘ kit screen
+    /// The menus in uGUI: title, settings, connecting to co-op, pause, game over, victory, the ⓘ kit screen
     /// (from the den's couch pick, and the pause menu), which plays a demo of each move, and the mission screen
     /// (<see cref="MissionBoard"/>, from MISSIONS and the den's mission board). Buttons work by
     /// click and tap; each also has a key, which <see cref="Game"/> reads, shown under it on a keyboard. Only
@@ -70,15 +67,14 @@ namespace PooketSlug
 
         readonly RectTransform m_Root;
         readonly Image m_Dim;
-        readonly RectTransform m_Title, m_Settings, m_Online, m_Join, m_Connecting, m_Paused, m_GameOver, m_Victory;
+        readonly RectTransform m_Title, m_Settings, m_Connecting, m_Paused, m_GameOver, m_Victory;
         readonly Text m_EffectsLabel, m_VoicesLabel, m_LeftyLabel, m_EffectsKey, m_VoicesKey, m_LeftyKey;
         readonly Text m_Hint, m_Controls1, m_Controls2, m_Controls3, m_OnlineOff, m_SoundLabel, m_ShakeLabel, m_Account, m_Notice, m_NewBadge, m_Status, m_Score, m_Result, m_Opened;
         readonly Button m_SettingsButton, m_Crew;
         readonly Text m_CrewKey, m_CrewLabel;
         readonly Button m_Play, m_Coop, m_Retry, m_GameOverMenu, m_Again, m_SecondVictory;
-        readonly Text m_PlayKey, m_SettingsKey, m_SoundKey, m_ShakeKey, m_SettingsBackKey, m_CoopKey, m_HostKey, m_JoinKey, m_QuickKey, m_OnlineBackKey, m_SubmitKey, m_JoinBackKey, m_CancelKey;
+        readonly Text m_PlayKey, m_SettingsKey, m_SoundKey, m_ShakeKey, m_SettingsBackKey, m_CoopKey, m_CancelKey;
         readonly Text m_ResumeKey, m_RestartKey, m_MenuKey, m_RetryKey, m_GameOverMenuKey, m_AgainKey, m_SecondKey, m_SecondLabel;
-        readonly InputField m_Code;
         // the kit screen (from the den's couch pick, and the pause menu)
         readonly RectTransform m_Kit;
         readonly Text m_PauseKitKey, m_KitTitle, m_KitText, m_KitBackKey;
@@ -93,13 +89,7 @@ namespace PooketSlug
         readonly Text[] m_CardNames = new Text[MaxCards], m_CardPlaces = new Text[MaxCards], m_CardRecords = new Text[MaxCards], m_CardTags = new Text[MaxCards];
         readonly Button m_HardButton, m_MissionPlay;
         readonly Text m_HardLabel, m_MissionPlayLabel, m_MissionPlayKey, m_HardKey, m_MissionsBackKey, m_MissionsHint;
-        // the room browser
-        readonly RectTransform m_Rooms;
-        readonly Text m_RoomsStatus, m_RoomsBackKey, m_BrowseKey;
-        readonly Text[] m_RoomLines = new Text[RoomBrowser.MaxRows], m_RoomLabels = new Text[RoomBrowser.MaxRows], m_RoomKeys = new Text[RoomBrowser.MaxRows];
-        readonly Button[] m_RoomButtons = new Button[RoomBrowser.MaxRows];
         MenuScreen m_Shown;
-        int m_FocusFrame = -1;
         MenuAction m_Clicked;
         bool m_SecondIsLeave; // the victory screen's second button leaves a shared game instead of going to the menu
 
@@ -149,38 +139,6 @@ namespace PooketSlug
             m_Controls2 = Line(m_Settings, -48f, 10, Keys);
             m_Controls3 = Line(m_Settings, -64f, 10, Keys);
             Ui.Button(m_Settings, "BACK", new Vector2(0f, -104f), Narrow, () => Click(MenuAction.Back), out m_SettingsBackKey);
-
-            // online co-op
-            m_Online = Ui.Fill(m_Root, "Online");
-            Line(m_Online, 74f, 22, Orange).text = "ONLINE CO-OP";
-            Line(m_Online, 50f, 10, Palette.CoopBlue).text = "PLAY THE MISSION WITH A FRIEND";
-            Ui.Button(m_Online, "HOST A GAME", new Vector2(-82f, 16f), Wide, () => Click(MenuAction.Host), out m_HostKey);
-            Ui.Button(m_Online, "BROWSE ROOMS", new Vector2(82f, 16f), Wide, () => Click(MenuAction.Browse), out m_BrowseKey);
-            Ui.Button(m_Online, "JOIN WITH A CODE", new Vector2(-82f, -20f), Wide, () => Click(MenuAction.Join), out m_JoinKey);
-            Ui.Button(m_Online, "QUICK MATCH", new Vector2(82f, -20f), Wide, () => Click(MenuAction.Quick), out m_QuickKey);
-            Ui.Button(m_Online, "BACK", new Vector2(0f, -70f), Narrow, () => Click(MenuAction.Back), out m_OnlineBackKey);
-
-            // the room browser: listed rooms to join, or to watch once you've cleared their mission
-            m_Rooms = Ui.Fill(m_Root, "Rooms");
-            Line(m_Rooms, 112f, 22, Orange).text = "ROOMS";
-            m_RoomsStatus = Line(m_Rooms, 84f, 10, Palette.CoopBlue);
-            for (int i = 0; i < RoomBrowser.MaxRows; i++)
-            {
-                float y = 50f - 32f * i;
-                m_RoomLines[i] = Ui.Label(m_Rooms, "Room", Ui.Middle, new Vector2(-270f, y), 11, TextAnchor.MiddleLeft, Color.white);
-                MenuAction pick = MenuAction.Room1 + i;
-                m_RoomButtons[i] = Ui.Button(m_Rooms, "JOIN", new Vector2(220f, y), new Vector2(100f, 24f), () => Click(pick), out m_RoomKeys[i]);
-                m_RoomLabels[i] = m_RoomButtons[i].GetComponentInChildren<Text>();
-            }
-            Ui.Button(m_Rooms, "BACK", new Vector2(0f, -110f), Narrow, () => Click(MenuAction.Back), out m_RoomsBackKey);
-
-            // join with a code
-            m_Join = Ui.Fill(m_Root, "Join");
-            Line(m_Join, 70f, 22, Orange).text = "JOIN A FRIEND'S GAME";
-            Line(m_Join, 42f, 10, Color.white).text = "TYPE THE ROOM CODE FROM THEIR SCREEN, E.G. ABCD";
-            m_Code = Ui.TextBox(m_Join, new Vector2(0f, 9f), new Vector2(180f, 30f), 12, CodeChar, "ABCD");
-            Ui.Button(m_Join, "JOIN", new Vector2(-62f, -38f), Narrow, () => Click(MenuAction.Submit), out m_SubmitKey);
-            Ui.Button(m_Join, "BACK", new Vector2(62f, -38f), Narrow, () => Click(MenuAction.Back), out m_JoinBackKey);
 
             // connecting
             m_Connecting = Ui.Fill(m_Root, "Connecting");
@@ -274,13 +232,6 @@ namespace PooketSlug
             return a;
         }
 
-        /// <summary>The join screen's room code.</summary>
-        public string Code
-        {
-            get => m_Code.text;
-            set => m_Code.text = value ?? "";
-        }
-
         public void Refresh(in MenuInfo info)
         {
             if (info.Screen != m_Shown) Show(info.Screen);
@@ -327,25 +278,6 @@ namespace PooketSlug
                     Key(m_VoicesKey, false, null);
                     Key(m_LeftyKey, false, null);
                     Key(m_SettingsBackKey, keys, "ESC");
-                    break;
-                case MenuScreen.Online:
-                    Dim(new Color(0f, 0f, 0f, 0.6f));
-                    Key(m_HostKey, keys, "H");
-                    Key(m_BrowseKey, keys, "R");
-                    Key(m_JoinKey, keys, "J");
-                    Key(m_QuickKey, keys, "Q");
-                    Key(m_OnlineBackKey, keys, "ESC");
-                    break;
-                case MenuScreen.Rooms:
-                    Dim(new Color(0f, 0f, 0f, 0.7f));
-                    RefreshRooms(info, keys);
-                    break;
-                case MenuScreen.Join:
-                    Dim(new Color(0f, 0f, 0f, 0.6f));
-                    Key(m_SubmitKey, keys, "ENTER");
-                    Key(m_JoinBackKey, keys, "ESC");
-                    // One frame late, so the J that opened this screen isn't typed into the box.
-                    if (Time.frameCount == m_FocusFrame) m_Code.ActivateInputField();
                     break;
                 case MenuScreen.Connecting:
                     Dim(new Color(0f, 0f, 0f, 0.6f));
@@ -399,43 +331,14 @@ namespace PooketSlug
             Ui.Show(m_Dim, screen != MenuScreen.None);
             Ui.Show(m_Title, screen == MenuScreen.Title);
             Ui.Show(m_Settings, screen == MenuScreen.Settings);
-            Ui.Show(m_Online, screen == MenuScreen.Online);
-            Ui.Show(m_Join, screen == MenuScreen.Join);
             Ui.Show(m_Connecting, screen == MenuScreen.Connecting);
             Ui.Show(m_Paused, screen == MenuScreen.Paused);
             Ui.Show(m_GameOver, screen == MenuScreen.GameOver);
             Ui.Show(m_Victory, screen == MenuScreen.Victory);
             Ui.Show(m_Kit, screen == MenuScreen.Kit);
             Ui.Show(m_Missions, screen == MenuScreen.Missions);
-            Ui.Show(m_Rooms, screen == MenuScreen.Rooms);
             if (screen != MenuScreen.Kit) m_Clip.Stop();
-            if (screen == MenuScreen.Join) m_FocusFrame = Time.frameCount + 1;
-            else if (m_Code.isFocused) m_Code.DeactivateInputField();
             m_Clicked = MenuAction.None; // a click meant for the screen that just went
-        }
-
-        /// <summary>The room browser: a line for each listed room, with JOIN or WATCH (or why not), and the first one on ENTER.</summary>
-        void RefreshRooms(in MenuInfo info, bool keys)
-        {
-            int count = info.Rooms?.Count ?? 0;
-            string status = !string.IsNullOrEmpty(info.RoomsStatus) ? info.RoomsStatus
-                : count == 0 ? "NO ROOMS RIGHT NOW: HOST ONE AND LIST IT, OR TRY QUICK MATCH" : "WATCH ONLY MISSIONS YOU'VE CLEARED: NO SPOILERS";
-            if (m_RoomsStatus.text != status) m_RoomsStatus.text = status;
-            for (int i = 0; i < m_RoomButtons.Length; i++)
-            {
-                bool shown = i < count;
-                Ui.Show(m_RoomLines[i], shown);
-                Ui.Show(m_RoomButtons[i], shown);
-                if (!shown) continue;
-                RoomRow row = info.Rooms[i];
-                string line = RoomBrowser.Line(row.Room);
-                if (m_RoomLines[i].text != line) m_RoomLines[i].text = line;
-                m_RoomLines[i].color = row.Action == RoomAction.Join || row.Action == RoomAction.Watch ? Color.white : new Color(1f, 1f, 1f, 0.5f);
-                m_RoomLabels[i].text = RoomBrowser.Button(row.Action);
-                m_RoomButtons[i].interactable = row.Action == RoomAction.Join || row.Action == RoomAction.Watch;
-                Key(m_RoomKeys[i], keys && i == 0, "ENTER");
-            }
-            Key(m_RoomsBackKey, keys, "ESC");
         }
 
         void RefreshKit(in MenuInfo info, bool keys)
@@ -576,12 +479,5 @@ namespace PooketSlug
 
         static Text Line(RectTransform parent, float y, int size, Color color) =>
             Ui.Label(parent, "Line", Ui.Middle, new Vector2(0f, y), size, TextAnchor.MiddleCenter, color);
-
-        /// <summary>Room codes are letters, digits and a dash, typed in capitals.</summary>
-        static char CodeChar(string text, int index, char c)
-        {
-            c = char.ToUpperInvariant(c);
-            return (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' ? c : '\0';
-        }
     }
 }

@@ -1,9 +1,8 @@
-using System.Collections.Generic;
 using NUnit.Framework;
 
 namespace PooketSlug.Tests
 {
-    /// <summary>Rooms: what the room browser offers for each listed room, in what order, and what it says.</summary>
+    /// <summary>Rooms: whether a phone arriving in the co-op room plays or watches, and who counts as watching.</summary>
     public class RoomBrowserTests
     {
         static RoomListing Room(string name, int soldiers, int watching = 0, bool underWay = false, int mission = 0) =>
@@ -28,40 +27,12 @@ namespace PooketSlug.Tests
         }
 
         [Test]
-        public void RoomsToJoinComeFirstThenGamesToWatch()
-        {
-            var rows = RoomBrowser.Rows(new[] { Room("WXYZ", 2), Room("MNPQ", 2, RoomBrowser.MaxWatchers), Room("HJKL", 1), Room("ABCD", 2) }, All);
-            CollectionAssert.AreEqual(new[] { "HJKL", "ABCD", "WXYZ", "MNPQ" }, rows.ConvertAll(r => r.Room.Name));
-            CollectionAssert.AreEqual(new[] { RoomAction.Join, RoomAction.Watch, RoomAction.Watch, RoomAction.Full }, rows.ConvertAll(r => r.Action));
-        }
-
-        [Test]
-        public void TheBrowserShowsAtMostItsRowsAndSkipsNamelessRooms()
-        {
-            var rooms = new List<RoomListing> { Room("", 1) };
-            for (int i = 0; i < RoomBrowser.MaxRows + 3; i++) rooms.Add(Room("R" + (char)('A' + i) + "AA", 1));
-            List<RoomRow> rows = RoomBrowser.Rows(rooms, All);
-            Assert.AreEqual(RoomBrowser.MaxRows, rows.Count);
-            Assert.IsFalse(rows.Exists(r => r.Room.Name == ""));
-        }
-
-        [Test]
-        public void ALineSaysWhoWhatAndHowFull()
-        {
-            var room = Room("ABCD", 2, 3, underWay: true);
-            room.Host = Content.Tones2.Id;
-            Assert.AreEqual("ABCD  TONES2  TEST MISSION  2/2 PLAYING  3 WATCHING", RoomBrowser.Line(room));
-            Assert.AreEqual("HJKL  TEST MISSION  1/2 IN THE DEN", RoomBrowser.Line(Room("HJKL", 1)), "no host soldier yet, nobody watching");
-            Assert.AreEqual("WXYZ  A NEWER MISSION  1/2 IN THE DEN", RoomBrowser.Line(Room("WXYZ", 1, mission: 200)));
-        }
-
-        [Test]
         public void ARoomHoldsThePlayersAndItsWatchers()
         {
             Assert.AreEqual(Tuning.Coop.MaxPlayers + RoomBrowser.MaxWatchers, RoomBrowser.MaxPeople);
             Assert.LessOrEqual(RoomBrowser.MaxPeople, 20, "Photon's free plan: 20 connections in all");
         }
-    
+
         [Test]
         public void AJoiningPlayerIsNotCountedAsWatching()
         {

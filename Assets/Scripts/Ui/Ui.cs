@@ -175,42 +175,6 @@ namespace PooketSlug
             return button;
         }
 
-        /// <summary>A one-line text box. <paramref name="allow"/> filters each typed character (return '\0' to drop it).</summary>
-        public static InputField TextBox(RectTransform parent, Vector2 offset, Vector2 size, int limit, InputField.OnValidateInput allow, string placeholder)
-        {
-            RectTransform rt = Rect(parent, "Text box", Middle, Middle, offset, size);
-            var back = rt.gameObject.AddComponent<Image>();
-            back.color = new Color(0.13f, 0.1f, 0.15f);
-            var outline = rt.gameObject.AddComponent<Outline>();
-            outline.effectColor = Accent;
-            outline.effectDistance = new Vector2(1f, -1f);
-            Text hint = Inside(Label(rt, "Placeholder", Middle, Vector2.zero, 18, TextAnchor.MiddleCenter, new Color(1f, 1f, 1f, 0.25f)));
-            hint.text = placeholder;
-            Text text = Inside(Label(rt, "Text", Middle, Vector2.zero, 18, TextAnchor.MiddleCenter, Color.white));
-            text.supportRichText = false;
-            var field = rt.gameObject.AddComponent<InputField>();
-            field.targetGraphic = back;
-            field.textComponent = text;
-            field.placeholder = hint;
-            field.characterLimit = limit;
-            field.lineType = InputField.LineType.SingleLine;
-            field.navigation = new Navigation { mode = Navigation.Mode.None };
-            field.onValidateInput += allow;
-            return field;
-        }
-
-        /// <summary>Stretches text over its parent, as a text box's caret placement needs.</summary>
-        static Text Inside(Text text)
-        {
-            RectTransform rt = text.rectTransform;
-            rt.anchorMin = Vector2.zero;
-            rt.anchorMax = Vector2.one;
-            rt.pivot = Middle;
-            rt.anchoredPosition = Vector2.zero;
-            rt.sizeDelta = new Vector2(-8f, -4f);
-            return text;
-        }
-
         /// <summary>Where a screen-space point lands on a canvas anchored at its bottom-left corner.</summary>
         public static Vector2 FromScreen(Vector3 screen) => new Vector2(screen.x, screen.y) * (Tuning.Hud.Height / Mathf.Max(1, Screen.height));
 
