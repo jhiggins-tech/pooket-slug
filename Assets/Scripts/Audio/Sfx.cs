@@ -75,6 +75,7 @@ namespace PooketSlug
         {
             if (Muted || s_Source == null || clip == null || EffectsVolume <= 0f) return;
             s_Source.PlayOneShot(clip, volume * EffectsVolume);
+            if (clip == BigExplosion) Music.Duck(0.6f);
         }
 
         /// <summary>
@@ -101,6 +102,9 @@ namespace PooketSlug
             Speak("Narration/" + id, NarratorVolume, 0f);
             s_Narrating = s_Voice != null && s_Voice.clip != null && s_Voice.clip.name == "voice-Narration/" + id;
         }
+
+        /// <summary>A recorded line (the announcer's or the narrator's) is playing: the music ducks under it.</summary>
+        public static bool Speaking => s_Voice != null && s_Voice.isPlaying;
 
         /// <summary>The narrator's line is still being read out (a cutscene waits for it).</summary>
         public static bool NarratorTalking => s_Narrating && s_Voice != null && s_Voice.isPlaying;

@@ -199,8 +199,9 @@ namespace PooketSlug
                     if (!m_RankSounded)
                     {
                         m_RankSounded = true;
-                        Sfx.Play(Sfx.Intro, 0.8f); // the chip fanfare's hit
-                        Sfx.Play(Sfx.Victory, 0.6f);
+                        Sfx.Play(Sfx.Intro, 0.8f); // the stamp's hit
+                        if (Music.Muted) Sfx.Play(Sfx.Victory, 0.6f);
+                        else MusicFlow.RankUp(); // the chip fanfare
                     }
                 }
             }

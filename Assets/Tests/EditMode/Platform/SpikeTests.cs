@@ -58,7 +58,7 @@ namespace PooketSlug.Tests
         {
             Spike.Configure(Page + "?spike=kcaj");
             Assert.IsTrue(Spike.Kcaj);
-            Assert.IsFalse(Spike.Craters || Spike.Music || Spike.Partner);
+            Assert.IsFalse(Spike.Craters || Spike.Partner);
             Assert.AreEqual("SPIKE TEST · KCAJ: HYPERFIXATE + UNMEDICATED", Spike.Label);
             Spike.Configure(Page);
             Assert.IsFalse(Spike.Kcaj);

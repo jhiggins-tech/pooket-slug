@@ -8,7 +8,7 @@ namespace PooketSlug
     public enum MenuScreen { None, Title, Settings, Connecting, Paused, GameOver, Victory, Kit, Missions }
 
     /// <summary>What a menu button (or its key) asks the game to do.</summary>
-    public enum MenuAction { None, Play, Settings, Sound, Shake, Back, Resume, Restart, Menu, Kit, Move1, Move2, Move3, Move4, Card1, Card2, Card3, Card4, Hard, Effects, Voices, LeftHanded }
+    public enum MenuAction { None, Play, Settings, Sound, Shake, Back, Resume, Restart, Menu, Kit, Move1, Move2, Move3, Move4, Card1, Card2, Card3, Card4, Hard, Effects, Voices, LeftHanded, Music }
 
     /// <summary>What the menus show, gathered by <see cref="Game"/> each frame.</summary>
     public struct MenuInfo
@@ -57,7 +57,7 @@ namespace PooketSlug
         readonly Image m_Dim;
         readonly TitleView m_Title;
         readonly RectTransform m_Settings, m_Connecting, m_Paused, m_GameOver, m_Victory;
-        readonly Text m_EffectsLabel, m_VoicesLabel, m_LeftyLabel, m_EffectsKey, m_VoicesKey, m_LeftyKey;
+        readonly Text m_EffectsLabel, m_VoicesLabel, m_LeftyLabel, m_MusicLabel, m_EffectsKey, m_VoicesKey, m_LeftyKey, m_MusicKey;
         readonly Text m_Controls1, m_Controls2, m_Controls3, m_SoundLabel, m_ShakeLabel, m_Notice, m_Status, m_Score, m_Result, m_Opened;
         readonly Button m_Retry, m_GameOverMenu, m_Again, m_SecondVictory;
         readonly Text m_SoundKey, m_ShakeKey, m_SettingsBackKey, m_CancelKey;
@@ -99,13 +99,14 @@ namespace PooketSlug
 
             // settings
             m_Settings = Ui.Fill(m_Root, "Settings");
-            // sound on the left, the screen and the pad on the right, the controls under them
+            // sound on the left, the screen, the pad and the music on the right, the controls under them
             Line(m_Settings, 128f, 22, Orange).text = "SETTINGS";
             m_SoundLabel = Label(Ui.Button(m_Settings, "SOUND", new Vector2(-105f, 90f), Setting, () => Click(MenuAction.Sound), out m_SoundKey));
             m_EffectsLabel = Label(Ui.Button(m_Settings, "EFFECTS", new Vector2(-105f, 56f), Setting, () => Click(MenuAction.Effects), out m_EffectsKey));
             m_VoicesLabel = Label(Ui.Button(m_Settings, "VOICES", new Vector2(-105f, 22f), Setting, () => Click(MenuAction.Voices), out m_VoicesKey));
             m_ShakeLabel = Label(Ui.Button(m_Settings, "SCREEN SHAKE", new Vector2(105f, 90f), Setting, () => Click(MenuAction.Shake), out m_ShakeKey));
             m_LeftyLabel = Label(Ui.Button(m_Settings, "LEFT-HANDED", new Vector2(105f, 56f), Setting, () => Click(MenuAction.LeftHanded), out m_LeftyKey));
+            m_MusicLabel = Label(Ui.Button(m_Settings, "MUSIC", new Vector2(105f, 22f), Setting, () => Click(MenuAction.Music), out m_MusicKey));
             Line(m_Settings, -14f, 12, Orange).text = "CONTROLS";
             m_Controls1 = Line(m_Settings, -32f, 10, Keys);
             m_Controls2 = Line(m_Settings, -48f, 10, Keys);
@@ -221,6 +222,7 @@ namespace PooketSlug
                     m_EffectsLabel.text = Options.Label("EFFECTS", info.Options.Effects);
                     m_VoicesLabel.text = Options.Label("VOICES", info.Options.Voices);
                     m_LeftyLabel.text = Options.Label("LEFT-HANDED", info.Options.LeftHanded);
+                    m_MusicLabel.text = Options.Label("MUSIC", info.Options.Music);
                     if (info.Touch)
                     {
                         bool lefty = info.Options.LeftHanded;
@@ -239,6 +241,7 @@ namespace PooketSlug
                     Key(m_EffectsKey, false, null);
                     Key(m_VoicesKey, false, null);
                     Key(m_LeftyKey, false, null);
+                    Key(m_MusicKey, false, null);
                     Key(m_SettingsBackKey, keys, "ESC");
                     break;
                 case MenuScreen.Connecting:

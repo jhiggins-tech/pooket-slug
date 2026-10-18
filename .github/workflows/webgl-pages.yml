@@ -167,7 +167,7 @@ jobs:
       # - the arcade announcer's lines (text-to-speech, voice/lines.json there): announcer.zip;
       # - the cutscene narrator's lines (voice F from the narrator voice spike, voice/narration.json there):
       #   narration.zip, <line>.wav for each line;
-      # - the boss music's final section played by an orchestra (?spike=music crossfades to it), rendered from the
+      # - the boss music's final section played by an orchestra (the chip crossfades to it), rendered from the
       #   game's own notes (music/ there): orchestra.zip;
       # - the title theme (Lyria take D as a seamless loop, title.wav): start-music.zip, which also holds the other
       #   takes, so only title.bytes is kept.
