@@ -237,7 +237,8 @@ namespace PooketSlug
             if (x < 0f) return;
             world.Spawner.SkipBefore = x;
             world.OpenCoda(prompts, restart: true);
-            StartAt(world, x + 2f);
+            StartAt(world, x - 1f); // in the open gateway, just past kie asleep by the wall
+
         }
 
         /// <summary>Puts the soldier, and the camera, at <paramref name="x"/>; what's behind is left behind.</summary>
