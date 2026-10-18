@@ -77,7 +77,7 @@ namespace PooketSlug
                 m_BitSaidHolo = false;
                 m_BitA.Doing = DenDoing.Bit;
                 // walk over to the other one: beside them at their station, or to the couch's arm
-                float to = bit.OnCouch ? (m_BitB.Seat == 0 ? 78f : 154f) : m_BitB.X + (m_BitB.X > m_BitA.X ? -16f : 16f);
+                float to = bit.OnCouch ? Now.CouchArms[m_BitB.Seat == 0 ? 0 : 1] : m_BitB.X + (m_BitB.X > m_BitA.X ? -16f : 16f);
                 m_BitA.TargetX = to;
                 m_BitA.TargetY = Floor;
                 return;

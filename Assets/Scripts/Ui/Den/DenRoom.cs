@@ -5,16 +5,97 @@ using static PooketSlug.StageKit;
 namespace PooketSlug
 {
     /// <summary>
-    /// The den's room (<c>docs/design/lobby.md</c>): its layout (the loft, the couch's seats, the TV, each crewmate's
-    /// station) and its painting, side-on in two floors, with the freed crew's stations lit and lived in and the rest
-    /// wrecked and dark from the raid.
+    /// The den's room (<c>docs/design/lobby.md</c>, The backdrop): the picked painting, <see cref="PaintingName"/> from the
+    /// vendor repository's den release (fetched by CI into Resources/Den), with the room's pieces where the painting puts
+    /// them (<see cref="Painted"/>: the art leads). A build without the painting (a local one, or a missing release) falls
+    /// back to the room drawn in code, side-on in two floors with the freed crew's stations lit and the rest wrecked and
+    /// dark from the raid, and its own places (<see cref="Drawn"/>).
     /// </summary>
     public static class DenRoom
     {
-        public const int Loft = 100;
+        /// <summary>The painting picked on 18 Oct (Seedream's ground floor and loft from two takes, with one ladder).</summary>
+        public const string PaintingName = "combo-ladder__1";
+
+        /// <summary>Where things are in the room: the loft, the couch, the TV and what's drawn over the backdrop, and each crewmate's station.</summary>
+        public sealed class Layout
+        {
+            public int Loft;
+            /// <summary>The couch's two seats, and where a crewmate stands by each arm for a bit on the couch.</summary>
+            public float[] SeatX, CouchArms;
+            /// <summary>The TV's middle, the POOKET sign, the mission board's card, the console's two lights, kie's projector and the weasel's hutch.</summary>
+            public Vector2 TvCentre, Sign, Board, Ports, Holo, Weasel;
+            public Station[] Stations;
+        }
+
+        /// <summary>The painting's places (it's 320 x 180, the stage's size): the loft high, the TV and couch right of centre.</summary>
+        public static readonly Layout Painted = new Layout
+        {
+            Loft = 140, SeatX = new[] { 134f, 167f }, CouchArms = new[] { 109f, 193f }, TvCentre = new Vector2(144f, 78f),
+            Sign = new Vector2(298f, 104f), Board = new Vector2(233f, 76f), Ports = new Vector2(96f, Floor + 16f),
+            Holo = new Vector2(45f, Floor + 32f), Weasel = new Vector2(27f, 72f),
+            // docs/design/lobby.md, Who lives where (tones2's corner is the slushie machine and a beanbag: the couch is the players')
+            Stations = new[]
+            {
+                new Station("kie", Content.Kie, false, 8, 88, 45f),
+                new Station("tones2", Content.Tones2, false, 188, 240, 210f),
+                new Station("kiwicore", null, false, 240, 258, 250f),
+                new Station("garyoldmancorp", null, false, 284, 318, 300f),
+                new Station("kcaj", null, true, 4, 80, 36f),
+                new Station("torikloud", null, true, 84, 160, 120f),
+                new Station("ciarra", null, true, 164, 240, 200f),
+                new Station("larinovsky", null, true, 290, 318, 305f),
+            },
+        };
+
+        /// <summary>The drawn room's places (<see cref="Draw"/>).</summary>
+        public static readonly Layout Drawn = new Layout
+        {
+            Loft = 100, SeatX = new[] { 101f, 131f }, CouchArms = new[] { 78f, 154f }, TvCentre = new Vector2(116f, 69f),
+            Sign = new Vector2(299f, 97f), Board = new Vector2(250f, 69f), Ports = new Vector2(66f, Floor + 12f),
+            Holo = new Vector2(22f, Floor + 26f), Weasel = new Vector2(14f, Floor + 5f),
+            Stations = new[]
+            {
+                new Station("kie", Content.Kie, false, 4, 58, 40f),
+                new Station("tones2", Content.Tones2, false, 156, 194, 184f),
+                new Station("kiwicore", null, false, 198, 236, 216f),
+                new Station("garyoldmancorp", null, false, 238, 262, 250f),
+                new Station("kcaj", null, true, 4, 62, 34f),
+                new Station("torikloud", null, true, 68, 126, 96f),
+                new Station("ciarra", null, true, 132, 190, 160f),
+                new Station("larinovsky", null, true, 196, 256, 226f),
+            },
+        };
+
+        /// <summary>The room's places: the painting's, or the drawn room's when this build hasn't got the painting.</summary>
+        public static Layout Now => Painting != null ? Painted : Drawn;
+        public static int Loft => Now.Loft;
+        public static float[] SeatX => Now.SeatX;
+        public static Vector2 TvCentre => Now.TvCentre;
+        public static Station[] Stations => Now.Stations;
         public const float SeatY = Floor + 12f;
-        public static readonly float[] SeatX = { 101f, 131f };
-        public static readonly Vector2 TvCentre = new Vector2(116f, 69f);
+
+        static Sprite s_Painting;
+        static bool s_Looked;
+
+        /// <summary>The painting (a PNG kept as Resources/Den/<see cref="PaintingName"/>.bytes), or null if this build hasn't got it.</summary>
+        public static Sprite Painting
+        {
+            get
+            {
+                if (s_Looked) return s_Painting;
+                s_Looked = true;
+                var file = Resources.Load<TextAsset>("Den/" + PaintingName);
+                var tex = new Texture2D(2, 2, TextureFormat.RGBA32, false) { filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp };
+                if (file == null || !tex.LoadImage(file.bytes))
+                {
+                    Log.Game.Info("Den: no painting in this build, so the drawn room");
+                    return null;
+                }
+                s_Painting = Sprite.Create(tex, new Rect(0, 0, tex.width, tex.height), Vector2.zero, 1f);
+                return s_Painting;
+            }
+        }
+
         /// <summary>The controllers' purple, on the couch and in hand.</summary>
         public static readonly Color Pad = new Color(0.42f, 0.31f, 0.69f);
 
@@ -38,19 +119,6 @@ namespace PooketSlug
             }
         }
 
-        // docs/design/lobby.md, Who lives where (tones2's corner is the slushie machine and a beanbag: the couch is the players')
-        public static readonly Station[] Stations =
-        {
-            new Station("kie", Content.Kie, false, 4, 58, 40f),
-            new Station("tones2", Content.Tones2, false, 156, 194, 184f),
-            new Station("kiwicore", null, false, 198, 236, 216f),
-            new Station("garyoldmancorp", null, false, 238, 262, 250f),
-            new Station("kcaj", null, true, 4, 62, 34f),
-            new Station("torikloud", null, true, 68, 126, 96f),
-            new Station("ciarra", null, true, 132, 190, 160f),
-            new Station("larinovsky", null, true, 196, 256, 226f),
-        };
-
         public static bool Has(IReadOnlyList<SoldierDef> crew, SoldierDef s)
         {
             foreach (SoldierDef x in crew)
@@ -58,7 +126,10 @@ namespace PooketSlug
             return false;
         }
 
-        /// <summary>The den, side-on: the loft up a ladder, the couch, TV and console in the middle, the roller door on the right.</summary>
+        /// <summary>
+        /// The drawn den, side-on: the loft up a ladder, the couch, TV and console in the middle, the roller door on the
+        /// right. It's drawn only when there's no painting, so its places (<see cref="Now"/>) are <see cref="Drawn"/>'s.
+        /// </summary>
         public static void Draw(PixelCanvas c, IReadOnlyList<SoldierDef> freed)
         {
             // warm plank walls, with the raid's cyan scorch marks painted over badly
@@ -130,8 +201,8 @@ namespace PooketSlug
             c.Rect(65, Floor + 22, 8, 3, Art.Hex(0x2a2050));
             c.Rect(66, Floor + 23, 6, 1, Art.Hex(0x4a3a8a)); // the handle
             c.Circle(69, Floor + 17, 1.8f, Art.Hex(0x8f74d8));
-            Cable(c, 66, Floor + 11, (int)SeatX[0], (int)SeatY);
-            Cable(c, 74, Floor + 11, (int)SeatX[1], (int)SeatY);
+            Cable(c, (int)Drawn.Ports.x, Floor + 11, (int)SeatX[0], (int)SeatY);
+            Cable(c, (int)Drawn.Ports.x + 8, Floor + 11, (int)SeatX[1], (int)SeatY);
             // the couch, facing us: two seats
             c.Rect(84, Floor, 64, 12, Art.Hex(0x8a3a5a));
             c.Rect(84, Floor + 11, 64, 1, Art.Hex(0xa8507a));

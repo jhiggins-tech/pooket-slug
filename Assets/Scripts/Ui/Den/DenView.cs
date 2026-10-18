@@ -62,11 +62,11 @@ namespace PooketSlug
             }
 
             // the mission board, over the stations: a tap opens the mission screen
-            RectTransform board = Ui.Rect(m_World, "Tap mission board", Vector2.zero, Vector2.zero, new Vector2(234f, 54f) * Px, new Vector2(32f, 30f) * Px);
+            RectTransform board = Ui.Rect(m_World, "Tap mission board", Vector2.zero, Vector2.zero, (Now.Board - new Vector2(16f, 15f)) * Px, new Vector2(32f, 30f) * Px);
             Ui.Tap(board, () => m_BoardPressed = true);
 
             // the TV, in a co-op room: a tap shares the invite link. It's armed as the finger goes down (Invite)
-            m_InviteTap = Ui.Rect(m_World, "Tap TV", Vector2.zero, Vector2.zero, new Vector2(86f, 54f) * Px, new Vector2(62f, 34f) * Px);
+            m_InviteTap = Ui.Rect(m_World, "Tap TV", Vector2.zero, Vector2.zero, (TvCentre - new Vector2(30f, 15f)) * Px, new Vector2(62f, 34f) * Px);
             Ui.Catcher(m_InviteTap);
             var down = new UnityEngine.EventSystems.EventTrigger.Entry { eventID = UnityEngine.EventSystems.EventTriggerType.PointerDown };
             down.callback.AddListener(_ => m_InviteDown = true);
@@ -89,7 +89,7 @@ namespace PooketSlug
             if (m_BackdropKey != key)
             {
                 m_BackdropKey = key;
-                m_Backdrop = Backdrop(c => Draw(c, den.Crew));
+                m_Backdrop = Painting ?? Backdrop(c => Draw(c, den.Crew)); // the drawn room lights the freed crew's corners
                 m_Back.sprite = m_Backdrop;
             }
             m_Crew.Begin(den, info, m_Back.transform);

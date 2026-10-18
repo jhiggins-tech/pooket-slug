@@ -177,6 +177,23 @@ jobs:
           tools/vendor_fetch.sh --bytes narration Assets/Resources/Narration "the narrator is subtitles only"
           tools/vendor_fetch.sh --bytes orchestra Assets/Resources/Music "the boss music stays chip"
 
+      # The den's room: the painting picked from the vendor repository's den release (docs/design/lobby.md, The
+      # backdrop), cut to the stage's 320 x 180, as Resources/Den/<name>.bytes; the name is DenRoom.PaintingName's.
+      # Without it the den shows the room drawn in code.
+      - name: Fetch the den's painting
+        env:
+          GH_TOKEN: ${{ secrets.VENDOR_PAT }}
+          PAINTING: combo-ladder__1
+        run: |
+          zip=$RUNNER_TEMP/den.zip
+          if ! gh release download den -R jhiggins-tech/pooket-slug-vendor -p den.zip -O "$zip" --clobber; then
+            echo "::warning::No den.zip on the vendor repository's den release: the den shows the drawn room."
+            exit 0
+          fi
+          mkdir -p Assets/Resources/Den
+          unzip -p "$zip" "cut/$PAINTING.png" > "Assets/Resources/Den/$PAINTING.bytes"
+          ls -l Assets/Resources/Den
+
       # The cutscenes built into the game (scenes/*.txt as Resources/Scenes), the copy that plays when the site's can't
       # be reached or has a problem.
       - name: Build in the scenes
