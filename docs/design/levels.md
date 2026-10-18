@@ -22,6 +22,7 @@ Up: [Design](README.md)
 - **The look: a steel base at night** (picked 2026-10-15). Snow on concrete and steel, hazard stripes, searchlights, live fences and steam vents, with the motor pool's blast shutter as the boss door. The cold palette makes the Trollogram goons and the fire stand out. The concept sheets are in the project's files, under concepts/m1-map.
 - **About five minutes long.**
 - **Single player only** (owner, 2026-10-16), as tones2, straight in with no tutorial. It's the game's prelude: beating it opens the lobby and co-op, so it is never played with two, replays included. It stays on the den's mission board, but picking it forces single player: player two's seat closes and nobody can watch (owner, 2026-10-16).
+- **For now, co-op plays Mission one as a stand-in,** until Mission two is built, so the two-phone game can be tested: the den's TV calls it TEST MISSION. It's a stop-gap in the build, not a change to the rule above.
 - **Goons:** riflemen (crouch under their shots), knife runners and bomb-dropping drones, all as flickering Trollograms.
 - **The boss** is kie's tabk, then Trollogram kie ([tabks](tanks.md#tabk-bosses)).
 - **Two reveals:** the first tabk, then your own. Freed, kie frees tones2's tabk and bows out, and in the coda, a short explosive mini-level after the boss, you call it in and drive it out of the base ([the coda](story.md#the-coda), owner 2026-10-16).
@@ -65,7 +66,7 @@ kcaj's mission (picked by the owner, 2026-10-16, from three concepts; the sheets
 1. **First launch:** the title screen offers Start, which begins Mission one, plus settings and a small sign-in button. Returning players on a new device can sign in straight away and keep their progress.
 2. **Mission one,** single player only, the prelude. The first tabk, the first call-in and the first drive happen here.
 3. **Once Mission one has been beaten:**
-   - **Co-op appears** in the menu: host a room, join with a code, quick match, browse rooms, or watch a game.
+   - **Co-op appears** in the menu: it joins the one co-op room, to play or to watch.
    - **The mission screen** appears, with replays and kcaj's mission.
    - **The crew screen** appears, with tones2 and kie: it's the gaming den ([the lobby](lobby.md)).
    - **The debrief** shows XP and rank for the first time, and offers sign-in to players who haven't.
@@ -89,10 +90,10 @@ The game shows only what the player has already met. Nothing on the title screen
 
 ## Online, once it's open
 
-- **Rooms:** join with a code or an invite link, use quick match, or browse open rooms.
+- **One room:** everyone's phone joins the same always-there co-op room (owner, 2026-10-18: we play with mates, so there's nothing to host, browse or type). CO-OP on the title, or the den's spare controller, joins it: a free seat plays, and a full room is watched.
 - **A lobby,** where both players pick their soldiers and ready up: the crew's gaming den ([the lobby](lobby.md)).
 - **Spectators** can watch a game, but only of missions they've already cleared, so nothing is spoiled.
-- **Invites:** a button copies the room's link to share.
+- **Invites:** tapping the den's TV shares the game's link, which brings a mate into the room.
 
 ## Leaderboards
 
