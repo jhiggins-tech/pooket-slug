@@ -28,8 +28,8 @@ namespace PooketSlug
     /// story beats. The rest of the game's flow is in flows it owns, one per part: the cutscenes (<see cref="SceneFlow"/>),
     /// the den (<see cref="DenFlow"/>), the kit screen (<see cref="KitFlow"/>), the mission screen (<see cref="BoardFlow"/>),
     /// the demos (<see cref="DemoFlow"/>), the sandbox (<see cref="SandboxFlow"/>), the boss intro
-    /// (<see cref="BossIntroFlow"/>), the music (<see cref="MusicFlow"/>), the
-    /// debrief (<see cref="DebriefFlow"/>) and two of the crew (<see cref="RevealFlow"/>). The HUD and the menus are views
+    /// (<see cref="BossIntroFlow"/>), the music (<see cref="MusicFlow"/>) and the
+    /// debrief (<see cref="DebriefFlow"/>). The HUD and the menus are views
     /// (<see cref="HudView"/>, <see cref="MenuView"/>) that it hands what to show each frame.
     /// </summary>
     public sealed class Game : MonoBehaviour
@@ -89,7 +89,6 @@ namespace PooketSlug
         internal BossIntroFlow Intro { get; private set; }
         internal MusicFlow MissionMusic { get; private set; }
         internal DebriefFlow Debrief { get; private set; }
-        internal RevealFlow Reveal { get; private set; }
 
         /// <summary>Co-op shows only once Mission one has been beaten solo (progressive disclosure).</summary>
         bool CoopOpen => m_Profile.coop || m_Flags.UnlockCoop;
@@ -137,7 +136,6 @@ namespace PooketSlug
             m_Menu = new MenuView(transform);
             Scenes = new SceneFlow(this, transform);
             Debrief = new DebriefFlow(this, transform);
-            Reveal = new RevealFlow(this, transform, m_Flags.Crew);
             Den = new DenFlow(this, transform);
             Kit = new KitFlow();
             Board = new BoardFlow(this);
@@ -251,7 +249,6 @@ namespace PooketSlug
 
         internal void SetState(GameState state)
         {
-            if (state != GameState.Title) Reveal?.End(); // kie leaves with the title screen
             m_State = state;
             m_StateTime = 0f;
             m_OutFor = 0f;
@@ -526,8 +523,7 @@ namespace PooketSlug
 
                 case GameState.Title:
                     // The splash: START and SETTINGS (Start flow 5). Once the crew's open, START goes to the den, where
-                    // the couch (who you play), the mission board and co-op are. Two of the crew no longer plays here:
-                    // the title doesn't grow any more.
+                    // the couch (who you play), the mission board and co-op are.
                     if (click == MenuAction.Settings || keys.Settings) SetState(GameState.Settings);
                     else if (click == MenuAction.Play || keys.Start || soldier.FirePressed || soldier.JumpPressed)
                     {

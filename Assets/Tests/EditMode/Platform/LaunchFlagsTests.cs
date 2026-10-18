@@ -11,7 +11,7 @@ namespace PooketSlug.Tests
         {
             LaunchFlags f = LaunchFlags.Read(Page);
             Assert.IsFalse(f.UnlockCoop || f.UnlockTank || f.UnlockCrew);
-            Assert.IsFalse(f.Crate || f.Tank || f.OneUp || f.Crew || f.Debrief || f.Coda || f.KcajTank || f.Boss);
+            Assert.IsFalse(f.Crate || f.Tank || f.OneUp || f.Debrief || f.Coda || f.KcajTank || f.Boss);
             Assert.IsFalse(f.Pilot || f.WeakPilot || f.Team || f.Scene || f.Reveal);
             Assert.IsNull(f.Demo);
             Assert.IsNull(f.Room);
@@ -28,12 +28,12 @@ namespace PooketSlug.Tests
         }
 
         [TestCase("crate")] [TestCase("tank")] [TestCase("1up")] [TestCase("debrief")] [TestCase("coda")]
-        [TestCase("team")] [TestCase("scene")] [TestCase("reveal")] [TestCase("crew")]
+        [TestCase("team")] [TestCase("scene")] [TestCase("reveal")]
         public void EachTestHasItsFlag(string test)
         {
             LaunchFlags f = LaunchFlags.Read(Page + "?test=" + test);
-            bool[] on = { f.Crate, f.Tank, f.OneUp, f.Debrief, f.Coda, f.Team, f.Scene, f.Reveal, f.Crew };
-            string[] names = { "crate", "tank", "1up", "debrief", "coda", "team", "scene", "reveal", "crew" };
+            bool[] on = { f.Crate, f.Tank, f.OneUp, f.Debrief, f.Coda, f.Team, f.Scene, f.Reveal };
+            string[] names = { "crate", "tank", "1up", "debrief", "coda", "team", "scene", "reveal" };
             for (int i = 0; i < names.Length; i++) Assert.AreEqual(names[i] == test, on[i], names[i]);
             Assert.IsFalse(f.Boss, "none of these starts at the boss");
         }
@@ -61,14 +61,6 @@ namespace PooketSlug.Tests
             Assert.IsTrue(f.UnlockCrew);
             Assert.IsFalse(f.UnlockCoop);
             Assert.IsTrue(LaunchFlags.Read(Page + "?unlock=coop").UnlockCoop);
-        }
-
-        [Test]
-        public void TheCrewTestOpensCoop()
-        {
-            LaunchFlags f = LaunchFlags.Read(Page + "?test=crew");
-            Assert.IsTrue(f.Crew);
-            Assert.IsTrue(f.UnlockCoop, "two of the crew plays as if Mission one were just beaten");
         }
 
         [Test]

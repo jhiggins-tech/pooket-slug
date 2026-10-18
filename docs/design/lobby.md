@@ -72,7 +72,7 @@ Each station is built from the soldier's kit ([kits](kits.md)), so it shows what
 
 The den replaces the crew screen. It appears with it, after Mission one ([what the player sees](levels.md#what-the-player-sees-and-when)): before that tones2 is the only soldier and Mission one starts straight from START.
 
-- **The first visit** is the first time the player opens MISSIONS or CREW after [two of the crew](story.md#two-of-the-crew). A short beat plays (about 4 seconds, once ever): the hangout is still trashed, kie heaves the couch back upright, tones2 plugs the TV back in and the room warms up. kie: "HOME SWEET HOME." Then it's the den, with two stations lit and six dark.
+- **The first visit** is the first time the player opens the den (START on the title) after Mission one is beaten. A short beat plays (about 4 seconds, once ever): the hangout is still trashed, kie heaves the couch back upright, tones2 plugs the TV back in and the room warms up. kie: "HOME SWEET HOME." Then it's the den, with two stations lit and six dark.
 - **No narrator in the den.** The narrator tells cutscenes; the den is a menu with the crew in it, so it only has speech bubbles. The music is the title theme ([music](music.md)).
 
 ## Crew interactions

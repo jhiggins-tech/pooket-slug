@@ -6,7 +6,7 @@ namespace PooketSlug
 {
     /// <summary>
     /// The kit the staged screens share: the cutscenes (<see cref="CutsceneView"/>), the den (<see cref="DenView"/>) and
-    /// the debrief (<see cref="DebriefView"/>), and two of the crew's bubble (<see cref="CrewRevealView"/>). A stage is a
+    /// the debrief (<see cref="DebriefView"/>). A stage is a
     /// 320 by 180 art-pixel picture, letterboxed, drawn at <see cref="Px"/> HUD units a pixel; things on it are placed in
     /// art pixels from its bottom left, by their feet. Its colours, its painted backdrops, its soldiers (legs and torso,
     /// as in the game) and its speech bubbles are all here, so the screens look like one game.
