@@ -20,7 +20,7 @@ namespace PooketSlug
         }
     }
 
-    public enum GameState { Title, Settings, Online, CodeEntry, Lobby, Den, Cutscene, Playing, GameOver, Victory, Demo, Rooms }
+    public enum GameState { Title, Settings, Lobby, Den, Cutscene, Playing, GameOver, Victory, Demo }
 
     /// <summary>
     /// Owns the camera, the current <see cref="World"/>, the online session and the player's profile, and runs the
@@ -28,7 +28,7 @@ namespace PooketSlug
     /// story beats. The rest of the game's flow is in flows it owns, one per part: the cutscenes (<see cref="SceneFlow"/>),
     /// the den (<see cref="DenFlow"/>), the kit screen (<see cref="KitFlow"/>), the mission screen (<see cref="BoardFlow"/>),
     /// the demos (<see cref="DemoFlow"/>), the sandbox (<see cref="SandboxFlow"/>), the boss intro
-    /// (<see cref="BossIntroFlow"/>), the music (<see cref="MusicFlow"/>), the room browser (<see cref="RoomsFlow"/>), the
+    /// (<see cref="BossIntroFlow"/>), the music (<see cref="MusicFlow"/>), the
     /// debrief (<see cref="DebriefFlow"/>) and two of the crew (<see cref="RevealFlow"/>). The HUD and the menus are views
     /// (<see cref="HudView"/>, <see cref="MenuView"/>) that it hands what to show each frame.
     /// </summary>
@@ -88,7 +88,6 @@ namespace PooketSlug
         internal SandboxFlow Sandbox { get; private set; }
         internal BossIntroFlow Intro { get; private set; }
         internal MusicFlow MissionMusic { get; private set; }
-        internal RoomsFlow Rooms { get; private set; }
         internal DebriefFlow Debrief { get; private set; }
         internal RevealFlow Reveal { get; private set; }
 
@@ -143,7 +142,6 @@ namespace PooketSlug
             Kit = new KitFlow();
             Board = new BoardFlow(this);
             Demos = new DemoFlow(this);
-            Rooms = new RoomsFlow(this);
             m_PageUrl = PageQuery.Base(url);
             string folder = PageQuery.Folder(url);
             m_DemoFolder = folder.Length > 0 ? folder + "demos/" : null;
@@ -155,19 +153,12 @@ namespace PooketSlug
             if (Scenes.StartDraft(PageQuery.Get(url, "scene"), url)) return; // and so is a draft scene
             if (Sandbox.Start(PageQuery.Get(url, "sandbox"), url)) return; // and so is a sandbox: solo, and never recorded
             if (NetSessions.Factory != null && NetConfig.Configured) m_Net = NetSessions.Factory(gameObject);
-            string invite = m_Flags.Room;
-            if (m_Net != null && !string.IsNullOrEmpty(invite))
+            // An invite link with a room in it (?room=, see CoopRoom) waits for CO-OP like any visit; co-op still waits
+            // until Mission one is beaten, so before then the link starts that.
+            if (m_Net != null && !string.IsNullOrEmpty(m_Flags.Room) && !CoopOpen)
             {
-                if (CoopOpen)
-                {
-                    OpenCodeEntry(invite); // the code is filled in: Enter or JOIN
-                }
-                else
-                {
-                    // Invite links respect the order: co-op waits until Mission one is beaten, so start that.
-                    m_StartNote = "CO-OP OPENS ONCE YOU'VE BEATEN THIS MISSION";
-                    StartFromTitle();
-                }
+                m_StartNote = "CO-OP OPENS ONCE YOU'VE BEATEN THIS MISSION";
+                StartFromTitle();
             }
         }
 
@@ -426,22 +417,18 @@ namespace PooketSlug
 
         // ------------------------------------------------------------------ online co-op
 
-        void OpenOnline()
+        /// <summary>CO-OP: into the one room (<see cref="CoopRoom"/>), or the link's room.</summary>
+        internal void JoinCoop()
         {
             if (m_Profile.MarkSeen(Reveals.Coop)) m_Store.Save(m_Profile);
-            SetState(GameState.Online);
+            GoOnline(() => m_Net.JoinRoom(m_Flags.Room, Cleared));
         }
 
-        void OpenCodeEntry(string code)
+        /// <summary>A mission's been cleared on this phone: its games can be watched without spoilers.</summary>
+        bool Cleared(int netId)
         {
-            m_Menu.Code = code;
-            SetState(GameState.CodeEntry);
-        }
-
-        void JoinWithCode()
-        {
-            string code = m_Menu.Code.Trim('-', ' ');
-            if (code.Length > 0) GoOnline(() => m_Net.Join(code));
+            MissionDef m = Missions.ByNetId(netId);
+            return m != null && (MissionBoard.Cleared(m_Profile, m) || m_Flags.UnlockCoop);
         }
 
         internal void GoOnline(Action connect)
@@ -520,7 +507,7 @@ namespace PooketSlug
                 m_FpsTimer = 0f;
             }
 
-            if ((keys.Mute && m_State != GameState.CodeEntry) || (click == MenuAction.Sound && m_State == GameState.Settings))
+            if (keys.Mute || (click == MenuAction.Sound && m_State == GameState.Settings))
             {
                 Options o = m_Options;
                 o.Sound = !o.Sound;
@@ -545,12 +532,7 @@ namespace PooketSlug
                     }
                     if (CoopReady)
                     {
-                        // J doubles as fire, so the online keys are checked first
-                        if (click == MenuAction.Online) { OpenOnline(); break; }
-                        if (keys.Host) { GoOnline(() => m_Net.Host(RoomBrowser.HostListed)); break; }
-                        if (keys.Quick) { GoOnline(m_Net.QuickMatch); break; }
-                        if (keys.Restart) { Rooms.Show(); break; }
-                        if (keys.Join) { OpenCodeEntry(""); break; }
+                        if (click == MenuAction.Online || keys.Host) { JoinCoop(); break; }
                     }
                     if (click == MenuAction.Settings || keys.Settings) SetState(GameState.Settings);
                     else if (CrewOpen && (click == MenuAction.Crew || soldier.SpecialPressed)) Den.Show(DenMode.Crew);
@@ -589,23 +571,6 @@ namespace PooketSlug
                         ChangeOptions(o);
                     }
                     else if (click == MenuAction.Back || keys.Back || keys.Settings) SetState(GameState.Title);
-                    break;
-
-                case GameState.Online:
-                    if (click == MenuAction.Host || keys.Host) GoOnline(() => m_Net.Host(RoomBrowser.HostListed));
-                    else if (click == MenuAction.Browse || keys.Restart) Rooms.Show();
-                    else if (click == MenuAction.Quick || keys.Quick) GoOnline(m_Net.QuickMatch);
-                    else if (click == MenuAction.Join || keys.Join) OpenCodeEntry("");
-                    else if (click == MenuAction.Back || keys.Back) SetState(GameState.Title);
-                    break;
-
-                case GameState.Rooms:
-                    Rooms.Tick(click, keys);
-                    break;
-
-                case GameState.CodeEntry:
-                    if (click == MenuAction.Submit || keys.Start) JoinWithCode();
-                    else if (click == MenuAction.Back || keys.Back) SetState(GameState.Online);
                     break;
 
                 case GameState.Lobby:
@@ -749,8 +714,6 @@ namespace PooketSlug
                 InCoop = m_Coop,
                 Notice = m_Notice != null && Time.unscaledTime - m_NoticeTime < 8f ? m_Notice : null,
                 Status = m_Net?.Status,
-                Rooms = m_State == GameState.Rooms ? Rooms.Rows : null,
-                RoomsStatus = m_State == GameState.Rooms ? m_Net?.Status : null,
                 Score = m_World.Scoring.Points,
                 Seconds = Mathf.FloorToInt(m_World.Elapsed),
                 Account = AccountLine(),
@@ -782,9 +745,6 @@ namespace PooketSlug
             {
                 case GameState.Title: return MenuScreen.Title;
                 case GameState.Settings: return MenuScreen.Settings;
-                case GameState.Online: return MenuScreen.Online;
-                case GameState.Rooms: return MenuScreen.Rooms;
-                case GameState.CodeEntry: return MenuScreen.Join;
                 case GameState.Lobby: return MenuScreen.Connecting;
                 case GameState.Playing: return m_Paused ? MenuScreen.Paused : MenuScreen.None;
                 case GameState.GameOver: return MenuScreen.GameOver;

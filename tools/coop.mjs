@@ -1,7 +1,8 @@
 // Two-player co-op check against a build, in two separate headless Chromium instances.
-//   code mode (default): A hosts (H), copies the invite link in the den (H again, as tapping the TV), and B opens the
-//                        invite link ?room=CODE and presses Enter.
-//   quick mode:          both press Q (quick match).
+// There is one co-op room (CoopRoom.cs): CO-OP (H) on the title joins it. Each round names a room of its own with
+// ?room=, on every phone, so rounds running at once (and real players in the MATES room) never meet.
+//   code mode (default): A joins (H), copies the invite link in the den (H again, as tapping the TV), which must carry
+//                        the round's room, and B joins (H).
 //   boss mode:           as code mode, but both start at the boss (?test=boss) and fight it: B must see the boss
 //                        tank's turret and shots from A's world. Nobody leaves.
 //   dropin mode:         spike drop-in: A starts alone and fights its way in, then B joins the mission under way. B
@@ -11,20 +12,19 @@
 //                        freezes a game sent to the background). B must notice A's beat stop, ask Photon for the
 //                        shared world and run it, well before Photon would time A out, and play on. Then A comes
 //                        back (reported, not required: it may have been timed out by then) and should follow B's world.
-//   watch mode:          rooms: A quick-matches (opening a listed room), B finds it in the room browser (R) and joins
-//                        it (ENTER, the first row), both play, and C finds it full in the browser and watches it: C
-//                        must follow the game with no soldier of its own, and A's room must count C watching. Nobody
-//                        leaves.
+//   watch mode:          A and B join (H) and play, then C joins (H) the room with both seats taken and watches it
+//                        (?unlock=coop counts the mission as cleared): C must follow the game with no soldier of its
+//                        own, and A's room must count C watching. Nobody leaves.
 //   scene mode:          as code mode, but both sit down in the den together and start at once, with ?test=scene, so
 //                        a stand-in scene plays on both phones (Mission one is single player only, so its own scenes
 //                        never play in co-op): both tap through it, and it must move on for both, together, each shot
 //                        on their taps (docs/design/story.md, Cutscenes). Nobody leaves.
-// Then (code and quick) both play for a while, A leaves (Esc Esc), and B should take over the shared world.
+// Then (code mode) both play for a while, A leaves (Esc Esc), and B should take over the shared world.
 // Both open the game with ?unlock=coop, since a new browser hides co-op until Mission one is beaten solo, and with
 // ?test=crate, which puts a crate just ahead of the start: one of them must be handed it by A's world.
 // Writes screenshots, console.log and result.json to <outdir>, and exits non-zero if any check fails.
 // CI runs it against each build (.github/workflows/webgl-pages.yml).
-// usage: PW_PATH=... node coop.mjs <url> <outdir> [code|quick]
+// usage: PW_PATH=... node coop.mjs <url> <outdir> [code|boss|dropin|handover|watch|scene]
 import { createRequire } from 'module';
 import fs from 'fs';
 const require = createRequire(import.meta.url);
@@ -32,7 +32,8 @@ const { chromium } = require(process.env.PW_PATH || 'playwright');
 
 const [base, out, mode = 'code'] = process.argv.slice(2);
 const BOSS = mode === 'boss', SCENE = mode === 'scene', DROPIN = mode === 'dropin', HANDOVER = mode === 'handover', WATCH = mode === 'watch';
-const url = base + (base.includes('?') ? '&' : '?') + 'unlock=coop&test=' + (BOSS ? 'boss' : SCENE ? 'crate,scene' : 'crate') + (DROPIN ? '&spike=dropin,partner' : '');
+const ROOM = 'CI' + Math.random().toString(36).slice(2, 8).toUpperCase(); // this round's room
+const url = base + (base.includes('?') ? '&' : '?') + 'room=' + ROOM + '&unlock=coop&test=' + (BOSS ? 'boss' : SCENE ? 'crate,scene' : 'crate') + (DROPIN ? '&spike=dropin,partner' : '');
 fs.mkdirSync(out, { recursive: true });
 const T0 = Date.now();
 const t = () => ((Date.now() - T0) / 1000).toFixed(1).padStart(6);
@@ -41,7 +42,7 @@ const ARGS = ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swif
 
 // Each check is false until it passes; result.json records them all.
 const checks = WATCH
-  ? { hostOnline: false, listed: false, browsedIn: false, joined: false, played: false, watcherIn: false, watching: false, counted: false }
+  ? { hostOnline: false, guestOnline: false, joined: false, played: false, watcherIn: false, watching: false, counted: false }
   : HANDOVER
   ? { hostOnline: false, guestOnline: false, joined: false, played: false, asked: false, tookOver: false, quick: false, playedOn: false }
   : DROPIN
@@ -131,7 +132,6 @@ async function tapThrough(p, ms) {
   }
 }
 
-/** The room browser: R on the title opens it, and it starts looking through the listed rooms. */
 /** Press `key` until the game logs `re`: a key pressed just after loading can land before the title takes keys. */
 async function pressUntil(p, key, re, tries = 5) {
   for (let i = 0; i < tries; i++) {
@@ -142,9 +142,10 @@ async function pressUntil(p, key, re, tries = 5) {
   return null;
 }
 
-async function openBrowser(p) {
-  if (!(await pressUntil(p, 'r', new RegExp(TAG + ' Room browser open')))) throw new Error(`${p.name} never opened the room browser`);
-  await p.page.waitForTimeout(3000);
+/** CO-OP (H) on the title, into this round's room: true once the game says it's online there. */
+async function goOnline(p) {
+  if (!(await pressUntil(p, 'h', new RegExp(TAG + ` Joining room ${ROOM}`)))) throw new Error(`${p.name} never pressed CO-OP`);
+  return !!(await waitLog(p, new RegExp(TAG + ` Online .*room ${ROOM}`), 90000));
 }
 
 const A = await player('A');
@@ -153,44 +154,27 @@ const C = WATCH ? await player('C') : null;
 try {
   if (WATCH) {
     await load(A, url);
-    // no rooms yet: quick match opens a listed one
-    await pressUntil(A, 'q', new RegExp(TAG + ' (Looking through the listed rooms|Quick match|Couldn.t list)'));
-    const line = await waitLog(A, new RegExp(TAG + ' Online .*room ([A-Z]{4}) \\(listed\\)'), 90000);
-    checks.hostOnline = !!line;
-    if (!line) throw new Error('A never opened a listed room');
-    const code = line.match(/room ([A-Z]{4})/)[1];
-    console.log(`${t()} A opened ${code}, listed`);
+    checks.hostOnline = await goOnline(A);
+    if (!checks.hostOnline) throw new Error('A never got online');
+    console.log(`${t()} A is in ${ROOM}`);
     await denStart(A);
     await A.page.waitForTimeout(2000);
-
-    const pick = async (p, verb) => {
-      await openBrowser(p);
-      for (let i = 0; i < 12; i++) {
-        await p.page.keyboard.press('Enter');
-        const took = await waitLog(p, new RegExp(TAG + ` Room browser: ${verb} ${code}`), 2000);
-        if (took) return true;
-      }
-      return false;
-    };
     await load(B, url);
-    checks.listed = await pick(B, 'JOIN');
-    await shot(B, '1-browser');
-    if (!checks.listed) throw new Error(`B never saw ${code} to join in the room browser`);
-    checks.browsedIn = !!(await waitLog(B, new RegExp(TAG + ` Online .*room ${code}`), 60000));
+    checks.guestOnline = await goOnline(B);
+    if (!checks.guestOnline) throw new Error('B never got online');
     await denStart(B);
     checks.joined = !!(await waitLog(A, new RegExp(TAG + ' .* joined'), 30000));
     await Promise.all([play(A, 'ArrowRight', 5000), play(B, 'ArrowRight', 5000)]);
 
     await load(C, url);
     const before = A.logs.length; // A's count from here on: C's arrival, not B's
-    const watched = await pick(C, 'WATCH');
-    await shot(C, '1-browser');
-    if (!watched) throw new Error(`C never saw ${code} to watch in the room browser`);
-    checks.watcherIn = !!(await waitLog(C, new RegExp(TAG + ` Online .*room ${code}( \\(listed\\))?, watching`), 60000));
-    checks.watching = !!(await waitLog(C, new RegExp(TAG + ` Watching room ${code}`), 20000));
+    checks.watcherIn = await goOnline(C) && !!(await waitLog(C, new RegExp(TAG + ` Online .*room ${ROOM}, watching`), 5000));
+    await shot(C, '1-joined');
+    if (!checks.watcherIn) throw new Error(`C never watched ${ROOM}`);
+    checks.watching = !!(await waitLog(C, new RegExp(TAG + ` Watching room ${ROOM}`), 20000));
     await Promise.all([play(A, 'ArrowRight', 6000), play(B, 'ArrowRight', 6000)]);
     await Promise.all([shot(A, '2-watched'), shot(B, '2-watched'), shot(C, '2-watching')]);
-    const counts = A.logs.slice(before).filter(l => new RegExp(TAG + ` \\d+ watching room ${code}`).test(l));
+    const counts = A.logs.slice(before).filter(l => new RegExp(TAG + ` \\d+ watching room ${ROOM}`).test(l));
     checks.counted = counts.length > 0 && / 1 watching room /.test(counts[counts.length - 1]);
     console.log(`${t()} A's room counts: ${counts.map(l => l.match(/(\d+) watching/)[1]).join(', ') || 'none'}`);
     checks.played = ![...A.logs, ...B.logs, ...C.logs].some(l => /\[pageerror\]|Disconnected from Photon|Session ended/.test(l));
@@ -199,19 +183,8 @@ try {
   await load(A, url);
   await shot(A, '0-title');
 
-  let joinUrl = url;
-  if (mode === 'quick') {
-    await A.page.keyboard.press('q');
-    checks.hostOnline = !!(await waitLog(A, new RegExp(TAG + ' Online '), 90000));
-  } else {
-    await A.page.keyboard.press('h');
-    const line = await waitLog(A, new RegExp(TAG + ' Online .*room ([A-Z0-9]+(?:-[A-Z]+)?)'), 90000); // ABCD (older builds: ABCD-EU)
-    if (!line) throw new Error('A never got a room code');
-    checks.hostOnline = true;
-    const code = line.match(/room ([A-Z0-9]+(?:-[A-Z]+)?)/)[1];
-    console.log(`${t()} A hosts ${code}`);
-    joinUrl = url + (url.includes('?') ? '&' : '?') + 'room=' + code;
-  }
+  checks.hostOnline = await goOnline(A);
+  console.log(`${t()} A is in ${ROOM}`);
   if (!checks.hostOnline) throw new Error('A never got online');
   if (mode === 'code') {
     // rooms: the TV's invite (H in a room's den, as a tap on the TV) copies the room's link on a computer
@@ -219,7 +192,7 @@ try {
     await A.page.keyboard.press('h');
     const copied = await waitLog(A, new RegExp(TAG + ' Invite (copied|shared)'), 10000);
     const clip = copied ? await A.page.evaluate(() => navigator.clipboard.readText()).catch(e => 'unreadable: ' + e.message) : '';
-    checks.invite = !!copied && /[?&]room=[A-Z]{4}$/.test(clip) && joinUrl.endsWith(clip.slice(clip.indexOf('?room=') + 1));
+    checks.invite = !!copied && clip.endsWith('?room=' + ROOM);
     console.log(`${t()} invite: ${copied ? 'copied ' + clip : 'NO'}`);
     await shot(A, 'den-invited');
   }
@@ -231,10 +204,9 @@ try {
   }
   await shot(A, '1-online');
 
-  await load(B, joinUrl);
+  await load(B, url);
   await shot(B, '0-title');
-  await B.page.keyboard.press(mode === 'quick' ? 'q' : 'Enter');
-  if (!(await waitLog(B, new RegExp(TAG + ' Online '), 90000))) throw new Error('B never got online');
+  if (!(await goOnline(B))) throw new Error('B never got online');
   checks.guestOnline = true;
   if (SCENE) {
     await denOpen(B);

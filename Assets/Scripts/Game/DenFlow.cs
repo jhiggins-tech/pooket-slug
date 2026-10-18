@@ -43,9 +43,7 @@ namespace PooketSlug
                 // Mission one is solo only (docs/design/lobby.md, Co-op): until Mission two is built, co-op plays it as a stand-in
                 Mission = m_Den.Mode == DenMode.Crew ? null : coop && mission.Story.CoopName != null ? mission.Story.CoopName : mission.Name.ToUpperInvariant(),
                 Room = coop ? g.Net.RoomCode : null,
-                InviteLink = coop ? InviteCode.Link(g.PageUrl, g.Net.RoomCode) : null,
-                CanList = coop && RoomBrowser.HostChooses && g.Net.Link.IsAuthority,
-                Listed = coop && g.Net.Listed,
+                InviteLink = coop ? CoopRoom.Link(g.PageUrl, g.Net.RoomCode) : null,
                 Watchers = coop ? g.Net.Watchers : 0,
                 CanHost = g.CoopReady && m_Den.Mode == DenMode.Solo,
                 Skin = coop ? g.Net.Link.LocalSkin : 0,
@@ -77,11 +75,10 @@ namespace PooketSlug
                 return;
             }
             Invites(coop, keys.Host);
-            if (m_View.TakeList() && coop && g.Net.Link.IsAuthority) g.Net.Listed = !g.Net.Listed;
             if ((m_View.TakeHost() || keys.Host) && g.CoopReady && m_Den.Mode == DenMode.Solo)
             {
-                Log.Game.Info("Den: hosting from the couch");
-                g.GoOnline(() => g.Net.Host(RoomBrowser.HostListed));
+                Log.Game.Info("Den: into the co-op room from the couch");
+                g.JoinCoop();
                 return;
             }
             SoldierDef tapped = m_View.TakePick();
@@ -115,10 +112,10 @@ namespace PooketSlug
         void Invites(bool coop, bool key)
         {
             INetSession net = m_Game.Net;
-            string link = coop ? InviteCode.Link(m_Game.PageUrl, net.RoomCode) : null;
+            string link = coop ? CoopRoom.Link(m_Game.PageUrl, net.RoomCode) : null;
             if ((m_View.TakeInvite() || key) && link != null)
             {
-                Invite.Arm(link, "Come play Pooket Slug with me: room " + net.RoomCode);
+                Invite.Arm(link, "Come play Pooket Slug with me");
                 Log.Game.Info("Invite armed: " + link);
             }
             switch (Invite.Result())

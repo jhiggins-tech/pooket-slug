@@ -8,7 +8,7 @@ Up: [Research index](../README.md)
 
 ## What exists
 
-- **Joining a game:** host a private game with a four-letter room code like `ABCD`, join by code or by invite link `?room=ABCD`, or quick-match into any open game. Every game is in Photon's Australian region.
+- **Joining a game:** there's one co-op room, MATES: CO-OP joins it, to play with a seat free or to watch once both are taken (missions you've cleared only). `?room=NAME` names another room (CI uses it). Every game is in Photon's Australian region.
 - **Two soldiers, red P1 and blue P2,** on one shared, forward-only scrolling screen. The camera can't leave the trailing soldier behind.
 - **A shared world:** the same enemies, boss, crates and score for both players. Hits, damage and crate pickups are arbitrated.
 - **Players coming and going:** a partner can drop in mid-mission, and a fallen soldier respawns after 2.5 s (there's no game over). If the host leaves, the other player inherits the world. Restarting after victory restarts both players.
@@ -41,14 +41,14 @@ Up: [Research index](../README.md)
 | Each client simulates its own soldier; the master client runs the world | No input lag for your own soldier; one authority for enemies and score; survives the host leaving | [Architecture](architecture.md#authority-model) |
 | The SDK lives in a private release, fetched by CI | Photon's license forbids redistributing it | [SDK in CI](sdk-in-ci.md) |
 | Network objects built in code, not prefabs | Keeps the project code-only | [Architecture](architecture.md#network-objects-without-prefabs) |
-| One region (Australia); a room code is the four-letter session name | Photon sessions exist per region, and the owner chose AU (NET-05) | [Sessions](sessions.md#regions-and-room-codes) |
+| One region (Australia); one room, MATES, by session name | Photon sessions exist per region, and the owner chose AU (NET-05) | [Sessions](sessions.md#one-room) |
 | Gameplay talks to interfaces, and the Fusion code is its own assembly that only compiles with the SDK | The game builds without the private SDK, and the compiler keeps game code off Fusion | [Architecture](architecture.md#the-boundary-between-game-and-netcode) |
 
 ## Documents
 
 - [sdk-in-ci.md](sdk-in-ci.md): the private vendor release, the read-only token, the checksum, unpacking without Unity, Fusion's defines and weaver in a single CI pass, and upgrading the SDK.
 - [architecture.md](architecture.md): authority, replicated state, the RPC table, network objects without prefabs, the per-frame sync, the camera, damage, pickups, restart and host migration.
-- [sessions.md](sessions.md): host, join and quick match, room codes, the create-or-join trap, build versions, failure messages, console logs, hidden tabs, and how to test by hand.
+- [sessions.md](sessions.md): the one room, joining and watching it, build versions, failure messages, console logs, hidden tabs, and how to test by hand.
 
 Source files:
 - [`Assets/Scripts/Core/Platform/NetContracts.cs`](../../../Assets/Scripts/Core/Platform/NetContracts.cs): the interfaces and event payloads between game and netcode
@@ -57,4 +57,4 @@ Source files:
 - [`Assets/Scripts/World/NetSync.cs`](../../../Assets/Scripts/World/NetSync.cs), the world's side of the session: the per-frame pull and push, and the session's events
 - [`Assets/Scripts/Crew/Shared/RemotePlayer.cs`](../../../Assets/Scripts/Crew/Shared/RemotePlayer.cs)
 - [`Assets/Scripts/Crew/Shared/PlayerVisual.cs`](../../../Assets/Scripts/Crew/Shared/PlayerVisual.cs)
-- [`Assets/Scripts/Core/Crew/AvatarPose.cs`](../../../Assets/Scripts/Core/Crew/AvatarPose.cs) and [`InviteCode.cs`](../../../Assets/Scripts/Core/Lobby/InviteCode.cs), with [tests](../verification/edit-mode-tests.md)
+- [`Assets/Scripts/Core/Crew/AvatarPose.cs`](../../../Assets/Scripts/Core/Crew/AvatarPose.cs) and [`CoopRoom.cs`](../../../Assets/Scripts/Core/Lobby/CoopRoom.cs), with [tests](../verification/edit-mode-tests.md)

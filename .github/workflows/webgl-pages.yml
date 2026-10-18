@@ -426,7 +426,7 @@ jobs:
       - name: Prune
         run: tools/pages_deploy.sh prune
 
-  # Two players in two headless browsers, against the build just made: A hosts, B joins by invite link,
+  # Two players in two headless browsers, against the build just made: A and B join the co-op room (one of its own per round, ?room=),
   # both play, then A leaves and B must take over the shared world, and the other scenarios below. GitHub's runners
   # can open the WebSockets Photon needs (the cloud sandbox can't), so this is where co-op gets tested. Three run at
   # once: at most 7 players per branch, so two branches testing together stay under Photon's free 20.
@@ -441,13 +441,13 @@ jobs:
       max-parallel: 3
       matrix:
         include:
-          - mode: code # host, join, play, and hand over the world
+          - mode: code # join, invite, play, and hand over the world
           - mode: boss # fight the boss together (a stand-in, as Mission one is solo only)
           - mode: scene # watch a scene together (a stand-in, as Mission one is solo only)
           - mode: dropin # drop in to a mission under way (spike drop-in, doesn't fail the build)
             optional: true
           - mode: handover # hand the world over when the host's phone goes to the background
-          - mode: watch # browse rooms, join one and watch one (three phones)
+          - mode: watch # a third phone watches a full room (three phones)
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -491,17 +491,17 @@ jobs:
           import json, os
           runs = {
               "code": ("Two-player co-op test", [
-                  ("hostOnline", "A hosts a room"),
-                  ("guestOnline", "B joins with the invite link"),
+                  ("hostOnline", "A joins the co-op room"),
+                  ("guestOnline", "B joins the same room"),
                   ("joined", "A sees B join"),
-                  ("invite", "A's den copies the room's invite link (the TV, or H)"),
+                  ("invite", "A's den copies an invite link to the room (the TV, or H)"),
                   ("played", "Both play with no errors or disconnects"),
                   ("pickup", "A's world hands out the test crate (?test=crate)"),
                   ("takeover", "B takes over the world when A leaves"),
               ]),
               "boss": ("Two-player boss fight", [
-                  ("hostOnline", "A hosts a room"),
-                  ("guestOnline", "B joins with the invite link"),
+                  ("hostOnline", "A joins the co-op room"),
+                  ("guestOnline", "B joins the same room"),
                   ("joined", "A sees B join"),
                   ("played", "Both fight the boss with no errors or disconnects"),
                   ("bossIntro", "Both screens get the boss intro"),
@@ -510,8 +510,8 @@ jobs:
                   ("bossFired", "B sees the boss tank fire in A's world"),
               ]),
               "scene": ("Two-player scene (?test=scene)", [
-                  ("hostOnline", "A hosts a room"),
-                  ("guestOnline", "B joins with the invite link"),
+                  ("hostOnline", "A joins the co-op room"),
+                  ("guestOnline", "B joins the same room"),
                   ("joined", "A sees B join"),
                   ("bothInScene", "Starting together, a scene plays on both phones"),
                   ("waited", "A tapping alone moves neither phone on"),
@@ -520,15 +520,15 @@ jobs:
                   ("played", "Both play on with no errors or disconnects"),
               ]),
               "dropin": ("Drop-in (spike, ?spike=dropin)", [
-                  ("hostOnline", "A hosts a room and plays on alone"),
-                  ("guestOnline", "B joins with the invite link"),
+                  ("hostOnline", "A joins the co-op room and plays on alone"),
+                  ("guestOnline", "B joins the same room"),
                   ("joined", "A sees B join"),
                   ("droppedIn", "B drops in to the mission under way"),
                   ("played", "Both play on with no errors or disconnects"),
               ]),
               "handover": ("Host goes to the background", [
-                  ("hostOnline", "A hosts a room"),
-                  ("guestOnline", "B joins with the invite link"),
+                  ("hostOnline", "A joins the co-op room"),
+                  ("guestOnline", "B joins the same room"),
                   ("joined", "A sees B join"),
                   ("played", "Both play with no errors or disconnects"),
                   ("asked", "With A's page frozen, B asks for the shared world"),
@@ -536,12 +536,11 @@ jobs:
                   ("quick", "Within 10 s of A freezing, before Photon would time A out"),
                   ("playedOn", "B plays on with no errors or disconnects"),
               ]),
-              "watch": ("Room browser and watching", [
-                  ("hostOnline", "A quick-matches and opens a listed room"),
-                  ("listed", "B sees it in the room browser and picks JOIN"),
-                  ("browsedIn", "B gets in"),
+              "watch": ("Watching a full room", [
+                  ("hostOnline", "A joins the co-op room"),
+                  ("guestOnline", "B joins the same room"),
                   ("joined", "A sees B join"),
-                  ("watcherIn", "C finds it full in the browser and gets in to watch"),
+                  ("watcherIn", "C joins with both seats taken and watches"),
                   ("watching", "C follows the game with no soldier of its own"),
                   ("counted", "A's room counts C watching"),
                   ("played", "Nobody has errors or disconnects"),

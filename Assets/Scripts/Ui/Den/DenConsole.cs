@@ -19,8 +19,8 @@ namespace PooketSlug
         readonly Image[] m_Lights = new Image[2], m_LoosePads = new Image[2];
         readonly Text[] m_Tags = new Text[2];
         Text m_TvTitle, m_TvRoom, m_TvLights, m_TvCount, m_Board, m_Hint, m_Note;
-        Button m_Ready, m_Back, m_HostPad, m_KitButton, m_ListButton;
-        Text m_ListLabel, m_ReadyLabel, m_CardName;
+        Button m_Ready, m_Back, m_HostPad, m_KitButton;
+        Text m_ReadyLabel, m_CardName;
         RectTransform m_Card;
         string m_TvSaid;
         float m_TvSaidUntil, m_NoteUntil, m_Clock;
@@ -58,16 +58,11 @@ namespace PooketSlug
         }
 
         /// <summary>Over the room: BACK top left, READY bottom right, the name card bottom left, the empty seat's invite, the hint and notes.</summary>
-        public void MakeButtons(System.Action back, System.Action list, System.Action ready, System.Action kit, System.Action host)
+        public void MakeButtons(System.Action back, System.Action ready, System.Action kit, System.Action host)
         {
             Vector2 half = new Vector2(StageW, StageH) * Px / 2f;
             m_Back = Ui.Button(m_Stage, "BACK", new Vector2(-half.x + 40f, half.y - 18f), new Vector2(64f, 22f), back, out Text backKey);
             backKey.text = "ESC";
-            // the host's switch: the room in the room browser for anyone, or invite only
-            m_ListButton = Ui.Button(m_Stage, "INVITE ONLY", new Vector2(-half.x + 146f, half.y - 18f), new Vector2(132f, 22f), list, out Text listKey);
-            m_ListLabel = m_ListButton.GetComponentInChildren<Text>();
-            m_ListLabel.fontSize = 10;
-            listKey.text = "";
             m_Ready = Ui.Button(m_Stage, "READY", new Vector2(half.x - 56f, -half.y + 32f), new Vector2(96f, 30f), ready, out Text readyKey);
             readyKey.text = "ENTER";
             m_ReadyLabel = m_Ready.GetComponentInChildren<Text>();
@@ -118,7 +113,7 @@ namespace PooketSlug
             bool counting = den.Countdown > 0f;
             m_TvTitle.text = info.Mission ?? "CREW";
             string invite = m_Clock < m_TvSaidUntil ? m_TvSaid : "TAP TO INVITE";
-            m_TvRoom.text = info.Room != null ? "ROOM " + info.Room + (info.InviteLink != null ? "  " + invite : "")
+            m_TvRoom.text = info.Room != null ? info.Room + (info.InviteLink != null ? "  " + invite : "")
                 : den.Mode == DenMode.Crew ? "PICK WHO YOU'LL PLAY" : "SOLO";
             Ui.Show(m_TvCount, counting);
             if (counting) m_TvCount.text = Mathf.CeilToInt(den.Countdown).ToString();
@@ -157,8 +152,6 @@ namespace PooketSlug
             Ui.Show(m_Card, den.Pick != null && !zooming);
             if (den.Pick != null) m_CardName.text = den.Pick.Name.ToUpperInvariant();
             Ui.Show(m_HostPad, info.CanHost && den.Mode != DenMode.Coop && !zooming);
-            Ui.Show(m_ListButton, info.CanList && !zooming);
-            if (info.CanList) m_ListLabel.text = info.Listed ? "PUBLIC ROOM" : "INVITE ONLY";
             Ui.Show(m_Hint, !zooming);
             m_Hint.text = den.Pick == null ? "TAP SOMEONE TO SIT THEM ON THE COUCH"
                 : den.Mode == DenMode.Crew ? "TAP SOMEONE ELSE TO SWAP"

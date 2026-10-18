@@ -32,7 +32,7 @@ namespace PooketSlug
         float m_Clock;
 
         SoldierDef m_Picked;
-        bool m_ReadyPressed, m_BackPressed, m_KitPressed, m_HostPressed, m_BoardPressed, m_InviteDown, m_ListPressed;
+        bool m_ReadyPressed, m_BackPressed, m_KitPressed, m_HostPressed, m_BoardPressed, m_InviteDown;
 
         public DenView(Transform parent)
         {
@@ -75,7 +75,7 @@ namespace PooketSlug
             m_Crew.MakeVisitor();
             m_Fade = Ui.Cover(m_Stage, "Fade", new Color(0f, 0f, 0f, 0f));
 
-            m_Console.MakeButtons(() => m_BackPressed = true, () => m_ListPressed = true, () => m_ReadyPressed = true, () => m_KitPressed = true, () => m_HostPressed = true);
+            m_Console.MakeButtons(() => m_BackPressed = true, () => m_ReadyPressed = true, () => m_KitPressed = true, () => m_HostPressed = true);
 
             Ui.Show(m_Root, false);
         }
@@ -96,7 +96,7 @@ namespace PooketSlug
             m_Bits.Begin();
             m_Clock = 0f;
             m_Picked = null;
-            m_ReadyPressed = m_BackPressed = m_KitPressed = m_HostPressed = m_BoardPressed = m_InviteDown = m_ListPressed = false;
+            m_ReadyPressed = m_BackPressed = m_KitPressed = m_HostPressed = m_BoardPressed = m_InviteDown = false;
             m_World.localScale = Vector3.one;
             m_World.anchoredPosition = Vector2.zero;
             Ui.Show(m_Root, true);
@@ -132,7 +132,6 @@ namespace PooketSlug
         /// <summary>A finger went down on the TV in a co-op room: arm the invite (<see cref="Invite"/>).</summary>
         public bool TakeInvite() => Take(ref m_InviteDown);
         /// <summary>The host tapped the listing switch.</summary>
-        public bool TakeList() => Take(ref m_ListPressed);
 
         /// <summary>The TV says this under the room code for a few seconds ("LINK COPIED").</summary>
         public void TvSay(string text) => m_Console.TvSay(text, m_Clock);
