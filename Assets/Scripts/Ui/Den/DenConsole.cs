@@ -7,9 +7,9 @@ namespace PooketSlug
 {
     /// <summary>
     /// The den's TV and buttons: in the room, the console's start screen on the TV (the mission, the room code and its
-    /// invite, both controllers' lights, the countdown), the mission board's card, the loose controllers and the seats'
-    /// P1 / P2 tags; over it, BACK, the host's listing switch, READY, the name card with its ⓘ, the empty seat's
-    /// + MATE, the hint along the top and its notes.
+    /// invite, both controllers' lights, the countdown), the mission board's card, the loose controllers, the seats'
+    /// P1 / P2 tags and the empty seat's + MATE; over it, BACK, READY, the name card with its ⓘ, the hint along the top
+    /// and its notes.
     /// </summary>
     sealed class DenConsole
     {
@@ -41,18 +41,16 @@ namespace PooketSlug
         /// <summary>In the room: the TV's words, the board's, the sign, the console's lights, the loose controllers and the tags.</summary>
         public void MakeTv()
         {
-            m_TvTitle = WorldLabel("TV title", 89f, 82f, 10, TextAnchor.UpperLeft, Gold);
-            m_TvRoom = WorldLabel("TV room", 89f, 74f, 7, TextAnchor.UpperLeft, new Color(0.67f, 0.86f, 1f));
-            m_TvLights = WorldLabel("TV lights", 89f, 60f, 8, TextAnchor.LowerLeft, Color.white);
+            m_TvTitle = WorldLabel("TV title", TvCentre.x - 24f, TvCentre.y + 13f, 10, TextAnchor.UpperLeft, Gold);
+            m_TvRoom = WorldLabel("TV room", TvCentre.x - 24f, TvCentre.y + 5f, 7, TextAnchor.UpperLeft, new Color(0.67f, 0.86f, 1f));
+            m_TvLights = WorldLabel("TV lights", TvCentre.x - 24f, TvCentre.y - 9f, 8, TextAnchor.LowerLeft, Color.white);
             m_TvCount = WorldLabel("TV countdown", TvCentre.x, TvCentre.y, 30, TextAnchor.MiddleCenter, Gold);
-            m_Board = WorldLabel("Mission board", 250f, 70f, 6, TextAnchor.MiddleCenter, Ink);
-            m_Board.GetComponent<Shadow>().enabled = false;
-            WorldLabel("POOKET sign", 299f, 97f, 9, TextAnchor.MiddleCenter, Gold).text = "POOKET";
+            m_Board = WorldLabel("Mission board", Board.x, Board.y + 1f, 6, TextAnchor.MiddleCenter, Paper); // light ink on the painted brown board
             for (int i = 0; i < 2; i++)
             {
-                m_Lights[i] = Picture("Port light", 66f + i * 8f, Floor + 12f, 2f, 2f, Color.black);
+                m_Lights[i] = Picture("Port light", Ports.x + i * 8f, Ports.y, 2f, 2f, Color.black);
                 m_LoosePads[i] = Picture("Controller", SeatX[i], SeatY, 6f, 3f, Pad);
-                m_Tags[i] = WorldLabel("Tag", SeatX[i], Floor + 3f, 9, TextAnchor.LowerCenter, Palette.Players[i]);
+                m_Tags[i] = WorldLabel("Tag", SeatX[i], DenMap.FloorY(DenFloor.Ground) + 2f, 9, TextAnchor.LowerCenter, Palette.Players[i]);
                 m_Tags[i].text = "P" + (i + 1);
             }
         }
@@ -77,7 +75,7 @@ namespace PooketSlug
             m_KitButton.GetComponentInChildren<Text>().fontStyle = FontStyle.BoldAndItalic;
             kitKey.text = "B";
             Vector2 p2 = new Vector2(SeatX[1] - StageW / 2f, SeatY + 9f - StageH / 2f) * Px;
-            m_HostPad = Ui.Button(m_Stage, "+ MATE", p2, new Vector2(52f, 16f), host, out Text hostKey);
+            m_HostPad = Ui.Button(m_World, "+ MATE", p2, new Vector2(52f, 16f), host, out Text hostKey); // on the couch, so it moves with the camera
             m_HostPad.GetComponentInChildren<Text>().fontSize = 9;
             hostKey.text = "H";
             m_Hint = Ui.Label(m_Stage, "Hint", Ui.TopCenter, new Vector2(0f, -8f), 10, TextAnchor.UpperCenter, new Color(1f, 1f, 1f, 0.75f));
@@ -153,9 +151,10 @@ namespace PooketSlug
             if (den.Pick != null) m_CardName.text = den.Pick.Name.ToUpperInvariant();
             Ui.Show(m_HostPad, info.CanHost && den.Mode != DenMode.Coop && !zooming);
             Ui.Show(m_Hint, !zooming);
-            m_Hint.text = den.Pick == null ? "TAP SOMEONE TO SIT THEM ON THE COUCH"
-                : den.Mode == DenMode.Crew ? "TAP SOMEONE ELSE TO SWAP"
-                : den.Ready ? "" : "TAP SOMEONE ELSE TO SWAP · READY TO PRESS START";
+            m_Hint.text = den.Pick == null ? "TAP SOMEONE TO PLAY THEM"
+                : den.Ready ? ""
+                : den.Mode == DenMode.Crew ? "TAP TO WALK · TAP SOMEONE TO SWAP · THE LADDER GOES UP"
+                : "TAP TO WALK · THE COUCH IS READY · THE LADDER GOES UP";
             Ui.Show(m_Note, m_Clock < m_NoteUntil);
         }
     }

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using static PooketSlug.DenRoom;
 using static PooketSlug.StageKit;
@@ -7,32 +8,36 @@ using static PooketSlug.StageKit;
 namespace PooketSlug
 {
     /// <summary>
-    /// The lobby: the crew's gaming den, drawn in uGUI (<c>docs/design/lobby.md</c>). The hangout from the opening, side-on in
-    /// two floors, with a station for each crewmate: freed ones live at theirs and run little idle loops, and the rest stay
-    /// wrecked and dark from the raid. Tapping a crewmate sits them on the couch with a controller (<see cref="Den"/>);
-    /// READY presses START, and the camera zooms into the TV. Every so often two of the crew do a bit with speech bubbles
-    /// (<see cref="DenBits"/>). The stage is <see cref="StageKit"/>'s, shared with the cutscenes: 320 x 180 art pixels at 2x, letterboxed on other shapes.
+    /// The lobby: the crew's den and the loft above it, painted (<c>docs/design/lobby.md</c>, Den 2.0). You walk the
+    /// soldier you're playing round it, and walking somewhere is the menu: the couch gets you ready (and the camera zooms
+    /// into the TV once everyone is), the mission board opens the mission screen, the gym up the ladder the kit screen.
+    /// Freed crewmates live at their stations and run little idle loops; tapping one swaps you to them. Every so often two
+    /// of the crew do a bit with speech bubbles (<see cref="DenBits"/>). The stage is <see cref="StageKit"/>'s, shared with
+    /// the cutscenes: 320 x 180 art pixels at 2x, and the camera follows you up the ladder and along the loft.
     /// <para>
-    /// Its parts: <see cref="DenRoom"/> the room's layout and painting, <see cref="DenCrew"/> the crew frame by frame,
-    /// <see cref="DenBitPlayer"/> the bits, <see cref="DenConsole"/> the TV and buttons. This view is the screen around
-    /// them: the taps (the stations, the board, the TV) and what's been pressed, and the zoom into the TV.
+    /// Its parts: <see cref="DenRoom"/> the paintings and where things sit on them, <see cref="DenMap"/> (Core) the floors,
+    /// ladder and places, <see cref="DenCrew"/> the crew frame by frame, <see cref="DenBitPlayer"/> the bits,
+    /// <see cref="DenConsole"/> the TV and buttons. This view is the screen around them: the camera, the taps and what's
+    /// been pressed, and the zoom into the TV.
     /// </para>
     /// </summary>
     public sealed class DenView
     {
-        readonly RectTransform m_Root, m_Stage, m_World;
-        readonly Image m_Back, m_Fade;
-        readonly List<Button> m_StationTaps = new List<Button>();
-        readonly RectTransform m_InviteTap;
+        readonly RectTransform m_Root, m_Stage, m_World, m_Paintings, m_InviteTap, m_RoomTap;
+        readonly Image m_Fade;
         readonly DenCrew m_Crew;
         readonly DenBitPlayer m_Bits;
         readonly DenConsole m_Console;
-        Sprite m_Backdrop;
-        string m_BackdropKey;
-        float m_Clock;
+        List<GameObject> m_Painted = new List<GameObject>();
+        string m_PaintedKey;
+        float m_Clock, m_CamX;
 
         SoldierDef m_Picked;
-        bool m_ReadyPressed, m_BackPressed, m_KitPressed, m_HostPressed, m_BoardPressed, m_InviteDown;
+        DenPlace m_Place;
+        bool m_Walk;
+        DenFloor m_WalkFloor;
+        float m_WalkX;
+        bool m_ReadyPressed, m_BackPressed, m_KitPressed, m_HostPressed, m_InviteDown;
 
         public DenView(Transform parent)
         {
@@ -45,32 +50,21 @@ namespace PooketSlug
             m_Crew.Bits = m_Bits;
             m_Console = new DenConsole(m_World, m_Stage, m_Crew);
 
-            // made in drawing order, back to front (the crew go in just in front of the room, as the den opens)
-            m_Back = BackdropImage(m_World);
-            // the TV: the console's start screen, the room, both controllers' lights, the countdown
+            // made in drawing order, back to front: the paintings (filled as the den opens), the crew just in front of them
+            m_Paintings = Ui.Rect(m_World, "Paintings", Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(StageW, StageH) * Px);
             m_Console.MakeTv();
             m_Crew.MakeProps();
 
-            // the stations: a tap on a freed crewmate's corner sits them on the couch
-            foreach (Station st in Stations)
-            {
-                if (st.Soldier == null) continue;
-                Station s = st;
-                float y0 = s.Upstairs ? Loft : Floor;
-                RectTransform rt = Ui.Rect(m_World, "Tap " + s.Crewmate, Vector2.zero, Vector2.zero, new Vector2(s.X0, y0) * Px, new Vector2(s.X1 - s.X0, 46f) * Px);
-                m_StationTaps.Add(Ui.Tap(rt, () => m_Picked = s.Soldier));
-            }
-
-            // the mission board, over the stations: a tap opens the mission screen
-            RectTransform board = Ui.Rect(m_World, "Tap mission board", Vector2.zero, Vector2.zero, new Vector2(234f, 54f) * Px, new Vector2(32f, 30f) * Px);
-            Ui.Tap(board, () => m_BoardPressed = true);
+            // the whole den and loft: a tap on someone swaps to them, on a place walks there to use it, anywhere else walks there
+            m_RoomTap = Ui.Rect(m_World, "Tap room", Vector2.zero, Vector2.zero, new Vector2(DenMap.LoftLeft, 0f) * Px,
+                new Vector2(DenMap.LoftRight - DenMap.LoftLeft, DenMap.LoftY + StageH) * Px);
+            Ui.Catcher(m_RoomTap);
+            OnPointer(m_RoomTap, EventTriggerType.PointerClick, Tapped);
 
             // the TV, in a co-op room: a tap shares the invite link. It's armed as the finger goes down (Invite)
-            m_InviteTap = Ui.Rect(m_World, "Tap TV", Vector2.zero, Vector2.zero, new Vector2(86f, 54f) * Px, new Vector2(62f, 34f) * Px);
+            m_InviteTap = Ui.Rect(m_World, "Tap TV", Vector2.zero, Vector2.zero, (TvCentre - new Vector2(30f, 17f)) * Px, new Vector2(60f, 34f) * Px);
             Ui.Catcher(m_InviteTap);
-            var down = new UnityEngine.EventSystems.EventTrigger.Entry { eventID = UnityEngine.EventSystems.EventTriggerType.PointerDown };
-            down.callback.AddListener(_ => m_InviteDown = true);
-            m_InviteTap.gameObject.AddComponent<UnityEngine.EventSystems.EventTrigger>().triggers.Add(down);
+            OnPointer(m_InviteTap, EventTriggerType.PointerDown, _ => m_InviteDown = true);
 
             m_Crew.MakeVisitor();
             m_Fade = Ui.Cover(m_Stage, "Fade", new Color(0f, 0f, 0f, 0f));
@@ -80,23 +74,54 @@ namespace PooketSlug
             Ui.Show(m_Root, false);
         }
 
+        static void OnPointer(RectTransform rt, EventTriggerType type, System.Action<PointerEventData> act)
+        {
+            var entry = new EventTrigger.Entry { eventID = type };
+            entry.callback.AddListener(e => act((PointerEventData)e));
+            rt.gameObject.AddComponent<EventTrigger>().triggers.Add(entry);
+        }
+
+        /// <summary>A tap on the room, in the den's art pixels: someone to swap to, a place to use, or the floor to walk on.</summary>
+        void Tapped(PointerEventData e)
+        {
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(m_World, e.position, e.pressEventCamera, out Vector2 local)) return;
+            Vector2 p = local / Px + new Vector2(StageW, StageH) / 2f; // the world's pivot is its middle
+            DenActor who = m_Crew.At(p);
+            if (who != null && who.Doing != DenDoing.Seated)
+            {
+                m_Picked = who.Soldier;
+                return;
+            }
+            DenPlace place = DenMap.PlaceAt(p.x, p.y);
+            if (place != DenPlace.None)
+            {
+                m_Place = place;
+                return;
+            }
+            m_Walk = true;
+            m_WalkFloor = DenMap.FloorAt(p.y);
+            m_WalkX = p.x;
+        }
+
         public bool Showing => m_Root.gameObject.activeSelf;
 
-        /// <summary>Opens the den on <paramref name="den"/>: each freed crewmate at their station, or already on the couch.</summary>
+        /// <summary>Opens the den on <paramref name="den"/>: each freed crewmate at their station, and yours by the couch.</summary>
         public void Begin(Den den, DenInfo info)
         {
             string key = string.Join(",", System.Array.ConvertAll(ToArray(den.Crew), s => s.Name));
-            if (m_BackdropKey != key)
+            if (m_PaintedKey != key)
             {
-                m_BackdropKey = key;
-                m_Backdrop = Backdrop(c => Draw(c, den.Crew));
-                m_Back.sprite = m_Backdrop;
+                m_PaintedKey = key;
+                foreach (GameObject g in m_Painted) Object.Destroy(g);
+                m_Painted = Paint(m_Paintings, den.Crew);
             }
-            m_Crew.Begin(den, info, m_Back.transform);
+            m_Crew.Begin(den, info, m_Paintings);
             m_Bits.Begin();
             m_Clock = 0f;
+            m_CamX = 0f;
             m_Picked = null;
-            m_ReadyPressed = m_BackPressed = m_KitPressed = m_HostPressed = m_BoardPressed = m_InviteDown = false;
+            m_Place = DenPlace.None;
+            m_Walk = m_ReadyPressed = m_BackPressed = m_KitPressed = m_HostPressed = m_InviteDown = false;
             m_World.localScale = Vector3.one;
             m_World.anchoredPosition = Vector2.zero;
             Ui.Show(m_Root, true);
@@ -123,15 +148,34 @@ namespace PooketSlug
             return s;
         }
 
+        /// <summary>The place tapped since the last call (to walk there and use it), or None.</summary>
+        public DenPlace TakePlace()
+        {
+            DenPlace p = m_Place;
+            m_Place = DenPlace.None;
+            return p;
+        }
+
+        /// <summary>The floor was tapped since the last call: where to walk.</summary>
+        public bool TakeWalk(out DenFloor floor, out float x)
+        {
+            floor = m_WalkFloor;
+            x = m_WalkX;
+            return Take(ref m_Walk);
+        }
+
+        /// <summary>The soldier you're playing, walking round (null before there's a pick).</summary>
+        public DenWalker Walker => m_Crew.Mine?.Walk;
+
+        /// <summary>The place the soldier you're playing has just walked up to, to use it; once.</summary>
+        public DenPlace TakeReached() => m_Crew.TakeReached();
+
         public bool TakeReady() => Take(ref m_ReadyPressed);
         public bool TakeBack() => Take(ref m_BackPressed);
         public bool TakeKit() => Take(ref m_KitPressed);
         public bool TakeHost() => Take(ref m_HostPressed);
-        /// <summary>The mission board was tapped: it opens the mission screen.</summary>
-        public bool TakeBoard() => Take(ref m_BoardPressed);
         /// <summary>A finger went down on the TV in a co-op room: arm the invite (<see cref="Invite"/>).</summary>
         public bool TakeInvite() => Take(ref m_InviteDown);
-        /// <summary>The host tapped the listing switch.</summary>
 
         /// <summary>The TV says this under the room code for a few seconds ("LINK COPIED").</summary>
         public void TvSay(string text) => m_Console.TvSay(text, m_Clock);
@@ -156,18 +200,29 @@ namespace PooketSlug
             m_Crew.Draw(dt, m_Clock, den);
             bool zooming = den.Zoom >= 0f;
             Ui.Show(m_InviteTap, info.InviteLink != null && !zooming);
-            foreach (Button b in m_StationTaps) b.interactable = !zooming;
+            Ui.Show(m_RoomTap, !zooming);
             m_Console.Refresh(den, info, m_Clock);
-            Zoom(den);
+            Camera(dt, den);
         }
 
-        /// <summary>The camera zooms into the TV and everything goes dark, into the mission.</summary>
-        void Zoom(Den den)
+        /// <summary>
+        /// The camera: on the den screen until you climb above its upper floor, then up to the loft, following you along
+        /// it; once everyone's ready, it zooms into the TV and everything goes dark, into the mission.
+        /// </summary>
+        void Camera(float dt, Den den)
         {
+            DenWalker w = Walker;
+            float upper = DenMap.FloorY(DenFloor.Upper), loft = DenMap.FloorY(DenFloor.Loft);
+            float rise = w == null ? 0f : Mathf.Clamp01((w.Y - upper) / (loft - upper));
+            float camY = rise * DenMap.LoftY;
+            float toX = w != null && rise >= 1f ? Mathf.Clamp(w.X - StageW / 2f, DenMap.LoftLeft, DenMap.LoftRight - StageW) : 0f;
+            m_CamX = Mathf.Lerp(m_CamX, toX, 1f - Mathf.Exp(-8f * dt));
+            if (Mathf.Abs(m_CamX - toX) < 0.05f) m_CamX = toX;
+            Vector2 cam = -new Vector2(Mathf.Round(m_CamX), Mathf.Round(camY)) * Px;
             if (den.Zoom < 0f)
             {
                 m_World.localScale = Vector3.one;
-                m_World.anchoredPosition = Vector2.zero;
+                m_World.anchoredPosition = cam;
                 m_Fade.color = new Color(0f, 0f, 0f, 0f);
                 return;
             }
@@ -176,7 +231,7 @@ namespace PooketSlug
             float scale = Mathf.Lerp(1f, 6f, ease);
             Vector2 off = (TvCentre - new Vector2(StageW, StageH) / 2f) * Px;
             m_World.localScale = new Vector3(scale, scale, 1f);
-            m_World.anchoredPosition = -off * scale;
+            m_World.anchoredPosition = Vector2.Lerp(cam, -off * scale, ease);
             m_Fade.color = new Color(0f, 0f, 0f, Mathf.Clamp01((k - 0.55f) / 0.4f));
         }
     }
