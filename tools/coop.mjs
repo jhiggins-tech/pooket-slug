@@ -284,8 +284,11 @@ try {
     console.log(`${t()} own scores: A scored ${scored(A)}, B saw it ${seen(B)}; B scored ${scored(B)}, A saw it ${seen(A)}`);
   } else if (BOSS) {
     // Both walk up past the gate, far enough for the camera to show the whole tank (it wakes then), and fight
-    // from there. B's tank follows A's (its network object) and fires when A's does.
+    // from there. B's tank follows A's (its network object) and fires when A's does. A tabk parked by the map's end
+    // (kcaj's, at the cold store) wakes only with the camera there, so they walk on until it does.
     await Promise.all([walk(A, 'ArrowRight', 3000), walk(B, 'ArrowRight', 3000)]);
+    for (let i = 0; i < 6 && !A.logs.some(l => /Boss intro/.test(l)); i++)
+      await Promise.all([walk(A, 'ArrowRight', 1000), walk(B, 'ArrowRight', 1000)]);
     for (let i = 0; i < 4; i++) {
       await Promise.all([play(A, null, 5000), play(B, null, 5000)]);
       await Promise.all([shot(A, `3-boss-${i}`), shot(B, `3-boss-${i}`)]);
