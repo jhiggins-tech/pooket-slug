@@ -36,6 +36,13 @@ namespace PooketSlug
             gravity: 2f, blastRadius: 1.5f, blastSize: 1f);
         public static readonly ProjectileDef PlayerTankMortarShot = new ProjectileDef(10, "Tabk mortar", radius: 0.25f, damage: 12, life: 4f,
             gravity: 18f, blastRadius: 2f, blastSize: 1.3f, spin: ProjectileSpin.Tumble);
+        /// <summary>Mission two's: a grenadier's grenade, the Big Scoop's shockwave along the floor, and his hurled scoop.</summary>
+        public static readonly ProjectileDef GoonGrenade = new ProjectileDef(11, "Goon grenade", radius: 0.18f, damage: 1, life: 4f, gravity: 18f,
+            blastRadius: 1.1f, blastSize: 0.8f, spin: ProjectileSpin.Tumble);
+        public static readonly ProjectileDef ScoopWave = new ProjectileDef(12, "Shockwave", radius: 0.35f, damage: 1, life: 1.3f, contactDamage: true,
+            spin: ProjectileSpin.None);
+        public static readonly ProjectileDef HurledScoop = new ProjectileDef(13, "Hurled scoop", radius: 0.35f, damage: 1, life: 4f, gravity: 18f,
+            blastRadius: 1.3f, blastSize: 1f, spin: ProjectileSpin.Tumble);
 
         // ------------------------------------------------------------------ weapons
         // Ids 0-5 are the byte the projectile enum used to send for the same shot.
@@ -80,6 +87,10 @@ namespace PooketSlug
             throwVelocity: new Vector2(6f, 12f), carry: 0.4f, hud: "MORTAR");
         /// <summary>A team super fired (<see cref="TeamSupers"/>): sent to the partner, so their screen plays it and spends their super.</summary>
         public static readonly WeaponDef TeamSuper = new WeaponDef(20, "Team super", WeaponBehaviour.TeamSuper, null, hud: "TEAM");
+        /// <summary>Mission two's goons: the grenadier's throw, and the Big Scoop's slam and hurl (<see cref="BigScoopSpec"/>).</summary>
+        public static readonly WeaponDef GoonGrenadeThrow = new WeaponDef(21, "Goon grenade", WeaponBehaviour.Lob, GoonGrenade);
+        public static readonly WeaponDef ScoopSlam = new WeaponDef(22, "Scoop slam", WeaponBehaviour.Bullet, ScoopWave, speed: 8f, kick: 0.25f);
+        public static readonly WeaponDef ScoopHurl = new WeaponDef(23, "Scoop hurl", WeaponBehaviour.Lob, HurledScoop);
 
         /// <summary>How Mission one's boss tank fights.</summary>
         public static readonly BossTankSpec BossTank = new BossTankSpec();
@@ -87,6 +98,8 @@ namespace PooketSlug
         public static readonly KieTankSpec KieTank = new KieTankSpec();
         /// <summary>kcaj's tabk's sweep and rain (<see cref="KcajTankSpec"/>), Mission two's boss.</summary>
         public static readonly KcajTankSpec KcajTank = new KcajTankSpec();
+        /// <summary>How the Big Scoop fights, Mission two's miniboss.</summary>
+        public static readonly BigScoopSpec BigScoopMoves = new BigScoopSpec();
         /// <summary>How your tank drives and fights, the one you climb into or call in.</summary>
         public static readonly PlayerTankSpec PlayerTank = new PlayerTankSpec();
 
@@ -110,6 +123,10 @@ namespace PooketSlug
         /// <summary>Mission two's breakables: a box of cones and a nitrogen tank (<see cref="Creamery"/>).</summary>
         public static readonly EnemyDef ConeBox = new EnemyDef(11, "Box of cones", EnemyBrain.ConeBox, halfWidth: 0.45f, height: 0.9f, hp: 3, score: 50);
         public static readonly EnemyDef NitrogenTank = new EnemyDef(12, "Nitrogen tank", EnemyBrain.NitrogenTank, halfWidth: 0.38f, height: 1.25f, hp: 3, score: 100);
+        /// <summary>Mission two's goons (<see cref="ShieldSpec"/>, <see cref="GrenadierSpec"/>) and the sign yard's miniboss (<see cref="BigScoopSpec"/>).</summary>
+        public static readonly EnemyDef ShieldSoldier = new EnemyDef(13, "Shield soldier", EnemyBrain.Shield, halfWidth: 0.35f, height: 1.35f, hp: 6, score: 300);
+        public static readonly EnemyDef Grenadier = new EnemyDef(14, "Grenadier", EnemyBrain.Grenadier, halfWidth: 0.3f, height: 1.35f, hp: 3, score: 250);
+        public static readonly EnemyDef BigScoop = new EnemyDef(15, "Big Scoop", EnemyBrain.BigScoop, halfWidth: 0.8f, height: 2.6f, hp: 40, score: 4000);
 
         // ------------------------------------------------------------------ pickups
 
@@ -147,11 +164,13 @@ namespace PooketSlug
         // ------------------------------------------------------------------ lookups (after the definitions: statics initialise in order)
 
         public static readonly IReadOnlyList<ProjectileDef> Projectiles = ById(p => p.Id, Bullet, HeavyBullet, EnemyBullet, Shell, Grenade, Bomb, BigShell, Knife, StolenShell,
-            PlayerTankShellShot, PlayerTankMortarShot);
+            PlayerTankShellShot, PlayerTankMortarShot, GoonGrenade, ScoopWave, HurledScoop);
         public static readonly IReadOnlyList<WeaponDef> Weapons = ById(w => w.Id, Pistol, HeavyMachineGun, Rifle, Cannon, GrenadeThrow, DroneBomb, TankGun,
             WaterJet, RocketJump, Spew, BossCannon, WeaselPop, Trollogram,
-            Steal, StolenRifle, StolenKnives, StolenBombs, StolenCannon, PlayerTankCannon, PlayerTankMortar, TeamSuper);
-        public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank, Barrel, Weasel, TankCopy, Pilot, PilotDecoy, ToppleTower, ExitGate, ConeBox, NitrogenTank);
+            Steal, StolenRifle, StolenKnives, StolenBombs, StolenCannon, PlayerTankCannon, PlayerTankMortar, TeamSuper,
+            GoonGrenadeThrow, ScoopSlam, ScoopHurl);
+        public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank, Barrel, Weasel, TankCopy, Pilot, PilotDecoy, ToppleTower, ExitGate, ConeBox, NitrogenTank,
+            ShieldSoldier, Grenadier, BigScoop);
         public static readonly IReadOnlyList<PickupDef> Pickups = ById(p => p.Id, HeavyMachineGunCrate, BombCrate, Medkit, OneUp);
         public static readonly IReadOnlyList<SoldierDef> Soldiers = ById(s => s.Id, Trooper, Tones2, Kie);
 
@@ -207,6 +226,9 @@ namespace PooketSlug
                 case SpawnKind.ExitGate: return ExitGate;
                 case SpawnKind.ConeBox: return ConeBox;
                 case SpawnKind.NitrogenTank: return NitrogenTank;
+                case SpawnKind.ShieldSoldier: return ShieldSoldier;
+                case SpawnKind.Grenadier: return Grenadier;
+                case SpawnKind.BigScoop: return BigScoop;
                 default: return null;
             }
         }

@@ -74,7 +74,8 @@ namespace PooketSlug
             {
                 m_X = Mathf.Min(w.Net.CamX, m_X + Tuning.Coop.FollowerCatchUp * step);
             }
-            m_X = Mathf.Clamp(m_X, h, Mathf.Max(h, w.Level.ScrollLimit - h)); // the map's end, or the back gate until the coda opens
+            float limit = Mathf.Min(w.Level.ScrollLimit, w.ArenaEdge); // the map's end, the back gate until the coda opens, or a miniboss's yard
+            m_X = Mathf.Clamp(m_X, h, Mathf.Max(h, limit - h));
 
             Vector2 shake = Vector2.zero;
             if (m_Shake > 0f)
@@ -85,7 +86,7 @@ namespace PooketSlug
             // A view narrower than the shared co-op width (odd fullscreen aspect) keeps our own soldier in frame.
             float view = m_X;
             if (HalfWidth < h && !w.Spectating) view = Mathf.Clamp(player.Pos.x, m_X - (h - HalfWidth), m_X + (h - HalfWidth));
-            view = Mathf.Clamp(view, HalfWidth, Mathf.Max(HalfWidth, w.Level.ScrollLimit - HalfWidth));
+            view = Mathf.Clamp(view, HalfWidth, Mathf.Max(HalfWidth, limit - HalfWidth));
             float cx = Entity.Snap(view + shake.x), cy = Entity.Snap(Tuning.Camera.ViewHeight * 0.5f + shake.y);
             w.Camera.transform.position = new Vector3(cx, cy, -10f);
 

@@ -54,6 +54,8 @@ namespace PooketSlug
             else if (weapon == Content.StolenRifle) { clip = EnemyShot; own = 0.5f; }
             else if (weapon == Content.StolenKnives || weapon == Content.StolenBombs) { clip = Throw; own = 0.7f; }
             else if (weapon == Content.StolenCannon) { clip = Cannon; own = 0.85f; }
+            else if (weapon == Content.GoonGrenadeThrow || weapon == Content.ScoopHurl) { clip = Throw; own = 0.6f; } // stand-ins, until Audio's
+            else if (weapon == Content.ScoopSlam) { clip = Thump; own = 1f; }
             else return; // dropped bombs are silent
             Play(clip, volume >= 0f ? volume : own);
         }

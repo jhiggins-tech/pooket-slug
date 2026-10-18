@@ -4,7 +4,7 @@ using UnityEngine;
 namespace PooketSlug
 {
     public enum SpawnKind { Rifleman, Runner, Drone, Tank, CrateHeavy, CrateBombs, Medkit, Flag, OneUp, TowerScenery, MotorPool, Barrel, LiveFence, SteamVent, Icicles, Lift, Checkpoint, BackGate, ToppleTower, ExitGate,
-        ScoopDropper, NitrogenVent, ConeBox, NitrogenTank, ColdStore }
+        ScoopDropper, NitrogenVent, ConeBox, NitrogenTank, ColdStore, ShieldSoldier, Grenadier, BigScoop }
 
     public struct Spawn
     {
@@ -21,7 +21,8 @@ namespace PooketSlug
     /// topples when it's shot down; 'E' the base's last gate). Mission two's creamery adds '&gt;' and '&lt;', conveyor
     /// belts (ground that carries what stands on it that way, <see cref="BeltSpeedUnder"/>), and markers: 'Q' a scoop
     /// dropper overhead, 'N' a nitrogen vent, 'c' a box of cones, 'n' a nitrogen tank, 'C' the cold store's doors, where
-    /// the boss tabk rolls out from. LevelView draws it.
+    /// the boss tabk rolls out from; and its goons: 'h' a shield soldier, 'g' a grenadier, 'S' the Big Scoop. LevelView
+    /// draws it.
     /// <para>
     /// The coda (<c>docs/design/story.md</c>, The coda) is the stretch past the back gate. Until it opens, the gate's
     /// column is a wall and nothing past it scrolls into view or spawns (<see cref="ScrollLimit"/>). Things that stand
@@ -95,6 +96,9 @@ namespace PooketSlug
                         case 'c': Spawns.Add(new Spawn { Kind = SpawnKind.ConeBox, Pos = feet }); break;
                         case 'n': Spawns.Add(new Spawn { Kind = SpawnKind.NitrogenTank, Pos = feet }); break;
                         case 'C': Spawns.Add(new Spawn { Kind = SpawnKind.ColdStore, Pos = feet }); break;
+                        case 'h': Spawns.Add(new Spawn { Kind = SpawnKind.ShieldSoldier, Pos = feet }); break;
+                        case 'g': Spawns.Add(new Spawn { Kind = SpawnKind.Grenadier, Pos = feet }); break;
+                        case 'S': Spawns.Add(new Spawn { Kind = SpawnKind.BigScoop, Pos = feet }); break;
                     }
                 }
             }

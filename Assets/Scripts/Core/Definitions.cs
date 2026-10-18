@@ -153,6 +153,12 @@ namespace PooketSlug
         ConeBox,
         /// <summary>Mission two's nitrogen tank: a barrel whose blast freezes everyone near it as well (<see cref="Creamery"/>).</summary>
         NitrogenTank,
+        /// <summary>Mission two's shield soldier: plods at you behind a shield that stops shots from the front (<see cref="ShieldSpec"/>).</summary>
+        Shield,
+        /// <summary>Mission two's grenadier: stays behind cover and lobs grenades where you stand (<see cref="GrenadierSpec"/>).</summary>
+        Grenadier,
+        /// <summary>Mission two's miniboss: slams, hurls and charges, and freezing him opens a damage window (<see cref="BigScoopSpec"/>).</summary>
+        BigScoop,
     }
 
     /// <summary>One kind of enemy: its body, health and worth. The co-op snapshot carries its id.</summary>
