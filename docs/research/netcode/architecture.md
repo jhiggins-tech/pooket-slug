@@ -37,7 +37,7 @@ Known trade-off: clients trust each other. A modified client could claim hits or
   - `IAvatarLink` is a remote soldier. `NetEnemyState` and `NetPickupState` are snapshot entries, and `NetLimits` holds the tables' sizes.
 - **The netcode never sees `World` either:** it talks to `INetEvents`. That keeps the boundary in one place, so the Fusion code can become its own assembly (refactor plan, step 8).
 - **The Fusion implementation lives in [`Assets/Scripts/Net/`](../../../Assets/Scripts/Net/),** in its own assembly, `PooketSlug.Net`. It references Core and the SDK, and only compiles when `FUSION2` is defined (a define constraint). Nothing references it, so the compiler keeps game code from touching Fusion. It registers itself through `NetSessions.Factory`; without the SDK, the factory stays `null` and the title screen offers solo only.
-- **Inside it, `NetSession` connects and `NetReplication` shares.** `NetSession` hosts, joins, finds a quick match, reports failures and owns the runner. `NetReplication` holds the `PlayerNet` and `WorldNet` objects, is the game's `INetLink`, and passes the RPCs' events to `INetEvents`. The lobby, room browser and reconnects will grow in `NetSession`.
+- **Inside it, `NetSession` connects and `NetReplication` shares.** `NetSession` joins the one co-op room (to play or to watch), reports failures and owns the runner. `NetReplication` holds the `PlayerNet` and `WorldNet` objects, is the game's `INetLink`, and passes the RPCs' events to `INetEvents`. Reconnects will grow in `NetSession`.
 - **`World` takes an optional `INetLink`.** `null` means solo, and solo behaviour is unchanged.
 
 ## Replicated state

@@ -22,20 +22,12 @@ namespace PooketSlug
         public int Host;
     }
 
-    /// <summary>What the browser offers for a room.</summary>
+    /// <summary>What a phone arriving in the room can do there.</summary>
     public enum RoomAction { Join, Watch, Locked, Full }
-
-    /// <summary>A line of the room browser.</summary>
-    public struct RoomRow
-    {
-        public RoomListing Room;
-        public RoomAction Action;
-    }
 
     /// <summary>
     /// The room's rules (docs/design/levels.md, Online): with a free seat you play, and with both taken you watch, but
-    /// only once you've cleared its mission, so nothing ahead is spoiled. <see cref="Rows"/>, <see cref="Line"/> and
-    /// <see cref="Button"/> are the old room browser screen's, which Start flow 2 takes out.
+    /// only once you've cleared its mission, so nothing ahead is spoiled.
     /// </summary>
     public static class RoomBrowser
     {
@@ -43,10 +35,8 @@ namespace PooketSlug
         public const int MaxWatchers = 4;
         /// <summary>Everyone a room holds: the players and the watchers.</summary>
         public const int MaxPeople = Tuning.Coop.MaxPlayers + MaxWatchers;
-        /// <summary>Rooms the browser shows at once.</summary>
-        public const int MaxRows = 4;
 
-        /// <summary>The session property keys (short: they go to everyone browsing).</summary>
+        /// <summary>The session property keys (short: they go to everyone arriving).</summary>
         public const string MissionKey = "m", SoldiersKey = "n", WatchingKey = "w", UnderWayKey = "g", HostKey = "h", OpenKey = "o";
 
         public static RoomAction ActionFor(in RoomListing room, Func<int, bool> cleared)
@@ -54,43 +44,6 @@ namespace PooketSlug
             if (room.Soldiers < Tuning.Coop.MaxPlayers) return RoomAction.Join;
             if (room.Watching >= MaxWatchers) return RoomAction.Full;
             return cleared(room.Mission) ? RoomAction.Watch : RoomAction.Locked;
-        }
-
-        /// <summary>
-        /// The browser's lines: rooms to join first, then games to watch, then the rest, each in code order, at most
-        /// <see cref="MaxRows"/>.
-        /// </summary>
-        public static List<RoomRow> Rows(IEnumerable<RoomListing> rooms, Func<int, bool> cleared)
-        {
-            var rows = new List<RoomRow>();
-            foreach (RoomListing r in rooms)
-                if (!string.IsNullOrEmpty(r.Name)) rows.Add(new RoomRow { Room = r, Action = ActionFor(r, cleared) });
-            rows.Sort((a, b) => a.Action != b.Action ? a.Action.CompareTo(b.Action) : string.CompareOrdinal(a.Room.Name, b.Room.Name));
-            if (rows.Count > MaxRows) rows.RemoveRange(MaxRows, rows.Count - MaxRows);
-            return rows;
-        }
-
-        /// <summary>A line for a room: its code, who's hosting, the mission, its seats and watchers.</summary>
-        public static string Line(in RoomListing room)
-        {
-            SoldierDef host = room.Host >= 0 ? Content.Soldier(room.Host) : null;
-            MissionDef mission = Missions.ByNetId(room.Mission);
-            string what = mission == null ? "A NEWER MISSION" : mission == Missions.One ? "TEST MISSION" : mission.Name; // Mission one is solo only: co-op plays it as a stand-in
-            string line = room.Name + "  " + (host != null ? host.Name.ToUpperInvariant() + "  " : "") + what + "  " +
-                          Math.Min(room.Soldiers, Tuning.Coop.MaxPlayers) + "/" + Tuning.Coop.MaxPlayers + (room.UnderWay ? " PLAYING" : " IN THE DEN");
-            return room.Watching > 0 ? line + "  " + room.Watching + " WATCHING" : line;
-        }
-
-        /// <summary>The button for a room's line.</summary>
-        public static string Button(RoomAction action)
-        {
-            switch (action)
-            {
-                case RoomAction.Join: return "JOIN";
-                case RoomAction.Watch: return "WATCH";
-                case RoomAction.Full: return "FULL";
-                default: return "LOCKED";
-            }
         }
     }
 

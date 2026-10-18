@@ -4,7 +4,7 @@ namespace PooketSlug
     public struct MenuInput
     {
         public bool Start, Restart, Pause, Mute;
-        public bool Host, Join, Quick, Back; // online co-op menu
+        public bool Host, Back; // CO-OP on the title, and back out of a screen
         public bool Settings, Shake; // the settings screen
         /// <summary>The touch pad's pause button. The game decides what it means (pause, or leave a shared game).</summary>
         public bool PadPause;
@@ -16,8 +16,6 @@ namespace PooketSlug
             Pause |= other.Pause;
             Mute |= other.Mute;
             Host |= other.Host;
-            Join |= other.Join;
-            Quick |= other.Quick;
             Back |= other.Back;
             Settings |= other.Settings;
             Shake |= other.Shake;
