@@ -105,6 +105,124 @@ namespace PooketSlug
             });
 
             MakeKitSounds();
+            MakeCreamerySounds();
+        }
+
+        /// <summary>
+        /// Mission two's, the creamery's: written for it, in the same voices. The Big Scoop's tells each last as long as
+        /// his wind-up (<see cref="BigScoopSpec"/>), so the sound ends as the move lands.
+        /// </summary>
+        static void MakeCreamerySounds()
+        {
+            BigScoopSpec scoop = Content.BigScoopMoves;
+            // A shot glancing off a riot shield: two high, clashing squares ringing out over a tick of noise.
+            Sfx.ShieldClank = Render("chipShieldClank", 0.16f, c =>
+            {
+                c.Tone(0f, 0.15f, 1870f, 1790f, duty: 0.25f, vol: 0.07f);
+                c.Tone(0f, 0.12f, 2690f, 2600f, duty: 0.125f, vol: 0.05f);
+                c.Noise(0f, 0.02f, rate: 1.6f, vol: 0.1f);
+            });
+            // The grenadier pulling the pin as he raises it: a tiny metal tink, the tell.
+            Sfx.GrenadePin = Render("chipGrenadePin", 0.09f, c =>
+            {
+                c.Tone(0f, 0.025f, 3300f, duty: 0.125f, vol: 0.14f);
+                c.Tone(0.035f, 0.05f, 2500f, duty: 0.125f, vol: 0.1f);
+            });
+            // His lob: a quick whoosh up, a thinner cousin of your own slide-whistle grenade.
+            Sfx.GrenadeLob = Render("chipGrenadeLob", 0.2f, c =>
+            {
+                c.Noise(0f, 0.16f, rate: 0.6f, to: 1.4f, vol: 0.07f);
+                c.Tone(0f, 0.14f, 320f, 760f, triangle: true, vol: 0.1f);
+            });
+
+            // The Big Scoop's slam. The tell: a groan rising as he lifts the scoop, ratchet clicks speeding up.
+            float slamTell = scoop.SlamTell;
+            Sfx.ScoopSlamTell = Render("chipScoopSlamTell", slamTell, c =>
+            {
+                c.Tone(0f, slamTell, 70f, 210f, triangle: true, vol: 0.2f, env: new[] { 0.3f, 0.7f, 1f, 1f });
+                for (float t = 0f, gap = 0.16f; t < slamTell - 0.05f; t += gap, gap = Mathf.Max(0.05f, gap * 0.75f))
+                    c.Tone(t, 0.02f, 1200f, duty: 0.125f, vol: 0.05f);
+            });
+            // The slam: a deep boom the floor carries, longer and lower than a landing.
+            Sfx.ScoopSlam = Render("chipScoopSlam", 0.6f, c =>
+            {
+                c.Tone(0f, 0.45f, 140f, 32f, duty: 0.5f, steps: 8, vol: 0.26f);
+                c.Noise(0f, 0.5f, rate: 0.4f, to: 0.1f, vol: 0.24f);
+                c.Tone(0f, 0.05f, 900f, 300f, duty: 0.25f, vol: 0.08f);
+            });
+            // The hurl. The tell: the scoop wound back, a whirl spinning up.
+            float hurlTell = scoop.HurlTell;
+            Sfx.ScoopHurlTell = Render("chipScoopHurlTell", hurlTell, c =>
+                c.Tone(0f, hurlTell, 260f, 720f, duty: 0.125f, vibratoRate: 14f, vibratoDepth: 60f, vol: 0.2f, env: new[] { 0.2f, 0.6f, 1f, 0.8f }));
+            // The hurl: a heavy, wet hwump as the scoop leaves.
+            Sfx.ScoopHurl = Render("chipScoopHurl", 0.3f, c =>
+            {
+                c.Noise(0f, 0.18f, rate: 0.5f, to: 0.2f, vol: 0.2f);
+                c.Tone(0f, 0.25f, 420f, 150f, duty: 0.5f, steps: 6, vol: 0.14f);
+            });
+            // The charge. The tell: three stamps of his boot, a whine climbing under them.
+            float chargeTell = scoop.ChargeTell;
+            Sfx.ScoopChargeTell = Render("chipScoopChargeTell", chargeTell, c =>
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    float t = i * chargeTell / 3f;
+                    c.Tone(t, 0.12f, 150f, 70f, duty: 0.5f, steps: 4, vol: 0.18f);
+                    c.Noise(t, 0.04f, rate: 0.5f, vol: 0.1f);
+                }
+                c.Tone(0f, chargeTell, 300f, 1100f, duty: 0.125f, steps: 10, vol: 0.06f, env: new[] { 0.2f, 0.5f, 1f, 1f });
+            });
+            // The charge: a bellow and pounding feet across the yard.
+            Sfx.ScoopCharge = Render("chipScoopCharge", 0.8f, c =>
+            {
+                c.Tone(0f, 0.5f, 130f, 95f, duty: 0.5f, vibratoRate: 22f, vibratoDepth: 18f, vol: 0.16f);
+                c.Noise(0f, 0.5f, rate: 0.3f, to: 0.2f, vol: 0.1f);
+                for (float t = 0f; t < 0.75f; t += 0.125f) c.Tone(t, 0.06f, 110f, 60f, duty: 0.5f, vol: 0.12f);
+            });
+
+            // Freezing solid: a sharp crack, the ice crackling as it sets, and a cold shimmer on top.
+            Sfx.FreezeCrack = Render("chipFreezeCrack", 0.45f, c =>
+            {
+                c.Noise(0f, 0.035f, rate: 2f, vol: 0.2f);
+                float[] crackles = { 0.06f, 0.1f, 0.13f, 0.19f, 0.24f, 0.31f };
+                foreach (float t in crackles) c.Noise(t, 0.012f, rate: 1.7f, vol: 0.09f);
+                c.Tone(0.02f, 0.4f, 3200f, 2100f, duty: 0.125f, steps: 6, vol: 0.04f);
+                c.Tone(0f, 0.08f, 600f, 200f, duty: 0.25f, vol: 0.08f);
+            });
+            // A nitrogen vent about to blow: a hiss swelling for as long as its mist warns.
+            Sfx.VentHiss = Render("chipVentHiss", Creamery.VentTell, c =>
+                c.Noise(0f, Creamery.VentTell, rate: 1.3f, to: 1.9f, vol: 0.15f, env: new[] { 0.1f, 0.4f, 1f, 1f }));
+            // And blowing: a cold whoosh, loud at first, trailing off over the blast.
+            Sfx.VentBlast = Render("chipVentBlast", Creamery.VentFor, c =>
+            {
+                c.Noise(0f, Creamery.VentFor, rate: 1.1f, to: 0.45f, vol: 0.13f);
+                c.Tone(0f, 0.12f, 240f, 90f, duty: 0.5f, vol: 0.06f);
+            });
+            // The scoop dropper letting one go: a clunk-shunk of the machine.
+            Sfx.ScoopDispense = Render("chipScoopDispense", 0.12f, c =>
+            {
+                c.Tone(0f, 0.04f, 900f, duty: 0.25f, vol: 0.11f);
+                c.Tone(0.04f, 0.07f, 520f, 240f, duty: 0.5f, steps: 3, vol: 0.14f);
+            });
+            // And the scoop landing: a soft, wet plop.
+            Sfx.ScoopPlop = Render("chipScoopPlop", 0.18f, c =>
+            {
+                c.Tone(0f, 0.1f, 520f, 140f, triangle: true, vol: 0.22f);
+                c.Noise(0.03f, 0.12f, rate: 0.35f, to: 0.15f, vol: 0.07f);
+            });
+            // A Trollogram projector shot out: a buzz stuttering and sagging, then a pop as it dies.
+            Sfx.ProjectorSputter = Render("chipProjectorSputter", 0.9f, c =>
+            {
+                float[] on = { 0f, 0.09f, 0.15f, 0.27f, 0.32f, 0.46f, 0.53f, 0.62f };
+                for (int i = 0; i < on.Length; i++)
+                {
+                    float f = 160f - i * 12f;
+                    c.Tone(on[i], 0.05f - i * 0.003f, f, f * 0.95f, duty: 0.25f, vibratoRate: 50f, vibratoDepth: 12f, vol: 0.12f);
+                    c.Noise(on[i], 0.02f, rate: 1.4f, vol: 0.05f);
+                }
+                c.Noise(0.7f, 0.15f, rate: 0.7f, to: 0.2f, vol: 0.18f);
+                c.Tone(0.7f, 0.15f, 1400f, 80f, duty: 0.125f, steps: 6, vol: 0.08f);
+            });
         }
 
         /// <summary>tones2's kit and the enemies' extras, from the matching Tabks weapons (tones2 is ten's kit there).</summary>

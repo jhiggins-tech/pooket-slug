@@ -11,6 +11,9 @@ namespace PooketSlug
         public static AudioClip IntroRise, Intro, JetLoop, Splat, RocketRumble, RocketLaunch, Glitch, Poison, Spew, Sizzle, Thump, Charge, Servo;
         // kie's kit
         public static AudioClip WeaselThrow, WeaselTune, TrollDrop, TrollSwap;
+        // Mission two's (the creamery): its goons, the Big Scoop's moves and their tells, the nitrogen and the hazards
+        public static AudioClip ShieldClank, GrenadePin, GrenadeLob, ScoopSlamTell, ScoopSlam, ScoopHurlTell, ScoopHurl, ScoopChargeTell, ScoopCharge;
+        public static AudioClip FreezeCrack, VentHiss, VentBlast, ScoopDispense, ScoopPlop, ProjectorSputter;
         public static bool Muted;
         /// <summary>The settings' volumes, as gains: the game's sounds, and the recorded voices (<see cref="Options.Gain"/>).</summary>
         public static float EffectsVolume = 1f, VoicesVolume = 1f;
@@ -54,8 +57,9 @@ namespace PooketSlug
             else if (weapon == Content.StolenRifle) { clip = EnemyShot; own = 0.5f; }
             else if (weapon == Content.StolenKnives || weapon == Content.StolenBombs) { clip = Throw; own = 0.7f; }
             else if (weapon == Content.StolenCannon) { clip = Cannon; own = 0.85f; }
-            else if (weapon == Content.GoonGrenadeThrow || weapon == Content.ScoopHurl) { clip = Throw; own = 0.6f; } // stand-ins, until Audio's
-            else if (weapon == Content.ScoopSlam) { clip = Thump; own = 1f; }
+            else if (weapon == Content.GoonGrenadeThrow) { clip = GrenadeLob; own = 0.6f; }
+            else if (weapon == Content.ScoopHurl) { clip = ScoopHurl; own = 0.8f; }
+            else if (weapon == Content.ScoopSlam) { clip = ScoopSlam; own = 1f; }
             else return; // dropped bombs are silent
             Play(clip, volume >= 0f ? volume : own);
         }

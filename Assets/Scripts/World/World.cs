@@ -30,6 +30,8 @@ namespace PooketSlug
         public readonly List<TrollDecoy> Decoys = new List<TrollDecoy>();
 
         public readonly ScrollCamera View;
+        /// <summary>Whether <paramref name="x"/> is in view, give or take a tile: a hazard's sound plays only then.</summary>
+        public bool OnScreen(float x) => x > View.Left - 1f && x < View.Right + 1f;
         public readonly Spawner Spawner;
         public readonly Combat Combat;
         public readonly Scoring Scoring = new Scoring();

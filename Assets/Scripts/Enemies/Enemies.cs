@@ -24,6 +24,7 @@ namespace PooketSlug
         Vector2 m_NetPos;
         bool m_NetPlaced, m_NetFrozen;
         FrostLook m_Ice;
+        bool m_WasFrozen;
 
         protected Enemy(World world, EnemyDef def, Vector2 feet)
             : base(world, def.Name, feet, def.HalfWidth, def.Height, def.Hp)
@@ -176,6 +177,8 @@ namespace PooketSlug
         {
             base.Render();
             bool frozen = LooksFrozen && !Dying;
+            if (frozen && !m_WasFrozen) Sfx.Play(Sfx.FreezeCrack, 0.45f); // quieter than our own soldier's
+            m_WasFrozen = frozen;
             if (frozen && m_Ice == null) m_Ice = new FrostLook(Go.transform);
             m_Ice?.Render(this, frozen);
             if (Dying && Look == null)

@@ -25,7 +25,7 @@ namespace PooketSlug
         readonly Transform m_Arm;
         bool m_Awake, m_Landed, m_HitThisCharge, m_WasFrozen;
         float m_Drop;
-        ScoopMove m_NetMove;
+        ScoopMove m_NetMove, m_Told;
 
         public BigScoop(World world, EnemyDef def, Vector2 feet) : base(world, def, feet)
         {
@@ -176,7 +176,7 @@ namespace PooketSlug
                     break;
                 case ScoopMove.Charge:
                     m_HitThisCharge = false;
-                    Sfx.Play(Sfx.RocketRumble, 0.6f);
+                    Sfx.Play(Sfx.ScoopCharge, 0.8f);
                     break;
             }
         }
@@ -193,6 +193,13 @@ namespace PooketSlug
             // the scoop tells the move: raised for a slam, back for a hurl, levelled for a charge
             ScoopMove move = Move;
             bool telling = World.IsAuthority ? m_Brain.Phase == ScoopPhase.Tell : move != ScoopMove.None;
+            // each wind-up has its own sound, from its start, on every screen
+            if (!telling || Dying) m_Told = ScoopMove.None;
+            else if (move != m_Told)
+            {
+                m_Told = move;
+                Sfx.Play(move == ScoopMove.Slam ? Sfx.ScoopSlamTell : move == ScoopMove.Hurl ? Sfx.ScoopHurlTell : Sfx.ScoopChargeTell, 0.8f);
+            }
             float angle = 25f + Mathf.Sin(Anim * 3f) * 6f;
             if (move == ScoopMove.Slam) angle = telling ? 115f : -35f;
             else if (move == ScoopMove.Hurl) angle = telling ? 160f : 40f;

@@ -193,7 +193,7 @@ namespace PooketSlug
         void Clank(Projectile p)
         {
             m_World.HitFeel.Spark(p.Pos, -p.Vel, false, ours: !p.Cosmetic);
-            if (!p.Cosmetic) Sfx.Play(Sfx.Servo, 0.5f); // a stand-in clank, until Audio's
+            if (!p.Cosmetic) Sfx.Play(Sfx.ShieldClank, 0.6f);
             p.Detonate();
         }
 
