@@ -169,13 +169,15 @@ namespace PooketSlug
         {
             if (Sandbox.Active) return Sandbox.MakeWorld(m_Camera);
             var world = new World(m_Camera, mission, net, Soldier) { TanksToCall = m_Flags.UnlockTank || m_Flags.Tank ? 1 : 0, SkipToPilot = m_Flags.Pilot, WeakPilot = m_Flags.WeakPilot, TestTeam = m_Flags.Team, KcajTank = m_Flags.KcajTank };
+            // a replay meets the boss a second time: the quick intro (?test=reveal plays the first meeting whatever's saved)
+            world.QuickBossIntro = !m_Flags.Reveal && Story.QuickBossIntro(mission, lostAtBoss: false);
             Wire(world, coda: true);
             if (m_Flags.Crate)
             {
                 // Just past where a joining partner appears (1.25 ahead of the start), so whoever runs first takes
                 // it before any jump. Only the authority places it; a follower gets it from the snapshot.
                 float x = world.Level.PlayerStart.x + 2.75f;
-                world.Spawner.SpawnPickup(Content.HeavyMachineGunCrate, new Vector2(x, world.Level.TopSurfaceY(x)));
+                world.Spawner.SpawnPickup(Content.BombCrate, new Vector2(x, world.Level.TopSurfaceY(x)));
             }
             if (m_Flags.OneUp)
             {
@@ -291,7 +293,7 @@ namespace PooketSlug
             else if (checkpoint >= 0f)
             {
                 m_World.CheckpointX = checkpoint;
-                m_World.QuickBossIntro = true; // the second time: the tank's already in place
+                m_World.QuickBossIntro = Story.QuickBossIntro(Mission, lostAtBoss: true); // the second time: the tank's already in place
                 StartAt(m_World, checkpoint);
             }
             m_StartNote = null;
@@ -359,6 +361,24 @@ namespace PooketSlug
         /// (co-op opens only once Mission one's beaten, so it's been seen by then). Test starts skip it, unless
         /// ?test=reveal.
         /// </summary>
+        /// <summary>
+        /// The super shows on the HUD, the touch pad and the controls line: it's charged once (or co-op is open). Until
+        /// then it's hidden, so a new player meets it when it's ready (docs/design/player.md).
+        /// </summary>
+        internal bool SuperShown => StoryRecord.ShowsSuper(m_Profile);
+
+        /// <summary>The soldier's super charged for the first time ever, just now: the HUD's one-off prompt.</summary>
+        internal event System.Action SuperFirstCharged;
+
+        /// <summary>The first time the soldier's super is charged, remember it (it shows from then on) and say so.</summary>
+        void NoteSuper()
+        {
+            if (Sandbox.Active || !m_World.Player.Kit.SuperReady || SuperShown) return;
+            if (Story.Mark(StoryRecord.Super)) m_Store.Save(m_Profile);
+            Log.Game.Info("The super's charged for the first time");
+            SuperFirstCharged?.Invoke();
+        }
+
         bool PlaysBossReveal => !m_Coop && !Sandbox.Active && Mission.Story.BossReveal != null &&
             (m_Flags.Reveal || Story.Due(Mission.Story.BossReveal) && !m_Flags.Boss && !m_Flags.Team);
 
@@ -618,6 +638,7 @@ namespace PooketSlug
                         }
                         // no pausing a shared game; it's over when everyone is out of lives and continues
                         m_World.Tick(dt, soldier);
+                        NoteSuper();
                         m_OutFor = m_World.AllOut ? m_OutFor + dt : 0f;
                         if (m_OutFor > Tuning.Lives.GameOverDelay) EndRun(GameState.GameOver);
                         else if (m_World.Victory && m_World.VictoryTime > 1f) EndRun(GameState.Victory);
@@ -639,6 +660,7 @@ namespace PooketSlug
                         if (Sandbox.Tick(dt, soldier)) break;
                     }
                     else m_World.Tick(dt, soldier);
+                    NoteSuper();
                     MissionMusic.Tick(m_World);
                     m_OutFor = m_World.Player.Lives.IsOut && !m_World.Spectating ? m_OutFor + dt : 0f;
                     if (m_OutFor > Tuning.Lives.GameOverDelay) EndRun(GameState.GameOver);

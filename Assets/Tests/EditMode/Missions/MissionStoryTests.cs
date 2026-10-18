@@ -53,5 +53,33 @@ namespace PooketSlug.Tests
             Assert.AreEqual("debrief", StoryRecord.Debrief);
             Assert.AreEqual("scene-motor-pool", SceneScript.IdOf(SceneLibrary.MotorPool));
         }
+
+        [Test]
+        public void TheBossIntroIsQuickOnAReplayOrARetryAtTheBoss()
+        {
+            var p = new Profile();
+            var story = new StoryRecord(p);
+            Assert.IsFalse(story.QuickBossIntro(Missions.One, lostAtBoss: false), "the first run meets the tabk properly");
+            Assert.IsTrue(story.QuickBossIntro(Missions.One, lostAtBoss: true), "a retry at the boss door");
+            p.RecordRun(Missions.One, Setting.Normal, 100, won: false, solo: true);
+            Assert.IsFalse(story.QuickBossIntro(Missions.One, lostAtBoss: false), "a lost run isn't a replay");
+            p.RecordRun(Missions.One, Setting.Hard, 100, won: true, solo: true);
+            Assert.IsTrue(story.QuickBossIntro(Missions.One, lostAtBoss: false), "cleared on any setting: a replay");
+        }
+
+        [Test]
+        public void TheSuperShowsOnceItsChargedOrCoopIsOpen()
+        {
+            var p = new Profile();
+            var story = new StoryRecord(p);
+            Assert.IsFalse(story.SuperShown, "hidden until it first charges");
+            Assert.IsTrue(story.Mark(StoryRecord.Super));
+            Assert.IsTrue(story.SuperShown);
+            Assert.IsFalse(story.Mark(StoryRecord.Super), "once");
+
+            var veteran = new Profile();
+            veteran.RecordRun(Missions.One, Setting.Normal, 100, won: true, solo: true);
+            Assert.IsTrue(StoryRecord.ShowsSuper(veteran), "a save past Mission one has seen it");
+        }
     }
 }
