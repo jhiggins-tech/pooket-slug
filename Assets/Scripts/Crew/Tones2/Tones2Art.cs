@@ -65,37 +65,41 @@ namespace PooketSlug
             }
         }
 
-        static Sprite s_TabkHull, s_TabkBarrel;
+        static Sprite s_TabkHull, s_TabkParked, s_TabkBarrel;
         static Sprite[] s_TabkDrone;
 
         /// <summary>
         /// His tabk's hull (<c>docs/design/tanks.md</c>, tones2's tabk): the tabk's shape in orange and black, with a black
         /// jack-o'-lantern face stencilled on its flank, so the hull is the pumpkin. Its gun is drawn on its own, as the boss tabk's is (<see cref="Art.TankHull"/>).
         /// </summary>
-        public static Sprite TabkHull
+        public static Sprite TabkHull => s_TabkHull ?? (s_TabkHull = Art.FromRows(TabkRows(false), new Vector2(0.5f, 0f)));
+
+        /// <summary>His tabk whole, gun and all, for a cutscene where it's parked (the motor pool, freeing kie).</summary>
+        public static Sprite TabkParked => s_TabkParked ?? (s_TabkParked = Art.FromRows(TabkRows(true), new Vector2(0.5f, 0f)));
+
+        /// <summary>The tabk's rows in his orange and black, with the pumpkin face, and its gun in black or left out.</summary>
+        static string[] TabkRows(bool gun)
         {
-            get
-            {
-                if (s_TabkHull != null) return s_TabkHull;
-                var rows = Recolour(ArtData.Tank, "toTOueDedDmDMo");
+            var rows = Recolour(ArtData.Tank, "toTOueDedDmDMo");
+            if (gun) rows[5] = rows[5].Substring(0, 22).Replace('o', 'e') + rows[5].Substring(22); // black, as his gun is (TabkBarrel)
+            else
                 for (int r = 4; r <= 5; r++) rows[r] = new string('.', 22) + rows[r].Substring(22); // the gun is drawn on its own
-                string[] pumpkin =
-                {
-                    ".e.......e.",
-                    "eee..e..eee",
-                    "...........",
-                    "e.eeeeeee.e",
-                    ".eee.e.eee.",
-                };
-                for (int r = 0; r < pumpkin.Length; r++)
-                {
-                    char[] row = rows[8 + r].ToCharArray();
-                    for (int i = 0; i < pumpkin[r].Length; i++)
-                        if (pumpkin[r][i] != '.') row[24 + i] = pumpkin[r][i];
-                    rows[8 + r] = new string(row);
-                }
-                return s_TabkHull = Art.FromRows(rows, new Vector2(0.5f, 0f));
+            string[] pumpkin =
+            {
+                ".e.......e.",
+                "eee..e..eee",
+                "...........",
+                "e.eeeeeee.e",
+                ".eee.e.eee.",
+            };
+            for (int r = 0; r < pumpkin.Length; r++)
+            {
+                char[] row = rows[8 + r].ToCharArray();
+                for (int i = 0; i < pumpkin[r].Length; i++)
+                    if (pumpkin[r][i] != '.') row[24 + i] = pumpkin[r][i];
+                rows[8 + r] = new string(row);
             }
+            return rows;
         }
 
         /// <summary>His tabk's gun, black, pointing left from its pivot (as <see cref="Art.TankBarrel"/>).</summary>

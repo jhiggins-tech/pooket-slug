@@ -46,6 +46,7 @@ Picked by the owner on 2026-10-18 (the start-art item: https://claude.ai/artifac
 - **The file:** `/mnt/project-files/concepts/start-art/logo-c1.png` (2136 × 496, its black keyed out to transparency), cut from take `c-1.png` (2560 × 1440 on black). It was made with Seedream 5 Flash, prompt only.
 - **On screen:** it sits in the upper two thirds over the screen's own background (a gentle colour ramp and a vignette, drawn by the game), with START and SETTINGS below it. The page tried it over a royal-blue ramp, `#060b3a` at the top to `#2b3aa8` at the bottom.
 - **Keying:** the dark outline around the letters went with the black, so give the logo a one-pixel dark outline or a soft drop shadow if it looks thin on the ramp.
+- **Built** (start-screen, 2026-10-18): `Ui/TitleView.cs`. The logo is `Assets/Resources/Title/logo.bytes`, a PNG made by `tools/title_logo.py`: scaled to 1280 wide with a 3-pixel dark outline and a soft shadow baked in, shown 440 of the canvas's 360-high units wide. The ramp is that royal blue, with a vignette darkening the corners by up to 60%; the splash fades up from black once a visit.
 
 ## What was tried
 The showcase drew a rifleman, a tabk and a skyline with nine models in three styles (16-bit arcade, 8-bit console, and "match the game" with the hand-made sprites attached). Its page keeps every image, each cut to game pixels beside the hand-made art.

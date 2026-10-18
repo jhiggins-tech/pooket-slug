@@ -167,15 +167,19 @@ jobs:
       # - the arcade announcer's lines (text-to-speech, voice/lines.json there): announcer.zip;
       # - the cutscene narrator's lines (voice F from the narrator voice spike, voice/narration.json there):
       #   narration.zip, <line>.wav for each line;
-      # - the boss music's final section played by an orchestra (?spike=music crossfades to it), rendered from the
-      #   game's own notes (music/ there): orchestra.zip.
-      - name: Fetch the announcer, narrator and orchestra
+      # - the boss music's final section played by an orchestra (the chip crossfades to it), rendered from the
+      #   game's own notes (music/ there): orchestra.zip;
+      # - the title theme (Lyria take D as a seamless loop, title.wav): start-music.zip, which also holds the other
+      #   takes, so only title.bytes is kept.
+      - name: Fetch the announcer, narrator, orchestra and title theme
         env:
           GH_TOKEN: ${{ secrets.VENDOR_PAT }}
         run: |
           tools/vendor_fetch.sh --bytes announcer Assets/Resources/Voice "the announcer stays quiet in this build"
           tools/vendor_fetch.sh --bytes narration Assets/Resources/Narration "the narrator is subtitles only"
           tools/vendor_fetch.sh --bytes orchestra Assets/Resources/Music "the boss music stays chip"
+          tools/vendor_fetch.sh --bytes start-music "$RUNNER_TEMP/start-music" "the splash screen is silent"
+          if [ -f "$RUNNER_TEMP/start-music/title.bytes" ]; then cp "$RUNNER_TEMP/start-music/title.bytes" Assets/Resources/Music/; fi
 
       # The cutscenes built into the game (scenes/*.txt as Resources/Scenes), the copy that plays when the site's can't
       # be reached or has a problem.

@@ -42,9 +42,9 @@ try {
   const tap = async p => { await touch('touchStart', [p]); await page.waitForTimeout(120); await touch('touchEnd', []); };
   console.log(`canvas ${box.width.toFixed(0)}x${box.height.toFixed(0)} at ${box.x.toFixed(0)},${box.y.toFixed(0)}; ${vw.toFixed(0)} HUD units wide`);
 
-  // START sits 4 units below the middle of the title screen. A first visit plays the opening scene: tap it through
-  // (a tap moves a shot on once its line is said) until the mission starts.
-  await tap(at(vw / 2, 180 + 4, 1));
+  // START sits 40 units below the middle of the splash (TitleView). A first visit plays the opening scene: tap it
+  // through (a tap moves a shot on once its line is said) until the mission starts.
+  await tap(at(vw / 2, 180 + 40, 1));
   const until = Date.now() + 120000;
   while (Date.now() < until && !seen(/Mission start: /)) {
     await page.waitForTimeout(1500);

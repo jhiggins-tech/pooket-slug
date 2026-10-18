@@ -133,6 +133,7 @@ namespace PooketSlug
         /// jet, the mud rocket jump and the spew.
         /// </summary>
         public static readonly SoldierDef Tones2 = new SoldierDef(1, "tones2", primary: WaterJet, special: RocketJump, startSpecials: 3,
+            specialMax: 3, specialRefill: 5f, // a rocket jump comes back every 5 seconds
             super: Spew, crateSpecials: 3); // the rocket jump is a strong special: a bomb crate gives about 3
 
         /// <summary>

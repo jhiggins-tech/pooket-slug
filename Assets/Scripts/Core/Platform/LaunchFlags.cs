@@ -10,11 +10,11 @@ namespace PooketSlug
     /// </summary>
     public sealed class LaunchFlags
     {
-        /// <summary>?unlock=coop: co-op is open for this visit (<c>?test=crew</c> opens it too).</summary>
+        /// <summary>?unlock=coop: co-op is open for this visit.</summary>
         public readonly bool UnlockCoop;
         /// <summary>?unlock=tank: a tabk can be called in each mission.</summary>
         public readonly bool UnlockTank;
-        /// <summary>?unlock=crew: the CREW pick is open.</summary>
+        /// <summary>?unlock=crew: the crew is open (the den opens from START).</summary>
         public readonly bool UnlockCrew;
 
         /// <summary>?test=crate: a crate just ahead of the start, so the co-op test sees one handed out.</summary>
@@ -23,8 +23,6 @@ namespace PooketSlug
         public readonly bool Tank;
         /// <summary>?test=1up: a 1-up just ahead of the start.</summary>
         public readonly bool OneUp;
-        /// <summary>?test=crew: two of the crew plays on the title screen (once a visit), as if Mission one were just beaten.</summary>
-        public readonly bool Crew;
         /// <summary>?test=debrief: the mission's won as it starts, so the debrief shows (as if it's the first).</summary>
         public readonly bool Debrief;
         /// <summary>?test=coda: a game starts at the coda, the tabk run after the boss, with its prompts.</summary>
@@ -60,8 +58,7 @@ namespace PooketSlug
         LaunchFlags(string url)
         {
             string[] unlock = List(url, "unlock"), test = List(url, "test");
-            Crew = Has(test, "crew");
-            UnlockCoop = Has(unlock, Reveals.Coop) || Crew;
+            UnlockCoop = Has(unlock, Reveals.Coop);
             UnlockTank = Has(unlock, Reveals.Tank);
             UnlockCrew = Has(unlock, "crew");
             Crate = Has(test, "crate");

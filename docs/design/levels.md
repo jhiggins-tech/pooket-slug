@@ -22,6 +22,7 @@ Up: [Design](README.md)
 - **The look: a steel base at night** (picked 2026-10-15). Snow on concrete and steel, hazard stripes, searchlights, live fences and steam vents, with the motor pool's blast shutter as the boss door. The cold palette makes the Trollogram goons and the fire stand out. The concept sheets are in the project's files, under concepts/m1-map.
 - **About five minutes long.**
 - **Single player only** (owner, 2026-10-16), as tones2, straight in with no tutorial. It's the game's prelude: beating it opens the lobby and co-op, so it is never played with two, replays included. It stays on the den's mission board, but picking it forces single player: player two's seat closes and nobody can watch (owner, 2026-10-16).
+- **For now, co-op plays Mission one as a stand-in,** until Mission two is built, so the two-phone game can be tested: the den's TV calls it TEST MISSION. It's a stop-gap in the build, not a change to the rule above.
 - **Goons:** riflemen (crouch under their shots), knife runners and bomb-dropping drones, all as flickering Trollograms.
 - **The boss** is kie's tabk, then Trollogram kie ([tabks](tanks.md#tabk-bosses)).
 - **Two reveals:** the first tabk, then your own. Freed, kie frees tones2's tabk and bows out, and in the coda, a short explosive mini-level after the boss, you call it in and drive it out of the base ([the coda](story.md#the-coda), owner 2026-10-16).
@@ -34,6 +35,8 @@ kcaj's mission (picked by the owner, 2026-10-16, from three concepts; the sheets
 - **The look:** warm pastels after Mission one's cold night. Waffle-cone floors topped with pink icing and sprinkles, lilac factory walls, ice cream tubs for cover and a giant soft-serve sign as the landmark. The Trollogram goons' cyan stands out against it.
 - **Hazards:** conveyor belts that carry you and the goons, nitrogen vents that freeze whoever walks through them for a moment, and scoop droppers overhead.
 - **Breakables:** boxes of cones that drop items, and nitrogen tanks that explode.
+- **The boss arena** is the loading yard at the end of the line (picked by the owner, 2026-10-18; m2-arena: https://claude.ai/artifact/RpDJ8cBynkza3HrdPsqJLA): outside by day under the run's pink sky, the factory's lilac wall with pink icing dripping down it and the loading bay on the left, the soft-serve sign on its pole in the middle, and the cold store on the right, a huge frosted block with icicles, its double doors at the screen's right edge and fog piling out under them. One locked screen, entered from the left out of the freezer corridor, with a flat waffle-cone floor and nothing standing on it. The plate is `concepts/m2-arena/arena-a1.png` in the project's files (320 × 180, 16 colours, the floor's top 32 px up, the doors 92 px tall), with `arena-a1-raw.png` at full size; the other takes are beside it.
+- **The way in and the backdrop** (picked by the owner, 2026-10-18; m2-arena-concept, same page): the fogged freezer corridor (`concepts/m2-arena/corridor-2.png`: frosted lilac walls, rows of tubs, cold ceiling lights, fog on a waffle floor) ends at the loading bay's door, and the run steps out of it into the yard. Behind the whole run, the far layer is the creamery's skyline (`far-2.png`: chimneys puffing pink smoke, milk tanks and the soft-serve sign on a lilac roofline). The fight in the yard: the tabk parks 32 px from the right edge, its beam sweeps the floor from the barrel, its pills rain over the whole screen, and fog lies along the floor from the doors (`fight-a1.png`).
 - **The boss door** is the cold store: it fogs open and the tabk rolls out of the mist. The boss is kcaj's tabk, then Trollogram kcaj ([tabks](tanks.md#tabk-bosses)).
 - **Story beats on the map:** Trollogram projectors behind frosted glass (shoot one and the goons near it flicker out), a goon frozen solid riding a conveyor, and a fogged freezer corridor before the cold store. The tabk wears a cone on its antenna.
 - **The story side** (why the Trollograms are here, the briefing and the freeing): [Mission two: the creamery](story.md#mission-two-the-creamery).
@@ -65,7 +68,7 @@ kcaj's mission (picked by the owner, 2026-10-16, from three concepts; the sheets
 1. **First launch:** the title screen offers Start, which begins Mission one, plus settings and a small sign-in button. Returning players on a new device can sign in straight away and keep their progress.
 2. **Mission one,** single player only, the prelude. The first tabk, the first call-in and the first drive happen here.
 3. **Once Mission one has been beaten:**
-   - **Co-op appears** in the menu: host a room, join with a code, quick match, browse rooms, or watch a game.
+   - **Co-op appears** in the den: it joins the one co-op room, to play or to watch.
    - **The mission screen** appears, with replays and kcaj's mission.
    - **The crew screen** appears, with tones2 and kie: it's the gaming den ([the lobby](lobby.md)).
    - **The debrief** shows XP and rank for the first time, and offers sign-in to players who haven't.
@@ -78,8 +81,8 @@ The game shows only what the player has already met. Nothing on the title screen
 
 | | First launch | After Mission one | Later |
 |---|---|---|---|
-| Title menu | Start, plus settings and a small sign-in button | Missions, Co-op, Crew | |
-| Online | Hidden | Host, join, quick match, browse, watch | |
+| Title menu | Start, plus settings and a small sign-in button | The same: Start opens the den, which has the missions, the crew and co-op | |
+| Online | Hidden | The one co-op room: play, or watch | |
 | Crew | tones2, with no crew screen | The crew screen: tones2 and kie | One more per mission |
 | Tabks | Never mentioned | tones2's tabk, and the call-in | One more per mission |
 | Missions | Mission one | Replays, the next mission | One more per crewmate, and hard settings from Mission two on |
@@ -89,10 +92,10 @@ The game shows only what the player has already met. Nothing on the title screen
 
 ## Online, once it's open
 
-- **Rooms:** join with a code or an invite link, use quick match, or browse open rooms.
+- **One room:** everyone's phone joins the same always-there co-op room (owner, 2026-10-18: we play with mates, so there's nothing to host, browse or type). CO-OP on the title, or the den's spare controller, joins it: a free seat plays, and a full room is watched.
 - **A lobby,** where both players pick their soldiers and ready up: the crew's gaming den ([the lobby](lobby.md)).
 - **Spectators** can watch a game, but only of missions they've already cleared, so nothing is spoiled.
-- **Invites:** a button copies the room's link to share.
+- **Invites:** tapping the den's TV shares the game's link, which brings a mate into the room.
 
 ## Leaderboards
 
