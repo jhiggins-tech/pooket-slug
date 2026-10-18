@@ -37,6 +37,16 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void TheTabkWakesWhenItsInViewOrTheViewCantGoFurther()
+        {
+            Assert.IsFalse(BossTankSpec.Wakes(viewRight: 100f, tankX: 110f, halfWidth: 2f, scrollLimit: 300f));
+            Assert.IsTrue(BossTankSpec.Wakes(112.5f, 110f, 2f, 300f), "all of it in view");
+            // kcaj's parks 3.5 tiles from the map's end: a 20-tile co-op screen there can't show it with room to spare
+            Assert.IsFalse(BossTankSpec.Wakes(205f, 206.5f, 3f, 210f));
+            Assert.IsTrue(BossTankSpec.Wakes(210f, 206.5f, 3f, 210f), "the view's gone as far as it can");
+        }
+
+        [Test]
         public void TheBossTanksShellsGoOnTheWire()
         {
             // Its shells are enemy shots, so a co-op partner is sent each one by its weapon id.

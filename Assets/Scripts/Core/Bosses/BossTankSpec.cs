@@ -44,6 +44,14 @@ namespace PooketSlug
         public float Rage(float health) => Mathf.Lerp(MaxRage, 1f, Mathf.Clamp01(health));
 
         /// <summary>
+        /// Whether the tabk wakes: once the view's right edge reaches past it (<paramref name="tankX"/> is the nearer of
+        /// where it is and where it parks), or the view's as far right as the map lets it go: a tabk parked by the map's
+        /// end (kcaj's, at the cold store) can't be shown with room to spare on a narrow co-op screen.
+        /// </summary>
+        public static bool Wakes(float viewRight, float tankX, float halfWidth, float scrollLimit) =>
+            viewRight >= Mathf.Min(tankX + halfWidth + 0.5f, scrollLimit - 0.25f);
+
+        /// <summary>
         /// The launch speed that lands a shell <paramref name="dx"/> across and <paramref name="dy"/> up, thrown at
         /// <paramref name="angle"/> degrees above the horizontal under <paramref name="gravity"/>; or
         /// <see cref="float.NaN"/> if that angle can't reach it.
