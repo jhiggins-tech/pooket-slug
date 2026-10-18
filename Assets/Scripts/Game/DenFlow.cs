@@ -130,7 +130,21 @@ namespace PooketSlug
                 return;
             }
             if (ready) place = DenPlace.Couch;
-            if (soldier.JumpPressed && w.Standing) place = DenMap.PlaceAt(w.X, w.Y + 10f);
+            if (soldier.JumpPressed && w.Standing)
+            {
+                // Jump uses the place you stand at, there and then (a wide one like the bunks has no spot to walk to);
+                // the couch still walks you to your seat on it
+                DenPlace here = DenMap.PlaceAt(w.X, w.Y + 10f);
+                if (here != DenPlace.None && here != DenPlace.Couch)
+                {
+                    if (m_Den.Ready) Sit(false);
+                    w.Walk(0);
+                    m_HeldDir = 0;
+                    Use(here);
+                    return;
+                }
+                place = here;
+            }
             int dir = soldier.Left == soldier.Right ? 0 : soldier.Left ? -1 : 1;
             int climb = soldier.Up == soldier.Down ? 0 : soldier.Up ? 1 : -1;
             bool moving = place != DenPlace.None || walk || dir != 0 || (climb != 0 && !w.Climbing && Mathf.Abs(w.X - DenMap.LadderX) <= 12f);
