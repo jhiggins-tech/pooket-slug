@@ -4,7 +4,7 @@ Where you pick your soldier and ready up, solo and in co-op: the inside of the c
 
 **Status:** approved by the owner, 2026-10-16 (second pass): the owner liked the first ("the bits feel good. I like the writing") and asked for the big screen, a GameCube-style console, and picking by sitting on the couch. First pass from the owner's note on the Roadmap: "The lobby should be the interior of the gaming den base, every playable character has a station and occupies it once they become playable. Small animation cycles of them interacting with their stations or with other players on the screen, sometimes with funny dialogue". All the lines are placeholders for the owner to rewrite in the crew's own voice.
 
-**Built:** the den itself is in the game, approved by the owner (2026-10-16): the room, tones2's and kie's stations, the bits, picking on the couch, READY and the zoom, and the co-op seats and countdown. Not yet: the first-visit and move-in beats, the couch fist bump, spectators and the invite on the TV, and the host changing the mission.
+**Built:** the den itself is in the game, approved by the owner (2026-10-16): the room, tones2's and kie's stations, the bits, picking on the couch, READY and the zoom, and the co-op seats and countdown. The TV shows the co-op room's name, TAP TO INVITE (it shares the game's link) and how many are watching. Not yet: the first-visit and move-in beats, the couch fist bump, and the host changing the mission.
 
 **Read this when** you're building the lobby, the crew screen, or a new crewmate's station.
 
@@ -15,6 +15,8 @@ Concept: `concepts/lobby/den-lobby.png` in the project's files (second pass; the
 ## Den 2.0: the den and the long loft
 
 **Layout picked by the owner on 2026-10-18** (den2-layout, layout C: https://claude.ai/artifact/98a63GBzVDfhSL9SQN71tY). One screen can't hold eight crew, so the den grows past it. Where this section and the rest of the page differ, this section wins; the rest still holds for the den screen itself.
+
+**Not in the game yet:** the den in the game is still the one-screen room below ([the room](#the-room)). Den 2.0's art is picked (den2-art), and building it is its own card.
 
 - **The den stays one screen,** the painting below with the loft railing gone: the couch, the TV and console, the mission board, kie's bench and tones2's slushie. Picking, readying and starting a mission never needs a scroll, and the crew you'd swap to are close by.
 - **The loft scrolls,** three screens wide (960 × 180), up the ladder: the camera rises with you, so the loft gets a full screen of height. The ladder's top pokes out of a hatch at the gym, and the den screen sits under loft pixels 350 to 670 so the two ladders line up. Left to right: the bunk room's door at the far left (the bunk room is its own screen behind it), the bathroom, the shower block and the laundry; the gym and the trophy wall around the hatch; the server cupboard, the wintergarden and the vending machine. It's one open attic, with no walls between the rooms. Rooms behind a tarp stay tarped, one corner ripped as a clue, until the crewmate who brings them moves in.
@@ -27,8 +29,10 @@ Concept: `concepts/lobby/den-lobby.png` in the project's files (second pass; the
 
 ## The room
 
+This is the den as it's built today. Den 2.0 ([above](#den-20-the-den-and-the-long-loft)) is where it's going: the den keeps this screen's ground floor, and the loft's stations move up to the scrolling loft. Until Den 2.0 is built, this section is the game.
+
 - **It's the hangout from [the opening](story.md#the-opening-scene),** the garage with the hand-painted POOKET sign, now cleaned up and lived in. The raid's cyan scorch marks are still on the walls, painted over badly. It's warm where Mission one is cold: lamp light, string lights, screens glowing.
-- **One phone screen, side-on, in two floors:** the ground floor and a loft up a ladder, four stations on each. It fits a landscape phone without scrolling, so every soldier is one tap away.
+- **One phone screen, side-on, in two floors** (until Den 2.0): the ground floor and a loft up a ladder, four stations on each. It fits a landscape phone without scrolling, so every soldier is one tap away.
 - **The heart of the room is the big screen and the couch.** A big TV on the ground floor, a GameCube-style console under it (a little purple cube with a carry handle, unbranded) and two controllers on long cables, lying on the couch's two seats. The couch is where the players sit: **sitting on it is how you pick your soldier** ([below](#picking-a-soldier-and-getting-ready)).
 - **The way out is the roller door** on the right. Crew come and go through it (a freed crewmate moving in, a partner arriving), and it's where BACK walks you out.
 - **The mission board** hangs beside the door: a corkboard with the chosen mission's card pinned to it. Tapping it opens the mission screen.
@@ -36,6 +40,8 @@ Concept: `concepts/lobby/den-lobby.png` in the project's files (second pass; the
 - **Thumbs stay clear:** READY sits bottom right, BACK top left, and no station's tap area reaches into the bottom corners ([controls](player.md#controls)).
 
 ### The backdrop
+
+**Not in the game yet:** the game still draws the room from props. The painting is placed on the gen-lobby-bg branch, waiting to go in.
 
 The room is a generated painting, picked by the owner on 2026-10-18 (gen-lobby-bg: https://claude.ai/artifact/5u2cYLcHaftoLm9uAyBtCN). It's `combo-ladder__1` on the vendor repository's `den` release, drawn the way [the art look](art.md) says and cut to the stage's 320 × 180 pixels.
 
@@ -106,7 +112,7 @@ Sample bits (placeholders):
 2. **Tap a crewmate to pick them.** They stop what they're doing and head for the couch: ground-floor crew walk over, and loft crew vault the railing and drop down with a thud. They flop into the left seat, grab the controller, and their name card slides up from the bottom (the name, their colours and the ⓘ for their kit), a small cousin of the [character intro](story.md#character-intros) with no slow-mo and no flash. The last soldier you played is already on the couch when the den opens.
 3. **Changing your mind:** tap another crewmate. The one on the couch hands over the controller with a shrug and goes back to their station, and the new pick takes the seat.
 4. **While you sit there,** your soldier fidgets with the controller, and the crew's bits carry on around them. Unpicked crew can wander over and lean on the back of the couch for a bit (tones2: "MOVE OVER").
-5. **The empty seat is the way to bring a mate,** once co-op is open: tap the second controller to host a room, and the room code goes up on the TV ([co-op](#co-op)). You can sit and wait there for a second player.
+5. **The empty seat is the way to bring a mate,** once co-op is open: tap the second controller to go co-op: your phone joins the one co-op room your mates use, and its name goes up on the TV ([co-op](#co-op)). You can sit and wait there for a second player.
 6. **READY:** your soldier presses START. The controller's light on the console goes green, the TV's start screen flashes, and the camera zooms into the TV, straight into the mission's briefing.
 
 ### Co-op
@@ -118,7 +124,7 @@ Sample bits (placeholders):
 - **Ready up:** each player taps READY, and their soldier presses START: that controller's light goes green on the console. When both seats are filled and ready, the two soldiers do a little bit together on the couch (a fist bump, or a pair's own move if their team super is built: [team supers](team-supers.md)).
 - **When both are ready,** the TV counts down 3, 2, 1 and the camera zooms into the screen, into the briefing. Either player tapping UNREADY during the countdown stops it.
 - **The host picks the mission** on the mission board. Mission one stays on it, but it's single player only: picking it closes player two's seat and turns off spectating (owner, 2026-10-16). Changing it puts both players back to not ready, so nobody is carried into a mission they didn't agree to.
-- **The room code and invite** are on the TV: tap it to copy the link ([online](levels.md#online-once-its-open)).
+- **The room's name and TAP TO INVITE** are on the TV: tapping it shares the game's link, which brings a mate into the same room ([online](levels.md#online-once-its-open)).
 - **Spectators** don't come into the den: the TV shows how many are watching ("2 WATCHING").
 - **A partner who drops in mid-mission** still gets the den first, to pick a soldier. READY drops them straight into the mission.
 - **Leaving:** BACK gets your soldier up off the couch and out of the roller door; on your partner's phone they wave and leave, and the seat's controller drops back onto the cushion.

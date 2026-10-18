@@ -58,7 +58,7 @@ A boss tabk's arrival is the mission's big moment ([story](story.md#cutscenes): 
 
 **The announcer** (picked 2026-10-15) is a generated voice: a gravelly arcade announcer made with text-to-speech by the vendor repository's CI from its `voice/lines.json`, so a line is changed or added by editing that file. It also calls "Mission one... start!" and "Mission complete!".
 
-**The music** (picked 2026-10-15): a looping Mission one track plays through the run, and a faster, minor-key boss track takes over for the fight. Both are made in code with the chip synth the sound effects use. The full track list is in [music](music.md).
+**The music** (picked 2026-10-15): a looping Mission one track plays through the run, and a faster, minor-key boss track takes over for the fight. Both are made in code with the chip synth the sound effects use. The full track list is in [music](music.md). As built, they play only in the `?spike=music` spike (solo, `MusicFlow`), so a normal run's boss intro has the siren and banner but no music change yet.
 
 **The second time** you meet a tabk (a replay, or after a lost fight at the boss-door checkpoint), the intro is quick: the banner and siren only, with the tabk already in place, and the boss music starts at once.
 
@@ -66,7 +66,7 @@ A boss tabk's arrival is the mission's big moment ([story](story.md#cutscenes): 
 
 **When it ends** (picked 2026-10-15): wrecking the tabk plays a short victory sting over the boss music, which runs on through the pilot round and stops when the pilot glitches out ([freeing kie](story.md#freeing-kie)).
 
-**Settings:** the music has its own MUSIC on/off beside SOUND, so a player can keep the sound effects and lose the tune.
+**Settings:** the music has its own MUSIC on/off beside SOUND, so a player can keep the sound effects and lose the tune. Not built yet: SETTINGS has SOUND only, which mutes the music too.
 
 ## The pilot round
 
