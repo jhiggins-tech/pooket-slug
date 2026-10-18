@@ -80,7 +80,7 @@ The game shows only what the player has already met. Nothing on the title screen
 | | First launch | After Mission one | Later |
 |---|---|---|---|
 | Title menu | Start, plus settings and a small sign-in button | Missions, Co-op, Crew | |
-| Online | Hidden | Host, join, quick match, browse, watch | |
+| Online | Hidden | The one co-op room: play, or watch | |
 | Crew | tones2, with no crew screen | The crew screen: tones2 and kie | One more per mission |
 | Tabks | Never mentioned | tones2's tabk, and the call-in | One more per mission |
 | Missions | Mission one | Replays, the next mission | One more per crewmate, and hard settings from Mission two on |
