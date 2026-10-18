@@ -66,7 +66,7 @@ namespace PooketSlug
                 foreach (DenActor a in m_Crew.Actors)
                 {
                     if (a.Doing == DenDoing.Station) idle.Add(a.Soldier);
-                    else if (a.Doing == DenDoing.Seated) seated.Add(a.Soldier);
+                    else if (a.OnCouch) seated.Add(a.Soldier);
                 }
                 DenBit bit = DenBits.Choose(idle, seated, m_LastBit, m_Rng);
                 if (bit == null) return;
@@ -77,9 +77,8 @@ namespace PooketSlug
                 m_BitSaidHolo = false;
                 m_BitA.Doing = DenDoing.Bit;
                 // walk over to the other one: beside them at their station, or to the couch's arm
-                float to = bit.OnCouch ? (m_BitB.Seat == 0 ? 78f : 154f) : m_BitB.X + (m_BitB.X > m_BitA.X ? -16f : 16f);
-                m_BitA.TargetX = to;
-                m_BitA.TargetY = Floor;
+                float to = bit.OnCouch ? CouchArms[m_BitB.Seat == 0 ? 0 : 1] : m_BitB.X + (m_BitB.X > m_BitA.X ? -16f : 16f);
+                m_Crew.Send(m_BitA, to);
                 return;
             }
             m_BitT += dt;
@@ -90,8 +89,9 @@ namespace PooketSlug
             }
             if (m_Bit.Id == "slushie" && m_BitT > 3.5f && m_BitT - dt <= 3.5f) Sfx.Play(Sfx.Splat, 0.5f);
             // the walk there doesn't count against the lines: they start once they've arrived
-            if (Mathf.Abs(m_BitA.X - m_BitA.TargetX) > 0.5f && m_BitT < 1f) m_BitT = Mathf.Min(m_BitT, 0.5f);
-            else if (m_BitB.X != 0f) m_BitA.FaceLeft = m_BitB.X < m_BitA.X;
+            float bX = m_BitB.OnCouch ? SeatX[m_BitB.Seat] : m_BitB.X;
+            if (!m_BitA.Walk.Standing && m_BitT < 1f) m_BitT = Mathf.Min(m_BitT, 0.5f);
+            else m_BitA.Walk.Face(bX < m_BitA.X);
             int shown = 0;
             foreach (DenLine line in m_Bit.Lines)
             {
@@ -99,7 +99,7 @@ namespace PooketSlug
                 Bubble(shown++, line.Text, line.Who == 0 ? m_BitA : m_BitB);
             }
             HideBubbles(shown);
-            bool partnerGone = m_BitB.Doing == DenDoing.Away || (!m_Bit.OnCouch && m_BitB.Doing != DenDoing.Station) || (m_Bit.OnCouch && m_BitB.Doing != DenDoing.Seated);
+            bool partnerGone = m_BitB.Doing == DenDoing.Away || (!m_Bit.OnCouch && m_BitB.Doing != DenDoing.Station) || (m_Bit.OnCouch && !m_BitB.OnCouch);
             if (m_BitT >= m_Bit.Seconds || partnerGone || den.Zoom >= 0f) EndBit();
         }
 
@@ -112,8 +112,7 @@ namespace PooketSlug
             if (a != null && a.Doing == DenDoing.Bit)
             {
                 a.Doing = DenDoing.Walking;
-                a.TargetX = a.Home.Spot;
-                a.TargetY = a.Home.Upstairs ? Loft : Floor;
+                a.Walk.WalkTo(a.Home.Floor, a.Home.Spot);
             }
         }
 
@@ -123,7 +122,8 @@ namespace PooketSlug
             SpeechBubble b = m_Bubbles[i];
             b.Rt.SetAsLastSibling();
             float w = b.Say(text);
-            Vector2 head = new Vector2(who.X, (who.Doing == DenDoing.Seated ? SeatY - 5f : who.Y) + 30f) * Px;
+            bool seated = who.OnCouch;
+            Vector2 head = new Vector2(seated ? SeatX[who.Seat] : who.X, (seated ? SeatY - 5f : who.Y) + 30f) * Px;
             Vector2 at = head + new Vector2(0f, 16f);
             float half = w / 2f + 4f;
             at.x = Mathf.Clamp(at.x, half, StageW * Px - half);

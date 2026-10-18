@@ -57,7 +57,7 @@ Each file starts with a summary comment saying what it's for.
 | `Core/Tabks/` | `PlayerTankSpec`, `CallInCoach` |
 | `Core/Missions/` | `Level.cs` + `Missions.cs` (maps as text), `MissionStory` (a mission's scenes and once-only beats), `MissionBoard` (the mission screen, and whether a mission's cleared), `CodaCoach`, `Creamery` (Mission two's hazards: belts, vents, droppers, its boxes and tanks) |
 | `Core/Story/` | `SceneScript` (the scene files' reader), `SceneLibrary` (which copy plays, and the check), `Staging`, `Cutscene.cs` (the player) + `Cues.cs` (the cue ids) |
-| `Core/Lobby/` | `Den`, `Debrief` (XP), `Ranks`, `Profile` (what's saved, and reveals), `Options`, `CoopRoom` (the one co-op room, MATES) |
+| `Core/Lobby/` | `Den`, `DenMap` (the den's floors, ladder and places, and walking round them), `Debrief` (XP), `Ranks`, `Profile` (what's saved, and reveals), `Options`, `CoopRoom` (the one co-op room, MATES) |
 | `Core/Audio/` | `MusicTracks` / `Notation` / `Chip` (the chip music, its notation and the synth), `Soundtrack` (when a mission's music changes), `MusicRender` (a track into samples), `Wav`, `MusicMidi` |
 | `Core/Enemies/` | Mission two's goons: `Goons.cs` (`ShieldSpec`: what the shield stops; `GrenadierSpec`: the lob), `BigScoopBrain` (the miniboss's moves) |
 | `Core/Input/`, `Core/World/` | `ArcadePad` (the touch pad's logic), `SoldierInput`; `TilePhysics`, `Frost` (frozen by nitrogen) |

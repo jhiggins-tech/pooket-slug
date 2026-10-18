@@ -3,7 +3,7 @@
 usage: python3 -I tools/new_meta.py <path> [<path> ...]
 
 Creates <path>.meta for each path that doesn't have one yet: a folder gets a folder meta, a .cs file a
-MonoImporter meta, and anything else (an .asmdef, say) a DefaultImporter meta. Existing .meta files are
+MonoImporter meta, a .bytes or .txt file a TextScriptImporter meta (a TextAsset), and anything else (an .asmdef, say) a DefaultImporter meta. Existing .meta files are
 left alone.
 """
 import os
@@ -42,6 +42,15 @@ AssemblyDefinitionImporter:
   assetBundleVariant:
 """
 
+TEXT = """fileFormatVersion: 2
+guid: {guid}
+TextScriptImporter:
+  externalObjects: {{}}
+  userData:
+  assetBundleName:
+  assetBundleVariant:
+"""
+
 OTHER = """fileFormatVersion: 2
 guid: {guid}
 DefaultImporter:
@@ -64,6 +73,8 @@ def main(paths):
             template = SCRIPT
         elif path.endswith('.asmdef'):
             template = ASMDEF
+        elif path.endswith(('.bytes', '.txt')):
+            template = TEXT
         else:
             template = OTHER
         with open(meta, 'w', encoding='utf-8', newline='\n') as f:

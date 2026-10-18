@@ -4,9 +4,9 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// The lobby's flow, the crew's gaming den (<c>docs/design/lobby.md</c>): once the crew's open, START, CREW and co-op go
-    /// through it. The couch pick, READY, the invite, hosting, and in a co-op room the partner's seat and the countdown,
-    /// then the mission.
+    /// The lobby's flow, the crew's den (<c>docs/design/lobby.md</c>, Den 2.0): once the crew's open, START, CREW and co-op
+    /// go through it. Walking your soldier round it (the places are the menu), swapping to a crewmate, the couch and
+    /// READY, the invite, hosting, and in a co-op room the partner's seat and the countdown, then the mission.
     /// </summary>
     public sealed class DenFlow
     {
@@ -28,6 +28,8 @@ namespace PooketSlug
         public void Show(DenMode mode)
         {
             m_Den = new Den(mode, m_Game.Freed, m_Game.Soldier);
+            m_ToCouch = false;
+            m_HeldDir = 0;
             m_View.Begin(m_Den, InfoNow());
             m_Game.SetState(GameState.Den);
             Log.Game.Info("Den open: " + mode + ", on the couch: " + (m_Den.Pick?.Name ?? "nobody"));
@@ -50,7 +52,12 @@ namespace PooketSlug
             };
         }
 
-        /// <summary>The den's buttons and keys: a crewmate tapped (or Special for the next), READY (Enter, fire), the kit, hosting, BACK.</summary>
+        /// <summary>
+        /// The den's buttons and keys. Walking is the menu (docs/design/lobby.md, Den 2.0): a tap on the floor (or left and
+        /// right, up and down at the ladder) walks your soldier, a tap on a place walks there and uses it (Jump uses the
+        /// one you're standing at), and READY (Enter, fire) walks to the couch and sits down. A crewmate tapped (or Special
+        /// for the next) swaps you to them; the kit, hosting and BACK as before.
+        /// </summary>
         public void Tick(MenuInput keys, SoldierInput soldier)
         {
             Game g = m_Game;
@@ -69,11 +76,6 @@ namespace PooketSlug
                 g.Kit.Show(m_Den.Pick ?? g.Soldier);
                 return;
             }
-            if (m_View.TakeBoard() && m_Den.Mode == DenMode.Solo) // the host's pick in a co-op room comes later
-            {
-                g.Board.Show(fromDen: true);
-                return;
-            }
             Invites(coop, keys.Host);
             if ((m_View.TakeHost() || keys.Host) && g.CoopReady && m_Den.Mode == DenMode.Solo)
             {
@@ -88,21 +90,105 @@ namespace PooketSlug
                 if (m_Den.TryPick(tapped)) Log.Game.Info("Den pick: " + tapped.Name);
                 else Sfx.Play(Sfx.Thump, 0.3f); // taken, or too late
             }
-            bool keyReady = g.StateTime > 0.3f && (keys.Start || soldier.FirePressed || soldier.JumpPressed); // not the START that opened the den
-            if (m_View.TakeReady() || keyReady)
-            {
-                if (m_Den.ToggleReady())
-                {
-                    Sfx.Play(Sfx.Pickup, m_Den.Ready ? 0.7f : 0.3f);
-                    Log.Game.Info("Den " + (m_Den.Ready ? "ready: " : "unready: ") + m_Den.Pick.Name);
-                }
-            }
+            Walking(keys, soldier);
+            Use(m_View.TakeReached());
             if (m_Den.Pick != null && m_Den.Pick != g.Soldier)
             {
                 Options o = g.Options; // the title and the next den remember who's on the couch
                 o.Crew = m_Den.Pick.Id;
                 g.ChangeOptions(o);
             }
+        }
+
+        int m_HeldDir;
+        bool m_ToCouch;
+
+        /// <summary>Where your soldier's told to go: taps, the keys, READY. Setting off from the couch gets you up.</summary>
+        void Walking(MenuInput keys, SoldierInput soldier)
+        {
+            DenWalker w = m_View.Walker;
+            DenPlace place = m_View.TakePlace();
+            bool walk = m_View.TakeWalk(out DenFloor floor, out float x);
+            bool keyReady = m_Game.StateTime > 0.3f && (keys.Start || soldier.FirePressed); // not the START that opened the den
+            bool ready = m_View.TakeReady() || keyReady;
+            if (m_Den.Zoom >= 0f) return;
+            if (ready && m_Den.Pick == null)
+            {
+                // nobody's ours (the partner took our pick): READY picks the next free crewmate, who heads for the couch
+                if (m_Den.TryPick(m_Den.NextFree())) m_ToCouch = true;
+                return;
+            }
+            if (w == null) return;
+            if (m_ToCouch && m_View.Walker != null) // they're ours now
+            {
+                m_ToCouch = false;
+                ready = true;
+            }
+            if (ready && m_Den.Ready)
+            {
+                Sit(false);
+                return;
+            }
+            if (ready) place = DenPlace.Couch;
+            if (soldier.JumpPressed && w.Standing)
+            {
+                // Jump uses the place you stand at, there and then (a wide one like the bunks has no spot to walk to);
+                // the couch still walks you to your seat on it
+                DenPlace here = DenMap.PlaceAt(w.X, w.Y + 10f);
+                if (here != DenPlace.None && here != DenPlace.Couch)
+                {
+                    if (m_Den.Ready) Sit(false);
+                    w.Walk(0);
+                    m_HeldDir = 0;
+                    Use(here);
+                    return;
+                }
+                place = here;
+            }
+            int dir = soldier.Left == soldier.Right ? 0 : soldier.Left ? -1 : 1;
+            int climb = soldier.Up == soldier.Down ? 0 : soldier.Up ? 1 : -1;
+            bool moving = place != DenPlace.None || walk || dir != 0 || (climb != 0 && !w.Climbing && Mathf.Abs(w.X - DenMap.LadderX) <= 12f);
+            if (moving && m_Den.Ready && place != DenPlace.Couch) Sit(false);
+            if (place != DenPlace.None) w.Go(place);
+            else if (walk) w.WalkTo(floor, x);
+            else if (climb != 0 && w.Climb(climb)) { }
+            else if (dir != 0) w.Walk(dir);
+            else if (m_HeldDir != 0) w.Walk(0); // let go of the key: stop
+            m_HeldDir = place != DenPlace.None || walk ? 0 : dir;
+        }
+
+        /// <summary>Your soldier's walked up to <paramref name="place"/>: use it.</summary>
+        void Use(DenPlace place)
+        {
+            Game g = m_Game;
+            switch (place)
+            {
+                case DenPlace.None: return;
+                case DenPlace.Couch:
+                    if (m_Den.Mode == DenMode.Crew) m_View.Note("NO MISSION TODAY: JUST HANGING OUT");
+                    else Sit(true);
+                    return;
+                case DenPlace.Board:
+                    if (m_Den.Mode == DenMode.Solo) g.Board.Show(fromDen: true); // the host's pick in a co-op room comes later
+                    return;
+                case DenPlace.Gym:
+                    g.Kit.Show(m_Den.Pick ?? g.Soldier);
+                    return;
+                case DenPlace.Trophies:
+                    m_View.Note("THE TROPHY SHELF: " + Progression.RankAt(g.Profile.rank).Name.ToUpperInvariant()); // the one you hold, so never a spoiler
+                    return;
+                default:
+                    m_View.Note(DenMap.Note(place));
+                    return;
+            }
+        }
+
+        /// <summary>Sits down on the couch, ready, or gets up.</summary>
+        void Sit(bool ready)
+        {
+            if (!m_Den.SetReady(ready)) return;
+            Sfx.Play(Sfx.Pickup, ready ? 0.7f : 0.3f);
+            Log.Game.Info("Den " + (ready ? "ready: " : "unready: ") + m_Den.Pick.Name);
         }
 
         /// <summary>

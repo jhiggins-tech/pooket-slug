@@ -16,6 +16,18 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void SittingOnTheCouch_IsReady_AndGettingUpIsNot()
+        {
+            var den = new Den(DenMode.Solo, Both, Content.Tones2);
+            Assert.IsTrue(den.SetReady(true));
+            Assert.IsTrue(den.Ready);
+            Assert.IsTrue(den.SetReady(false));
+            Assert.IsFalse(den.Ready);
+            Assert.IsFalse(new Den(DenMode.Crew, Both, Content.Tones2).SetReady(true), "CREW has no mission");
+            Assert.IsFalse(new Den(DenMode.Solo, Both, null).SetReady(true), "nobody to sit");
+        }
+
+        [Test]
         public void TheSoldierPlayedLastIsAlreadyOnTheCouch()
         {
             Assert.AreEqual(Content.Kie, new Den(DenMode.Solo, Both, Content.Kie).Pick);

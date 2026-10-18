@@ -112,6 +112,19 @@ namespace PooketSlug
             return true;
         }
 
+        /// <summary>
+        /// Sitting down on the couch (ready) or getting up (not), as the soldier walks to it or away. False when it
+        /// can't: CREW has no mission, nobody's picked, or the zoom's begun.
+        /// </summary>
+        public bool SetReady(bool ready)
+        {
+            if (Mode == DenMode.Crew || Zoom >= 0f || Pick == null) return false;
+            if (Ready == ready) return true;
+            Ready = ready;
+            if (!Ready) Countdown = -1f;
+            return true;
+        }
+
         /// <summary>Takes the "pick undone" note, once.</summary>
         public bool TakeUndone()
         {
