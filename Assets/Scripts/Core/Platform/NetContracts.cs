@@ -25,7 +25,7 @@ namespace PooketSlug
         NetState State { get; }
         /// <summary>What is happening, or why it failed, in HUD-ready words.</summary>
         string Status { get; }
-        /// <summary>Invite code ("ABCD"), or null for quick match.</summary>
+        /// <summary>The room's name (<see cref="CoopRoom.Mates"/>, or a <c>?room=</c> one) while online.</summary>
         string RoomCode { get; }
         /// <summary>Connected, our soldier and the shared world exist: a co-op world can be built.</summary>
         bool Ready { get; }
@@ -35,29 +35,19 @@ namespace PooketSlug
         /// <summary>Receives the session's events (shots, hits, pickups, damage); null outside co-op play.</summary>
         INetEvents Events { set; }
 
-        /// <summary>Opens a room; a <paramref name="listed"/> one shows in the room browser for anyone to join or watch.</summary>
-        void Host(bool listed);
-        void Join(string code);
-        /// <summary>Joins a listed room with a free seat, or opens a listed one for the next player to find.</summary>
-        void QuickMatch();
+        /// <summary>
+        /// Joins the co-op room (<see cref="CoopRoom"/>; the first phone in opens it). With both seats taken, it watches
+        /// when <paramref name="cleared"/> says the room's mission is cleared on this phone, else it says the room is full.
+        /// </summary>
+        void JoinRoom(string room, Func<int, bool> cleared);
         void Leave();
 
-        // ------------------------------------------------------------------ rooms: the browser and watching
+        // ------------------------------------------------------------------ watching
 
         /// <summary>We're watching this session, with no soldier of our own.</summary>
         bool Watching { get; }
         /// <summary>People watching our room.</summary>
         int Watchers { get; }
-        /// <summary>Our room shows in the room browser. The host can change it.</summary>
-        bool Listed { get; set; }
-        /// <summary>Listening for listed rooms (the <c>Rooms</c> list below), with no room of our own.</summary>
-        bool Browsing { get; }
-        /// <summary>The listed rooms, while browsing (empty until Photon's first list).</summary>
-        IReadOnlyList<RoomListing> Rooms { get; }
-        void Browse();
-        void StopBrowsing();
-        /// <summary>Watches a listed room: no soldier, the shared world as the players see it.</summary>
-        void Watch(string code);
     }
 
     public static class NetSessions

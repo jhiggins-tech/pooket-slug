@@ -4,8 +4,9 @@ using System.Collections.Generic;
 namespace PooketSlug
 {
     /// <summary>
-    /// Rooms: what a co-op room tells the room browser about itself. The room's master client keeps these up to date in
-    /// the session's properties, which Photon shows to everyone browsing.
+    /// Rooms: what the co-op room says about itself (its mission, who's playing, who's watching). The room's master
+    /// client keeps these up to date in the session's properties, and a phone arriving reads them to know whether
+    /// it plays or watches (<see cref="RoomBrowser.ActionFor"/>). There's one room now (<see cref="CoopRoom"/>).
     /// </summary>
     public struct RoomListing
     {
@@ -32,8 +33,9 @@ namespace PooketSlug
     }
 
     /// <summary>
-    /// The room browser's rules (docs/design/levels.md, Online): a room with a free seat can be joined, and a full one
-    /// watched, but only by someone who has cleared its mission, so nothing ahead of them is spoiled.
+    /// The room's rules (docs/design/levels.md, Online): with a free seat you play, and with both taken you watch, but
+    /// only once you've cleared its mission, so nothing ahead is spoiled. <see cref="Rows"/>, <see cref="Line"/> and
+    /// <see cref="Button"/> are the old room browser screen's, which Start flow 2 takes out.
     /// </summary>
     public static class RoomBrowser
     {
@@ -43,12 +45,6 @@ namespace PooketSlug
         public const int MaxPeople = Tuning.Coop.MaxPlayers + MaxWatchers;
         /// <summary>Rooms the browser shows at once.</summary>
         public const int MaxRows = 4;
-
-        /// <summary>
-        /// Whether a hosted room starts listed, and whether its host can switch that in the den. Jack's call (pending):
-        /// the host chooses, starting invite only.
-        /// </summary>
-        public const bool HostListed = false, HostChooses = true;
 
         /// <summary>The session property keys (short: they go to everyone browsing).</summary>
         public const string MissionKey = "m", SoldiersKey = "n", WatchingKey = "w", UnderWayKey = "g", HostKey = "h", OpenKey = "o";

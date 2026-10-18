@@ -293,7 +293,7 @@ namespace PooketSlug
                         : "MOVE  Arrows      JUMP  Z      FIRE  X      MORE IN SETTINGS";
                     LayOutTitle(info);
                     Key(m_PlayKey, keys, "ENTER");
-                    Key(m_CoopKey, keys, "H HOST · J JOIN · Q QUICK · R ROOMS");
+                    Key(m_CoopKey, keys, "H");
                     Key(m_SettingsKey, keys, "O");
                     if (info.CrewOpen) m_CrewLabel.text = "CREW: " + info.Crew;
                     Key(m_CrewKey, keys, "C");

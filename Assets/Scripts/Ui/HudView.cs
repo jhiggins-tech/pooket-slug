@@ -470,13 +470,13 @@ namespace PooketSlug
             Ui.Show(m_Link, alone && room != null && info.PageUrl.Length > 0);
             if (alone)
             {
-                m_Room.text = room != null ? "ROOM CODE  " + room : "QUICK MATCH: THE NEXT PLAYER TO PRESS Q JOINS YOU";
-                m_Room.fontSize = room != null ? 16 : 10;
-                if (room != null) m_Link.text = "OR SEND THIS LINK:  " + info.PageUrl + "?room=" + room;
+                m_Room.text = "THE NEXT MATE TO PRESS CO-OP JOINS YOU";
+                m_Room.fontSize = 12;
+                if (room != null) m_Link.text = "OR SEND THIS LINK:  " + CoopRoom.Link(info.PageUrl, room);
             }
 
             string leave = GameInput.TouchActive ? "EXIT TWICE TO LEAVE" : "ESC ESC TO LEAVE";
-            string status = (info.Watching ? "WATCHING  ·  " : "") + (room != null ? "ROOM " + room : "QUICK MATCH") + "  ·  " + net.PlayerCount + "/2" +
+            string status = (info.Watching ? "WATCHING  ·  " : "") + "ROOM " + room + "  ·  " + net.PlayerCount + "/2" +
                             (net.Watchers > 0 && !info.Watching ? "  ·  " + net.Watchers + " WATCHING" : "") + "  ·  " + net.PingMs + " MS  ·  " + leave;
             if (status != m_StatusKey) m_Status.text = m_StatusKey = status;
 
