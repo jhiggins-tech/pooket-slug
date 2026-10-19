@@ -48,8 +48,8 @@ rewrite in the crew's own voice.
 | [The boss intro](#the-boss-intro) | Every boss tabk's arrival | 3 s | none: in the game itself (`BossIntroShow`) | Built |
 | [Freeing kie](#freeing-kie) | Trollogram kie beaten on foot | 28 s | `freeing-kie.txt` (shots 2 to 5) | Built |
 | [The first debrief](#the-first-debrief) | After every solo win | 12 s | none: a screen (`DebriefView`) | Built |
-| [The first visit](#the-first-visit) | The den's first opening, once ever | 4 s | none yet | Designed |
-| [A crewmate moves in](#a-crewmate-moves-in) | The den, after each freeing | 3 s | none yet | Designed |
+| [The first visit](#the-first-visit) | The den's first opening, once ever | 4 s | none: in the den itself (`DenBeats`) | Built (2026-10-19) |
+| [A crewmate moves in](#a-crewmate-moves-in) | The den, after each freeing | 3 s | none: in the den itself (`DenBeats`) | Built (2026-10-19) |
 | [kie's tabk comes home](#kies-tabk-comes-home) | The tabk bay, the first visit after Mission two | 9 s | none yet | Drafted |
 | [The Mission two briefing](#the-mission-two-briefing) | Mission two starts | 24 s | none yet | Designed, narrator voiced |
 | [kcaj's tabk arrives](#kcajs-tabk-arrives) | Mission two's boss | 3 s, plus his intro | none: the boss intro | Designed |
@@ -715,6 +715,11 @@ glowing.
                            six dark)
 ```
 
+**Built** (2026-10-19, den-beats-build): in the den itself, not a scene file: `Core/Lobby/DenBeats` (when it's due and
+its timing, tested) and `Ui/Den/DenBeatView` (drawn over the den). The raid-night den painting lies over the den and
+fades away as the room warms; a tap skips it. It's a reveal in the profile (`den-first-visit`), and a `?test=` jump
+skips it.
+
 ### A crewmate moves in
 
 The first visit to the den after a crewmate is freed. About 3 seconds; tap to skip. From [the lobby](lobby.md),
@@ -734,6 +739,11 @@ SFX: a chip clunk.
 
                                             INTO: THE DEN
 ```
+
+**Built** (2026-10-19, den-beats-build): with the first visit (`DenBeats`, `DenBeatView`). The roller door rolls up,
+the newcomer steps in under it and walks in, tones2 (kie, if it's tones2 moving in) says HEY. WELCOME HOME. from where
+he is, and the newcomer's moved-in layer fades in with the clunk; then they head for their station. One per crewmate
+freed, a reveal each (`moved-in-<name>`); tones2 and kie were home for the first visit. Never in a co-op room.
 
 ### kie's tabk comes home
 

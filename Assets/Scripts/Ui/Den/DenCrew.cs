@@ -63,6 +63,9 @@ namespace PooketSlug
         /// <summary>How far through the roller door to the tabk bay your soldier is (<see cref="RollerDoor.Through"/>).</summary>
         public float Through;
 
+        /// <summary>The den's beat playing (<see cref="DenBeatView"/> draws whoever's in it, so they're hidden here), or null.</summary>
+        public DenBeat Beat;
+
         /// <summary>The bits the crew do (set once both are made): swapping someone in ends theirs, and the slushie bit has props.</summary>
         public DenBitPlayer Bits;
 
@@ -255,7 +258,7 @@ namespace PooketSlug
         void Draw(DenActor a, Den den)
         {
             DenFigure f = a.Fig;
-            bool away = a.Doing == DenDoing.Away;
+            bool away = a.Doing == DenDoing.Away || InBeat(a);
             Ui.Show(f.Rt, !away);
             if (away) return;
             PlayerSkin skin = Art.SkinFor(a.Soldier, a.Skin);
@@ -341,6 +344,33 @@ namespace PooketSlug
             bool splash = Bits.Slushie && Bits.T > 3.5f;
             Ui.Show(m_Splash, splash);
             if (splash && first != null) m_Splash.rectTransform.anchoredPosition = new Vector2(first.X + 9f, first.Y) * Px;
+        }
+
+        /// <summary>In the beat playing: everyone on the first visit (the room's still dark), the newcomer moving in.</summary>
+        bool InBeat(DenActor a) => Beat != null && (Beat.Kind == DenBeatKind.FirstVisit || a.Soldier == Beat.Newcomer);
+
+        /// <summary>
+        /// <paramref name="beat"/>'s over: whoever was in it is where it left them (kie by the couch, tones2 by the TV, the
+        /// newcomer just in from the door), and off home, unless they're yours.
+        /// </summary>
+        public void EndBeat(DenBeat beat)
+        {
+            Beat = null;
+            if (beat.Kind == DenBeatKind.FirstVisit)
+            {
+                From(Find(Content.Kie), DenBeatView.HeaveX);
+                From(Find(Content.Tones2), DenBeatView.PlugX);
+            }
+            else From(Find(beat.Newcomer), DenBeatView.NewcomerX(beat));
+        }
+
+        void From(DenActor a, float x)
+        {
+            if (a == null || a.Doing == DenDoing.Away || a.OnCouch) return;
+            a.Walk.Place(DenFloor.Ground, x);
+            if (a == Mine) return;
+            a.Doing = DenDoing.Walking;
+            a.Walk.WalkTo(a.Home.Floor, a.Home.Spot);
         }
 
         /// <summary>The crewmate playing <paramref name="s"/>, or null.</summary>
