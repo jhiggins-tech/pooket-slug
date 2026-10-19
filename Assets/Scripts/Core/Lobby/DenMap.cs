@@ -65,16 +65,18 @@ namespace PooketSlug
         public static DenFloor FloorAt(float y) => y >= LoftY + 70f ? DenFloor.Bunks : y >= LoftY ? DenFloor.Loft : y >= 100f ? DenFloor.Upper : DenFloor.Ground;
 
         /// <summary>
-        /// Where a tap on the floor walks you to: the floor it's on, at the spot tapped. The den's ladder and the hatch at its
-        /// top, above the upper floor, take you up through it to the loft (on a touch screen, nothing else does: the loft's
-        /// places are off screen until you're up).
+        /// Where a tap on the floor walks you, standing on <paramref name="on"/>, to: the floor it's on, at the spot tapped. The
+        /// den's ladder and the hatch at its top go between the upper floor and the loft (on a touch screen, nothing else
+        /// does: each is off screen from the other): below the loft, a tap on them takes you up through the hatch; in the
+        /// loft (or the bunks above it), a tap on the hatch or just under it takes you down.
         /// </summary>
-        public static DenFloor WalkTarget(float x, float y, out float toX)
+        public static DenFloor WalkTarget(float x, float y, DenFloor on, out float toX)
         {
-            if (y < LoftY && y >= FloorY(DenFloor.Upper) + 12f && Math.Abs(x - LadderX) <= 16f)
+            bool up = on == DenFloor.Loft || on == DenFloor.Bunks;
+            if (Math.Abs(x - LadderX) <= 16f && y >= FloorY(DenFloor.Upper) + 12f && y < (up ? FloorY(DenFloor.Loft) + 10f : LoftY))
             {
                 toX = LadderX;
-                return DenFloor.Loft;
+                return up ? DenFloor.Upper : DenFloor.Loft;
             }
             toX = x;
             return FloorAt(y);

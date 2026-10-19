@@ -4,9 +4,11 @@ using static PooketSlug.StageKit;
 namespace PooketSlug
 {
     /// <summary>
-    /// The cutscenes' sets (<see cref="Staging.Sets"/>): the street outside the hangout and the motor pool from outside
-    /// with its blast shutter, each painted pixel by pixel once, the first time a scene plays, and kept; and the den and
-    /// the tabk bay on raid night, Design's paintings (<c>Resources/Den</c>, through <see cref="DenRoom.Painting"/>). The
+    /// The cutscenes' sets (<see cref="Staging.Sets"/>): the motor pool from outside with its blast shutter, painted pixel
+    /// by pixel once, the first time a scene plays, and kept; and Design's paintings (<c>Resources/Den</c>, through
+    /// <see cref="DenRoom.Painting"/>): the street outside the hangout on a snowy night (plate B-2, with the hangout's door
+    /// and lit window cut from it as props, <see cref="CutsceneCast.MakeHangout"/>; the code-drawn street stands in if
+    /// it's missing), and the den and the tabk bay on raid night. The
     /// bay is wider than the stage, so a shot there pans along it with its camera. The motor pool's layout (the
     /// shutter's opening, where the row's tabks park) is here too, since the shutter, the work lights and the row are
     /// drawn to fit it.
@@ -24,7 +26,8 @@ namespace PooketSlug
         public static Sprite For(string set)
         {
             Make();
-            Sprite painted = set == "den" ? DenRoom.Painting("raid-den") : set == "bay" ? DenRoom.Painting("raid-bay") : null;
+            Sprite painted = set == "den" ? DenRoom.Painting("raid-den") : set == "bay" ? DenRoom.Painting("raid-bay")
+                : set == "motorpool" ? null : DenRoom.Painting("street");
             return painted != null ? painted : set == "motorpool" ? s_MotorPool : s_Street;
         }
 
@@ -64,8 +67,8 @@ namespace PooketSlug
             c.Rect(146, street + 96, 164, 6, Art.Hex(0x241820));
             c.Rect(160, street, 50, 54, Art.Hex(0x5b5f66));
             for (int y = street + 3; y < street + 54; y += 5) c.Rect(160, y, 50, 1, Art.Hex(0x45484e));
-            c.Rect(221, street, 22, 42, Art.Hex(0x1c1214)); // the side door's frame
-            c.Rect(246, street + 36, 32, 24, Art.Hex(0x1c1214)); // the window's frame
+            c.Rect(265, street, 18, 63, Art.Hex(0x1c1214)); // the side door's frame, where the plate has it
+            c.Rect(302, street + 36, 18, 26, Art.Hex(0x1c1214)); // the window's frame
             // the street
             c.Rect(0, 0, StageW, street, Art.Hex(0x2a2c38));
             c.Rect(0, street - 3, StageW, 3, Art.Hex(0x4a4c5a));

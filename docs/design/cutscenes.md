@@ -345,6 +345,10 @@ and `bay`). He comes in by the den's side door on the left and leaves by it in s
 along the empty decks to the street shutter and back to him. The den's painting has no window, so shot 8 has no
 searchlights: the keycard's close-up is what points to the base.
 
+**Built** (2026-10-19, opening-street-plate): shots 1 and 2 play on Design's street plate (B-2, a snowy night,
+`concepts/opening-exterior/`). The plate paints the POOKET sign; its side door (right of the roller shutter) is cut out
+so it swings in shot 2, with the light behind it, and the lit window on the right takes the cold cyan.
+
 ### The motor pool reveal
 
 The first-ever reveal: tabks exist. It plays once, ever, the first time tones2 reaches the motor pool, and it's kie's

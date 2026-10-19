@@ -192,23 +192,45 @@ namespace PooketSlug.Tests
         {
             foreach (float y in new[] { 135f, 150f, 170f, 179f })
             {
-                Assert.AreEqual(DenFloor.Loft, DenMap.WalkTarget(DenMap.LadderX + 10f, y, out float x), "y " + y);
+                Assert.AreEqual(DenFloor.Loft, DenMap.WalkTarget(DenMap.LadderX + 10f, y, DenFloor.Upper, out float x), "y " + y);
                 Assert.AreEqual(DenMap.LadderX, x, "up the ladder");
                 Assert.AreEqual(DenPlace.None, DenMap.PlaceAt(DenMap.LadderX, y), "nothing else is there");
             }
-            Assert.AreEqual(DenFloor.Upper, DenMap.WalkTarget(DenMap.LadderX, 122f, out float foot), "its foot, on the upper floor: just walk there");
+            Assert.AreEqual(DenFloor.Upper, DenMap.WalkTarget(DenMap.LadderX, 122f, DenFloor.Upper, out float foot), "its foot, on the upper floor: just walk there");
             Assert.AreEqual(DenMap.LadderX, foot);
-            Assert.AreEqual(DenFloor.Upper, DenMap.WalkTarget(DenMap.LadderX + 40f, 160f, out float wall), "the wall beside it");
+            Assert.AreEqual(DenFloor.Upper, DenMap.WalkTarget(DenMap.LadderX + 40f, 160f, DenFloor.Upper, out float wall), "the wall beside it");
             Assert.AreEqual(DenMap.LadderX + 40f, wall);
-            Assert.AreEqual(DenFloor.Ground, DenMap.WalkTarget(DenMap.LadderX, 40f, out _), "the ground floor's ladder: walk to it");
-            Assert.AreEqual(DenFloor.Loft, DenMap.WalkTarget(300f, 200f, out _), "the loft itself, as before");
+            Assert.AreEqual(DenFloor.Ground, DenMap.WalkTarget(DenMap.LadderX, 40f, DenFloor.Upper, out _), "the ground floor's ladder: walk to it");
+            Assert.AreEqual(DenFloor.Loft, DenMap.WalkTarget(300f, 200f, DenFloor.Upper, out _), "the loft itself, as before");
 
             // and walking there from the ground floor takes you all the way up
-            DenFloor floor = DenMap.WalkTarget(DenMap.LadderX, 160f, out float to);
+            DenFloor floor = DenMap.WalkTarget(DenMap.LadderX, 160f, DenFloor.Ground, out float to);
             var w = new DenWalker(DenFloor.Ground, 60f);
             w.WalkTo(floor, to);
             Run(w, 10f);
             Assert.AreEqual(DenFloor.Loft, w.Floor);
+            Assert.IsTrue(w.Standing);
+        }
+
+        [Test]
+        public void InTheLoft_ATapOnTheHatchOrJustUnderIt_ClimbsDown()
+        {
+            foreach (DenFloor on in new[] { DenFloor.Loft, DenFloor.Bunks })
+                foreach (float y in new[] { 150f, 170f, 179f, 185f, DenMap.FloorY(DenFloor.Loft) + 5f })
+                {
+                    Assert.AreEqual(DenFloor.Upper, DenMap.WalkTarget(DenMap.LadderX - 10f, y, on, out float x), on + " y " + y);
+                    Assert.AreEqual(DenMap.LadderX, x, "down the ladder");
+                }
+            Assert.AreEqual(DenFloor.Loft, DenMap.WalkTarget(DenMap.LadderX, DenMap.FloorY(DenFloor.Loft) + 30f, DenFloor.Loft, out _), "above the hatch: the loft");
+            Assert.AreEqual(DenFloor.Loft, DenMap.WalkTarget(DenMap.LadderX + 60f, 185f, DenFloor.Loft, out _), "the loft floor beside it");
+            Assert.AreEqual(DenFloor.Loft, DenMap.WalkTarget(DenMap.LadderX, 185f, DenFloor.Upper, out _), "from below, the hatch still goes up");
+
+            // and walking there from the loft takes you all the way down
+            DenFloor floor = DenMap.WalkTarget(DenMap.LadderX, 185f, DenFloor.Loft, out float to);
+            var w = new DenWalker(DenFloor.Loft, 300f);
+            w.WalkTo(floor, to);
+            Run(w, 10f);
+            Assert.AreEqual(DenFloor.Upper, w.Floor);
             Assert.IsTrue(w.Standing);
         }
     }
