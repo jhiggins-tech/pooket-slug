@@ -65,13 +65,14 @@ namespace PooketSlug
         }, new MissionStory
         {
             // a single-player prelude: the opening, the motor pool reveal as the boss tabk's entrance, freeing kie, then
-            // the coda out of the base; its debrief goes straight on into Mission two (docs/design/story.md)
+            // the coda out of the base; beating it opens the den, the crew and co-op (docs/design/story.md)
             Opening = SceneLibrary.Opening,
             BossReveal = SceneLibrary.MotorPool,
             PilotFreed = SceneLibrary.FreeingKie,
             Coda = true,
             SoloOnly = true,
             BeforeDen = true,
+            OpensCoop = true,
             CoopName = "TEST MISSION",
         }, pilot: Content.Pilot);
 
@@ -97,11 +98,8 @@ namespace PooketSlug
             "##################################################################################################################################################################################################################",
         }, new MissionStory
         {
-            // straight on from Mission one's debrief, after kcaj's string board briefs it; beating it solo opens the den,
-            // the crew and co-op (StartFlow)
+            // kcaj's string board briefs it as it starts from the den
             Opening = SceneLibrary.MissionTwoBriefing,
-            BeforeDen = true,
-            OpensCoop = true,
         }, boss: BossTabk.Kcaj);
 
         public static readonly IReadOnlyList<MissionDef> All = new[] { One, Two };

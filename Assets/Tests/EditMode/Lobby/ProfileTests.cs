@@ -43,16 +43,14 @@ namespace PooketSlug.Tests
         }
 
         [Test]
-        public void BeatingMissionTwoSoloOpensCoop()
+        public void BeatingMissionOneSoloOpensCoop()
         {
             var p = new Profile();
-            p.RecordRun(Missions.Two, Setting.Normal, 100, won: false, solo: true);
+            p.RecordRun(Missions.One, Setting.Normal, 100, won: false, solo: true);
             Assert.IsFalse(p.coop, "losing doesn't");
-            p.RecordRun(Missions.Two, Setting.Normal, 100, won: true, solo: false);
+            p.RecordRun(Missions.One, Setting.Normal, 100, won: true, solo: false);
             Assert.IsFalse(p.coop, "a win in co-op doesn't: the design asks for a solo win");
             p.RecordRun(Missions.One, Setting.Normal, 100, won: true, solo: true);
-            Assert.IsFalse(p.coop, "Mission one goes on into Mission two, not the den");
-            p.RecordRun(Missions.Two, Setting.Normal, 100, won: true, solo: true);
             Assert.IsTrue(p.coop);
         }
 
@@ -71,7 +69,6 @@ namespace PooketSlug.Tests
         {
             var phone = new Profile();
             phone.RecordRun(Missions.One, Setting.Normal, 3000, won: true, solo: true);
-            phone.RecordRun(Missions.Two, Setting.Normal, 2000, won: true, solo: true); // opens co-op
             phone.MarkSeen("coop");
             phone.Stamp(2000);
             var laptop = new Profile();

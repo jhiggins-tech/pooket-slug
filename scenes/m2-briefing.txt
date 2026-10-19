@@ -1,9 +1,8 @@
 // The Mission two briefing (docs/design/cutscenes.md, The Mission two briefing): the morning after Mission one, the
-// motor pool's empty, and kcaj's string board, still up in his dark corner of the den, points to the creamery. It
-// plays straight after Mission one's debrief, and whenever Mission two starts solo. Always tones2 and kie, whoever's
-// picked: they're the only crew free at this point in the story.
+// motor pool's empty, and kcaj's string board, still up in his dark corner of the den's upper floor, points to the
+// creamery. It plays as Mission two starts solo. Always tones2 and kie, whoever's picked: they're the only crew free
+// at this point in the story.
 // How to write a scene: docs/scenes.md. Times are seconds from the start of each shot.
-// The narrator's lines have no recordings yet (m2-briefing-1, 2 and 4): they show as subtitles until they do.
 net 4
 
 shot: The motor pool, empty
@@ -16,7 +15,7 @@ shutter up
 tones2 at 112
 kie at 136
 kie face left
-0.3 narrator: By morning, the motor pool was empty.
+0.3 narrator m2-briefing-1: By morning, the motor pool was empty.
 2.9 kie: THEY TOOK THE LOT.
 
 shot: kcaj's corner
@@ -35,7 +34,7 @@ kie at 209 4
 tones2 face left
 kie face left
 0-2.6 camera 1.6 -60 30 smooth
-0.4 narrator: kcaj's string board. | Everyone thought it was about the moon landing.
+0.4 narrator m2-briefing-2: kcaj's string board. | Everyone thought it was about the moon landing.
 
 shot: The string board
 length 6
@@ -67,7 +66,7 @@ kie at 836
 3.5 tones2 hide
 3.9 kie hide
 3.3 cue shutter
-0.3 narrator: The Trollograms like it cold. | So, as it turns out, does kcaj.
+0.3 narrator m2-briefing-4: The Trollograms like it cold. | So, as it turns out, does kcaj.
 4.6 cue card
 4.8 say mission-start
 4.6 caption: MISSION 2 · THE CREAMERY | FIND KCAJ

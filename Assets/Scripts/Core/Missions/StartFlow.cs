@@ -1,10 +1,10 @@
 namespace PooketSlug
 {
     /// <summary>
-    /// What START plays, and where a won solo debrief goes (Jack's start flow, 19 Oct, on the Opening 5 page): the story
-    /// runs straight through before the den opens (the opening and Mission one, then the Mission two briefing and Mission
-    /// two, each debrief going straight on into the next), and once it's all beaten, START and every debrief go to the
-    /// den. Signed in or not, it's the same run; signed in, the progress follows the account.
+    /// What START plays, and where a won solo debrief goes (Jack's start flow, 19 Oct): the story's missions before the
+    /// den (<see cref="MissionStory.BeforeDen"/>: the opening and Mission one) play straight through, each debrief going on
+    /// into the next; once they're beaten, START and every debrief go to the den, where Mission two and co-op are.
+    /// Signed in or not, it's the same run; signed in, the progress follows the account.
     /// </summary>
     public static class StartFlow
     {

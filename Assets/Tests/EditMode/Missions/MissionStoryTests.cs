@@ -12,8 +12,7 @@ namespace PooketSlug.Tests
             Assert.AreEqual(SceneLibrary.Opening, s.Opening);
             Assert.AreEqual(SceneLibrary.MotorPool, s.BossReveal);
             Assert.AreEqual(SceneLibrary.FreeingKie, s.PilotFreed);
-            Assert.IsTrue(s.Coda && s.SoloOnly && s.BeforeDen);
-            Assert.IsFalse(s.OpensCoop, "Mission two opens co-op now");
+            Assert.IsTrue(s.Coda && s.SoloOnly && s.OpensCoop && s.BeforeDen);
             foreach (string scene in new[] { s.Opening, s.BossReveal, s.PilotFreed })
                 CollectionAssert.Contains(SceneLibrary.Names, scene, "every scene a mission plays is one the game has");
         }
@@ -29,7 +28,7 @@ namespace PooketSlug.Tests
             var p = new Profile();
             p.RecordRun(plain, Setting.Normal, 100, won: true, solo: true);
             Assert.IsFalse(p.coop, "only a mission whose story says so opens co-op");
-            p.RecordRun(Missions.Two, Setting.Normal, 100, won: true, solo: true);
+            p.RecordRun(Missions.One, Setting.Normal, 100, won: true, solo: true);
             Assert.IsTrue(p.coop);
         }
 
