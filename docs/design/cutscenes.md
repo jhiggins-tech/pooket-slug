@@ -43,7 +43,7 @@ rewrite in the crew's own voice.
 
 | Scene | Plays | About | Scene file | State |
 |---|---|---|---|---|
-| [The opening](#the-opening) | Mission one starts | 49 s | `opening.txt` | Built as six shots; the den and bay shots designed (2026-10-19) |
+| [The opening](#the-opening) | Mission one starts | 49 s | `opening.txt` | Built, eight shots (2026-10-19) |
 | [The motor pool reveal](#the-motor-pool-reveal) | The first time tones2 reaches the motor pool | 24 s | `motor-pool.txt` | Built |
 | [The boss intro](#the-boss-intro) | Every boss tabk's arrival | 3 s | none: in the game itself (`BossIntroShow`) | Built |
 | [Freeing kie](#freeing-kie) | Trollogram kie beaten on foot | 28 s | `freeing-kie.txt` (shots 2 to 5) | Built |
@@ -339,8 +339,10 @@ MUSIC: the mission start sting, into Mission one's theme.
                                            INTO: MISSION ONE
 ```
 
-**Built** (2026-10-16): `scenes/opening.txt` plays the old six shots, in the old hangout room, without shots 4 and 5.
-The rework goes in with opening-stage, once its art and narrator lines are made.
+**Built** (2026-10-19, opening-stage): `scenes/opening.txt` plays all eight shots on the raid-night plates (sets `den`
+and `bay`). He comes in by the den's side door on the left and leaves by it in shot 8. In the bay the camera runs
+along the empty decks to the street shutter and back to him. The den's painting has no window, so shot 8 has no
+searchlights: the keycard's close-up is what points to the base.
 
 ### The motor pool reveal
 

@@ -183,6 +183,7 @@ namespace PooketSlug
             CutsceneShot shot = p.Current;
             float ground = Staging.Sets.TryGetValue(shot.Set ?? "", out int g) ? g : 0f;
             m_Back.sprite = CutsceneBackdrops.For(shot.Set);
+            m_Back.rectTransform.sizeDelta = m_Back.sprite.rect.size * Px; // the bay's wider than the stage: the camera pans along it
             m_Camera.Aim(stage, t);
             m_Cast.Draw(stage, t, now, ground);
             m_Effects.Draw(stage, t, now, ground);

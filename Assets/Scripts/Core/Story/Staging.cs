@@ -51,7 +51,7 @@ namespace PooketSlug
         /// <summary>A set: its painted backdrop (drawn by the cutscene view) and the height of its floor.</summary>
         public static readonly Dictionary<string, int> Sets = new Dictionary<string, int>
         {
-            { "street", 26 }, { "room", 22 }, { "motorpool", 18 },
+            { "street", 26 }, { "den", 15 }, { "bay", 12 }, { "motorpool", 18 },
         };
 
         public enum Kind { Figure, Prop, Effect }

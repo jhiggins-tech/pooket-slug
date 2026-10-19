@@ -131,8 +131,9 @@ namespace PooketSlug
 
         static readonly Dictionary<string, Sprite> s_Paintings = new Dictionary<string, Sprite>();
 
-        /// <summary>A painting from <c>Resources/Den</c> (a PNG kept as bytes), pixel for pixel; null, and logged, if it's missing.</summary>
-        static Sprite Painting(string name)
+        /// <summary>A painting from <c>Resources/Den</c> (a PNG kept as bytes), pixel for pixel; null, and logged, if it's missing.
+        /// The cutscenes' den and bay on raid night are here too (<see cref="CutsceneBackdrops"/>).</summary>
+        public static Sprite Painting(string name)
         {
             if (s_Paintings.TryGetValue(name, out Sprite cached)) return cached;
             var bytes = Resources.Load<TextAsset>("Den/" + name);

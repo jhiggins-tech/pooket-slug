@@ -7,7 +7,7 @@ namespace PooketSlug.Tests
     /// <summary>Scene scripts (Core/Story/SceneScript.cs, docs/scenes.md), their staging (Core/Story/Staging.cs) and the library that picks a copy.</summary>
     public class SceneScriptTests
     {
-        const string Tiny = "net 9\nshot: Hello\nlength 4\nset room\ntones2 at 56\n1 tones2: HI\n";
+        const string Tiny = "net 9\nshot: Hello\nlength 4\nset den\ntones2 at 56\n1 tones2: HI\n";
 
         static SceneScript Read(string text) => SceneScript.Read("test", text);
 
@@ -33,10 +33,10 @@ namespace PooketSlug.Tests
             Assert.AreEqual(2, TestScenes.MotorPool.NetId);
             Assert.AreEqual(3, TestScenes.FreeingKie.NetId);
             Assert.AreEqual(63, TestScenes.CoopTest.NetId);
-            Assert.AreEqual(new[] { "Outside the hangout", "The door", "Inside, raided", "A straggler", "The keycard", "Heading out" },
+            Assert.AreEqual(new[] { "Outside the hangout", "The door", "The den, trashed", "The roller door", "The tabk bay", "A straggler", "The keycard", "Heading out" },
                 System.Array.ConvertAll(TestScenes.Opening.Shots, s => s.Name));
-            Assert.AreEqual("MISSION 1 · THE MILITARY BASE\nFIND THE CREW", TestScenes.Opening.Shots[5].Lines[2].Text, "'|' is a new line");
-            Assert.AreEqual("opening-4a", TestScenes.Opening.Shots[3].Lines[1].Voice);
+            Assert.AreEqual("MISSION 1 · THE MILITARY BASE\nFIND THE CREW", TestScenes.Opening.Shots[7].Lines[2].Text, "'|' is a new line");
+            Assert.AreEqual("opening-4a", TestScenes.Opening.Shots[5].Lines[1].Voice);
         }
 
         [Test]
@@ -79,7 +79,7 @@ namespace PooketSlug.Tests
             Says(Tiny + "intro 1 tones2: TONES2\n", "build up");
             Says(Tiny + "set lawn\n", "no set called 'lawn'");
             Says(Tiny + "tones2 holds sign 1\n", "across and up");
-            Says("shot: No net\nlength 2\nset room\n", "needs its number");
+            Says("shot: No net\nlength 2\nset den\n", "needs its number");
             Says("net 4\nshot: Nothing\n", "needs its length");
             Says("net 4\nlength 3\n", "start a shot");
         }
@@ -87,7 +87,7 @@ namespace PooketSlug.Tests
         [Test]
         public void AThingIsOnStageFromItsFirstLineUnlessShownOrHidden()
         {
-            SceneScript s = Read("net 9\nshot: A\nlength 8\nset room\n" +
+            SceneScript s = Read("net 9\nshot: A\nlength 8\nset den\n" +
                                  "tones2 at 56\n2.1 kie show\nkie at 140 12\n0.45 goon hide\ngoon at 178\n4.2-6.4 card show\n4.2-4.55 card move 176 14 176 0 in\n");
             Assert.IsEmpty(s.Problems, string.Join("; ", s.Problems));
             var stage = new ShotStage(s.Def.Shots[0]);
@@ -105,7 +105,7 @@ namespace PooketSlug.Tests
         [Test]
         public void MovesWalksAndHoldsPlaceThings()
         {
-            SceneScript s = Read("net 9\nshot: A\nlength 8\nset room\n" +
+            SceneScript s = Read("net 9\nshot: A\nlength 8\nset den\n" +
                                  "tones2 at 56\ntones2 holds bag cup\n5.4-6.2 tones2 walk 56 164\n2.2-2.4 bag move 66 12 66 0\n" +
                                  "4.2-4.55 card move 176 14 176 0 in\n2.2 kie holds cup -7 9\nkie at 100\n");
             Assert.IsEmpty(s.Problems, string.Join("; ", s.Problems));
