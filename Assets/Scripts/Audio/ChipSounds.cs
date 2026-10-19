@@ -46,6 +46,24 @@ namespace PooketSlug
             Sfx.Hit = Render("chipHit", 0.11f, c => c.Tone(0f, 0.1f, 700f, 380f, duty: 0.25f, steps: 4, vol: 0.08f));
 
             // ---- Getting about ----
+            // The title's tabk (title-logo-animation, S1): its engine turning over, catching, then revving as it rolls
+            // along the word (the putt-putts closer and higher), easing off as it stops.
+            Sfx.EngineRev = Render("chipEngineRev", 2.1f, c =>
+            {
+                for (int i = 0; i < 3; i++)
+                {
+                    c.Noise(i * 0.11f, 0.07f, rate: 0.3f, vol: 0.12f);
+                    c.Tone(i * 0.11f, 0.07f, 60f, 45f, duty: 0.5f, vol: 0.1f);
+                }
+                for (float t = 0.36f; t < 2f;)
+                {
+                    float k = (t - 0.36f) / 1.64f, fade = t > 1.75f ? (2f - t) / 0.25f : 1f;
+                    float rev = Mathf.Sin(Mathf.Min(1f, k * 1.6f) * Mathf.PI * 0.5f);
+                    c.Noise(t, 0.04f, rate: 0.35f + 0.3f * rev, vol: 0.09f * fade);
+                    c.Tone(t, 0.04f, 80f + 70f * rev, duty: 0.5f, vol: 0.08f * fade);
+                    t += Mathf.Lerp(0.1f, 0.045f, rev);
+                }
+            });
             // Tabks' hop (ciarra's frog boing).
             Sfx.Jump = Render("chipJump", 0.2f, c =>
             {

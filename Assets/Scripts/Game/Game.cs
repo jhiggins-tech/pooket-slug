@@ -520,7 +520,8 @@ namespace PooketSlug
             float dt = Mathf.Min(Time.unscaledDeltaTime, 1f / 30f);
             m_StateTime += dt;
             Music.Tick(dt);
-            MissionMusic.Title(m_State == GameState.Title || m_State == GameState.Settings || m_State == GameState.Den || m_State == GameState.Lobby);
+            // the title's music starts with the logo's shot (title-logo-animation, S3)
+            MissionMusic.Title((m_State == GameState.Title && m_Menu.TitleMusicDue) || m_State == GameState.Settings || m_State == GameState.Den || m_State == GameState.Lobby);
             Music.Paused = m_Paused;
 
             m_Frames++;

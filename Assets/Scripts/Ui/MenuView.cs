@@ -197,6 +197,9 @@ namespace PooketSlug
             Show(MenuScreen.None);
         }
 
+        /// <summary>The title music can start: the splash's logo has made its entrance (<see cref="TitleView.MusicDue"/>).</summary>
+        public bool TitleMusicDue => m_Title.MusicDue;
+
         /// <summary>The button clicked or tapped since the last call, or None.</summary>
         public MenuAction TakeClick()
         {

@@ -6,15 +6,17 @@ namespace PooketSlug
     /// <summary>
     /// The title: a splash screen (Start flow 5, <c>docs/design/art.md</c>, The title logo). The logo over a gentle
     /// colour ramp with a vignette, START and SETTINGS, and nothing else: missions, the crew and co-op are the den's.
-    /// It fades in from black once a visit, and its backdrop stays behind the settings screen.
+    /// It fades in from black once a visit as the logo makes its entrance (<see cref="TitleLogoView"/>), START and
+    /// SETTINGS fading in once it's landed; a tap skips the entrance. Its backdrop stays behind the settings screen.
     /// </summary>
     public sealed class TitleView
     {
         /// <summary>The ramp, top to bottom (royal blue, as the start-art page tried it), and how dark the vignette's corners go.</summary>
         static readonly Color Top = new Color32(6, 11, 58, 255), Bottom = new Color32(43, 58, 168, 255);
         const float Vignette = 0.6f, VignetteFrom = 0.35f;
-        /// <summary>The fade in from black, then the logo's, in seconds.</summary>
+        /// <summary>The fade in from black, then the logo's (when it's the whole logo, not in parts), in seconds.</summary>
         const float FadeIn = 0.8f, LogoIn = 1.2f;
+        const float EngineVolume = 0.7f, CannonVolume = 0.9f;
         /// <summary>The logo's width on screen, in canvas units (the canvas is 360 high), and where its middle sits.</summary>
         const float LogoWidth = 440f, LogoY = 72f;
         static readonly Vector2 ButtonSize = new Vector2(160f, 30f);
@@ -22,8 +24,12 @@ namespace PooketSlug
 
         readonly RectTransform m_Backdrop, m_Panel;
         readonly RawImage m_Ramp, m_Logo;
+        readonly TitleLogoView m_Parts;
+        readonly CanvasGroup m_Menu;
+        readonly AudioSource m_Engine;
         readonly Text m_Hint, m_Account, m_PlayKey, m_SettingsKey;
         float m_Shown = -1f; // when the splash first showed this visit (below 0: not yet)
+        float m_Was = float.NegativeInfinity; // how far into the entrance the last frame was (for its sounds)
 
         /// <summary>The splash under <paramref name="parent"/>; a button calls <paramref name="click"/> with its action.</summary>
         public TitleView(RectTransform parent, System.Action<MenuAction> click)
@@ -32,9 +38,15 @@ namespace PooketSlug
             m_Ramp = m_Backdrop.gameObject.AddComponent<RawImage>();
             m_Ramp.texture = RampTexture();
             m_Ramp.raycastTarget = true; // taps on the splash stop here, not on the world under it
+            var skip = m_Backdrop.gameObject.AddComponent<UnityEngine.UI.Button>(); // and skip the entrance
+            skip.transition = Selectable.Transition.None;
+            skip.navigation = new Navigation { mode = Navigation.Mode.None };
+            skip.onClick.AddListener(Skip);
+            m_Engine = Sfx.OwnSource(m_Backdrop.gameObject);
 
             m_Panel = Ui.Fill(parent, "Title");
-            Texture2D logo = LogoTexture();
+            m_Parts = TitleLogoView.Make(m_Panel, new Vector2(0f, LogoY), LogoWidth);
+            Texture2D logo = m_Parts == null ? LogoTexture() : null; // a build without the parts: the whole logo, fading in
             if (logo != null)
             {
                 float height = LogoWidth * logo.height / logo.width;
@@ -43,15 +55,17 @@ namespace PooketSlug
                 m_Logo.texture = logo;
                 m_Logo.raycastTarget = false;
             }
-            else
+            else if (m_Parts == null)
             {
                 // a build without the logo (it's in Resources/Title): the name in the game's gold
                 Ui.Label(m_Panel, "Name", Ui.Middle, new Vector2(0f, LogoY), 44, TextAnchor.MiddleCenter, Palette.Gold).text = "POOKET SLUG";
             }
-            Button(m_Panel, "START", new Vector2(0f, -40f), () => click(MenuAction.Play), out m_PlayKey);
-            Button(m_Panel, "SETTINGS", new Vector2(0f, -84f), () => click(MenuAction.Settings), out m_SettingsKey);
-            m_Hint = Ui.Label(m_Panel, "Hint", new Vector2(0.5f, 0f), new Vector2(0f, 26f), 9, TextAnchor.MiddleCenter, new Color(1f, 0.95f, 0.8f, 0.55f));
-            m_Account = Ui.Label(m_Panel, "Account", new Vector2(0.5f, 0f), new Vector2(0f, 12f), 9, TextAnchor.MiddleCenter, new Color(1f, 1f, 1f, 0.6f));
+            RectTransform menu = Ui.Fill(m_Panel, "Menu");
+            m_Menu = menu.gameObject.AddComponent<CanvasGroup>();
+            Button(menu, "START", new Vector2(0f, -40f), () => click(MenuAction.Play), out m_PlayKey);
+            Button(menu, "SETTINGS", new Vector2(0f, -84f), () => click(MenuAction.Settings), out m_SettingsKey);
+            m_Hint = Ui.Label(menu, "Hint", new Vector2(0.5f, 0f), new Vector2(0f, 26f), 9, TextAnchor.MiddleCenter, new Color(1f, 0.95f, 0.8f, 0.55f));
+            m_Account = Ui.Label(menu, "Account", new Vector2(0.5f, 0f), new Vector2(0f, 12f), 9, TextAnchor.MiddleCenter, new Color(1f, 1f, 1f, 0.6f));
             Ui.Show(m_Backdrop, false);
             Ui.Show(m_Panel, false);
         }
@@ -75,10 +89,33 @@ namespace PooketSlug
             Ui.Show(m_Account, info.Account != null);
             if (info.Account != null) Set(m_Account, info.Account);
 
-            // once a visit: up from black, then the logo
+            // once a visit: up from black, the logo's entrance, then the menu
             float t = Time.unscaledTime - m_Shown;
             m_Ramp.color = Color.Lerp(Color.black, Color.white, Smooth(t / FadeIn));
             if (m_Logo != null) m_Logo.color = new Color(1f, 1f, 1f, Smooth((t - FadeIn * 0.5f) / LogoIn));
+            if (m_Parts == null) return;
+            float into = t - TitleMotion.Start;
+            m_Parts.Pose(into, info.Options.Shake ? 1f : 0f);
+            float menu = TitleMotion.MenuIn(m_Parts.Logo, into);
+            m_Menu.alpha = menu;
+            m_Menu.interactable = m_Menu.blocksRaycasts = menu > 0.5f; // till then a tap lands on the backdrop: a skip
+            if (m_Was < 0f && into >= 0f) Sfx.PlayOn(m_Engine, Sfx.EngineRev, EngineVolume);
+            if (TitleMotion.Fired(m_Was, into)) Sfx.Play(Sfx.Cannon, CannonVolume);
+            m_Was = into;
+        }
+
+        /// <summary>The title music can start: the entrance's shot has rung out (or there's no entrance in this build).</summary>
+        public bool MusicDue => m_Parts == null || (m_Shown >= 0f && Time.unscaledTime - m_Shown - TitleMotion.Start >= TitleMotion.MusicAt);
+
+        /// <summary>A tap during the entrance: straight to its end, its sounds cut off (the music starts at once).</summary>
+        void Skip()
+        {
+            if (m_Parts == null || m_Shown < 0f) return;
+            float end = TitleMotion.Start + TitleMotion.End(m_Parts.Logo);
+            if (Time.unscaledTime - m_Shown >= end) return;
+            m_Shown = Time.unscaledTime - end;
+            m_Was = end - TitleMotion.Start;
+            if (m_Engine != null) m_Engine.Stop();
         }
 
         /// <summary>A splash button: a dark box edged in gold, its label in gold.</summary>

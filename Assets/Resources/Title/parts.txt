@@ -1,0 +1,15 @@
+# The title logo's parts (tools/title_logo.py): name, place in the whole logo (x y, from its top left),
+# size (w h) and place in the parts sheets (u v, from their top left), in pixels.
+logo 1328 345
+sheet 1024 652
+P 4 124 198 218 0 0
+O1 153 153 176 189 202 0
+O2 276 153 174 190 382 0
+K 393 152 180 192 560 0
+E 521 150 161 194 744 0
+T 636 151 166 194 0 222
+S 795 118 184 227 170 222
+L 920 153 154 191 358 222
+U 1016 152 189 193 516 222
+G 1150 143 178 200 709 222
+tabk 498 1 356 199 0 453
