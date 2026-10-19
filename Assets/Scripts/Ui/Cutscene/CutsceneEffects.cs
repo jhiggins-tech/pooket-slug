@@ -7,7 +7,7 @@ namespace PooketSlug
 {
     /// <summary>
     /// The cutscenes' named effects (<see cref="Staging.Things"/>), whose looks and little animations live here: snow,
-    /// the searchlights, spilt chips, tones2's water jet, the keycard's close-up, the motor pool's shutter with its cold
+    /// the searchlights, spilt chips, tones2's water jet, the keycard's close-up, kcaj's string board close up, the motor pool's shutter with its cold
     /// light and work lights, the row of parked tabks and the Trollograms' junk, steam, the cage of light, dazed stars,
     /// z Z, and the alarm's red wash. Each is shown and animated as the shot's script has it (<see cref="ShotStage"/>).
     /// <para>
@@ -24,7 +24,7 @@ namespace PooketSlug
         readonly Image[] m_Snow = new Image[36], m_Chips = new Image[10], m_Jet = new Image[8], m_Beams = new Image[2];
         readonly Image[] m_Row = new Image[2], m_Junk = new Image[9], m_Steam = new Image[4], m_Lamps = new Image[3];
         readonly Image[] m_Cage = new Image[7], m_Stars = new Image[3];
-        RectTransform m_ShutterMask, m_BigCard;
+        RectTransform m_ShutterMask, m_BigCard, m_Board;
         Image m_Shutter, m_ColdLight, m_Dim, m_Alarm;
         Text m_Zz;
 
@@ -112,6 +112,48 @@ namespace PooketSlug
             foreach (Text t in m_BigCard.GetComponentsInChildren<Text>()) t.GetComponent<Shadow>().enabled = false;
         }
 
+        /// <summary>
+        /// On the stage: kcaj's string board, close up (docs/design/cutscenes.md, The Mission two briefing): cork, sticky
+        /// notes tied together with red string, and one string off to a photo of the creamery, its giant soft-serve sign
+        /// on the roof, with THEY NEED IT COLD scrawled under it.
+        /// </summary>
+        public void MakeBoard()
+        {
+            Color cork = new Color(0.6f, 0.4f, 0.24f), red = new Color(0.9f, 0.12f, 0.1f);
+            m_Board = Ui.Rect(m_Stage, "String board close-up", Ui.Middle, Ui.Middle, new Vector2(0f, 10f), new Vector2(200f, 120f) * Px);
+            m_Board.gameObject.AddComponent<Image>().color = cork;
+            m_Board.gameObject.AddComponent<Outline>().effectColor = new Color(0.28f, 0.17f, 0.1f);
+            void Bit(string name, float x, float y, float w, float h, float turn, Color c)
+            {
+                Image img = Ui.Picture(m_Board, name, White, Ui.Middle, Ui.Middle, new Vector2(x, y) * Px, new Vector2(w, h) * Px, c);
+                img.rectTransform.localRotation = Quaternion.Euler(0f, 0f, turn);
+            }
+            void Tie(float x0, float y0, float x1, float y1)
+            {
+                Vector2 a = new Vector2(x0, y0), b = new Vector2(x1, y1);
+                Bit("String", (x0 + x1) / 2f, (y0 + y1) / 2f, Vector2.Distance(a, b), 1.2f, Mathf.Atan2(y1 - y0, x1 - x0) * Mathf.Rad2Deg, red);
+            }
+            // the notes, and the strings between them
+            Vector2[] notes = { new Vector2(-80f, 38f), new Vector2(-50f, 8f), new Vector2(-82f, -28f), new Vector2(-30f, 40f), new Vector2(-20f, -36f), new Vector2(8f, 14f) };
+            for (int i = 0; i < notes.Length - 1; i++) Tie(notes[i].x, notes[i].y, notes[i + 1].x, notes[i + 1].y);
+            Tie(notes[0].x, notes[0].y, notes[2].x, notes[2].y);
+            Color[] paper = { new Color(1f, 0.92f, 0.4f), new Color(1f, 0.62f, 0.75f), new Color(0.6f, 0.9f, 1f) };
+            for (int i = 0; i < notes.Length; i++) Bit("Note", notes[i].x, notes[i].y, 15f, 14f, (i * 37 % 11) - 5f, paper[i % paper.Length]);
+            // the one that matters: off the last note, to the creamery's photo
+            Tie(notes[notes.Length - 1].x, notes[notes.Length - 1].y, 58f, 14f);
+            Bit("Photo", 58f, 16f, 64f, 46f, 3f, Paper);
+            Bit("Sky", 58f, 20f, 56f, 34f, 3f, new Color(0.55f, 0.75f, 0.9f));
+            Bit("Factory", 56f, 9f, 46f, 14f, 3f, new Color(0.45f, 0.45f, 0.5f));
+            Bit("Cone", 60f, 22f, 6f, 10f, 3f, new Color(0.85f, 0.62f, 0.3f));
+            Bit("Scoop", 60f, 29f, 10f, 7f, 3f, new Color(1f, 0.75f, 0.85f));
+            Bit("Pin", 58f, 37f, 4f, 4f, 0f, red);
+            foreach (Vector2 n in notes) Bit("Pin", n.x, n.y + 5f, 3f, 3f, 0f, red);
+            Text scrawl = Ui.Label(m_Board, "Scrawl", Ui.Middle, new Vector2(56f, -22f) * Px, 13, TextAnchor.MiddleCenter, Ink);
+            scrawl.text = "THEY NEED IT COLD";
+            scrawl.rectTransform.localRotation = Quaternion.Euler(0f, 0f, -4f);
+            scrawl.GetComponent<Shadow>().enabled = false;
+        }
+
         /// <summary>On the stage: the alarm's red wash.</summary>
         public void MakeAlarm()
         {
@@ -131,6 +173,7 @@ namespace PooketSlug
             Chips(stage, t, ground);
             Jet(stage, t, ground);
             Closeup(stage, t, now);
+            Board(stage, t);
             Shutter(stage, t, now, ground);
             Row(stage, t, now, ground);
             Steam(stage, t, now, ground);
@@ -207,6 +250,21 @@ namespace PooketSlug
             float up = Mathf.Clamp01((t - stage.ShownSince("closeup", t)) / 0.35f);
             m_BigCard.anchoredPosition = new Vector2((int)(now * 10f) % 9 == 0 ? 2f : 0f, Mathf.Lerp(-140f, 26f, 1f - (1f - up) * (1f - up)));
             m_BigCard.localRotation = Quaternion.Euler(0f, 0f, (1f - up) * -8f);
+        }
+
+        /// <summary>kcaj's string board, close up: the room dimmed, and the camera creeping in on the board.</summary>
+        void Board(ShotStage stage, float t)
+        {
+            bool on = stage.Shown("board", t);
+            Ui.Show(m_Board, on);
+            if (!on)
+            {
+                if (!stage.Shown("closeup", t)) Ui.Show(m_Dim, false);
+                return;
+            }
+            Ui.Show(m_Dim, true);
+            float k = 1f + Mathf.Clamp01((t - stage.ShownSince("board", t)) / 6f) * 0.08f;
+            m_Board.localScale = new Vector3(k, k, 1f);
         }
 
         /// <summary>

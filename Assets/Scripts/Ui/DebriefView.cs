@@ -83,7 +83,7 @@ namespace PooketSlug
 
             // signing in, and on
             m_SignIn = Ui.Label(m_Panel, "Sign in", Ui.Middle, new Vector2(60f, -112f), 10, TextAnchor.MiddleCenter, Green);
-            m_SignIn.text = "SIGN IN AT THE TOP RIGHT TO KEEP YOUR XP AND RANK";
+            m_SignIn.text = "SIGN IN AT THE TOP LEFT TO KEEP YOUR XP AND RANK";
             m_Continue = Ui.Button(m_Panel, "CONTINUE", new Vector2(60f, -142f), new Vector2(150f, 26f), () => m_Leave = true, out Text key);
             key.text = "ENTER";
             m_Hint = Ui.Label(m_Panel, "Hint", Ui.Middle, new Vector2(60f, -142f), 9, TextAnchor.MiddleCenter, Dim);

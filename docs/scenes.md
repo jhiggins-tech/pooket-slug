@@ -72,8 +72,8 @@ Places are in art pixels: across from the left (the stage is 320 wide), up from 
 | Kind | Things |
 |---|---|
 | Soldiers | `tones2`, `kie`, `goon` |
-| Props | `bag`, `cup`, `card`, `remote`, `sign`, `window`, `door`, `doorway`, `spark`, `beacon`, `clamp`, `drone`, `cable`, `tones2-tabk`, `kie-tabk`, `turret` |
-| Effects | `snow`, `searchlights`, `chips`, `jet`, `closeup`, `shutter`, `lamps`, `row`, `junk`, `steam`, `cage`, `stars`, `zz`, `alarm` |
+| Props | `bag`, `cup`, `card`, `remote`, `sign`, `window`, `door`, `doorway`, `spark`, `beacon`, `clamp`, `drone`, `cable`, `tones2-tabk`, `kie-tabk`, `turret`, `kcaj-corner` (his corner of the den, with the string board) |
+| Effects | `snow`, `searchlights`, `chips`, `jet`, `closeup` (the keycard), `board` (kcaj's string board, close up), `shutter`, `lamps`, `row`, `junk`, `steam`, `cage`, `stars`, `zz`, `alarm` |
 
 A thing is on stage once a line stages it (or `show` names it), until `hide`.
 

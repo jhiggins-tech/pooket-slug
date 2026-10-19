@@ -6,7 +6,7 @@
  *   ──► the Realtime Database (REST): pooketSlug/players/<uid>, under the rules in Cardmaster's repository
  *   ──► the game, through PooketAuth.jslib and SendMessage
  *
- * The account area (#account) sits over the top right of the game; the game shows it on its title screen and
+ * The account area (#account) sits over the top left of the game; the game shows it on its title screen and
  * settings only (PooketAuth.show).
  *
  * The settings come from pooket-config.js, which the build writes from the repository variables. Without

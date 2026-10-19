@@ -101,12 +101,14 @@ namespace PooketSlug
             new Thing("tones2-tabk", Kind.Prop, 186f, 2f, new Color(1f, 0.62f, 0.8f)),
             new Thing("kie-tabk", Kind.Prop, 136f, 0f, White),
             new Thing("turret", Kind.Prop, 0f, 0f, White),
+            new Thing("kcaj-corner", Kind.Prop, 60f, 99f, White), // his corner of the den, as it is when he's moved in
             // named effects: bits of staging drawn by the view, timed and placed by the scene
             new Thing("snow", Kind.Effect, 0f, 0f, White),
             new Thing("searchlights", Kind.Effect, 0f, 0f, White),
             new Thing("chips", Kind.Effect, 66f, 0f, new Color(1f, 0.82f, 0.3f), "spill", "burst"),
             new Thing("jet", Kind.Effect, 0f, 0f, new Color(0.45f, 0.75f, 1f), "spray"),
             new Thing("closeup", Kind.Effect, 0f, 0f, White),
+            new Thing("board", Kind.Effect, 0f, 0f, White),
             new Thing("shutter", Kind.Effect, 0f, 0f, White, "open", "up"),
             new Thing("lamps", Kind.Effect, 0f, 0f, White, "stutter"),
             new Thing("row", Kind.Effect, 0f, 0f, White),

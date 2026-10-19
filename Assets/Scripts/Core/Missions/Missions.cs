@@ -65,13 +65,13 @@ namespace PooketSlug
         }, new MissionStory
         {
             // a single-player prelude: the opening, the motor pool reveal as the boss tabk's entrance, freeing kie, then
-            // the coda out of the base; beating it opens co-op (docs/design/story.md)
+            // the coda out of the base; its debrief goes straight on into Mission two (docs/design/story.md)
             Opening = SceneLibrary.Opening,
             BossReveal = SceneLibrary.MotorPool,
             PilotFreed = SceneLibrary.FreeingKie,
             Coda = true,
             SoloOnly = true,
-            OpensCoop = true,
+            BeforeDen = true,
             CoopName = "TEST MISSION",
         }, pilot: Content.Pilot);
 
@@ -79,7 +79,7 @@ namespace PooketSlug
         /// The Brain Freeze creamery (<c>docs/design/levels.md</c>, Mission two; the m2-map page): the loading bay, the
         /// production line's belts and scoop droppers, the sign yard, the nitrogen hall, the freezer corridor, and the
         /// cold store's yard, one flat screen where kcaj's tabk rolls out of the doors. The first mission open to co-op.
-        /// Trollogram kcaj on foot, and the briefing and freeing scenes, come later: for now the wrecked tabk wins it.
+        /// Trollogram kcaj on foot, and the freeing scene, come later: for now the wrecked tabk wins it.
         /// </summary>
         public static readonly MissionDef Two = new MissionDef("mission-2", 1, "MISSION 2", "THE BRAIN FREEZE CREAMERY", new[]
         {
@@ -95,6 +95,13 @@ namespace PooketSlug
             "...P...c..==.s......s..c...s==.g............=..hJ.....r...s.....h...r...........h.n.+....c..s........n..S...n........r.n..r...K..L..N..s..N...==g.N..s..N..nJ.N.h...+.f.s.c.r...h.n.r...s..K.f................T.CF",
             "################################>>>>>>>>>>>>>>####<<<<<<<<<<<<<###################################################################################################################################################",
             "##################################################################################################################################################################################################################",
+        }, new MissionStory
+        {
+            // straight on from Mission one's debrief, after kcaj's string board briefs it; beating it solo opens the den,
+            // the crew and co-op (StartFlow)
+            Opening = SceneLibrary.MissionTwoBriefing,
+            BeforeDen = true,
+            OpensCoop = true,
         }, boss: BossTabk.Kcaj);
 
         public static readonly IReadOnlyList<MissionDef> All = new[] { One, Two };

@@ -51,6 +51,13 @@ namespace PooketSlug
             Prop("door", 20f, 40f).rectTransform.pivot = new Vector2(0f, 0f); // it swings on its hinge, on the left
         }
 
+        /// <summary>kcaj's corner of the den, his string board on the wall: the den's own layer for it (<see cref="DenRoom"/>).</summary>
+        public void MakeKcajCorner()
+        {
+            Sprite corner = DenRoom.Painting("kcaj");
+            m_Props["kcaj-corner"] = Picture("kcaj-corner", corner, 0f, 0f, corner != null ? corner.rect.width : 96f, corner != null ? corner.rect.height : 52f, Color.white);
+        }
+
         /// <summary>tones2's tabk, in his orange and black, parked in the motor pool's first space.</summary>
         public void MakeTones2Tabk()
         {
