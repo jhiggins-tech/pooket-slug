@@ -17,9 +17,9 @@ namespace PooketSlug
     public sealed class SceneLibrary
     {
         public const string Opening = "opening", MotorPool = "motor-pool", FreeingKie = "freeing-kie", CoopTest = "coop-test",
-            MissionTwoBriefing = "m2-briefing", FreeingKcaj = "freeing-kcaj";
+            MissionTwoBriefing = "m2-briefing", FreeingKcaj = "freeing-kcaj", KcajTabk = "kcaj-tabk";
         /// <summary>The scenes the game plays (a draft played with <c>?scene=</c> needn't be one of them).</summary>
-        public static readonly string[] Names = { Opening, MotorPool, FreeingKie, CoopTest, MissionTwoBriefing, FreeingKcaj };
+        public static readonly string[] Names = { Opening, MotorPool, FreeingKie, CoopTest, MissionTwoBriefing, FreeingKcaj, KcajTabk };
 
         readonly Dictionary<string, SceneScript> m_BuiltIn = new Dictionary<string, SceneScript>();
         readonly Dictionary<string, SceneScript> m_Site = new Dictionary<string, SceneScript>();

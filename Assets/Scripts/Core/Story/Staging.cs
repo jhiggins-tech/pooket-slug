@@ -101,7 +101,8 @@ namespace PooketSlug
             new Thing("cable", Kind.Prop, 186f, 22f, new Color(0.1f, 0.1f, 0.12f)),
             new Thing("tones2-tabk", Kind.Prop, 186f, 2f, new Color(1f, 0.62f, 0.8f)),
             new Thing("kie-tabk", Kind.Prop, 136f, 0f, White),
-            new Thing("turret", Kind.Prop, 0f, 0f, White),
+            new Thing("kcaj-tabk", Kind.Prop, 261f, 0f, White), // kcaj's, as it rolls out of the cold store (a cone on top)
+            new Thing("turret", Kind.Prop, 0f, 0f, White), // whichever tabk's in the shot
             new Thing("kcaj-corner", Kind.Prop, 60f, 99f, White), // his corner of the den, as it is when he's moved in
             // the creamery's cold store: the dark of its doorway as its doors part (sized open over the painted shut
             // doors), a chest freezer in the yard, and what kcaj comes out with and gets up to

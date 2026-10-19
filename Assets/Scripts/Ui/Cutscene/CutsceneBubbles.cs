@@ -43,7 +43,7 @@ namespace PooketSlug
             int i = m_Shown++;
             while (m_Bubbles.Count <= i) m_Bubbles.Add(new SpeechBubble(m_World, Vector2.zero));
             SpeechBubble b = m_Bubbles[i];
-            bool glitchy = line.Who == Speaker.Goon || line.Who == Speaker.Hologram;
+            bool glitchy = line.Who == Speaker.Goon || line.Who == Speaker.Hologram || line.Who == Speaker.TrolloKcaj;
             float w = glitchy ? b.Say(line.Text, Cyan, new Color(0.05f, 0.12f, 0.16f, 0.95f)) : b.Say(line.Text);
 
             StageFigure who = m_Cast.Figure(SceneScript.FigureOf(line.Who));

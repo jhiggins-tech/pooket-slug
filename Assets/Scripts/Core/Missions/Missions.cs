@@ -104,8 +104,11 @@ namespace PooketSlug
             "##################################################################################################################################################################################################################",
         }, new MissionStory
         {
-            // kcaj's string board briefs it as it starts from the den
+            // kcaj's string board briefs it as it starts from the den, and kcaj's tabk rolls out of the cold store in a
+            // reveal (on both phones in co-op)
             Opening = SceneLibrary.MissionTwoBriefing,
+            BossReveal = SceneLibrary.KcajTabk,
+            BossRevealCoop = true,
             PilotFreed = SceneLibrary.FreeingKcaj,
             PilotFreedCoop = true,
             // Trollogram kcaj looks out of his tabk's hatch the first time

@@ -83,6 +83,7 @@ namespace PooketSlug
             m_Cast.Prop("spark", 6f, 6f);
             m_Effects.MakeChips();
             m_Cast.MakeFrontCast();
+            m_Cast.MakeKcajTabk();
             m_Effects.MakeFrost();
             m_Effects.MakeWaterAndSnow();
 

@@ -15,15 +15,20 @@ namespace PooketSlug
         public string Opening;
         /// <summary>
         /// The boss's entrance the first time it wakes, solo, once ever (<see cref="StoryRecord.Due"/>); the boss intro
-        /// after it skips the roll-out.
+        /// after it skips the roll-out. With <see cref="BossRevealCoop"/> it plays in co-op too.
         /// </summary>
         public string BossReveal;
-        /// <summary>Played once the boss's pilot is freed, every time (it can be skipped once seen): solo, and in co-op too with <see cref="PilotFreedCoop"/>.</summary>
         /// <summary>
-        /// The pilot's intro at the end of the first boss intro (Mission two's: TROLLO-KCAJ, as he looks out of the hatch),
-        /// and what they say; null where the pilot's met in a scene instead (Mission one's motor pool reveal).
+        /// <see cref="BossReveal"/> plays on both phones in co-op too (Mission two's, kcaj's tabk arriving): at the first
+        /// boss wake of each co-op run, since the two phones' saves can differ on whether it's been seen.
+        /// </summary>
+        public bool BossRevealCoop;
+        /// <summary>
+        /// The pilot's intro at the end of the first boss intro when <see cref="BossReveal"/> doesn't play (a test start):
+        /// TROLLO-KCAJ as he looks out of the hatch, and what he says. Null where the pilot's only met in a scene.
         /// </summary>
         public string PilotIntro, PilotIntroLine;
+        /// <summary>Played once the boss's pilot is freed, every time (it can be skipped once seen): solo, and in co-op too with <see cref="PilotFreedCoop"/>.</summary>
         public string PilotFreed;
         /// <summary>
         /// <see cref="PilotFreed"/> plays on both phones in co-op too (Mission two's freeing kcaj); without it a co-op

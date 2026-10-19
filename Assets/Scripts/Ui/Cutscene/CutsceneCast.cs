@@ -21,8 +21,8 @@ namespace PooketSlug
         readonly Dictionary<string, Image> m_Props = new Dictionary<string, Image>();
         Text m_Sign;
         StageFigure m_Tones2, m_Goon, m_Kie, m_Kcaj;
-        RectTransform m_KieTabk, m_KieTurret;
-        Image m_KieHull, m_Rotor;
+        RectTransform m_KieTabk, m_KieTurret, m_KcajTabk, m_KcajTurret;
+        Image m_KieHull, m_KcajHull, m_Rotor;
 
         public CutsceneCast(RectTransform world)
         {
@@ -105,15 +105,33 @@ namespace PooketSlug
         public void MakeKieAndTheDrone()
         {
             m_Kie = new StageFigure(m_World, "kie");
-            m_KieTabk = Ui.Rect(m_World, "kie-tabk", Vector2.zero, new Vector2(0.5f, 0f), Vector2.zero, Vector2.zero);
-            m_KieTurret = Ui.Rect(m_KieTabk, "Turret", new Vector2(0.5f, 0f), new Vector2(Art.TankBarrel.pivot.x / Art.TankBarrel.rect.width, 0.5f),
-                new Vector2(Art.TankBarrelPivot.x, Art.TankBarrelPivot.y) * Art.PPU * Px, new Vector2(Art.TankBarrel.rect.width, Art.TankBarrel.rect.height) * Px);
-            Ui.Picture(m_KieTurret, "Barrel", Art.TankBarrel, Ui.Middle, Ui.Middle, Vector2.zero, new Vector2(Art.TankBarrel.rect.width, Art.TankBarrel.rect.height) * Px, Color.white);
-            m_KieHull = Ui.Picture(m_KieTabk, "Hull", Art.TankHull, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), Vector2.zero, new Vector2(Art.TankHull.rect.width, Art.TankHull.rect.height) * Px, Color.white);
+            m_KieTabk = Tabk("kie-tabk", out m_KieHull, out m_KieTurret);
             Prop("clamp", 30f, 6f);
             Prop("cable", 1f, 10f);
             Prop("drone", 40f, 10f);
             m_Rotor = Picture("Rotors", null, 0f, 0f, 52f, 2f, new Color(0.75f, 0.8f, 0.85f, 0.7f));
+        }
+
+        /// <summary>
+        /// kcaj's tabk, the boss's as it rolls out of the cold store: the tabk, with a cone on top. Made after the front
+        /// cast, so Trollogram kcaj rises from behind its hull into the hatch.
+        /// </summary>
+        public void MakeKcajTabk()
+        {
+            m_KcajTabk = Tabk("kcaj-tabk", out m_KcajHull, out m_KcajTurret);
+            Sprite cone = KcajArt.Cone;
+            Ui.Picture(m_KcajTabk, "Cone", cone, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), new Vector2(12f, 20f) * Px, new Vector2(cone.rect.width, cone.rect.height) * Px, Color.white);
+        }
+
+        /// <summary>A tabk on the stage: its hull, and a turret that turns (the script's <c>turret</c>).</summary>
+        RectTransform Tabk(string name, out Image hull, out RectTransform turret)
+        {
+            RectTransform tabk = Ui.Rect(m_World, name, Vector2.zero, new Vector2(0.5f, 0f), Vector2.zero, Vector2.zero);
+            turret = Ui.Rect(tabk, "Turret", new Vector2(0.5f, 0f), new Vector2(Art.TankBarrel.pivot.x / Art.TankBarrel.rect.width, 0.5f),
+                new Vector2(Art.TankBarrelPivot.x, Art.TankBarrelPivot.y) * Art.PPU * Px, new Vector2(Art.TankBarrel.rect.width, Art.TankBarrel.rect.height) * Px);
+            Ui.Picture(turret, "Barrel", Art.TankBarrel, Ui.Middle, Ui.Middle, Vector2.zero, new Vector2(Art.TankBarrel.rect.width, Art.TankBarrel.rect.height) * Px, Color.white);
+            hull = Ui.Picture(tabk, "Hull", Art.TankHull, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f), Vector2.zero, new Vector2(Art.TankHull.rect.width, Art.TankHull.rect.height) * Px, Color.white);
+            return tabk;
         }
 
         /// <summary>The cargo drone's remote and the alarm's beacon.</summary>
@@ -166,7 +184,8 @@ namespace PooketSlug
             Soldier(m_Kie, "kie", Art.SkinFor(Content.Kie, 0), 8f, stage, t, now, ground);
             Soldier(m_Kcaj, "kcaj", Art.SkinFor(Content.Kcaj, 0), 9f, stage, t, now, ground);
             Goon(stage, t, now, ground);
-            KieTabk(stage, t, now, ground);
+            Tabk(m_KieTabk, m_KieHull, m_KieTurret, "kie-tabk", stage, t, now, ground);
+            Tabk(m_KcajTabk, m_KcajHull, m_KcajTurret, "kcaj-tabk", stage, t, now, ground);
         }
 
         /// <summary>A plain prop: on stage (and lit, if it blinks), where it is, turned, sized and coloured.</summary>
@@ -300,16 +319,16 @@ namespace PooketSlug
             m_Goon.At(at.x + jitter, ground + at.y);
         }
 
-        /// <summary>kie's tabk: its hull in its colour (white, or a wreck's), its gun turned as the script has the turret.</summary>
-        void KieTabk(ShotStage stage, float t, float now, float ground)
+        /// <summary>A tabk (kie's or kcaj's): its hull in its colour (white, or a wreck's), its gun turned as the script has the turret.</summary>
+        static void Tabk(RectTransform tabk, Image hull, RectTransform turret, string name, ShotStage stage, float t, float now, float ground)
         {
-            bool on = stage.Shown("kie-tabk", t);
-            Ui.Show(m_KieTabk, on);
+            bool on = stage.Shown(name, t);
+            Ui.Show(tabk, on);
             if (!on) return;
-            Vector2 at = stage.Where("kie-tabk", t, now);
-            m_KieTabk.anchoredPosition = new Vector2(at.x, ground + at.y) * Px;
-            m_KieHull.color = stage.Colour("kie-tabk", t, now);
-            m_KieTurret.localRotation = Quaternion.Euler(0f, 0f, stage.Turn("turret", t));
+            Vector2 at = stage.Where(name, t, now);
+            tabk.anchoredPosition = new Vector2(at.x, ground + at.y) * Px;
+            hull.color = stage.Colour(name, t, now);
+            turret.localRotation = Quaternion.Euler(0f, 0f, stage.Turn("turret", t));
         }
     }
 }

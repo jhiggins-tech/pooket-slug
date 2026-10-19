@@ -42,7 +42,17 @@ namespace PooketSlug.Tests
         }
 
         [Test]
-        public void TrolloKcajGetsHisIntroInTheBossIntro_TrolloKieInTheReveal()
+        public void BothBossTabksArriveInARevealScene_MissionTwosOnBothPhones()
+        {
+            Assert.AreEqual(SceneLibrary.MotorPool, Missions.One.Story.BossReveal);
+            Assert.AreEqual(SceneLibrary.KcajTabk, Missions.Two.Story.BossReveal);
+            CollectionAssert.Contains(SceneLibrary.Names, SceneLibrary.KcajTabk);
+            Assert.IsTrue(Missions.Two.Story.BossRevealCoop, "Mission two is played in co-op");
+            Assert.IsFalse(Missions.One.Story.BossRevealCoop, "Mission one is solo only");
+        }
+
+        [Test]
+        public void TrolloKcajsBandIsForWhenTheRevealDoesntPlay_TrolloKieIsOnlyInTheReveal()
         {
             Assert.AreEqual("TROLLO-KCAJ", Missions.Two.Story.PilotIntro);
             Assert.AreEqual("YOU'RE NOT IN MY NOTES.", Missions.Two.Story.PilotIntroLine);

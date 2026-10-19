@@ -52,7 +52,7 @@ rewrite in the crew's own voice.
 | [A crewmate moves in](#a-crewmate-moves-in) | The den, after each freeing | 3 s | none yet | Designed |
 | [kie's tabk comes home](#kies-tabk-comes-home) | The tabk bay, the first visit after Mission two | 9 s | none yet | Drafted |
 | [The Mission two briefing](#the-mission-two-briefing) | Mission two starts | 24 s | none yet | Designed, narrator voiced |
-| [kcaj's tabk arrives](#kcajs-tabk-arrives) | The first time the players reach the cold store | 11 s | none yet: a scene, then the boss intro | Rescripted as a reveal scene (owner, 2026-10-19); built so far as the in-play intro |
+| [kcaj's tabk arrives](#kcajs-tabk-arrives) | The first time the players reach the cold store | 11 s | `scenes/kcaj-tabk.txt`, then the boss intro | Built (m2-finish): solo the first time; in co-op, together at each run's first boss wake (the phones' saves can differ); a test start keeps the in-play TROLLO-KCAJ band |
 | [Freeing kcaj](#freeing-kcaj) | Trollogram kcaj beaten on foot | 23.5 s | `scenes/freeing-kcaj.txt` | Built (m2-finish), on both phones in co-op; the cold store is drawn in code until it's painted |
 | [Two of the crew](#retired-two-of-the-crew) | Retired | 8 s | none | Retired, 2026-10-18 |
 | [The co-op check](#the-co-op-check) | `?test=scene` and CI only | 36 s | `coop-test.txt` | A test, not the story |

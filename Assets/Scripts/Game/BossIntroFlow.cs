@@ -26,13 +26,14 @@ namespace PooketSlug
         /// <summary>The pilot's part is on (solo, the game holds still for it).</summary>
         public bool Holding => Name != null && Show.Holding;
 
-        public void Start(BossEnemy boss, bool firstTime, MissionStory story = null)
+        /// <param name="revealed">The mission's reveal just played: its pilot was met there, so no pilot's part.</param>
+        public void Start(BossEnemy boss, bool firstTime, MissionStory story = null, bool revealed = false)
         {
             m_T = -0.001f; // just before 0, so the first cues fire on the next tick
             m_Full = firstTime;
             Name = boss.DisplayName;
             m_Tank = boss as TankBoss;
-            bool pilot = firstTime && m_Tank != null && story?.PilotIntro != null;
+            bool pilot = firstTime && !revealed && m_Tank != null && story?.PilotIntro != null;
             PilotName = pilot ? story.PilotIntro : null;
             PilotLine = pilot ? story.PilotIntroLine : null;
         }
