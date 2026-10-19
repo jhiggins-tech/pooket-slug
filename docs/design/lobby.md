@@ -32,7 +32,7 @@ Concept: `concepts/lobby/den-lobby.png` in the project's files (second pass; the
 
 This is the den as it's built today. Den 2.0 ([above](#den-20-the-den-and-the-long-loft)) is where it's going: the den keeps this screen's ground floor, and the loft's stations move up to the scrolling loft. Until Den 2.0 is built, this section is the game.
 
-- **It's the hangout from [the opening](story.md#the-opening-scene),** the garage with the hand-painted POOKET sign, now cleaned up and lived in. The raid's cyan scorch marks are still on the walls, painted over badly. It's warm where Mission one is cold: lamp light, string lights, screens glowing.
+- **It's the hangout from [the opening](cutscenes.md#the-opening),** the garage with the hand-painted POOKET sign, now cleaned up and lived in. The raid's cyan scorch marks are still on the walls, painted over badly. It's warm where Mission one is cold: lamp light, string lights, screens glowing.
 - **One phone screen, side-on, in two floors** (until Den 2.0): the ground floor and a loft up a ladder, four stations on each. It fits a landscape phone without scrolling, so every soldier is one tap away.
 - **The heart of the room is the big screen and the couch.** A big TV on the ground floor, a GameCube-style console under it (a little purple cube with a carry handle, unbranded) and two controllers on long cables, lying on the couch's two seats. The couch is where the players sit: **sitting on it is how you pick your soldier** ([below](#picking-a-soldier-and-getting-ready)).
 - **The way out is the roller door** on the right. Crew come and go through it (a freed crewmate moving in, a partner arriving), and it's where BACK walks you out.
@@ -69,7 +69,7 @@ Each station is built from the soldier's kit ([kits](kits.md)), so it shows what
 
 ### Filling the den as crew are freed
 
-- **A freed crewmate moves in.** The first visit after a freeing plays a short move-in beat (about 3 seconds, tap to skip): the new crewmate walks in through the roller door, looks round their corner, and the station lights up with a chip clunk. tones2 or kie says hi from the couch.
+- **A freed crewmate moves in.** The first visit after a freeing plays a short move-in beat ([a crewmate moves in](cutscenes.md#a-crewmate-moves-in)), and their station lights up.
 - **Until then, their corner is wrecked and dark:** the raid's mess, a tarp, no lights, no name. Nothing in it says who it belongs to. (Picked by the owner, 2026-10-16.)
 - **One exception: kcaj's red string board** stays up in his dark corner before he's freed, because it briefs Mission two: tones2 and kie climb up to it, and one string runs to a photo of the creamery (owner, 2026-10-16). It carries no name.
 - **The coming-soon crew have no corner at all.** When the first of them arrives, the den grows: the camera pans right through a knocked-through wall into a second room for the next four. The game never shows that wall as a door until then.
@@ -79,7 +79,7 @@ Each station is built from the soldier's kit ([kits](kits.md)), so it shows what
 
 The den replaces the crew screen. It appears with it, after Mission one ([what the player sees](levels.md#what-the-player-sees-and-when)): before that tones2 is the only soldier and Mission one starts straight from START.
 
-- **The first visit** is the first time the player opens the den (START on the title) after Mission one is beaten. A short beat plays (about 4 seconds, once ever): the hangout is still trashed, kie heaves the couch back upright, tones2 plugs the TV back in and the room warms up. kie: "HOME SWEET HOME." Then it's the den, with two stations lit and six dark.
+- **The first visit** is the first time the player opens the den (START on the title) after Mission one is beaten. A short beat plays, once ever ([the first visit](cutscenes.md#the-first-visit)). Then it's the den, with two stations lit and six dark.
 - **No narrator in the den.** The narrator tells cutscenes; the den is a menu with the crew in it, so it only has speech bubbles. The music is the title theme ([music](music.md)).
 
 ## Crew interactions
@@ -87,7 +87,7 @@ The den replaces the crew screen. It appears with it, after Mission one ([what t
 Every so often two crewmates who are both in the den do a bit together. It only uses crew who are freed and not picked, so the room stays alive however many are in it.
 
 - **How often:** one every 12 to 20 seconds, never two at once. The two walk to each other (or shout across the room), play it out in 4 to 8 seconds, and go back to their stations.
-- **Bubbles** are a few words in capitals, about two seconds each, like the cutscenes' ([cutscenes](story.md#cutscenes)).
+- **Bubbles** are a few words in capitals, about two seconds each, like the cutscenes' ([cutscenes](cutscenes.md)).
 - **Each pair has one or two bits;** a pair with none just waves. They pick at random, but the same bit doesn't play twice in a row.
 
 Sample bits (placeholders):
@@ -110,11 +110,11 @@ Sample bits (placeholders):
 ### Solo
 
 1. **MISSIONS → a mission → the den.** The console's start screen on the TV shows the chosen mission. (CREW opens the den too, with no mission, to look around, check a crewmate's stats and looks, and pick who you'll play next.)
-2. **Tap a crewmate to pick them.** They stop what they're doing and head for the couch: ground-floor crew walk over, and loft crew vault the railing and drop down with a thud. They flop into the left seat, grab the controller, and their name card slides up from the bottom (the name, their colours and the ⓘ for their kit), a small cousin of the [character intro](story.md#character-intros) with no slow-mo and no flash. The last soldier you played is already on the couch when the den opens.
+2. **Tap a crewmate to pick them.** They stop what they're doing and head for the couch: ground-floor crew walk over, and loft crew vault the railing and drop down with a thud. They flop into the left seat, grab the controller, and their name card slides up from the bottom (the name, their colours and the ⓘ for their kit), a small cousin of the [character intro](cutscenes.md#character-intros) with no slow-mo and no flash. The last soldier you played is already on the couch when the den opens.
 3. **Changing your mind:** tap another crewmate. The one on the couch hands over the controller with a shrug and goes back to their station, and the new pick takes the seat.
 4. **While you sit there,** your soldier fidgets with the controller, and the crew's bits carry on around them. Unpicked crew can wander over and lean on the back of the couch for a bit (tones2: "MOVE OVER").
 5. **The empty seat is the way to bring a mate,** once co-op is open: tap the second controller to go co-op: your phone joins the one co-op room your mates use, and its name goes up on the TV ([co-op](#co-op)). You can sit and wait there for a second player.
-6. **READY:** your soldier presses START. The controller's light on the console goes green, the TV's start screen flashes, and the camera zooms into the TV, straight into the mission's briefing.
+6. **READY:** your soldier presses START. The controller's light on the console goes green, the TV's start screen flashes, and the camera zooms into the TV, straight into the mission's briefing ([cutscenes](cutscenes.md)).
 
 ### Co-op
 
@@ -132,7 +132,7 @@ Sample bits (placeholders):
 
 ## What the engine needs
 
-- **The den scene:** a fixed room built from props, with stations as tap targets, and the crew sprites standing in it. The cutscene stage can draw it ([cutscenes](story.md#cutscenes)), with taps going to the stations.
+- **The den scene:** a fixed room built from props, with stations as tap targets, and the crew sprites standing in it. The cutscene stage can draw it ([cutscenes](cutscenes.md)), with taps going to the stations.
 - **Idle and interaction cycles:** each a little script of moves, sprite frames, props and bubbles, picked at random by cosmetic randomness.
 - **Unlock state:** who's freed, which stations have had their move-in beat, and whether the first visit has played, kept with the player's progress so it follows a sign-in.
 - **Co-op messages:** a player's pick, ready and unready, and the host's mission choice, on the room's existing connection.

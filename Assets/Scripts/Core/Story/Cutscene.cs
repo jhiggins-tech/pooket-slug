@@ -40,7 +40,7 @@ namespace PooketSlug
     }
 
     /// <summary>
-    /// A character's intro, the first time they're on screen in the story (<c>docs/design/story.md</c>, Character
+    /// A character's intro, the first time they're on screen in the story (<c>docs/design/cutscenes.md</c>, Character
     /// intros): it builds up for <see cref="CutscenePlayer.BuildUp"/> seconds first (a riser, and the camera creeping in),
     /// then at <see cref="At"/> seconds into the shot it lands: the camera crash-zooms onto <see cref="Figure"/>, their name
     /// slams up big, time goes slow-mo, and a musical hit plays.
@@ -116,7 +116,7 @@ namespace PooketSlug
     }
 
     /// <summary>
-    /// Plays a scene (<c>docs/design/story.md</c>, Cutscenes): each shot moves on by itself, or with a tap. A scene
+    /// Plays a scene (<c>docs/design/cutscenes.md</c>, How every cutscene plays): each shot moves on by itself, or with a tap. A scene
     /// that's been seen before can be skipped. In co-op every player has to tap before a shot moves on early, so a
     /// partner who hasn't seen it gets to watch it; the timer still moves it on for both.
     /// <para>
@@ -336,7 +336,7 @@ namespace PooketSlug
     }
 
     /// <summary>
-    /// A co-op scene's taps, kept in step over two phones (<c>docs/design/story.md</c>, Cutscenes: a shot moves on early
+    /// A co-op scene's taps, kept in step over two phones (<c>docs/design/cutscenes.md</c>, How every cutscene plays: a shot moves on early
     /// once both have tapped, and a scene seen before is skipped once both want to). Each phone sends one number: the
     /// round and the scene it's in, the last <see cref="CutscenePlayer.Beat"/> it tapped through, and whether it's asked
     /// to skip. Each plays the scene by its own clock, so the timer still moves it on for both.

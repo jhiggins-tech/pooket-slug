@@ -105,7 +105,7 @@ Each file starts with a summary comment saying what it's for.
   orchestral music are WAVs CI fetches from vendor releases into `Resources` (`.bytes`, made into clips in code).
 
 ## Recipes
-**Add a cutscene**: a file in `scenes/` ([docs/scenes.md](docs/scenes.md)) and its name in `SceneLibrary`, cues from
+**Add a cutscene**: its script in `docs/design/cutscenes.md` (the script leads), then a file in `scenes/` ([docs/scenes.md](docs/scenes.md)) and its name in `SceneLibrary`, cues from
 `Cues` (`CueTests` holds every cue to having an effect), narrator lines in the vendor repo's `voice/narration.json`,
 then where it plays in `Game`.
 

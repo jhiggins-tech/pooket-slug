@@ -86,7 +86,7 @@ namespace PooketSlug
                     if (t > 2.1f) gap = 0.035f;
                 }
             });
-            // A character's intro (story.md, Character intros): a big musical hit, every note of a wide chord at once over a
+            // A character's intro (cutscenes.md, Character intros): a big musical hit, every note of a wide chord at once over a
             // crash and a bass drop, ringing out with a wobble as the slow-mo holds.
             Sfx.Intro = Render("chipIntro", 1.7f, c =>
             {

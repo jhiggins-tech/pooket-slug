@@ -266,7 +266,7 @@ namespace PooketSlug
             if (m_Decoy != null && m_Decoy.Up) m_Decoy.SwitchOff();
             base.Die();
             if (!Glitches) return;
-            // the big glitch-out: frozen mid-taunt, the music cut, then torn apart (story.md, Freeing kie)
+            // the big glitch-out: frozen mid-taunt, the music cut, then torn apart (cutscenes.md, Freeing kie)
             PilotFreeingSpec spec = KieTuning.Freeing;
             Look?.Big(spec.Freeze, spec.Stretch, spec.TearPx);
             World.BossMusicOff = true;

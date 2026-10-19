@@ -1,4 +1,4 @@
-// The motor pool reveal (docs/design/story.md, The motor pool reveal): the first-ever reveal, that tabks exist. It
+// The motor pool reveal (docs/design/cutscenes.md, The motor pool reveal): the first-ever reveal, that tabks exist. It
 // plays once, ever, the first time tones2 reaches the motor pool, and it's kie's tabk's entrance: the boss intro after
 // it skips the roll-out and goes straight to the banner and the name card. Trollogram kie gets his intro as he pops
 // up in the hatch. How to write a scene: docs/scenes.md.

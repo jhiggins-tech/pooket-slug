@@ -4,7 +4,7 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// The debrief's flow (<c>docs/design/story.md</c>, The first debrief): a won solo run's XP and rank go on the
+    /// The debrief's flow (<c>docs/design/cutscenes.md</c>, The first debrief): a won solo run's XP and rank go on the
     /// profile, and the debrief shows them part by part over the held world. Co-op wins keep the plain victory screen
     /// for now.
     /// </summary>

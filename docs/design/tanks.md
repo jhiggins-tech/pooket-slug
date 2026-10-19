@@ -24,7 +24,7 @@ They share a crewmate's look and paint, and nothing else needs to carry over.
 
 Tabks stay hidden until they matter ([progressive disclosure](README.md#progressive-disclosure-the-thread-through-all-four)):
 1. **Before the first tabk,** nothing mentions tabks: not the menus, the HUD, the loading screens, the controls or the web page around the game. No enemy tabks appear before then either.
-2. **The first tabk** is kie's, at the end of Mission one, with a full boss intro.
+2. **The first tabk** is kie's, at the end of Mission one, with a full [boss intro](cutscenes.md#the-boss-intro).
 3. **The first call-in and the first drive** come straight after kie is freed (owner, 2026-10-16): kie frees tones2's own tabk and bows out, and in Mission one's coda, a short mini-level after the boss, a prompt has you call it in, then drive it out of the base ([the coda](story.md#the-coda)).
 4. **kie's tabk** is wrecked in the boss fight, so Mission one wins only tones2's. kie's comes back repaired once Mission two is beaten (owner, 2026-10-16).
 5. **The tabk choice** on the mission screen appears once you have two tabks to pick from: after Mission two.
@@ -45,28 +45,9 @@ Tabks stay hidden until they matter ([progressive disclosure](README.md#progress
 
 ## The boss intro
 
-A boss tabk's arrival is the mission's big moment ([story](story.md#cutscenes): a warning banner, the music changes, and the tabk makes its entrance). Draft, 2026-10-15, waiting for the owner's read-through.
-
-**How it plays, in order** (about three seconds; you keep control throughout, so it never feels like the game took the stick away):
-1. **The screen locks** as you step into the arena, and the mission's music cuts out.
-2. **The warning:** a siren sounds twice, the screen edges flash red, and a big flashing red **WARNING!** slams in between hazard stripes that sweep across the top and bottom of the screen, Metal Slug style (picked 2026-10-15).
-3. **The entrance:** the motor pool's blast shutter grinds open and the tabk rolls out onto the arena floor. It can't be hurt and doesn't fire until it stops.
-4. **The name card:** the tabk's name ("KIE'S TABK") drops in under the banner, and the announcer shouts "Here comes the tabk!" (it shouts "Warning!" with the banner in step 2).
-5. **The fight:** the boss music kicks in on the tabk's first shot, and its health bar fills up across the top.
-
-**The pilot's intro:** from Mission two on, the first time a mission's boss intro plays, its Trollogram pilot gets their [character intro](story.md#character-intros) as the tabk stops and the hatch pops: crash zoom, TROLLO-&lt;NAME&gt;, slow-mo and the musical hit. It's the one moment the intro holds the action, and it never plays again. In Mission one, Trollogram kie gets his in [the motor pool reveal](story.md#the-motor-pool-reveal) instead.
-
-**The announcer** (picked 2026-10-15) is a generated voice: a gravelly arcade announcer made with text-to-speech by the vendor repository's CI from its `voice/lines.json`, so a line is changed or added by editing that file. It also calls "Mission one... start!" and "Mission complete!".
-
-**The music** (picked 2026-10-15): a looping Mission one track plays through the run, and a faster, minor-key boss track takes over for the fight. Both are made in code with the chip synth the sound effects use. The full track list is in [music](music.md). As built, they play only in the `?spike=music` spike (solo, `MusicFlow`), so a normal run's boss intro has the siren and banner but no music change yet.
-
-**The second time** you meet a tabk (a replay, or after a lost fight at the boss-door checkpoint), the intro is quick: the banner and siren only, with the tabk already in place, and the boss music starts at once.
-
-**In co-op,** the world's authority starts the intro and both players see it together. Nobody needs to tap anything, so neither waits on the other.
-
-**When it ends** (picked 2026-10-15): wrecking the tabk plays a short victory sting over the boss music, which runs on through the pilot round and stops when the pilot glitches out ([freeing kie](story.md#freeing-kie)).
-
-**Settings:** the music has its own MUSIC on/off beside SOUND, so a player can keep the sound effects and lose the tune. Not built yet: SETTINGS has SOUND only, which mutes the music too.
+A boss tabk's arrival, with its warning banner, name card and music, is a cutscene played in the game itself: its
+script and rules (the quick second time, the pilot's intro, co-op, the music) are in
+[cutscenes](cutscenes.md#the-boss-intro).
 
 ## The pilot round
 
@@ -92,7 +73,7 @@ Wreck the tabk and its Trollogram pilot jumps out to fight you on foot with the 
 
 **In co-op** (owner, 2026-10-15): one pilot with exactly the same health and moves as in solo, since missions don't change with two players ([difficulty](levels.md#difficulty)); the fight is simply easier with two. It switches targets between you: whoever is nearest, or whoever hurt it last.
 
-**When it's beaten,** the pilot glitches out like the Trollogram goons, and the freeing scene plays ([story](story.md#cutscenes)). The boss music keeps playing through the pilot round ([the boss intro](#the-boss-intro)).
+**When it's beaten,** the pilot glitches out like the Trollogram goons, and the freeing scene plays ([freeing kie](cutscenes.md#freeing-kie)). The boss music keeps playing through the pilot round ([the boss intro](cutscenes.md#the-boss-intro)).
 
 **The plan to build it:**
 1. **Sides:** a soldier gets a side, players or Trollograms. Shots, blasts and kit effects already know whether they're hostile; the pilot's are hostile to players.
@@ -130,7 +111,7 @@ The first tabk you win, freed by kie at the end of Mission one and called in for
 - **Its name** on screen while you drive it: TONES2'S TABK, over its rounds (WATER 5, MUD 3, SPEW 1).
 - **The rest is shared** with every tabk: health, fuel, speed, the hop, squashing goons, eject and the runaway.
 - **One player:** Mission one is single player only (owner, 2026-10-16), so the coda never has two tabks. Open: what a co-op partner calls in during Mission two, before kie's tabk is back.
-- **The cargo drone** that lowers it is the crew's own, in tones2's orange and black, and every call-in uses it ([freeing kie](story.md#freeing-kie)). For now it's the goons' drone repainted, scaled up.
+- **The cargo drone** that lowers it is the crew's own, in tones2's orange and black, and every call-in uses it ([freeing kie](cutscenes.md#freeing-kie)). For now it's the goons' drone repainted, scaled up.
 
 **Built** (2026-10-16): your tabk is tones2's now, wherever one appears (`?test=tank`, `?unlock=tank`, and the coda); the shell, mortar and barrage are retired (weapons 18 and 19 and shots 9 and 10 stay reserved). The hull is the tabk's shape painted orange with black tracks and gun, a jack-o'-lantern face on its flank. FIRE runs one spray cycle per round (1 s building in four spurts, 0.8 s held, 1 s easing off), SP shakes for 1 s and launches at 21 along the aim with a mud carpet 6.4 wide, SU pours 3 s of spew. In co-op a partner sees the tabk and its mud, not its water or spew (Mission one is single player). Code: `PlayerTank.cs`, numbers `Tones2TabkSpec` (`Core/Crew/Tones2TabkSpec.cs`, as `Tones2Tuning.Tabk`), art `Tones2Art.TabkHull`, `TabkBarrel`, `TabkDrone`.
 

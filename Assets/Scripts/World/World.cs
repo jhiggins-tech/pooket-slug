@@ -508,7 +508,7 @@ namespace PooketSlug
         /// </summary>
         public event System.Action PilotFreed;
 
-        /// <summary>The pilot's glitched out, solo: on to the freeing scene (<c>docs/design/story.md</c>, Freeing kie).</summary>
+        /// <summary>The pilot's glitched out, solo: on to the freeing scene (<c>docs/design/cutscenes.md</c>, Freeing kie).</summary>
         public void OnPilotFreed()
         {
             Log.Game.Info("Pilot glitched out: the real kie is freed");
