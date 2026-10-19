@@ -70,7 +70,7 @@ namespace PooketSlug
         {
             if (Removed) return;
             Remove();
-            if (Def.Explodes) World.Combat.Explode(Pos, Def.BlastRadius, Cosmetic ? 0 : Def.Damage, Hostile, Def.BlastSize);
+            if (Def.Explodes) World.Combat.Explode(Pos, Def.BlastRadius, Cosmetic ? 0 : Def.Damage, Hostile, Def.BlastSize, Sfx.BlastOf(Def));
             else World.SpawnEffect(Art.Spark, 30f, Pos);
         }
 

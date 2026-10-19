@@ -96,7 +96,7 @@ namespace PooketSlug
             m_SeenRains = m_Rains;
             Rect view = m_World.View.Rect;
             m_Rain.Start(new Rng(unchecked((uint)m_Rains * 2654435761u + 977u) | 1u), view.xMin, view.xMax, view.yMax);
-            Sfx.Play(Sfx.Thump, 0.9f);
+            Sfx.Play(Sfx.PillsRattle, 0.9f);
             m_World.Scoring.Popup("UNMEDICATED!", m_Tank.Pos + Vector2.up * 4.4f, KcajArt.Beam);
             for (int i = 0; i < 10; i++) // a burst of pills out of the barrel, to say where they came from
                 m_World.SpawnParticle(m_Tank.Muzzle, new Vector2(Rng.Fx.Range(-2f, 2f), Rng.Fx.Range(6f, 12f)),
@@ -123,7 +123,7 @@ namespace PooketSlug
                 {
                     m_Phase = Sweeping;
                     m_T = 0f;
-                    Sfx.Play(Sfx.Sizzle, 0.7f);
+                    Sfx.Play(Sfx.BeamLock, 0.8f);
                 }
             }
             else if (m_Phase == Sweeping)
@@ -142,7 +142,7 @@ namespace PooketSlug
             {
                 m_Rain.Step(dt, this.Ground, m_OnSoldier);
                 for (int i = 0; i < m_Rain.PopCount; i++) Pop(m_Rain.Pops[i]);
-                if (m_Rain.PopCount > 0) Sfx.Play(Sfx.Splat, 0.5f);
+                if (m_Rain.PopCount > 0) Sfx.Play(Sfx.PillPopAt(), 0.6f);
             }
         }
 
@@ -213,7 +213,7 @@ namespace PooketSlug
             if (phase != m_Phase)
             {
                 if (phase == Tell) StartTell();
-                else if (phase == Sweeping) Sfx.Play(Sfx.Sizzle, 0.7f);
+                else if (phase == Sweeping) Sfx.Play(Sfx.BeamLock, 0.8f);
                 m_Phase = phase;
                 m_T = phase == Sweeping ? progress : 0f;
             }

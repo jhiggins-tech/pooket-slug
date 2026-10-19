@@ -91,7 +91,7 @@ namespace PooketSlug
             if (!m_Raining) return;
             m_Rain.Step(dt, m_Ground, m_Ground.OnGoon);
             for (int p = 0; p < m_Rain.PopCount; p++) KcajArt.Pop(Remote.World, m_Rain.Pops[p], 3);
-            if (m_Rain.PopCount > 0) Sfx.Play(Sfx.Splat, CrewKit.PartnerVolume * 0.5f);
+            if (m_Rain.PopCount > 0) Sfx.Play(Sfx.PillPopAt(), CrewKit.PartnerVolume * 0.6f);
             if (m_Rain.Done) m_Raining = false;
         }
 
@@ -117,12 +117,12 @@ namespace PooketSlug
                     bool holds = move.Data.y > 0.5f;
                     m_Target = holds ? w.FindEnemy(Mathf.RoundToInt(move.Data.x)) : null;
                     m_Held = 0f;
-                    if (holds) Sfx.Play(Sfx.Charge, CrewKit.PartnerVolume * 0.5f);
+                    if (holds) Sfx.Play(Sfx.BeamLock, CrewKit.PartnerVolume * 0.7f);
                     break;
                 case KitMove.Pills:
                     m_Rain.Start((uint)Mathf.RoundToInt(move.Data.y), move.At.x, move.Data.x, move.At.y);
                     m_Raining = true;
-                    Sfx.Play(Sfx.Thump, CrewKit.PartnerVolume);
+                    Sfx.Play(Sfx.PillsRattle, CrewKit.PartnerVolume);
                     break;
             }
         }
@@ -196,7 +196,7 @@ namespace PooketSlug
                 {
                     Tell(e, false);
                     m_Target = null;
-                    if (m_Fix.Ended == FixateEnd.Spent || m_Fix.Ended == FixateEnd.OutOfReach) Sfx.Play(Sfx.Glitch, 0.4f);
+                    if (m_Fix.Ended == FixateEnd.Spent || m_Fix.Ended == FixateEnd.OutOfReach) Sfx.Play(Sfx.BeamSnap, 0.6f);
                 }
                 else p.Facing = e.Pos.x >= p.Pos.x ? 1 : -1;
                 return;
@@ -211,14 +211,14 @@ namespace PooketSlug
                 // Nothing to fixate on: the beam flicks out and fizzles, and the charge isn't spent.
                 m_MissEnd = origin + dir * Mathf.Min(wall, m_Spec.Range);
                 m_Miss = 0.12f;
-                Sfx.Play(Sfx.Glitch, 0.25f);
+                Sfx.Play(Sfx.BeamFizzle, 0.5f);
                 return;
             }
             p.Kit.UseSpecial();
             m_Target = hit;
             m_Fix.Lock();
             Tell(hit, true);
-            Sfx.Play(Sfx.Charge, 0.5f);
+            Sfx.Play(Sfx.BeamLock, 0.7f);
         }
 
         Enemy FirstTouched(Vector2 origin, Vector2 dir, float wall)
@@ -265,7 +265,8 @@ namespace PooketSlug
             int sparks = 1 + (int)(3f * m_Fix.Held / m_Spec.RampTime);
             for (int i = 0; i < sparks; i++)
                 w.SpawnParticle(at, new Vector2(Rng.Fx.Range(-3f, 3f), Rng.Fx.Range(1f, 5f)), i % 2 == 0 ? KcajArt.Beam : KcajArt.Hot, 1.5f, 0.3f);
-            Sfx.Play(Sfx.Sizzle, 0.15f + 0.25f * Mathf.Clamp01(m_Fix.Held / m_Spec.RampTime));
+            float heat = Mathf.Clamp01(m_Fix.Held / m_Spec.RampTime);
+            Sfx.Play(Sfx.BeamBurnAt(heat), 0.4f + 0.3f * heat);
         }
 
         public void Render()
@@ -368,7 +369,7 @@ namespace PooketSlug
             m_Rain.Start(seed, view.xMin, view.xMax, view.yMax);
             CrewKit.Send(w, KitMove.Pills, new Vector2(view.xMin, view.yMax), new Vector2(view.xMax, seed));
             Raining = true;
-            Sfx.Play(Sfx.Thump, 0.8f);
+            Sfx.Play(Sfx.PillsRattle, 0.8f);
         }
 
         public void Tick(float dt)
@@ -381,7 +382,7 @@ namespace PooketSlug
                 Vector2 at = m_Rain.Pops[p];
                 Pop(w, at);
             }
-            if (m_Rain.PopCount > 0) Sfx.Play(Sfx.Splat, Mathf.Min(0.6f, 0.15f + 0.05f * m_Rain.PopCount));
+            if (m_Rain.PopCount > 0) Sfx.Play(Sfx.PillPopAt(), Mathf.Min(0.7f, 0.3f + 0.08f * m_Rain.PopCount));
             if (m_Rain.Done) Raining = false;
         }
 
