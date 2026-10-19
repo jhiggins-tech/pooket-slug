@@ -27,22 +27,21 @@ Up: [Design](README.md)
 1. **The opening:** a short scene ([the opening](cutscenes.md#the-opening)). tones2 comes back from a snack run to find the crew's hangout raided and empty, their tabks' bay empty too, and heads in alone. It names tabks but never shows one (owner, 2026-10-19).
 2. **Mission one, the military base:** tones2 fights through the base to the motor pool. There comes the reveal ([the motor pool reveal](cutscenes.md#the-motor-pool-reveal)): the crew's stolen tabks are parked inside, and kie's tabk rolls out to fight, with a Trollogram kie at the controls. Beat the tabk, then Trollogram kie on foot, and the real kie is freed ([freeing kie](cutscenes.md#freeing-kie)).
 3. **The coda** (owner, 2026-10-16): with the last of his strength, kie frees tones2's own tabk and bows out, exhausted. tones2 calls it in for the first time and blasts his way out of the base in a short, explosive mini-level after the boss, still part of Mission one. It ends the mission and teaches the tabk.
-4. **Straight on to Mission two,** which frees kcaj at the Brain Freeze creamery ([Mission two](#mission-two-the-creamery)). Mission one's debrief runs into [its briefing](cutscenes.md#the-mission-two-briefing): the night Mission one ended, the Trollograms moved every tabk left in the motor pool, so each is held somewhere new (owner, 2026-10-16).
-5. **With kie and kcaj back, the den opens,** and co-op with it, after Mission two's debrief (owner, 2026-10-19). From there the player has control: missions, the crew and co-op are picked in the den. ([Two of the crew](cutscenes.md#retired-two-of-the-crew), the title scene that once announced co-op, is retired.) Each mission after that frees one more crewmate from their own tabk.
+4. **With kie back, the den opens, and co-op with it,** straight after Mission one's debrief ([what START plays](#what-start-plays)). ([Two of the crew](cutscenes.md#retired-two-of-the-crew), the title scene that announced it, is retired.)
+5. **Mission two frees kcaj,** at the Brain Freeze creamery ([Mission two](#mission-two-the-creamery)). The night Mission one ended, the Trollograms moved every tabk left in the motor pool, so each is held somewhere new (owner, 2026-10-16). Each mission after that frees one more crewmate from their own tabk.
 6. **The coming-soon crew** (shotdownboyz, lankcity, odsey and doctorfox) arrive later, each with a mission of their own.
 7. **There's no finale for now.** The story stays open-ended and grows one crewmate at a time, like Coming soon in Tabks.
 
 ## What START plays
 
-The story runs on rails until the den opens: START on the title always plays the next part of it (owner, 2026-10-19,
-on the Opening 5 page). Sign in sits at the title's top left; signed in, the title says who you're signed in as, with
-SIGN OUT. Progress is kept either way, and signing in keeps it in the cloud.
+START on the title follows the player's progress (owner, 2026-10-19). Sign in sits at the title's top left; signed in,
+the title says who you're signed in as, with SIGN OUT. Progress is kept either way, and signing in keeps it in the
+cloud.
 
 | Where you are | START plays | Then |
 |---|---|---|
-| A new player | [The opening](cutscenes.md#the-opening), then Mission one | Mission one's debrief runs straight into the Mission two briefing |
-| Mission one cleared | [The Mission two briefing](cutscenes.md#the-mission-two-briefing), then Mission two | Mission two's debrief goes to the den |
-| Mission two cleared | The den ([the first visit](cutscenes.md#the-first-visit), the first time) | The player has control: missions, crew and co-op from the den |
+| Mission one not cleared | [The opening](cutscenes.md#the-opening), then Mission one | Mission one's debrief goes to the den ([the first visit](cutscenes.md#the-first-visit)) |
+| Mission one cleared | The den | The player has control: missions, the crew and co-op. Mission two's [briefing](cutscenes.md#the-mission-two-briefing) plays as it starts, solo or in co-op |
 
 ## Cutscenes
 
@@ -75,8 +74,6 @@ kcaj's mission, at the Brain Freeze creamery ([the map](levels.md#mission-two-th
 
 **Why the creamery:** Trollograms run hot. The creamery's industrial freezers keep the projectors that make them from melting down, so its cold store is the Trollograms' server room. They've parked kcaj's tabk in front of it as its guard, and shut kcaj in it, which, honestly, he'd have chosen anyway.
 
-**How you get there:** straight on from Mission one; its debrief runs into the briefing, and until Mission two is beaten START picks up there ([what START plays](#what-start-plays)). Its first run is solo, like Mission one, since co-op opens in the den after it.
-
 **Why not the base:** the night Mission one ended, the Trollograms moved every tabk left in the motor pool (owner, 2026-10-16). [The briefing](cutscenes.md#the-mission-two-briefing) opens on it.
 
 ### The run
@@ -85,7 +82,7 @@ No scenes, just the place telling it: goons on the production line, Trollogram p
 
 ### The end
 
-kcaj's tabk comes out of the cold store ([kcaj's tabk arrives](cutscenes.md#kcajs-tabk-arrives)). Once it's wrecked and its pilot is beaten on foot, the real kcaj stumbles out of the frost ([freeing kcaj](cutscenes.md#freeing-kcaj)). After the debrief the den opens for the first time, with kie and kcaj home ([the first visit](cutscenes.md#the-first-visit)), and his string-board nook on the upper floor lights up ([the lobby](lobby.md)).
+kcaj's tabk comes out of the cold store ([kcaj's tabk arrives](cutscenes.md#kcajs-tabk-arrives)). Once it's wrecked and its pilot is beaten on foot, the real kcaj stumbles out of the frost ([freeing kcaj](cutscenes.md#freeing-kcaj)). The next time the den loads, he moves into his nook on the den's upper floor ([the lobby](lobby.md)) and his corner lights up.
 
 ## Reveals are story beats
 
@@ -95,7 +92,7 @@ The game hides what's coming ([progressive disclosure](README.md#progressive-dis
 |---|---|---|
 | Tabks exist | The motor pool, at the end of Mission one | kie's tabk rolls out ([the motor pool reveal](cutscenes.md#the-motor-pool-reveal)), with its [boss intro](cutscenes.md#the-boss-intro) |
 | Your tabk: calling it in and driving it | The coda, straight after kie is freed | kie frees tones2's own tabk and bows out; you call it in and blast your way out of the base |
-| Co-op exists | Once Mission two has been beaten | In the den, which opens after Mission two's debrief: its TV joins the co-op room |
+| Co-op exists | Once Mission one has been beaten | In the den, which opens after Mission one's debrief: its TV joins the co-op room |
 | Each new crewmate | The end of their mission | The freeing scene ([freeing kie](cutscenes.md#freeing-kie), [freeing kcaj](cutscenes.md#freeing-kcaj)) |
 | XP and rank | The first debrief | [The first debrief](cutscenes.md#the-first-debrief): the first XP, and the first step up the ladder |
 
