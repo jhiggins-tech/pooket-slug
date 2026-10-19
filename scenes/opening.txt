@@ -1,4 +1,4 @@
-// The opening (docs/design/story.md, The opening scene): the snack run and the raided hangout, which doubles as
+// The opening (docs/design/cutscenes.md, The opening): the snack run and the raided hangout, which doubles as
 // Mission one's briefing. The narrator tells it, and the keycard gets a close-up so it's clear where it sends you.
 // How to write a scene: docs/scenes.md. Times are seconds from the start of each shot.
 net 1

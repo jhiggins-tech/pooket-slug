@@ -5,7 +5,7 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// The cutscenes' flow (<c>docs/design/story.md</c>, Cutscenes; <c>docs/scenes.md</c>): which copy of each scene plays
+    /// The cutscenes' flow (<c>docs/design/cutscenes.md</c>, How every cutscene plays; <c>docs/scenes.md</c>): which copy of each scene plays
     /// (built in, or the site's once fetched), playing one over the game and moving it on, in co-op on both phones, and
     /// <c>?scene=</c> drafts.
     /// </summary>

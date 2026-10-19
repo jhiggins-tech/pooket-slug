@@ -5,7 +5,7 @@ using static PooketSlug.StageKit;
 namespace PooketSlug
 {
     /// <summary>
-    /// The debrief screen (<c>docs/design/story.md</c>, The first debrief): the crew stand to one side and the numbers
+    /// The debrief screen (<c>docs/design/cutscenes.md</c>, The first debrief): the crew stand to one side and the numbers
     /// count up on the other. The tally, then the XP bar, then the rank badge with its RANK UP! stamp, then the
     /// sign-in offer for players who aren't signed in, then CONTINUE. <see cref="DebriefPlayer"/> keeps the time. The
     /// crew, their bubble and the colours are the stage's (<see cref="StageKit"/>), bigger.

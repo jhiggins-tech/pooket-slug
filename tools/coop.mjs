@@ -18,7 +18,7 @@
 //   scene mode:          as code mode, but both sit down in the den together and start at once, with ?test=scene, so
 //                        a stand-in scene plays on both phones (Mission one is single player only, so its own scenes
 //                        never play in co-op): both tap through it, and it must move on for both, together, each shot
-//                        on their taps (docs/design/story.md, Cutscenes). Nobody leaves.
+//                        on their taps (docs/design/cutscenes.md, How every cutscene plays). Nobody leaves.
 // Then (code mode) both play for a while, A leaves (Esc Esc), and B should take over the shared world.
 // Both open the game with ?unlock=coop, since a new browser hides co-op until Mission one is beaten solo, and with
 // ?test=crate, which puts a crate just ahead of the start: one of them must be handed it by A's world.

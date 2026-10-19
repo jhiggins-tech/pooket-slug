@@ -6,7 +6,7 @@ The game's music: every track and short sting, the style they share, and how the
 
 **Read this when** you're building the music player or writing a track, or a new mission or boss needs music.
 
-Up: [Design](README.md) · Builds on: [the boss intro](tanks.md#the-boss-intro) (a mission track, then a faster minor-key boss track), [story](story.md#cutscenes) (a track for each mission, one for bosses)
+Up: [Design](README.md) · Builds on: [the boss intro](cutscenes.md#the-boss-intro) (a mission track, then a faster minor-key boss track), [cutscenes](cutscenes.md#how-every-cutscene-plays) (scenes use the music around them)
 
 ## The track list
 
@@ -30,14 +30,14 @@ There are two kinds of music: **loops**, which play under a whole stretch of the
 | **Mission start** | Under the caption card, as the announcer calls the start, leading straight into the mission theme | About 2 s |
 | **Boss victory** | When the tabk is wrecked, leading into the boss theme's final section for the pilot round | About 2 s |
 | **Mission complete** | As MISSION COMPLETE! lands (the gate at the end of the coda), after the boss theme stops | About 3 s |
-| **Rank up** | The RANK UP! stamp in the debrief: the chip fanfare the [first debrief](story.md#the-first-debrief) calls for | About 2 s |
+| **Rank up** | The RANK UP! stamp in the debrief: the chip fanfare the [first debrief](cutscenes.md#the-first-debrief) calls for | About 2 s |
 | **Game over** | When the last continue runs out: a sad descending run that ends on a buzz | About 3 s |
 | **Continue countdown** | Under the CONTINUE? count: a ticking bass note that rises a semitone every second | As long as the offer (9 s, `Tuning.Lives.ContinueSeconds`) |
 | **New crewmate** | When a freed crewmate first joins the crew screen | About 2 s |
 
 ### What has no music of its own
 
-- **Cutscenes** use what's playing around them: the opening is street ambience until the caption card, where the mission start sting and the mission theme kick in ([the opening scene](story.md#the-opening-scene)). The motor pool reveal cuts the mission theme and leads into the boss theme ([the motor pool reveal](story.md#the-motor-pool-reveal)). The boss theme cuts out when the pilot glitches out ([freeing kie](story.md#freeing-kie)).
+- **Cutscenes** use what's playing around them: the opening is street ambience until the caption card, where the mission start sting and the mission theme kick in ([the opening](cutscenes.md#the-opening)). The motor pool reveal cuts the mission theme and leads into the boss theme ([the motor pool reveal](cutscenes.md#the-motor-pool-reveal)). The boss theme cuts out when the pilot glitches out ([freeing kie](cutscenes.md#freeing-kie)).
 - **The boss intro's siren** is a sound effect, not music: the screen locks, the music cuts, the siren and WARNING! banner play in silence, and the boss theme kicks in on the tabk's first shot.
 - **The coda** depends on a pick (below).
 - **Pause** keeps the track playing, quieter. **Co-op** plays the same music on both phones, each following its own screen, like the sound effects.
@@ -61,7 +61,7 @@ Everything is code: no audio files, nothing to download, and a track is a few li
 3. **A renderer** in `Music.cs` plays each part into a `Chip` buffer: the lead and harmony as pulse tones, the bass on the triangle, the drums as noise, each note with a short envelope. A note that runs past the end of a loop wraps round to its start, so the loop has no seam. Then it becomes an `AudioClip`.
 4. **Rendered when needed, not all at startup.** A minute of music is about 10 MB of samples, so only the tracks for what's next are rendered: the title theme at launch, then a mission's theme and the boss theme when the mission loads, a few seconds at a time across frames so nothing stutters. Clips no longer needed are let go.
 5. **A music player** (`Music.Play(track)`, `Music.Stop()`, `Music.Sting(sting)`): one looping source for the loops and one for the stings, with a quick fade when a track changes and the ducking above. It's driven by the game's existing moments: the caption card, the boss intro's hooks (`World.BossIntro`, `World.BossFightStarted`), the boss's death, the pilot's glitch-out, the debrief and game over.
-6. **The MUSIC switch** beside SOUND in settings ([the boss intro](tanks.md#the-boss-intro)), saved on the phone. With music off, nothing is rendered at all.
+6. **The MUSIC switch** beside SOUND in settings (picked 2026-10-15), so a player can keep the sound effects and lose the tune, saved on the phone. With music off, nothing is rendered at all.
 7. **Tests:** the score notation reads every track; each loop's length is a whole number of bars; and every game moment that should start a track does.
 
 **Writing the notes:** Claude composes each track in the notation, then renders it to a WAV in CI so it can be heard in a browser before it goes in the game. Each track goes on the Roadmap with a listen link, like a spike.

@@ -6,7 +6,7 @@ namespace PooketSlug
 {
     /// <summary>
     /// The cutscenes' camera: the shot's own (in on a point, as the script has it), and a character's intro over it
-    /// (<c>docs/design/story.md</c>, Character intros), whose crash zoom moves the world while their name slams up on a
+    /// (<c>docs/design/cutscenes.md</c>, Character intros), whose crash zoom moves the world while their name slams up on a
     /// band over it.
     /// </summary>
     public sealed class CutsceneCamera

@@ -13,7 +13,8 @@ Up: [Repository README](../../README.md)
 
 | Document | What it covers | Status |
 |---|---|---|
-| [Story, plot and cutscenes](story.md) | The premise, the plot mission by mission, and how cutscenes and reveals play | Signed off, 2026-10-14 |
+| [Story and plot](story.md) | The premise, the plot mission by mission, and how reveals play | Signed off, 2026-10-14 |
+| [Cutscenes](cutscenes.md) | Every cutscene as one TV-style script: its shots, lines, narrator and timings, and the rules they all follow | One script since 2026-10-19 |
 | [Tabks](tanks.md) | Tabk bosses, winning a tabk, driving one and calling it in | Signed off, 2026-10-14 |
 | [Player mechanics](player.md) | The crew, controls, kits, health and lives, crates, co-op, and what the player keeps | Signed off, 2026-10-14 |
 | [Maps, missions and progression](levels.md) | What a mission is, difficulty, how maps are built, and the order things open up in, menus included | Signed off, 2026-10-14 |

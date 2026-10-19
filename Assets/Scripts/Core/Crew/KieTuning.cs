@@ -13,7 +13,7 @@ namespace PooketSlug
     }
 
     /// <summary>
-    /// Hologram kie beaten, the big glitch-out and the real kie freed (<c>docs/design/story.md</c>, Freeing kie, shots 1
+    /// Hologram kie beaten, the big glitch-out and the real kie freed (<c>docs/design/cutscenes.md</c>, Freeing kie, shots 1
     /// and 2): he freezes mid-taunt and the boss music cuts, he tears apart like
     /// the goons but bigger, a cage of light flickers out where he stood, and the real kie drops to the floor, dazed.
     /// </summary>

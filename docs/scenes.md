@@ -1,5 +1,9 @@
 # Writing the cutscenes
 
+What each scene says and shows (its shots, lines, narrator and timings) is designed in one script,
+[docs/design/cutscenes.md](design/cutscenes.md). The script leads: change a scene there first, then its file here to
+match. This page is how a file stages it.
+
 Every cutscene is a text file in `scenes/`: `opening.txt`, `motor-pool.txt`, `freeing-kie.txt`, and `coop-test.txt`
 (the two-phone check's stand-in). The game reads them with its own reader and plays them on the shared stage
 (`StageKit`). Change a line, a time or a position, push, and it's live **without a build**:

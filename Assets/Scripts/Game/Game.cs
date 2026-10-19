@@ -341,7 +341,7 @@ namespace PooketSlug
             if (firstTime && boss is TankBoss tank && PlaysBossReveal)
             {
                 // The first time: the reveal (Mission one's motor pool) is the tabk's entrance, so after it the tabk's in
-                // place and the intro goes straight to the banner, the name card and the music (docs/design/story.md).
+                // place and the intro goes straight to the banner, the name card and the music (docs/design/cutscenes.md, The boss intro).
                 float playedFor = m_StateTime; // the mission's clock (and its start banner) carry on from where they were
                 Scenes.Play(Scenes.Library.Get(Mission.Story.BossReveal), false, () =>
                 {

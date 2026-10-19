@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace PooketSlug.Tests
 {
-    /// <summary>The debrief, XP and rank (docs/design/story.md, The first debrief; docs/design/player.md).</summary>
+    /// <summary>The debrief, XP and rank (docs/design/cutscenes.md, The first debrief; docs/design/player.md).</summary>
     public class DebriefTests
     {
         [Test]
