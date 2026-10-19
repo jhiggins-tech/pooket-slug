@@ -82,7 +82,7 @@ namespace PooketSlug
             int dir = soldier.Left == soldier.Right ? 0 : soldier.Left ? -1 : 1;
             int ride = soldier.Up == soldier.Down ? 0 : soldier.Up ? 1 : -1;
             if (soldier.JumpPressed && w.Standing) spot = Near(w);
-            if (spot != null || place != BayPlace.None || walk || dir != 0) m_Card = null;
+            if (spot != null || place != BayPlace.None || walk || dir != 0 || ride != 0) m_Card = null;
             if (spot != null) w.Visit(spot.Value);
             else if (place != BayPlace.None) w.Go(place);
             else if (walk) w.WalkTo(deck, x);

@@ -43,7 +43,8 @@ namespace PooketSlug
 
         public static readonly TabkCard Tones2 = new TabkCard(Content.Tones2, "TONES2'S TABK", 0xff8c1a, 0xb05a10, 0,
             ("WATER", Rounds5), ("MUD", Rounds3), ("SPEW", Rounds1));
-        public static readonly TabkCard Kie = new TabkCard(Content.Kie, "KIE'S TABK", 0xf0c840, 0xb0851c, 1,
+        // kie's in his blue (his projector tabk, in Design, comes in blue and green: its sprite goes in when it's built)
+        public static readonly TabkCard Kie = new TabkCard(Content.Kie, "KIE'S TABK", 0x4ea8ff, 0x2a70c0, 1,
             ("WEASELS", Rounds5), ("TROLLOGRAM", Rounds3), ("STEAL", Rounds1));
         public static readonly TabkCard Kcaj = new TabkCard(Content.Kcaj, "KCAJ'S TABK", 0xff5ad8, 0xb02aa8, BayMap.PerDeck,
             ("CONES", Rounds5), ("BEAM", Rounds3), ("PILLS", Rounds1));
