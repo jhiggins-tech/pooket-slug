@@ -81,7 +81,7 @@ Each station is built from the soldier's kit ([kits](kits.md)), so it shows what
 
 - **A freed crewmate moves in.** The first visit after a freeing plays a short move-in beat ([a crewmate moves in](cutscenes.md#a-crewmate-moves-in)), and their station lights up.
 - **Until then, their corner is wrecked and dark:** the raid's mess, a tarp, no lights, no name. Nothing in it says who it belongs to. (Picked by the owner, 2026-10-16.)
-- **One exception: kcaj's red string board** stays up in his dark corner before he's freed, because it briefs Mission two: tones2 and kie climb up to it, and one string runs to a photo of the creamery (owner, 2026-10-16). It carries no name.
+- **One exception: kcaj's red string board** stays up in his dark corner before he's freed, because it briefs Mission two: tones2 and kie climb up to it, and one string runs to a photo of the creamery (owner, 2026-10-16). It carries no name. **Until Mission two has been played, the board glows** in the dark corner to point the way (owner, 2026-10-19), and Mission two's briefing plays when Mission two starts from the den, solo or co-op.
 - **The coming-soon crew have no corner at all.** When the first of them arrives, the den grows: the camera pans right through a knocked-through wall into a second room for the next four. The game never shows that wall as a door until then.
 - **Looks follow into the den:** a crewmate's hat and skin show at their station, so the den is also where you see what you've bought.
 
@@ -89,7 +89,7 @@ Each station is built from the soldier's kit ([kits](kits.md)), so it shows what
 
 The den replaces the crew screen. It appears with it, after Mission one ([what the player sees](levels.md#what-the-player-sees-and-when)): before that tones2 is the only soldier and Mission one starts straight from START.
 
-- **The first visit** is the first time the player opens the den (START on the title) after Mission one is beaten. A short beat plays, once ever ([the first visit](cutscenes.md#the-first-visit)). Then it's the den, with two stations lit and six dark.
+- **The first visit** comes straight after Mission one's debrief, the first time the den opens. A short beat plays, once ever ([the first visit](cutscenes.md#the-first-visit)). Then it's the den, with two stations lit and six dark.
 - **No narrator in the den.** The narrator tells cutscenes; the den is a menu with the crew in it, so it only has speech bubbles. The music is the title theme ([music](music.md)).
 
 ## Crew interactions
