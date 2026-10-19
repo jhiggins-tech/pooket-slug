@@ -62,7 +62,7 @@ recording: `narrator <recording>:`), `caption` (the big card).
 `intro-build`, `intro`, `mission-start`; `say <line>` has the announcer read one of theirs.
 
 **The camera**: `0-2.2 camera 1.15 20 -12 smooth`: how far in, and where it looks (from the stage's middle). The bay
-(`set bay`) is 993 wide, three stages long, with the stage showing its left end: `0-3 camera 1 336 0 smooth` pans to
+(`set bay`) is 993 wide, three stages long, with the stage showing its left end: `0-3 camera 1 673 0 smooth` pans to
 its far end.
 
 ## Things on the stage

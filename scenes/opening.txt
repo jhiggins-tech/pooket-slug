@@ -35,7 +35,8 @@ tones2 holds bag cup
 shot: The den, trashed
 length 5
 set den
-spark at 127 55
+spark at 131 52
+spark size 0.5 0.5
 spark blink 9 3
 // in by the side door: a long look round the wrecked den, then the bag drops and the chips go everywhere
 tones2 at 56
@@ -49,7 +50,8 @@ tones2 holds bag cup
 shot: The roller door
 length 4.5
 set den
-spark at 127 55
+spark at 131 52
+spark size 0.5 0.5
 spark blink 9 3
 chips spill 66
 // he looks to the roller door, wrenched half up, and runs for it, ducking under into the bay
@@ -60,6 +62,7 @@ tones2 holds cup
 2.1-3.7 tones2 walk 56 286
 3.7 tones2 pose crouch
 4.1 tones2 hide
+4.1 cup hide
 3.8 cue shutter
 
 shot: The tabk bay
@@ -70,7 +73,7 @@ set bay
 tones2 at -12
 tones2 holds cup
 0-0.9 tones2 walk -12 64
-1.2-4.2 camera 1 336 0 smooth
+1.2-4.2 camera 1 673 0 smooth
 4.4-5.4 camera 1 0 0 smooth
 0.1 cue shutter
 3.6 cue shutter
@@ -80,7 +83,8 @@ tones2 holds cup
 shot: A straggler
 length 8.5
 set den
-spark at 127 55
+spark at 131 52
+spark size 0.5 0.5
 spark blink 9 3
 chips spill 66
 // back under the roller door, slowly; a Trollogram flickers up behind the couch and shouts; tones2 sprays it, it
@@ -111,7 +115,8 @@ goon face right
 shot: The keycard
 length 5
 set den
-spark at 127 55
+spark at 131 52
+spark size 0.5 0.5
 spark blink 9 3
 // the keycard, close up: it slides up into view and flickers like the Trollograms do. tones2 is off screen, but
 // his bubble points down to where he stands.
@@ -125,7 +130,8 @@ tones2 hide
 shot: Heading out
 length 6
 set den
-spark at 127 55
+spark at 131 52
+spark size 0.5 0.5
 spark blink 9 3
 chips spill 66
 // the slushie crushed, and off he goes, out by the side door he came in by
