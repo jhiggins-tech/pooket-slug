@@ -43,7 +43,7 @@ rewrite in the crew's own voice.
 
 | Scene | Plays | About | Scene file | State |
 |---|---|---|---|---|
-| [The opening](#the-opening) | Mission one starts | 37 s | `opening.txt` | Built |
+| [The opening](#the-opening) | Mission one starts | 49 s | `opening.txt` | Built as six shots; the den and bay shots designed (2026-10-19) |
 | [The motor pool reveal](#the-motor-pool-reveal) | The first time tones2 reaches the motor pool | 24 s | `motor-pool.txt` | Built |
 | [The boss intro](#the-boss-intro) | Every boss tabk's arrival | 3 s | none: in the game itself (`BossIntroShow`) | Built |
 | [Freeing kie](#freeing-kie) | Trollogram kie beaten on foot | 28 s | `freeing-kie.txt` (shots 2 to 5) | Built |
@@ -133,13 +133,30 @@ All of Mission one is single player, so every scene here plays for one player on
 ### The opening
 
 The first cutscene, and Mission one's briefing. It plays as Mission one starts, in full the first time; after that a
-SKIP button shows from the start. About 37 seconds, six shots of 4.5 to 8.5 seconds. Approved by the owner,
-2026-10-15, then slowed down and given a narrator (the first cut ran 15 seconds and felt rushed). Nothing in it hints
-at tabks, vehicles or co-op. Intro: tones2, shot 1. Scene file: `scenes/opening.txt`.
+SKIP button shows from the start. About 49 seconds, eight shots of 4.5 to 8.5 seconds. Approved by the owner,
+2026-10-15, then slowed down and given a narrator (the first cut ran 15 seconds and felt rushed). Reworked
+2026-10-19 (opening-script): after the door, the empty den, then a run into the empty tabk bay, then back for the
+Trollogram. Intro: tones2, shot 1. Scene file: `scenes/opening.txt`.
 
-**What it teaches:** the Trollograms are the enemy and they glitch out when beaten (shot 4), tones2 sprays water,
-and the keycard's close-up makes it plain that the base is where the crew went. **What it sets up:** the empty
-hangout is the den the crew come back to as they're freed ([the lobby](lobby.md)).
+**Tabks are foreshadowed, never shown** (owner, 2026-10-19): tones2 cries out for them and finds their bay empty,
+but no tabk is on screen, and nothing says what one is. The first tabk anyone sees is still kie's, in
+[the motor pool reveal](#the-motor-pool-reveal). Nothing in it hints at vehicles you drive, or at co-op.
+
+**What it teaches:** the Trollograms are the enemy and they glitch out when beaten (shot 6), tones2 sprays water,
+and the keycard's close-up makes it plain that the base is where the crew went. **What it sets up:** the empty den
+is the one the crew come back to as they're freed, and the empty bay is where their tabks will park again
+([the lobby](lobby.md)).
+
+**New in the rework** (for the cards that follow it):
+- **Shots:** 3 and 4 are the trashed den (3 is the old "Inside, raided", now in the den), 5 is new, in the tabk bay,
+  and 6 to 8 are the old 4 to 6, with tones2 coming back in through the roller door at the start of 6.
+- **Backdrops:** the den on raid night, trashed (shots 3, 4 and 6 to 8; replaces the old hangout room;
+  opening-trashed-den-art), and the tabk bay on raid night, the bay's plate with a mess layer (shot 5;
+  opening-bay-mess-art). The street outside (shots 1 and 2) is as before.
+- **Narrator lines:** two new, `opening-3b` (shot 4) and `opening-3c` (shot 5), for opening-narration. The rest keep
+  their recordings.
+- **Staging:** tones2 runs out through the den's roller door (on the right of the ground floor), and the bay's
+  roller door is at its far left, so he comes in from the left and goes back the same way (opening-stage).
 
 ```text
 FADE IN:
@@ -185,11 +202,12 @@ SFX: the door; a static crackle on the flicker.
 
                                                    CUT TO:
 
-3. INT. THE HANGOUT - NIGHT                             5 s
+3. INT. THE DEN - NIGHT                                 5 s
 
-Trashed: the couch flipped, the gaming setup sparking,
-controllers on the floor, cyan scorch marks up the walls.
-Nobody's there.
+The den, trashed: the couch flipped, the TV and the
+console sparking, controllers on the floor, the loft's
+lights out, cyan scorch marks up the walls. Every station
+dark. Nobody's there.
 
                     NARRATOR (V.O.)
                     [opening-3]
@@ -203,7 +221,53 @@ static.
 
                                                    CUT TO:
 
-4. INT. THE HANGOUT - CONTINUOUS                        8 s
+4. INT. THE DEN - CONTINUOUS                            4.5 s
+
+His eyes go to the roller door on the right. It's been
+wrenched half up, and cold air blows under it.
+
+                    NARRATOR (V.O.)
+                    [opening-3b]
+          Then he remembers the garage.
+
+                    TONES2
+          OH NO. MY POOKET-TABKS!
+
+He runs for it, slushie still in hand, and ducks under
+the door.
+
+SFX: the roller door rattles as he ducks under.
+
+                                                   CUT TO:
+
+5. INT. THE TABK BAY - NIGHT                            6.5 s
+
+He skids in through the roller door at the far left. The
+long garage is a wreck: tools knocked off the wall, the
+crane's hook swinging over an empty repair bay, and every
+parking space on both decks empty. Tyre tracks and cyan
+Trollogram scuffs run the length of the floor to the
+street shutter, left half open on the snow.
+
+(We never see a tabk: only the spaces where they were.)
+
+SFX: the crane chain creaks; the street shutter rattles
+in the wind.
+
+                    NARRATOR (V.O.)
+                    [opening-3c]
+          Empty. Whatever was parked in here, they
+          took that too.
+
+                    TONES2
+          ...ALL OF THEM?
+
+                                                   CUT TO:
+
+6. INT. THE DEN - NIGHT                                 8.5 s
+
+tones2 walks back in through the roller door, slowly,
+into the wrecked den.
 
 A TROLLOGRAM GOON flickers up by the couch.
 
@@ -228,7 +292,7 @@ tones2 walks over and picks it up.
 
                                                    CUT TO:
 
-5. INSERT - THE KEYCARD                                 5 s
+7. INSERT - THE KEYCARD                                 5 s
 
 The room dims and the card slides up, big enough to read,
 flickering like the Trollograms do.
@@ -246,7 +310,7 @@ ACCESS: ALL AREAS
 
                                                    CUT TO:
 
-6. INT. THE HANGOUT - NIGHT                             6 s
+8. INT. THE DEN - NIGHT                                 6 s
 
 Out of the window, searchlights sweep the sky over a hill
 in the distance.
@@ -259,7 +323,7 @@ in the distance.
           RIGHT.
 
 He finishes the slushie in one go, crushes the cup, and
-walks out to the right.
+walks out of the front door into the snow.
 
 SFX: the cup crushed.
 
@@ -275,7 +339,8 @@ MUSIC: the mission start sting, into Mission one's theme.
                                            INTO: MISSION ONE
 ```
 
-**Built** (2026-10-16): `scenes/opening.txt`, as above.
+**Built** (2026-10-16): `scenes/opening.txt` plays the old six shots, in the old hangout room, without shots 4 and 5.
+The rework goes in with opening-stage, once its art and narrator lines are made.
 
 ### The motor pool reveal
 

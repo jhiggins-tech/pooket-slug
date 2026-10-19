@@ -24,7 +24,7 @@ Up: [Design](README.md)
 
 ## The plot
 
-1. **The opening:** a short scene ([the opening](cutscenes.md#the-opening)). tones2 comes back from a snack run to find the crew's hangout raided and empty, and heads in alone. Nothing in it mentions tabks.
+1. **The opening:** a short scene ([the opening](cutscenes.md#the-opening)). tones2 comes back from a snack run to find the crew's hangout raided and empty, their tabks' bay empty too, and heads in alone. It names tabks but never shows one (owner, 2026-10-19).
 2. **Mission one, the military base:** tones2 fights through the base to the motor pool. There comes the reveal ([the motor pool reveal](cutscenes.md#the-motor-pool-reveal)): the crew's stolen tabks are parked inside, and kie's tabk rolls out to fight, with a Trollogram kie at the controls. Beat the tabk, then Trollogram kie on foot, and the real kie is freed ([freeing kie](cutscenes.md#freeing-kie)).
 3. **The coda** (owner, 2026-10-16): with the last of his strength, kie frees tones2's own tabk and bows out, exhausted. tones2 calls it in for the first time and blasts his way out of the base in a short, explosive mini-level after the boss, still part of Mission one. It ends the mission and teaches the tabk.
 4. **With kie back, co-op opens,** in the den. ([Two of the crew](cutscenes.md#retired-two-of-the-crew), the title scene that announced it, is retired.)
