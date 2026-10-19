@@ -52,7 +52,7 @@ rewrite in the crew's own voice.
 | [A crewmate moves in](#a-crewmate-moves-in) | The den, after each freeing | 3 s | none yet | Designed |
 | [kie's tabk comes home](#kies-tabk-comes-home) | The tabk bay, the first visit after Mission two | 9 s | none yet | Drafted |
 | [The Mission two briefing](#the-mission-two-briefing) | Mission two starts | 24 s | none yet | Designed, narrator voiced |
-| [kcaj's tabk arrives](#kcajs-tabk-arrives) | Mission two's boss | 3 s, plus his intro | none: the boss intro (`BossIntroShow`) | Built (m2-finish): his TROLLO-KCAJ intro holds the action solo |
+| [kcaj's tabk arrives](#kcajs-tabk-arrives) | The first time the players reach the cold store | 11 s | none yet: a scene, then the boss intro | Rescripted as a reveal scene (owner, 2026-10-19); built so far as the in-play intro |
 | [Freeing kcaj](#freeing-kcaj) | Trollogram kcaj beaten on foot | 23.5 s | `scenes/freeing-kcaj.txt` | Built (m2-finish), on both phones in co-op; the cold store is drawn in code until it's painted |
 | [Two of the crew](#retired-two-of-the-crew) | Retired | 8 s | none | Retired, 2026-10-18 |
 | [The co-op check](#the-co-op-check) | `?test=scene` and CI only | 36 s | `coop-test.txt` | A test, not the story |
@@ -120,7 +120,7 @@ in [the boss intro](#the-boss-intro) instead.
 | tones2 | [The opening](#the-opening) | 1, as he strolls in with the snacks | TONES2 |
 | Trollogram kie | [The motor pool reveal](#the-motor-pool-reveal) | 3, as he pops up in the hatch | TROLLO-KIE |
 | kie | [Freeing kie](#freeing-kie) | 2, as the real kie drops to the floor | KIE |
-| Trollogram kcaj | [kcaj's tabk arrives](#kcajs-tabk-arrives), the first time | As he looks out of the hatch | TROLLO-KCAJ |
+| Trollogram kcaj | [kcaj's tabk arrives](#kcajs-tabk-arrives), shot 2 | As he rises out of the hatch | TROLLO-KCAJ |
 | kcaj | [Freeing kcaj](#freeing-kcaj) | 2, as he steps out of the frost | KCAJ |
 | Each later crewmate's Trollogram | Their mission's [boss intro](#the-boss-intro), the first time | As the pilot shows in the hatch | TROLLO-&lt;NAME&gt; |
 | Each later crewmate | Their freeing scene | As the real one appears | &lt;NAME&gt; |
@@ -444,9 +444,10 @@ mission's version names its own (kie's below, [kcaj's](#kcajs-tabk-arrives) in M
 
 - **The second time** you meet a tabk (a replay, or after a lost fight at the boss-door checkpoint), it's quick: the
   banner and siren only, with the tabk already in place, and the boss music starts at once.
-- **The pilot's intro:** from Mission two on, the first time a mission's boss intro plays, its Trollogram pilot gets
-  their [character intro](#character-intros) as the tabk stops and the hatch pops. It's the one moment the intro holds
-  the action, and it never plays again. In Mission one, Trollogram kie gets his in the motor pool reveal instead.
+- **The pilot's intro:** the first time, each boss tabk's Trollogram pilot gets their
+  [character intro](#character-intros) in a reveal scene before the boss intro, the camera pushing in on the hatch:
+  Trollogram kie in [the motor pool reveal](#the-motor-pool-reveal), Trollogram kcaj in
+  [kcaj's tabk arrives](#kcajs-tabk-arrives) (owner, 2026-10-19). The boss intro after a reveal skips the roll-out.
 - **In co-op,** the world's authority starts it and both players see it together. Nobody taps, so neither waits.
 - **When it ends:** wrecking the tabk plays a short victory sting over the boss music, which runs on through
   [the pilot round](tanks.md#the-pilot-round) and stops when the pilot glitches out.
@@ -880,45 +881,66 @@ THE CREAMERY / FIND KCAJ
 
 ### kcaj's tabk arrives
 
-Mission two's [boss intro](#the-boss-intro), with the creamery's entrance. The first time, the hatch pops as the tabk
-stops and Trollogram kcaj gets his intro: the one moment the intro holds the action. After that, it's the quick
-version.
+Mission two's reveal, like [the motor pool reveal](#the-motor-pool-reveal) in Mission one (owner, 2026-10-19,
+m2-finish: the intro should play as a scene that pushes in on the tabk, as kie's does). It plays the first time the
+players reach the loading yard before the cold store, on both phones in co-op; the [boss intro](#the-boss-intro)
+after it skips the roll-out and goes straight to the banner, the name card ("KCAJ'S TABK") and the music. Every later
+fight, a replay included, gets only the boss intro. About 11 seconds, three shots; tap moves on, and it can't be
+skipped the first time. Intro: Trollogram kcaj, shot 2. Set: the cold store (`coldstore`, its doors in the middle).
 
 ```text
-1. INT. THE CREAMERY, BEFORE THE COLD STORE (IN PLAY)   3 s,
-                                                plus the intro
+1. EXT. THE CREAMERY, THE LOADING YARD - DAY            3.5 s
 
-The screen locks.
+The players step in from the left. Ahead, the cold
+store's big freezer doors. Frost creeps out along their
+seams, and a stack of ice cream tubs beside them rattles
+in time with an engine idling somewhere inside.
 
-MUSIC: the mission's theme cuts out.
+SFX: a deep engine idle; ice cracking.
 
-SFX: a siren, twice.
+                    NARRATOR (V.O.)
+                    [m2-reveal-1]
+          The cold store. Something in there is
+          idling.
 
-SUPER (FLASHING RED, SLAMS IN): WARNING!
+                                                   CUT TO:
 
-                    ANNOUNCER (V.O.)
-          Warning!
+2. EXT. THE LOADING YARD - CONTINUOUS                   4.5 s
 
-The cold store's doors fog open, and KCAJ'S TABK rolls
-out of the mist, a cone on its antenna.
+The doors fog open. KCAJ'S TABK rolls out of the mist, a
+cone on its antenna, and stops. The camera pushes in on
+the hatch. It pops, and up comes TROLLOGRAM KCAJ: kcaj,
+but cyan and flickering, a cone in each hand.
 
-SUPER (DROPS IN UNDER THE BANNER): KCAJ'S TABK
+SFX: the doors' hiss; the engine; the hatch; static.
 
-                    ANNOUNCER (V.O.)
-          Here comes the tabk!
-
-(The first time only:) the hatch pops as it stops, and
-TROLLOGRAM KCAJ looks out, holding two cones.
-
-          INTRO: TROLLO-KCAJ
+          INTRO: TROLLO-KCAJ (builds as he rises, lands at
+          2.5 s)
 
                     TROLLOGRAM KCAJ (GLITCHY)
           YOU'RE NOT IN MY NOTES.
 
-MUSIC: the boss theme kicks in on the tabk's first shot.
+                                                   CUT TO:
 
-                                           INTO: THE FIGHT
+3. EXT. THE LOADING YARD - CONTINUOUS                   3 s
+
+He slaps a sticky note on the turret, scrawled with a
+red arrow pointing at the players, drops into the hatch,
+and it slams. The turret swings round on to them.
+
+SFX: the slam; the turret.
+
+                    NARRATOR (V.O.)
+                    [m2-reveal-2]
+          Now they are.
+
+                                INTO: THE BOSS INTRO, FROM
+                                THE WARNING (control back)
 ```
+
+**The boss intro after it** (in play, about 3 s): the screen locks, the siren, WARNING!, the announcer's "Warning!",
+KCAJ'S TABK drops in under the banner with "Here comes the tabk!", and the boss theme kicks in on the tabk's first
+shot. On a later fight the tabk rolls out of the fog in play first, as it used to, with no hatch and no intro.
 
 ### Freeing kcaj
 
