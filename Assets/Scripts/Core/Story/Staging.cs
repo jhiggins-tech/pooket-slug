@@ -51,7 +51,7 @@ namespace PooketSlug
         /// <summary>A set: its painted backdrop (drawn by the cutscene view) and the height of its floor.</summary>
         public static readonly Dictionary<string, int> Sets = new Dictionary<string, int>
         {
-            { "street", 26 }, { "den", 15 }, { "bay", 12 }, { "motorpool", 18 },
+            { "street", 34 }, { "den", 15 }, { "bay", 12 }, { "motorpool", 18 },
         };
 
         public enum Kind { Figure, Prop, Effect }
@@ -90,9 +90,9 @@ namespace PooketSlug
             new Thing("card", Kind.Prop, 0f, 0f, Cyan),
             new Thing("remote", Kind.Prop, 0f, 0f, new Color(0.9f, 0.3f, 0.3f)),
             new Thing("sign", Kind.Prop, 232f, 84f, new Color(1f, 0.55f, 0.2f)),
-            new Thing("window", Kind.Prop, 262f, 38f, Warm),
-            new Thing("door", Kind.Prop, 222f, 0f, new Color(0.42f, 0.27f, 0.2f)),
-            new Thing("doorway", Kind.Prop, 232f, 0f, Warm),
+            new Thing("window", Kind.Prop, 312f, 38f, Warm),
+            new Thing("door", Kind.Prop, 267f, 0f, White),
+            new Thing("doorway", Kind.Prop, 274f, 0f, Warm),
             new Thing("spark", Kind.Prop, 128f, 30f, Palette.Gold),
             new Thing("beacon", Kind.Prop, 94f, 108f, new Color(0.35f, 0.08f, 0.06f)),
             new Thing("clamp", Kind.Prop, 186f, 12f, Cyan, "rip"),

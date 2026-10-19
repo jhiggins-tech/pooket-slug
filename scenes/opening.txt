@@ -9,7 +9,7 @@ set street
 show sign window door snow
 // he walks on for a few seconds; his intro builds up from 1.5 s and lands at 4 s, then he walks on to the door
 intro 4 tones2: TONES2
-0-5.6 tones2 walk -16 196
+0-5.6 tones2 walk -16 244
 tones2 holds bag cup
 4.3 narrator opening-1: Friday night. tones2's back from the snack run.
 6.4 tones2: SNACKS ARE HERE LADS
@@ -18,7 +18,7 @@ shot: The door
 length 4.5
 set street
 show sign window door doorway snow
-tones2 at 206
+tones2 at 252
 tones2 holds bag cup
 // the door swings in on its hinge and sags, hanging off it, and the warm light turns cold
 0.5-0.8 door size 1 1 0.35 1
