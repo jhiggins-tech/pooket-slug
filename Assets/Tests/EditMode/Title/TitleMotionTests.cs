@@ -8,7 +8,7 @@ namespace PooketSlug.Tests
     public class TitleMotionTests
     {
         // the build's own parts file, from the project's folder (as TestScenes reads the scenes)
-        static TitleLogo Logo => TitleLogo.Parse(File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "Assets/Resources/Title/parts.txt")));
+        static TitleLogo Logo => TitleLogo.Parse(File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "Assets/Resources/Title/layout.txt")));
 
         static int Index(TitleLogo logo, string name)
         {

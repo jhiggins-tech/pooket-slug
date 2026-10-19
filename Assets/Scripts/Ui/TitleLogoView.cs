@@ -63,7 +63,7 @@ namespace PooketSlug
         /// <summary>The logo in parts under <paramref name="parent"/>, or null if this build hasn't got them.</summary>
         public static TitleLogoView Make(RectTransform parent, Vector2 middle, float width)
         {
-            TextAsset text = Resources.Load<TextAsset>("Title/parts");
+            TextAsset text = Resources.Load<TextAsset>("Title/layout");
             TitleLogo logo = text != null ? TitleLogo.Parse(text.text) : null;
             Texture2D body = Sheet("Title/parts"), shadow = Sheet("Title/parts-shadow"), gold = Sheet("Title/parts-gold");
             if (logo == null || body == null || shadow == null || gold == null)

@@ -10,7 +10,7 @@ letters hold up on the colour ramp. Writes, all PNGs as .bytes:
 - parts-shadow.bytes: each part's shadow, at the same place in its own sheet (drawn under every part, so a letter's
   shadow never darkens its neighbour);
 - parts-gold.bytes: each part's gold, white where it's bright, the glint's mask;
-- parts.txt: where each part sits in the whole logo and in the sheets (TitleLogoParts reads it).
+- layout.txt: where each part sits in the whole logo and in the sheets (TitleLogo reads it; not "parts.txt": Resources finds files by name alone, so it would clash with parts.bytes).
 Needs Pillow and numpy.
 """
 import os
@@ -157,7 +157,7 @@ def main(src_path, out_dir):
     for c in cut:
         w, h = c["body"].size
         lines.append(f"{c['name']} {c['x']} {c['y']} {w} {h} {c['u']} {c['v']}")
-    with open(os.path.join(out_dir, "parts.txt"), "w") as f:
+    with open(os.path.join(out_dir, "layout.txt"), "w") as f:
         f.write("# The title logo's parts (tools/title_logo.py): name, place in the whole logo (x y, from its top left),\n"
                 "# size (w h) and place in the parts sheets (u v, from their top left), in pixels.\n")
         f.write("\n".join(lines) + "\n")

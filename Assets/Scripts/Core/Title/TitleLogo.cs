@@ -4,7 +4,7 @@ using System.Globalization;
 namespace PooketSlug
 {
     /// <summary>
-    /// The title logo's parts (<c>Resources/Title/parts.txt</c>, made by <c>tools/title_logo.py</c>): the ten letters
+    /// The title logo's parts (<c>Resources/Title/layout.txt</c>, made by <c>tools/title_logo.py</c>): the ten letters
     /// and the tabk, cut apart so they can move on their own, where each sits in the whole logo and in the parts sheets.
     /// All in pixels, from the top left; every part carries the same padding round it as the whole logo has.
     /// </summary>
