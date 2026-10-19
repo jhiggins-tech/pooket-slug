@@ -41,15 +41,34 @@ namespace PooketSlug
 
         // ------------------------------------------------------------------ made in drawing order (CutsceneView)
 
-        /// <summary>The hangout's window, sign and doors.</summary>
+        /// <summary>The hangout's window, sign and doors. On Design's street plate (<see cref="CutsceneBackdrops"/>) the door is
+        /// cut from the plate, so it swings off its painted frame, and the window is its lit panes, so they take the script's
+        /// colour; the plate paints the sign itself, so the words stay off.</summary>
         public void MakeHangout()
         {
-            Prop("window", 28f, 20f);
+            Sprite glow = DenRoom.Painting("street-glow"), door = DenRoom.Painting("street-door");
+            m_Painted = glow != null && door != null;
+            if (m_Painted) PaintedProp("window", glow, glow.rect.width, glow.rect.height);
+            else Prop("window", 28f, 20f);
             m_Sign = Ui.Label(m_World, "sign", Vector2.zero, Vector2.zero, 20, TextAnchor.MiddleCenter, Color.white);
             m_Sign.text = "POOKET";
-            Prop("doorway", 20f, 40f);
-            Prop("door", 20f, 40f).rectTransform.pivot = new Vector2(0f, 0f); // it swings on its hinge, on the left
+            if (m_Painted)
+            {
+                Prop("doorway", door.rect.width, door.rect.height);
+                PaintedProp("door", door, door.rect.width, door.rect.height);
+            }
+            else
+            {
+                Prop("doorway", 20f, 40f);
+                Prop("door", 20f, 40f);
+            }
+            m_Props["door"].rectTransform.pivot = new Vector2(0f, 0f); // it swings on its hinge, on the left
         }
+
+        bool m_Painted;
+
+        /// <summary>A prop that's a picture: placed and tinted by the script like a plain one.</summary>
+        void PaintedProp(string name, Sprite sprite, float w, float h) => m_Props[name] = Picture(name, sprite, 0f, 0f, w, h, Staging.Things[name].Colour);
 
         /// <summary>kcaj's corner of the den, his string board on the wall: the den's own layer for it (<see cref="DenRoom"/>).</summary>
         public void MakeKcajCorner()
@@ -143,7 +162,7 @@ namespace PooketSlug
         /// <summary>The hangout's sign: words, not a picture.</summary>
         void Sign(ShotStage stage, float t, float now, float ground)
         {
-            bool on = stage.Shown("sign", t);
+            bool on = stage.Shown("sign", t) && !m_Painted;
             Ui.Show(m_Sign, on);
             if (!on) return;
             Vector2 at = stage.Where("sign", t, now);
