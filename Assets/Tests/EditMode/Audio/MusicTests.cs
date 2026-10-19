@@ -5,6 +5,16 @@ namespace PooketSlug.Tests
     public class MusicTests
     {
         [Test]
+        public void TheDenHasItsOwnTheme_QuieterThanTheTitles_AndTheTitleThemeStaysOnTheSplash()
+        {
+            Assert.AreEqual(MusicTracks.DenRecording, MusicTracks.MenuRecording(splash: false, den: true));
+            Assert.AreEqual(MusicTracks.TitleRecording, MusicTracks.MenuRecording(splash: true, den: false));
+            Assert.IsNull(MusicTracks.MenuRecording(splash: false, den: false), "cutscenes, missions, the debrief");
+            Assert.AreEqual(0.5f, MusicTracks.Level(MusicTracks.DenRecording) / MusicTracks.Level(MusicTracks.TitleRecording), 1e-4f, "about half");
+            Assert.That(MusicTracks.MenuDip, Is.GreaterThan(0.3f).And.LessThan(1f), "a little quieter, not gone");
+        }
+
+        [Test]
         public void NotesReadAsMidi()
         {
             Assert.AreEqual(60, Notation.PitchOf("c4"));

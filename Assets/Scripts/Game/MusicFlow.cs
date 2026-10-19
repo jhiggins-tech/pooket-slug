@@ -2,7 +2,7 @@ namespace PooketSlug
 {
     /// <summary>
     /// The music as the game plays out (<c>docs/design/music.md</c>), solo and in co-op alike (each phone follows its own
-    /// screen): the title theme on the splash and in the den, the start sting into the mission's theme, cut at the boss's
+    /// screen): the title theme on the splash, the den's own theme in the den, the start sting into the mission's theme, cut at the boss's
     /// screen lock, the boss theme from its first shot, a victory sting into the pilot round's final section, the tabk
     /// alert for the coda, the continue countdown, mission complete into the debrief's loop, and the game over sting.
     /// When it changes mid-mission is <see cref="Soundtrack"/>'s rule.
@@ -26,13 +26,18 @@ namespace PooketSlug
         }
 
         /// <summary>
-        /// Each frame: the title theme loops while the splash, the settings over it or the den is up, and fades as
-        /// they're left (<c>docs/design/music.md</c>, The title theme).
+        /// Each frame: the title theme loops while the splash or the settings over it is up, and the den's theme while the
+        /// den is, quieter and dipping under a menu over it (<see cref="MusicTracks.MenuRecording"/>). Each fades as it's
+        /// left, and going between them, one fades out before the other starts (<c>docs/design/music.md</c>).
         /// </summary>
-        public void Title(bool showing)
+        public void Menus(bool splash, bool den, bool menuOpen)
         {
-            if (showing) Music.Loop(MusicTracks.TitleRecording);
-            else if (Music.Recording == MusicTracks.TitleRecording) Music.Stop(fade: true);
+            string want = MusicTracks.MenuRecording(splash, den);
+            Music.Dip = den && menuOpen ? MusicTracks.MenuDip : 1f;
+            string playing = Music.Recording;
+            bool ours = playing == MusicTracks.TitleRecording || playing == MusicTracks.DenRecording;
+            if (ours && playing != want) Music.Stop(fade: true);
+            else if (want != null && !Music.Fading) Music.Loop(want); // over the debrief's loop too, back in the den
         }
 
         /// <summary>A mission starting (or restarting, or joined in co-op): the start sting, then the mission's theme.</summary>

@@ -9,7 +9,8 @@ namespace PooketSlug
     /// track rendered on the chip synth the first time it's wanted (<see cref="MusicRender"/>). It sits under the sound
     /// effects, and goes quiet while paused. A track can have a layer, a recording of the same notes in step with it
     /// (the boss's final section played by an orchestra, from the vendor repository's CI into <c>Resources/Music</c>),
-    /// which it crossfades to after a while; or a recording can loop on its own (the title theme, <see cref="Loop"/>).
+    /// which it crossfades to after a while; or a recording can loop on its own (the title theme and the den's, <see cref="Loop"/>),
+    /// at its own level, dipping under a menu (<see cref="Dip"/>).
     /// First cut: only the title theme and <c>?spike=music</c> play anything.
     /// </summary>
     public static class Music
@@ -30,6 +31,10 @@ namespace PooketSlug
         static bool s_Muted, s_Paused;
         /// <summary>Seconds left of a blast's dip, and the dip as it stands (1: none).</summary>
         static float s_DuckFor, s_Duck = 1f;
+        /// <summary>The recording's own level (<see cref="MusicTracks.Level"/>), and the dip under a menu: wanted and as it stands.</summary>
+        static float s_Level = 1f, s_DipTo = 1f, s_Dip = 1f;
+        /// <summary>How fast a menu's dip goes down and comes back.</summary>
+        const float DipSpeed = 1.6f;
 
         /// <summary>The track playing, or null.</summary>
         public static MusicTrack Playing => s_Playing;
@@ -60,6 +65,16 @@ namespace PooketSlug
             }
         }
         static float s_Gain = 1f;
+
+        /// <summary>How far the music dips under a menu (1: not at all); it fades there.</summary>
+        public static float Dip
+        {
+            get => s_DipTo;
+            set => s_DipTo = value;
+        }
+
+        /// <summary>Fading out after <see cref="Stop"/>.</summary>
+        public static bool Fading => s_Fade >= 0f;
 
         public static bool Paused
         {
@@ -134,6 +149,7 @@ namespace PooketSlug
             if (clip == null) return;
             s_Playing = track;
             s_Recording = null;
+            s_Level = 1f;
             s_Fade = -1f;
             s_Loop.Stop();
             s_Loop.clip = clip;
@@ -165,6 +181,7 @@ namespace PooketSlug
             if (clip == null) return;
             s_Playing = null;
             s_Recording = id;
+            s_Level = MusicTracks.Level(id);
             s_Fade = -1f;
             s_CrossIn = -1f;
             s_Mix = 0f;
@@ -222,6 +239,7 @@ namespace PooketSlug
             s_DuckFor = Mathf.Max(0f, s_DuckFor - dt);
             float duck = s_DuckFor > 0f || Sfx.Speaking ? DuckedTo : 1f;
             s_Duck = Mathf.MoveTowards(s_Duck, duck, (duck < s_Duck ? DuckDown : DuckUp) * dt);
+            s_Dip = Mathf.MoveTowards(s_Dip, s_DipTo, DipSpeed * dt);
             if (s_CrossIn >= 0f)
             {
                 float was = s_CrossIn;
@@ -251,7 +269,7 @@ namespace PooketSlug
         {
             if (s_Loop == null) return;
             float level = (s_Paused ? PausedVolume : Volume) * s_Duck * s_Gain;
-            float v = level * (s_Fade >= 0f ? s_Fade / FadeTime : 1f);
+            float v = level * s_Level * s_Dip * (s_Fade >= 0f ? s_Fade / FadeTime : 1f);
             s_Loop.volume = v * (1f - s_Mix);
             if (s_Layer != null) s_Layer.volume = v * s_Mix;
             if (s_Sting != null) s_Sting.volume = level;

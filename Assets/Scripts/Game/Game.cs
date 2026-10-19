@@ -555,7 +555,8 @@ namespace PooketSlug
             m_StateTime += dt;
             Music.Tick(dt);
             // the title's music starts with the logo's shot (title-logo-animation, S3)
-            MissionMusic.Title((m_State == GameState.Title && m_Menu.TitleMusicDue) || m_State == GameState.Settings || m_State == GameState.Den || m_State == GameState.Lobby);
+            MissionMusic.Menus((m_State == GameState.Title && m_Menu.TitleMusicDue) || m_State == GameState.Settings,
+                m_State == GameState.Den || m_State == GameState.Lobby, Kit.Open || Board.Open);
             Music.Paused = m_Paused;
 
             m_Frames++;
