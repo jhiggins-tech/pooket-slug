@@ -62,11 +62,11 @@ namespace PooketSlug.Tests
         }
 
         [Test]
-        public void ThePartnerArrowIsASpike()
+        public void ThePartnerArrowAndOwnScoresAreNoLongerSpikes()
         {
-            Spike.Configure(Page + "?spike=partner");
-            Assert.IsTrue(Spike.Partner);
-            Assert.AreEqual("SPIKE TEST · PARTNER ARROW", Spike.Label);
+            Spike.Configure(Page + "?spike=partner,dropin"); // both are in the game for everyone now (coop-arrow-score)
+            Assert.IsFalse(Spike.Any);
+            Assert.IsNull(Spike.Label);
         }
 
         [Test]

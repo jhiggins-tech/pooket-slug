@@ -3,7 +3,7 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// Spike coop-camera (<c>?spike=partner</c>): your partner is always easy to find (player.md, Co-op). An arrow at the
+    /// The partner beacon (spike coop-camera, in the game since 19 Oct): your partner is always easy to find (player.md, Co-op). An arrow at the
     /// screen's edge points at a partner who's off it, and their tag warns when their health is low or they've switched
     /// away from the game. The rules are here; <c>HudView</c> draws them and <see cref="Presence"/> works out "away".
     /// </summary>
@@ -100,33 +100,5 @@ namespace PooketSlug
         /// <summary>Where the scroll wants to be, for a shared view <paramref name="halfWidth"/> wide each side.</summary>
         public float Desired(float halfWidth) =>
             Mathf.Min(m_Lead + Tuning.Camera.LookAhead, m_Trail - Tuning.Coop.TrailMargin + halfWidth);
-    }
-
-    /// <summary>
-    /// A pretend partner for trying the beacon alone (<c>?spike=partner</c> in a solo game): it goes through a loop near
-    /// your soldier, on screen, off to the right, left behind, up high; its health drops and it switches away on the way.
-    /// </summary>
-    public static class PartnerGhost
-    {
-        public const float Loop = 20f;
-
-        public struct State
-        {
-            public Vector2 Pos;
-            public int Hp, MaxHp;
-            public bool Away;
-        }
-
-        public static State At(float t, Vector2 player, float halfView)
-        {
-            float u = Mathf.Repeat(t, Loop);
-            var s = new State { MaxHp = 5, Hp = 5, Pos = player + new Vector2(2f, 0f) };
-            if (u < 4f) { }                                                          // beside you
-            else if (u < 8f) s.Pos = player + new Vector2(halfView + 4f + (u - 4f) * 2f, 0f); // run off ahead
-            else if (u < 12f) { s.Pos = player + new Vector2(-halfView - 6f, 0f); s.Hp = 1; } // left behind and hurt
-            else if (u < 16f) { s.Pos = player + new Vector2(1f, 0f); s.Hp = 2; s.Away = true; } // beside you, switched away
-            else { s.Pos = player + new Vector2(halfView * 0.6f, 14f); s.Away = true; }     // up off the top, still away
-            return s;
-        }
     }
 }

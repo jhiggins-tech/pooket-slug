@@ -18,21 +18,5 @@ namespace PooketSlug.Tests
         [TestCase(-5, "000000")]
         [TestCase(12345678, "999999")]
         public void ScoresFitTheHud(int points, string shown) => Assert.AreEqual(shown, DropIn.Points(points));
-
-        [Test]
-        public void TheOwnScoresSpikeIsItsOwn()
-        {
-            Spike.Configure("https://x/?spike=dropin");
-            try
-            {
-                Assert.IsTrue(Spike.DropIn);
-                Assert.IsFalse(Spike.Partner);
-                Assert.AreEqual("SPIKE TEST · OWN SCORES", Spike.Label);
-            }
-            finally
-            {
-                Spike.Configure("https://x/");
-            }
-        }
     }
 }

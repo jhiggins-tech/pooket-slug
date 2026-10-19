@@ -5,7 +5,7 @@
 //                        the round's room, and B joins (H).
 //   boss mode:           as code mode, but both start at the boss (?test=boss) and fight it: B must see the boss
 //                        tank's turret and shots from A's world. Nobody leaves.
-//   dropin mode:         spike drop-in: A starts alone and fights its way in, then B joins the mission under way. B
+//   dropin mode:         A starts alone and fights its way in, then B joins the mission under way. B
 //                        must drop in partway with its own lives and a score of its own at 0, both play on, and
 //                        (reported, not required: kills aren't certain) each sees the other's own score. Nobody leaves.
 //   handover mode:       rooms: as code mode, then A's page stalls for 32 s (its main thread held busy, as a phone
@@ -33,7 +33,7 @@ const { chromium } = require(process.env.PW_PATH || 'playwright');
 const [base, out, mode = 'code'] = process.argv.slice(2);
 const BOSS = mode === 'boss', SCENE = mode === 'scene', DROPIN = mode === 'dropin', HANDOVER = mode === 'handover', WATCH = mode === 'watch';
 const ROOM = 'CI' + Math.random().toString(36).slice(2, 8).toUpperCase(); // this round's room
-const url = base + (base.includes('?') ? '&' : '?') + 'room=' + ROOM + '&unlock=coop&test=' + (BOSS ? 'boss' : SCENE ? 'crate,scene' : 'crate') + (DROPIN ? '&spike=dropin,partner' : '');
+const url = base + (base.includes('?') ? '&' : '?') + 'room=' + ROOM + '&unlock=coop&test=' + (BOSS ? 'boss' : SCENE ? 'crate,scene' : 'crate');
 fs.mkdirSync(out, { recursive: true });
 const T0 = Date.now();
 const t = () => ((Date.now() - T0) / 1000).toFixed(1).padStart(6);

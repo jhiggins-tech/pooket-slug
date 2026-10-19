@@ -58,11 +58,11 @@ namespace PooketSlug
             else if (w.IsAuthority)
             {
                 // Follow the leading soldier, but never push the trailing one off the left edge (ScrollHold). A downed
-                // soldier doesn't hold it, nor (spike coop-camera) does one who's switched away.
+                // soldier doesn't hold it, nor does one who's switched away (PartnerBeacon).
                 var hold = new ScrollHold();
                 if (!player.IsDown) hold.Add(player.Pos.x);
                 foreach (RemotePlayer r in w.Remotes)
-                    if (!r.IsDown && !(Spike.Partner && r.Away)) hold.Add(r.Pos.x);
+                    if (!r.IsDown && !r.Away) hold.Add(r.Pos.x);
                 if (hold.Any)
                 {
                     float desired = hold.Desired(h);
