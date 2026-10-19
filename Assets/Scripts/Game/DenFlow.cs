@@ -6,7 +6,8 @@ namespace PooketSlug
     /// <summary>
     /// The lobby's flow, the crew's den (<c>docs/design/lobby.md</c>, Den 2.0): once the crew's open, START, CREW and co-op
     /// go through it. Walking your soldier round it (the places are the menu), swapping to a crewmate, the couch and
-    /// READY, the invite, hosting, and in a co-op room the partner's seat and the countdown, then the mission.
+    /// READY, the invite, hosting, and in a co-op room the partner's seat and the countdown, then the mission. As it
+    /// opens, any of its beats due play first (<see cref="DenBeats"/>: the first visit, a crewmate moving in).
     /// </summary>
     public sealed class DenFlow
     {
@@ -14,6 +15,8 @@ namespace PooketSlug
         readonly DenView m_View;
         readonly RollerDoor m_Door = new RollerDoor();
         Den m_Den;
+        List<DenBeat> m_Beats = new List<DenBeat>();
+        DenBeat m_Beat;
 
         public DenFlow(Game game, Transform parent)
         {
@@ -32,9 +35,58 @@ namespace PooketSlug
             m_ToCouch = false;
             m_HeldDir = 0;
             m_Door.Reset();
+            m_Beat = null;
             m_View.Begin(m_Den, InfoNow());
             m_Game.SetState(GameState.Den);
             Log.Game.Info("Den open: " + mode + ", on the couch: " + (m_Den.Pick?.Name ?? "nobody"));
+            // a ?test= jump is checking something else: no beats in its way
+            m_Beats = m_Game.Flags.Testing ? new List<DenBeat>() : DenBeats.Due(m_Game.Profile, m_Game.Freed, mode);
+            NextBeat();
+        }
+
+        /// <summary>The next of the den's beats due, if there is one.</summary>
+        void NextBeat()
+        {
+            m_Beat = null;
+            if (m_Beats.Count == 0) return;
+            m_Beat = m_Beats[0];
+            m_Beats.RemoveAt(0);
+            m_View.PlayBeat(m_Beat);
+            Log.Game.Info("Den beat: " + (m_Beat.Kind == DenBeatKind.FirstVisit ? "the first visit" : m_Beat.Newcomer.Name + " moves in"));
+            if (m_Beat.Kind == DenBeatKind.MoveIn) Sfx.Play(Sfx.Servo, 0.7f); // the roller door rattles up
+        }
+
+        /// <summary>The beat playing moves on, with its sounds; once it's done (or skipped) it's kept as played, and the next one's up.</summary>
+        void Beat(float dt)
+        {
+            DenBeat b = m_Beat;
+            b.Tick(dt);
+            if (b.Kind == DenBeatKind.FirstVisit)
+            {
+                if (b.Passed(DenBeat.HeaveTo, dt)) Sfx.Play(Sfx.Thump, 0.7f); // the couch lands back on its feet
+                if (b.Passed(DenBeat.PlugTo, dt)) Sfx.Play(Sfx.CableClunk, 0.6f);
+                if (b.Passed(DenBeat.WarmFrom, dt)) Sfx.Play(Sfx.Charge, 0.35f); // the lamps, the string lights, the screens
+            }
+            else
+            {
+                if (b.Passed(DenBeat.LitAt, dt)) Sfx.Play(Sfx.CableClunk, 0.6f); // a chip clunk: their corner lights up
+                if (b.Passed(DenBeat.DownFrom, dt)) Sfx.Play(Sfx.Servo, 0.5f);
+            }
+            if (!b.Done) return;
+            Game g = m_Game;
+            if (DenBeats.Played(g.Profile, b)) g.Store.Save(g.Profile);
+            m_View.EndBeat(b);
+            Log.Game.Info("Den beat done");
+            NextBeat();
+        }
+
+        /// <summary>A tap, a key or a button while a beat plays skips it (and does nothing else).</summary>
+        void SkipBeat(MenuInput keys, SoldierInput soldier)
+        {
+            bool any = m_View.TakeBack() | m_View.TakeKit() | m_View.TakeHost() | m_View.TakeInvite() | m_View.TakePick() != null
+                | m_View.TakePlace() != DenPlace.None | m_View.TakeWalk(out _, out _) | m_View.TakeReady() | m_View.TakeReached() != DenPlace.None;
+            any |= keys.Back || keys.Start || keys.Host || soldier.FirePressed || soldier.JumpPressed || soldier.SpecialPressed || soldier.AbilityPressed;
+            if (any && m_Game.StateTime > 0.3f) m_Beat.Skip(); // not the START that opened the den
         }
 
         DenInfo InfoNow()
@@ -51,7 +103,7 @@ namespace PooketSlug
                 Watchers = coop ? g.Net.Watchers : 0,
                 CanHost = g.CoopReady && m_Den.Mode == DenMode.Solo,
                 Skin = coop ? g.Net.Link.LocalSkin : 0,
-                DoorLift = m_Door.Lift,
+                DoorLift = Mathf.Max(m_Door.Lift, m_Beat?.DoorLift ?? 0f), // the roller door's rolled up for someone moving in
                 DoorThrough = m_Door.Through,
             };
         }
@@ -67,6 +119,11 @@ namespace PooketSlug
             Game g = m_Game;
             bool coop = m_Den.Mode == DenMode.Coop;
             if (coop && !g.CoopAlive()) return;
+            if (m_Beat != null)
+            {
+                SkipBeat(keys, soldier);
+                return;
+            }
             if (m_View.TakeBack() || keys.Back)
             {
                 Log.Game.Info("Den left");
@@ -289,6 +346,7 @@ namespace PooketSlug
                 g.Net.Link.SendSceneVersions(scenes.Versions);
             }
             Door(dt);
+            if (m_Beat != null) Beat(dt);
             m_View.Refresh(dt, m_Den, InfoNow());
             if (!m_Den.Go || g.Kit.Open || g.Board.Open || g.Bay.Open) return;
             m_View.Hide();
