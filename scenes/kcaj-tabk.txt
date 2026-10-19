@@ -18,7 +18,7 @@ tub shake 1
 0.4 frost show
 0.2 cue engine
 0.4 cue frost
-0.4 narrator: The cold store. Something in there is idling.
+0.4 narrator m2-reveal-1: The cold store. Something in there is idling.
 
 shot: The hatch
 length 5
@@ -74,4 +74,4 @@ kcaj at 214 12
 0.85 kcaj hide
 0.9 cue slam
 1.2 cue turret
-1.6 narrator: Now they are.
+1.6 narrator m2-reveal-2: Now they are.
