@@ -18,6 +18,37 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void KcajTeamsWithBothOfTheOthers()
+        {
+            Assert.AreSame(TeamSupers.MentosAndCola, TeamSupers.For(Content.Kcaj, Content.Tones2));
+            Assert.AreSame(TeamSupers.MentosAndCola, TeamSupers.For(Content.Tones2, Content.Kcaj));
+            Assert.AreSame(TeamSupers.PillWeasels, TeamSupers.For(Content.Kcaj, Content.Kie));
+            Assert.AreSame(TeamSupers.PillWeasels, TeamSupers.For(Content.Kie, Content.Kcaj));
+            Assert.AreEqual("MENTOS AND COLA", TeamSupers.MentosAndCola.Name);
+            Assert.AreEqual("PILL WEASELS", TeamSupers.PillWeasels.Name);
+            Assert.IsNull(TeamSupers.For(Content.Kcaj, Content.Kcaj));
+        }
+
+        [Test]
+        public void ComboNumbersNeverChange()
+        {
+            // The number crosses the network with the press: never change or reuse one.
+            Assert.AreEqual(1, TeamSupers.SewerRats.Id);
+            Assert.AreEqual(2, TeamSupers.MentosAndCola.Id);
+            Assert.AreEqual(3, TeamSupers.PillWeasels.Id);
+            foreach (TeamCombo c in TeamSupers.All) Assert.AreSame(c, TeamSupers.ById(c.Id), c.Name);
+        }
+
+        [Test]
+        public void EveryFreedPairHasACombo()
+        {
+            // the first three crewmates make three pairs, and each is built
+            for (int i = 0; i < Crew.All.Count; i++)
+                for (int j = i + 1; j < Crew.All.Count; j++)
+                    Assert.IsNotNull(TeamSupers.For(Crew.All[i].Soldier, Crew.All[j].Soldier), Crew.All[i].Name + " + " + Crew.All[j].Name);
+        }
+
+        [Test]
         public void NoComboNoTeamSuper()
         {
             Assert.IsNull(TeamSupers.For(Content.Kie, Content.Kie), "the same soldier twice");

@@ -43,6 +43,9 @@ namespace PooketSlug
             spin: ProjectileSpin.None);
         public static readonly ProjectileDef HurledScoop = new ProjectileDef(13, "Hurled scoop", radius: 0.35f, damage: 1, life: 4f, gravity: 18f,
             blastRadius: 1.3f, blastSize: 1f, spin: ProjectileSpin.Tumble);
+        /// <summary>kcaj's ice cream cone (Double Park): lobbed in an arc, nose first, and it splats on whatever it lands on.</summary>
+        public static readonly ProjectileDef Cone = new ProjectileDef(14, "Cone", radius: 0.2f, damage: 2, life: 3f, gravity: KcajTuning.Cones.Gravity,
+            blastRadius: 0.9f, blastSize: 0.6f);
 
         // ------------------------------------------------------------------ weapons
         // Ids 0-5 are the byte the projectile enum used to send for the same shot.
@@ -91,6 +94,12 @@ namespace PooketSlug
         public static readonly WeaponDef GoonGrenadeThrow = new WeaponDef(21, "Goon grenade", WeaponBehaviour.Lob, GoonGrenade);
         public static readonly WeaponDef ScoopSlam = new WeaponDef(22, "Scoop slam", WeaponBehaviour.Bullet, ScoopWave, speed: 8f, kick: 0.25f);
         public static readonly WeaponDef ScoopHurl = new WeaponDef(23, "Scoop hurl", WeaponBehaviour.Lob, HurledScoop);
+        // kcaj's kit (KcajKit.cs, numbers in KcajTuning). Double Park throws two cones at once (DoubleParkSpec); the beam
+        // and the pills aren't projectiles, so they go to a partner as kit moves.
+        public static readonly WeaponDef DoublePark = new WeaponDef(24, "Double Park", WeaponBehaviour.Lob, Cone, cooldown: KcajTuning.Cones.Cooldown,
+            throwVelocity: new Vector2(8f, 7f), carry: KcajTuning.Cones.Carry, hud: "CONES");
+        public static readonly WeaponDef Hyperfixate = new WeaponDef(25, "Hyperfixate", WeaponBehaviour.Hyperfixate, null, hud: "FIXATE");
+        public static readonly WeaponDef Unmedicated = new WeaponDef(26, "Unmedicated", WeaponBehaviour.Unmedicated, null, hud: "PILLS");
 
         /// <summary>How Mission one's boss tank fights.</summary>
         public static readonly BossTankSpec BossTank = new BossTankSpec();
@@ -163,18 +172,26 @@ namespace PooketSlug
         public static readonly SoldierDef Kie = new SoldierDef(2, "kie", primary: WeaselPop, special: Trollogram,
             startSpecials: Tuning.Kit.SpecialCharges, specialMax: Tuning.Kit.SpecialCharges, specialRefill: Tuning.Kit.SpecialRefill, super: Steal);
 
+        /// <summary>
+        /// kcaj, freed by clearing Mission two (<c>docs/design/kits.md</c>): Double Park, Hyperfixate and Unmedicated. The beam is
+        /// a strong special, so a bomb crate gives about 3 of it.
+        /// </summary>
+        public static readonly SoldierDef Kcaj = new SoldierDef(3, "kcaj", primary: DoublePark, special: Hyperfixate,
+            startSpecials: KcajTuning.Beam.Charges, specialMax: KcajTuning.Beam.Charges, specialRefill: KcajTuning.Beam.RechargeTime,
+            super: Unmedicated, crateSpecials: 3);
+
         // ------------------------------------------------------------------ lookups (after the definitions: statics initialise in order)
 
         public static readonly IReadOnlyList<ProjectileDef> Projectiles = ById(p => p.Id, Bullet, HeavyBullet, EnemyBullet, Shell, Grenade, Bomb, BigShell, Knife, StolenShell,
-            PlayerTankShellShot, PlayerTankMortarShot, GoonGrenade, ScoopWave, HurledScoop);
+            PlayerTankShellShot, PlayerTankMortarShot, GoonGrenade, ScoopWave, HurledScoop, Cone);
         public static readonly IReadOnlyList<WeaponDef> Weapons = ById(w => w.Id, Pistol, HeavyMachineGun, Rifle, Cannon, GrenadeThrow, DroneBomb, TankGun,
             WaterJet, RocketJump, Spew, BossCannon, WeaselPop, Trollogram,
             Steal, StolenRifle, StolenKnives, StolenBombs, StolenCannon, PlayerTankCannon, PlayerTankMortar, TeamSuper,
-            GoonGrenadeThrow, ScoopSlam, ScoopHurl);
+            GoonGrenadeThrow, ScoopSlam, ScoopHurl, DoublePark, Hyperfixate, Unmedicated);
         public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank, Barrel, Weasel, TankCopy, Pilot, PilotDecoy, ToppleTower, ExitGate, ConeBox, NitrogenTank,
             ShieldSoldier, Grenadier, BigScoop, Projector);
         public static readonly IReadOnlyList<PickupDef> Pickups = ById(p => p.Id, HeavyMachineGunCrate, BombCrate, Medkit, OneUp);
-        public static readonly IReadOnlyList<SoldierDef> Soldiers = ById(s => s.Id, Trooper, Tones2, Kie);
+        public static readonly IReadOnlyList<SoldierDef> Soldiers = ById(s => s.Id, Trooper, Tones2, Kie, Kcaj);
 
         /// <summary>The weapon with this id, or null for an id no weapon has (say, from a different build).</summary>
         public static WeaponDef Weapon(int id) => id >= 0 && id < Weapons.Count ? Weapons[id] : null;

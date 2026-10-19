@@ -54,14 +54,11 @@ namespace PooketSlug.Tests
         }
 
         [Test]
-        public void KcajsSpikeIsItsOwn()
+        public void KcajsSpikeIsRetired()
         {
-            Spike.Configure(Page + "?spike=kcaj");
-            Assert.IsTrue(Spike.Kcaj);
-            Assert.IsFalse(Spike.Craters || Spike.Partner);
-            Assert.AreEqual("SPIKE TEST · KCAJ: HYPERFIXATE + UNMEDICATED", Spike.Label);
-            Spike.Configure(Page);
-            Assert.IsFalse(Spike.Kcaj);
+            Spike.Configure(Page + "?spike=kcaj"); // his special and super are his own kit's now (kcaj-kit)
+            Assert.IsFalse(Spike.Any);
+            Assert.IsNull(Spike.Label);
         }
 
         [Test]

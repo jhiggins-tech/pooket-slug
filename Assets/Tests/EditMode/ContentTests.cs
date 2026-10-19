@@ -26,6 +26,10 @@ namespace PooketSlug.Tests
             Assert.AreEqual(21, Content.GoonGrenadeThrow.Id);
             Assert.AreEqual(22, Content.ScoopSlam.Id);
             Assert.AreEqual(23, Content.ScoopHurl.Id);
+            Assert.AreEqual(24, Content.DoublePark.Id);
+            Assert.AreEqual(25, Content.Hyperfixate.Id);
+            Assert.AreEqual(26, Content.Unmedicated.Id);
+            Assert.AreEqual(14, Content.Cone.Id, "Double Park's cone rides the network by its id too");
         }
 
         [Test]
@@ -155,6 +159,8 @@ namespace PooketSlug.Tests
             Assert.AreSame(Content.Tones2, Content.Soldier(1));
             Assert.AreEqual(2, Content.Kie.Id);
             Assert.AreSame(Content.Kie, Content.Soldier(2));
+            Assert.AreEqual(3, Content.Kcaj.Id);
+            Assert.AreSame(Content.Kcaj, Content.Soldier(3));
             Assert.IsNull(Content.Soldier(-1));
             Assert.IsNull(Content.Soldier(Content.Soldiers.Count));
         }
@@ -200,8 +206,8 @@ namespace PooketSlug.Tests
                 bool pours = w.Behaviour == WeaponBehaviour.Jet || w.Behaviour == WeaponBehaviour.RocketJump || w.Behaviour == WeaponBehaviour.Spew;
                 if (pours) Assert.IsNull(w.Projectile, w.Name + ": tones2's kit fires no projectile");
                 else if (w.Behaviour == WeaponBehaviour.Weasels || w.Behaviour == WeaponBehaviour.Trollogram || w.Behaviour == WeaponBehaviour.Steal
-                    || w.Behaviour == WeaponBehaviour.TeamSuper)
-                    Assert.IsNull(w.Projectile, w.Name + ": weasels and holograms aren't projectiles");
+                    || w.Behaviour == WeaponBehaviour.TeamSuper || w.Behaviour == WeaponBehaviour.Hyperfixate || w.Behaviour == WeaponBehaviour.Unmedicated)
+                    Assert.IsNull(w.Projectile, w.Name + ": weasels, holograms, the beam and the pills aren't projectiles");
                 else Assert.AreSame(w.Projectile, Content.Projectiles[w.Projectile.Id], w.Name);
             }
         }

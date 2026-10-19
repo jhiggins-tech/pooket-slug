@@ -71,6 +71,10 @@ namespace PooketSlug
         Steal,
         /// <summary>A team super (<see cref="TeamSupers"/>): not fired as a weapon; its number carries the combo to the partner.</summary>
         TeamSuper,
+        /// <summary>kcaj's Hyperfixate: a beam that sticks to the first thing it touches and burns it while SP is held (<see cref="HyperfixateSpec"/>).</summary>
+        Hyperfixate,
+        /// <summary>kcaj's Unmedicated: pills rain across the whole screen, bounce and pop on goons (<see cref="UnmedicatedSpec"/>).</summary>
+        Unmedicated,
     }
 
     /// <summary>A weapon: what it fires, and how. Shots are replicated by weapon id.</summary>

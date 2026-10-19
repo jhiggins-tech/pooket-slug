@@ -455,10 +455,18 @@ namespace PooketSlug
             }
             ready = TestTeam && !Coop;
             if (!ready) return null;
+            // the stand-in takes turns as each partner our soldier has a combo with, a go each
+            int pairs = 0;
             foreach (TeamCombo c in TeamSupers.All)
-                if (c.Other(Player.Def) != null) return c.Other(Player.Def);
+                if (c.Other(Player.Def) != null) pairs++;
+            if (pairs == 0) return null;
+            int pick = m_TestTeamGoes % pairs;
+            foreach (TeamCombo c in TeamSupers.All)
+                if (c.Other(Player.Def) != null && pick-- == 0) return c.Other(Player.Def);
             return null;
         }
+
+        int m_TestTeamGoes;
 
         /// <summary>The combo TEAM would fire now, or null when it can't (TEAM is hidden).</summary>
         public TeamCombo TeamReady
@@ -479,6 +487,7 @@ namespace PooketSlug
             if (combo == null || !Player.Kit.UseSuper()) return;
             SoldierDef partner = combo.Other(Player.Def);
             Team = new TeamSuperShow(this, combo, Player.Def, partner, Player.Facing);
+            if (TestTeam && !Coop) m_TestTeamGoes++;
             Net?.SendShot(new ShotEvent(Content.TeamSuper, Player.Pos, new Vector2(combo.Id, Player.Facing)));
         }
 

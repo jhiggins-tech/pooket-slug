@@ -64,6 +64,8 @@ Each combo is a gag built from both kits, and it always ends the same way: every
 
 **Built** (2026-10-16): Sewer Rats and the TEAM button are in the game. TEAM shows on both pads (T on a keyboard, the left trigger on a gamepad) when both supers are charged and the pair is tones2 and kie; either player presses it and both supers are spent. The action freezes for the split card (the presser on the left, the partner on the right, "TEAM SUPER!" over the combo's name, and the announcer), then tones2's sludge floods the floor, kie's weasels surf the wave across the screen, and everything on screen pops; a boss loses 30% of its full health but always keeps a point. The goons hold still while it plays. Every screen plays the show and the authority deals the damage. The pairing and timings are `Core/Crew/TeamSuper.cs`, the show `TeamSuperShow.cs`, the card in `Ui/HudView.cs`. `?test=team` tries it solo, with a stand-in partner whose super is always charged (and yours refilled after each go).
 
+**Built** (kcaj-kit, 18 Oct): kcaj's two, Mentos and Cola (tones2 + kcaj: the flood, then pills rain into it and fizz up as geysers, and a geyser under every goon) and Pill Weasels (kie + kcaj: a weasel for every goon on screen, each with a pill on its back, runs under its goon, and they all burst into pills). They keep Sewer Rats' timings; each combo's show is its own act in `TeamActs.cs`. With `?test=team` the stand-in partner takes turns as each crewmate yours has a combo with.
+
 ## Open questions
 
 - **Each pair's combo:** the owner's pick from the table above, and the names and gags in the crew's own voice.

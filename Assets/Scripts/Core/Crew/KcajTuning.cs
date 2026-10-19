@@ -3,13 +3,56 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// kcaj's kit as numbers and rules (<c>docs/design/kits.md</c>), for the <c>?spike=kcaj</c> spike: Hyperfixate (his
-    /// special) and Unmedicated (his super). Rules first, as tests against Core, before any of it is on screen.
+    /// kcaj's kit as numbers and rules (<c>docs/design/kits.md</c>): Double Park (his primary), Hyperfixate (his special)
+    /// and Unmedicated (his super). The kit that plays them is <c>KcajKit</c>.
     /// </summary>
     public static class KcajTuning
     {
+        public static readonly DoubleParkSpec Cones = new DoubleParkSpec();
         public static readonly HyperfixateSpec Beam = new HyperfixateSpec();
         public static readonly UnmedicatedSpec Pills = new UnmedicatedSpec();
+    }
+
+    /// <summary>
+    /// kcaj's primary, Double Park: each press lobs two ice cream cones like a grenade launcher (the owner's note, 18
+    /// Oct), one either side of the aim. A cone goes up at <see cref="Lift"/> degrees above the aim, so aiming ahead
+    /// throws an arc; the two part by <see cref="Spread"/> either side of it, so one lands short and one long. Aiming
+    /// up throws them almost straight up, and aiming down in the air throws them down and ahead.
+    /// </summary>
+    public sealed class DoubleParkSpec
+    {
+        /// <summary>How fast a cone leaves the hand, and how hard it falls.</summary>
+        public float Speed = 12f, Gravity = 20f;
+        /// <summary>Degrees the throw goes up above the aim, and each cone's degrees either side of the throw.</summary>
+        public float Lift = 35f, Spread = 8f;
+        /// <summary>The lowest and highest a throw goes, in degrees from straight ahead (90 is straight up).</summary>
+        public float Lowest = -60f, Highest = 82f;
+        /// <summary>Seconds between presses, and how much of kcaj's own speed a cone keeps.</summary>
+        public float Cooldown = 0.5f, Carry = 0.3f;
+        /// <summary>Cones in one press.</summary>
+        public int Count = 2;
+
+        /// <summary>The throw's angle, in degrees from straight ahead, for an aim (any length) and the way kcaj faces.</summary>
+        public float Throw(Vector2 aim, int facing)
+        {
+            float ahead = aim.x * (facing >= 0 ? 1f : -1f);
+            float angle = aim.sqrMagnitude > 0f ? Mathf.Atan2(aim.y, Mathf.Max(0f, ahead)) * Mathf.Rad2Deg : 0f;
+            return Mathf.Clamp(angle + Lift, Lowest, Highest);
+        }
+
+        /// <summary>
+        /// Cone <paramref name="index"/>'s velocity (0 the low one, 1 the high one), thrown along <paramref name="aim"/>
+        /// facing <paramref name="facing"/>, with <see cref="Carry"/> of <paramref name="thrower"/>'s speed.
+        /// </summary>
+        public Vector2 Velocity(int index, Vector2 aim, int facing, Vector2 thrower)
+        {
+            float side = Count > 1 ? Mathf.Lerp(-1f, 1f, index / (float)(Count - 1)) : 0f;
+            float a = (Throw(aim, facing) + side * Spread) * Mathf.Deg2Rad;
+            return new Vector2(Mathf.Cos(a) * (facing >= 0 ? 1f : -1f), Mathf.Sin(a)) * Speed + thrower * Carry;
+        }
+
+        /// <summary>How far ahead a cone thrown at <paramref name="degrees"/> lands, back at the height it left from (on flat ground, standing still).</summary>
+        public float Reach(float degrees) => Speed * Speed * Mathf.Sin(2f * degrees * Mathf.Deg2Rad) / Gravity;
     }
 
     /// <summary>
@@ -173,6 +216,7 @@ namespace PooketSlug
     /// <see cref="RainTime"/>, each bouncing twice on the ground and popping on the third landing (or on a goon, or
     /// when it's fallen out of the level). A pop hurts goons nearby and never kcaj or a partner. It's a solo super, so
     /// it isn't a screen clearer: on a screen of riflemen some are left standing (<c>docs/design/team-supers.md</c>).
+    /// A rain is laid out from a seed (<see cref="PillRain.Start"/>), so a partner's screen copies it from the seed alone.
     /// </summary>
     public sealed class UnmedicatedSpec
     {
@@ -237,6 +281,12 @@ namespace PooketSlug
         public Vector2 Position(int i) => new Vector2(x[i], y[i]);
         public bool IsLive(int i) => live[i];
         public int Landed(int i) => landed[i];
+
+        /// <summary>A rain's seed, drawn from the game's <paramref name="rng"/>: never 0, and small enough to cross the network in a float.</summary>
+        public static uint Seed(Rng rng) => 1u + (rng.NextUInt() & 0xFFFFFEu);
+
+        /// <summary>Starts a rain across the screen from <paramref name="left"/> to <paramref name="right"/>, falling from above <paramref name="top"/>.</summary>
+        public void Start(uint seed, float left, float right, float top) => Start(new Rng(seed), left, right, top);
 
         /// <summary>Starts a rain across the screen from <paramref name="left"/> to <paramref name="right"/>, falling from above <paramref name="top"/>.</summary>
         public void Start(Rng rng, float left, float right, float top)

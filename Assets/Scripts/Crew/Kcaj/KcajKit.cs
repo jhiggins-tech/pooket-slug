@@ -4,22 +4,21 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// kcaj's special and super in a soldier's hands (<c>?spike=kcaj</c>, solo only): SP is Hyperfixate
-    /// (<see cref="KcajBeam"/>) and SU is Unmedicated (<see cref="KcajPills"/>). The primary stays the soldier's own,
-    /// from their kit.
+    /// kcaj's kit (<c>docs/design/kits.md</c>, numbers in <see cref="KcajTuning"/>): FIRE is Double Park (two cones lobbed
+    /// either side of the aim, <see cref="DoubleParkSpec"/>), SP is Hyperfixate (<see cref="KcajBeam"/>) and SU is
+    /// Unmedicated (<see cref="KcajPills"/>). The cones are shots, so they reach a partner as shots; the beam and the
+    /// pills go as kit moves (<see cref="KitMove.Fixate"/>, <see cref="KitMove.Pills"/>) and <see cref="KcajCopy"/>
+    /// plays them there.
     /// </summary>
     public sealed class KcajKit : CrewKit
     {
-        readonly CrewKit m_Primary;
         readonly KcajBeam m_Beam;
         readonly KcajPills m_Pills;
 
-        public KcajKit(Player player, CrewKit primary) : base(player)
+        public KcajKit(Player player) : base(player)
         {
-            m_Primary = primary;
             m_Beam = new KcajBeam(player, KcajTuning.Beam);
             m_Pills = new KcajPills(player, KcajTuning.Pills);
-            player.Kit.FillSuper(); // the super's ready from the start, to try it
         }
 
         public override bool Fixated => m_Beam.Locked;
@@ -27,16 +26,20 @@ namespace PooketSlug
 
         public override void Always(float dt) => m_Pills.Tick(dt);
 
-        public override void LetGo()
-        {
-            m_Beam.Cancel();
-            m_Primary.LetGo();
-        }
+        public override void LetGo() => m_Beam.Cancel();
 
-        public override bool Streams => m_Primary.Streams;
-        public override void HoldPrimary(float dt, bool firing) => m_Primary.HoldPrimary(dt, firing);
-        public override bool OwnPrimary => m_Primary.OwnPrimary;
-        public override bool FirePrimary(Vector2 muzzle) => m_Primary.FirePrimary(muzzle);
+        public override bool OwnPrimary => true;
+
+        /// <summary>Double Park: both cones at once, from the hand, along the aim.</summary>
+        public override bool FirePrimary(Vector2 muzzle)
+        {
+            DoubleParkSpec cones = KcajTuning.Cones;
+            WeaponDef w = Content.DoublePark;
+            for (int i = 0; i < cones.Count; i++)
+                World.Combat.FirePlayerShot(w, muzzle, cones.Velocity(i, Player.Aim, Player.Facing, Player.Vel));
+            Sfx.PlayShot(w);
+            return true;
+        }
 
         public override void Special(float dt, bool pressed, bool held) => m_Beam.Tick(dt, pressed, held);
 
@@ -51,16 +54,85 @@ namespace PooketSlug
         {
             m_Pills.Render();
             m_Beam.Render();
-            m_Primary.Render();
         }
-
-        public override void Pose(ref AvatarPose pose) => m_Primary.Pose(ref pose);
     }
 
     /// <summary>
-    /// kcaj's special, Hyperfixate, on screen (<c>?spike=kcaj</c>, solo only: the soldier's SP becomes it). The rules
-    /// are <see cref="HyperfixateSpec"/> and <see cref="Hyperfixation"/>; this finds what the beam touches, draws the
-    /// beam and the dimmed screen edges, and burns the target.
+    /// A partner's kcaj on our screen: his beam, drawn from his gun to what it's stuck to, and his pills, rained from
+    /// the same seed. Both are harmless here; his screen does the damage.
+    /// </summary>
+    public sealed class KcajCopy : KitCopy
+    {
+        readonly SpriteRenderer m_Beam;
+        readonly PillRain m_Rain;
+        readonly PillView m_Pills;
+        readonly KcajPills.Ground m_Ground;
+        Enemy m_Target;
+        float m_Held;
+        bool m_Raining;
+
+        public KcajCopy(RemotePlayer remote) : base(remote)
+        {
+            m_Beam = Art.Renderer(remote.Go.transform, "Hyperfixate", Art.Pixel, SortOrder.Effects + 2, shown: false);
+            m_Rain = new PillRain(KcajTuning.Pills);
+            m_Pills = new PillView(remote.Go.transform, m_Rain.Capacity, 1f);
+            m_Ground = new KcajPills.Ground(remote.World);
+        }
+
+        public override void Tick(float dt, in AvatarPose pose, Vector2 vel)
+        {
+            HyperfixateSpec spec = KcajTuning.Beam;
+            if (m_Target != null)
+            {
+                m_Held += dt;
+                if (pose.Dead || m_Target.Removed || !m_Target.Shootable || m_Held > spec.MaxHold + 0.5f) m_Target = null; // in case the end got lost
+                else if (Rng.Fx.Value < 0.3f) Remote.World.HitFeel.Fizz(m_Target.Center);
+            }
+            if (!m_Raining) return;
+            m_Rain.Step(dt, m_Ground, m_Ground.OnGoon);
+            for (int p = 0; p < m_Rain.PopCount; p++) KcajArt.Pop(Remote.World, m_Rain.Pops[p], 3);
+            if (m_Rain.PopCount > 0) Sfx.Play(Sfx.Splat, CrewKit.PartnerVolume * 0.5f);
+            if (m_Rain.Done) m_Raining = false;
+        }
+
+        public override void Render(in AvatarPose pose)
+        {
+            bool locked = m_Target != null;
+            m_Beam.enabled = locked;
+            if (locked)
+            {
+                Vector2 local = PlayerVisual.MuzzleLocal(pose.AimY, pose.Crouching, pose.Diagonal);
+                Vector2 from = Remote.Pos + new Vector2(local.x * pose.Facing, local.y);
+                KcajArt.DrawBeam(m_Beam, from, m_Target.Center, Mathf.Clamp01(m_Held / KcajTuning.Beam.RampTime));
+            }
+            m_Pills.Render(m_Rain, m_Raining);
+        }
+
+        public override void OnMove(in KitEvent move)
+        {
+            World w = Remote.World;
+            switch (move.Move)
+            {
+                case KitMove.Fixate:
+                    bool holds = move.Data.y > 0.5f;
+                    m_Target = holds ? w.FindEnemy(Mathf.RoundToInt(move.Data.x)) : null;
+                    m_Held = 0f;
+                    if (holds) Sfx.Play(Sfx.Charge, CrewKit.PartnerVolume * 0.5f);
+                    break;
+                case KitMove.Pills:
+                    m_Rain.Start((uint)Mathf.RoundToInt(move.Data.y), move.At.x, move.Data.x, move.At.y);
+                    m_Raining = true;
+                    Sfx.Play(Sfx.Thump, CrewKit.PartnerVolume);
+                    break;
+            }
+        }
+    }
+
+    /// <summary>
+    /// kcaj's special, Hyperfixate, on screen. The rules are <see cref="HyperfixateSpec"/> and
+    /// <see cref="Hyperfixation"/>; this finds what the beam touches, draws the beam and the dimmed screen edges, burns
+    /// the target (through <see cref="Combat.DamageEnemy"/>, so a partner's authority hears of it), and tells the
+    /// partner what it's stuck to.
     /// </summary>
     public sealed class KcajBeam
     {
@@ -79,9 +151,7 @@ namespace PooketSlug
         {
             m_Player = player;
             m_Spec = spec;
-            m_Fix = new Hyperfixation(spec);
-            player.Specials = spec.Charges;
-            player.Kit.Recharge(spec.Charges, spec.RechargeTime);
+            m_Fix = new Hyperfixation(spec); // its charges are kcaj's specials (Content.Kcaj)
             Transform root = player.World.Root;
             m_Beam = MakeRenderer(root, "Hyperfixate", SortOrder.Effects + 2);
             for (int i = 0; i < m_Edges.Length; i++)
@@ -100,9 +170,17 @@ namespace PooketSlug
         /// <summary>Lets go at once (he's down, or in a tabk).</summary>
         public void Cancel()
         {
-            if (m_Fix.Locked) m_Fix.Step(0f, false, false, 0f);
+            if (m_Fix.Locked)
+            {
+                m_Fix.Step(0f, false, false, 0f);
+                Tell(m_Target, false);
+            }
             m_Target = null;
         }
+
+        /// <summary>Tells the partner the beam stuck to <paramref name="e"/>, or let go of it.</summary>
+        void Tell(Enemy e, bool holds) =>
+            CrewKit.Send(m_Player.World, KitMove.Fixate, e != null ? e.Center : m_Player.Pos, new Vector2(e != null ? e.NetId : -1, holds ? 1f : 0f));
 
         public void Tick(float dt, bool pressed, bool held)
         {
@@ -116,6 +194,7 @@ namespace PooketSlug
                 if (burn > 0f) Burn(e, burn);
                 if (!m_Fix.Locked)
                 {
+                    Tell(e, false);
                     m_Target = null;
                     if (m_Fix.Ended == FixateEnd.Spent || m_Fix.Ended == FixateEnd.OutOfReach) Sfx.Play(Sfx.Glitch, 0.4f);
                 }
@@ -138,6 +217,7 @@ namespace PooketSlug
             p.Kit.UseSpecial();
             m_Target = hit;
             m_Fix.Lock();
+            Tell(hit, true);
             Sfx.Play(Sfx.Charge, 0.5f);
         }
 
@@ -233,44 +313,60 @@ namespace PooketSlug
     }
 
     /// <summary>
-    /// kcaj's super, Unmedicated, on screen (<c>?spike=kcaj</c>: the soldier's SU becomes it, charged again after each
-    /// rain). The pills are a <see cref="PillRain"/>: numbers in arrays, drawn here with a pool of sprites, so the
-    /// spike answers whether a phone keeps up with 120 of them.
+    /// kcaj's super, Unmedicated, on screen. The pills are a <see cref="PillRain"/>: numbers in arrays, drawn here with
+    /// a pool of sprites, so a phone keeps up with 120 of them. A rain is laid out from a seed, which is all the partner
+    /// is sent (<see cref="KitMove.Pills"/>).
     /// </summary>
-    public sealed class KcajPills : IPillGround
+    public sealed class KcajPills
     {
+        /// <summary>What the pills land on and pop against: the level's ground, and the goons.</summary>
+        public sealed class Ground : IPillGround
+        {
+            readonly World m_World;
+            public readonly System.Func<float, float, bool> OnGoon;
+
+            public Ground(World world)
+            {
+                m_World = world;
+                OnGoon = Touches;
+            }
+
+            public bool Solid(float x, float y) => m_World.Level.IsSolidAt(new Vector2(x, y));
+
+            bool Touches(float x, float y)
+            {
+                var at = new Vector2(x, y);
+                foreach (Enemy e in m_World.Enemies)
+                    if (e.Shootable && e.Bounds.Contains(at)) return true;
+                return false;
+            }
+        }
+
         readonly Player m_Player;
         readonly UnmedicatedSpec m_Spec;
         readonly PillRain m_Rain;
         readonly PillView m_View;
-        readonly System.Func<float, float, bool> m_OnGoon;
+        readonly Ground m_Ground;
 
         public KcajPills(Player player, UnmedicatedSpec spec)
         {
             m_Player = player;
             m_Spec = spec;
             m_Rain = new PillRain(spec);
-            m_OnGoon = OnGoon;
+            m_Ground = new Ground(player.World);
             m_View = new PillView(player.World.Root, m_Rain.Capacity, 1f);
         }
 
         /// <summary>Pills are still falling or bouncing.</summary>
         public bool Raining { get; private set; }
 
-        public bool Solid(float x, float y) => m_Player.World.Level.IsSolidAt(new Vector2(x, y));
-
-        bool OnGoon(float x, float y)
-        {
-            var at = new Vector2(x, y);
-            foreach (Enemy e in m_Player.World.Enemies)
-                if (e.Shootable && e.Bounds.Contains(at)) return true;
-            return false;
-        }
-
         public void Start()
         {
-            Rect view = m_Player.World.View.Rect;
-            m_Rain.Start(m_Player.World.Rng, view.xMin, view.xMax, view.yMax);
+            World w = m_Player.World;
+            Rect view = w.View.Rect;
+            uint seed = PillRain.Seed(w.Rng);
+            m_Rain.Start(seed, view.xMin, view.xMax, view.yMax);
+            CrewKit.Send(w, KitMove.Pills, new Vector2(view.xMin, view.yMax), new Vector2(view.xMax, seed));
             Raining = true;
             Sfx.Play(Sfx.Thump, 0.8f);
         }
@@ -278,7 +374,7 @@ namespace PooketSlug
         public void Tick(float dt)
         {
             if (!Raining) return;
-            m_Rain.Step(dt, this, m_OnGoon);
+            m_Rain.Step(dt, m_Ground, m_Ground.OnGoon);
             World w = m_Player.World;
             for (int p = 0; p < m_Rain.PopCount; p++)
             {
@@ -286,11 +382,7 @@ namespace PooketSlug
                 Pop(w, at);
             }
             if (m_Rain.PopCount > 0) Sfx.Play(Sfx.Splat, Mathf.Min(0.6f, 0.15f + 0.05f * m_Rain.PopCount));
-            if (m_Rain.Done)
-            {
-                Raining = false;
-                m_Player.Kit.FillSuper(); // a spike: the super is charged again for the next go
-            }
+            if (m_Rain.Done) Raining = false;
         }
 
         void Pop(World w, Vector2 at)
@@ -360,7 +452,7 @@ namespace PooketSlug
         }
     }
 
-    /// <summary>kcaj's colours, and the pills' sprites.</summary>
+    /// <summary>kcaj's colours, and the pills' and cones' sprites.</summary>
     public static class KcajArt
     {
         public static readonly Color Beam = new Color(1f, 0.35f, 0.75f), Hot = new Color(1f, 0.95f, 0.85f);
@@ -370,6 +462,39 @@ namespace PooketSlug
         };
 
         static Sprite[] s_Pills;
+        static Sprite s_Cone;
+
+        /// <summary>
+        /// Double Park's cone in flight, nose first (it points along its flight, so the waffle leads): a waffle cone
+        /// with a scoop of strawberry and a scoop of vanilla.
+        /// </summary>
+        public static Sprite Cone
+        {
+            get
+            {
+                if (s_Cone != null) return s_Cone;
+                var c = new PixelCanvas(10, 6);
+                var outline = new Color32(40, 22, 20, 255);
+                var waffle = new Color32(222, 160, 80, 255);
+                var waffleDark = new Color32(168, 108, 48, 255);
+                var pink = new Color32(255, 140, 180, 255);
+                var cream = new Color32(255, 246, 220, 255);
+                // the scoops at the back (left), the cone tapering to its tip at the front (right)
+                c.Rect(0, 1, 2, 4, outline);
+                c.Rect(1, 0, 3, 6, outline);
+                c.Rect(1, 1, 3, 2, pink);
+                c.Rect(1, 3, 3, 2, cream);
+                c.Rect(4, 0, 4, 6, outline);
+                c.Rect(4, 1, 3, 4, waffle);
+                c.Rect(7, 1, 2, 4, outline);
+                c.Rect(7, 2, 2, 2, waffle);
+                c.Rect(9, 2, 1, 2, outline);
+                c.Rect(5, 2, 1, 1, waffleDark);
+                c.Rect(6, 3, 1, 1, waffleDark);
+                c.Rect(4, 4, 1, 1, waffleDark);
+                return s_Cone = Art.ToSprite(c, new Vector2(0.5f, 0.5f));
+            }
+        }
 
         /// <summary>
         /// Draws a Hyperfixate beam from <paramref name="from"/> to <paramref name="to"/>, kcaj's and his tabk's alike:

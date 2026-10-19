@@ -52,7 +52,7 @@ namespace PooketSlug
         {
             new Station("kie", Content.Kie, DenFloor.Ground, 36, 82, 64f),
             new Station("tones2", Content.Tones2, DenFloor.Ground, 168, 200, 192f),
-            new Station("kcaj", null, DenFloor.Upper, 12, 108, 60f),
+            new Station("kcaj", Content.Kcaj, DenFloor.Upper, 12, 108, 60f),
             new Station("torikloud", null, DenFloor.Upper, 108, 196, 150f),
             new Station("larinovsky", null, DenFloor.Upper, 224, 308, 266f),
             new Station("kiwicore", null, DenFloor.Loft, 95, 139, 117f),

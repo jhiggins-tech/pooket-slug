@@ -149,6 +149,22 @@ namespace PooketSlug
                     (0.6f, 0.7f, DemoKeys.Super), (2.2f, 4.6f, DemoKeys.Fire))),
         };
 
+        public static readonly IReadOnlyList<MoveGuide> Kcaj = new[]
+        {
+            new MoveGuide(Content.Kcaj, KitSlot.Fire, "DOUBLE PARK",
+                "Each press lobs two ice cream cones in an arc, like a grenade launcher, one either side of your aim. They splat on whatever they land on, so they drop on goons behind cover.",
+                new DemoScript(DemoScript.Ground("...P.........==...s..==...s............."), 5.5f, false,
+                    (Lead, 0.6f, DemoKeys.Fire), (1.4f, 1.5f, DemoKeys.Fire), (2.3f, 2.4f, DemoKeys.Fire), (3.2f, 3.3f, DemoKeys.Fire))),
+            new MoveGuide(Content.Kcaj, KitSlot.Special, "HYPERFIXATE",
+                "Press SP and a beam sticks to the first thing it touches. Hold it and the beam follows its target, burning hotter the longer you stare, while the screen edges close in. You can only shuffle while you're locked on, so watch your back.",
+                new DemoScript(DemoScript.Ground("...P...........h........................"), 5.5f, false,
+                    (Lead, 4.4f, DemoKeys.Special))),
+            new MoveGuide(Content.Kcaj, KitSlot.Super, "UNMEDICATED",
+                "120 pills rain across the whole screen, bounce twice and pop on goons. They never hurt you or a partner. Kills charge it.",
+                new DemoScript(DemoScript.Ground("...P.......s....r.....s.....r....s......"), 5.5f, true,
+                    (0.6f, 0.7f, DemoKeys.Super))),
+        };
+
         /// <summary>Every crewmate's moves, in crew order (<see cref="Crew.All"/>).</summary>
         public static IReadOnlyList<MoveGuide> All
         {
