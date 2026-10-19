@@ -48,9 +48,9 @@ rewrite in the crew's own voice.
 | [The boss intro](#the-boss-intro) | Every boss tabk's arrival | 3 s | none: in the game itself (`BossIntroShow`) | Built |
 | [Freeing kie](#freeing-kie) | Trollogram kie beaten on foot | 28 s | `freeing-kie.txt` (shots 2 to 5) | Built |
 | [The first debrief](#the-first-debrief) | After every solo win | 12 s | none: a screen (`DebriefView`) | Built |
-| [The first visit](#the-first-visit) | The den's first opening, once ever | 4 s | none yet | Designed |
+| [The first visit](#the-first-visit) | The den's first opening, after Mission two, once ever | 5 s | none yet | Designed |
 | [A crewmate moves in](#a-crewmate-moves-in) | The den, after each freeing | 3 s | none yet | Designed |
-| [The Mission two briefing](#the-mission-two-briefing) | Mission two starts | 24 s | none yet | Designed, narrator voiced |
+| [The Mission two briefing](#the-mission-two-briefing) | Straight after Mission one's debrief, and as Mission two starts | 24 s | none yet | Designed, narrator voiced |
 | [kcaj's tabk arrives](#kcajs-tabk-arrives) | Mission two's boss | 3 s, plus his intro | none: the boss intro | Designed |
 | [Freeing kcaj](#freeing-kcaj) | Trollogram kcaj beaten on foot | 15 s | none yet | Designed, narrator voiced |
 | [Two of the crew](#retired-two-of-the-crew) | Retired | 8 s | none | Retired, 2026-10-18 |
@@ -83,7 +83,8 @@ Cutscenes are **in-engine scenes**: the game's own art, drawn in code, with spee
   (the timer still moves it on for both). A line says who's being waited for. A scene seen before skips only once both
   players have pressed SKIP, so a partner who hasn't seen it gets to watch it; a partner who leaves holds nobody up. A
   scene plays in co-op when the players start together from the den; someone joining a game already under way drops
-  straight in. Mission one is single player only, so its scenes are always solo.
+  straight in. Mission one is single player only, so its scenes are always solo, and so is Mission two's first run,
+  since the den (and co-op with it) opens only once Mission two is beaten ([the start flow](story.md#what-start-plays)).
 - **No strobing** ([the design's rule](README.md)): an alarm is a slow wash, once a second.
 
 ### Character intros
@@ -664,16 +665,21 @@ MUSIC: the rank up sting.
                     KIE
           SIGN IN SO THIS DOESN'T VANISH.
 
-A line points to the sign-in button at the top right, as
+A line points to the sign-in button at the top left, as
 on the title screen.
 
-SUPER: SIGN IN AT THE TOP RIGHT TO KEEP YOUR XP AND RANK
+SUPER: SIGN IN AT THE TOP LEFT TO KEEP YOUR XP AND RANK
 
 Signing in here saves the run's progress straight away.
 Skipping is fine, and it asks again on the next debrief.
 
-                               INTO: THE TITLE (CONTINUE)
+         INTO: THE MISSION TWO BRIEFING (after Mission one)
+               or THE DEN (after Mission two, and later on)
 ```
+
+**Where it goes next** (owner, 2026-10-19, on the Opening 5 page): the first time Mission one is cleared, the debrief
+runs straight on into [the Mission two briefing](#the-mission-two-briefing) and Mission two; after Mission two it goes
+to the den, and the player has control from there ([the start flow](story.md#what-start-plays)).
 
 **Built** (2026-10-16, `Core/Lobby/Debrief.cs`, `Ui/DebriefView.cs`): after every solo win, `?test=debrief` to try
 it. XP is placeholder: 200 for the clear, 300 for kie freed, 1 a kill. Rank is the record's stages beaten: a first
@@ -687,27 +693,31 @@ theme ([the lobby](lobby.md)).
 
 ### The first visit
 
-The first time the player opens the den (START on the title) after Mission one is beaten. About 4 seconds, once
-ever. Kept with the player's progress, so it follows a sign-in. From [the lobby](lobby.md), approved 2026-10-16.
+The first time the den opens, straight after Mission two's debrief ([the start flow](story.md#what-start-plays)).
+About 5 seconds, once ever. Kept with the player's progress, so it follows a sign-in. From [the lobby](lobby.md),
+approved 2026-10-16; since the den now first opens after Mission two (owner, 2026-10-19), kcaj is in it too, and it
+stands in for his [move-in](#a-crewmate-moves-in).
 
 ```text
-1. INT. THE DEN (THE HANGOUT) - NIGHT                   4 s
+1. INT. THE DEN (THE HANGOUT) - NIGHT                   5 s
 
 The hangout, still trashed from the raid. KIE heaves the
 couch back upright. TONES2 plugs the TV back in, and the
 room warms up: lamp light, string lights, screens
-glowing.
+glowing. KCAJ climbs the ladder to the loft, pulls a
+sticky note off his string board and nods.
 
                     KIE
           HOME SWEET HOME.
 
-                           INTO: THE DEN (two stations lit,
-                           six dark)
+                           INTO: THE DEN (three stations lit,
+                           five dark)
 ```
 
 ### A crewmate moves in
 
-The first visit to the den after a crewmate is freed. About 3 seconds; tap to skip. From [the lobby](lobby.md),
+The first visit to the den after a crewmate is freed, from Mission three on (kie and kcaj are already home at
+[the first visit](#the-first-visit)). About 3 seconds; tap to skip. From [the lobby](lobby.md),
 approved 2026-10-16. Their corner was wrecked and dark until now.
 
 ```text
@@ -728,12 +738,15 @@ SFX: a chip clunk.
 ## Mission two
 
 kcaj's mission, at the Brain Freeze creamery ([why the creamery](story.md#mission-two-the-creamery)). It's the
-first mission co-op can play, so every scene here plays on both phones in co-op. Drafted 2026-10-16; the story was
+first mission co-op can play: its first run is solo, straight on from Mission one, and once the den is open its
+scenes play on both phones in co-op. Drafted 2026-10-16; the story was
 approved by the owner on 17 Oct, and the narrator lines are voiced (`voice/narration.json`).
 
 ### The Mission two briefing
 
-Played when Mission two starts from the den. About 24 seconds, four shots; it can be skipped once seen. kcaj's string
+Played straight after Mission one's first debrief, and again each time START plays Mission two until it's beaten;
+after that, when Mission two starts from the den (owner, 2026-10-19, [the start flow](story.md#what-start-plays)).
+About 24 seconds, four shots; it can be skipped once seen. kcaj's string
 board briefs it (owner, 2026-10-16): it stays up in his dark corner of the den before he's freed. **Who's in it:**
 always tones2 and kie, whoever the players picked, since they're the only crew free at this point in the story; a
 replay is the same. No intro.
@@ -846,8 +859,7 @@ MUSIC: the boss theme kicks in on the tabk's first shot.
 
 After Trollogram kcaj is beaten on foot ([the pilot round](tanks.md#the-pilot-round)), like
 [freeing kie](#freeing-kie). About 15 seconds, five shots; it can be skipped once seen. Intro: kcaj, shot 2.
-**Afterwards:** the next time the den loads, kcaj [moves in](#a-crewmate-moves-in) to the loft and his corner lights
-up.
+**Afterwards:** the debrief, then the den opens for the first time, kcaj with it ([the first visit](#the-first-visit)).
 
 ```text
 1. INT. THE CREAMERY, THE COLD STORE (IN PLAY)          3 s
