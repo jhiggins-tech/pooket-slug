@@ -28,6 +28,16 @@ Concept: `concepts/lobby/den-lobby.png` in the project's files (second pass; the
 - **Swapping crew** (an Idea, den2-group-chat): a laptop on kie's bench opens a group chat; tap a crewmate's name and your soldier messages them to come to the GameCube, they answer in character, walk in from the side door or down the ladder and take the couch.
 - **Co-op:** each phone follows its own soldier, and the partner walks around the den too.
 
+### The tabk bay
+
+**Layout picked by the owner on 2026-10-19** (den2-tabk-bay, layout A3; page https://claude.ai/artifact/Ru5NGudKFxkVZWydXLHoNi). It's the outer room through the den's right roller door: a long garage where the crew's tabks live, its own screen that scrolls sideways.
+
+- **Left to right:** the roller door back to the den; the repair bay, with an overhead crane over a tabk on stands; a ladder up to the top deck; the parking, two decks of six spaces each (twelve tabks); the lift right against the top deck's end, a vertical-compactor platform that carries tabks between the decks, with a hazard-striped landing at deck height and a column down to the floor; the drive-through wash; and the street door out, with the cargo drone's dock above it.
+- **Scale: tabks are drawn 1.5 times bigger here** (78 × 33 against the 18 × 22 soldier), the ratio the boss fight has, so they read as vehicles you stand beside. Missions and boss fights keep the 52 × 22 sprite. Doors stay about 37 px, as in the den.
+- **Using it:** walk to a tabk and tap it for its card (whose it is, its guns); TAKE IT makes it the one you call in. Tabks not yet won sit as empty spaces, with the bay filling as they're freed.
+- **The art** (picked 19 Oct), in `/mnt/project-files/concepts/den2/tabkbay/`: `bay-plate.png` (993 × 180, 64 colours, the floor line at 168) with its 4x painting `bay-plate-raw.png`, and `bay-plate-check.png` with the sprites placed. It's Seedream pieces joined in code, the ends colour matched, and the join between the top deck and the lift repainted by a fill edit (fill 3, in `fill/`). The earlier join is kept as round 2 on the page.
+- **Raid night** (the opening) can reuse this plate with a mess layer over it, made on the card that needs it.
+
 ## The room
 
 This is the den as it's built today. Den 2.0 ([above](#den-20-the-den-and-the-long-loft)) is where it's going: the den keeps this screen's ground floor, and the loft's stations move up to the scrolling loft. Until Den 2.0 is built, this section is the game.
@@ -141,3 +151,4 @@ Sample bits (placeholders):
 
 - **The bits and lines:** the owner's rewrite in the crew's voice, and which pairs get bits.
 - **Which floor each crewmate lives on,** and whether stations can be rearranged as a look.
+- **When the tabk bay opens:** proposed after Mission two, with the rest of the outer rooms; not yet confirmed by the owner.
