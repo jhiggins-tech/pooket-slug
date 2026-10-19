@@ -53,17 +53,18 @@ namespace PooketSlug
             Image black = Build(m_Root, out m_Stage, out m_World);
             black.raycastTarget = true; // taps stop here, not on the den under it
 
-            // back to front: the painting, the lift's platform, the hose and gauge, the tabks, the spark, you, the drone
+            // back to front: the painting, the lift's platform, the gauge, the tabks, the hose, the spark, you, the drone
             Sprite bay = DenRoom.Painting("bay");
             if (bay != null)
                 Ui.Picture(m_World, "Bay", bay, Vector2.zero, Vector2.zero, Vector2.zero, bay.rect.size * Px, Color.white);
             m_Lift = Picture(m_World, "Lift platform", null, BayMap.LiftX, 0f, 62f, 3f, new Color(0.23f, 0.26f, 0.31f));
             m_LiftEdge = Picture(m_World, "Lift edge", null, BayMap.LiftX, 0f, 62f, 1f, Gold);
-            for (int i = 0; i < HoseDots; i++) m_Hose[i] = Picture(m_World, "Hose", null, 0f, 0f, 2f, 2f, new Color(0.09f, 0.09f, 0.11f));
-            m_Nozzle = Picture(m_World, "Nozzle", null, 0f, 0f, 3f, 3f, Gold);
             Picture(m_World, "Gauge", null, Gauge.x, Gauge.y, 6f, 15f, new Color(0.08f, 0.08f, 0.1f));
             m_GaugeFill = Picture(m_World, "Gauge fill", null, Gauge.x, Gauge.y + 1f, 4f, 0f, new Color(0.3f, 1f, 0.45f));
             m_Tabks = Ui.Rect(m_World, "Tabks", Vector2.zero, Vector2.zero, Vector2.zero, Vector2.zero);
+            // the hose over the tabk on the stands, into its filler
+            for (int i = 0; i < HoseDots; i++) m_Hose[i] = Picture(m_World, "Hose", null, 0f, 0f, 2f, 2f, new Color(0.62f, 0.16f, 0.12f));
+            m_Nozzle = Picture(m_World, "Nozzle", null, 0f, 0f, 3f, 3f, Gold);
             for (int i = 0; i < 2; i++) m_Lights[i] = Picture(m_World, "Light", null, 0f, 0f, 4f, 3f, new Color(1f, 0.9f, 0.5f, 0.65f));
             m_Spark = Picture(m_World, "Spark", Art.Spark[0], 0f, 0f, 10f, 10f, Color.white);
             m_Soldier = new StageFigure(m_World, "You");
@@ -86,15 +87,15 @@ namespace PooketSlug
             m_Hint = Ui.Label(m_Stage, "Hint", Ui.TopCenter, new Vector2(0f, -8f), 10, TextAnchor.UpperCenter, new Color(1f, 1f, 1f, 0.75f));
             m_Note = Ui.Label(m_Stage, "Note", Ui.TopCenter, new Vector2(0f, -24f), 11, TextAnchor.UpperCenter, new Color(1f, 0.55f, 0.45f));
 
-            m_Card = Ui.Rect(m_Stage, "Tabk card", Ui.Middle, Ui.Middle, new Vector2(half.x - 104f, 14f), new Vector2(180f, 132f));
+            m_Card = Ui.Rect(m_Stage, "Tabk card", Ui.Middle, Ui.Middle, new Vector2(half.x - 116f, 14f), new Vector2(206f, 132f));
             var back = m_Card.gameObject.AddComponent<Image>();
             back.color = Band;
             back.raycastTarget = true;
             m_Card.gameObject.AddComponent<Outline>().effectColor = new Color(1f, 1f, 1f, 0.25f);
             m_CardName = Ui.Label(m_Card, "Name", Ui.TopCenter, new Vector2(0f, -10f), 14, TextAnchor.UpperCenter, Gold);
-            m_CardGuns = Ui.Label(m_Card, "Guns", Ui.TopCenter, new Vector2(-14f, -34f), 11, TextAnchor.UpperLeft, Color.white);
-            m_CardGuns.rectTransform.sizeDelta = new Vector2(110f, 52f);
-            m_CardRounds = Ui.Label(m_Card, "Rounds", Ui.TopCenter, new Vector2(62f, -34f), 11, TextAnchor.UpperRight, Gold);
+            m_CardGuns = Ui.Label(m_Card, "Guns", Ui.TopCenter, new Vector2(-22f, -34f), 11, TextAnchor.UpperLeft, Color.white);
+            m_CardGuns.rectTransform.sizeDelta = new Vector2(124f, 52f);
+            m_CardRounds = Ui.Label(m_Card, "Rounds", Ui.TopCenter, new Vector2(70f, -34f), 11, TextAnchor.UpperRight, Gold);
             m_CardRounds.rectTransform.sizeDelta = new Vector2(30f, 52f);
             m_CardNote = Ui.Label(m_Card, "Note", Ui.Middle, new Vector2(0f, -24f), 8, TextAnchor.MiddleCenter, new Color(1f, 1f, 1f, 0.55f));
             m_Take = Ui.Button(m_Card, "TAKE IT", new Vector2(0f, -48f), new Vector2(110f, 26f), () => m_TakePressed = true, out Text takeKey);
@@ -102,7 +103,7 @@ namespace PooketSlug
             m_TakeLabel = m_Take.GetComponentInChildren<Text>();
             m_Loaded = Ui.Label(m_Card, "Loaded", Ui.Middle, new Vector2(0f, -48f), 14, TextAnchor.MiddleCenter, new Color(0.3f, 1f, 0.45f));
             m_Loaded.text = "LOADED";
-            Button close = Ui.Button(m_Card, "X", new Vector2(80f, 56f), new Vector2(22f, 22f), () => m_ClosePressed = true, out Text closeKey);
+            Button close = Ui.Button(m_Card, "X", new Vector2(93f, 56f), new Vector2(22f, 22f), () => m_ClosePressed = true, out Text closeKey);
             close.GetComponent<Image>().sprite = Ui.Disc;
             closeKey.text = "";
 

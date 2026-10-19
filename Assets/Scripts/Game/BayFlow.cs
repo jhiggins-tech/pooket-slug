@@ -62,7 +62,7 @@ namespace PooketSlug
             Log.Game.Info("Tabk bay left");
         }
 
-        /// <summary>The bay's buttons and keys: taps walk, a tabk's card, TAKE IT (Enter, fire), BACK (Esc), the lift (up, down).</summary>
+        /// <summary>The bay's buttons and keys: taps walk, a tabk's card (or jump by one), TAKE IT (Enter, fire), BACK (Esc), the lift (up, down).</summary>
         public void Tick(MenuInput keys, SoldierInput soldier)
         {
             if (m_View.TakeBack() || keys.Back)
@@ -86,7 +86,7 @@ namespace PooketSlug
             if (spot != null) w.Visit(spot.Value);
             else if (place != BayPlace.None) w.Go(place);
             else if (walk) w.WalkTo(deck, x);
-            else if (ride != 0 && !w.Riding && Mathf.Abs(w.X - BayMap.LiftX) <= 14f && (ride > 0) == (w.Deck == BayDeck.Floor)) w.Ride();
+            else if (ride != 0 && !w.Riding && (ride > 0) == (w.Deck == BayDeck.Floor)) w.Ride(); // up or down: off to the lift
             else if (dir != 0) w.Walk(dir);
             else if (m_HeldDir != 0) w.Walk(0);
             m_HeldDir = spot != null || place != BayPlace.None || walk ? 0 : dir;
@@ -96,7 +96,7 @@ namespace PooketSlug
         int? Near(BayWalker w)
         {
             for (int s = BayMap.Stands; s < BayMap.Spaces; s++)
-                if (m_Garage.At(s) != null && BayMap.DeckOf(s) == w.Deck && Mathf.Abs(BayMap.SpotX(s) - w.X) < BayMap.TabkW / 2f + 8f) return s;
+                if (m_Garage.At(s) != null && BayMap.DeckOf(s) == w.Deck && Mathf.Abs(BayMap.SpotX(s) - w.X) < BayMap.TabkW / 2f + 24f) return s;
             return null;
         }
 
@@ -133,6 +133,7 @@ namespace PooketSlug
                 m_Card = m_Garage.At(done.Spot.Value);
                 if (m_Card != null)
                 {
+                    Log.Game.Info("Tabk bay: looking over " + m_Card.Name);
                     m_Walker.Face(false);
                     Sfx.Play(Sfx.Pickup, 0.3f);
                 }
