@@ -12,7 +12,7 @@ namespace PooketSlug
     sealed class DenRollerDoor
     {
         /// <summary>The door's opening in the den's painting (its left edge, bottom, width and height, in art pixels).</summary>
-        public const float X = 261f, Y = 29f, W = 36f, H = 49f;
+        public const float X = 261f, Y = 26f, W = 41f, H = 54f;
 
         /// <summary>Where the opening's bottom middle is: where you stand to step through it.</summary>
         public static Vector2 Sill => new Vector2(X + W / 2f, Y);
