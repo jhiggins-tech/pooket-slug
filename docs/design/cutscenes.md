@@ -53,7 +53,7 @@ rewrite in the crew's own voice.
 | [kie's tabk comes home](#kies-tabk-comes-home) | The tabk bay, the first visit after Mission two | 9 s | none yet | Drafted |
 | [The Mission two briefing](#the-mission-two-briefing) | Mission two starts | 24 s | none yet | Designed, narrator voiced |
 | [kcaj's tabk arrives](#kcajs-tabk-arrives) | Mission two's boss | 3 s, plus his intro | none: the boss intro (`BossIntroShow`) | Built (m2-finish): his TROLLO-KCAJ intro holds the action solo |
-| [Freeing kcaj](#freeing-kcaj) | Trollogram kcaj beaten on foot | 15 s | `scenes/freeing-kcaj.txt` | Built (m2-finish), on both phones in co-op; the cold store is drawn in code until it's painted |
+| [Freeing kcaj](#freeing-kcaj) | Trollogram kcaj beaten on foot | 23.5 s | `scenes/freeing-kcaj.txt` | Built (m2-finish), on both phones in co-op; the cold store is drawn in code until it's painted |
 | [Two of the crew](#retired-two-of-the-crew) | Retired | 8 s | none | Retired, 2026-10-18 |
 | [The co-op check](#the-co-op-check) | `?test=scene` and CI only | 36 s | `coop-test.txt` | A test, not the story |
 
@@ -978,13 +978,21 @@ freezer, and eats two cones at once.
 
                                                    CUT TO:
 
-5. INT. THE COLD STORE - CONTINUOUS                     2.5 s
+5. INT. THE COLD STORE - CONTINUOUS                     7 s
 
 kcaj points at the factory around them, then at the
 crew. Nobody answers.
 
                     KCAJ
           I TOLD YOU. I TOLD ALL OF YOU.
+
+                    TONES2
+          OMFG.
+
+KIE turns to tones2.
+
+                    KIE
+          LET'S PUT HIM BACK IN.
 
 He sticks a sticky note on tones2's back.
 

@@ -67,17 +67,21 @@ kcaj holds cones
 0.6 narrator m2-freeing-4: He's had a difficult week.
 
 shot: Told you
-length 5
+length 7
 set coldstore
 show freezer store-opening
-// he points at the factory around them, then at the crew; nobody answers. Then he sticks a note on tones2's back.
+// he points at the factory around them, then at the crew; nobody answers but tones2. kie turns to him and has an
+// idea. Then kcaj sticks a note on tones2's back.
 kie at 156
-kie face left
+kie face right
 tones2 at 120
 kcaj at 62
 0.2 kcaj face left
 1 kcaj face right
 0.4 kcaj: I TOLD YOU. | I TOLD ALL OF YOU.
-2.6-3.3 kcaj walk 62 104
-3.5 note on tones2 -6 16
-3.5 cue note
+2.4 tones2: OMFG.
+3.2 kie face left
+3.4 kie: LET'S PUT HIM BACK IN.
+4.8-5.5 kcaj walk 62 104
+5.7 note on tones2 -6 16
+5.7 cue note
