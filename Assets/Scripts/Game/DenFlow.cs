@@ -41,6 +41,8 @@ namespace PooketSlug
             Log.Game.Info("Den open: " + mode + ", on the couch: " + (m_Den.Pick?.Name ?? "nobody"));
             // a ?test= jump is checking something else: no beats in its way
             m_Beats = m_Game.Flags.Testing ? new List<DenBeat>() : DenBeats.Due(m_Game.Profile, m_Game.Freed, mode);
+            foreach (DenBeat b in m_Beats)
+                if (b.Newcomer != null) m_View.DarkCorner(b.Newcomer); // still wrecked and dark till they move in
             NextBeat();
         }
 

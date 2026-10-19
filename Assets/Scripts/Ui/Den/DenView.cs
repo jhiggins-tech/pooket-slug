@@ -138,6 +138,13 @@ namespace PooketSlug
             return a;
         }
 
+        /// <summary>Darkens <paramref name="s"/>'s corner (their moved-in layer) till their move-in beat lights it.</summary>
+        public void DarkCorner(SoldierDef s)
+        {
+            Transform layer = m_Paintings.Find(s.Name + " moved in");
+            if (layer != null) layer.GetComponent<Image>().color = Color.clear;
+        }
+
         /// <summary>Plays <paramref name="beat"/> over the den (<see cref="DenBeatView"/>) till <see cref="EndBeat"/>.</summary>
         public void PlayBeat(DenBeat beat)
         {
