@@ -52,7 +52,7 @@ rewrite in the crew's own voice.
 | [A crewmate moves in](#a-crewmate-moves-in) | The den, after each freeing | 3 s | none yet | Designed |
 | [kie's tabk comes home](#kies-tabk-comes-home) | The tabk bay, the first visit after Mission two | 9 s | none yet | Drafted |
 | [The Mission two briefing](#the-mission-two-briefing) | Mission two starts | 24 s | none yet | Designed, narrator voiced |
-| [kcaj's tabk arrives](#kcajs-tabk-arrives) | The first time the players reach the cold store | 11 s | `scenes/kcaj-tabk.txt`, then the boss intro | Built (m2-finish): solo the first time; in co-op, together at each run's first boss wake (the phones' saves can differ); a test start keeps the in-play TROLLO-KCAJ band |
+| [kcaj's tabk arrives](#kcajs-tabk-arrives) | The first time the players reach the cold store | 11.5 s | `scenes/kcaj-tabk.txt`, then the boss intro | Built (m2-finish): solo the first time; in co-op, together at each run's first boss wake (the phones' saves can differ); a test start keeps the in-play TROLLO-KCAJ band |
 | [Freeing kcaj](#freeing-kcaj) | Trollogram kcaj beaten on foot | 23.5 s | `scenes/freeing-kcaj.txt` | Built (m2-finish), on both phones in co-op; the cold store is drawn in code until it's painted |
 | [Two of the crew](#retired-two-of-the-crew) | Retired | 8 s | none | Retired, 2026-10-18 |
 | [The co-op check](#the-co-op-check) | `?test=scene` and CI only | 36 s | `coop-test.txt` | A test, not the story |
@@ -885,7 +885,7 @@ Mission two's reveal, like [the motor pool reveal](#the-motor-pool-reveal) in Mi
 m2-finish: the intro should play as a scene that pushes in on the tabk, as kie's does). It plays the first time the
 players reach the loading yard before the cold store, on both phones in co-op; the [boss intro](#the-boss-intro)
 after it skips the roll-out and goes straight to the banner, the name card ("KCAJ'S TABK") and the music. Every later
-fight, a replay included, gets only the boss intro. About 11 seconds, three shots; tap moves on, and it can't be
+fight, a replay included, gets only the boss intro. About 11.5 seconds, three shots; tap moves on, and it can't be
 skipped the first time. Intro: Trollogram kcaj, shot 2. Set: the cold store (`coldstore`, its doors in the middle).
 
 ```text
@@ -905,7 +905,7 @@ SFX: a deep engine idle; ice cracking.
 
                                                    CUT TO:
 
-2. EXT. THE LOADING YARD - CONTINUOUS                   4.5 s
+2. EXT. THE LOADING YARD - CONTINUOUS                   5 s  
 
 The doors fog open. KCAJ'S TABK rolls out of the mist, a
 cone on its antenna, and stops. The camera pushes in on
