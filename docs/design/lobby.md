@@ -70,10 +70,10 @@ Each station is built from the soldier's kit ([kits](kits.md)), so it shows what
 | Ground | **kie** | A workbench with the Trollogram projector, half taken apart, and a weasel hutch | Tinkers with the projector, which flickers a tiny Trollogram kie that waves at him (he unplugs it fast); a weasel pops out of the hutch and back in |
 | Ground | **kiwicore** | A drum kit by the wall, a shower cubicle in the corner and a fridge of XXXX Gold | A short drum fill with a cymbal grab; throws his flat cap across the room and catches it; steam rises from the shower and a can floats down |
 | Ground | **garyoldmancorp** | A coffee cart with a spinning prize wheel, his scooter parked on a ramp by the door | Spins the coffee wheel and waits; scoots a lap of the ground floor and stops a hair from the wall (one time in four: CRASH!) |
-| Loft | **kcaj** | A chest freezer of ice cream and a desk buried in sticky notes, with a red string board | Eats two cones at once; stares at the string board, adds a note, and the screen edges dim for a moment (Hyperfixate) |
-| Loft | **torikloud** | A lectern with law books, two chairs facing each other, and a kookaburra on a perch | Rehearses an objection at an empty chair; the kookaburra laughs; flips through a book and slams it shut |
+| Upper floor | **kcaj** | A chest freezer of ice cream and a desk buried in sticky notes, with a red string board | Eats two cones at once; stares at the string board, adds a note, and the screen edges dim for a moment (Hyperfixate) |
+| Upper floor | **torikloud** | A lectern with law books, two chairs facing each other, and a kookaburra on a perch | Rehearses an objection at an empty chair; the kookaburra laughs; flips through a book and slams it shut |
 | Loft | **ciarra** | A tattoo chair with flash sheets on the wall, a sewing machine, race bibs pinned in a row | Tattoos a little design on her own arm; threads the sewing machine; does a frog leap up onto the chair and back down |
-| Loft | **larinovsky** | A hammock with two cats on it and a phone on speaker | Naps, with the cats keeping watch; answers the phone ("NO, I WILL NOT BUY GIFT CARDS") and hangs up |
+| Upper floor | **larinovsky** | A hammock with two cats on it and a phone on speaker | Naps, with the cats keeping watch; answers the phone ("NO, I WILL NOT BUY GIFT CARDS") and hangs up |
 
 **Idle cycles** are short loops of 3 to 6 seconds. Each crewmate runs one at random, then a plain breathing idle for a few seconds, then another. They're cosmetic, so they use the cosmetic randomness, never the game's.
 
@@ -81,7 +81,7 @@ Each station is built from the soldier's kit ([kits](kits.md)), so it shows what
 
 - **A freed crewmate moves in.** The first visit after a freeing plays a short move-in beat ([a crewmate moves in](cutscenes.md#a-crewmate-moves-in)), and their station lights up.
 - **Until then, their corner is wrecked and dark:** the raid's mess, a tarp, no lights, no name. Nothing in it says who it belongs to. (Picked by the owner, 2026-10-16.)
-- **One exception: kcaj's red string board** stays up in his dark corner before he's freed, because it briefs Mission two: tones2 and kie climb up to it, and one string runs to a photo of the creamery (owner, 2026-10-16). It carries no name.
+- **One exception: kcaj's red string board** stays up in his dark corner before he's freed, because it briefs Mission two: tones2 and kie climb up to it, and one string runs to a photo of the creamery (owner, 2026-10-16). It carries no name. **Until Mission two has been played, the board glows** in the dark corner to point the way (owner, 2026-10-19), and Mission two's briefing plays when Mission two starts from the den, solo or co-op.
 - **The coming-soon crew have no corner at all.** When the first of them arrives, the den grows: the camera pans right through a knocked-through wall into a second room for the next four. The game never shows that wall as a door until then.
 - **Looks follow into the den:** a crewmate's hat and skin show at their station, so the den is also where you see what you've bought.
 
@@ -89,7 +89,7 @@ Each station is built from the soldier's kit ([kits](kits.md)), so it shows what
 
 The den replaces the crew screen. It appears with it, after Mission one ([what the player sees](levels.md#what-the-player-sees-and-when)): before that tones2 is the only soldier and Mission one starts straight from START.
 
-- **The first visit** is the first time the player opens the den (START on the title) after Mission one is beaten. A short beat plays, once ever ([the first visit](cutscenes.md#the-first-visit)). Then it's the den, with two stations lit and six dark.
+- **The first visit** comes straight after Mission one's debrief, the first time the den opens. A short beat plays, once ever ([the first visit](cutscenes.md#the-first-visit)). Then it's the den, with two stations lit and six dark.
 - **No narrator in the den.** The narrator tells cutscenes; the den is a menu with the crew in it, so it only has speech bubbles. The music is the title theme ([music](music.md)).
 
 ## Crew interactions
@@ -119,7 +119,7 @@ Sample bits (placeholders):
 
 ### Solo
 
-1. **MISSIONS → a mission → the den.** The console's start screen on the TV shows the chosen mission. (CREW opens the den too, with no mission, to look around, check a crewmate's stats and looks, and pick who you'll play next.)
+1. **START → the den → the mission board.** The console's start screen on the TV shows the chosen mission. (With no mission picked you can still look around, check a crewmate's stats and looks, and pick who you'll play next.)
 2. **Tap a crewmate to pick them.** They stop what they're doing and head for the couch: ground-floor crew walk over, and loft crew vault the railing and drop down with a thud. They flop into the left seat, grab the controller, and their name card slides up from the bottom (the name, their colours and the ⓘ for their kit), a small cousin of the [character intro](cutscenes.md#character-intros) with no slow-mo and no flash. The last soldier you played is already on the couch when the den opens.
 3. **Changing your mind:** tap another crewmate. The one on the couch hands over the controller with a shrug and goes back to their station, and the new pick takes the seat.
 4. **While you sit there,** your soldier fidgets with the controller, and the crew's bits carry on around them. Unpicked crew can wander over and lean on the back of the couch for a bit (tones2: "MOVE OVER").
