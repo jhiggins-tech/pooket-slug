@@ -4,9 +4,6 @@
 // the sticky note. It plays on both phones in co-op, and can be skipped once seen. Always tones2 and kie, whoever's
 // picked: they're the crew in the story. How to write a scene: docs/scenes.md.
 //
-// The narrator's two lines are subtitles only until their recordings (m2-freeing-2, m2-freeing-4) are in the vendor
-// repository's narration release; then each names its recording again.
-//
 // The set is the loading yard (Design's arena plate): the cold store's doors on the right, a chest freezer on the left.
 net 5
 
@@ -30,7 +27,7 @@ kcaj holds tub
 intro 3 kcaj: KCAJ
 0.2 cue cold-door
 0.6 cue frost
-3.6 narrator: And out comes the real kcaj. Slightly frozen.
+3.6 narrator m2-freeing-2: And out comes the real kcaj. Slightly frozen.
 6.2 kcaj: I'VE BEEN IN THERE FOR DAYS.
 
 shot: The evidence
@@ -67,7 +64,7 @@ kcaj holds cones
 1.8 cue freezer
 2.4 cue munch
 3 cue munch
-0.6 narrator: He's had a difficult week.
+0.6 narrator m2-freeing-4: He's had a difficult week.
 
 shot: Told you
 length 5
