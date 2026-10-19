@@ -704,7 +704,7 @@ stands in for his [move-in](#a-crewmate-moves-in).
 The hangout, still trashed from the raid. KIE heaves the
 couch back upright. TONES2 plugs the TV back in, and the
 room warms up: lamp light, string lights, screens
-glowing. KCAJ climbs the ladder to the loft, pulls a
+glowing. KCAJ climbs the ladder to his upper-floor nook, pulls a
 sticky note off his string board and nods.
 
                     KIE
@@ -767,7 +767,7 @@ the back gate. TONES2 and KIE stand in the middle of it.
 
                                                    CUT TO:
 
-2. INT. THE DEN, THE LOFT - DAY                         6 s
+2. INT. THE DEN, THE UPPER FLOOR - DAY                  6 s
 
 kcaj's corner is dark and wrecked, but his red string
 board is still on the wall, sticky notes everywhere.

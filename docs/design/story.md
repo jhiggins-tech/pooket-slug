@@ -85,7 +85,7 @@ No scenes, just the place telling it: goons on the production line, Trollogram p
 
 ### The end
 
-kcaj's tabk comes out of the cold store ([kcaj's tabk arrives](cutscenes.md#kcajs-tabk-arrives)). Once it's wrecked and its pilot is beaten on foot, the real kcaj stumbles out of the frost ([freeing kcaj](cutscenes.md#freeing-kcaj)). After the debrief the den opens for the first time, with kie and kcaj home ([the first visit](cutscenes.md#the-first-visit)), and his corner of the loft lights up ([the lobby](lobby.md)).
+kcaj's tabk comes out of the cold store ([kcaj's tabk arrives](cutscenes.md#kcajs-tabk-arrives)). Once it's wrecked and its pilot is beaten on foot, the real kcaj stumbles out of the frost ([freeing kcaj](cutscenes.md#freeing-kcaj)). After the debrief the den opens for the first time, with kie and kcaj home ([the first visit](cutscenes.md#the-first-visit)), and his string-board nook on the upper floor lights up ([the lobby](lobby.md)).
 
 ## Reveals are story beats
 
