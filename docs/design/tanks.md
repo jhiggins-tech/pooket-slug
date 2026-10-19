@@ -27,7 +27,7 @@ Tabks stay hidden until they matter ([progressive disclosure](README.md#progress
 2. **The first tabk** is kie's, at the end of Mission one, with a full [boss intro](cutscenes.md#the-boss-intro).
 3. **The first call-in and the first drive** come straight after kie is freed (owner, 2026-10-16): kie frees tones2's own tabk and bows out, and in Mission one's coda, a short mini-level after the boss, a prompt has you call it in, then drive it out of the base ([the coda](story.md#the-coda)).
 4. **kie's tabk** is wrecked in the boss fight, so Mission one wins only tones2's. kie's comes back repaired once Mission two is beaten (owner, 2026-10-16).
-5. **The tabk choice** on the mission screen appears once you have two tabks to pick from: after Mission two.
+5. **The tabk choice** is made in the den's tabk bay once you have two tabks to pick from, after Mission two: the one on the repair stands is the one you call in ([the tabk bay](lobby.md#the-tabk-bay)).
 
 ## Tabk bosses
 
@@ -119,10 +119,10 @@ The first tabk you win, freed by kie at the end of Mission one and called in for
 
 - **Once per mission,** hold the stick down and hold SP, and a tabk you've won drops in beside you, with a full tabk of fuel. A tap of SP still fires your special, even while you're crouching.
 - **The call charges up first.** Holding SP charges a short call-in before the tabk drops. Letting go before it's charged cancels the call.
-- **Choose which tabk** on the mission screen, before you start.
+- **Choose which tabk** in the den's tabk bay: the one on the repair stands is loaded ([the tabk bay](lobby.md#the-tabk-bay)). The mission screen shows it with the mission.
 - **In co-op, each player calls their own,** so both of you can have a tabk out at once.
 
-**Built so far:** the call-in drops your real tabk ([driving a tabk](#driving-a-tabk)) for anyone who has one to call, solo and co-op; until tabks are won in play, only `?unlock=tank` or `?test=tank` give one. The first time, in the coda, a blinking prompt says HOLD DOWN + SP TO CALL YOUR TABK until you start a call (the `CallInHinted` event is where the game marks it seen; the `?spike=callin` that tried it first was retired on 2026-10-16). The call charges, a cargo drone (the goons' drone scaled up, in tones2's orange and black) lowers the tabk on a cable while a marker blinks where it will land, lets go as it lands, and climbs away. Code: `Core/Tabks/CallInCoach.cs`, `World.CallInCoach`, the prompt in `HudView`, the marker and drone in `PlayerTank`. Real players get it from Mission one's coda on (owner, 2026-10-16): the coda's HOLD DOWN + SP prompt is the hint's first showing, and every mission after starts with the call-in. Open: the tabk choice on the mission screen, which waits for a second tabk.
+**Built so far:** the call-in drops your real tabk ([driving a tabk](#driving-a-tabk)) for anyone who has one to call, solo and co-op; until tabks are won in play, only `?unlock=tank` or `?test=tank` give one. The first time, in the coda, a blinking prompt says HOLD DOWN + SP TO CALL YOUR TABK until you start a call (the `CallInHinted` event is where the game marks it seen; the `?spike=callin` that tried it first was retired on 2026-10-16). The call charges, a cargo drone (the goons' drone scaled up, in tones2's orange and black) lowers the tabk on a cable while a marker blinks where it will land, lets go as it lands, and climbs away. Code: `Core/Tabks/CallInCoach.cs`, `World.CallInCoach`, the prompt in `HudView`, the marker and drone in `PlayerTank`. Real players get it from Mission one's coda on (owner, 2026-10-16): the coda's HOLD DOWN + SP prompt is the hint's first showing, and every mission after starts with the call-in. Open: the tabk choice in the bay (tabk-select-build), which waits for a second tabk.
 
 ## Not planned
 
