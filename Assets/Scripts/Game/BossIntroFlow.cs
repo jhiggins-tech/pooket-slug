@@ -2,29 +2,47 @@ namespace PooketSlug
 {
     /// <summary>
     /// The boss intro under way (<c>docs/design/tanks.md</c>), over the mission: seconds since it began, whether it's the
-    /// full one, the name card, and the siren and the announcer's lines as they come due (<see cref="BossIntroShow"/>).
+    /// full one, the name card, and the siren and the announcer's lines as they come due (<see cref="BossIntroShow"/>);
+    /// and, where the mission's story has one, its pilot's part: the Trollogram up in the boss tabk's hatch, their intro
+    /// band and their line.
     /// </summary>
     public sealed class BossIntroFlow
     {
-        readonly BossIntroShow.Cue[] m_Cues = new BossIntroShow.Cue[4];
+        readonly BossIntroShow.Cue[] m_Cues = new BossIntroShow.Cue[6];
         float m_T;
         bool m_Full;
+        TankBoss m_Tank;
 
         /// <summary>The boss's name for its card, or null with no intro under way.</summary>
         public string Name { get; private set; }
 
-        /// <summary>Where the intro's got to, for the HUD.</summary>
-        public BossIntroShow Show => new BossIntroShow(m_T, m_Full);
+        /// <summary>The pilot's name for their intro band, and their line, or null with no pilot's part.</summary>
+        public string PilotName { get; private set; }
+        public string PilotLine { get; private set; }
 
-        public void Start(BossEnemy boss, bool firstTime)
+        /// <summary>Where the intro's got to, for the HUD.</summary>
+        public BossIntroShow Show => new BossIntroShow(m_T, m_Full, PilotName != null);
+
+        /// <summary>The pilot's part is on (solo, the game holds still for it).</summary>
+        public bool Holding => Name != null && Show.Holding;
+
+        public void Start(BossEnemy boss, bool firstTime, MissionStory story = null)
         {
             m_T = -0.001f; // just before 0, so the first cues fire on the next tick
             m_Full = firstTime;
             Name = boss.DisplayName;
+            m_Tank = boss as TankBoss;
+            bool pilot = firstTime && m_Tank != null && story?.PilotIntro != null;
+            PilotName = pilot ? story.PilotIntro : null;
+            PilotLine = pilot ? story.PilotIntroLine : null;
         }
 
         /// <summary>No intro: a new world's starting.</summary>
-        public void Clear() => Name = null;
+        public void Clear()
+        {
+            Name = PilotName = PilotLine = null;
+            m_Tank = null;
+        }
 
         /// <summary>Moves the intro on, and plays the siren and the announcer's lines as they come due.</summary>
         public void Tick(float dt)
@@ -32,7 +50,7 @@ namespace PooketSlug
             if (Name == null) return;
             float from = m_T;
             m_T += dt;
-            int n = BossIntroShow.Cues(m_Full, from, m_T, m_Cues);
+            int n = BossIntroShow.Cues(m_Full, PilotName != null, from, m_T, m_Cues);
             for (int i = 0; i < n; i++)
             {
                 switch (m_Cues[i])
@@ -40,9 +58,13 @@ namespace PooketSlug
                     case BossIntroShow.Cue.Siren: Sfx.Play(Sfx.Siren, 0.7f); break;
                     case BossIntroShow.Cue.SayWarning: Sfx.Say("warning"); break;
                     case BossIntroShow.Cue.SayBoss: Sfx.Say("boss-tank"); break;
+                    case BossIntroShow.Cue.Hatch: Sfx.Play(Sfx.Thump, 0.5f); break;
+                    case BossIntroShow.Cue.Riser: Sfx.Play(Sfx.IntroRise, 0.5f); break;
+                    case BossIntroShow.Cue.Hit: Sfx.Play(Sfx.Intro, 0.5f); break;
                 }
             }
-            if (Show.Over) Name = null;
+            if (m_Tank != null && PilotName != null) m_Tank.HatchPilot = Show.Hatch;
+            if (Show.Over) Clear();
         }
     }
 }

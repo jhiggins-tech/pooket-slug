@@ -51,7 +51,7 @@ namespace PooketSlug
         /// <summary>A set: its painted backdrop (drawn by the cutscene view) and the height of its floor.</summary>
         public static readonly Dictionary<string, int> Sets = new Dictionary<string, int>
         {
-            { "street", 34 }, { "den", 15 }, { "bay", 12 }, { "motorpool", 18 },
+            { "street", 34 }, { "den", 15 }, { "bay", 12 }, { "motorpool", 18 }, { "coldstore", 16 },
         };
 
         public enum Kind { Figure, Prop, Effect }
@@ -83,6 +83,7 @@ namespace PooketSlug
             // the soldiers, drawn as in the game
             new Thing("tones2", Kind.Figure, 0f, 0f, White),
             new Thing("kie", Kind.Figure, 0f, 0f, White),
+            new Thing("kcaj", Kind.Figure, 0f, 0f, White),
             new Thing("goon", Kind.Figure, 0f, 0f, White, "appear", "glitch-out"),
             // props
             new Thing("bag", Kind.Prop, 0f, 0f, new Color(0.95f, 0.3f, 0.35f)),
@@ -102,6 +103,13 @@ namespace PooketSlug
             new Thing("kie-tabk", Kind.Prop, 136f, 0f, White),
             new Thing("turret", Kind.Prop, 0f, 0f, White),
             new Thing("kcaj-corner", Kind.Prop, 60f, 99f, White), // his corner of the den, as it is when he's moved in
+            // the creamery's cold store: its sliding door, a chest freezer, and what kcaj comes out with and gets up to
+            new Thing("store-door", Kind.Prop, 40f, 0f, new Color(0.62f, 0.7f, 0.78f)),
+            new Thing("freezer", Kind.Prop, 252f, 0f, new Color(0.82f, 0.9f, 0.97f)),
+            new Thing("tub", Kind.Prop, 0f, 0f, new Color(0.96f, 0.93f, 0.86f)),
+            new Thing("slushie", Kind.Prop, 0f, 0f, new Color(0.3f, 0.7f, 1f)),
+            new Thing("cones", Kind.Prop, 0f, 0f, new Color(0.88f, 0.66f, 0.36f)),
+            new Thing("note", Kind.Prop, 0f, 0f, new Color(1f, 0.92f, 0.3f)),
             // named effects: bits of staging drawn by the view, timed and placed by the scene
             new Thing("snow", Kind.Effect, 0f, 0f, White),
             new Thing("searchlights", Kind.Effect, 0f, 0f, White),
@@ -113,6 +121,7 @@ namespace PooketSlug
             new Thing("lamps", Kind.Effect, 0f, 0f, White, "stutter"),
             new Thing("row", Kind.Effect, 0f, 0f, White),
             new Thing("junk", Kind.Effect, 0f, 0f, Cyan),
+            new Thing("frost", Kind.Effect, 40f, 0f, new Color(0.85f, 0.95f, 1f)),
             new Thing("steam", Kind.Effect, 136f, 0f, new Color(0.85f, 0.88f, 0.95f)),
             new Thing("cage", Kind.Effect, 100f, 0f, Cyan, "flicker-out"),
             new Thing("stars", Kind.Effect, 0f, 0f, Palette.Gold),
@@ -201,6 +210,9 @@ namespace PooketSlug
                 case "cup": return new Vector2(9f, 13f);
                 case "remote": return new Vector2(-8f, 12f);
                 case "card": return new Vector2(8f, 12f);
+                case "tub": return new Vector2(8f, 11f);
+                case "slushie": return new Vector2(9f, 12f);
+                case "cones": return new Vector2(8f, 14f);
                 default: return new Vector2(0f, 12f);
             }
         }

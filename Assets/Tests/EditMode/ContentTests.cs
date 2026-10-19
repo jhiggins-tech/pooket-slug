@@ -30,6 +30,8 @@ namespace PooketSlug.Tests
             Assert.AreEqual(25, Content.Hyperfixate.Id);
             Assert.AreEqual(26, Content.Unmedicated.Id);
             Assert.AreEqual(14, Content.Cone.Id, "Double Park's cone rides the network by its id too");
+            Assert.AreEqual(27, Content.TrolloCones.Id);
+            Assert.AreEqual(15, Content.TrolloCone.Id);
         }
 
         [Test]
@@ -49,6 +51,7 @@ namespace PooketSlug.Tests
             Assert.AreEqual(14, Content.Grenadier.Id);
             Assert.AreEqual(15, Content.BigScoop.Id);
             Assert.AreEqual(16, Content.Projector.Id);
+            Assert.AreEqual(17, Content.KcajPilot.Id);
         }
 
         [Test]
@@ -166,7 +169,7 @@ namespace PooketSlug.Tests
         }
 
         [TestCase(-1)]
-        [TestCase(17)]
+        [TestCase(18)]
         public void AnUnknownEnemyIdFindsNothing(int id)
         {
             Assert.IsNull(Content.Enemy(id));

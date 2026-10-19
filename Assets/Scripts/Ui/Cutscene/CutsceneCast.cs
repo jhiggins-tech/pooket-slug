@@ -7,7 +7,7 @@ namespace PooketSlug
 {
     /// <summary>
     /// The cutscenes' cast and props, staged as the shot's script has them (<see cref="ShotStage"/>): the soldiers
-    /// (tones2, kie, the goon), kie's tabk, and the props (<see cref="Staging.Things"/>), each placed, turned, sized and
+    /// (tones2, kie, kcaj, the goon), kie's tabk, and the props (<see cref="Staging.Things"/>), each placed, turned, sized and
     /// coloured, with the few that have looks of their own: the sign's words, the clamp kie rips off, the drone's rotors
     /// and cable, the alarm's beacon.
     /// <para>
@@ -20,7 +20,7 @@ namespace PooketSlug
         // the props, by name: placed, turned, sized and coloured as the script has them
         readonly Dictionary<string, Image> m_Props = new Dictionary<string, Image>();
         Text m_Sign;
-        StageFigure m_Tones2, m_Goon, m_Kie;
+        StageFigure m_Tones2, m_Goon, m_Kie, m_Kcaj;
         RectTransform m_KieTabk, m_KieTurret;
         Image m_KieHull, m_Rotor;
 
@@ -77,6 +77,26 @@ namespace PooketSlug
             m_Props["kcaj-corner"] = Picture("kcaj-corner", corner, 0f, 0f, corner != null ? corner.rect.width : 96f, corner != null ? corner.rect.height : 52f, Color.white);
         }
 
+        /// <summary>The creamery's cold store: its sliding door (a slab of steel with a frosted window) and a chest freezer.</summary>
+        public void MakeColdStore()
+        {
+            Image door = Prop("store-door", 44f, 70f);
+            Picture("Door window", null, 0f, 0f, 1f, 1f, Color.white).rectTransform.SetParent(door.rectTransform, false);
+            Image pane = door.rectTransform.GetChild(0).GetComponent<Image>();
+            pane.rectTransform.anchorMin = pane.rectTransform.anchorMax = new Vector2(0.5f, 0.7f);
+            pane.rectTransform.anchoredPosition = Vector2.zero;
+            pane.rectTransform.sizeDelta = new Vector2(16f, 10f) * Px;
+            pane.color = new Color(0.8f, 0.92f, 1f, 0.8f);
+            Image freezer = Prop("freezer", 44f, 24f);
+            Image lid = Picture("Freezer lid", null, 0f, 0f, 1f, 1f, new Color(0.55f, 0.65f, 0.75f));
+            lid.rectTransform.SetParent(freezer.rectTransform, false);
+            lid.rectTransform.anchorMin = new Vector2(0f, 1f);
+            lid.rectTransform.anchorMax = new Vector2(1f, 1f);
+            lid.rectTransform.pivot = new Vector2(0.5f, 1f);
+            lid.rectTransform.anchoredPosition = Vector2.zero;
+            lid.rectTransform.sizeDelta = new Vector2(0f, 3f * Px);
+        }
+
         /// <summary>tones2's tabk, in his orange and black, parked in the motor pool's first space.</summary>
         public void MakeTones2Tabk()
         {
@@ -106,14 +126,20 @@ namespace PooketSlug
             Prop("beacon", 8f, 5f);
         }
 
-        /// <summary>The goon, tones2, and what tones2 carries: the bag, the cup and the keycard.</summary>
+        /// <summary>The goon, kcaj, tones2, and what they carry: the bag, the cup, the keycard, the tub, the slushie, the cones and the sticky note.</summary>
         public void MakeFrontCast()
         {
             m_Goon = new StageFigure(m_World, "goon");
+            m_Kcaj = new StageFigure(m_World, "kcaj");
             m_Tones2 = new StageFigure(m_World, "tones2");
             Prop("bag", 9f, 11f);
             Prop("cup", 6f, 12f);
             Prop("card", 8f, 5f);
+            Prop("tub", 8f, 6f);
+            Prop("slushie", 5f, 11f);
+            Sprite cone = KcajArt.Cone;
+            PaintedProp("cones", cone, cone.rect.width, cone.rect.height);
+            Prop("note", 4f, 4f);
         }
 
         // ------------------------------------------------------------------ each frame
@@ -125,6 +151,7 @@ namespace PooketSlug
             {
                 case "kie": return m_Kie;
                 case "goon": return m_Goon;
+                case "kcaj": return m_Kcaj;
                 default: return m_Tones2;
             }
         }
@@ -140,6 +167,7 @@ namespace PooketSlug
 
             Soldier(m_Tones2, "tones2", Art.SkinFor(Content.Tones2, 0), 10f, stage, t, now, ground);
             Soldier(m_Kie, "kie", Art.SkinFor(Content.Kie, 0), 8f, stage, t, now, ground);
+            Soldier(m_Kcaj, "kcaj", Art.SkinFor(Content.Kcaj, 0), 9f, stage, t, now, ground);
             Goon(stage, t, now, ground);
             KieTabk(stage, t, now, ground);
         }

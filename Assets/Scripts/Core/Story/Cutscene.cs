@@ -3,7 +3,7 @@ using System.Collections.Generic;
 namespace PooketSlug
 {
     /// <summary>Who says a line in a cutscene, which sets how its bubble looks.</summary>
-    public enum Speaker { Tones2, Kie, Goon, Hologram, Caption, Narrator }
+    public enum Speaker { Tones2, Kie, Goon, Hologram, Caption, Narrator, Kcaj }
 
     /// <summary>
     /// One speech bubble, the caption card, or the narrator's subtitle, shown from <see cref="At"/> seconds into its

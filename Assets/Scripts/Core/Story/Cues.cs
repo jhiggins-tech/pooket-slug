@@ -48,6 +48,8 @@ namespace PooketSlug
         // freeing kie
         public const string Cage = "cage", KieDrop = "kie-drop", Snacks = "snacks", Rip = "rip", Drone = "drone", Lift = "lift";
         public const string Remote = "remote", Alarm = "alarm";
+        // freeing kcaj
+        public const string ColdDoor = "cold-door", Frost = "frost", Freezer = "freezer", Munch = "munch", Note = "note";
         /// <summary>A character's intro: its build-up starts (the riser), and it lands (the musical hit).</summary>
         public const string IntroBuild = "intro-build", Intro = "intro";
 
@@ -82,6 +84,11 @@ namespace PooketSlug
             { Lift, new CueEffect(CueSound.Servo, 0.8f) },
             { Remote, new CueEffect(CueSound.Pickup, 0.8f) },
             { Alarm, new CueEffect(CueSound.Siren, 0.4f) },
+            { ColdDoor, new CueEffect(CueSound.Servo, 0.7f, sound2: CueSound.RocketRumble, volume2: 0.25f) },
+            { Frost, new CueEffect(CueSound.Charge, 0.3f) },
+            { Freezer, new CueEffect(CueSound.Thump, 0.6f) },
+            { Munch, new CueEffect(CueSound.Splat, 0.5f) },
+            { Note, new CueEffect(CueSound.Pickup, 0.6f) },
             { IntroBuild, new CueEffect(CueSound.IntroRise, 0.5f) },
             { Intro, new CueEffect(CueSound.Intro, 0.5f) },
         };

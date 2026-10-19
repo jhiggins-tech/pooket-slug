@@ -31,9 +31,10 @@ namespace PooketSlug
             m_World = world;
             m_Sky = Art.Renderer(world.Root, "Sky", Art.Sky, SortOrder.Sky).transform;
             int painted = 0;
-            for (int i = 0; i < Backdrop.Layers.Count; i++)
+            IReadOnlyList<BackdropLayer> layers = Backdrop.LayersFor(mission);
+            for (int i = 0; i < layers.Count; i++)
             {
-                BackdropLayer def = Backdrop.Layers[i];
+                BackdropLayer def = layers[i];
                 Sprite[] plates = Load(mission, def);
                 if (plates.Length > 0) painted++;
                 else plates = Drawn(def); // nothing painted for it: the drawn layer, if there is one

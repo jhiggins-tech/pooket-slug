@@ -235,5 +235,30 @@ namespace PooketSlug.Tests
             Assert.AreEqual(EnemyBrain.Pilot, Content.Pilot.Brain);
             Assert.AreEqual(EnemyBrain.PilotDecoy, Content.PilotDecoy.Brain);
         }
+
+        [Test]
+        public void KcajHoldsHisBeamOnYouFromRange_WhenYoureLevelWithHim()
+        {
+            var b = new PilotBrain(PilotPlaybook.Kcaj, new PilotSpec(), 7);
+            PilotView v = View(12f); // 8 to its left, level
+            v.Specials = 2;
+            Assert.Greater(Run(b, v, 3f).special, 0, "from range, level: Hyperfixate");
+
+            b = new PilotBrain(PilotPlaybook.Kcaj, new PilotSpec(), 7);
+            v = View(12f, 3f); // up on a ledge: the beam would go under you
+            v.Specials = 2;
+            Assert.AreEqual(0, Run(b, v, 3f).special);
+
+            b = new PilotBrain(PilotPlaybook.Kcaj, new PilotSpec(), 7);
+            v = View(12f);
+            v.Specials = 2;
+            v.SpecialBusy = true; // his beam's already stuck
+            Assert.AreEqual(0, Run(b, v, 3f).special);
+
+            b = new PilotBrain(PilotPlaybook.Kcaj, new PilotSpec(), 7);
+            v = View(18f); // right up close: no beam, he backs off
+            v.Specials = 2;
+            Assert.AreEqual(0, Run(b, v, 3f).special);
+        }
     }
 }

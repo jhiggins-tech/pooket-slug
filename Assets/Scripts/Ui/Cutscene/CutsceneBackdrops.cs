@@ -10,7 +10,8 @@ namespace PooketSlug
     /// and lit window cut from it as props, <see cref="CutsceneCast.MakeHangout"/>; the code-drawn street stands in if
     /// it's missing), and the den and the tabk bay on raid night. The
     /// bay is wider than the stage, so a shot there pans along it with its camera. The motor pool's layout (the
-    /// shutter's opening, where the row's tabks park) is here too, since the shutter, the work lights and the row are
+    /// shutter's opening, where the row's tabks park) is here too. The creamery's cold store is code-drawn too, until
+    /// Design paints one, since the shutter, the work lights and the row are
     /// drawn to fit it.
     /// </summary>
     public static class CutsceneBackdrops
@@ -20,15 +21,15 @@ namespace PooketSlug
         /// <summary>Where the row's tabks park (the first space is tones2's).</summary>
         public static readonly float[] MotorRow = { 186f, 236f, 286f };
 
-        static Sprite s_Street, s_MotorPool, s_Slats;
+        static Sprite s_Street, s_MotorPool, s_ColdStore, s_Slats;
 
         /// <summary>The backdrop for set <paramref name="set"/> (the street for none, or one it doesn't know).</summary>
         public static Sprite For(string set)
         {
             Make();
             Sprite painted = set == "den" ? DenRoom.Painting("raid-den") : set == "bay" ? DenRoom.Painting("raid-bay")
-                : set == "motorpool" ? null : DenRoom.Painting("street");
-            return painted != null ? painted : set == "motorpool" ? s_MotorPool : s_Street;
+                : set == "motorpool" || set == "coldstore" ? null : DenRoom.Painting("street");
+            return painted != null ? painted : set == "motorpool" ? s_MotorPool : set == "coldstore" ? s_ColdStore : s_Street;
         }
 
         /// <summary>The motor pool's blast shutter, the size of its opening.</summary>
@@ -46,6 +47,7 @@ namespace PooketSlug
             if (s_Street != null) return;
             s_Street = Backdrop(DrawStreet);
             s_MotorPool = Backdrop(DrawMotorPool);
+            s_ColdStore = Backdrop(DrawColdStore);
             var slats = new PixelCanvas((int)MotorOpenW, (int)MotorOpenH);
             DrawShutter(slats);
             s_Slats = Sprite.Create(Art.ToTexture(slats), new Rect(0, 0, MotorOpenW, MotorOpenH), Vector2.zero, 1f);
@@ -114,6 +116,56 @@ namespace PooketSlug
             c.Rect(0, 0, StageW, floor, Art.Hex(0x30343e));
             c.Rect(0, floor - 1, StageW, 1, Art.Hex(0x4c5262));
             for (int x = 4; x < StageW; x += 26) c.Rect(x, 6, 14, 2, Art.Hex(0x4a4a3c));
+        }
+
+        /// <summary>
+        /// The creamery's cold store, from inside: frosted steel panels, racks of tubs behind, cold strip lights, the
+        /// door's frame on the left (its sliding door is a prop, <c>store-door</c>) and an icy floor.
+        /// </summary>
+        static void DrawColdStore(PixelCanvas c)
+        {
+            int floor = Staging.Sets["coldstore"];
+            c.Rect(0, 0, StageW, StageH, Art.Hex(0x1b2a3a));
+            // the walls: steel panels with frost creeping down from the top
+            for (int x = 0; x < StageW; x += 28) c.Rect(x, floor, 1, StageH - floor, Art.Hex(0x152230));
+            var rng = new System.Random(5);
+            for (int x = 0; x < StageW; x++)
+            {
+                int drip = 6 + rng.Next(10);
+                c.Rect(x, StageH - drip, 1, drip, Art.Hex(0xb8d4ea, (byte)(150 + rng.Next(80))));
+            }
+            // cold strip lights
+            for (int x = 30; x < StageW; x += 90)
+            {
+                c.Rect(x, StageH - 22, 40, 3, Art.Hex(0xe8f6ff));
+                c.Rect(x - 4, StageH - 26, 48, 3, Art.Hex(0x2a3c50));
+            }
+            // racks of tubs along the back wall, past the door
+            for (int rack = 0; rack < 3; rack++)
+            {
+                int rx = 110 + rack * 70, ry = floor;
+                c.Rect(rx, ry, 2, 92, Art.Hex(0x3a4c60));
+                c.Rect(rx + 56, ry, 2, 92, Art.Hex(0x3a4c60));
+                for (int shelf = 0; shelf < 4; shelf++)
+                {
+                    int sy = ry + 18 + shelf * 22;
+                    c.Rect(rx, sy, 58, 2, Art.Hex(0x4a5e74));
+                    for (int tub = 0; tub < 5; tub++)
+                    {
+                        uint lid = (uint)((rack + shelf + tub) % 3 == 0 ? 0xe090b0 : (rack + shelf + tub) % 3 == 1 ? 0xf0e0b0 : 0x9fd0a0);
+                        c.Rect(rx + 4 + tub * 11, sy + 2, 8, 6, Art.Hex(0xd8dce4));
+                        c.Rect(rx + 4 + tub * 11, sy + 8, 8, 1, Art.Hex(lid));
+                    }
+                }
+            }
+            // the door's frame, with a hazard edge
+            c.Rect(14, floor, 52, 80, Art.Hex(0x0d151e));
+            c.Rect(12, floor + 78, 56, 4, Art.Hex(0x3a4c60));
+            for (int x = 12; x < 68; x++) c.Rect(x, floor + 82, 1, 3, ((x - 12) / 4) % 2 == 0 ? Art.Hex(0xe0b020) : Art.Hex(0x1a1a1a));
+            // the floor: pale, icy, with a sheen
+            c.Rect(0, 0, StageW, floor, Art.Hex(0x9fb8cc));
+            c.Rect(0, floor - 1, StageW, 1, Art.Hex(0xdff0ff));
+            for (int x = 8; x < StageW; x += 34) c.Rect(x, 5, 18, 1, Art.Hex(0xc8deee));
         }
 
         /// <summary>The motor pool's blast shutter: steel slats with a hazard edge along the bottom.</summary>

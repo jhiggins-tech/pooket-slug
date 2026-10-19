@@ -23,12 +23,30 @@ namespace PooketSlug.Tests
         }
 
         [Test]
-        public void MissionOnesBossIsKiesTabkWithHisPilot_MissionTwosIsKcajsTabk()
+        public void MissionOnesBossIsKiesTabkWithHisPilot_MissionTwosIsKcajsWithHis()
         {
             Assert.AreEqual(BossTabk.Kie, Missions.One.Boss);
             Assert.AreSame(Content.Pilot, Missions.One.Pilot);
             Assert.AreEqual(BossTabk.Kcaj, Missions.Two.Boss);
-            Assert.IsNull(Missions.Two.Pilot, "until Trollogram kcaj is built, the wrecked tabk wins it");
+            Assert.AreSame(Content.KcajPilot, Missions.Two.Pilot);
+        }
+
+        [Test]
+        public void FreeingKcajPlaysOnBothPhones_FreeingKieIsSoloOnly()
+        {
+            Assert.AreEqual(SceneLibrary.FreeingKcaj, Missions.Two.Story.PilotFreed);
+            Assert.IsTrue(Missions.Two.Story.PilotFreedCoop, "every Mission two scene plays on both phones in co-op");
+            Assert.IsFalse(Missions.Two.Story.Coda);
+            Assert.AreEqual(SceneLibrary.FreeingKie, Missions.One.Story.PilotFreed);
+            Assert.IsFalse(Missions.One.Story.PilotFreedCoop);
+        }
+
+        [Test]
+        public void TrolloKcajGetsHisIntroInTheBossIntro_TrolloKieInTheReveal()
+        {
+            Assert.AreEqual("TROLLO-KCAJ", Missions.Two.Story.PilotIntro);
+            Assert.AreEqual("YOU'RE NOT IN MY NOTES.", Missions.Two.Story.PilotIntroLine);
+            Assert.IsNull(Missions.One.Story.PilotIntro, "Trollogram kie's intro is in the motor pool reveal");
         }
 
         [Test]

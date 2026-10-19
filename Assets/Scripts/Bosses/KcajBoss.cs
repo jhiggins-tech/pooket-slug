@@ -29,10 +29,8 @@ namespace PooketSlug
 
         readonly World m_World;
         readonly TankBoss m_Tank;
-        readonly PillRain m_Rain;
-        readonly PillView m_Pills;
+        readonly HostilePills m_Pills;
         readonly SpriteRenderer m_Beam;
-        readonly System.Func<float, float, bool> m_OnSoldier;
         int m_Turn, m_Phase, m_Dir = -1, m_Rains, m_SeenRains;
         float m_T; // seconds into the tell, or 0 to 1 through the sweep
         bool m_HitThisSweep;
@@ -41,9 +39,7 @@ namespace PooketSlug
         {
             m_World = world;
             m_Tank = tank;
-            m_Rain = new PillRain(Spec.Rain);
-            m_Pills = new PillView(world.Root, m_Rain.Capacity, 1.5f);
-            m_OnSoldier = OnSoldier;
+            m_Pills = new HostilePills(world, Spec.Rain);
             m_Beam = Art.Renderer(world.Root, "Sweep beam", Art.Pixel, SortOrder.Effects + 2, shown: false);
         }
 
@@ -52,7 +48,7 @@ namespace PooketSlug
         public bool Disguised => false;
         public void SetDisguised(bool on) { }
 
-        bool Raining => !m_Rain.Done && m_Rains > 0;
+        bool Raining => m_Pills.Raining;
         KcajAttack Next => KcajTankSpec.AttackFor(m_Turn, Raining);
         public bool NextLands => Next == KcajAttack.Shell;
         public float Wait { get; private set; }
@@ -94,13 +90,8 @@ namespace PooketSlug
         void StartRain()
         {
             m_SeenRains = m_Rains;
-            Rect view = m_World.View.Rect;
-            m_Rain.Start(new Rng(unchecked((uint)m_Rains * 2654435761u + 977u) | 1u), view.xMin, view.xMax, view.yMax);
-            Sfx.Play(Sfx.PillsRattle, 0.9f);
+            m_Pills.Start(m_Rains, m_Tank.Muzzle); // out of the barrel
             m_World.Scoring.Popup("UNMEDICATED!", m_Tank.Pos + Vector2.up * 4.4f, KcajArt.Beam);
-            for (int i = 0; i < 10; i++) // a burst of pills out of the barrel, to say where they came from
-                m_World.SpawnParticle(m_Tank.Muzzle, new Vector2(Rng.Fx.Range(-2f, 2f), Rng.Fx.Range(6f, 12f)),
-                    KcajArt.PillColours[i % KcajArt.PillColours.Length], 2f, 0.5f);
         }
 
         /// <summary>Where the beam touches the floor now.</summary>
@@ -138,12 +129,7 @@ namespace PooketSlug
                 if (m_Phase == Sweeping) Scorch(floor);
             }
 
-            if (Raining)
-            {
-                m_Rain.Step(dt, this.Ground, m_OnSoldier);
-                for (int i = 0; i < m_Rain.PopCount; i++) Pop(m_Rain.Pops[i]);
-                if (m_Rain.PopCount > 0) Sfx.Play(Sfx.PillPopAt(), 0.6f);
-            }
+            m_Pills.Tick(dt);
         }
 
         /// <summary>The beam across our own soldier (each screen hurts its own), once a sweep; and sparks where it touches.</summary>
@@ -156,25 +142,6 @@ namespace PooketSlug
             if (!Spec.Hits(m_Tank.Muzzle, floor, p.Pos, p.HalfW, p.Height)) return;
             m_HitThisSweep = true;
             p.Hurt(Spec.SweepDamage);
-        }
-
-        IPillGround Ground => m_Ground ??= new LevelGround(m_World.Level);
-        IPillGround m_Ground;
-
-        bool OnSoldier(float x, float y)
-        {
-            Player p = m_World.Player;
-            return !p.Dead && p.Bounds.Contains(new Vector2(x, y));
-        }
-
-        void Pop(Vector2 at)
-        {
-            KcajArt.Pop(m_World, at, 4);
-            Player p = m_World.Player;
-            if (p.Dead) return;
-            Rect b = p.Bounds;
-            float dx = Mathf.Max(Mathf.Max(b.xMin - at.x, at.x - b.xMax), 0f), dy = Mathf.Max(Mathf.Max(b.yMin - at.y, at.y - b.yMax), 0f);
-            if (dx * dx + dy * dy <= Spec.Rain.PopRadius * Spec.Rain.PopRadius) p.Hurt(Mathf.RoundToInt(Spec.Rain.PopDamage));
         }
 
         public void OnHurt(int damage) { }
@@ -195,7 +162,7 @@ namespace PooketSlug
                 if (m_Phase == Sweeping) KcajArt.DrawBeam(m_Beam, m_Tank.Muzzle, Floor, 1f);
                 else KcajArt.DrawFaintBeam(m_Beam, m_Tank.Muzzle, Floor, new Color(1f, 0.6f, 0.85f, 0.7f));
             }
-            m_Pills.Render(m_Rain, Raining);
+            m_Pills.Render();
         }
 
         // ------------------------------------------------------------------ co-op
@@ -223,14 +190,6 @@ namespace PooketSlug
                 m_Rains = drops;
                 StartRain();
             }
-        }
-
-        /// <summary>The level's solid tiles, for the pills.</summary>
-        sealed class LevelGround : IPillGround
-        {
-            readonly Level m_Level;
-            public LevelGround(Level level) => m_Level = level;
-            public bool Solid(float x, float y) => m_Level.IsSolidAt(new Vector2(x, y));
         }
     }
 }

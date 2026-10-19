@@ -27,6 +27,8 @@ namespace PooketSlug
         /// <summary>The boss intro under way, and the boss's name for its card; null name when there's none.</summary>
         public BossIntroShow Intro;
         public string IntroName;
+        /// <summary>The pilot's part of it: their name for the intro band, and their line (null with no pilot's part).</summary>
+        public string PilotName, PilotLine;
         /// <summary>The super's been met (it's charged once): its meter and SU button show. Hidden before that.</summary>
         public bool SuperShown;
         /// <summary>The one-off prompt for the super's first charge while it shows, or null.</summary>
@@ -50,6 +52,10 @@ namespace PooketSlug
         readonly Image m_Edges;
         readonly RawImage m_StripesTop, m_StripesBottom;
         readonly Text m_Warning, m_IntroName;
+        // the pilot's intro: a slanted gold-edged band with their name, a white flash as it slams in, and their line
+        readonly RectTransform m_PilotBand;
+        readonly Text m_PilotName, m_PilotLine;
+        readonly Image m_PilotFlash;
         // a team super's split card: both soldiers slam in from the sides, the combo's name between them
         readonly RectTransform m_TeamCard;
         readonly Image m_TeamBand, m_TeamLeft, m_TeamRight, m_TeamLeftPic, m_TeamRightPic;
@@ -140,6 +146,19 @@ namespace PooketSlug
             m_Warning = Ui.Label(m_Root, "Warning", Ui.Middle, new Vector2(0f, 40f), 44, TextAnchor.MiddleCenter, Warn);
             m_Warning.text = "WARNING!";
             m_IntroName = Ui.Label(m_Root, "Boss name", Ui.Middle, new Vector2(0f, 2f), 18, TextAnchor.MiddleCenter, Color.white);
+            m_PilotFlash = Ui.Picture(m_Root, "Pilot flash", null, Ui.Middle, Ui.Middle, Vector2.zero, Vector2.zero, Color.clear);
+            m_PilotFlash.rectTransform.anchorMin = Vector2.zero;
+            m_PilotFlash.rectTransform.anchorMax = Vector2.one;
+            m_PilotFlash.raycastTarget = false;
+            m_PilotBand = Ui.Rect(m_Root, "Pilot intro", Ui.Middle, Ui.Middle, new Vector2(60f, 20f), new Vector2(340f, 64f));
+            var band = m_PilotBand.gameObject.AddComponent<Image>();
+            band.color = new Color(0.06f, 0.04f, 0.08f, 0.88f);
+            band.raycastTarget = false;
+            m_PilotBand.localRotation = Quaternion.Euler(0f, 0f, 6f);
+            Ui.Picture(m_PilotBand, "Edge", null, new Vector2(0.5f, 0f), new Vector2(0.5f, 1f), Vector2.zero, new Vector2(340f, 4f), Palette.Gold);
+            Ui.Picture(m_PilotBand, "Edge", null, new Vector2(0.5f, 1f), new Vector2(0.5f, 0f), Vector2.zero, new Vector2(340f, 4f), Palette.Gold);
+            m_PilotName = Ui.Label(m_PilotBand, "Name", Ui.Middle, Vector2.zero, 40, TextAnchor.MiddleCenter, Palette.Gold);
+            m_PilotLine = Ui.Label(m_Root, "Pilot line", Ui.Middle, new Vector2(60f, -30f), 14, TextAnchor.MiddleCenter, Palette.Cyan);
             m_Note = Ui.Label(m_Root, "Note", Ui.Middle, new Vector2(0f, 32f), 12, TextAnchor.MiddleCenter, Palette.CoopBlue);
             m_Coach = Ui.Label(m_Root, "Call-in hint", Ui.Middle, new Vector2(0f, 46f), 14, TextAnchor.MiddleCenter, Palette.Gold);
             m_Coach.text = CallInPrompt;
@@ -250,6 +269,31 @@ namespace PooketSlug
             Ui.Show(m_Edges, edges > 0f);
             Ui.Show(m_IntroName, on && show.NameCard);
             if (on && show.NameCard && m_IntroName.text != info.IntroName) m_IntroName.text = info.IntroName;
+            PilotIntro(show, on && info.PilotName != null, info);
+        }
+
+        /// <summary>The pilot's intro (Trollogram kcaj up in his tabk's hatch): the band slams in with a flash, then the line, glitchy.</summary>
+        void PilotIntro(in BossIntroShow show, bool on, in HudInfo info)
+        {
+            bool band = on && show.Band;
+            Ui.Show(m_PilotBand, band);
+            if (band)
+            {
+                if (m_PilotName.text != info.PilotName) m_PilotName.text = info.PilotName;
+                float k = show.BandIn, size = Mathf.Lerp(1.6f, 1f, k);
+                m_PilotBand.localScale = new Vector3(size, size, 1f);
+            }
+            float flash = band ? 1f - show.BandIn : 0f;
+            m_PilotFlash.color = new Color(1f, 1f, 1f, 0.6f * flash);
+            Ui.Show(m_PilotFlash, flash > 0f);
+            bool line = on && show.Line;
+            Ui.Show(m_PilotLine, line);
+            if (line)
+            {
+                if (m_PilotLine.text != info.PilotLine) m_PilotLine.text = info.PilotLine;
+                bool flick = (int)(show.T * 30f) % 9 == 0; // the Trollograms' flicker
+                m_PilotLine.color = new Color(Palette.Cyan.r, Palette.Cyan.g, Palette.Cyan.b, flick ? 0.4f : 1f);
+            }
         }
 
         /// <summary>A soldier's colour on the team card.</summary>

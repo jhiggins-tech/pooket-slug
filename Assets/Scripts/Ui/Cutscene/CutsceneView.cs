@@ -69,6 +69,7 @@ namespace PooketSlug
             // parts' pieces are made here in turn.
             m_Back = BackdropImage(m_World);
             m_Cast.MakeKcajCorner();
+            m_Cast.MakeColdStore();
             m_Cast.MakeHangout();
             m_Effects.MakeSearchlights();
             // the motor pool: lamps over the row, the row itself, the cold light the shutter lets out, and the shutter
@@ -82,6 +83,7 @@ namespace PooketSlug
             m_Cast.Prop("spark", 6f, 6f);
             m_Effects.MakeChips();
             m_Cast.MakeFrontCast();
+            m_Effects.MakeFrost();
             m_Effects.MakeWaterAndSnow();
 
             m_Camera.MakeIntro();

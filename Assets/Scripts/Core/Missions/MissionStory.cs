@@ -18,8 +18,18 @@ namespace PooketSlug
         /// after it skips the roll-out.
         /// </summary>
         public string BossReveal;
-        /// <summary>Played solo once the boss's pilot is freed, every time (it can be skipped once seen).</summary>
+        /// <summary>Played once the boss's pilot is freed, every time (it can be skipped once seen): solo, and in co-op too with <see cref="PilotFreedCoop"/>.</summary>
+        /// <summary>
+        /// The pilot's intro at the end of the first boss intro (Mission two's: TROLLO-KCAJ, as he looks out of the hatch),
+        /// and what they say; null where the pilot's met in a scene instead (Mission one's motor pool reveal).
+        /// </summary>
+        public string PilotIntro, PilotIntroLine;
         public string PilotFreed;
+        /// <summary>
+        /// <see cref="PilotFreed"/> plays on both phones in co-op too (Mission two's freeing kcaj); without it a co-op
+        /// pilot goes the goons' way and the mission's won at once.
+        /// </summary>
+        public bool PilotFreedCoop;
         /// <summary>After <see cref="PilotFreed"/>: the coda, the run out past the back gate, rather than the win at once.</summary>
         public bool Coda;
         /// <summary>Only ever played solo: never offered for a co-op room (the mission board says SOLO ONLY).</summary>

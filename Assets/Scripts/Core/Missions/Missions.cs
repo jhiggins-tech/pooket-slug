@@ -23,10 +23,16 @@ namespace PooketSlug
         public readonly BossTabk Boss;
         /// <summary>Who jumps out of the wrecked tabk to fight on foot, or null: the wreck wins the mission.</summary>
         public readonly EnemyDef Pilot;
+        /// <summary>
+        /// Where its painted far and middle plates stand (their bottom edge, in world units), when they're cut at its
+        /// floor's top, as Mission two's are; 0 for the shared depths (<see cref="Backdrop.Layers"/>).
+        /// </summary>
+        public readonly float PlatesStand;
 
         public MissionDef(string id, byte netId, string name, string place, string[] map, MissionStory story = null,
-            BossTabk boss = BossTabk.Kie, EnemyDef pilot = null)
+            BossTabk boss = BossTabk.Kie, EnemyDef pilot = null, float platesStand = 0f)
         {
+            PlatesStand = platesStand;
             Boss = boss;
             Pilot = pilot;
             Story = story ?? MissionStory.None;
@@ -80,7 +86,7 @@ namespace PooketSlug
         /// The Brain Freeze creamery (<c>docs/design/levels.md</c>, Mission two; the m2-map page): the loading bay, the
         /// production line's belts and scoop droppers, the sign yard, the nitrogen hall, the freezer corridor, and the
         /// cold store's yard, one flat screen where kcaj's tabk rolls out of the doors. The first mission open to co-op.
-        /// Trollogram kcaj on foot, and the freeing scene, come later: for now the wrecked tabk wins it.
+        /// Wreck the tabk and Trollogram kcaj fights on foot; beat him and the freeing scene plays, on both phones in co-op.
         /// </summary>
         public static readonly MissionDef Two = new MissionDef("mission-2", 1, "MISSION 2", "THE BRAIN FREEZE CREAMERY", new[]
         {
@@ -100,7 +106,12 @@ namespace PooketSlug
         {
             // kcaj's string board briefs it as it starts from the den
             Opening = SceneLibrary.MissionTwoBriefing,
-        }, boss: BossTabk.Kcaj);
+            PilotFreed = SceneLibrary.FreeingKcaj,
+            PilotFreedCoop = true,
+            // Trollogram kcaj looks out of his tabk's hatch the first time
+            PilotIntro = "TROLLO-KCAJ",
+            PilotIntroLine = "YOU'RE NOT IN MY NOTES.",
+        }, boss: BossTabk.Kcaj, pilot: Content.KcajPilot, platesStand: 2f);
 
         public static readonly IReadOnlyList<MissionDef> All = new[] { One, Two };
 

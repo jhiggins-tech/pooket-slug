@@ -35,7 +35,7 @@ namespace PooketSlug
         public static readonly Dictionary<string, Speaker> Speakers = new Dictionary<string, Speaker>
         {
             { "tones2", Speaker.Tones2 }, { "kie", Speaker.Kie }, { "goon", Speaker.Goon }, { "trollo-kie", Speaker.Hologram },
-            { "caption", Speaker.Caption }, { "narrator", Speaker.Narrator },
+            { "kcaj", Speaker.Kcaj }, { "caption", Speaker.Caption }, { "narrator", Speaker.Narrator },
         };
 
         /// <summary>The soldier a speaker's bubble points at.</summary>
@@ -46,6 +46,7 @@ namespace PooketSlug
                 case Speaker.Kie:
                 case Speaker.Hologram: return "kie";
                 case Speaker.Goon: return "goon";
+                case Speaker.Kcaj: return "kcaj";
                 default: return "tones2";
             }
         }

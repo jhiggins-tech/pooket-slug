@@ -378,11 +378,11 @@ namespace PooketSlug
                     m_Paused = false;
                     SetState(GameState.Playing);
                     m_StateTime = playedFor;
-                    Intro.Start(boss, true);
+                    Intro.Start(boss, true, Mission.Story);
                 });
                 return;
             }
-            Intro.Start(boss, firstTime);
+            Intro.Start(boss, firstTime, Mission.Story);
         }
 
         /// <summary>
@@ -415,19 +415,20 @@ namespace PooketSlug
             (m_Flags.Reveal || Story.Due(Mission.Story.BossReveal) && !m_Flags.Boss && !m_Flags.Team);
 
         /// <summary>
-        /// The boss's pilot is freed (Trollogram kie glitched out), solo: the mission's scene for it, then its coda, or the
-        /// win at once for a mission with neither.
+        /// The boss's pilot is freed (its Trollogram glitched out): the mission's scene for it, solo or (where the story
+        /// says so, Mission two's) on both phones in co-op, then its coda, or the win.
         /// </summary>
         void OnPilotFreed()
         {
             MissionStory story = Mission.Story;
-            if (m_Coop || Sandbox.Active || story.PilotFreed == null) // a sandbox skips the scene too
+            if ((m_Coop && !story.PilotFreedCoop) || Sandbox.Active || story.PilotFreed == null) // a sandbox skips the scene too
             {
                 m_World.OnBossDestroyed();
                 return;
             }
             float playedFor = m_StateTime;
-            Scenes.Play(Scenes.Library.Get(story.PilotFreed), false, () =>
+            CutsceneDef scene = m_Coop ? Scenes.Library.ForCoop(story.PilotFreed, Scenes.PartnerVersions()) : Scenes.Library.Get(story.PilotFreed);
+            Scenes.Play(scene, m_Coop, () =>
             {
                 m_Paused = false;
                 SetState(GameState.Playing);
@@ -697,7 +698,7 @@ namespace PooketSlug
                     {
                         if (Sandbox.Tick(dt, soldier)) break;
                     }
-                    else m_World.Tick(dt, soldier);
+                    else if (!Intro.Holding) m_World.Tick(dt, soldier); // the pilot's intro holds the action (solo only)
                     NoteSuper(dt);
                     MissionMusic.Tick(m_World);
                     m_OutFor = m_World.Player.Lives.IsOut && !m_World.Spectating ? m_OutFor + dt : 0f;
@@ -757,6 +758,8 @@ namespace PooketSlug
                 LeaveArmed = m_LeaveArmed > 0f,
                 Intro = Intro.Show,
                 IntroName = Intro.Name,
+                PilotName = Intro.PilotName,
+                PilotLine = Intro.PilotLine,
                 SuperShown = SuperShown || m_State == GameState.Demo, // a move's demo shows the whole kit
                 SuperPrompt = m_SuperPrompt > 0f ? (GameInput.TouchActive ? "SUPER READY! TAP SU" : "SUPER READY! PRESS V") : null,
             });
