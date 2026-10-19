@@ -5,13 +5,13 @@ namespace PooketSlug
 
     /// <summary>
     /// The player's settings from the title screen's SETTINGS (sound, the effects', voices' and music's volumes, screen shake and
-    /// the left-handed pad), and who they play (the title's CREW, <see cref="PooketSlug.Crew"/>). They're kept in this
+    /// the left-handed pad), who they play (the title's CREW, <see cref="PooketSlug.Crew"/>) and the tabk they've loaded. They're kept in this
     /// browser as one number (<see cref="Bits"/>), so a setting added later reads as its default in an old save.
     /// </summary>
     public struct Options
     {
         const int SoundOff = 1, ShakeOff = 2, CrewShift = 2, CrewMask = 15 << CrewShift;
-        const int EffectsShift = 6, VoicesShift = 8, VolumeMask = 3, Lefty = 1 << 10, MusicShift = 11;
+        const int EffectsShift = 6, VoicesShift = 8, VolumeMask = 3, Lefty = 1 << 10, MusicShift = 11, TabkShift = 13, TabkMask = 15 << TabkShift;
 
         /// <summary>Everything on or off at once (M mutes it too).</summary>
         public bool Sound, Shake;
@@ -23,13 +23,15 @@ namespace PooketSlug
         public bool LeftHanded;
         /// <summary>The soldier picked with CREW (a <see cref="SoldierDef"/> id; <see cref="PooketSlug.Crew.Pick"/> reads 0, never picked, as tones2).</summary>
         public int Crew;
+        /// <summary>The tabk loaded on the bay's repair stands (its crewmate's soldier id, <see cref="TabkCards"/>; 0, never picked, reads as tones2's).</summary>
+        public int Tabk;
 
         public static Options Default => new Options { Sound = true, Shake = true };
 
-        /// <summary>What's stored: a bit for each setting turned off, each volume's steps down, the left-handed pad and the crew pick, so 0 is the defaults.</summary>
+        /// <summary>What's stored: a bit for each setting turned off, each volume's steps down, the left-handed pad, the crew pick and the tabk, so 0 is the defaults.</summary>
         public int Bits => (Sound ? 0 : SoundOff) | (Shake ? 0 : ShakeOff) | ((Crew & 15) << CrewShift) |
                            (((int)Effects & VolumeMask) << EffectsShift) | (((int)Voices & VolumeMask) << VoicesShift) | (LeftHanded ? Lefty : 0) |
-                           (((int)Music & VolumeMask) << MusicShift);
+                           (((int)Music & VolumeMask) << MusicShift) | ((Tabk & 15) << TabkShift);
 
         public static Options FromBits(int bits) => new Options
         {
@@ -40,6 +42,7 @@ namespace PooketSlug
             Voices = (Volume)((bits >> VoicesShift) & VolumeMask),
             LeftHanded = (bits & Lefty) != 0,
             Music = (Volume)((bits >> MusicShift) & VolumeMask),
+            Tabk = (bits & TabkMask) >> TabkShift,
         };
 
         /// <summary>How a setting reads on its button.</summary>

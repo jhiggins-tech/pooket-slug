@@ -300,12 +300,15 @@ namespace PooketSlug
         /// <summary>A sprite from rows of palette letters, as the rest of the art is made (with a hit-flash copy).</summary>
         public static Sprite FromRows(string[] rows, Vector2 pivot, bool outline = true) => Simple(rows, pivot, outline);
 
-        static Sprite Simple(string[] rows, Vector2 pivot, bool outline = true)
+        /// <summary>As <see cref="FromRows(string[], Vector2, bool)"/>, with some letters painted other colours (a crewmate's tabk, say).</summary>
+        public static Sprite FromRows(string[] rows, Vector2 pivot, IReadOnlyDictionary<char, uint> paint) => Simple(rows, pivot, true, Swap(paint));
+
+        static Sprite Simple(string[] rows, Vector2 pivot, bool outline = true, Dictionary<char, Color32> pal = null)
         {
             int w = 0;
             foreach (string r in rows) w = Mathf.Max(w, r.Length);
             var c = new PixelCanvas(w + 2, rows.Length + 2);
-            c.Ascii(rows, s_Pal, 1, 1);
+            c.Ascii(rows, pal ?? s_Pal, 1, 1);
             if (outline) c.Outline(OutlineColor);
             return ToSprite(c, pivot, withFlash: true);
         }

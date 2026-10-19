@@ -17,7 +17,7 @@ namespace PooketSlug
     /// <para>
     /// Its parts: <see cref="DenRoom"/> the paintings and where things sit on them, <see cref="DenMap"/> (Core) the floors,
     /// ladder and places, <see cref="DenCrew"/> the crew frame by frame, <see cref="DenBitPlayer"/> the bits,
-    /// <see cref="DenConsole"/> the TV and buttons. This view is the screen around them: the camera, the taps and what's
+    /// <see cref="DenConsole"/> the TV and buttons, <see cref="DenRollerDoor"/> the roller door to the tabk bay. This view is the screen around them: the camera, the taps and what's
     /// been pressed, and the zoom into the TV.
     /// </para>
     /// </summary>
@@ -28,6 +28,7 @@ namespace PooketSlug
         readonly DenCrew m_Crew;
         readonly DenBitPlayer m_Bits;
         readonly DenConsole m_Console;
+        readonly DenRollerDoor m_Door;
         List<GameObject> m_Painted = new List<GameObject>();
         string m_PaintedKey;
         float m_Clock, m_CamX;
@@ -52,6 +53,7 @@ namespace PooketSlug
 
             // made in drawing order, back to front: the paintings (filled as the den opens), the crew just in front of them
             m_Paintings = Ui.Rect(m_World, "Paintings", Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(StageW, StageH) * Px);
+            m_Door = new DenRollerDoor(m_Paintings);
             m_Console.MakeTv();
             m_Crew.MakeProps();
 
@@ -113,6 +115,7 @@ namespace PooketSlug
                 m_PaintedKey = key;
                 foreach (GameObject g in m_Painted) Object.Destroy(g);
                 m_Painted = Paint(m_Paintings, den.Crew);
+                m_Door.OnTop();
             }
             m_Crew.Begin(den, info, m_Paintings);
             m_Bits.Begin();
@@ -196,6 +199,8 @@ namespace PooketSlug
             m_Clock += dt;
             m_Crew.Arrange(den, info);
             m_Bits.Tick(dt, den);
+            m_Door.Draw(info.DoorLift);
+            m_Crew.Through = info.DoorThrough;
             m_Crew.Draw(dt, m_Clock, den);
             bool zooming = den.Zoom >= 0f;
             Ui.Show(m_InviteTap, info.InviteLink != null && !zooming);

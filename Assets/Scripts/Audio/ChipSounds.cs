@@ -242,6 +242,29 @@ namespace PooketSlug
                 c.Noise(0.7f, 0.15f, rate: 0.7f, to: 0.2f, vol: 0.18f);
                 c.Tone(0.7f, 0.15f, 1400f, 80f, duty: 0.125f, steps: 6, vol: 0.08f);
             });
+
+            // ---- The tabk bay ----
+            // The cargo drone's rotors: a buzzy chop, short enough to repeat while it flies (BayView).
+            Sfx.DroneWhirr = Render("chipDroneWhirr", 0.25f, c =>
+            {
+                c.Tone(0f, 0.25f, 180f, duty: 0.125f, vibratoRate: 32f, vibratoDepth: 40f, vol: 0.07f, env: Flat);
+                c.Noise(0f, 0.25f, rate: 0.5f, vol: 0.035f, env: Flat);
+            });
+            // Its cable taking a tabk, or setting one down: a heavy clank and a ring.
+            Sfx.CableClunk = Render("chipCableClunk", 0.3f, c =>
+            {
+                c.Noise(0f, 0.05f, rate: 0.5f, vol: 0.18f);
+                c.Tone(0f, 0.08f, 220f, 110f, duty: 0.5f, vol: 0.14f);
+                c.Tone(0.03f, 0.25f, 1320f, 1250f, triangle: true, vol: 0.05f);
+            });
+            // The fuel hose unhooked or pushed back in: a hiss of air, falling away.
+            Sfx.HoseHiss = Render("chipHoseHiss", 0.5f, c => c.Noise(0f, 0.5f, rate: 1.6f, to: 0.8f, vol: 0.09f, env: new[] { 1f, 0.6f, 0.3f, 0f }));
+            // The tabk on the stands ticking over: a low putt.
+            Sfx.EngineTick = Render("chipEngineTick", 0.06f, c =>
+            {
+                c.Tone(0f, 0.05f, 70f, 55f, duty: 0.5f, vol: 0.12f);
+                c.Noise(0f, 0.02f, rate: 0.3f, vol: 0.05f);
+            });
         }
 
         /// <summary>tones2's kit and the enemies' extras, from the matching Tabks weapons (tones2 is ten's kit there).</summary>

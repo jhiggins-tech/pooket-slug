@@ -12,6 +12,7 @@ namespace PooketSlug
     {
         readonly Game m_Game;
         readonly DenView m_View;
+        readonly RollerDoor m_Door = new RollerDoor();
         Den m_Den;
 
         public DenFlow(Game game, Transform parent)
@@ -30,6 +31,7 @@ namespace PooketSlug
             m_Den = new Den(mode, m_Game.Freed, m_Game.Soldier);
             m_ToCouch = false;
             m_HeldDir = 0;
+            m_Door.Reset();
             m_View.Begin(m_Den, InfoNow());
             m_Game.SetState(GameState.Den);
             Log.Game.Info("Den open: " + mode + ", on the couch: " + (m_Den.Pick?.Name ?? "nobody"));
@@ -49,6 +51,8 @@ namespace PooketSlug
                 Watchers = coop ? g.Net.Watchers : 0,
                 CanHost = g.CoopReady && m_Den.Mode == DenMode.Solo,
                 Skin = coop ? g.Net.Link.LocalSkin : 0,
+                DoorLift = m_Door.Lift,
+                DoorThrough = m_Door.Through,
             };
         }
 
@@ -89,6 +93,15 @@ namespace PooketSlug
             {
                 if (m_Den.TryPick(tapped)) Log.Game.Info("Den pick: " + tapped.Name);
                 else Sfx.Play(Sfx.Thump, 0.3f); // taken, or too late
+            }
+            if (m_Door.Busy)
+            {
+                // through the roller door, or back out of it: nothing else till it's done (and nothing tapped meanwhile kept)
+                m_View.TakePlace();
+                m_View.TakeWalk(out _, out _);
+                m_View.TakeReached();
+                m_View.TakeReady();
+                return;
             }
             Walking(keys, soldier);
             Use(m_View.TakeReached());
@@ -174,12 +187,29 @@ namespace PooketSlug
                 case DenPlace.Gym:
                     g.Kit.Show(m_Den.Pick ?? g.Soldier);
                     return;
+                case DenPlace.RollerDoor:
+                    if (m_Den.Ready) Sit(false);
+                    if (m_Door.GoIn()) Log.Game.Info("Den: through the roller door to the tabk bay");
+                    return;
                 case DenPlace.Trophies:
                     m_View.Note("THE TROPHY SHELF: " + Progression.RankAt(g.Profile.rank).Name.ToUpperInvariant()); // the one you hold, so never a spoiler
                     return;
                 default:
                     m_View.Note(DenMap.Note(place));
                     return;
+            }
+        }
+
+        /// <summary>The roller door: up, and through into the tabk bay; out of the bay, back under it and down it comes.</summary>
+        void Door(float dt)
+        {
+            Game g = m_Game;
+            if (m_Door.Tick(dt)) g.Bay.Show(m_Den.Pick ?? g.Soldier, m_Den.Mode == DenMode.Coop ? g.Net.Link.LocalSkin : 0);
+            else if (m_Door.Inside && !g.Bay.Open) m_Door.ComeOut();
+            if (m_Door.TakeRolled())
+            {
+                Sfx.Play(Sfx.Servo, 0.7f);
+                Sfx.Play(Sfx.RocketRumble, 0.25f);
             }
         }
 
@@ -258,8 +288,9 @@ namespace PooketSlug
                 if (!scenes.InCoop) Log.Game.Info("Scenes for co-op: " + scenes.StartCoop().ToString("x8"));
                 g.Net.Link.SendSceneVersions(scenes.Versions);
             }
+            Door(dt);
             m_View.Refresh(dt, m_Den, InfoNow());
-            if (!m_Den.Go || g.Kit.Open || g.Board.Open) return;
+            if (!m_Den.Go || g.Kit.Open || g.Board.Open || g.Bay.Open) return;
             m_View.Hide();
             if (m_Den.Mode == DenMode.Coop)
             {

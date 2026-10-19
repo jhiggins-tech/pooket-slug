@@ -60,6 +60,9 @@ namespace PooketSlug
         DenActor m_VisitorActor;
         float m_Clock;
 
+        /// <summary>How far through the roller door to the tabk bay your soldier is (<see cref="RollerDoor.Through"/>).</summary>
+        public float Through;
+
         /// <summary>The bits the crew do (set once both are made): swapping someone in ends theirs, and the slushie bit has props.</summary>
         public DenBitPlayer Bits;
 
@@ -268,8 +271,20 @@ namespace PooketSlug
             else if (climbing) shiver = (int)(m_Clock * 6f) % 2 == 0 ? 0.5f : -0.5f; // hand over hand
             f.Torso.rectTransform.anchoredPosition = new Vector2(0f, (seated ? -6f : bob) * Px);
             float x = seated ? SeatX[a.Seat] : a.X, y = seated ? SitY : a.Y;
+            // through the roller door: in under it, into the dark of the bay, a little smaller as they go
+            float through = a == Mine ? Through : 0f;
+            if (through > 0f)
+            {
+                Vector2 sill = DenRollerDoor.Sill;
+                x = Mathf.Lerp(x, sill.x, through);
+                y = Mathf.Lerp(y, sill.y, through);
+            }
+            Ui.Show(f.Rt, through < 1f);
+            Color shade = Color.Lerp(Color.white, new Color(0.15f, 0.15f, 0.2f), through);
+            f.Legs.color = f.Torso.color = shade;
+            float size = 1f - 0.2f * through;
             f.Rt.anchoredPosition = new Vector2(x + shiver, y) * Px;
-            f.Rt.localScale = new Vector3(a.Walk.FaceLeft && !seated && !climbing ? -1f : 1f, 1f, 1f);
+            f.Rt.localScale = new Vector3((a.Walk.FaceLeft && !seated && !climbing ? -1f : 1f) * size, size, 1f);
             bool cup = a.Soldier == Content.Tones2 && (a.Doing == DenDoing.Station && a.Cycle == 0 || a.Doing == DenDoing.Bit && Bits.Slushie && Bits.T < 3.4f);
             Ui.Show(f.Cup, cup);
             if (cup) f.Cup.rectTransform.anchoredPosition = new Vector2(5f, a.Doing == DenDoing.Station && a.CycleT > 0.6f && a.CycleT < 2.2f ? 8f : 1f) * Px;

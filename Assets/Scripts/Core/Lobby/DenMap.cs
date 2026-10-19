@@ -173,8 +173,8 @@ namespace PooketSlug
         }
 
         /// <summary>
-        /// What a place says when you use it, for the ones that only talk for now (null for the couch, the board, the gym
-        /// and the trophies, which do something). Tarped rooms don't say whose they are.
+        /// What a place says when you use it, for the ones that only talk for now (null for the couch, the board, the gym,
+        /// the trophies and the roller door to the tabk bay, which do something). Tarped rooms don't say whose they are.
         /// </summary>
         public static string Note(DenPlace place)
         {
@@ -186,7 +186,6 @@ namespace PooketSlug
                 case DenPlace.Vending: return "OUT OF ORDER";
                 case DenPlace.Rooftop: return "THE ROOFTOP: NOT YET";
                 case DenPlace.SideDoor: return "THE KITCHEN: NOT YET";
-                case DenPlace.RollerDoor: return "THE TABK BAY: NOT YET";
                 default: return null;
             }
         }
