@@ -3,7 +3,7 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// kie's roulette on an enemy (his tank, <see cref="KieBoss"/>, and his pilot, <see cref="Pilot"/>): a wheel spins over
+    /// kie's roulette on an enemy (his tank, <see cref="KieBoss"/>, and his pilot, <see cref="KiePilot"/>): a wheel spins over
     /// it and steals our soldier's special's charges (or the super's charge). Hit its holder hard enough and it drops
     /// what it stole (<see cref="KieLoot"/>) to grab back.
     /// <para>

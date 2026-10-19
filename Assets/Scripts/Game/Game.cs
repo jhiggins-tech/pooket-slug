@@ -373,22 +373,26 @@ namespace PooketSlug
         void OnBossIntro(BossEnemy boss, bool firstTime)
         {
             MissionMusic.BossIntro();
-            if (firstTime && boss is TankBoss tank && PlaysBossReveal)
+            if (boss is TankBoss tank && PlaysBossReveal(firstTime))
             {
-                // The first time: the reveal (Mission one's motor pool) is the tabk's entrance, so after it the tabk's in
-                // place and the intro goes straight to the banner, the name card and the music (docs/design/cutscenes.md, The boss intro).
+                // The reveal (Mission one's motor pool, Mission two's cold store) is the tabk's entrance, so after it the
+                // tabk's in place and the intro goes straight to the banner, the name card and the music, its pilot met in
+                // the scene (docs/design/cutscenes.md, The boss intro). In co-op both phones play it together.
+                m_BossRevealed = m_World;
                 float playedFor = m_StateTime; // the mission's clock (and its start banner) carry on from where they were
-                Scenes.Play(Scenes.Library.Get(Mission.Story.BossReveal), false, () =>
+                bool together = m_Coop && Net.Link.Partners.Count > 0;
+                CutsceneDef scene = together ? Scenes.Library.ForCoop(Mission.Story.BossReveal, Scenes.PartnerVersions()) : Scenes.Library.Get(Mission.Story.BossReveal);
+                Scenes.Play(scene, together, () =>
                 {
                     tank.SkipEntrance();
                     m_Paused = false;
                     SetState(GameState.Playing);
                     m_StateTime = playedFor;
-                    Intro.Start(boss, true);
+                    Intro.Start(boss, true, Mission.Story, revealed: true);
                 });
                 return;
             }
-            Intro.Start(boss, firstTime);
+            Intro.Start(boss, firstTime, Mission.Story);
         }
 
         /// <summary>
@@ -413,27 +417,39 @@ namespace PooketSlug
         }
 
         /// <summary>
-        /// The mission's boss reveal (Mission one's motor pool) plays once, ever: the first time the boss wakes, solo
-        /// (co-op opens only once Mission one's beaten, so it's been seen by then). Test starts skip it, unless
-        /// ?test=reveal.
+        /// The mission's boss reveal plays once, ever, solo: the first time the boss wakes (co-op opens only once Mission
+        /// one's beaten, so its motor pool has been seen by then). One that plays in co-op too (Mission two's) plays at
+        /// the first boss wake of each co-op run instead, the same on both phones whatever their saves say. Test starts
+        /// skip it, unless ?test=reveal.
         /// </summary>
-        bool PlaysBossReveal => !m_Coop && !Sandbox.Active && Mission.Story.BossReveal != null &&
-            (m_Flags.Reveal || Story.Due(Mission.Story.BossReveal) && !m_Flags.Boss && !m_Flags.Team);
+        bool PlaysBossReveal(bool firstTime)
+        {
+            MissionStory story = Mission.Story;
+            if (Sandbox.Active || story.BossReveal == null || m_BossRevealed == m_World) return false;
+            if (m_Flags.Reveal) return true;
+            if (m_Flags.Testing) return false;
+            if (m_Coop) return story.BossRevealCoop;
+            return firstTime && Story.Due(story.BossReveal);
+        }
+
+        /// <summary>The world whose boss reveal has played, so its boss waking again doesn't play it twice.</summary>
+        World m_BossRevealed;
 
         /// <summary>
-        /// The boss's pilot is freed (Trollogram kie glitched out), solo: the mission's scene for it, then its coda, or the
-        /// win at once for a mission with neither.
+        /// The boss's pilot is freed (its Trollogram glitched out): the mission's scene for it, solo or (where the story
+        /// says so, Mission two's) on both phones in co-op, then its coda, or the win.
         /// </summary>
         void OnPilotFreed()
         {
             MissionStory story = Mission.Story;
-            if (m_Coop || Sandbox.Active || story.PilotFreed == null) // a sandbox skips the scene too
+            if ((m_Coop && !story.PilotFreedCoop) || Sandbox.Active || story.PilotFreed == null) // a sandbox skips the scene too
             {
                 m_World.OnBossDestroyed();
                 return;
             }
             float playedFor = m_StateTime;
-            Scenes.Play(Scenes.Library.Get(story.PilotFreed), false, () =>
+            CutsceneDef scene = m_Coop ? Scenes.Library.ForCoop(story.PilotFreed, Scenes.PartnerVersions()) : Scenes.Library.Get(story.PilotFreed);
+            Scenes.Play(scene, m_Coop, () =>
             {
                 m_Paused = false;
                 SetState(GameState.Playing);
@@ -705,7 +721,7 @@ namespace PooketSlug
                     {
                         if (Sandbox.Tick(dt, soldier)) break;
                     }
-                    else m_World.Tick(dt, soldier);
+                    else if (!Intro.Holding) m_World.Tick(dt, soldier); // the pilot's intro holds the action (solo only)
                     NoteSuper(dt);
                     MissionMusic.Tick(m_World);
                     m_OutFor = m_World.Player.Lives.IsOut && !m_World.Spectating ? m_OutFor + dt : 0f;
@@ -766,6 +782,8 @@ namespace PooketSlug
                 LeaveArmed = m_LeaveArmed > 0f,
                 Intro = Intro.Show,
                 IntroName = Intro.Name,
+                PilotName = Intro.PilotName,
+                PilotLine = Intro.PilotLine,
                 SuperShown = SuperShown || m_State == GameState.Demo, // a move's demo shows the whole kit
                 SuperPrompt = m_SuperPrompt > 0f ? (GameInput.TouchActive ? "SUPER READY! TAP SU" : "SUPER READY! PRESS V") : null,
             });

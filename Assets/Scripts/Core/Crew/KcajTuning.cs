@@ -11,6 +11,69 @@ namespace PooketSlug
         public static readonly DoubleParkSpec Cones = new DoubleParkSpec();
         public static readonly HyperfixateSpec Beam = new HyperfixateSpec();
         public static readonly UnmedicatedSpec Pills = new UnmedicatedSpec();
+        /// <summary>Trollogram kcaj, Mission two's pilot, playing the same kit against the soldiers.</summary>
+        public static readonly KcajPilotSpec Pilot = new KcajPilotSpec();
+    }
+
+    /// <summary>
+    /// Trollogram kcaj, who jumps out of his wrecked tabk in Mission two to fight on foot (<c>docs/design/tanks.md</c>,
+    /// The pilot round): kcaj's kit on the Trollograms' side, played by the pilot brain with kcaj's playbook. Double
+    /// Park lobs cones at the soldiers; Hyperfixate sticks to one of them from range and burns while he stands still,
+    /// so hurting him hard enough breaks it; Unmedicated rains pills on the soldiers, charged by his hits on them.
+    /// </summary>
+    public sealed class KcajPilotSpec
+    {
+        /// <summary>Its health: kie's pilot's, a boss duel of 30 to 45 seconds.</summary>
+        public int Hp = 40;
+        /// <summary>How fast it runs and how high it jumps, next to kcaj himself.</summary>
+        public float RunScale = 0.85f, JumpScale = 1f;
+        /// <summary>Double Park: seconds between presses (slower than kcaj's own), and each cone's blast on a soldier.</summary>
+        public float ConeCooldown = 1.1f;
+        public int ConeDamage = 1;
+        /// <summary>Hyperfixate: charges, and seconds for a spent one to come back.</summary>
+        public int Specials = 2;
+        public float SpecialRefill = 8f;
+        /// <summary>
+        /// His beam on a soldier: a little shorter and much cooler than kcaj's own, counted in hearts. Held to the end it
+        /// burns about two hearts.
+        /// </summary>
+        public readonly HyperfixateSpec Beam = new HyperfixateSpec
+        {
+            Range = 10f, BreakRange = 12f, TickInterval = 0.5f, FirstTick = 0.2f, HottestTick = 0.6f, RampTime = 2f,
+            MaxHold = 2.5f, WalkScale = 0f,
+        };
+        /// <summary>Hurting him this much while his beam's stuck breaks it: he's standing still, so shoot him.</summary>
+        public int BreakOnHurt = 6;
+        /// <summary>Unmedicated: fewer, bigger pills than kcaj's own, each a heart a direct pop on a soldier.</summary>
+        public readonly UnmedicatedSpec Rain = new UnmedicatedSpec
+        {
+            Count = 20, RainTime = 1.8f, MinFall = 1f, MaxFall = 3f, MaxDrift = 1f, Landings = 2,
+            Radius = 0.2f, PopRadius = 0.5f, PopDamage = 1f, HurtsSoldiers = true,
+        };
+        /// <summary>Unmedicated charges from his hits on the soldiers, not from kills: this many hearts.</summary>
+        public int SuperHits = 3;
+        /// <summary>How hard it jumps out of the wreck, and how long it can't be hurt while it does.</summary>
+        public Vector2 JumpOut = new Vector2(-3f, 15f);
+        public float JumpOutShield = 1f;
+
+        /// <summary>Its super's meter after the soldiers lost <paramref name="hearts"/> to it, from <paramref name="meter"/>.</summary>
+        public int ChargeSuper(int meter, int hearts) => Mathf.Min(SuperHits, meter + Mathf.Max(0, hearts));
+        public bool SuperReady(int meter) => meter >= SuperHits;
+
+        /// <summary>
+        /// The beam's burns land in hearts: <paramref name="burn"/> joins what's <paramref name="carried"/> over, and
+        /// the whole hearts come out now (the rest carries on to the next tick).
+        /// </summary>
+        public static int Hearts(ref float carried, float burn)
+        {
+            carried += Mathf.Max(0f, burn);
+            int hearts = Mathf.FloorToInt(carried + 1e-4f);
+            carried -= hearts;
+            return hearts;
+        }
+
+        /// <summary>His beam breaks: he's taken <paramref name="hurt"/> since it stuck.</summary>
+        public bool Breaks(int hurt) => hurt >= BreakOnHurt;
     }
 
     /// <summary>

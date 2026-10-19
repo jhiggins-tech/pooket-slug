@@ -17,7 +17,7 @@ namespace PooketSlug
     /// <para>
     /// Its parts: <see cref="DenRoom"/> the paintings and where things sit on them, <see cref="DenMap"/> (Core) the floors,
     /// ladder and places, <see cref="DenCrew"/> the crew frame by frame, <see cref="DenBitPlayer"/> the bits,
-    /// <see cref="DenConsole"/> the TV and buttons, <see cref="DenRollerDoor"/> the roller door to the tabk bay. This view is the screen around them: the camera, the taps and what's
+    /// <see cref="DenConsole"/> the TV and buttons, <see cref="DenRollerDoor"/> the roller door to the tabk bay, <see cref="DenBeatView"/> the first visit and a crewmate moving in. This view is the screen around them: the camera, the taps and what's
     /// been pressed, and the zoom into the TV.
     /// </para>
     /// </summary>
@@ -29,6 +29,7 @@ namespace PooketSlug
         readonly DenBitPlayer m_Bits;
         readonly DenConsole m_Console;
         readonly DenRollerDoor m_Door;
+        readonly DenBeatView m_Beat;
         List<GameObject> m_Painted = new List<GameObject>();
         string m_PaintedKey;
         float m_Clock, m_CamX;
@@ -56,6 +57,7 @@ namespace PooketSlug
             m_Door = new DenRollerDoor(m_Paintings);
             m_Console.MakeTv();
             m_Crew.MakeProps();
+            m_Beat = new DenBeatView(m_World);
 
             // the whole den and loft: a tap on someone swaps to them, on a place walks there to use it, anywhere else walks there
             m_RoomTap = Ui.Rect(m_World, "Tap room", Vector2.zero, Vector2.zero, Vector2.zero,
@@ -136,8 +138,30 @@ namespace PooketSlug
             return a;
         }
 
+        /// <summary>Darkens <paramref name="s"/>'s corner (their moved-in layer) till their move-in beat lights it.</summary>
+        public void DarkCorner(SoldierDef s)
+        {
+            Transform layer = m_Paintings.Find(s.Name + " moved in");
+            if (layer != null) layer.GetComponent<Image>().color = Color.clear;
+        }
+
+        /// <summary>Plays <paramref name="beat"/> over the den (<see cref="DenBeatView"/>) till <see cref="EndBeat"/>.</summary>
+        public void PlayBeat(DenBeat beat)
+        {
+            m_Crew.Beat = beat;
+            m_Beat.Begin(beat, m_Paintings);
+        }
+
+        /// <summary>The beat's over: the den as it is, and its crewmates off from where it left them.</summary>
+        public void EndBeat(DenBeat beat)
+        {
+            m_Crew.EndBeat(beat);
+            m_Beat.Hide();
+        }
+
         public void Hide()
         {
+            if (m_Crew.Beat != null) EndBeat(m_Crew.Beat);
             m_Bits.Stop();
             Ui.Show(m_Root, false);
         }
@@ -202,11 +226,21 @@ namespace PooketSlug
             m_Door.Draw(info.DoorLift);
             m_Crew.Through = info.DoorThrough;
             m_Crew.Draw(dt, m_Clock, den);
+            if (m_Crew.Beat != null) m_Beat.Draw(m_Crew.Beat, m_Clock, Speaker(m_Crew.Beat));
             bool zooming = den.Zoom >= 0f;
             Ui.Show(m_InviteTap, info.InviteLink != null && !zooming);
             Ui.Show(m_RoomTap, !zooming);
             m_Console.Refresh(den, info, m_Clock);
             Camera(dt, den);
+        }
+
+        /// <summary>Where the line's said from, when the one saying it is a crewmate in the room (moving in, tones2 or kie says hi).</summary>
+        Vector2? Speaker(DenBeat beat)
+        {
+            if (beat.Kind == DenBeatKind.FirstVisit) return null;
+            DenActor a = m_Crew.Find(beat.Speaker);
+            if (a == null || a.Doing == DenDoing.Away) return null;
+            return a.OnCouch ? new Vector2(SeatX[a.Seat], SitY) : new Vector2(a.X, a.Y);
         }
 
         /// <summary>

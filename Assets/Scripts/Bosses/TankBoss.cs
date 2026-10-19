@@ -30,6 +30,11 @@ namespace PooketSlug
         readonly SpriteRenderer m_Hull, m_Barrel, m_MeterBack, m_MeterFill, m_Marker;
         readonly Transform m_BarrelPivot;
         readonly IBossKit m_Kie; // the crewmate's attacks: kie's, or kcaj's
+        // the Trollogram pilot up in the hatch for their intro (Mission two's kcaj), and the cones he holds
+        readonly SpriteRenderer m_Pilot, m_ConeLeft, m_ConeRight;
+
+        /// <summary>How far the Trollogram pilot is up out of the hatch, 0..1: set by the boss intro (<see cref="BossIntroFlow"/>).</summary>
+        public float HatchPilot;
         float m_HomeX;
         State m_State = State.Recoil;
         float m_StateTime, m_Timer = 1.2f, m_DriveTo, m_Angle = 150f, m_WantAngle = 150f, m_Power, m_Charge, m_Kick, m_ServoTimer, m_ExplodeTimer;
@@ -57,12 +62,35 @@ namespace PooketSlug
             m_Marker = Art.Renderer(Go.transform, "Landing marker", Art.LandingMarker, SortOrder.Effects, shown: false); // goes with the tank; placed in the world each frame
             if (decoy) Engaged = true;
             else m_Kie = world.KcajTank ? new KcajBoss(world, this) : new KieBoss(world, this); // on every screen in co-op: the roulette and the disguise are drawn on each
+            if (!decoy && world.KcajTank)
+            {
+                m_Pilot = AddRenderer(Visual, "Pilot", Art.Holo(Art.SkinFor(Content.Kcaj, 0).TorsoForward), SortOrder.Boss - 2);
+                m_ConeLeft = AddRenderer(m_Pilot.transform, "Cone", KcajArt.Cone, SortOrder.Boss - 1);
+                m_ConeRight = AddRenderer(m_Pilot.transform, "Cone", KcajArt.Cone, SortOrder.Boss - 1);
+                m_ConeLeft.transform.localPosition = new Vector3(-6f / Art.PPU, 13f / Art.PPU, 0f);
+                m_ConeRight.transform.localPosition = new Vector3(6f / Art.PPU, 13f / Art.PPU, 0f);
+                m_Pilot.enabled = m_ConeLeft.enabled = m_ConeRight.enabled = false;
+            }
             if (!decoy && !world.QuickBossIntro && ShutterX(world, feet.x, out float shutter))
             {
                 // Waits out of sight in the motor pool, to roll out of its shutter when it wakes.
                 Pos = new Vector2(shutter, feet.y);
                 m_State = State.Entrance;
             }
+        }
+
+        /// <summary>The Trollogram pilot rising out of the hatch, flickering, holding up two cones.</summary>
+        void Hatch(float rumble)
+        {
+            if (m_Pilot == null) return;
+            bool up = HatchPilot > 0f && !Dying;
+            m_Pilot.enabled = m_ConeLeft.enabled = m_ConeRight.enabled = up;
+            if (!up) return;
+            // his waist at the turret's pivot once he's up; below it, hidden behind the hull, before
+            float y = Art.TankBarrelPivot.y - (12f - 11f * HatchPilot) / Art.PPU;
+            m_Pilot.transform.localPosition = new Vector3(Art.TankBarrelPivot.x, y + rumble, 0f);
+            float a = (int)(Anim * 30f) % 9 == 0 ? 0.4f : 0.9f;
+            m_Pilot.color = m_ConeLeft.color = m_ConeRight.color = new Color(1f, 1f, 1f, a);
         }
 
         /// <summary>Rage, for kie's attacks: how much quicker it is, hurt.</summary>
@@ -443,6 +471,7 @@ namespace PooketSlug
             m_BarrelPivot.localRotation = Quaternion.Euler(0f, 0f, m_Angle - 180f);
             m_BarrelPivot.localPosition = (Vector3)Art.TankBarrelPivot + new Vector3(0f, rumble, 0f);
             m_Barrel.transform.localPosition = new Vector3(m_Kick * 4f / Art.PPU, 0f, 0f);
+            Hatch(rumble);
 
             bool charging = m_State == State.Charge && !Dying;
             float charge = charging ? m_Charge : 0f;

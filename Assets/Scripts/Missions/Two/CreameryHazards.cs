@@ -197,7 +197,8 @@ namespace PooketSlug
 
     /// <summary>
     /// The cold store's doors, at the right of the boss's yard: fog spills out under them, and billows as kcaj's tabk
-    /// rolls out of them (<see cref="TankBoss"/> makes its entrance from here).
+    /// rolls out of them (<see cref="TankBoss"/> makes its entrance from here). With the mission's plates in, the arena's
+    /// painted doors are the doors (Design's, shut, over this spot at the lock), so only the fog is drawn here.
     /// </summary>
     public sealed class ColdStoreDoor : Entity
     {
@@ -206,7 +207,7 @@ namespace PooketSlug
 
         public ColdStoreDoor(World world, Vector2 feet) : base(world, "ColdStore", feet)
         {
-            AddRenderer(Go.transform, "Sprite", CreameryArt.ColdStoreDoor, SortOrder.Scenery);
+            if (!BackdropView.Painted(world.Mission, "mid")) AddRenderer(Go.transform, "Sprite", CreameryArt.ColdStoreDoor, SortOrder.Scenery);
         }
 
         public override void Tick(float dt)

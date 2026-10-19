@@ -26,6 +26,8 @@ namespace PooketSlug
         /// <summary>Its special's charges, and whether its super is charged.</summary>
         public int Specials;
         public bool SuperReady;
+        /// <summary>Its special is still going (kcaj's beam is stuck): no new one until it's done.</summary>
+        public bool SpecialBusy;
         /// <summary>The screen's edges: it keeps inside them.</summary>
         public float Left, Right;
     }
@@ -54,12 +56,27 @@ namespace PooketSlug
         /// </summary>
         public bool SwapsWithDecoy;
         public float SwapWhenClose = 3f, SwapMinGap = 4f;
+        /// <summary>
+        /// Uses its special on a target this far off along the ground, roughly level with it (0: never for that reason):
+        /// kcaj holds Hyperfixate on you from range.
+        /// </summary>
+        public float SpecialFromRange, SpecialLevel = 1.2f;
 
         /// <summary>kie's (Mission one): Weasel Pop from mid-range and over cover; a Trollogram when you close in, swapping to escape; Steal when charged.</summary>
         public static readonly PilotPlaybook Kie = new PilotPlaybook
         {
             Name = "kie", NearRange = 5f, FarRange = 9f, HoldFire = false, BurstTime = 1.4f, PauseTime = 1.1f, TapGap = 0.6f,
             SpecialWhenClose = 3.5f, SuperWhenReady = true, SwapsWithDecoy = true, SwapWhenClose = 3f, SwapMinGap = 4f,
+        };
+
+        /// <summary>
+        /// kcaj's (Mission two): lobs Double Park from mid-range; holds Hyperfixate on you from range when you're level
+        /// with him; rains Unmedicated when charged.
+        /// </summary>
+        public static readonly PilotPlaybook Kcaj = new PilotPlaybook
+        {
+            Name = "kcaj", NearRange = 5f, FarRange = 9.5f, HoldFire = false, BurstTime = 2.4f, PauseTime = 1.2f, TapGap = 1.1f,
+            SuperWhenReady = true, SpecialFromRange = 6f, SpecialLevel = 1.2f,
         };
     }
 
@@ -246,6 +263,9 @@ namespace PooketSlug
                 return;
             }
             if (Book.SpecialWhenClose > 0f && dist < Book.SpecialWhenClose && v.Specials > 0) StartTell(PilotMove.Special);
+            else if (Book.SpecialFromRange > 0f && dist >= Book.SpecialFromRange && Mathf.Abs(dy) <= Book.SpecialLevel && v.Specials > 0 &&
+                     !v.SpecialBusy)
+                StartTell(PilotMove.Special);
         }
 
         void StartTell(PilotMove move)

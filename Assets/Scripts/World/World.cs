@@ -423,7 +423,7 @@ namespace PooketSlug
             if (!IsAuthority) return;
             if (Mission.Pilot == null)
             {
-                OnBossDestroyed(); // no pilot round (yet: Trollogram kcaj, Mission two's): the wreck wins it
+                OnBossDestroyed(); // no pilot round: the wreck wins it
                 return;
             }
             if (Spawner.SpawnEnemy(Mission.Pilot, tank.Pos + Vector2.up * 0.6f) is Pilot pilot)
@@ -505,15 +505,15 @@ namespace PooketSlug
         }
 
         /// <summary>
-        /// Raised when Trollogram kie has glitched out, solo: the freeing scene plays, and wins the mission after it.
+        /// Raised when the boss's Trollogram pilot has glitched out: the freeing scene plays, and wins the mission after it.
         /// With nobody listening, the mission's won straight away.
         /// </summary>
         public event System.Action PilotFreed;
 
-        /// <summary>The pilot's glitched out, solo: on to the freeing scene (<c>docs/design/cutscenes.md</c>, Freeing kie).</summary>
+        /// <summary>The pilot's glitched out: on to the freeing scene (<c>docs/design/cutscenes.md</c>, Freeing kie, Freeing kcaj).</summary>
         public void OnPilotFreed()
         {
-            Log.Game.Info("Pilot glitched out: the real kie is freed");
+            Log.Game.Info("Pilot glitched out: the real crewmate is freed");
             if (PilotFreed != null) PilotFreed();
             else OnBossDestroyed();
         }
