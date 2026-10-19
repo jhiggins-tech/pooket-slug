@@ -7,7 +7,7 @@
 net 6
 
 shot: The cold store
-length 3.5
+length 4
 set coldstore
 show tub
 // the players step in from the left; frost creeps along the doors' seams and a stack of tubs rattles to an idling engine
