@@ -147,8 +147,9 @@ namespace PooketSlug
 
     /// <summary>
     /// A player's tank as their partner sees it, packed into one replicated int beside the soldier's pose: what it's
-    /// doing, which way it faces and aims, its health, and how many tanks of theirs have blown up (a change means one
-    /// just did, so the partner's screen shows the blast). The tank's position travels on its own.
+    /// doing, which way it faces and aims, its health, how many tanks of theirs have blown up (a change means one
+    /// just did, so the partner's screen shows the blast), whose tabk it is and whether its reels spin. The tank's
+    /// position travels on its own.
     /// </summary>
     public struct TankPose
     {
@@ -156,6 +157,7 @@ namespace PooketSlug
 
         const int ModeMask = 7, FacingRightBit = 1 << 3, AimShift = 4, AimMask = 7 << AimShift, HpShift = 7, HpMask = 63 << HpShift;
         const int FlashBit = 1 << 13, MuzzleBit = 1 << 14, BlownShift = 15, BlownMask = 15 << BlownShift;
+        const int TabkShift = 19, TabkMask = 7 << TabkShift, SpinBit = 1 << 22;
 
         public Mode State;
         public int Facing;
@@ -165,6 +167,10 @@ namespace PooketSlug
         public bool Flash, Muzzle;
         /// <summary>Tanks of theirs that have blown up so far (it wraps at 16).</summary>
         public int Blown;
+        /// <summary>Whose tabk it is, by its crewmate's soldier id (<see cref="TabkCard.Id"/>), so it's drawn in their look.</summary>
+        public int Tabk;
+        /// <summary>Its reels spinning, on a tabk that has them (kie's, charging a shot).</summary>
+        public bool Spin;
 
         public static int Octant(Vector2 aim) => ((Mathf.RoundToInt(TankAim.Angle(aim) / 45f) % 8) + 8) % 8;
 
@@ -177,7 +183,8 @@ namespace PooketSlug
 
         public int Pack() =>
             ((int)State & ModeMask) | (Facing > 0 ? FacingRightBit : 0) | ((AimOctant & 7) << AimShift) |
-            (Mathf.Clamp(Hp, 0, 63) << HpShift) | (Flash ? FlashBit : 0) | (Muzzle ? MuzzleBit : 0) | ((Blown & 15) << BlownShift);
+            (Mathf.Clamp(Hp, 0, 63) << HpShift) | (Flash ? FlashBit : 0) | (Muzzle ? MuzzleBit : 0) | ((Blown & 15) << BlownShift) |
+            ((Tabk & 7) << TabkShift) | (Spin ? SpinBit : 0);
 
         public static TankPose Unpack(int flags) => new TankPose
         {
@@ -188,6 +195,8 @@ namespace PooketSlug
             Flash = (flags & FlashBit) != 0,
             Muzzle = (flags & MuzzleBit) != 0,
             Blown = (flags & BlownMask) >> BlownShift,
+            Tabk = (flags & TabkMask) >> TabkShift,
+            Spin = (flags & SpinBit) != 0,
         };
     }
 }

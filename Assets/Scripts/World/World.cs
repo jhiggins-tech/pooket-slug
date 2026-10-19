@@ -139,6 +139,8 @@ namespace PooketSlug
 
         /// <summary>Tanks our soldier can still call in this mission (<c>docs/design/tanks.md</c>).</summary>
         public int TanksToCall;
+        /// <summary>The tabk a call-in drops: the one loaded in the bay, once it's built (<see cref="TabkKit.Dropped"/>).</summary>
+        public TabkKit Tabk = TabkKit.Tones2;
         /// <summary>Our soldier called in a tank, at this spot: it drops in (<see cref="PlayerTank"/>). In co-op each player calls their own.</summary>
         public event System.Action<Vector2> TankCalled;
         /// <summary>The prompt that shows how to call a tank in, the first time; null when it's been seen (<see cref="CallInCoach"/>).</summary>
@@ -262,12 +264,12 @@ namespace PooketSlug
             // it drops in just ahead of the soldier, on screen; the tank left over, if any, is gone
             int facing = Player.Facing;
             float x = Mathf.Clamp(at.x + facing * 2.6f, View.Left + Content.PlayerTank.HalfWidth + 0.5f, View.Right - Content.PlayerTank.HalfWidth - 0.5f);
-            SetTank(PlayerTank.Drop(this, TabkKit.For(Player.Def), x, facing)); // the caller's crewmate's tabk
+            SetTank(PlayerTank.Drop(this, Tabk, x, facing)); // the one loaded in the bay
             TankCalled?.Invoke(at);
         }
 
         /// <summary>?test=tank: an empty tank parked at <paramref name="x"/>, to climb into.</summary>
-        public void ParkTank(float x) => SetTank(PlayerTank.Park(this, TabkKit.For(Player.Def), x));
+        public void ParkTank(float x) => SetTank(PlayerTank.Park(this, Tabk, x));
 
         void SetTank(PlayerTank tank)
         {

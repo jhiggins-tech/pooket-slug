@@ -20,7 +20,7 @@ namespace PooketSlug.Tests
         public void TheCards_SayWhoseTabkItIs_AndItsGuns()
         {
             CollectionAssert.AreEqual(new[] { "WATER", "MUD", "SPEW" }, Names(TabkCards.Tones2));
-            CollectionAssert.AreEqual(new[] { "WEASELS", "TROLLOGRAM", "STEAL" }, Names(TabkCards.Kie));
+            CollectionAssert.AreEqual(new[] { "WEASEL", "TROLLOGRAM", "STEAL" }, Names(TabkCards.Kie));
             CollectionAssert.AreEqual(new[] { "CONES", "BEAM", "PILLS" }, Names(TabkCards.Kcaj));
             foreach (TabkCard c in TabkCards.All)
             {
@@ -32,6 +32,24 @@ namespace PooketSlug.Tests
             Assert.AreEqual(BayDeck.Floor, BayMap.DeckOf(TabkCards.Kie.Home), "kie's parks downstairs");
             Assert.AreEqual(BayDeck.Top, BayMap.DeckOf(TabkCards.Kcaj.Home), "kcaj's on the top deck");
             Assert.IsNull(TabkCards.ById(Content.Trooper.Id));
+        }
+
+        [Test]
+        public void TheHud_NamesTheTabkOverItsRounds()
+        {
+            Assert.AreEqual("KIE'S TABK  WEASEL 5   TROLLOGRAM 3   STEAL 1", TabkCards.Kie.HudLine(5, 3, 1));
+            Assert.AreEqual("TONES2'S TABK  WATER 2   MUD 0   SPEW 1", TabkCards.Tones2.HudLine(2, 0, 1));
+            Assert.AreEqual("KIE'S TABK  RIFLE 12   TROLLOGRAM 3   STEAL 0", TabkCards.Kie.HudLine(5, 3, 0, "RIFLE", 12), "stolen loot is what FIRE shoots");
+            Assert.AreEqual("KIE'S TABK  WEASEL 5   TROLLOGRAM 3   STEAL 0", TabkCards.Kie.HudLine(5, 3, 0, "RIFLE", 0), "once it's spent, the weasels again");
+        }
+
+        [Test]
+        public void AMissionDropsTheLoadedTabk_OnceItsBuilt()
+        {
+            Assert.AreSame(TabkCards.Tones2, TabkCards.Dropped(TabkCards.Tones2));
+            Assert.AreSame(TabkCards.Kie, TabkCards.Dropped(TabkCards.Kie), "kie's is built");
+            Assert.AreSame(TabkCards.Tones2, TabkCards.Dropped(TabkCards.Kcaj), "kcaj's isn't yet: tones2's drops in");
+            Assert.AreSame(TabkCards.Tones2, TabkCards.Dropped(null));
         }
 
         static string[] Names(TabkCard c) => new[] { c.Guns[0].name, c.Guns[1].name, c.Guns[2].name };

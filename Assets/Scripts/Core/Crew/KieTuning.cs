@@ -8,6 +8,8 @@ namespace PooketSlug
         public static readonly WeaselPopSpec Weasels = new WeaselPopSpec();
         public static readonly TrollogramSpec Trollogram = new TrollogramSpec();
         public static readonly StealSpec Steal = new StealSpec();
+        /// <summary>His tabk's guns, THE PROJECTIONIST's.</summary>
+        public static readonly KieTabkSpec Tabk = new KieTabkSpec();
         public static readonly KiePilotSpec Pilot = new KiePilotSpec();
         public static readonly PilotFreeingSpec Freeing = new PilotFreeingSpec();
     }
@@ -217,15 +219,19 @@ namespace PooketSlug
     /// <summary>Packs a <see cref="TrollEvent"/> into a shot event's velocity, and back: exact in a float.</summary>
     public static class TrollNet
     {
-        public static Vector2 Pack(TrollEvent e, int id, int facing, bool crouching) =>
-            new Vector2((int)e, (id & 255) * 4 + (facing > 0 ? 1 : 0) + (crouching ? 2 : 0));
+        /// <param name="tabk">It's a Trollogram of kie's tabk (<see cref="KieTabkSpec.Trollogram"/>), not of him.</param>
+        public static Vector2 Pack(TrollEvent e, int id, int facing, bool crouching, bool tabk = false) =>
+            new Vector2((int)e, (id & 255) * 8 + (facing > 0 ? 1 : 0) + (crouching ? 2 : 0) + (tabk ? 4 : 0));
 
-        public static TrollEvent Unpack(Vector2 v, out int id, out int facing, out bool crouching)
+        public static TrollEvent Unpack(Vector2 v, out int id, out int facing, out bool crouching) => Unpack(v, out id, out facing, out crouching, out _);
+
+        public static TrollEvent Unpack(Vector2 v, out int id, out int facing, out bool crouching, out bool tabk)
         {
             int bits = Mathf.RoundToInt(v.y);
-            id = bits >> 2;
+            id = bits >> 3;
             facing = (bits & 1) != 0 ? 1 : -1;
             crouching = (bits & 2) != 0;
+            tabk = (bits & 4) != 0;
             int e = Mathf.RoundToInt(v.x);
             return e > (int)TrollEvent.None && e <= (int)TrollEvent.HitYours ? (TrollEvent)e : TrollEvent.None;
         }

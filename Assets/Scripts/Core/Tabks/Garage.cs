@@ -30,12 +30,22 @@ namespace PooketSlug
 
         public int Id => Owner.Id;
         public override string ToString() => Name;
+
+        /// <summary>
+        /// The HUD's line while it's driven: its name over its guns' rounds left (<c>KIE'S TABK  WEASEL 5   TROLLOGRAM 3
+        /// STEAL 1</c>). Loot kie stole, while it lasts, takes the first gun's place: it's what FIRE shoots.
+        /// </summary>
+        public string HudLine(int main, int specials, int supers, string loot = null, int lootAmmo = 0)
+        {
+            string first = loot != null && lootAmmo > 0 ? loot + " " + lootAmmo : Guns[0].name + " " + main;
+            return Name + "  " + first + "   " + Guns[1].name + " " + specials + "   " + Guns[2].name + " " + supers;
+        }
     }
 
     /// <summary>
     /// The crew's tabks and who has won which (<c>docs/design/tanks.md</c>): tones2's from Mission one's coda, kie's and
-    /// kcaj's once Mission two is beaten (kie's parks downstairs, kcaj's on the top deck). Only tones2's is drivable so far:
-    /// the others can be loaded in the bay, but missions drop his until theirs are built (the owner, 19 Oct).
+    /// kcaj's once Mission two is beaten (kie's parks downstairs, kcaj's on the top deck). tones2's and kie's are drivable:
+    /// kcaj's can be loaded in the bay, but missions drop tones2's until it's built (the owner, 19 Oct; <see cref="Built"/>).
     /// </summary>
     public static class TabkCards
     {
@@ -43,13 +53,19 @@ namespace PooketSlug
 
         public static readonly TabkCard Tones2 = new TabkCard(Content.Tones2, "TONES2'S TABK", 0xff8c1a, 0xb05a10, 0,
             ("WATER", Rounds5), ("MUD", Rounds3), ("SPEW", Rounds1));
-        // kie's in his blue (his projector tabk, in Design, comes in blue and green: its sprite goes in when it's built)
+        // kie's is THE PROJECTIONIST, in his blue with a green stripe
         public static readonly TabkCard Kie = new TabkCard(Content.Kie, "KIE'S TABK", 0x4ea8ff, 0x2a70c0, 1,
-            ("WEASELS", Rounds5), ("TROLLOGRAM", Rounds3), ("STEAL", Rounds1));
+            ("WEASEL", Rounds5), ("TROLLOGRAM", Rounds3), ("STEAL", Rounds1));
         public static readonly TabkCard Kcaj = new TabkCard(Content.Kcaj, "KCAJ'S TABK", 0xff5ad8, 0xb02aa8, BayMap.PerDeck,
             ("CONES", Rounds5), ("BEAM", Rounds3), ("PILLS", Rounds1));
 
         public static readonly IReadOnlyList<TabkCard> All = new[] { Tones2, Kie, Kcaj };
+
+        /// <summary>Whether <paramref name="card"/>'s tabk is built, so a mission drops it when it's loaded (else tones2's).</summary>
+        public static bool Built(TabkCard card) => card == Tones2 || card == Kie;
+
+        /// <summary>The tabk a mission drops for <paramref name="loaded"/>: it, if it's built, else tones2's.</summary>
+        public static TabkCard Dropped(TabkCard loaded) => loaded != null && Built(loaded) ? loaded : Tones2;
 
         /// <summary>The tabk with id <paramref name="id"/> (its crewmate's soldier id), or null.</summary>
         public static TabkCard ById(int id)

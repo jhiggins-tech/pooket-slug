@@ -22,6 +22,8 @@ namespace PooketSlug
         public readonly bool Crate;
         /// <summary>?test=tank: a tabk of your own parked just ahead of the start, and one call-in.</summary>
         public readonly bool Tank;
+        /// <summary>?test=kietabk: as <see cref="Tank"/>, and it's kie's, whatever's loaded in the bay.</summary>
+        public readonly bool KieTabk;
         /// <summary>?test=1up: a 1-up just ahead of the start.</summary>
         public readonly bool OneUp;
         /// <summary>?test=debrief: the mission's won as it starts, so the debrief shows (as if it's the first).</summary>
@@ -69,7 +71,8 @@ namespace PooketSlug
             UnlockTank = Has(unlock, Reveals.Tank);
             UnlockCrew = Has(unlock, "crew");
             Crate = Has(test, "crate");
-            Tank = Has(test, "tank");
+            KieTabk = Has(test, "kietabk");
+            Tank = KieTabk || Has(test, "tank");
             OneUp = Has(test, "1up");
             Debrief = Has(test, "debrief");
             Coda = Has(test, "coda");

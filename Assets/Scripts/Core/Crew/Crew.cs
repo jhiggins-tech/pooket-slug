@@ -9,7 +9,7 @@ namespace PooketSlug
     /// mission that frees them, their colours and what the ⓘ screen says about their moves. Their tabk lives in the
     /// game's half of the record (<c>TabkKit</c>), since it's sprites and code. Adding a crewmate: their
     /// <see cref="SoldierDef"/> in <see cref="Content"/>, their moves in <see cref="KitGuide"/>, a row in
-    /// <see cref="Crew.All"/>, and their tabk, once they have one, in <c>TabkKit.For</c>.
+    /// <see cref="Crew.All"/>, and their tabk, once they have one, in <c>TabkKit</c>.
     /// </summary>
     public sealed class CrewMember
     {

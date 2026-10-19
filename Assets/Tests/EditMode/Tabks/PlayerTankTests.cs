@@ -133,6 +133,20 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void APartnerSeesWhoseTabkItIs()
+        {
+            foreach (TabkCard card in TabkCards.All)
+            {
+                TankPose back = TankPose.Unpack(new TankPose { State = TankPose.Mode.Driven, Facing = 1, Hp = 63, Blown = 15, Tabk = card.Id, Spin = true }.Pack());
+                Assert.AreEqual(card.Id, back.Tabk);
+                Assert.IsTrue(back.Spin);
+                Assert.AreEqual(63, back.Hp, "nothing else is touched");
+                Assert.AreEqual(15, back.Blown);
+            }
+            Assert.IsFalse(TankPose.Unpack(new TankPose { State = TankPose.Mode.Driven }.Pack()).Spin);
+        }
+
+        [Test]
         public void TheEightAimsSurviveTheTrip()
         {
             Vector2[] aims = { Vector2.right, new Vector2(Diag, Diag), Vector2.up, new Vector2(-Diag, Diag), Vector2.left,

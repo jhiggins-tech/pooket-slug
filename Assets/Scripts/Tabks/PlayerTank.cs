@@ -5,7 +5,7 @@ namespace PooketSlug
     /// <summary>
     /// Your tank, the one you drive or call in (<c>docs/design/tanks.md</c>, Driving a tank). It's its own entity, apart
     /// from the boss tank (<see cref="TankBoss"/>), and shares only its shape (<see cref="TankLook"/>). Its paint and
-    /// guns are a crewmate's (<see cref="TabkKit"/>: tones2's, the only one built). Numbers are in
+    /// guns are a crewmate's (<see cref="TabkKit"/>: tones2's or kie's, the one loaded in the bay). Numbers are in
     /// <see cref="PlayerTankSpec"/>.
     ///
     /// Jump into an empty tank (or press JUMP touching it) to climb in. Inside, the stick drives it and points the gun
@@ -57,7 +57,7 @@ namespace PooketSlug
             m_Guns = kit.NewGuns();
             m_Aim = new Vector2(facing, 0f);
             m_BarrelAngle = TankAim.Angle(m_Aim);
-            m_Look = new TankLook(Go.transform, SortOrder.Player + 1, kit.Hull, kit.Barrel);
+            m_Look = new TankLook(Go.transform, SortOrder.Player + 1, kit);
             if (mode != State.Dropping) return;
             Vel = new Vector2(0f, -Spec.DropSpeed);
             m_LandY = world.Level.TopSurfaceY(feet.x);
@@ -95,7 +95,12 @@ namespace PooketSlug
             Hp = Hp,
             Flash = FlashTimer > 0f,
             Muzzle = m_Muzzle > 0f,
+            Tabk = m_Kit.Card.Id,
+            Spin = m_Guns.Spinning,
         };
+
+        /// <summary>Whose tabk it is.</summary>
+        public TabkKit Kit => m_Kit;
 
         /// <summary>The soldier climbs in: they ride along hidden, and the tank takes their orders.</summary>
         public void Board()
@@ -231,7 +236,7 @@ namespace PooketSlug
         }
 
         /// <summary>The end of the barrel, pointed along <paramref name="dir"/>.</summary>
-        public Vector2 MuzzleAlong(Vector2 dir) => Pos + TankLook.PivotLocal(Facing) + dir * Spec.BarrelLength;
+        public Vector2 MuzzleAlong(Vector2 dir) => Pos + m_Kit.PivotLocal(Facing) + dir * m_Kit.GunLength;
 
         /// <summary>A flash at the barrel's end, this frame.</summary>
         public void FlashMuzzle() => m_Muzzle = 0.03f;
@@ -297,7 +302,7 @@ namespace PooketSlug
             bool blink = Mode == State.Runaway && (int)(m_Runaway * 12f) % 2 == 0;
             float shaking = m_Guns.Shake; // building up a shot, say
             Vector2 shake = shaking > 0f ? new Vector2(Mathf.Round(Rng.Fx.Range(-1f, 1f) * shaking) / Art.PPU, 0f) : Vector2.zero;
-            m_Look.Apply(shake, Facing, m_BarrelAngle, FlashTimer > 0f, m_Muzzle > 0f, blink);
+            m_Look.Apply(shake, Facing, m_BarrelAngle, FlashTimer > 0f, m_Muzzle > 0f, blink, m_Guns.Spinning);
             if (m_Marker != null)
             {
                 bool shown = Mode == State.Dropping && (int)(Time.time * 8f) % 2 == 0;

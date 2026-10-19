@@ -49,6 +49,16 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void KiesTabkIsATabkTest()
+        {
+            LaunchFlags f = LaunchFlags.Read(Page + "?test=kietabk");
+            Assert.IsTrue(f.KieTabk);
+            Assert.IsTrue(f.Tank, "it parks one, as ?test=tank does");
+            Assert.IsTrue(f.Testing);
+            Assert.IsFalse(LaunchFlags.Read(Page + "?test=tank").KieTabk);
+        }
+
+        [Test]
         public void AWeakPilotNeedsThePilot()
         {
             Assert.IsTrue(LaunchFlags.Read(Page + "?test=pilot,weak").WeakPilot);

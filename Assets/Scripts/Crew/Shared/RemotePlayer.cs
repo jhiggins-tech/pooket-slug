@@ -17,7 +17,7 @@ namespace PooketSlug
         readonly Presence m_Presence = new Presence();
         float m_Anim, m_DeadTime;
         bool m_Placed;
-        readonly TankLook m_Tank;
+        TankLook m_Tank;
         TankPose m_TankPose;
         Vector2 m_TankPos;
         float m_TankAngle, m_TankClock;
@@ -29,8 +29,7 @@ namespace PooketSlug
             Link = link;
             m_Visual = new PlayerVisual(Visual, Art.SkinFor(link.Soldier, link.Skin), SortOrder.Player - 5);
             m_Kit = KitCopy.For(this);
-            TabkKit tabk = TabkKit.For(link.Soldier); // the tabk their crewmate calls in
-            m_Tank = new TankLook(Go.transform, SortOrder.Player - 4, tabk.Hull, tabk.Barrel);
+            m_Tank = new TankLook(Go.transform, SortOrder.Player - 4, TabkKit.Tones2);
             m_Tank.Shown = false;
         }
 
@@ -92,6 +91,12 @@ namespace PooketSlug
             }
             m_TanksBlown = m_TankPose.Blown;
             if (m_TankPose.State == TankPose.Mode.None) return;
+            TabkKit kit = TabkKit.Of(TabkCards.ById(m_TankPose.Tabk)); // whichever they loaded in their bay
+            if (kit != m_Tank.Kit)
+            {
+                m_Tank.Destroy();
+                m_Tank = new TankLook(Go.transform, SortOrder.Player - 4, kit);
+            }
             float want = TankAim.Angle(TankPose.AimOf(m_TankPose.AimOctant));
             m_TankAngle = Mathf.MoveTowardsAngle(m_TankAngle, want, Content.PlayerTank.BarrelTurn * dt);
             m_TankClock += dt;
@@ -114,7 +119,7 @@ namespace PooketSlug
                 // driving, it goes where the soldier does (smoothed); otherwise where it was last sent
                 Vector2 at = Driving ? Vector2.zero : m_TankPos - Pos;
                 bool blink = m_TankPose.State == TankPose.Mode.Runaway && (int)(m_TankClock * 12f) % 2 == 0;
-                m_Tank.Apply(at, m_TankPose.Facing, m_TankAngle, m_TankPose.Flash, m_TankPose.Muzzle, blink);
+                m_Tank.Apply(at, m_TankPose.Facing, m_TankAngle, m_TankPose.Flash, m_TankPose.Muzzle, blink, m_TankPose.Spin);
             }
             if (m_Kit != null)
             {

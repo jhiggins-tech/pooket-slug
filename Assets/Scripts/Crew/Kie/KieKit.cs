@@ -28,14 +28,17 @@ namespace PooketSlug
             if (StealRoulette.Start(World, Player)) Player.Kit.UseSuper(); // nobody to rob: the super isn't spent
         }
 
-        /// <summary>kie fires Weasel Pop from <paramref name="muzzle"/>: false when too many weasels are already out.</summary>
-        public static bool ThrowWeasels(World w, Vector2 muzzle, Vector2 aim, Vector2 carry)
+        /// <summary>
+        /// kie fires Weasel Pop from <paramref name="muzzle"/> (his own, or <paramref name="spec"/>'s: his tabk's): false
+        /// when too many weasels are already out.
+        /// </summary>
+        public static bool ThrowWeasels(World w, Vector2 muzzle, Vector2 aim, Vector2 carry, WeaselPopSpec spec = null)
         {
-            WeaselPopSpec spec = KieTuning.Weasels;
+            spec ??= KieTuning.Weasels;
             if (PopWeasel.Out(w) + spec.Count > spec.MaxOut) return false;
             foreach (Vector2 v in spec.Volley(aim, carry))
             {
-                w.Props.Add(new PopWeasel(w, muzzle, v));
+                w.Props.Add(new PopWeasel(w, muzzle, v, spec: spec));
                 Send(w, KitMove.Weasel, muzzle, v);
             }
             Sfx.Play(Sfx.WeaselThrow, 0.7f);
@@ -51,20 +54,29 @@ namespace PooketSlug
 
         /// <summary>Tells the partner what happened to one of our holograms, or to one of theirs here.</summary>
         public static void Send(World w, TrollEvent e, TrollDecoy d) =>
-            Send(w, KitMove.Trollogram, d.Pos, TrollNet.Pack(e, d.Id, d.Facing, d.Crouching));
+            Send(w, KitMove.Trollogram, d.Pos, TrollNet.Pack(e, d.Id, d.Facing, d.Crouching, d.Tabk));
 
         /// <summary>The partner's hologram dropped, moved, blew up or switched off; or a goon hit ours on their screen.</summary>
         public static void OnTrollEvent(World w, in KitEvent move)
         {
-            TrollEvent e = TrollNet.Unpack(move.Data, out int id, out int facing, out bool crouching);
+            TrollEvent e = TrollNet.Unpack(move.Data, out int id, out int facing, out bool crouching, out bool tabk);
             if (e == TrollEvent.None) return;
             TrollDecoy d = null;
             foreach (TrollDecoy x in w.Decoys)
-                if (x.Id == id && x.Mine == (e == TrollEvent.HitYours) && x.Up) d = x;
+                if (x.Id == id && x.Tabk == tabk && x.Mine == (e == TrollEvent.HitYours) && x.Up) d = x;
             switch (e)
             {
                 case TrollEvent.Drop:
                     if (d != null) return;
+                    if (tabk)
+                    {
+                        // a Trollogram of their tabk, beamed from its lens
+                        var beamed = new TrollDecoy(w, move.At, facing, id, mine: false);
+                        w.Decoys.Add(beamed);
+                        w.Props.Add(beamed);
+                        Sfx.Play(Sfx.TrollDrop, PartnerVolume);
+                        break;
+                    }
                     RemotePlayer owner = null;
                     foreach (RemotePlayer r in w.Remotes)
                         if (r.Link.Soldier.Special.Behaviour == WeaponBehaviour.Trollogram) owner = r;
@@ -100,11 +112,14 @@ namespace PooketSlug
         public readonly bool Cosmetic;
 
         readonly SpriteRenderer m_Sr;
+        readonly WeaselPopSpec m_Spec;
         WeaselBody.Run m_Run;
 
-        public PopWeasel(World world, Vector2 at, Vector2 vel, bool cosmetic = false) : base(world, "Weasel", at, 0.3f, 0.5f, 1)
+        /// <param name="spec">Whose weasel: kie's own (the default) or his tabk's, bigger (<see cref="KieTabkSpec.Weasels"/>).</param>
+        public PopWeasel(World world, Vector2 at, Vector2 vel, bool cosmetic = false, WeaselPopSpec spec = null) : base(world, "Weasel", at, 0.3f, 0.5f, 1)
         {
             Cosmetic = cosmetic;
+            m_Spec = spec ?? KieTuning.Weasels;
             Vel = vel;
             Facing = vel.x >= 0f ? 1 : -1;
             m_Sr = AddRenderer(Visual, "Body", KieArt.Weasel[0], SortOrder.Player - 1);
@@ -121,7 +136,7 @@ namespace PooketSlug
 
         public override void Tick(float dt)
         {
-            WeaselPopSpec spec = KieTuning.Weasels;
+            WeaselPopSpec spec = m_Spec;
             WeaselMove move = WeaselBody.Step(this, ref m_Run, spec, dt, Prey(spec), spec.ScurrySpeed);
             if (move == WeaselMove.Gone) Remove(); // off the screen: gone, without a pop
             else if (move == WeaselMove.Pop) Pop();
@@ -149,7 +164,7 @@ namespace PooketSlug
 
         void Pop()
         {
-            WeaselPopSpec spec = KieTuning.Weasels;
+            WeaselPopSpec spec = m_Spec;
             World.Combat.Explode(Center, spec.BlastRadius, Cosmetic ? 0 : spec.Damage, false, spec.BlastSize);
             World.Burst(Center, 6, new Color(0.69f, 0.44f, 0.22f)); // a puff of fur
             if (World.Elapsed - World.WeaselTuneAt >= spec.TuneGap)
@@ -166,7 +181,7 @@ namespace PooketSlug
             base.Render();
             m_Sr.sprite = WeaselBody.Pose(this, m_Run.Landed, m_Run.Time);
             // blinks as its fuse runs out
-            Blink(m_Sr, m_Run.Landed ? KieTuning.Weasels.Fuse - m_Run.Fuse : 1f);
+            Blink(m_Sr, m_Run.Landed ? m_Spec.Fuse - m_Run.Fuse : 1f);
         }
 
         static void Blink(SpriteRenderer sr, float left) =>
@@ -224,7 +239,7 @@ namespace PooketSlug
         {
             int n = 0;
             foreach (TrollDecoy d in w.Decoys)
-                if (d.Up) n++;
+                if (d.Up && !d.Tabk) n++; // his tabk's are its own
             return n;
         }
 
@@ -246,7 +261,7 @@ namespace PooketSlug
                 case TrollAction.Swap:
                     TrollDecoy far = null;
                     foreach (TrollDecoy d in w.Decoys)
-                        if (d.Up && (far == null || Mathf.Abs(d.Pos.x - p.Pos.x) > Mathf.Abs(far.Pos.x - p.Pos.x))) far = d;
+                        if (d.Up && !d.Tabk && (far == null || Mathf.Abs(d.Pos.x - p.Pos.x) > Mathf.Abs(far.Pos.x - p.Pos.x))) far = d;
                     if (far == null) return;
                     m_SinceSwap = 0f;
                     Vector2 was = p.Pos;
@@ -266,7 +281,8 @@ namespace PooketSlug
     /// <summary>
     /// A hologram of kie on the players' side (Trollogram): it stands in his pose, shimmering, and draws the goons'
     /// fire while it's on screen (several can be up) (<see cref="Combat.NearestAvatar"/>). The first hit blows it up on every goon nearby;
-    /// left alone, it switches itself off. It glitches out either way.
+    /// left alone, it switches itself off. It glitches out either way. His tabk beams one of itself, the tabk's size,
+    /// with a bigger blast (<see cref="KieTabkSpec.Trollogram"/>).
     /// </summary>
     public sealed class TrollDecoy : Actor
     {
@@ -274,6 +290,7 @@ namespace PooketSlug
 
         readonly PlayerVisual m_Visual;
         readonly SpriteRenderer[] m_Parts;
+        readonly TrollogramSpec m_Spec;
         AvatarPose m_Pose;
         float m_Time, m_Gone = -1f;
         Vector2 m_Jitter;
@@ -283,10 +300,13 @@ namespace PooketSlug
         /// <summary>Ours (true), or a copy of the partner's; and its number among its owner's, for co-op.</summary>
         public readonly bool Mine;
         public readonly int Id;
+        /// <summary>A Trollogram of kie's tabk, not of him.</summary>
+        public readonly bool Tabk;
 
         public TrollDecoy(World world, Vector2 feet, AvatarPose pose, SoldierDef def, int skin, int id, bool mine) : base(world, "Trollogram", feet, def.HalfWidth, def.StandHeight, 1)
         {
             m_Def = def;
+            m_Spec = KieTuning.Trollogram;
             Mine = mine;
             Id = id;
             m_Pose = pose.Still();
@@ -294,6 +314,19 @@ namespace PooketSlug
             Height = pose.Crouching ? def.CrouchHeight : def.StandHeight;
             m_Visual = new PlayerVisual(Visual, Art.SkinFor(def, skin), SortOrder.Player - 2);
             m_Parts = Visual.GetComponentsInChildren<SpriteRenderer>(true);
+        }
+
+        /// <summary>A Trollogram of kie's tabk, beamed from its lens to stand at <paramref name="feet"/>.</summary>
+        public TrollDecoy(World world, Vector2 feet, int facing, int id, bool mine)
+            : base(world, "Tabk Trollogram", feet, Content.PlayerTank.HalfWidth, Content.PlayerTank.Height, 1)
+        {
+            Tabk = true;
+            m_Spec = KieTuning.Tabk.Trollogram;
+            Mine = mine;
+            Id = id;
+            Facing = facing;
+            m_Pose = new AvatarPose { Facing = facing, Grounded = true };
+            m_Parts = new[] { Art.Renderer(Visual, "Tabk", TabkKit.Kie.Parked, SortOrder.Player - 2) };
         }
 
         /// <summary>Standing, not yet blown up or switched off.</summary>
@@ -304,6 +337,7 @@ namespace PooketSlug
         /// <summary>kie swapped with it: it stands where he stood, as he stood.</summary>
         public void SwapTo(Vector2 feet, AvatarPose pose)
         {
+            if (Tabk) return; // a tabk's isn't swapped with
             Pos = feet;
             Vel = Vector2.zero;
             m_Pose = pose.Still();
@@ -316,7 +350,7 @@ namespace PooketSlug
         public void Blow()
         {
             if (!Up) return;
-            TrollogramSpec spec = KieTuning.Trollogram;
+            TrollogramSpec spec = m_Spec;
             World.Combat.Explode(Center, spec.BlastRadius, Mine ? spec.Damage : 0, false, spec.BlastSize);
             World.Scoring.Popup("TROLLED!", Center + Vector2.up * 1.4f, Tint);
             KieKit.Send(World, Mine ? TrollEvent.Blown : TrollEvent.HitYours, this);
@@ -345,7 +379,7 @@ namespace PooketSlug
                 if (m_Gone >= 0.45f) Remove();
                 return;
             }
-            if (m_Time >= KieTuning.Trollogram.Life)
+            if (m_Time >= m_Spec.Life)
             {
                 if (Mine) KieKit.Send(World, TrollEvent.Off, this);
                 GoOut();
@@ -370,7 +404,9 @@ namespace PooketSlug
             base.Render();
             m_Pose.Anim = m_Time;
             m_Pose.Grounded = Grounded || m_Pose.Grounded;
-            m_Visual.Apply(m_Pose);
+            m_Visual?.Apply(m_Pose);
+            int flip = Tabk ? -Facing : Facing; // the tabk's art faces left
+            if (Tabk) Visual.localScale = new Vector3(flip, 1f, 1f);
             Visual.localPosition = m_Jitter;
             float shimmer = 0.7f + 0.2f * Mathf.Sin(m_Time * 9f) + (Rng.Fx.Value < 0.05f ? -0.3f : 0f);
             Color c = new Color(Tint.r, Tint.g, Tint.b, shimmer);
@@ -379,7 +415,7 @@ namespace PooketSlug
                 // switches off like an old TV: a flash, squashed to a line, then a dot
                 float t = m_Gone / 0.45f;
                 c = Color.Lerp(Color.white, Tint, t);
-                Visual.localScale = new Vector3(Facing * Mathf.Lerp(1f, t < 0.6f ? 1.6f : 0.1f, t), Mathf.Max(0.05f, 1f - t * 1.6f), 1f);
+                Visual.localScale = new Vector3(flip * Mathf.Lerp(1f, t < 0.6f ? 1.6f : 0.1f, t), Mathf.Max(0.05f, 1f - t * 1.6f), 1f);
             }
             foreach (SpriteRenderer sr in m_Parts)
             {
