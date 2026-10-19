@@ -43,7 +43,7 @@ net 1                      the scene's number for a partner's phone (1-255, each
 
 shot: Outside              each shot starts with its name
 length 8.5                 seconds
-set street                 the backdrop: street, den, bay or motorpool
+set street                 the backdrop: street, den, bay, motorpool or coldstore (the creamery's loading yard)
 show sign window door snow what's on stage from the start
 intro 4 tones2: TONES2     a character intro at 4 s, with the name it slams up
 
@@ -54,11 +54,12 @@ tones2 holds bag cup
 2.2 cue door               a sound cue
 ```
 
-**Who speaks**: `tones2`, `kie`, `trollo-kie` (Trollogram kie), `goon`, `narrator` (subtitles, read out by its
+**Who speaks**: `tones2`, `kie`, `kcaj`, `trollo-kie` (Trollogram kie), `trollo-kcaj` (Trollogram kcaj: his bubble glitches), `goon`, `narrator` (subtitles, read out by its
 recording: `narrator <recording>:`), `caption` (the big card).
 
 **Cues**: `door`, `static`, `drop`, `goon`, `jet`, `glitch`, `card-drop`, `card-up`, `crush`, `card`, `shutter`,
 `hum`, `engine`, `hatch`, `slam`, `turret`, `cage`, `kie-drop`, `snacks`, `rip`, `drone`, `lift`, `remote`, `alarm`,
+`cold-door`, `frost`, `freezer`, `munch`, `note`,
 `intro-build`, `intro`, `mission-start`; `say <line>` has the announcer read one of theirs.
 
 **The camera**: `0-2.2 camera 1.15 20 -12 smooth`: how far in, and where it looks (from the stage's middle). The bay
@@ -71,9 +72,9 @@ Places are in art pixels: across from the left (the stage is 320 wide), up from 
 
 | Kind | Things |
 |---|---|
-| Soldiers | `tones2`, `kie`, `goon` |
-| Props | `bag`, `cup`, `card`, `remote`, `sign`, `window`, `door`, `doorway`, `spark`, `beacon`, `clamp`, `drone`, `cable`, `tones2-tabk`, `kie-tabk`, `turret`, `kcaj-corner` (his corner of the den, with the string board) |
-| Effects | `snow`, `searchlights`, `chips`, `jet`, `closeup` (the keycard), `board` (kcaj's string board, close up), `shutter`, `lamps`, `row`, `junk`, `steam`, `cage`, `stars`, `zz`, `alarm` |
+| Soldiers | `tones2`, `kie`, `kcaj`, `goon` |
+| Props | `bag`, `cup`, `card`, `remote`, `sign`, `window`, `door`, `doorway`, `spark`, `beacon`, `clamp`, `drone`, `cable`, `tones2-tabk`, `kie-tabk`, `kcaj-tabk` (with a cone on top), `turret` (whichever tabk's in the shot), `kcaj-corner` (his corner of the den, with the string board), the cold store's `store-opening` (the dark of its doorway: size it open) and `freezer`, `tub`, `slushie`, `cones`, `note` (a sticky note) |
+| Effects | `snow`, `searchlights`, `chips`, `jet`, `closeup` (the keycard), `board` (kcaj's string board, close up), `shutter`, `lamps`, `row`, `junk`, `steam`, `cage`, `stars`, `zz`, `alarm`, `frost` (rolling out along the floor both ways from where it's put), `icicles` (on a cap: `icicles on kcaj 1 21`) |
 
 A thing is on stage once a line stages it (or `show` names it), until `hide`.
 

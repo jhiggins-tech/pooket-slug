@@ -47,7 +47,10 @@ namespace PooketSlug
                 case EnemyBrain.Weasel: e = new Weasel(w, def, pos); break;
                 case EnemyBrain.TankCopy: e = new TankBoss(w, def, pos, decoy: true); break;
                 case EnemyBrain.Pilot:
-                    e = w.Boss = new Pilot(w, def, pos);
+                    e = w.Boss = new KiePilot(w, def, pos);
+                    break;
+                case EnemyBrain.KcajPilot:
+                    e = w.Boss = new KcajPilot(w, def, pos);
                     break;
                 case EnemyBrain.PilotDecoy: e = new PilotDecoy(w, def, pos); break;
                 case EnemyBrain.ToppleTower: e = new ToppleTower(w, def, pos); break;

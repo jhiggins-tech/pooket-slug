@@ -31,9 +31,10 @@ namespace PooketSlug
             m_World = world;
             m_Sky = Art.Renderer(world.Root, "Sky", Art.Sky, SortOrder.Sky).transform;
             int painted = 0;
-            for (int i = 0; i < Backdrop.Layers.Count; i++)
+            IReadOnlyList<BackdropLayer> layers = Backdrop.LayersFor(mission);
+            for (int i = 0; i < layers.Count; i++)
             {
-                BackdropLayer def = Backdrop.Layers[i];
+                BackdropLayer def = layers[i];
                 Sprite[] plates = Load(mission, def);
                 if (plates.Length > 0) painted++;
                 else plates = Drawn(def); // nothing painted for it: the drawn layer, if there is one
@@ -75,6 +76,14 @@ namespace PooketSlug
                     sr.transform.position = new Vector3(Entity.Snap(x), l.Def.Y, 0f);
                 }
             }
+        }
+
+        /// <summary>Whether <paramref name="mission"/>'s <paramref name="layer"/> layer is painted (it has plates in the build).</summary>
+        public static bool Painted(MissionDef mission, string layer)
+        {
+            foreach (BackdropLayer l in Backdrop.LayersFor(mission))
+                if (l.Name == layer) return Plate(Backdrop.PlatePath(mission, l, 0)) != null;
+            return false;
         }
 
         /// <summary>The layer's painted plates for this mission, in strip order (none when it has none).</summary>

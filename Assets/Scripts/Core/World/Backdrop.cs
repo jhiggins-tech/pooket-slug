@@ -42,6 +42,22 @@ namespace PooketSlug
             new BackdropLayer("mid", 0.6f, 1.0f),
         };
 
+        /// <summary>
+        /// <paramref name="mission"/>'s layers: the shared ones, or, for a mission whose plates are cut at its floor's
+        /// top (<see cref="MissionDef.PlatesStand"/>), the same depths with the far and middle plates standing there.
+        /// </summary>
+        public static IReadOnlyList<BackdropLayer> LayersFor(MissionDef mission)
+        {
+            if (mission == null || mission.PlatesStand <= 0f) return Layers;
+            var layers = new BackdropLayer[Layers.Count];
+            for (int i = 0; i < layers.Length; i++)
+            {
+                BackdropLayer l = Layers[i];
+                layers[i] = l.Name == "sky" ? l : new BackdropLayer(l.Name, l.Factor, mission.PlatesStand);
+            }
+            return layers;
+        }
+
         /// <summary>The most plates a layer's strip can have.</summary>
         public const int MostPlates = 32;
 

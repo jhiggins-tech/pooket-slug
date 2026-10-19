@@ -46,6 +46,9 @@ namespace PooketSlug
         /// <summary>kcaj's ice cream cone (Double Park): lobbed in an arc, nose first, and it splats on whatever it lands on.</summary>
         public static readonly ProjectileDef Cone = new ProjectileDef(14, "Cone", radius: 0.2f, damage: 2, life: 3f, gravity: KcajTuning.Cones.Gravity,
             blastRadius: 0.9f, blastSize: 0.6f);
+        /// <summary>Trollogram kcaj's cone (<see cref="KcajPilotSpec"/>): kcaj's, lobbed at the soldiers, a heart a splat.</summary>
+        public static readonly ProjectileDef TrolloCone = new ProjectileDef(15, "Trollogram cone", radius: 0.2f, damage: KcajTuning.Pilot.ConeDamage,
+            life: 3f, gravity: KcajTuning.Cones.Gravity, blastRadius: 0.8f, blastSize: 0.6f);
 
         // ------------------------------------------------------------------ weapons
         // Ids 0-5 are the byte the projectile enum used to send for the same shot.
@@ -100,6 +103,8 @@ namespace PooketSlug
             throwVelocity: new Vector2(8f, 7f), carry: KcajTuning.Cones.Carry, hud: "CONES");
         public static readonly WeaponDef Hyperfixate = new WeaponDef(25, "Hyperfixate", WeaponBehaviour.Hyperfixate, null, hud: "FIXATE");
         public static readonly WeaponDef Unmedicated = new WeaponDef(26, "Unmedicated", WeaponBehaviour.Unmedicated, null, hud: "PILLS");
+        /// <summary>Trollogram kcaj's Double Park: the same throw, his cones (the pilot works out each cone's velocity).</summary>
+        public static readonly WeaponDef TrolloCones = new WeaponDef(27, "Trollogram cones", WeaponBehaviour.Lob, TrolloCone);
 
         /// <summary>How Mission one's boss tank fights.</summary>
         public static readonly BossTankSpec BossTank = new BossTankSpec();
@@ -137,6 +142,8 @@ namespace PooketSlug
         public static readonly EnemyDef Grenadier = new EnemyDef(14, "Grenadier", EnemyBrain.Grenadier, halfWidth: 0.3f, height: 1.35f, hp: 3, score: 250);
         public static readonly EnemyDef BigScoop = new EnemyDef(15, "Big Scoop", EnemyBrain.BigScoop, halfWidth: 0.8f, height: 2.6f, hp: 40, score: 4000);
         public static readonly EnemyDef Projector = new EnemyDef(16, "Trollogram projector", EnemyBrain.Projector, halfWidth: 0.6f, height: 1.4f, hp: 4, score: 500);
+        /// <summary>Trollogram kcaj, who jumps out of Mission two's wrecked tabk (<see cref="KcajPilotSpec"/>).</summary>
+        public static readonly EnemyDef KcajPilot = new EnemyDef(17, "Trollogram kcaj", EnemyBrain.KcajPilot, halfWidth: 0.3f, height: 1.35f, hp: KcajTuning.Pilot.Hp, score: 5000);
 
         // ------------------------------------------------------------------ pickups
 
@@ -183,13 +190,13 @@ namespace PooketSlug
         // ------------------------------------------------------------------ lookups (after the definitions: statics initialise in order)
 
         public static readonly IReadOnlyList<ProjectileDef> Projectiles = ById(p => p.Id, Bullet, HeavyBullet, EnemyBullet, Shell, Grenade, Bomb, BigShell, Knife, StolenShell,
-            PlayerTankShellShot, PlayerTankMortarShot, GoonGrenade, ScoopWave, HurledScoop, Cone);
+            PlayerTankShellShot, PlayerTankMortarShot, GoonGrenade, ScoopWave, HurledScoop, Cone, TrolloCone);
         public static readonly IReadOnlyList<WeaponDef> Weapons = ById(w => w.Id, Pistol, HeavyMachineGun, Rifle, Cannon, GrenadeThrow, DroneBomb, TankGun,
             WaterJet, RocketJump, Spew, BossCannon, WeaselPop, Trollogram,
             Steal, StolenRifle, StolenKnives, StolenBombs, StolenCannon, PlayerTankCannon, PlayerTankMortar, TeamSuper,
-            GoonGrenadeThrow, ScoopSlam, ScoopHurl, DoublePark, Hyperfixate, Unmedicated);
+            GoonGrenadeThrow, ScoopSlam, ScoopHurl, DoublePark, Hyperfixate, Unmedicated, TrolloCones);
         public static readonly IReadOnlyList<EnemyDef> Enemies = ById(e => e.Id, Rifleman, Runner, Drone, Tank, Barrel, Weasel, TankCopy, Pilot, PilotDecoy, ToppleTower, ExitGate, ConeBox, NitrogenTank,
-            ShieldSoldier, Grenadier, BigScoop, Projector);
+            ShieldSoldier, Grenadier, BigScoop, Projector, KcajPilot);
         public static readonly IReadOnlyList<PickupDef> Pickups = ById(p => p.Id, HeavyMachineGunCrate, BombCrate, Medkit, OneUp);
         public static readonly IReadOnlyList<SoldierDef> Soldiers = ById(s => s.Id, Trooper, Tones2, Kie, Kcaj);
 

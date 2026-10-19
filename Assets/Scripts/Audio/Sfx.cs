@@ -68,6 +68,7 @@ namespace PooketSlug
             else if (weapon == Content.ScoopHurl) { clip = ScoopHurl; own = 0.8f; }
             else if (weapon == Content.ScoopSlam) { clip = ScoopSlam; own = 1f; }
             else if (weapon == Content.DoublePark) { clip = ConeLob; own = 0.75f; }
+            else if (weapon == Content.TrolloCones) { clip = ConeLob; own = 0.4f; } // two at once: each quieter
             else return; // dropped bombs are silent
             Play(clip, volume >= 0f ? volume : own);
         }
@@ -112,7 +113,7 @@ namespace PooketSlug
         /// What a projectile sounds like going off: its own landing if it has one (a cone's splat), else
         /// <see cref="Explosion"/>.
         /// </summary>
-        public static AudioClip BlastOf(ProjectileDef def) => def == Content.Cone ? ConeSplat : Explosion;
+        public static AudioClip BlastOf(ProjectileDef def) => def == Content.Cone || def == Content.TrolloCone ? ConeSplat : Explosion;
 
         /// <summary>The beam's burn at <paramref name="heat"/> (0 as it catches, 1 at its hottest).</summary>
         public static AudioClip BeamBurnAt(float heat) =>

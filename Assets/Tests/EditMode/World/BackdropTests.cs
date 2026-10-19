@@ -26,6 +26,23 @@ namespace PooketSlug.Tests
             Assert.AreEqual("Plates/mission-1/mid-3", Backdrop.PlatePath(Missions.One, Backdrop.Layers[2], 3));
         }
 
+        [Test]
+        public void TheCreamerysPlatesStandOnItsFloor_MissionOnesAtTheSharedDepths()
+        {
+            Assert.AreSame(Backdrop.Layers, Backdrop.LayersFor(Missions.One));
+            var two = Backdrop.LayersFor(Missions.Two);
+            Assert.AreEqual(Backdrop.Layers.Count, two.Count);
+            for (int i = 0; i < two.Count; i++)
+            {
+                Assert.AreEqual(Backdrop.Layers[i].Name, two[i].Name);
+                Assert.AreEqual(Backdrop.Layers[i].Factor, two[i].Factor, "the same depths");
+            }
+            Assert.AreEqual(0f, two[0].Y, "the sky fills the screen");
+            Assert.AreEqual(2f, two[1].Y, "cut at the floor's top: two tiles up");
+            Assert.AreEqual(2f, two[2].Y);
+            Assert.AreEqual("Plates/mission-2/mid-1", Backdrop.PlatePath(Missions.Two, two[2], 1));
+        }
+
         [TestCase(0f)]
         [TestCase(16f)]
         [TestCase(137.3f)]

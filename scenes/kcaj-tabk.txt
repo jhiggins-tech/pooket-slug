@@ -1,0 +1,77 @@
+// kcaj's tabk arrives (docs/design/cutscenes.md, kcaj's tabk arrives): Mission two's reveal, like Mission one's motor
+// pool. It plays the first time the players reach the loading yard before the cold store, on both phones in co-op,
+// and it's kcaj's tabk's entrance: the boss intro after it skips the roll-out and goes straight to the warning and
+// the name card. Trollogram kcaj gets his intro as he rises in the hatch. How to write a scene: docs/scenes.md.
+//
+// The set is the loading yard (Design's arena plate): the cold store's doors in the middle of the right half.
+net 6
+
+shot: The cold store
+length 4
+set coldstore
+show tub
+// the players step in from the left; frost creeps along the doors' seams and a stack of tubs rattles to an idling engine
+tub at 312 0
+tub shake 1
+0-1.8 tones2 walk -14 100
+0.2-2 kie walk -40 74
+0.4 frost show
+0.2 cue engine
+0.4 cue frost
+0.4 narrator m2-reveal-1: The cold store. Something in there is idling.
+
+shot: The hatch
+length 5
+set coldstore
+show tub frost
+tub at 312 0
+tub shake 1
+tones2 at 100
+kie at 74
+// the doors fog open, kcaj's tabk rolls out and stops, and the camera pushes in on the hatch: up comes Trollogram
+// kcaj, cyan and flickering, a cone held up
+0-0.8 store-opening size 0.02 1 1 1 smooth
+kcaj-tabk at 300
+0.3-1.4 kcaj-tabk move 300 0 210 0 out
+0.3-1.4 kcaj-tabk shake 0.5
+turret turn -150
+kcaj look trollo
+kcaj pose hatch
+kcaj face left
+kcaj holds cones
+kcaj at 214 -2
+1.5 kcaj show
+1.5-1.9 kcaj move 214 -2 214 12
+1.4-2.3 camera 1.7 56 -42 smooth
+intro 2.5 kcaj: TROLLO-KCAJ
+0 cue cold-door
+0.3 cue engine
+1.5 cue hatch
+1.9 cue static
+2.8 trollo-kcaj: YOU'RE NOT IN MY NOTES.
+
+shot: Now they are
+length 3
+set coldstore
+show tub frost store-opening
+tub at 312 0
+tones2 at 100
+kie at 74
+// a sticky note with a red arrow on the turret, he drops in, the hatch slams and the turret swings round on to them
+kcaj-tabk at 210
+turret turn -150
+1.2-1.8 turret turn -150 6 smooth
+kcaj look trollo
+kcaj pose hatch
+kcaj face left
+kcaj holds cones
+kcaj at 214 12
+0 camera 1.7 56 -42
+1.2-2.2 camera 1 0 0 smooth
+0.3 note at 220 15
+0.3 cue note
+0.6-0.85 kcaj move 214 12 214 -2
+0.85 kcaj hide
+0.9 cue slam
+1.2 cue turret
+1.6 narrator m2-reveal-2: Now they are.

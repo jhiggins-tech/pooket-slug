@@ -165,6 +165,8 @@ namespace PooketSlug
         BigScoop,
         /// <summary>Mission two's Trollogram projector: shot out, it switches off the goons near it (<see cref="Creamery.Projects"/>).</summary>
         Projector,
+        /// <summary>Trollogram kcaj, Mission two's pilot: kcaj's kit on the Trollograms' side.</summary>
+        KcajPilot,
     }
 
     /// <summary>One kind of enemy: its body, health and worth. The co-op snapshot carries its id.</summary>
