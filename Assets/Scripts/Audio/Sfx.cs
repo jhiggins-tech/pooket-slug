@@ -14,6 +14,9 @@ namespace PooketSlug
         // Mission two's (the creamery): its goons, the Big Scoop's moves and their tells, the nitrogen and the hazards
         public static AudioClip ShieldClank, GrenadePin, GrenadeLob, ScoopSlamTell, ScoopSlam, ScoopHurlTell, ScoopHurl, ScoopChargeTell, ScoopCharge;
         public static AudioClip FreezeCrack, VentHiss, VentBlast, ScoopDispense, ScoopPlop, ProjectorSputter;
+        // kcaj's kit: the cones, the beam (its burn in four heats) and the pills (a pop in three pitches)
+        public static AudioClip ConeLob, ConeSplat, BeamLock, BeamSnap, BeamFizzle, PillsRattle;
+        public static AudioClip[] BeamBurn, PillPop;
         public static bool Muted;
         /// <summary>The settings' volumes, as gains: the game's sounds, and the recorded voices (<see cref="Options.Gain"/>).</summary>
         public static float EffectsVolume = 1f, VoicesVolume = 1f;
@@ -60,7 +63,7 @@ namespace PooketSlug
             else if (weapon == Content.GoonGrenadeThrow) { clip = GrenadeLob; own = 0.6f; }
             else if (weapon == Content.ScoopHurl) { clip = ScoopHurl; own = 0.8f; }
             else if (weapon == Content.ScoopSlam) { clip = ScoopSlam; own = 1f; }
-            else if (weapon == Content.DoublePark) { clip = Throw; own = 0.75f; } // a stand-in, until Audio's
+            else if (weapon == Content.DoublePark) { clip = ConeLob; own = 0.75f; }
             else return; // dropped bombs are silent
             Play(clip, volume >= 0f ? volume : own);
         }
@@ -77,6 +80,19 @@ namespace PooketSlug
             src.volume = 0f;
             return src;
         }
+
+        /// <summary>
+        /// What a projectile sounds like going off: its own landing if it has one (a cone's splat), else
+        /// <see cref="Explosion"/>.
+        /// </summary>
+        public static AudioClip BlastOf(ProjectileDef def) => def == Content.Cone ? ConeSplat : Explosion;
+
+        /// <summary>The beam's burn at <paramref name="heat"/> (0 as it catches, 1 at its hottest).</summary>
+        public static AudioClip BeamBurnAt(float heat) =>
+            BeamBurn == null ? null : BeamBurn[Mathf.Clamp((int)(heat * BeamBurn.Length), 0, BeamBurn.Length - 1)];
+
+        /// <summary>A pill's pop, in one of its pitches (cosmetic randomness).</summary>
+        public static AudioClip PillPopAt() => PillPop == null ? null : PillPop[Rng.Fx.Range(0, PillPop.Length)];
 
         public static void Play(AudioClip clip, float volume = 1f)
         {

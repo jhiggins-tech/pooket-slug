@@ -106,6 +106,7 @@ namespace PooketSlug
 
             MakeKitSounds();
             MakeCreamerySounds();
+            MakeKcajSounds();
         }
 
         /// <summary>
@@ -339,6 +340,93 @@ namespace PooketSlug
                 c.Tone(0f, 0.09f, 2200f, 500f, duty: 0.25f, steps: 5, vol: 0.1f);
                 c.Tone(0.1f, 0.1f, 500f, 2200f, duty: 0.25f, steps: 5, vol: 0.1f);
             });
+        }
+
+        /// <summary>
+        /// kcaj's kit (<see cref="KcajKit"/>): his cones, his beam and his pills. The beam's burn comes in four heats, and a
+        /// pill's pop in three pitches, so the kit picks one (<see cref="Sfx.BeamBurnAt"/>, <see cref="Sfx.PillPopAt"/>).
+        /// </summary>
+        static void MakeKcajSounds()
+        {
+            // Double Park: two hollow wafer thoonks, the low cone then the high one a beat behind.
+            Sfx.ConeLob = Render("chipConeLob", 0.2f, c =>
+            {
+                for (int i = 0; i < 2; i++)
+                {
+                    float at = i * 0.06f, up = 1f + i * 0.3f;
+                    c.Tone(at, 0.09f, 300f * up, 130f * up, triangle: true, vol: 0.22f);
+                    c.Tone(at, 0.03f, 900f * up, 500f * up, duty: 0.25f, vol: 0.05f);
+                    c.Noise(at, 0.03f, rate: 0.8f, vol: 0.06f);
+                }
+            });
+            // A cone landing: a wet splotch of soft serve and the wafer's dull thud.
+            Sfx.ConeSplat = Render("chipConeSplat", 0.24f, c =>
+            {
+                c.Noise(0f, 0.18f, rate: 0.75f, to: 0.18f, vol: 0.2f);
+                c.Tone(0f, 0.12f, 190f, 60f, triangle: true, vol: 0.22f);
+                c.Tone(0.03f, 0.12f, 420f, 240f, duty: 0.5f, vibratoRate: 28f, vibratoDepth: 60f, vol: 0.05f);
+            });
+            // Hyperfixate catching hold: a zap that leaps up and locks onto a buzzing note.
+            Sfx.BeamLock = Render("chipBeamLock", 0.36f, c =>
+            {
+                c.Noise(0f, 0.05f, rate: 1.5f, vol: 0.12f);
+                c.Tone(0f, 0.1f, 300f, 1400f, duty: 0.25f, steps: 8, vol: 0.12f);
+                c.Tone(0.1f, 0.25f, 1400f, duty: 0.125f, vibratoRate: 30f, vibratoDepth: 50f, vol: 0.1f, env: new[] { 1f, 0.8f, 0.6f, 0f });
+                c.Tone(0.1f, 0.25f, 700f, triangle: true, vol: 0.1f, env: new[] { 1f, 0.8f, 0.6f, 0f });
+            });
+            // The beam burning, one pulse a tick: a buzz that climbs as it gets hotter (BeamBurn0, the first tick, to 3, the hottest).
+            float[] burnPitch = { 520f, 700f, 940f, 1260f };
+            Sfx.BeamBurn = new AudioClip[burnPitch.Length];
+            for (int i = 0; i < burnPitch.Length; i++)
+            {
+                float f = burnPitch[i];
+                Sfx.BeamBurn[i] = Render("chipBeamBurn" + i, 0.18f, c =>
+                {
+                    c.Tone(0f, 0.17f, f, f * 1.04f, duty: 0.125f, vibratoRate: 24f, vibratoDepth: f * 0.04f, vol: 0.09f, env: new[] { 0.6f, 1f, 0.7f, 0f });
+                    c.Tone(0f, 0.17f, f * 0.5f, triangle: true, vol: 0.08f, env: new[] { 0.6f, 1f, 0.7f, 0f });
+                    c.Noise(0f, 0.12f, rate: 1.8f, to: 2.2f, vol: 0.05f);
+                });
+            }
+            // Focus snapping (spent, or the goon got out of reach): the buzz breaks up and drops away.
+            Sfx.BeamSnap = Render("chipBeamSnap", 0.42f, c =>
+            {
+                float[] chirps = { 1300f, 1800f, 900f, 1500f };
+                for (int i = 0; i < chirps.Length; i++) c.Tone(i * 0.03f, 0.025f, chirps[i], duty: 0.125f, vol: 0.09f);
+                c.Tone(0.12f, 0.28f, 1100f, 90f, duty: 0.25f, steps: 10, vol: 0.12f);
+                c.Noise(0.12f, 0.25f, rate: 1.2f, to: 0.2f, vol: 0.08f);
+            });
+            // The beam flicking out at nothing: a thin zip that fizzles.
+            Sfx.BeamFizzle = Render("chipBeamFizzle", 0.16f, c =>
+            {
+                c.Tone(0f, 0.12f, 1500f, 450f, duty: 0.125f, steps: 4, vol: 0.09f);
+                c.Noise(0f, 0.14f, rate: 1.6f, to: 0.5f, vol: 0.06f);
+            });
+            // Unmedicated: the cap pops off and the bottle gets a good rattle.
+            Sfx.PillsRattle = Render("chipPillsRattle", 0.6f, c =>
+            {
+                c.Tone(0f, 0.06f, 500f, 1300f, duty: 0.25f, vol: 0.16f);
+                c.Noise(0f, 0.03f, rate: 1.2f, vol: 0.12f);
+                float[] gaps = { 0.035f, 0.05f, 0.03f, 0.045f, 0.04f, 0.03f, 0.055f, 0.035f, 0.045f, 0.03f };
+                float t = 0.09f;
+                for (int i = 0; t < 0.55f; i++)
+                {
+                    c.Noise(t, 0.018f, rate: 1.9f, vol: 0.09f);
+                    c.Tone(t, 0.015f, 2200f + 300f * (i % 3), duty: 0.125f, vol: 0.05f);
+                    t += gaps[i % gaps.Length];
+                }
+            });
+            // A pill popping: a tiny candy blip, in three pitches so a rain of them doesn't sound like one note.
+            float[] popPitch = { 1500f, 1800f, 2150f };
+            Sfx.PillPop = new AudioClip[popPitch.Length];
+            for (int i = 0; i < popPitch.Length; i++)
+            {
+                float f = popPitch[i];
+                Sfx.PillPop[i] = Render("chipPillPop" + i, 0.08f, c =>
+                {
+                    c.Tone(0f, 0.06f, f, f * 1.5f, duty: 0.25f, vol: 0.12f);
+                    c.Noise(0f, 0.02f, rate: 1.4f, vol: 0.06f);
+                });
+            }
         }
 
         static readonly float[] Flat = { 0f, 1f, 1f, 1f };

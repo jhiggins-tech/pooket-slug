@@ -215,12 +215,12 @@ namespace PooketSlug
                 if (!r.IsDown && !r.Invulnerable && Overlaps(r.Bounds, at, radius)) DamageAvatar(r, damage);
         }
 
-        public void Explode(Vector2 at, float radius, int damage, bool hostile, float size)
+        public void Explode(Vector2 at, float radius, int damage, bool hostile, float size, AudioClip sound = null)
         {
             World w = m_World;
             w.SpawnEffect(Art.Explosion, 18f, at, size);
             w.Burst(at, Mathf.RoundToInt(6 * size), new Color(0.35f, 0.3f, 0.28f));
-            Sfx.Play(Sfx.Explosion, Mathf.Clamp01(0.4f + size * 0.4f));
+            Sfx.Play(sound != null ? sound : Sfx.Explosion, Mathf.Clamp01(0.4f + size * 0.4f));
             w.View.Shake(0.1f * size);
             w.HitFeel.Blast(size);
             if (damage <= 0) return;
