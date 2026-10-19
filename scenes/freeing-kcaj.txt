@@ -1,33 +1,31 @@
 // Freeing kcaj (docs/design/cutscenes.md, Freeing kcaj), after Trollogram kcaj is beaten on foot in the creamery's
 // loading yard. His glitch-out (the design's shot 1) plays in the game itself (Pilot); the scene picks up as the cold
-// store's door slides open and the real kcaj stumbles out, rimed with frost, with his intro. Then the evidence, the
-// cones, and the sticky note. It plays on both phones in co-op, and can be skipped once seen. Always tones2 and kie,
-// whoever's picked: they're the crew in the story. How to write a scene: docs/scenes.md.
+// store's doors part and the real kcaj stumbles out, rimed with frost, with his intro. Then the evidence, the cones, and
+// the sticky note. It plays on both phones in co-op, and can be skipped once seen. Always tones2 and kie, whoever's
+// picked: they're the crew in the story. How to write a scene: docs/scenes.md.
 //
 // The narrator's two lines are subtitles only until their recordings (m2-freeing-2, m2-freeing-4) are in the vendor
 // repository's narration release; then each names its recording again.
 //
-// The cold store: racks of tubs, a chest freezer, and its sliding door on the left.
+// The set is the loading yard (Design's arena plate): the cold store's doors on the right, a chest freezer on the left.
 net 5
 
 shot: Out of the cold
 length 8.5
 set coldstore
 show freezer
-tones2 at 150
-tones2 face left
-kie at 178
-kie face left
-// the door slides open, frost rolls out, and kcaj stumbles out in his own colours, white with frost, holding an
-// empty tub
-store-door at 40
-0.2-1.4 store-door move 40 0 -8 0 smooth
+tones2 at 120
+kie at 92
+// the doors part, frost rolls out, and kcaj stumbles out in his own colours, white with frost, icicles on his cap,
+// holding an empty tub
+0.2-1.4 store-opening size 0.02 1 1 1 smooth
 0.6 frost show
-frost at 40
-kcaj at 40
+kcaj at 261
+kcaj face left
 kcaj colour #c8e8ff
 kcaj holds tub
-1.4-2.6 kcaj walk 40 96
+1.4 icicles on kcaj 1 21
+1.4-2.6 kcaj walk 261 200
 2.6 kcaj sway
 intro 3 kcaj: KCAJ
 0.2 cue cold-door
@@ -38,36 +36,30 @@ intro 3 kcaj: KCAJ
 shot: The evidence
 length 3.5
 set coldstore
-show freezer frost
-store-door at -8
-frost at 40
-tones2 at 150
-tones2 face left
-kie at 178
-kie face left
+show freezer frost store-opening
+tones2 at 120
+kie at 92
 // he looks at the tub (tipped up: empty), then at the crew
-kcaj at 96
+kcaj at 200
 0-3.5 kcaj colour #c8e8ff white
+icicles on kcaj 1 21
 kcaj holds tub
-0.2 kcaj face left
+0.2 kcaj face right
 0.4-0.9 tub turn 0 160 out
-1.3 kcaj face right
+1.3 kcaj face left
 1.5 kcaj: I ATE THE EVIDENCE.
 
 shot: A difficult week
 length 4.5
 set coldstore
-show freezer
-store-door at -8
+show freezer store-opening
 // tones2 holds out a slushie; kcaj walks right past it, opens the freezer, and eats two cones at once
-tones2 at 150
-tones2 face left
+tones2 at 120
 tones2 holds slushie
-kie at 178
-kie face left
-kcaj at 96
-kcaj face right
-0.4-1.6 kcaj walk 96 236
+kie at 92
+kcaj at 200
+kcaj face left
+0.4-1.6 kcaj walk 200 62
 1.8-2.1 freezer shake 1
 2.1 cones show
 kcaj holds cones
@@ -80,16 +72,15 @@ kcaj holds cones
 shot: Told you
 length 5
 set coldstore
-show freezer
-store-door at -8
+show freezer store-opening
 // he points at the factory around them, then at the crew; nobody answers. Then he sticks a note on tones2's back.
-kie at 112
-tones2 at 150
-tones2 face left
-kcaj at 236
-0.2 kcaj face right
-1 kcaj face left
+kie at 156
+kie face left
+tones2 at 120
+kcaj at 62
+0.2 kcaj face left
+1 kcaj face right
 0.4 kcaj: I TOLD YOU. | I TOLD ALL OF YOU.
-2.6-3.3 kcaj walk 236 164
-3.5 note on tones2 6 16
+2.6-3.3 kcaj walk 62 104
+3.5 note on tones2 -6 16
 3.5 cue note

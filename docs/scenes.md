@@ -43,7 +43,7 @@ net 1                      the scene's number for a partner's phone (1-255, each
 
 shot: Outside              each shot starts with its name
 length 8.5                 seconds
-set street                 the backdrop: street, den, bay, motorpool or coldstore
+set street                 the backdrop: street, den, bay, motorpool or coldstore (the creamery's loading yard)
 show sign window door snow what's on stage from the start
 intro 4 tones2: TONES2     a character intro at 4 s, with the name it slams up
 
@@ -73,8 +73,8 @@ Places are in art pixels: across from the left (the stage is 320 wide), up from 
 | Kind | Things |
 |---|---|
 | Soldiers | `tones2`, `kie`, `kcaj`, `goon` |
-| Props | `bag`, `cup`, `card`, `remote`, `sign`, `window`, `door`, `doorway`, `spark`, `beacon`, `clamp`, `drone`, `cable`, `tones2-tabk`, `kie-tabk`, `turret`, `kcaj-corner` (his corner of the den, with the string board), the cold store's `store-door` and `freezer`, `tub`, `slushie`, `cones`, `note` (a sticky note) |
-| Effects | `snow`, `searchlights`, `chips`, `jet`, `closeup` (the keycard), `board` (kcaj's string board, close up), `shutter`, `lamps`, `row`, `junk`, `steam`, `cage`, `stars`, `zz`, `alarm`, `frost` (rolling out along the floor from where it's put) |
+| Props | `bag`, `cup`, `card`, `remote`, `sign`, `window`, `door`, `doorway`, `spark`, `beacon`, `clamp`, `drone`, `cable`, `tones2-tabk`, `kie-tabk`, `turret`, `kcaj-corner` (his corner of the den, with the string board), the cold store's `store-opening` (the dark of its doorway: size it open) and `freezer`, `tub`, `slushie`, `cones`, `note` (a sticky note) |
+| Effects | `snow`, `searchlights`, `chips`, `jet`, `closeup` (the keycard), `board` (kcaj's string board, close up), `shutter`, `lamps`, `row`, `junk`, `steam`, `cage`, `stars`, `zz`, `alarm`, `frost` (rolling out along the floor both ways from where it's put), `icicles` (on a cap: `icicles on kcaj 1 21`) |
 
 A thing is on stage once a line stages it (or `show` names it), until `hide`.
 

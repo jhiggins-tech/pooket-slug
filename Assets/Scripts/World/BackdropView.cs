@@ -78,6 +78,14 @@ namespace PooketSlug
             }
         }
 
+        /// <summary>Whether <paramref name="mission"/>'s <paramref name="layer"/> layer is painted (it has plates in the build).</summary>
+        public static bool Painted(MissionDef mission, string layer)
+        {
+            foreach (BackdropLayer l in Backdrop.LayersFor(mission))
+                if (l.Name == layer) return Plate(Backdrop.PlatePath(mission, l, 0)) != null;
+            return false;
+        }
+
         /// <summary>The layer's painted plates for this mission, in strip order (none when it has none).</summary>
         static Sprite[] Load(MissionDef mission, BackdropLayer layer)
         {

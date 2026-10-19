@@ -5,7 +5,8 @@ namespace PooketSlug
 {
     /// <summary>
     /// The cutscenes' sets (<see cref="Staging.Sets"/>): the motor pool from outside with its blast shutter, painted pixel
-    /// by pixel once, the first time a scene plays, and kept; and Design's paintings (<c>Resources/Den</c>, through
+    /// by pixel once, the first time a scene plays, and kept; the creamery's loading yard, put together from Mission two's
+    /// plates; and Design's paintings (<c>Resources/Den</c>, through
     /// <see cref="DenRoom.Painting"/>): the street outside the hangout on a snowy night (plate B-2, with the hangout's door
     /// and lit window cut from it as props, <see cref="CutsceneCast.MakeHangout"/>; the code-drawn street stands in if
     /// it's missing), and the den and the tabk bay on raid night. The
@@ -47,7 +48,7 @@ namespace PooketSlug
             if (s_Street != null) return;
             s_Street = Backdrop(DrawStreet);
             s_MotorPool = Backdrop(DrawMotorPool);
-            s_ColdStore = Backdrop(DrawColdStore);
+            s_ColdStore = PaintedColdStore() ?? Backdrop(DrawColdStore);
             var slats = new PixelCanvas((int)MotorOpenW, (int)MotorOpenH);
             DrawShutter(slats);
             s_Slats = Sprite.Create(Art.ToTexture(slats), new Rect(0, 0, MotorOpenW, MotorOpenH), Vector2.zero, 1f);
@@ -119,8 +120,51 @@ namespace PooketSlug
         }
 
         /// <summary>
-        /// The creamery's cold store, from inside: frosted steel panels, racks of tubs behind, cold strip lights, the
-        /// door's frame on the left (its sliding door is a prop, <c>store-door</c>) and an icy floor.
+        /// The creamery's loading yard before the cold store, from Mission two's own plates (Design: arena A1 is the
+        /// freeing scene's set): the far plate behind, the arena's middle plate (the wall, the drip sign, the cold store's
+        /// shut doors, centred at x 261) over it, both standing on the floor, the sky plate above, and the yard's icy floor
+        /// drawn below. Null if the plates aren't in the build.
+        /// </summary>
+        static Sprite PaintedColdStore()
+        {
+            Texture2D sky = PlateTexture("sky-0"), far = PlateTexture("far-0"), mid = PlateTexture("mid-2");
+            if (sky == null || far == null || mid == null) return null;
+            int floor = Staging.Sets["coldstore"];
+            return Backdrop(c =>
+            {
+                Blit(c, sky, 0, 0);
+                Blit(c, far, 0, floor);
+                Blit(c, mid, 0, floor);
+                c.Rect(0, 0, StageW, floor, Art.Hex(0x9fb0c8));
+                c.Rect(0, floor - 1, StageW, 1, Art.Hex(0xe4f0ff));
+                for (int x = 8; x < StageW; x += 34) c.Rect(x, 5, 18, 1, Art.Hex(0xc0d2e6));
+            });
+        }
+
+        static Texture2D PlateTexture(string name)
+        {
+            var file = Resources.Load<TextAsset>("Plates/mission-2/" + name);
+            if (file == null) return null;
+            var tex = new Texture2D(2, 2, TextureFormat.RGBA32, false);
+            return tex.LoadImage(file.bytes) ? tex : null;
+        }
+
+        /// <summary>Draws <paramref name="tex"/> with its bottom left at (<paramref name="x0"/>, <paramref name="y0"/>), its see-through pixels left out.</summary>
+        static void Blit(PixelCanvas c, Texture2D tex, int x0, int y0)
+        {
+            Color32[] px = tex.GetPixels32();
+            for (int y = 0; y < tex.height; y++)
+                for (int x = 0; x < tex.width; x++)
+                {
+                    Color32 p = px[y * tex.width + x];
+                    if (p.a > 127) c.Set(x0 + x, y0 + y, p);
+                }
+        }
+
+        /// <summary>
+        /// The creamery's cold store, drawn, for a build without Mission two's plates: frosted steel panels, racks of tubs behind, cold strip lights, the
+        /// cold store's door frame on the right where the plate has it (its opening is a prop, <c>store-opening</c>) and an
+        /// icy floor.
         /// </summary>
         static void DrawColdStore(PixelCanvas c)
         {
@@ -140,10 +184,10 @@ namespace PooketSlug
                 c.Rect(x, StageH - 22, 40, 3, Art.Hex(0xe8f6ff));
                 c.Rect(x - 4, StageH - 26, 48, 3, Art.Hex(0x2a3c50));
             }
-            // racks of tubs along the back wall, past the door
-            for (int rack = 0; rack < 3; rack++)
+            // racks of tubs along the wall
+            for (int rack = 0; rack < 2; rack++)
             {
-                int rx = 110 + rack * 70, ry = floor;
+                int rx = 30 + rack * 76, ry = floor;
                 c.Rect(rx, ry, 2, 92, Art.Hex(0x3a4c60));
                 c.Rect(rx + 56, ry, 2, 92, Art.Hex(0x3a4c60));
                 for (int shelf = 0; shelf < 4; shelf++)
@@ -158,10 +202,11 @@ namespace PooketSlug
                     }
                 }
             }
-            // the door's frame, with a hazard edge
-            c.Rect(14, floor, 52, 80, Art.Hex(0x0d151e));
-            c.Rect(12, floor + 78, 56, 4, Art.Hex(0x3a4c60));
-            for (int x = 12; x < 68; x++) c.Rect(x, floor + 82, 1, 3, ((x - 12) / 4) % 2 == 0 ? Art.Hex(0xe0b020) : Art.Hex(0x1a1a1a));
+            // the cold store's shut doors in their frame, with a hazard edge
+            c.Rect(207, floor + 9, 108, 92, Art.Hex(0x0d151e));
+            c.Rect(209, floor + 11, 104, 87, Art.Hex(0xd8e6f2));
+            c.Rect(260, floor + 11, 2, 87, Art.Hex(0x0d151e));
+            for (int x = 207; x < 315; x++) c.Rect(x, floor + 101, 1, 3, ((x - 207) / 4) % 2 == 0 ? Art.Hex(0xe0b020) : Art.Hex(0x1a1a1a));
             // the floor: pale, icy, with a sheen
             c.Rect(0, 0, StageW, floor, Art.Hex(0x9fb8cc));
             c.Rect(0, floor - 1, StageW, 1, Art.Hex(0xdff0ff));

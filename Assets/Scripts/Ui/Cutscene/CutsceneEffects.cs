@@ -23,7 +23,7 @@ namespace PooketSlug
         readonly RectTransform m_World, m_Stage;
         readonly Image[] m_Snow = new Image[36], m_Chips = new Image[10], m_Jet = new Image[8], m_Beams = new Image[2];
         readonly Image[] m_Row = new Image[2], m_Junk = new Image[9], m_Steam = new Image[4], m_Lamps = new Image[3];
-        readonly Image[] m_Cage = new Image[7], m_Stars = new Image[3], m_Frost = new Image[10];
+        readonly Image[] m_Cage = new Image[7], m_Stars = new Image[3], m_Frost = new Image[10], m_Icicles = new Image[4];
         RectTransform m_ShutterMask, m_BigCard, m_Board;
         Image m_Shutter, m_ColdLight, m_Dim, m_Alarm;
         Text m_Zz;
@@ -74,6 +74,11 @@ namespace PooketSlug
         public void MakeFrost()
         {
             for (int i = 0; i < m_Frost.Length; i++) m_Frost[i] = Picture("Frost", null, 0f, 0f, 14f, 5f, new Color(0.85f, 0.95f, 1f, 0.4f));
+            for (int i = 0; i < m_Icicles.Length; i++)
+            {
+                m_Icicles[i] = Picture("Icicle", null, 0f, 0f, 1f, 2f + i % 2 * 2f, new Color(0.9f, 0.97f, 1f));
+                m_Icicles[i].rectTransform.pivot = new Vector2(0.5f, 1f); // they hang from the cap's brim
+            }
         }
 
         /// <summary>z Z, the shutter's cold light, and the shutter (its slats in a mask the size of the opening).</summary>
@@ -184,6 +189,7 @@ namespace PooketSlug
             Row(stage, t, now, ground);
             Steam(stage, t, now, ground);
             Frost(stage, t, now, ground);
+            Icicles(stage, t, now, ground);
             Cage(stage, t, ground);
             Stars(stage, t, now, ground);
             Zz(stage, t, now, ground);
@@ -330,8 +336,8 @@ namespace PooketSlug
         }
 
         /// <summary>
-        /// Frost rolling out of a door along the floor: low puffs that spread right from where it's placed, faster and
-        /// further as they go, and thin out; it rolls in from nothing as it comes on.
+        /// Frost rolling out of a door along the floor: low puffs that spread both ways from where it's placed, further
+        /// as they go, and thin out; it rolls in from nothing as it comes on.
         /// </summary>
         void Frost(ShotStage stage, float t, float now, float ground)
         {
@@ -346,10 +352,25 @@ namespace PooketSlug
                 if (!on) continue;
                 float k = (now * 0.35f + i / (float)m_Frost.Length) % 1f;
                 float reach = Mathf.Clamp01(since / 1.2f) * 150f;
-                float x = at.x + k * reach + Mathf.Sin(now * 1.3f + i * 2f) * 3f;
+                float x = at.x + (i % 2 == 0 ? 1f : -1f) * k * reach + Mathf.Sin(now * 1.3f + i * 2f) * 3f;
                 f.rectTransform.anchoredPosition = new Vector2(x, ground + at.y + 1f + (i % 3) * 2f + k * 3f) * Px;
                 f.rectTransform.localScale = new Vector3(1f + k * 1.5f, 1f + k * 0.4f, 1f);
                 f.color = new Color(c.r, c.g, c.b, c.a * 0.5f * (1f - k) * Mathf.Clamp01(since * 3f));
+            }
+        }
+
+        /// <summary>Icicles hanging off a cap's brim (put <c>on</c> a soldier, at the brim), dripping now and then.</summary>
+        void Icicles(ShotStage stage, float t, float now, float ground)
+        {
+            bool on = stage.Shown("icicles", t);
+            Vector2 at = stage.Where("icicles", t, now);
+            Color c = stage.Colour("icicles", t, now);
+            for (int i = 0; i < m_Icicles.Length; i++)
+            {
+                Ui.Show(m_Icicles[i], on);
+                if (!on) continue;
+                m_Icicles[i].rectTransform.anchoredPosition = new Vector2(at.x - 4.5f + i * 3f, ground + at.y) * Px;
+                m_Icicles[i].color = c;
             }
         }
 

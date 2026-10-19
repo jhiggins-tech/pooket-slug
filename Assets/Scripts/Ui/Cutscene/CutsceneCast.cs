@@ -77,16 +77,13 @@ namespace PooketSlug
             m_Props["kcaj-corner"] = Picture("kcaj-corner", corner, 0f, 0f, corner != null ? corner.rect.width : 96f, corner != null ? corner.rect.height : 52f, Color.white);
         }
 
-        /// <summary>The creamery's cold store: its sliding door (a slab of steel with a frosted window) and a chest freezer.</summary>
+        /// <summary>
+        /// The creamery's cold store: the dark of its doorway (sized open over the painted shut doors, so they seem to
+        /// part) and a chest freezer in the yard.
+        /// </summary>
         public void MakeColdStore()
         {
-            Image door = Prop("store-door", 44f, 70f);
-            Picture("Door window", null, 0f, 0f, 1f, 1f, Color.white).rectTransform.SetParent(door.rectTransform, false);
-            Image pane = door.rectTransform.GetChild(0).GetComponent<Image>();
-            pane.rectTransform.anchorMin = pane.rectTransform.anchorMax = new Vector2(0.5f, 0.7f);
-            pane.rectTransform.anchoredPosition = Vector2.zero;
-            pane.rectTransform.sizeDelta = new Vector2(16f, 10f) * Px;
-            pane.color = new Color(0.8f, 0.92f, 1f, 0.8f);
+            Prop("store-opening", 100f, 86f);
             Image freezer = Prop("freezer", 44f, 24f);
             Image lid = Picture("Freezer lid", null, 0f, 0f, 1f, 1f, new Color(0.55f, 0.65f, 0.75f));
             lid.rectTransform.SetParent(freezer.rectTransform, false);
