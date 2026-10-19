@@ -37,6 +37,24 @@ namespace PooketSlug
         /// </summary>
         public const string TitleRecording = "title";
 
+        /// <summary>
+        /// The den's theme: a recording too (the console-shop bossa, take 2, cut to a 170 s seamless loop), from the
+        /// vendor repository's den-music release into <c>Resources/Music/den.bytes</c>.
+        /// </summary>
+        public const string DenRecording = "den";
+
+        /// <summary>
+        /// The recording that loops behind a menu screen: the den's theme in the den, the title theme on the splash and the
+        /// settings over it, and none anywhere else (cutscenes, missions and the debrief have their own music, or none).
+        /// </summary>
+        public static string MenuRecording(bool splash, bool den) => den ? DenRecording : splash ? TitleRecording : null;
+
+        /// <summary>How loud a recording plays, against the title theme: the den's is background music, so about half.</summary>
+        public static float Level(string recording) => recording == DenRecording ? 0.5f : 1f;
+
+        /// <summary>How far the den's theme dips while a menu (the kit screen, the mission screen) is open over the den.</summary>
+        public const float MenuDip = 0.6f;
+
         // Chords as arpeggio notes (root, third, fifth, octave) and a bass root and fifth.
         struct Chord
         {
