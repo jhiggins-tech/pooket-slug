@@ -85,9 +85,9 @@ namespace PooketSlug
         // the partner beacon (spike coop-camera): an arrow to a partner who's off screen, and their warnings
         static readonly Color Low = new Color(1f, 0.3f, 0.25f), AwayGrey = new Color(0.75f, 0.75f, 0.8f);
         readonly RectTransform m_Beacons;
-        readonly List<Image> m_Arrows = new List<Image>(), m_GhostMarks = new List<Image>();
+        readonly List<Image> m_Arrows = new List<Image>();
         readonly List<Text> m_ArrowLabels = new List<Text>(), m_Warnings = new List<Text>();
-        readonly System.Func<Image> m_NewArrow, m_NewGhostMark;
+        readonly System.Func<Image> m_NewArrow;
         readonly System.Func<Text> m_NewArrowLabel, m_NewWarning;
 
         // touch pad
@@ -170,7 +170,6 @@ namespace PooketSlug
 
             m_Beacons = Ui.Fill(m_Top, "Partner beacon");
             m_NewArrow = () => Ui.Picture(m_Beacons, "Arrow", Ui.Arrow, Ui.BottomLeft, Ui.Middle, Vector2.zero, new Vector2(22f, 22f), Color.white);
-            m_NewGhostMark = () => Ui.Picture(m_Beacons, "Pretend partner", Ui.Disc, Ui.BottomLeft, new Vector2(0.5f, 0f), Vector2.zero, new Vector2(14f, 22f), new Color(0.45f, 0.72f, 1f, 0.55f));
             m_NewArrowLabel = () => Ui.Label(m_Beacons, "Arrow label", Ui.BottomLeft, Vector2.zero, 8, TextAnchor.MiddleCenter, Color.white);
             m_NewWarning = () => Ui.Label(m_Beacons, "Warning", Ui.BottomLeft, Vector2.zero, 8, TextAnchor.MiddleCenter, Low);
 
@@ -342,7 +341,7 @@ namespace PooketSlug
             if (info.InGame)
             {
                 int points = w.Scoring.Points;
-                bool own = Spike.DropIn && info.Net != null; // spike drop-in: our own points beside the shared score
+                bool own = info.Net != null; // in co-op, our own points beside the shared score
                 int ownPoints = own ? w.OwnPoints : -1;
                 if (points != m_Points || ownPoints != m_OwnShown)
                 {
@@ -410,8 +409,8 @@ namespace PooketSlug
 
                 Ui.Show(m_Coop, info.Net != null);
                 if (info.Net != null) Coop(w, cam, info);
-                Ui.Show(m_Beacons, Spike.Partner);
-                if (Spike.Partner) Beacons(w, cam, info);
+                Ui.Show(m_Beacons, info.Net != null);
+                if (info.Net != null) Beacons(w, cam);
             }
 
             bool starting = info.StateTime < (info.Note != null ? 4f : 2.2f) && !info.Paused;
@@ -459,7 +458,7 @@ namespace PooketSlug
 
                 Text tag = Pooled(m_Tags, row, m_NewTag);
                 tag.rectTransform.anchoredPosition = Ui.FromScreen(cam.WorldToScreenPoint(new Vector3(r.Pos.x, r.Pos.y + 1.9f, 0f)));
-                tag.text = Spike.DropIn ? name + "  " + DropIn.Points(r.Link.Score) : name;
+                tag.text = name + "  " + DropIn.Points(r.Link.Score);
                 tag.color = Palette.Players[skin];
                 row++;
             }
@@ -490,39 +489,20 @@ namespace PooketSlug
         }
 
         /// <summary>
-        /// Spike coop-camera: each partner off screen gets an arrow at the edge pointing at them, with how far off they are;
-        /// one on screen gets their warnings under their tag. Alone, a pretend partner (<see cref="PartnerGhost"/>) stands in.
+        /// Each partner off screen gets an arrow at the edge pointing at them, with how far off they are; one on screen gets
+        /// their warnings under their tag.
         /// </summary>
-        void Beacons(World w, Camera cam, in HudInfo info)
+        void Beacons(World w, Camera cam)
         {
             float halfH = Tuning.Camera.ViewHeight * 0.5f, halfW = w.View.HalfWidth;
             Vector3 c = cam.transform.position;
             var view = new Rect(c.x - halfW, c.y - halfH, 2f * halfW, 2f * halfH);
-            int n = 0, ghosts = 0;
-            if (info.Net != null)
+            int n = 0;
+            foreach (RemotePlayer r in w.Remotes)
             {
-                foreach (RemotePlayer r in w.Remotes)
-                {
-                    int skin = Mathf.Clamp(r.Link.Skin, 0, 1);
-                    Beacon(cam, view, n++, r.Pos, r.Height, skin == 0 ? "P1" : "P2", Palette.Players[skin], r.LowHealth, r.Away);
-                }
+                int skin = Mathf.Clamp(r.Link.Skin, 0, 1);
+                Beacon(cam, view, n++, r.Pos, r.Height, skin == 0 ? "P1" : "P2", Palette.Players[skin], r.LowHealth, r.Away);
             }
-            else if (info.Playing)
-            {
-                PartnerGhost.State g = PartnerGhost.At(w.Elapsed, w.Player.Pos, halfW);
-                bool low = PartnerBeacon.IsLow(g.Hp, g.MaxHp);
-                if (Beacon(cam, view, n++, g.Pos, 1.6f, "P2", Palette.Players[1], low, g.Away))
-                {
-                    // on screen: a stand-in for the soldier, and its tag
-                    Image mark = Pooled(m_GhostMarks, ghosts++, m_NewGhostMark);
-                    mark.rectTransform.anchoredPosition = Ui.FromScreen(cam.WorldToScreenPoint(new Vector3(g.Pos.x, g.Pos.y, 0f)));
-                    Text tag = Pooled(m_ArrowLabels, n - 1, m_NewArrowLabel);
-                    tag.rectTransform.anchoredPosition = Ui.FromScreen(cam.WorldToScreenPoint(new Vector3(g.Pos.x, g.Pos.y + 1.9f, 0f)));
-                    tag.text = "P2 (PRETEND)";
-                    tag.color = Palette.Players[1];
-                }
-            }
-            HideFrom(m_GhostMarks, ghosts);
             HideFrom(m_Arrows, n);
             HideFrom(m_ArrowLabels, n);
             HideFrom(m_Warnings, n);

@@ -448,7 +448,7 @@ jobs:
           - mode: code # join, invite, play, and hand over the world
           - mode: boss # fight the boss together (a stand-in, as Mission one is solo only)
           - mode: scene # watch a scene together (a stand-in, as Mission one is solo only)
-          - mode: dropin # drop in to a mission under way (spike drop-in, doesn't fail the build)
+          - mode: dropin # drop in to a mission under way (doesn't fail the build)
             optional: true
           - mode: handover # hand the world over when the host's phone goes to the background
           - mode: watch # a third phone watches a full room (three phones)
@@ -523,7 +523,7 @@ jobs:
                   ("together", "It ends on both phones together"),
                   ("played", "Both play on with no errors or disconnects"),
               ]),
-              "dropin": ("Drop-in (spike, ?spike=dropin)", [
+              "dropin": ("Drop-in", [
                   ("hostOnline", "A joins the co-op room and plays on alone"),
                   ("guestOnline", "B joins the same room"),
                   ("joined", "A sees B join"),

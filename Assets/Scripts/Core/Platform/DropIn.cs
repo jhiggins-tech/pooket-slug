@@ -3,10 +3,10 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// Spike drop-in: a partner joins a mission that's already going (player.md, Co-op). Joining already works: the
+    /// Drop-in: a partner joins a mission that's already going (player.md, Co-op). Joining already works: the
     /// joiner's world starts at the shared scroll (<see cref="IWorldChannel.CamX"/>) and fills from the authority's
     /// snapshot, with lives of their own. Each player also keeps their own score, from their own kills, beside the
-    /// shared one (<see cref="ISoldierChannel.SendScore"/>), and the HUD shows them with <c>?spike=dropin</c>.
+    /// shared one (<see cref="ISoldierChannel.SendScore"/>), and the HUD shows them (a spike until 19 Oct, coop-arrow-score).
     /// </summary>
     public static class DropIn
     {

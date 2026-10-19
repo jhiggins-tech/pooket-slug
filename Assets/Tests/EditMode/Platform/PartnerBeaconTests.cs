@@ -115,26 +115,5 @@ namespace PooketSlug.Tests
             hold.Add(2f); // a partner way behind
             Assert.AreEqual(2f - Tuning.Coop.TrailMargin + Tuning.Coop.HalfWidth, hold.Desired(Tuning.Coop.HalfWidth), 1e-4f);
         }
-
-        [Test]
-        public void TheGhostGoesEverywhereTheBeaconCaresAbout()
-        {
-            Vector2 you = new Vector2(30f, 2f);
-            float half = 10f;
-            bool beside = false, ahead = false, behind = false, above = false, low = false, away = false;
-            for (float t = 0f; t < PartnerGhost.Loop; t += 0.25f)
-            {
-                PartnerGhost.State g = PartnerGhost.At(t, you, half);
-                var view = new Rect(you.x - half, 0f, 2f * half, 11.25f);
-                bool on = PartnerBeacon.OnScreen(view, g.Pos, 1.6f);
-                beside |= on;
-                ahead |= !on && g.Pos.x > view.xMax;
-                behind |= !on && g.Pos.x < view.xMin;
-                above |= !on && g.Pos.y > view.yMax;
-                low |= PartnerBeacon.IsLow(g.Hp, g.MaxHp);
-                away |= g.Away;
-            }
-            Assert.IsTrue(beside && ahead && behind && above && low && away);
-        }
     }
 }
