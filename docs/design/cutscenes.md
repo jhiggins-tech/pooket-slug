@@ -741,8 +741,8 @@ beaten. About 9 seconds, three shots; tap to skip. Once ever, kept with the play
 Drafted 2026-10-19 (kie-tabk-return-script).
 
 **Who's in it:** kie and whoever the player is playing (`PLAYER` below), with tones2 as the default. kie's line works
-for anyone. **The paint** follows Design's pick on kie-tabk-design (his blue and green is Design's lean); the lens
-glows the friendly gold either way, never the villains' cyan.
+for anyone. **The paint** (owner, 2026-10-19, kie-tabk-design): kie's blue hull with a green stripe and green reel
+spokes, frost, copper pipes and rust spots, and the lens glowing the friendly gold, never the villains' cyan.
 
 ```text
 1. INT. THE TABK BAY - NIGHT                            3 s
