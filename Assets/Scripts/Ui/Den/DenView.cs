@@ -99,7 +99,7 @@ namespace PooketSlug
                 return;
             }
             m_Walk = true;
-            m_WalkFloor = DenMap.WalkTarget(p.x, p.y, out m_WalkX);
+            m_WalkFloor = DenMap.WalkTarget(p.x, p.y, Walker?.Floor ?? DenFloor.Ground, out m_WalkX);
         }
 
         public bool Showing => m_Root.gameObject.activeSelf;
