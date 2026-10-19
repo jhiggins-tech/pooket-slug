@@ -4,20 +4,19 @@ namespace PooketSlug
 {
     /// <summary>
     /// The side-scrolling camera. It only moves forward (Metal Slug style), follows the soldiers, shakes, and
-    /// moves the parallax background. In co-op the authority follows the leading soldier without pushing the
+    /// moves the parallax backdrop (<see cref="BackdropView"/>). In co-op the authority follows the leading soldier without pushing the
     /// trailing one off screen, and the others chase the authority's scroll.
     /// </summary>
     public sealed class ScrollCamera
     {
         readonly World m_World;
-        readonly Transform[] m_Mountains = new Transform[3], m_Ruins = new Transform[3];
-        Transform m_Sky;
+        readonly BackdropView m_Backdrop;
         float m_X, m_Shake;
 
         public ScrollCamera(World world)
         {
             m_World = world;
-            BuildBackground();
+            m_Backdrop = new BackdropView(world, world.Mission);
             m_X = GameHalfWidth;
             // Joining a game in progress: start where the others are.
             if (world.Coop && !world.Net.IsAuthority) m_X = Mathf.Max(m_X, world.Net.CamX);
@@ -90,36 +89,7 @@ namespace PooketSlug
             float cx = Entity.Snap(view + shake.x), cy = Entity.Snap(Tuning.Camera.ViewHeight * 0.5f + shake.y);
             w.Camera.transform.position = new Vector3(cx, cy, -10f);
 
-            // Parallax: layer origin moves with the camera by `factor` (1 = infinitely far away).
-            m_Sky.position = new Vector3(cx, cy, 0f);
-            m_Sky.localScale = new Vector3((HalfWidth * 2f + 2f) * Art.PPU, (Tuning.Camera.ViewHeight + 2f) / 2f, 1f);
-            PlaceLayer(m_Mountains, Art.Mountains, 0.85f, 1.2f, cx);
-            PlaceLayer(m_Ruins, Art.Ruins, 0.6f, 1.0f, cx);
-        }
-
-        void PlaceLayer(Transform[] tiles, Sprite sprite, float factor, float y, float camX)
-        {
-            float width = sprite.rect.width / Art.PPU;
-            float origin = camX * factor;
-            float left = camX - HalfWidth;
-            float first = origin + Mathf.Floor((left - origin) / width) * width;
-            for (int i = 0; i < tiles.Length; i++)
-                tiles[i].position = new Vector3(Entity.Snap(first + i * width), y, 0f);
-        }
-
-        void BuildBackground()
-        {
-            m_Sky = MakeBg("Sky", Art.Sky, SortOrder.Sky);
-            for (int i = 0; i < 3; i++)
-            {
-                m_Mountains[i] = MakeBg("Mountains" + i, Art.Mountains, SortOrder.Mountains);
-                m_Ruins[i] = MakeBg("Ruins" + i, Art.Ruins, SortOrder.Ruins);
-            }
-        }
-
-        Transform MakeBg(string name, Sprite sprite, int order)
-        {
-            return Art.Renderer(m_World.Root, name, sprite, order).transform;
+            m_Backdrop.Place(cx, cy, HalfWidth);
         }
     }
 }
