@@ -48,6 +48,12 @@ namespace PooketSlug
         public void Tick(float dt)
         {
             if (Name == null) return;
+            if (PilotName != null && (m_Tank == null || m_Tank.Dying || m_Tank.Removed))
+            {
+                // the tabk's wrecked before its pilot looked out (?test=pilot): no hatch to look out of
+                PilotName = PilotLine = null;
+                if (m_T >= BossIntroShow.NameUntil) { Clear(); return; }
+            }
             float from = m_T;
             m_T += dt;
             int n = BossIntroShow.Cues(m_Full, PilotName != null, from, m_T, m_Cues);
