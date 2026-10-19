@@ -46,6 +46,9 @@ namespace PooketSlug
         /// <summary>?test=reveal: the motor pool reveal plays even if it's been seen (with the boss: <c>?test=boss,reveal</c>).</summary>
         public readonly bool Reveal;
 
+        /// <summary>Any <c>?test=</c>: a start straight to a part, so a co-op room skips the mission's opening scene.</summary>
+        public bool Testing => Crate || Tank || OneUp || Debrief || Coda || KcajTank || Boss || Pilot || WeakPilot || Team || Scene || Reveal;
+
         /// <summary>?mission=2: the mission START plays (its number), reached or not; null for the usual one.</summary>
         public readonly MissionDef Mission;
 

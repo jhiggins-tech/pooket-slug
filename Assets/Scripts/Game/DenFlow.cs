@@ -263,9 +263,12 @@ namespace PooketSlug
             m_View.Hide();
             if (m_Den.Mode == DenMode.Coop)
             {
-                // Mission one is single player only, so its scenes never play in a co-op room; ?test=scene plays a
-                // stand-in on both phones when starting together, to check the two-phone sync
-                if (g.Flags.Scene && partner.InDenNow) g.Scenes.Play(scenes.ForCoop(SceneLibrary.CoopTest, g.Scenes.PartnerVersions()), true, g.BeginCoop);
+                // starting together, both phones play the mission's opening scene (Mission two's briefing), synced;
+                // ?test=scene plays a stand-in instead, to check the two-phone sync, and any other ?test= skips it.
+                // Mission one is single player only, so its scenes never play in a co-op room.
+                MissionDef mission = Missions.ForCoop(Missions.ByNetId(g.Net.Link.Mission) ?? g.Mission);
+                string scene = g.Flags.Scene ? SceneLibrary.CoopTest : g.Flags.Testing ? null : mission.Story.Opening;
+                if (scene != null && partner.InDenNow) g.Scenes.Play(scenes.ForCoop(scene, g.Scenes.PartnerVersions()), true, g.BeginCoop);
                 else g.BeginCoop();
             }
             else

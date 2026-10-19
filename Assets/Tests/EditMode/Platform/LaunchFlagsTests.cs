@@ -13,6 +13,7 @@ namespace PooketSlug.Tests
             Assert.IsFalse(f.UnlockCoop || f.UnlockTank || f.UnlockCrew);
             Assert.IsFalse(f.Crate || f.Tank || f.OneUp || f.Debrief || f.Coda || f.KcajTank || f.Boss);
             Assert.IsFalse(f.Pilot || f.WeakPilot || f.Team || f.Scene || f.Reveal);
+            Assert.IsFalse(f.Testing, "so a co-op room plays the mission's opening scene");
             Assert.IsNull(f.Demo);
             Assert.IsNull(f.Room);
             Assert.IsNull(f.LogLevels);
@@ -36,6 +37,7 @@ namespace PooketSlug.Tests
             string[] names = { "crate", "tank", "1up", "debrief", "coda", "team", "scene", "reveal" };
             for (int i = 0; i < names.Length; i++) Assert.AreEqual(names[i] == test, on[i], names[i]);
             Assert.IsFalse(f.Boss, "none of these starts at the boss");
+            Assert.IsTrue(f.Testing, "any test skips a co-op mission's opening scene");
         }
 
         [Test]
