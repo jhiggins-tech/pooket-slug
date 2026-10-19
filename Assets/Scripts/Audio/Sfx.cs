@@ -9,6 +9,8 @@ namespace PooketSlug
         public static AudioClip Siren, Shot, Heavy, EnemyShot, Cannon, Explosion, BigExplosion, Jump, Hurt, Hit, Pickup, Throw, Start, Victory, GameOver;
         // tones2's kit, and the extras (the hologram goons, the boss tank)
         public static AudioClip IntroRise, Intro, JetLoop, Splat, RocketRumble, RocketLaunch, Glitch, Poison, Spew, Sizzle, Thump, Charge, Servo;
+        // the title: its tabk's engine
+        public static AudioClip EngineRev;
         // kie's kit
         public static AudioClip WeaselThrow, WeaselTune, TrollDrop, TrollSwap;
         // Mission two's (the creamery): its goons, the Big Scoop's moves and their tells, the nitrogen and the hazards
@@ -80,6 +82,29 @@ namespace PooketSlug
             src.loop = true;
             src.clip = clip;
             src.volume = 0f;
+            return src;
+        }
+
+        /// <summary>
+        /// Plays <paramref name="clip"/> once on <paramref name="source"/>, a source of its own (made with
+        /// <see cref="OwnSource"/>), so it can be stopped part way (the title's engine, cut off by a skip).
+        /// </summary>
+        public static void PlayOn(AudioSource source, AudioClip clip, float volume = 1f)
+        {
+            if (Muted || source == null || clip == null || EffectsVolume <= 0f) return;
+            source.Stop();
+            source.clip = clip;
+            source.volume = volume * EffectsVolume;
+            source.Play();
+        }
+
+        /// <summary>A source of its own for <see cref="PlayOn"/>, or null without sound.</summary>
+        public static AudioSource OwnSource(GameObject host)
+        {
+            if (s_Source == null) return null;
+            var src = host.AddComponent<AudioSource>();
+            src.playOnAwake = false;
+            src.spatialBlend = 0f;
             return src;
         }
 

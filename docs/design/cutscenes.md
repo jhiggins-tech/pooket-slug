@@ -50,6 +50,7 @@ rewrite in the crew's own voice.
 | [The first debrief](#the-first-debrief) | After every solo win | 12 s | none: a screen (`DebriefView`) | Built |
 | [The first visit](#the-first-visit) | The den's first opening, once ever | 4 s | none yet | Designed |
 | [A crewmate moves in](#a-crewmate-moves-in) | The den, after each freeing | 3 s | none yet | Designed |
+| [kie's tabk comes home](#kies-tabk-comes-home) | The tabk bay, the first visit after Mission two | 9 s | none yet | Drafted |
 | [The Mission two briefing](#the-mission-two-briefing) | Mission two starts | 24 s | none yet | Designed, narrator voiced |
 | [kcaj's tabk arrives](#kcajs-tabk-arrives) | Mission two's boss | 3 s, plus his intro | none: the boss intro | Designed |
 | [Freeing kcaj](#freeing-kcaj) | Trollogram kcaj beaten on foot | 15 s | none yet | Designed, narrator voiced |
@@ -729,6 +730,73 @@ SFX: a chip clunk.
 
                                             INTO: THE DEN
 ```
+
+### kie's tabk comes home
+
+kie's tabk was wrecked in Mission one's boss fight, and it comes back once Mission two is beaten
+([tanks](tanks.md)), rebuilt as THE PROJECTIONIST (owner, 2026-10-19, kie-tabk-design): kie builds it round a
+Trollogram projector he took from the creamery's cold store, so it comes home still frosted, wrapped in copper freezer
+pipes. This beat plays the first time the player walks into [the tabk bay](lobby.md#the-tabk-bay) after Mission two is
+beaten. About 9 seconds, three shots; tap to skip. Once ever, kept with the player's progress, so it follows a sign-in.
+Drafted 2026-10-19 (kie-tabk-return-script).
+
+**Who's in it:** kie and whoever the player is playing (`PLAYER` below), with tones2 as the default. kie's line works
+for anyone. **The paint** (owner, 2026-10-19, kie-tabk-design): kie's blue hull with a green stripe and green reel
+spokes, frost, copper pipes and rust spots, and the lens glowing the friendly gold, never the villains' cyan.
+
+```text
+1. INT. THE TABK BAY - NIGHT                            3 s
+
+Sparks under the crane. kie's tabk sits on the repair
+stands, half a tabk: a patched hull, its old olive
+showing under fresh paint. KIE's legs stick out from
+underneath. A WEASEL holds up a spanner; a hand takes
+it, and hands back an empty ice cream cone.
+
+SFX: a chip welding crackle, on and off.
+
+                                                   CUT TO:
+
+2. INT. THE TABK BAY - CONTINUOUS                       3 s
+
+The crane lowers the projector onto the turret ring.
+Frost on its body, steam curling off the copper pipes.
+KIE slides out, pushes up his welding mask and pats it.
+
+                    KIE
+          NICKED IT FROM THE CREAMERY.
+
+                    PLAYER
+          IS IT MEANT TO STEAM?
+
+                    KIE
+          TROLLOGRAMS RUN HOT.
+
+                                                   CUT TO:
+
+3. INT. THE TABK BAY - CONTINUOUS                       3 s
+
+KIE climbs in. The two reels spin up, the lens glows
+gold, and a little Trollogram of the tabk flickers up on
+the bay wall and waves. kie waves back. The weasel
+hops in after him.
+
+SFX: the reels whirr up, then a chip clunk.
+
+SUPER (THE NAME CARD DROPS IN): KIE'S TABK ·
+THE PROJECTIONIST
+
+                    KIE
+          GOOD AS NEW. BETTER, ACTUALLY.
+
+                       INTO: THE TABK BAY (kie's tabk in its
+                       space, the player's loaded tabk back
+                       on the stands)
+```
+
+**Afterwards:** kie's tabk parks in its space downstairs and can be picked like any other
+([picking another](lobby.md#the-tabk-bay)). During the beat the player's loaded tabk waits in its own space, so the
+stands are kie's; the cargo drone swaps them back as the beat ends.
 
 ## Mission two
 

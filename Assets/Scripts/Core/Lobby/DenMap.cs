@@ -64,6 +64,22 @@ namespace PooketSlug
         /// <summary>The floor a tap at <paramref name="y"/> is on (a tap on the room picks the floor it's on).</summary>
         public static DenFloor FloorAt(float y) => y >= LoftY + 70f ? DenFloor.Bunks : y >= LoftY ? DenFloor.Loft : y >= 100f ? DenFloor.Upper : DenFloor.Ground;
 
+        /// <summary>
+        /// Where a tap on the floor walks you to: the floor it's on, at the spot tapped. The den's ladder and the hatch at its
+        /// top, above the upper floor, take you up through it to the loft (on a touch screen, nothing else does: the loft's
+        /// places are off screen until you're up).
+        /// </summary>
+        public static DenFloor WalkTarget(float x, float y, out float toX)
+        {
+            if (y < LoftY && y >= FloorY(DenFloor.Upper) + 12f && Math.Abs(x - LadderX) <= 16f)
+            {
+                toX = LadderX;
+                return DenFloor.Loft;
+            }
+            toX = x;
+            return FloorAt(y);
+        }
+
         /// <summary>A door, a ladder's rungs: what the scale rule checks against the soldier (doors about 1.7 times him).</summary>
         public readonly struct Fixture
         {
