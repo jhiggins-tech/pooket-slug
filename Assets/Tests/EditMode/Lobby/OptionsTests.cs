@@ -47,6 +47,19 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void TheLoadedTabkIsKeptWithTheSettings()
+        {
+            var o = new Options { Sound = true, Shake = true, Crew = Content.Kie.Id, Music = Volume.Low };
+            Assert.AreEqual(0, o.Tabk, "never picked");
+            o.Tabk = Content.Kcaj.Id;
+            Options back = Options.FromBits(o.Bits);
+            Assert.AreEqual(o, back);
+            Assert.AreEqual(Content.Kcaj.Id, back.Tabk);
+            Assert.AreEqual(Content.Kie.Id, back.Crew, "the crew pick is its own");
+            Assert.AreEqual(0, Options.FromBits(new Options { Sound = true, Shake = true, Music = Volume.Off }.Bits).Tabk, "an old save has none");
+        }
+
+        [Test]
         public void VolumesAndTheLeftHandedPad_StartAtTheirDefaults_InAnOldSave()
         {
             Options old = Options.FromBits(Options.FromBits(0).Bits | 2); // shake off, as an older build stored it

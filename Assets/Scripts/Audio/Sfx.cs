@@ -17,6 +17,8 @@ namespace PooketSlug
         // kcaj's kit: the cones, the beam (its burn in four heats) and the pills (a pop in three pitches)
         public static AudioClip ConeLob, ConeSplat, BeamLock, BeamSnap, BeamFizzle, PillsRattle;
         public static AudioClip[] BeamBurn, PillPop;
+        // the tabk bay: the cargo drone's rotors, its cable taking or setting down a tabk, the fuel hose, and a tabk ticking over
+        public static AudioClip DroneWhirr, CableClunk, HoseHiss, EngineTick;
         public static bool Muted;
         /// <summary>The settings' volumes, as gains: the game's sounds, and the recorded voices (<see cref="Options.Gain"/>).</summary>
         public static float EffectsVolume = 1f, VoicesVolume = 1f;

@@ -37,6 +37,9 @@ namespace PooketSlug
         public System.Collections.Generic.IReadOnlyList<MissionCard> Missions;
         public int MissionPick;
         public bool MissionHard, MissionFromDen;
+        /// <summary>The tabk loaded in the bay, as the mission screen names it, and its paint; null before there's one.</summary>
+        public string MissionTabk;
+        public Color MissionTabkPaint;
         /// <summary>Where the demo clips are (<c>&lt;id&gt;.mp4</c>), or null when this build can't fetch them.</summary>
         public string DemoFolder;
     }
@@ -75,7 +78,7 @@ namespace PooketSlug
         readonly Outline[] m_CardEdges = new Outline[MaxCards];
         readonly Text[] m_CardNames = new Text[MaxCards], m_CardPlaces = new Text[MaxCards], m_CardRecords = new Text[MaxCards], m_CardTags = new Text[MaxCards];
         readonly Button m_HardButton, m_MissionPlay;
-        readonly Text m_HardLabel, m_MissionPlayLabel, m_MissionPlayKey, m_HardKey, m_MissionsBackKey, m_MissionsHint;
+        readonly Text m_HardLabel, m_MissionPlayLabel, m_MissionPlayKey, m_HardKey, m_MissionsBackKey, m_MissionsHint, m_MissionTabk;
         MenuScreen m_Shown;
         MenuAction m_Clicked;
         bool m_SecondIsLeave; // the victory screen's second button leaves a shared game instead of going to the menu
@@ -173,6 +176,7 @@ namespace PooketSlug
             blocker.raycastTarget = true; // taps on the screen stop here, not on the den under it
             Line(m_Missions, 140f, 22, Orange).text = "MISSIONS";
             m_MissionsHint = Line(m_Missions, 116f, 9, Keys);
+            m_MissionTabk = Line(m_Missions, -77f, 9, Color.white); // the tabk loaded in the bay (docs/design/tanks.md)
             for (int i = 0; i < MaxCards; i++)
             {
                 MenuAction pick = MenuAction.Card1 + i;
@@ -364,6 +368,12 @@ namespace PooketSlug
             Ui.Show(m_MissionPlay, chosen != null && !chosen.ComingSoon);
             Set(m_MissionPlayLabel, info.MissionFromDen ? "PICK" : "PLAY");
             Set(m_MissionsHint, info.Touch ? "TAP A MISSION, THEN PLAY" : "LEFT / RIGHT PICKS A MISSION");
+            Ui.Show(m_MissionTabk, info.MissionTabk != null);
+            if (info.MissionTabk != null)
+            {
+                Set(m_MissionTabk, "LOADED: " + info.MissionTabk);
+                m_MissionTabk.color = info.MissionTabkPaint;
+            }
             Key(m_MissionPlayKey, keys, "ENTER");
             Key(m_HardKey, keys, "H");
             Key(m_MissionsBackKey, keys, "ESC");

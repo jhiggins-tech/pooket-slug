@@ -84,6 +84,7 @@ namespace PooketSlug
         internal DenFlow Den { get; private set; }
         internal KitFlow Kit { get; private set; }
         internal BoardFlow Board { get; private set; }
+        internal BayFlow Bay { get; private set; }
         internal DemoFlow Demos { get; private set; }
         internal SandboxFlow Sandbox { get; private set; }
         internal BossIntroFlow Intro { get; private set; }
@@ -100,6 +101,9 @@ namespace PooketSlug
         /// <summary>Who can be picked: the crewmates freed so far (any <c>?unlock=</c> frees them all, for testing).</summary>
         internal IReadOnlyList<SoldierDef> Freed => Crew.Freed(m_Profile, m_Flags.UnlockCoop || m_Flags.UnlockCrew);
         internal SoldierDef Soldier => Crew.Pick(m_Options.Crew, Freed);
+        /// <summary>The tabks won so far (<c>?unlock=crew</c> or <c>tank</c> gives them all, for testing), and the one loaded on the bay's stands.</summary>
+        internal IReadOnlyList<TabkCard> TabksWon => TabkCards.Won(m_Profile, m_Flags.UnlockCrew || m_Flags.UnlockTank);
+        internal TabkCard LoadedTabk => TabkCards.Loaded(m_Options.Tabk, TabksWon);
         internal bool CoopReady => m_Net != null && CoopOpen;
 
         void Awake()
@@ -141,6 +145,7 @@ namespace PooketSlug
             Scenes = new SceneFlow(this, transform);
             Debrief = new DebriefFlow(this, transform);
             Den = new DenFlow(this, transform);
+            Bay = new BayFlow(this, transform);
             Kit = new KitFlow();
             Board = new BoardFlow(this);
             Demos = new DemoFlow(this);
@@ -571,6 +576,7 @@ namespace PooketSlug
             if (Sandbox.Loading) { } // the title shows behind until the sandbox's file is in
             else if (Kit.Open) Kit.Tick(click, keys, soldier);
             else if (Board.Open) Board.Tick(click, keys, soldier);
+            else if (Bay.Open) Bay.Tick(keys, soldier);
             else switch (m_State)
             {
                 case GameState.Demo:
@@ -736,8 +742,9 @@ namespace PooketSlug
                     break;
             }
 
-            if (m_State == GameState.Den) Den.Move(dt); // over the kit screen too
+            if (m_State == GameState.Den) Den.Move(dt); // over the kit screen and the tabk bay too
             else if (Den.Showing) Den.Hide();
+            if (Bay.Open) Bay.Move(dt);
             m_World.Render();
             m_Hud.Refresh(m_World, m_Camera, new HudInfo
             {
@@ -781,6 +788,8 @@ namespace PooketSlug
                 MissionPick = Board.Pick,
                 MissionHard = Board.Hard,
                 MissionFromDen = Board.FromDen,
+                MissionTabk = Board.Open && Board.FromDen ? LoadedTabk.Name + (LoadedTabk != TabkCards.Tones2 ? " · TONES2'S DROPS IN FOR NOW" : "") : null,
+                MissionTabkPaint = Art.Hex(LoadedTabk.Paint),
             });
 
             // The sign-in button sits over the game, on the title screen and settings only.

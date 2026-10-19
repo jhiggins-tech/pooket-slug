@@ -174,6 +174,10 @@ namespace PooketSlug
                 case DenPlace.Gym:
                     g.Kit.Show(m_Den.Pick ?? g.Soldier);
                     return;
+                case DenPlace.RollerDoor:
+                    if (m_Den.Ready) Sit(false);
+                    g.Bay.Show(m_Den.Pick ?? g.Soldier, m_Den.Mode == DenMode.Coop ? g.Net.Link.LocalSkin : 0);
+                    return;
                 case DenPlace.Trophies:
                     m_View.Note("THE TROPHY SHELF: " + Progression.RankAt(g.Profile.rank).Name.ToUpperInvariant()); // the one you hold, so never a spoiler
                     return;
@@ -259,7 +263,7 @@ namespace PooketSlug
                 g.Net.Link.SendSceneVersions(scenes.Versions);
             }
             m_View.Refresh(dt, m_Den, InfoNow());
-            if (!m_Den.Go || g.Kit.Open || g.Board.Open) return;
+            if (!m_Den.Go || g.Kit.Open || g.Board.Open || g.Bay.Open) return;
             m_View.Hide();
             if (m_Den.Mode == DenMode.Coop)
             {

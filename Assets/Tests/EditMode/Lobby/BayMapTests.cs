@@ -1,0 +1,133 @@
+using NUnit.Framework;
+
+namespace PooketSlug.Tests
+{
+    /// <summary>The tabk bay's map and walking round it: along the floor, up to the top deck on the lift, and looking a tabk over.</summary>
+    public class BayMapTests
+    {
+        static BayErrand Run(BayWalker w, float seconds)
+        {
+            BayErrand done = BayErrand.None;
+            for (float t = 0f; t < seconds; t += 1f / 60f)
+            {
+                BayErrand e = w.Step(1f / 60f);
+                if (e.Any) done = e;
+            }
+            return done;
+        }
+
+        [Test]
+        public void TheSpots_AreTheStandsAndTwoDecksOfSix()
+        {
+            Assert.AreEqual(BayMap.StandX, BayMap.SpotX(BayMap.Stands));
+            Assert.AreEqual(BayDeck.Floor, BayMap.DeckOf(BayMap.Stands));
+            for (int s = 0; s < BayMap.Spaces; s++)
+            {
+                Assert.AreEqual(s < 6 ? BayDeck.Floor : BayDeck.Top, BayMap.DeckOf(s));
+                Assert.AreEqual(BayMap.SpaceX[s % 6], BayMap.SpotX(s));
+                Assert.AreEqual(s, BayMap.SpotAt(BayMap.SpotX(s), BayMap.SpotY(s) + 10f), "a tap on its tabk");
+                if (s >= 6) Assert.That(BayMap.SpotX(s) - BayMap.TabkW / 2f, Is.GreaterThan(BayMap.DeckLeft), "on the deck");
+            }
+            Assert.AreEqual(BayMap.Stands, BayMap.SpotAt(BayMap.StandX, 30f));
+            Assert.IsNull(BayMap.SpotAt(500f, 150f), "the ceiling");
+            // the spaces don't overlap, and the stands are clear of the den's door
+            for (int i = 1; i < 6; i++) Assert.That(BayMap.SpaceX[i] - BayMap.SpaceX[i - 1], Is.GreaterThanOrEqualTo(BayMap.TabkW - 4f));
+            Assert.That(BayMap.StandX - BayMap.TabkW / 2f, Is.GreaterThan(BayMap.XOf(BayPlace.Door) + 10f));
+        }
+
+        [Test]
+        public void ATapPicksTheDeck_OnlyWhereTheTopDeckIs()
+        {
+            Assert.AreEqual(BayDeck.Top, BayMap.DeckAt(400f, 90f));
+            Assert.AreEqual(BayDeck.Floor, BayMap.DeckAt(400f, 30f));
+            Assert.AreEqual(BayDeck.Floor, BayMap.DeckAt(92f, 90f), "over the stands there's no deck");
+            Assert.AreEqual(BayDeck.Floor, BayMap.DeckAt(870f, 90f), "nor over the wash");
+        }
+
+        [Test]
+        public void ThePlaces_AndWhatTheySay()
+        {
+            Assert.AreEqual(BayPlace.Door, BayMap.PlaceAt(8f, 40f));
+            Assert.AreEqual(BayPlace.Lift, BayMap.PlaceAt(BayMap.LiftX, 40f));
+            Assert.AreEqual(BayPlace.Wash, BayMap.PlaceAt(868f, 40f));
+            Assert.AreEqual(BayPlace.Street, BayMap.PlaceAt(970f, 40f));
+            Assert.IsNull(BayMap.Note(BayPlace.Door));
+            Assert.IsNull(BayMap.Note(BayPlace.Lift));
+            StringAssert.Contains("WASH", BayMap.Note(BayPlace.Wash));
+            StringAssert.Contains("SHUT", BayMap.Note(BayPlace.Street));
+            foreach (BayPlace p in new[] { BayPlace.Wash, BayPlace.Street })
+            {
+                StringAssert.DoesNotContain("TANK", BayMap.Note(p), "players read tabk");
+                StringAssert.DoesNotContain("HOLOGRAM", BayMap.Note(p));
+            }
+        }
+
+        [Test]
+        public void WalkingAlongTheFloor_StopsWhereItWasSent()
+        {
+            var w = new BayWalker(BayDeck.Floor, 20f);
+            w.WalkTo(BayDeck.Floor, 300f);
+            Run(w, 5f);
+            Assert.AreEqual(300f, w.X, 0.01f);
+            Assert.IsTrue(w.Standing);
+            w.WalkTo(BayDeck.Floor, 2000f);
+            Run(w, 15f);
+            Assert.AreEqual(BayMap.MaxX(BayDeck.Floor), w.X, 0.01f, "short of the street door");
+        }
+
+        [Test]
+        public void TheLift_CarriesYouUpToTheTopDeck_AndBackDown()
+        {
+            var w = new BayWalker(BayDeck.Floor, 300f);
+            w.Visit(BayMap.PerDeck + 1);
+            bool rode = false;
+            BayErrand done = BayErrand.None;
+            for (float t = 0f; t < 20f; t += 1f / 60f)
+            {
+                BayErrand e = w.Step(1f / 60f);
+                if (e.Any) done = e;
+                if (w.Riding)
+                {
+                    rode = true;
+                    Assert.AreEqual(BayMap.LiftX, w.X, 0.01f, "on the lift");
+                    Assert.AreEqual(w.Y, w.LiftY, 0.01f, "on its platform");
+                }
+            }
+            Assert.IsTrue(rode, "took the lift");
+            Assert.AreEqual(BayDeck.Top, w.Deck);
+            Assert.AreEqual(BayMap.StandBy(BayMap.PerDeck + 1), w.X, 0.01f);
+            Assert.AreEqual(BayMap.PerDeck + 1, done.Spot, "and looked the tabk over");
+            Assert.AreEqual(BayMap.FloorY(BayDeck.Top), w.LiftY, 0.01f, "the lift stays up");
+
+            w.Go(BayPlace.Lift);
+            Run(w, 10f);
+            Assert.AreEqual(BayDeck.Floor, w.Deck);
+            Assert.AreEqual(BayMap.FloorY(BayDeck.Floor), w.Y, 0.01f);
+        }
+
+        [Test]
+        public void TheLift_ComesToYouFirst_WhenItsAtTheOtherLevel()
+        {
+            var w = new BayWalker(BayDeck.Top, BayMap.LiftX - 12f);
+            Assert.AreEqual(BayMap.FloorY(BayDeck.Floor), w.LiftY, "it starts down");
+            w.Ride();
+            Run(w, 0.5f);
+            Assert.IsFalse(w.Riding, "waiting for it");
+            Run(w, 3f);
+            Assert.IsTrue(w.Riding || w.Deck == BayDeck.Floor, "on it");
+            Run(w, 5f);
+            Assert.AreEqual(BayDeck.Floor, w.Deck);
+        }
+
+        [Test]
+        public void WalkingByHand_StaysOnTheDeck()
+        {
+            var w = new BayWalker(BayDeck.Top, 400f);
+            w.Walk(-1);
+            Run(w, 10f);
+            Assert.AreEqual(BayMap.MinX(BayDeck.Top), w.X, 0.01f);
+            Assert.AreEqual(BayDeck.Top, w.Deck, "doesn't fall off the end");
+            Assert.IsTrue(w.FaceLeft);
+        }
+    }
+}

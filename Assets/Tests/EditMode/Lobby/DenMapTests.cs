@@ -171,7 +171,7 @@ namespace PooketSlug.Tests
                 DenFloor f = DenMap.FloorOf(p);
                 float x = DenMap.XOf(p);
                 Assert.That(x, Is.InRange(DenMap.MinX(f), DenMap.MaxX(f)), p.ToString());
-                bool does = p == DenPlace.Couch || p == DenPlace.Board || p == DenPlace.Gym || p == DenPlace.Trophies;
+                bool does = p == DenPlace.Couch || p == DenPlace.Board || p == DenPlace.Gym || p == DenPlace.Trophies || p == DenPlace.RollerDoor;
                 Assert.AreEqual(does, DenMap.Note(p) == null, p.ToString());
                 Assert.AreEqual(p, DenMap.PlaceAt(x, DenMap.FloorY(f) + 10f), p.ToString() + " is tapped where you stand to use it");
             }
