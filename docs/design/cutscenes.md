@@ -664,16 +664,19 @@ MUSIC: the rank up sting.
                     KIE
           SIGN IN SO THIS DOESN'T VANISH.
 
-A line points to the sign-in button at the top right, as
+A line points to the sign-in button at the top left, as
 on the title screen.
 
-SUPER: SIGN IN AT THE TOP RIGHT TO KEEP YOUR XP AND RANK
+SUPER: SIGN IN AT THE TOP LEFT TO KEEP YOUR XP AND RANK
 
 Signing in here saves the run's progress straight away.
 Skipping is fine, and it asks again on the next debrief.
 
-                               INTO: THE TITLE (CONTINUE)
+                                            INTO: THE DEN
 ```
+
+**Where it goes next** (owner, 2026-10-19): straight to the den, which opens for the first time with
+[the first visit](#the-first-visit). Every later debrief goes back to the den too ([what START plays](story.md#what-start-plays)).
 
 **Built** (2026-10-16, `Core/Lobby/Debrief.cs`, `Ui/DebriefView.cs`): after every solo win, `?test=debrief` to try
 it. XP is placeholder: 200 for the clear, 300 for kie freed, 1 a kill. Rank is the record's stages beaten: a first
@@ -687,7 +690,7 @@ theme ([the lobby](lobby.md)).
 
 ### The first visit
 
-The first time the player opens the den (START on the title) after Mission one is beaten. About 4 seconds, once
+The first time the den opens: straight after Mission one's first debrief (owner, 2026-10-19). About 4 seconds, once
 ever. Kept with the player's progress, so it follows a sign-in. From [the lobby](lobby.md), approved 2026-10-16.
 
 ```text
@@ -733,7 +736,8 @@ approved by the owner on 17 Oct, and the narrator lines are voiced (`voice/narra
 
 ### The Mission two briefing
 
-Played when Mission two starts from the den. About 24 seconds, four shots; it can be skipped once seen. kcaj's string
+Played when Mission two starts from the den, solo or in co-op, so a partner sees it too (owner, 2026-10-19). Until
+then kcaj's string board glows in his dark corner to point the way ([the lobby](lobby.md)). About 24 seconds, four shots; it can be skipped once seen. kcaj's string
 board briefs it (owner, 2026-10-16): it stays up in his dark corner of the den before he's freed. **Who's in it:**
 always tones2 and kie, whoever the players picked, since they're the only crew free at this point in the story; a
 replay is the same. No intro.
@@ -754,7 +758,7 @@ the back gate. TONES2 and KIE stand in the middle of it.
 
                                                    CUT TO:
 
-2. INT. THE DEN, THE LOFT - DAY                         6 s
+2. INT. THE DEN, THE UPPER FLOOR - DAY                  6 s
 
 kcaj's corner is dark and wrecked, but his red string
 board is still on the wall, sticky notes everywhere.
@@ -846,7 +850,7 @@ MUSIC: the boss theme kicks in on the tabk's first shot.
 
 After Trollogram kcaj is beaten on foot ([the pilot round](tanks.md#the-pilot-round)), like
 [freeing kie](#freeing-kie). About 15 seconds, five shots; it can be skipped once seen. Intro: kcaj, shot 2.
-**Afterwards:** the next time the den loads, kcaj [moves in](#a-crewmate-moves-in) to the loft and his corner lights
+**Afterwards:** the next time the den loads, kcaj [moves in](#a-crewmate-moves-in) to his nook on the upper floor and his corner lights
 up.
 
 ```text
