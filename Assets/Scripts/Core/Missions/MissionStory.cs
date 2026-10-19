@@ -26,6 +26,11 @@ namespace PooketSlug
         public bool SoloOnly;
         /// <summary>Beating it solo opens co-op (<see cref="Profile.coop"/>).</summary>
         public bool OpensCoop;
+        /// <summary>
+        /// Part of the story's run before the den opens (<see cref="StartFlow"/>): until it's beaten, START plays it, and
+        /// the debrief before it goes straight on into it.
+        /// </summary>
+        public bool BeforeDen;
         /// <summary>What the den calls it when a co-op room plays it anyway (a test), or null for its own name.</summary>
         public string CoopName;
 
@@ -60,13 +65,13 @@ namespace PooketSlug
         public bool CodaPrompts => !m_Profile.HasSeen(Coda);
 
         /// <summary>
-        /// The super shows (its meter, button and controls line): it's charged once, or co-op is open, so a save from
-        /// before this was kept, past Mission one, has it (docs/design/player.md: it lights up the first time it's charged).
+        /// The super shows (its meter, button and controls line): it's charged once, or Mission one's beaten, so a save
+        /// from before this was kept, past Mission one, has it (docs/design/player.md: it lights up the first time it's charged).
         /// </summary>
         public bool SuperShown => ShowsSuper(m_Profile);
 
         /// <summary><see cref="SuperShown"/> for <paramref name="profile"/>, without making a record (it's asked every frame).</summary>
-        public static bool ShowsSuper(Profile profile) => profile.HasSeen(Super) || profile.coop;
+        public static bool ShowsSuper(Profile profile) => profile.HasSeen(Super) || profile.coop || MissionBoard.Cleared(profile, Missions.One);
 
         /// <summary>
         /// The boss intro is the quick one (banner and siren, the tabk already in place): a replay of a mission that's

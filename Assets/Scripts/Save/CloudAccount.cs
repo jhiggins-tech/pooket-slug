@@ -57,7 +57,7 @@ namespace PooketSlug
             if (SignedIn) PS_Save(JsonUtility.ToJson(profile));
         }
 
-        /// <summary>Shows or hides the page's sign-in button, which sits over the top right of the game.</summary>
+        /// <summary>Shows or hides the page's sign-in button, which sits over the top left of the game.</summary>
         public void Show(bool show) => PS_ShowAccount(show ? 1 : 0);
 
         // ------------------------------------------------------------------ from the page (SendMessage)

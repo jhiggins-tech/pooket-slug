@@ -43,7 +43,7 @@ net 1                      the scene's number for a partner's phone (1-255, each
 
 shot: Outside              each shot starts with its name
 length 8.5                 seconds
-set street                 the backdrop: street, room or motorpool
+set street                 the backdrop: street, den, bay or motorpool
 show sign window door snow what's on stage from the start
 intro 4 tones2: TONES2     a character intro at 4 s, with the name it slams up
 
@@ -61,7 +61,9 @@ recording: `narrator <recording>:`), `caption` (the big card).
 `hum`, `engine`, `hatch`, `slam`, `turret`, `cage`, `kie-drop`, `snacks`, `rip`, `drone`, `lift`, `remote`, `alarm`,
 `intro-build`, `intro`, `mission-start`; `say <line>` has the announcer read one of theirs.
 
-**The camera**: `0-2.2 camera 1.15 20 -12 smooth`: how far in, and where it looks (from the stage's middle).
+**The camera**: `0-2.2 camera 1.15 20 -12 smooth`: how far in, and where it looks (from the stage's middle). The bay
+(`set bay`) is 993 wide, three stages long, with the stage showing its left end: `0-3 camera 1 673 0 smooth` pans to
+its far end.
 
 ## Things on the stage
 
@@ -70,8 +72,8 @@ Places are in art pixels: across from the left (the stage is 320 wide), up from 
 | Kind | Things |
 |---|---|
 | Soldiers | `tones2`, `kie`, `goon` |
-| Props | `bag`, `cup`, `card`, `remote`, `sign`, `window`, `door`, `doorway`, `spark`, `beacon`, `clamp`, `drone`, `cable`, `tones2-tabk`, `kie-tabk`, `turret` |
-| Effects | `snow`, `searchlights`, `chips`, `jet`, `closeup`, `shutter`, `lamps`, `row`, `junk`, `steam`, `cage`, `stars`, `zz`, `alarm` |
+| Props | `bag`, `cup`, `card`, `remote`, `sign`, `window`, `door`, `doorway`, `spark`, `beacon`, `clamp`, `drone`, `cable`, `tones2-tabk`, `kie-tabk`, `turret`, `kcaj-corner` (his corner of the den, with the string board) |
+| Effects | `snow`, `searchlights`, `chips`, `jet`, `closeup` (the keycard), `board` (kcaj's string board, close up), `shutter`, `lamps`, `row`, `junk`, `steam`, `cage`, `stars`, `zz`, `alarm` |
 
 A thing is on stage once a line stages it (or `show` names it), until `hide`.
 

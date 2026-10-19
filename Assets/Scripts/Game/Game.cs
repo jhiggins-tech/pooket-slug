@@ -92,8 +92,11 @@ namespace PooketSlug
 
         /// <summary>Co-op shows only once Mission one has been beaten solo (progressive disclosure).</summary>
         bool CoopOpen => m_Profile.coop || m_Flags.UnlockCoop;
-        /// <summary>The crew opens with co-op, once Mission one is beaten solo (<c>?unlock=crew</c> opens it for testing).</summary>
-        bool CrewOpen => CoopOpen || m_Flags.UnlockCrew;
+        /// <summary>
+        /// The den (and the crew and co-op in it) opens once the story's run before it is beaten (<see cref="StartFlow"/>);
+        /// <c>?unlock=crew</c> or <c>coop</c> opens it for testing.
+        /// </summary>
+        bool CrewOpen => StartFlow.DenOpen(m_Profile) || m_Flags.UnlockCoop || m_Flags.UnlockCrew;
         /// <summary>Who can be picked: the crewmates freed so far (any <c>?unlock=</c> frees them all, for testing).</summary>
         internal IReadOnlyList<SoldierDef> Freed => Crew.Freed(m_Profile, m_Flags.UnlockCoop || m_Flags.UnlockCrew);
         internal SoldierDef Soldier => Crew.Pick(m_Options.Crew, Freed);
@@ -300,6 +303,32 @@ namespace PooketSlug
             StartSolo();
         }
 
+        /// <summary>Sets up <paramref name="mission"/> to play next, on its own world (null: as it is).</summary>
+        void PlayNext(MissionDef mission)
+        {
+            if (mission == null || mission == Mission) return;
+            Mission = mission;
+            Setting = Setting.Normal;
+            NewTitleWorld();
+        }
+
+        /// <summary>
+        /// After a won solo run's debrief (<see cref="StartFlow"/>): straight on into the story's next mission, with its
+        /// opening scene, until the den opens; then the den.
+        /// </summary>
+        internal void AfterDebrief()
+        {
+            MissionDef next = StartFlow.Next(m_Profile);
+            ToTitle();
+            if (Sandbox.Active) return;
+            if (CrewOpen) Den.Show(DenMode.Solo);
+            else if (next != null)
+            {
+                PlayNext(next);
+                StartFromTitle();
+            }
+        }
+
         /// <summary>Back to the title screen from a solo game.</summary>
         internal void ToTitle()
         {
@@ -330,7 +359,7 @@ namespace PooketSlug
             if (!m_Account.Available) return null;
             if (m_Account.SignedIn)
                 return string.IsNullOrEmpty(m_Account.Name) ? "SIGNED IN · PROGRESS SAVES ONLINE" : "SIGNED IN AS " + m_Account.Name.ToUpperInvariant() + " · PROGRESS SAVES ONLINE";
-            return "SIGN IN AT THE TOP RIGHT TO SAVE YOUR PROGRESS ONLINE";
+            return "SIGN IN AT THE TOP LEFT TO SAVE YOUR PROGRESS ONLINE";
         }
 
         // ------------------------------------------------------------------ the mission's story beats (its MissionStory)
@@ -549,13 +578,18 @@ namespace PooketSlug
                     break;
 
                 case GameState.Title:
-                    // The splash: START and SETTINGS (Start flow 5). Once the crew's open, START goes to the den, where
-                    // the couch (who you play), the mission board and co-op are.
+                    // The splash: START and SETTINGS (Start flow 5). Until the den opens, START plays the story's next
+                    // mission (StartFlow); after, it goes to the den, where the couch (who you play), the mission board
+                    // and co-op are.
                     if (click == MenuAction.Settings || keys.Settings) SetState(GameState.Settings);
                     else if (click == MenuAction.Play || keys.Start || soldier.FirePressed || soldier.JumpPressed)
                     {
                         if (CrewOpen) Den.Show(DenMode.Solo);
-                        else StartFromTitle(); // before the crew's freed, tones2 is all there is: straight in
+                        else
+                        {
+                            if (m_Flags.Mission == null) PlayNext(StartFlow.Next(m_Profile)); // ?mission=2 plays that one
+                            StartFromTitle();
+                        }
                     }
                     break;
 

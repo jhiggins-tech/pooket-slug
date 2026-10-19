@@ -4,10 +4,12 @@ using static PooketSlug.StageKit;
 namespace PooketSlug
 {
     /// <summary>
-    /// The cutscenes' painted sets (<see cref="Staging.Sets"/>): the street outside the hangout, the wrecked room, and
-    /// the motor pool from outside with its blast shutter. Each is painted pixel by pixel once, the first time a scene
-    /// plays, and kept. The motor pool's layout (the shutter's opening, where the row's tabks park) is here too, since
-    /// the shutter, the work lights and the row are drawn to fit it.
+    /// The cutscenes' sets (<see cref="Staging.Sets"/>): the street outside the hangout and the motor pool from outside
+    /// with its blast shutter, each painted pixel by pixel once, the first time a scene plays, and kept; and the den and
+    /// the tabk bay on raid night, Design's paintings (<c>Resources/Den</c>, through <see cref="DenRoom.Painting"/>). The
+    /// bay is wider than the stage, so a shot there pans along it with its camera. The motor pool's layout (the
+    /// shutter's opening, where the row's tabks park) is here too, since the shutter, the work lights and the row are
+    /// drawn to fit it.
     /// </summary>
     public static class CutsceneBackdrops
     {
@@ -16,13 +18,14 @@ namespace PooketSlug
         /// <summary>Where the row's tabks park (the first space is tones2's).</summary>
         public static readonly float[] MotorRow = { 186f, 236f, 286f };
 
-        static Sprite s_Street, s_Room, s_MotorPool, s_Slats;
+        static Sprite s_Street, s_MotorPool, s_Slats;
 
         /// <summary>The backdrop for set <paramref name="set"/> (the street for none, or one it doesn't know).</summary>
         public static Sprite For(string set)
         {
             Make();
-            return set == "room" ? s_Room : set == "motorpool" ? s_MotorPool : s_Street;
+            Sprite painted = set == "den" ? DenRoom.Painting("raid-den") : set == "bay" ? DenRoom.Painting("raid-bay") : null;
+            return painted != null ? painted : set == "motorpool" ? s_MotorPool : s_Street;
         }
 
         /// <summary>The motor pool's blast shutter, the size of its opening.</summary>
@@ -39,7 +42,6 @@ namespace PooketSlug
         {
             if (s_Street != null) return;
             s_Street = Backdrop(DrawStreet);
-            s_Room = Backdrop(DrawRoom);
             s_MotorPool = Backdrop(DrawMotorPool);
             var slats = new PixelCanvas((int)MotorOpenW, (int)MotorOpenH);
             DrawShutter(slats);
@@ -118,58 +120,6 @@ namespace PooketSlug
             for (int y = 3; y < c.H; y += 6) c.Rect(0, y, c.W, 1, Art.Hex(0x45484e));
             for (int y = 0; y < c.H; y += 6) c.Rect(0, y + 1, c.W, 1, Art.Hex(0x6c717a));
             for (int x = 0; x < c.W; x++) c.Rect(x, 0, 1, 4, (x / 6) % 2 == 0 ? Art.Hex(0xe0b020) : Art.Hex(0x1a1a1a));
-        }
-
-        static void DrawRoom(PixelCanvas c)
-        {
-            int floor = Staging.Sets["room"];
-            // walls, with cyan scorch marks
-            c.Rect(0, 0, StageW, StageH, Art.Hex(0x2b2236));
-            for (int x = 0; x < StageW; x += 40) c.Rect(x, floor, 1, StageH - floor, Art.Hex(0x241c2e));
-            var rng = new System.Random(3);
-            for (int i = 0; i < 7; i++)
-            {
-                int sx = 20 + rng.Next(StageW - 40), sy = 60 + rng.Next(90);
-                for (int k = 0; k < 14; k++) c.Set(sx + rng.Next(-6, 7), sy + rng.Next(-8, 9), Art.Hex(0x3fd4e0, (byte)(90 + rng.Next(120))));
-            }
-            // the window, on the night and the base on its hill
-            c.Rect(236, 92, 70, 60, Art.Hex(0x14101a));
-            for (int y = 95; y < 149; y++) c.Rect(239, y, 64, 1, Color32.Lerp(Art.Hex(0x232a52), Art.Hex(0x0b0f24), (y - 95) / 54f));
-            for (int x = 239; x < 303; x++)
-            {
-                int h = (int)(14 - System.Math.Abs(x - 272) * 0.45f);
-                if (h > 0) c.Rect(x, 95, 1, h, Art.Hex(0x101425));
-            }
-            c.Rect(262, 107, 20, 4, Art.Hex(0x2a2e40));
-            c.Rect(266, 111, 3, 3, Art.Hex(0xffd860));
-            c.Rect(276, 111, 3, 3, Art.Hex(0xffd860));
-            c.Rect(270, 92, 2, 60, Art.Hex(0x14101a));
-            c.Rect(236, 121, 70, 2, Art.Hex(0x14101a));
-            // a crew poster, torn
-            c.Rect(30, 100, 26, 34, Art.Hex(0xb24a5a));
-            c.Rect(36, 108, 14, 16, Art.Hex(0xe8c088));
-            c.Rect(48, 100, 8, 12, Art.Hex(0x2b2236));
-            // the floor
-            c.Rect(0, 0, StageW, floor, Art.Hex(0x4a3a30));
-            for (int x = 0; x < StageW; x += 16) c.Rect(x, 0, 1, floor, Art.Hex(0x3c2e26));
-            c.Rect(0, floor - 1, StageW, 1, Art.Hex(0x6a5444));
-            // the gaming setup, wrecked: a cracked screen on a low table
-            c.Rect(108, floor, 40, 14, Art.Hex(0x5a3e2e));
-            c.Rect(112, floor + 14, 32, 22, Art.Hex(0x101014));
-            c.Rect(114, floor + 16, 28, 18, Art.Hex(0x1e3a48));
-            for (int i = 0; i < 12; i++) c.Set(118 + i * 2, floor + 30 - i, Art.Hex(0xd0f0ff));
-            // controllers on the floor
-            c.Rect(92, floor, 7, 3, Art.Hex(0x22222a));
-            c.Rect(156, floor, 7, 3, Art.Hex(0xe8e8ee));
-            // the couch, flipped on its back
-            c.Rect(166, floor, 52, 10, Art.Hex(0x3c6a5a));
-            c.Rect(170, floor + 10, 44, 12, Art.Hex(0x335a4c));
-            c.Rect(166, floor + 10, 6, 6, Art.Hex(0x2a4a3e));
-            c.Rect(212, floor + 10, 6, 6, Art.Hex(0x2a4a3e));
-            c.Rect(174, floor + 22, 4, 3, Art.Hex(0x1c1214));
-            c.Rect(206, floor + 22, 4, 3, Art.Hex(0x1c1214));
-            // the doorway they came in by, on the left
-            c.Rect(14, floor, 22, 44, Art.Hex(0x14101a));
         }
     }
 }

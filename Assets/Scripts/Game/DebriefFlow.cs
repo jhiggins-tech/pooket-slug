@@ -51,7 +51,7 @@ namespace PooketSlug
             m_View.Show(Now);
         }
 
-        /// <summary>The debrief: taps fill each part and move on; CONTINUE goes to the title screen.</summary>
+        /// <summary>The debrief: taps fill each part and move on; CONTINUE goes on, to the story's next mission or the den.</summary>
         public void Tick(float dt, MenuInput keys, SoldierInput soldier)
         {
             bool tap = m_View.TakeTap() || keys.Start || soldier.FirePressed || soldier.JumpPressed;
@@ -59,7 +59,7 @@ namespace PooketSlug
             if (leave)
             {
                 Close();
-                m_Game.ToTitle();
+                m_Game.AfterDebrief();
                 return;
             }
             Now.Tick(dt);

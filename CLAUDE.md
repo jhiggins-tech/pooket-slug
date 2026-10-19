@@ -55,7 +55,7 @@ Each file starts with a summary comment saying what it's for.
 | `Core/Crew/` | `Crew.cs` (who you play, who's freed), `<name>Tuning.cs` (each one's numbers), `Tones2TabkSpec` (his tabk's guns), `Controls.cs` (the kit's meters), `Drip` (a flow spread over frames), `KitGuide` (the ⓘ screen's moves and demo scripts), `TeamSuper`, `Lives`, `DownLine` (what the HUD says while you're down), `AvatarPose` |
 | `Core/Bosses/` | `BossTankSpec` (the artillery boss tabk), `KieTankSpec` / `KcajTankSpec` (their tabks' charged shots), `PilotBrain`, `BossIntroShow`, `CraterGround` |
 | `Core/Tabks/` | `PlayerTankSpec`, `CallInCoach` |
-| `Core/Missions/` | `Level.cs` + `Missions.cs` (maps as text), `MissionStory` (a mission's scenes and once-only beats), `MissionBoard` (the mission screen, and whether a mission's cleared), `CodaCoach`, `Creamery` (Mission two's hazards: belts, vents, droppers, its boxes and tanks) |
+| `Core/Missions/` | `Level.cs` + `Missions.cs` (maps as text), `MissionStory` (a mission's scenes and once-only beats), `MissionBoard` (the mission screen, and whether a mission's cleared), `StartFlow` (what START plays: Mission one until it's beaten, then the den), `CodaCoach`, `Creamery` (Mission two's hazards: belts, vents, droppers, its boxes and tanks) |
 | `Core/Story/` | `SceneScript` (the scene files' reader), `SceneLibrary` (which copy plays, and the check), `Staging`, `Cutscene.cs` (the player) + `Cues.cs` (the cue ids) |
 | `Core/Lobby/` | `Den`, `DenMap` (the den's floors, ladder and places, and walking round them), `Debrief` (XP), `Ranks`, `Profile` (what's saved, and reveals), `Options`, `CoopRoom` (the one co-op room, MATES) |
 | `Core/Audio/` | `MusicTracks` / `Notation` / `Chip` (the chip music, its notation and the synth), `Soundtrack` (when a mission's music changes), `MusicRender` (a track into samples), `Wav`, `MusicMidi` |
@@ -84,9 +84,9 @@ Each file starts with a summary comment saying what it's for.
 
 ## How the game fits together
 - **Flow**: `Game` owns the state and one `World`, and hands each frame to the flow for what's up (`Game/*Flow.cs`).
-  The title, a splash with START and SETTINGS only (`TitleView`) → before Mission one's beaten, its cutscene and
-  the mission; after, the den, where missions, the crew and co-op open up as they're unlocked (progressive
-  disclosure, `Profile` reveals) → playing → the debrief, XP and rank.
+  The title, a splash with START and SETTINGS only (`TitleView`) → until Mission one's beaten, START plays the opening
+  and Mission one (`StartFlow`); after, START and the debrief go to the den, where missions, the crew and co-op open up as they're unlocked (progressive disclosure, `Profile`
+  reveals) → playing → the debrief, XP and rank, and back to the den.
 - **Core and the rest**: rules live in Core with tests; entities and views draw, play sounds and call into Core.
   Core knows nothing of Unity's scene or the network.
 - **Co-op** ([netcode](docs/research/netcode/README.md)): Shared Mode, so every client simulates its own soldier and

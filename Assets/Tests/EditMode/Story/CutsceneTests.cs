@@ -21,10 +21,10 @@ namespace PooketSlug.Tests
         }
 
         [Test]
-        public void TheOpeningIsSixUnhurriedShotsEachWithANarratorLine()
+        public void TheOpeningIsEightUnhurriedShotsEachWithANarratorLine()
         {
-            Assert.AreEqual(6, TestScenes.Opening.Shots.Length);
-            Assert.That(TestScenes.Opening.Seconds, Is.InRange(30f, 40f));
+            Assert.AreEqual(8, TestScenes.Opening.Shots.Length);
+            Assert.That(TestScenes.Opening.Seconds, Is.InRange(45f, 52f));
             foreach (CutsceneShot shot in TestScenes.Opening.Shots)
             {
                 Assert.That(shot.Seconds, Is.InRange(4f, 9f), shot.Name);
@@ -49,8 +49,8 @@ namespace PooketSlug.Tests
             RunTo(p, 0, 4.35f);
             Assert.AreEqual("Friday night. tones2's back from the snack run.", p.Narration);
             Assert.AreEqual(0, p.Showing(lines), "no bubble for the narrator");
-            while (p.Shot < 3) Run(p, 0.1f);
-            Run(p, 5.5f);
+            while (p.Shot < 5) Run(p, 0.1f);
+            Run(p, 5.9f);
             Assert.AreEqual("It glitches out, and drops its keycard.", p.Narration, "the latest line replaces the last");
             Assert.IsTrue(p.Narrating(out CutsceneLine line));
             Assert.AreEqual("opening-4b", line.Voice, "the recording the narrator voice spike plays");
@@ -64,7 +64,7 @@ namespace PooketSlug.Tests
                 foreach (CutsceneLine line in shot.Lines)
                     if (line.Who == Speaker.Narrator)
                         Assert.IsTrue(ids.Add(line.Voice ?? ""), line.Text);
-            Assert.AreEqual(7, ids.Count);
+            Assert.AreEqual(9, ids.Count);
         }
 
         [Test]
@@ -72,7 +72,7 @@ namespace PooketSlug.Tests
         {
             var p = new CutscenePlayer(TestScenes.Opening, seenBefore: false);
             var cues = new List<string>();
-            Run(p, 45f, cues);
+            Run(p, 55f, cues);
             Assert.IsTrue(p.Done);
             Assert.IsFalse(p.Skipped);
             int expected = 0;
@@ -147,7 +147,7 @@ namespace PooketSlug.Tests
             RunTo(p, 0, 6.5f);
             Assert.AreEqual(1, p.Showing(lines));
             Assert.AreEqual("SNACKS ARE HERE LADS", lines[0].Text);
-            while (p.Shot < 4) Run(p, 0.1f);
+            while (p.Shot < 6) Run(p, 0.1f);
             Run(p, 3f);
             Assert.AreEqual(1, p.Showing(lines), "tones2 says where the card sends him");
             Assert.AreEqual(Speaker.Tones2, lines[0].Who);
@@ -227,7 +227,7 @@ namespace PooketSlug.Tests
             var p = new CutscenePlayer(TestScenes.Opening, seenBefore: false);
             int last = p.Beat, steps = 0;
             Assert.AreEqual(0, last, "before tones2's build-up");
-            for (int i = 0; i < 60 * 45 && !p.Done; i++)
+            for (int i = 0; i < 60 * 55 && !p.Done; i++)
             {
                 p.Tick(1f / 60f);
                 Assert.GreaterOrEqual(p.Beat, last);

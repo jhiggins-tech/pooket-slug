@@ -68,6 +68,7 @@ namespace PooketSlug
             // the caption card, buttons) sits on the stage. Things are made in drawing order, back to front, so the
             // parts' pieces are made here in turn.
             m_Back = BackdropImage(m_World);
+            m_Cast.MakeKcajCorner();
             m_Cast.MakeHangout();
             m_Effects.MakeSearchlights();
             // the motor pool: lamps over the row, the row itself, the cold light the shutter lets out, and the shutter
@@ -85,6 +86,7 @@ namespace PooketSlug
 
             m_Camera.MakeIntro();
             m_Effects.MakeCloseup();
+            m_Effects.MakeBoard();
             m_Captions.MakeCard();
             m_Effects.MakeAlarm();
             m_Flicker = Ui.Cover(m_Stage, "Flicker", new Color(0.4f, 1f, 1f, 0f));
@@ -183,6 +185,7 @@ namespace PooketSlug
             CutsceneShot shot = p.Current;
             float ground = Staging.Sets.TryGetValue(shot.Set ?? "", out int g) ? g : 0f;
             m_Back.sprite = CutsceneBackdrops.For(shot.Set);
+            m_Back.rectTransform.sizeDelta = m_Back.sprite.rect.size * Px; // the bay's wider than the stage: the camera pans along it
             m_Camera.Aim(stage, t);
             m_Cast.Draw(stage, t, now, ground);
             m_Effects.Draw(stage, t, now, ground);
