@@ -45,6 +45,7 @@ jobs:
       - name: Check the scenes
         env:
           GH_TOKEN: ${{ secrets.VENDOR_PAT }}
+          VENDOR_STRICT: ${{ github.ref_name == env.MAIN_LINE }}
         run: |
           set -o pipefail
           tools/check_scenes.sh "$RUNNER_TEMP/scenes" | tee "$RUNNER_TEMP/check.log"

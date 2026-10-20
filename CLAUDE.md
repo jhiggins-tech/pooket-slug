@@ -80,7 +80,7 @@ Each file starts with a summary comment saying what it's for.
 | `Assets/Editor/WebGLBuild.cs` | The build: the scene, the WebGL template (`Assets/WebGLTemplates/PooketSlug`), the commit and secrets baked in |
 | `Assets/Tests/EditMode/` | NUnit tests against Core, in the same folders as Core, run by CI before every build |
 | `Assets/Tests/Gameplay/` | PlayMode tests (assembly `PooketSlug.Game.Tests`): a real `World`, ticked frame by frame (`GameplayFixture`), for combat, the world and `NetSync`; CI runs them with the EditMode tests, Unity only |
-| `tools/` | `check.sh` (the local checks), `pages_deploy.sh` (the gh-pages deploy), `slug.sh` (a branch's preview folder), `vendor_fetch.sh` + `check_scenes.sh` (the vendor repo's sounds, the scene check), `coop.mjs` (co-op tests), `touch.mjs` (touch play), `demos.mjs` (kit demo clips), `unpack_unitypackage.py`, `new_meta.py`, `title_logo.py` (the splash's logo and its parts) |
+| `tools/` | `check.sh` (the local checks), `pages_deploy.sh` (the gh-pages deploy), `slug.sh` (a branch's preview folder), `vendor_fetch.sh` + `vendor_lock.sh` (the vendor repo's sounds, as the root's `vendor.lock` pins them), `check_scenes.sh` (the scene check), `coop.mjs` (co-op tests), `touch.mjs` (touch play), `demos.mjs` (kit demo clips), `unpack_unitypackage.py`, `new_meta.py`, `title_logo.py` (the splash's logo and its parts) |
 | `docs/design/` | The game design. `docs/research/`: how the pipeline, netcode, accounts and verification work, and [lessons learned](docs/research/lessons-learned.md) |
 
 ## How the game fits together
@@ -104,6 +104,8 @@ Each file starts with a summary comment saying what it's for.
   `?mission=2` (START plays that mission).
 - **Sound and music**: Tabks' 8-bit recipes on the `Chip` synth, rendered at startup; the announcer, narration and
   orchestral music are WAVs CI fetches from vendor releases into `Resources` (`.bytes`, made into clips in code).
+  `vendor.lock` pins each by hash, so a new take reaches the game only when a branch pins it (`tools/vendor_lock.sh`),
+  and the main line fails rather than ship without one.
 
 ## Recipes
 **Add a cutscene**: its script in `docs/design/cutscenes.md` (the script leads), then a file in `scenes/` ([docs/scenes.md](docs/scenes.md)) and its name in `SceneLibrary`, cues from

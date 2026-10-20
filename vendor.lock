@@ -1,0 +1,8 @@
+# The vendor repository's sounds this game builds with: <release> <file on its `pinned` release> <SHA-256>.
+# tools/vendor_fetch.sh fetches only these, so a new take reaches the game only when a branch pins it: list it in the
+# vendor repository's pin/pins.txt (its Pin workflow copies it to `pinned`), then run tools/vendor_lock.sh here.
+announcer announcer-ab71d95a884e.zip ab71d95a884ee9ce237db760e6d62eb785ea553c370d74a5f88ab34cfd2501f4
+narration narration-72c5fbb4d8d8.zip 72c5fbb4d8d8e14f08a90719509667783e6dc8ac36223197428818b1f73aea39
+orchestra orchestra-fc97f5d0b2e3.zip fc97f5d0b2e3f64ab335749510dd1248568e265bdd023981263d4a3748a13e59
+start-music title-c398ba8264c9.wav c398ba8264c92c6b1d9035e99d3bc53c71ffd23969e74a6b5bd1ce64800a2ea7
+den-music den-5c96a6ac4295.wav 5c96a6ac429569a2c7d8686418fb9a3d2850e7d06854ab1f717dcae8f498a333

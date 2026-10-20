@@ -79,7 +79,7 @@ Everything is code: no audio files, nothing to download, and a track is a few li
 Picked by the owner on 2026-10-18 (Roadmap item start-music): **Lyria 3 take D**, a 30-second clip Google's Lyria 3 made from a written brief (harp arpeggios, then strings and a solo flute; gentle, nostalgic, majestic; about 84 bpm, C major; no vocals or drums). It beat two versions of an original chip theme (chip, and the same notes for orchestra) and another Lyria clip. Unlike the rest of the music it is a recording, so it has no chip version and isn't in the score notation.
 
 - **The loop:** the clip's trailing silence is trimmed and its last 2.5 s are crossfaded (equal power) into its first, giving a 27.7 s seamless loop, `title.wav` (44.1 kHz stereo).
-- **Where it lives:** the vendor repository's `start-music` release (made by the Media generation role). The game's CI fetches it like the orchestra (keeping only `title.bytes` from the zip), and `Music.Loop` plays it while the splash screen or the settings over it is up, fading as they're left (built: start-screen, 2026-10-18).
+- **Where it lives:** the vendor repository's `start-music` release (made by the Media generation role). The game's CI fetches its `title.wav` as `vendor.lock` pins it, and `Music.Loop` plays it while the splash screen or the settings over it is up, fading as they're left (built: start-screen, 2026-10-18).
 
 ## The den's theme
 

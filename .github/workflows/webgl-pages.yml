@@ -111,6 +111,7 @@ jobs:
       - name: Check the scenes
         env:
           GH_TOKEN: ${{ secrets.VENDOR_PAT }}
+          VENDOR_STRICT: ${{ github.ref_name == env.MAIN_LINE }}
         run: tools/check_scenes.sh site-scenes
 
       - name: Upload the scenes for the site
@@ -162,27 +163,20 @@ jobs:
           # our committed Fusion config wins over anything the package ships
           git checkout -- Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion
 
-      # Sounds the vendor repository's CI makes and publishes as zips of WAVs; without any of them the game still
-      # builds, a little quieter:
-      # - the arcade announcer's lines (text-to-speech, voice/lines.json there): announcer.zip;
-      # - the cutscene narrator's lines (voice F from the narrator voice spike, voice/narration.json there):
-      #   narration.zip, <line>.wav for each line;
-      # - the boss music's final section played by an orchestra (the chip crossfades to it), rendered from the
-      #   game's own notes (music/ there): orchestra.zip;
-      # - the title theme (Lyria take D as a seamless loop, title.wav): start-music.zip, which also holds the other
-      #   takes, so only title.bytes is kept;
-      # - the den's theme (the console-shop bossa take 2 as a seamless loop, den.wav): den-music.zip, the same way.
+      # Sounds the vendor repository's CI makes, exactly as vendor.lock pins them (tools/vendor_fetch.sh): the arcade
+      # announcer (voice/lines.json there), the cutscene narrator (voice/narration.json, <line>.wav for each line), the
+      # boss music's orchestral section, and the title and den themes (one seamless-loop WAV each). On the main line a
+      # missing one fails the build, so the live game never ships silent; a preview builds without it, a little quieter.
       - name: Fetch the announcer, narrator, orchestra, title theme and den theme
         env:
           GH_TOKEN: ${{ secrets.VENDOR_PAT }}
+          VENDOR_STRICT: ${{ github.ref_name == env.MAIN_LINE }}
         run: |
           tools/vendor_fetch.sh --bytes announcer Assets/Resources/Voice "the announcer stays quiet in this build"
           tools/vendor_fetch.sh --bytes narration Assets/Resources/Narration "the narrator is subtitles only"
           tools/vendor_fetch.sh --bytes orchestra Assets/Resources/Music "the boss music stays chip"
-          tools/vendor_fetch.sh --bytes start-music "$RUNNER_TEMP/start-music" "the splash screen is silent"
-          if [ -f "$RUNNER_TEMP/start-music/title.bytes" ]; then cp "$RUNNER_TEMP/start-music/title.bytes" Assets/Resources/Music/; fi
-          tools/vendor_fetch.sh --bytes den-music "$RUNNER_TEMP/den-music" "the den is silent"
-          if [ -f "$RUNNER_TEMP/den-music/den.bytes" ]; then cp "$RUNNER_TEMP/den-music/den.bytes" Assets/Resources/Music/; fi
+          tools/vendor_fetch.sh --bytes start-music Assets/Resources/Music "the splash screen is silent"
+          tools/vendor_fetch.sh --bytes den-music Assets/Resources/Music "the den is silent"
 
       # The cutscenes built into the game (scenes/*.txt as Resources/Scenes), the copy that plays when the site's can't
       # be reached or has a problem.
