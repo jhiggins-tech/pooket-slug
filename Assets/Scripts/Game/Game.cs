@@ -604,15 +604,7 @@ namespace PooketSlug
             MissionMusic.Menus((m_State == GameState.Title && m_Menu.TitleMusicDue) || m_State == GameState.Settings,
                 m_State == GameState.Den || m_State == GameState.Lobby, Kit.Open || Board.Open, m_State == GameState.Den && Den.BeatPlaying);
             Music.Paused = m_Paused;
-
-            m_Frames++;
-            m_FpsTimer += Time.unscaledDeltaTime;
-            if (m_FpsTimer >= 0.5f)
-            {
-                m_Fps = m_Frames / m_FpsTimer;
-                m_Frames = 0;
-                m_FpsTimer = 0f;
-            }
+            CountFrame();
 
             if (keys.Mute || (click == MenuAction.Sound && m_State == GameState.Settings))
             {
@@ -627,167 +619,24 @@ namespace PooketSlug
             else if (Bay.Open) Bay.Tick(keys, soldier);
             else switch (m_State)
             {
-                case GameState.Demo:
-                    Demos.Tick(keys, soldier);
-                    break;
-
-                case GameState.Title:
-                    // The splash: START and SETTINGS (Start flow 5). Until the den opens, START plays the story's next
-                    // mission (StartFlow); after, it goes to the den, where the couch (who you play), the mission board
-                    // and co-op are.
-                    if (click == MenuAction.Settings || keys.Settings) SetState(GameState.Settings);
-                    else if (click == MenuAction.Play || keys.Start || soldier.FirePressed || soldier.JumpPressed)
-                    {
-                        if (CrewOpen) Den.Show(DenMode.Solo);
-                        else
-                        {
-                            if (m_Flags.Mission == null) PlayNext(StartFlow.Next(m_Profile)); // ?mission=2 plays that one
-                            StartFromTitle();
-                        }
-                    }
-                    break;
-
-                case GameState.Settings:
-                    if (click == MenuAction.Shake || keys.Shake)
-                    {
-                        Options o = m_Options;
-                        o.Shake = !o.Shake;
-                        ChangeOptions(o);
-                    }
-                    else if (click == MenuAction.Effects)
-                    {
-                        Options o = m_Options;
-                        o.Effects = Options.Next(o.Effects);
-                        ChangeOptions(o);
-                        Sfx.Play(Sfx.Pickup, 0.8f); // a taste of the new level
-                    }
-                    else if (click == MenuAction.Voices)
-                    {
-                        Options o = m_Options;
-                        o.Voices = Options.Next(o.Voices);
-                        ChangeOptions(o);
-                        Sfx.Say("mission-start"); // a taste of the new level
-                    }
-                    else if (click == MenuAction.Music)
-                    {
-                        Options o = m_Options;
-                        o.Music = Options.Next(o.Music);
-                        ChangeOptions(o);
-                    }
-                    else if (click == MenuAction.LeftHanded)
-                    {
-                        Options o = m_Options;
-                        o.LeftHanded = !o.LeftHanded;
-                        ChangeOptions(o);
-                    }
-                    else if (click == MenuAction.Back || keys.Back || keys.Settings) SetState(GameState.Title);
-                    break;
-
-                case GameState.Lobby:
-                    if (click == MenuAction.Back || keys.Back)
-                    {
-                        m_Net.Leave();
-                        SetState(GameState.Title);
-                    }
-                    else if (m_Net.State == NetState.Failed || m_Net.State == NetState.Offline)
-                    {
-                        Notice(string.IsNullOrEmpty(m_Net.Status) ? "COULDN'T CONNECT" : m_Net.Status);
-                        SetState(GameState.Title);
-                    }
-                    else if (m_Net.Ready)
-                    {
-                        if (m_Net.Watching) BeginCoop(); // watching skips the den: straight to the game as the players see it
-                        else Den.Show(DenMode.Coop);
-                    }
-                    break;
-
-                case GameState.Den:
-                    Den.Tick(keys, soldier);
-                    break;
-
-                case GameState.Cutscene:
-                    Scenes.Tick(dt, keys, soldier);
-                    break;
-
+                case GameState.Demo: Demos.Tick(keys, soldier); break;
+                case GameState.Title: TickTitle(click, keys, soldier); break;
+                case GameState.Settings: TickSettings(click, keys); break;
+                case GameState.Lobby: TickLobby(click, keys); break;
+                case GameState.Den: Den.Tick(keys, soldier); break;
+                case GameState.Cutscene: Scenes.Tick(dt, keys, soldier); break;
                 case GameState.Playing:
                     if (!m_Paused) Intro.Tick(dt);
-                    if (m_Coop)
-                    {
-                        if (!CoopAlive()) break;
-                        if (m_Net.Link.Round != m_World.Round) { BeginCoop(); break; } // partner restarted the mission
-                        m_LeaveArmed -= dt;
-                        if (keys.Back || keys.PadPause)
-                        {
-                            if (m_LeaveArmed > 0f)
-                            {
-                                m_Net.Leave();
-                                EndCoop(null);
-                                break;
-                            }
-                            m_LeaveArmed = 2f;
-                        }
-                        // no pausing a shared game; it's over when everyone is out of lives and continues
-                        m_World.Tick(dt, soldier);
-                        NoteSuper(dt);
-                        MissionMusic.Tick(m_World);
-                        m_OutFor = m_World.AllOut ? m_OutFor + dt : 0f;
-                        if (m_OutFor > Tuning.Lives.GameOverDelay) EndRun(GameState.GameOver);
-                        else if (m_World.Victory && m_World.VictoryTime > 1f) EndRun(GameState.Victory);
-                        break;
-                    }
-                    if (m_Paused)
-                    {
-                        if (click == MenuAction.Kit || soldier.AbilityPressed) Kit.Show(m_World.Player.Def);
-                        else if (click == MenuAction.Resume || keys.Pause || keys.PadPause || keys.Start) m_Paused = false;
-                        else if (click == MenuAction.Restart || keys.Restart) Restart();
-                        else if (click == MenuAction.Menu || keys.Back) ToTitle();
-                        break;
-                    }
-                    if (keys.Restart) { Restart(); break; }
-                    if (keys.Pause || keys.PadPause || keys.Back || (keys.Start && m_StateTime > 0.2f)) { m_Paused = true; break; }
-
-                    if (Sandbox.Active)
-                    {
-                        if (Sandbox.Tick(dt, soldier)) break;
-                    }
-                    else if (!Intro.Holding) m_World.Tick(dt, soldier); // the pilot's intro holds the action (solo only)
-                    NoteSuper(dt);
-                    MissionMusic.Tick(m_World);
-                    m_OutFor = m_World.Player.Lives.IsOut && !m_World.Spectating ? m_OutFor + dt : 0f;
-                    if (m_OutFor > Tuning.Lives.GameOverDelay) EndRun(GameState.GameOver);
-                    else if (m_World.Victory && m_World.VictoryTime > 1f) EndRun(GameState.Victory);
+                    if (m_Coop) TickCoopPlay(dt, keys, soldier);
+                    else TickSoloPlay(dt, click, keys, soldier);
                     break;
-
                 case GameState.Victory when Debrief.Now != null: // the world holds still behind it, so nothing can hurt tones2
                     if (m_Coop && m_Net.Ready) m_Net.Link.SendDen(null, PooketSlug.Den.InDen); // a partner already in the den waits for us
                     Debrief.Tick(dt, keys, soldier);
                     break;
-
                 case GameState.GameOver:
                 case GameState.Victory:
-                    bool ready = m_StateTime > 1.2f; // so a button mashed at the end doesn't skip the screen
-                    if (m_Coop)
-                    {
-                        if (!CoopAlive()) break;
-                        if (m_Net.Link.Round != m_World.Round) { BeginCoop(); break; }
-                        if (click == MenuAction.Back || keys.Back)
-                        {
-                            m_Net.Leave();
-                            EndCoop(null);
-                            break;
-                        }
-                    }
-                    else if (ready && (click == MenuAction.Menu || keys.Back))
-                    {
-                        ToTitle();
-                        break;
-                    }
-                    m_World.Tick(dt, soldier);
-                    if (ready && (click == MenuAction.Restart || keys.Start || keys.Restart || soldier.FirePressed))
-                    {
-                        if (m_Coop) { if (!m_World.Spectating) m_Net.Link.RequestRestart(); } // the authority bumps the round; everyone rebuilds
-                        else Restart();
-                    }
+                    TickEnd(dt, click, keys, soldier);
                     break;
             }
 
@@ -795,6 +644,162 @@ namespace PooketSlug
             else if (Den.Showing) Den.Hide();
             if (Bay.Open) Bay.Move(dt);
             m_World.Render();
+            RefreshScreens();
+        }
+
+        void CountFrame()
+        {
+            m_Frames++;
+            m_FpsTimer += Time.unscaledDeltaTime;
+            if (m_FpsTimer < 0.5f) return;
+            m_Fps = m_Frames / m_FpsTimer;
+            m_Frames = 0;
+            m_FpsTimer = 0f;
+        }
+
+        /// <summary>
+        /// The splash: START and SETTINGS (Start flow 5). Until the den opens, START plays the story's next mission
+        /// (StartFlow); after, it goes to the den, where the couch (who you play), the mission board and co-op are.
+        /// </summary>
+        void TickTitle(MenuAction click, MenuInput keys, SoldierInput soldier)
+        {
+            if (click == MenuAction.Settings || keys.Settings) SetState(GameState.Settings);
+            else if (click == MenuAction.Play || keys.Start || soldier.FirePressed || soldier.JumpPressed)
+            {
+                if (CrewOpen) Den.Show(DenMode.Solo);
+                else
+                {
+                    if (m_Flags.Mission == null) PlayNext(StartFlow.Next(m_Profile)); // ?mission=2 plays that one
+                    StartFromTitle();
+                }
+            }
+        }
+
+        /// <summary>SETTINGS: each button steps its option on (SOUND is everywhere's, above).</summary>
+        void TickSettings(MenuAction click, MenuInput keys)
+        {
+            Options o = m_Options;
+            if (click == MenuAction.Shake || keys.Shake) o.Shake = !o.Shake;
+            else if (click == MenuAction.Effects) o.Effects = Options.Next(o.Effects);
+            else if (click == MenuAction.Voices) o.Voices = Options.Next(o.Voices);
+            else if (click == MenuAction.Music) o.Music = Options.Next(o.Music);
+            else if (click == MenuAction.LeftHanded) o.LeftHanded = !o.LeftHanded;
+            else
+            {
+                if (click == MenuAction.Back || keys.Back || keys.Settings) SetState(GameState.Title);
+                return;
+            }
+            ChangeOptions(o);
+            if (click == MenuAction.Effects) Sfx.Play(Sfx.Pickup, 0.8f); // a taste of the new level
+            else if (click == MenuAction.Voices) Sfx.Say("mission-start");
+        }
+
+        /// <summary>Joining the co-op room: into the den when it's ready (or straight to the game, watching), back on a failure.</summary>
+        void TickLobby(MenuAction click, MenuInput keys)
+        {
+            if (click == MenuAction.Back || keys.Back)
+            {
+                m_Net.Leave();
+                SetState(GameState.Title);
+            }
+            else if (m_Net.State == NetState.Failed || m_Net.State == NetState.Offline)
+            {
+                Notice(string.IsNullOrEmpty(m_Net.Status) ? "COULDN'T CONNECT" : m_Net.Status);
+                SetState(GameState.Title);
+            }
+            else if (m_Net.Ready)
+            {
+                if (m_Net.Watching) BeginCoop(); // watching skips the den: straight to the game as the players see it
+                else Den.Show(DenMode.Coop);
+            }
+        }
+
+        /// <summary>A shared game: no pausing; BACK twice leaves; it's over when everyone is out of lives and continues.</summary>
+        void TickCoopPlay(float dt, MenuInput keys, SoldierInput soldier)
+        {
+            if (!CoopAlive()) return;
+            if (m_Net.Link.Round != m_World.Round) { BeginCoop(); return; } // partner restarted the mission
+            m_LeaveArmed -= dt;
+            if (keys.Back || keys.PadPause)
+            {
+                if (m_LeaveArmed > 0f)
+                {
+                    m_Net.Leave();
+                    EndCoop(null);
+                    return;
+                }
+                m_LeaveArmed = 2f;
+            }
+            m_World.Tick(dt, soldier);
+            NoteSuper(dt);
+            MissionMusic.Tick(m_World);
+            m_OutFor = m_World.AllOut ? m_OutFor + dt : 0f;
+            EndIfOver();
+        }
+
+        /// <summary>Playing solo: the pause menu, a restart, a sandbox's own tick, or the world's.</summary>
+        void TickSoloPlay(float dt, MenuAction click, MenuInput keys, SoldierInput soldier)
+        {
+            if (m_Paused)
+            {
+                if (click == MenuAction.Kit || soldier.AbilityPressed) Kit.Show(m_World.Player.Def);
+                else if (click == MenuAction.Resume || keys.Pause || keys.PadPause || keys.Start) m_Paused = false;
+                else if (click == MenuAction.Restart || keys.Restart) Restart();
+                else if (click == MenuAction.Menu || keys.Back) ToTitle();
+                return;
+            }
+            if (keys.Restart) { Restart(); return; }
+            if (keys.Pause || keys.PadPause || keys.Back || (keys.Start && m_StateTime > 0.2f)) { m_Paused = true; return; }
+
+            if (Sandbox.Active)
+            {
+                if (Sandbox.Tick(dt, soldier)) return;
+            }
+            else if (!Intro.Holding) m_World.Tick(dt, soldier); // the pilot's intro holds the action (solo only)
+            NoteSuper(dt);
+            MissionMusic.Tick(m_World);
+            m_OutFor = m_World.Player.Lives.IsOut && !m_World.Spectating ? m_OutFor + dt : 0f;
+            EndIfOver();
+        }
+
+        /// <summary>Everyone out for long enough is game over; the win, a moment after it, is victory.</summary>
+        void EndIfOver()
+        {
+            if (m_OutFor > Tuning.Lives.GameOverDelay) EndRun(GameState.GameOver);
+            else if (m_World.Victory && m_World.VictoryTime > 1f) EndRun(GameState.Victory);
+        }
+
+        /// <summary>GAME OVER or the victory screen: the world plays on behind it; restart, or back (co-op: leave the room).</summary>
+        void TickEnd(float dt, MenuAction click, MenuInput keys, SoldierInput soldier)
+        {
+            bool ready = m_StateTime > 1.2f; // so a button mashed at the end doesn't skip the screen
+            if (m_Coop)
+            {
+                if (!CoopAlive()) return;
+                if (m_Net.Link.Round != m_World.Round) { BeginCoop(); return; }
+                if (click == MenuAction.Back || keys.Back)
+                {
+                    m_Net.Leave();
+                    EndCoop(null);
+                    return;
+                }
+            }
+            else if (ready && (click == MenuAction.Menu || keys.Back))
+            {
+                ToTitle();
+                return;
+            }
+            m_World.Tick(dt, soldier);
+            if (ready && (click == MenuAction.Restart || keys.Start || keys.Restart || soldier.FirePressed))
+            {
+                if (m_Coop) { if (!m_World.Spectating) m_Net.Link.RequestRestart(); } // the authority bumps the round; everyone rebuilds
+                else Restart();
+            }
+        }
+
+        /// <summary>The HUD, the menus and the sign-in button, as the frame left things.</summary>
+        void RefreshScreens()
+        {
             m_Hud.Refresh(m_World, m_Camera, new HudInfo
             {
                 InGame = m_State == GameState.Playing || m_State == GameState.GameOver || m_State == GameState.Victory,
