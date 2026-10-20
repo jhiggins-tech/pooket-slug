@@ -201,6 +201,12 @@ namespace PooketSlug
             if (s_Voice != null) s_Voice.Stop();
         }
 
+        /// <summary>Stops the narrator's line, if one is being read; an announcer's line plays to its end.</summary>
+        public static void HushNarrator()
+        {
+            if (NarratorTalking) Hush();
+        }
+
         /// <summary>A clip of ready-made samples (<see cref="ChipSounds"/>' renders).</summary>
         public static AudioClip Clip(string name, float[] data, int rate)
         {

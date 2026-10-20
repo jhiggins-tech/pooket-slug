@@ -274,7 +274,7 @@ namespace PooketSlug
             SetState(GameState.Playing);
             Log.Game.Info("Mission start: " + Mission.Name); // tools/touch.mjs waits for it
             Sfx.Play(Sfx.Start);
-            if (!Scenes.TakeSaidStart()) Sfx.Say("mission-start", 0.3f); // the opening's caption card already called it
+            if (!Scenes.TakeSaidStart()) Sfx.Say(Cues.StartLine(Mission), 0.3f); // the opening's caption card already called it
             if (m_Flags.Debrief) m_World.OnBossDestroyed();
             MissionMusic.MissionStart();
         }
@@ -539,7 +539,7 @@ namespace PooketSlug
             m_StartNote = null;
             SetState(GameState.Playing);
             Sfx.Play(Sfx.Start);
-            if (!Scenes.TakeSaidStart()) Sfx.Say("mission-start", 0.3f); // the opening's caption card already called it
+            if (!Scenes.TakeSaidStart()) Sfx.Say(Cues.StartLine(Mission), 0.3f); // the opening's caption card already called it
         }
 
         void EndCoop(string notice)

@@ -57,6 +57,8 @@ namespace PooketSlug
         public const string SayPrefix = "say:";
         /// <summary>The announcer's "mission start", as the opening ends.</summary>
         public const string SayMissionStart = SayPrefix + "mission-start";
+        /// <summary>The announcer's call as each mission starts, by its <see cref="MissionDef.NetId"/>: "Mission one... start!", "Mission two... start!".</summary>
+        static readonly string[] s_StartLines = { "mission-start", "mission-two-start" };
 
         static readonly Dictionary<string, CueEffect> s_Effects = new Dictionary<string, CueEffect>
         {
@@ -98,6 +100,13 @@ namespace PooketSlug
 
         /// <summary>A cue that has the announcer say <paramref name="line"/>.</summary>
         public static string Say(string line) => SayPrefix + line;
+
+        /// <summary>The line the announcer calls as <paramref name="mission"/> starts (Mission one's for a mission without its own).</summary>
+        public static string StartLine(MissionDef mission) =>
+            mission != null && mission.NetId < s_StartLines.Length ? s_StartLines[mission.NetId] : s_StartLines[0];
+
+        /// <summary>The cue has the announcer call a mission's start, so the mission that follows doesn't call it again.</summary>
+        public static bool CallsStart(string id) => SaidLine(id) is string line && Array.IndexOf(s_StartLines, line) >= 0;
 
         /// <summary>The line a <c>say:</c> cue has the announcer read, or null for any other cue.</summary>
         public static string SaidLine(string id) =>

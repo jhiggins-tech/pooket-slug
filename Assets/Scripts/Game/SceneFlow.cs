@@ -30,7 +30,7 @@ namespace PooketSlug
             Library = BuiltIn();
         }
 
-        /// <summary>True once, after a scene whose caption card called "mission start", so the start doesn't say it again.</summary>
+        /// <summary>True once, after a scene whose caption card called the mission's start, so the start doesn't say it again.</summary>
         public bool TakeSaidStart()
         {
             bool said = m_SaidStart;
@@ -89,7 +89,7 @@ namespace PooketSlug
             m_Scene.Tick(dt, m_Cues, Sfx.NarratorTalking);
             foreach (string cue in m_Cues)
             {
-                if (cue == Cues.SayMissionStart) m_SaidStart = true;
+                if (Cues.CallsStart(cue)) m_SaidStart = true;
                 m_View.Cue(cue);
             }
             if (m_Scene.Shot != shot && !m_Scene.Done)

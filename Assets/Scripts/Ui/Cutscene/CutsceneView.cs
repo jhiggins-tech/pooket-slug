@@ -133,7 +133,7 @@ namespace PooketSlug
 
         public void Hide()
         {
-            Sfx.Hush();
+            Sfx.HushNarrator(); // the announcer's call as a scene ends into its mission plays out over the start
             m_Player = null;
             Ui.Show(m_Root, false);
         }

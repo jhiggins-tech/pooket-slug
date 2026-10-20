@@ -74,5 +74,16 @@ namespace PooketSlug.Tests
             Assert.IsFalse(Cues.Handled("dor"), "a typo does nothing, and the test above catches it in a scene");
             Assert.IsFalse(Cues.Handled(null));
         }
+
+        [Test]
+        public void StartCalls_AreEachMissionsOwn()
+        {
+            Assert.AreEqual("mission-start", Cues.StartLine(Missions.One));
+            Assert.AreEqual("mission-two-start", Cues.StartLine(Missions.Two));
+            Assert.IsTrue(Cues.CallsStart(Cues.SayMissionStart));
+            Assert.IsTrue(Cues.CallsStart(Cues.Say(Cues.StartLine(Missions.Two))), "the briefing's call stands for the mission's");
+            Assert.IsFalse(Cues.CallsStart(Cues.Say("warning")));
+            Assert.IsFalse(Cues.CallsStart(Cues.Door));
+        }
     }
 }
