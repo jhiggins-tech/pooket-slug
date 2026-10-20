@@ -97,10 +97,13 @@ namespace PooketSlug
         }
 
         /// <summary>A tap on <paramref name="rt"/> calls <paramref name="onTap"/>: an unseen button, with no look or keyboard stop of its own.</summary>
-        public static Button Tap(RectTransform rt, System.Action onTap)
+        public static Button Tap(RectTransform rt, System.Action onTap) => Tap(Catcher(rt), onTap);
+
+        /// <summary>A tap on <paramref name="look"/> (a cover or picture that's already there) calls <paramref name="onTap"/>, with no keyboard stop of its own.</summary>
+        public static Button Tap(Graphic look, System.Action onTap)
         {
-            Catcher(rt);
-            var b = rt.gameObject.AddComponent<Button>();
+            look.raycastTarget = true;
+            var b = look.gameObject.AddComponent<Button>();
             b.transition = Selectable.Transition.None;
             b.navigation = new Navigation { mode = Navigation.Mode.None };
             b.onClick.AddListener(() => onTap());

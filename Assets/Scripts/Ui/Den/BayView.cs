@@ -19,7 +19,7 @@ namespace PooketSlug
     /// runs them, and this draws them and takes the taps.
     /// </para>
     /// </summary>
-    public sealed class BayView
+    public sealed class BayView : StageScreen
     {
         /// <summary>Tabks here are drawn 1.5 times the game's sprite (Design's scale rule for the bay).</summary>
         const float Scale = 1.5f;
@@ -28,7 +28,7 @@ namespace PooketSlug
         static readonly Vector2 Gauge = new Vector2(150f, 50f);
         const int HoseDots = 16;
 
-        readonly RectTransform m_Root, m_Stage, m_World, m_Tabks, m_Card;
+        readonly RectTransform m_Tabks, m_Card;
         readonly Image m_Lift, m_LiftEdge, m_GaugeFill, m_Spark, m_Drone, m_Cable, m_Hook, m_Nozzle;
         readonly Image[] m_Hose = new Image[HoseDots], m_Lights = new Image[2];
         readonly StageFigure m_Soldier;
@@ -42,18 +42,14 @@ namespace PooketSlug
         SoldierDef m_SoldierDef;
         int m_Skin;
 
-        int? m_TapSpot;
-        BayPlace m_TapPlace;
-        bool m_TapWalk, m_BackPressed, m_TakePressed, m_ClosePressed;
-        BayDeck m_WalkDeck;
-        float m_WalkX;
+        Latch<int> m_TapSpot;
+        Latch<BayPlace> m_TapPlace;
+        Latch<(BayDeck deck, float x)> m_TapWalk;
+        Latch m_Back, m_TakeIt, m_Close;
 
-        public BayView(Transform parent)
+        public BayView(Transform parent) : base(parent, "Tabk bay", 9) // over the den (8), under the menus (10)
         {
-            m_Root = Ui.Canvas(parent, "Tabk bay", 9); // over the den (8), under the menus (10)
-            m_Root.gameObject.AddComponent<GraphicRaycaster>();
-            Image black = Build(m_Root, out m_Stage, out m_World);
-            black.raycastTarget = true; // taps stop here, not on the den under it
+            m_Letterbox.raycastTarget = true; // taps stop here, not on the den under it
 
             // back to front: the painting, the lift's platform, the gauge, the tabks, the hose, the spark, you, the drone
             Sprite bay = DenRoom.Painting("bay");
@@ -79,13 +75,11 @@ namespace PooketSlug
             // the whole bay takes taps: a tabk to look over, a place to use, anywhere else to walk to
             RectTransform tap = Ui.Rect(m_World, "Tap bay", Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(BayMap.Width, StageH) * Px);
             Ui.Catcher(tap);
-            var entry = new EventTrigger.Entry { eventID = EventTriggerType.PointerClick };
-            entry.callback.AddListener(e => Tapped((PointerEventData)e));
-            tap.gameObject.AddComponent<EventTrigger>().triggers.Add(entry);
+            OnPointer(tap, EventTriggerType.PointerClick, Tapped);
 
             // over it: BACK, the hint and notes, and a tabk's card
             Vector2 half = new Vector2(StageW, StageH) * Px / 2f;
-            Ui.Button(m_Stage, "BACK", new Vector2(-half.x + 40f, half.y - 18f), new Vector2(64f, 22f), () => m_BackPressed = true, out Text backKey);
+            Ui.Button(m_Stage, "BACK", new Vector2(-half.x + 40f, half.y - 18f), new Vector2(64f, 22f), m_Back.Set, out Text backKey);
             backKey.text = "ESC";
             m_Hint = Ui.Label(m_Stage, "Hint", Ui.TopCenter, new Vector2(0f, -8f), 10, TextAnchor.UpperCenter, new Color(1f, 1f, 1f, 0.75f));
             m_Note = Ui.Label(m_Stage, "Note", Ui.TopCenter, new Vector2(0f, -24f), 11, TextAnchor.UpperCenter, new Color(1f, 0.55f, 0.45f));
@@ -100,12 +94,12 @@ namespace PooketSlug
             m_CardGuns.rectTransform.sizeDelta = new Vector2(124f, 52f);
             m_CardRounds = Ui.Label(m_Card, "Rounds", Ui.TopCenter, new Vector2(70f, -34f), 11, TextAnchor.UpperRight, Gold);
             m_CardRounds.rectTransform.sizeDelta = new Vector2(30f, 52f);
-            m_Take = Ui.Button(m_Card, "TAKE IT", new Vector2(0f, -48f), new Vector2(110f, 26f), () => m_TakePressed = true, out Text takeKey);
+            m_Take = Ui.Button(m_Card, "TAKE IT", new Vector2(0f, -48f), new Vector2(110f, 26f), m_TakeIt.Set, out Text takeKey);
             takeKey.text = "ENTER";
             m_TakeLabel = m_Take.GetComponentInChildren<Text>();
             m_Loaded = Ui.Label(m_Card, "Loaded", Ui.Middle, new Vector2(0f, -48f), 14, TextAnchor.MiddleCenter, new Color(0.3f, 1f, 0.45f));
             m_Loaded.text = "LOADED";
-            Button close = Ui.Button(m_Card, "X", new Vector2(93f, 56f), new Vector2(22f, 22f), () => m_ClosePressed = true, out Text closeKey);
+            Button close = Ui.Button(m_Card, "X", new Vector2(93f, 56f), new Vector2(22f, 22f), m_Close.Set, out Text closeKey);
             close.GetComponent<Image>().sprite = Ui.Disc;
             closeKey.text = "";
 
@@ -114,28 +108,23 @@ namespace PooketSlug
 
         void Tapped(PointerEventData e)
         {
-            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(m_World, e.position, e.pressEventCamera, out Vector2 local)) return;
-            Vector2 p = local / Px + new Vector2(StageW, StageH) / 2f; // the world's pivot is its middle
+            if (!ToArt(e, out Vector2 p)) return;
             int? spot = BayMap.SpotAt(p.x, p.y);
             if (spot != null && m_Garage != null && m_Garage.At(spot.Value) != null)
             {
-                m_TapSpot = spot;
+                m_TapSpot.Set(spot.Value);
                 return;
             }
             BayPlace place = BayMap.PlaceAt(p.x, p.y);
             if (place != BayPlace.None)
             {
-                m_TapPlace = place;
+                m_TapPlace.Set(place);
                 return;
             }
-            m_TapWalk = true;
-            m_WalkDeck = BayMap.DeckAt(p.x, p.y);
-            m_WalkX = p.x;
+            m_TapWalk.Set((BayMap.DeckAt(p.x, p.y), p.x));
         }
 
         Garage m_Garage;
-
-        public bool Showing => m_Root.gameObject.activeSelf;
 
         /// <summary>Opens the bay on <paramref name="garage"/>'s tabks, with <paramref name="soldier"/> (in <paramref name="skin"/>) walking it.</summary>
         public void Begin(Garage garage, SoldierDef soldier, int skin)
@@ -155,9 +144,12 @@ namespace PooketSlug
             m_NoteUntil = 0f;
             m_SparkAt = 2f;
             m_Fill = 0.3f;
-            m_TapSpot = null;
-            m_TapPlace = BayPlace.None;
-            m_TapWalk = m_BackPressed = m_TakePressed = m_ClosePressed = false;
+            m_TapSpot.Clear();
+            m_TapPlace.Clear();
+            m_TapWalk.Clear();
+            m_Back.Clear();
+            m_TakeIt.Clear();
+            m_Close.Clear();
             m_World.anchoredPosition = Vector2.zero;
             Ui.Show(m_Card, false);
             Ui.Show(m_Root, true);
@@ -187,37 +179,20 @@ namespace PooketSlug
             }
         }
 
-        public int? TakeSpot()
-        {
-            int? s = m_TapSpot;
-            m_TapSpot = null;
-            return s;
-        }
+        public int? TakeSpot() => m_TapSpot.Take(out int s) ? s : (int?)null;
 
-        public BayPlace TakePlace()
-        {
-            BayPlace p = m_TapPlace;
-            m_TapPlace = BayPlace.None;
-            return p;
-        }
+        public BayPlace TakePlace() => m_TapPlace.Take(out BayPlace p) ? p : BayPlace.None;
 
         public bool TakeWalk(out BayDeck deck, out float x)
         {
-            deck = m_WalkDeck;
-            x = m_WalkX;
-            return Take(ref m_TapWalk);
+            bool tapped = m_TapWalk.Take(out var to);
+            (deck, x) = to;
+            return tapped;
         }
 
-        public bool TakeBack() => Take(ref m_BackPressed);
-        public bool TakeTakeIt() => Take(ref m_TakePressed);
-        public bool TakeClose() => Take(ref m_ClosePressed);
-
-        static bool Take(ref bool flag)
-        {
-            bool f = flag;
-            flag = false;
-            return f;
-        }
+        public bool TakeBack() => m_Back.Take();
+        public bool TakeTakeIt() => m_TakeIt.Take();
+        public bool TakeClose() => m_Close.Take();
 
         /// <summary>Says something across the top for a few seconds.</summary>
         public void Note(string text, float seconds = 3f)

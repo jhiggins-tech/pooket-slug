@@ -38,10 +38,7 @@ namespace PooketSlug
             m_Ramp = m_Backdrop.gameObject.AddComponent<RawImage>();
             m_Ramp.texture = RampTexture();
             m_Ramp.raycastTarget = true; // taps on the splash stop here, not on the world under it
-            var skip = m_Backdrop.gameObject.AddComponent<UnityEngine.UI.Button>(); // and skip the entrance
-            skip.transition = Selectable.Transition.None;
-            skip.navigation = new Navigation { mode = Navigation.Mode.None };
-            skip.onClick.AddListener(Skip);
+            Ui.Tap(m_Ramp, Skip); // and skip the entrance
             m_Engine = Sfx.OwnSource(m_Backdrop.gameObject);
 
             m_Panel = Ui.Fill(parent, "Title");

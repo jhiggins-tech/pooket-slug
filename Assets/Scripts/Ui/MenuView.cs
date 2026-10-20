@@ -80,7 +80,7 @@ namespace PooketSlug
         readonly Button m_HardButton, m_MissionPlay;
         readonly Text m_HardLabel, m_MissionPlayLabel, m_MissionPlayKey, m_HardKey, m_MissionsBackKey, m_MissionsHint, m_MissionTabk;
         MenuScreen m_Shown;
-        MenuAction m_Clicked;
+        Latch<MenuAction> m_Clicked;
         bool m_SecondIsLeave; // the victory screen's second button leaves a shared game instead of going to the menu
 
         public MenuView(Transform parent)
@@ -205,12 +205,7 @@ namespace PooketSlug
         public bool TitleMusicDue => m_Title.MusicDue;
 
         /// <summary>The button clicked or tapped since the last call, or None.</summary>
-        public MenuAction TakeClick()
-        {
-            MenuAction a = m_Clicked;
-            m_Clicked = MenuAction.None;
-            return a;
-        }
+        public MenuAction TakeClick() => m_Clicked.Take(out MenuAction a) ? a : MenuAction.None;
 
         public void Refresh(in MenuInfo info)
         {
@@ -310,7 +305,7 @@ namespace PooketSlug
             Ui.Show(m_Kit, screen == MenuScreen.Kit);
             Ui.Show(m_Missions, screen == MenuScreen.Missions);
             if (screen != MenuScreen.Kit) m_Clip.Stop();
-            m_Clicked = MenuAction.None; // a click meant for the screen that just went
+            m_Clicked.Clear(); // a click meant for the screen that just went
         }
 
         void RefreshKit(in MenuInfo info, bool keys)
@@ -399,7 +394,7 @@ namespace PooketSlug
             }
         }
 
-        void Click(MenuAction action) => m_Clicked = action;
+        void Click(MenuAction action) => m_Clicked.Set(action);
 
         void Dim(Color color) => m_Dim.color = color;
 

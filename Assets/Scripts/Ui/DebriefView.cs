@@ -24,16 +24,15 @@ namespace PooketSlug
         readonly StageFigure m_Tones2, m_Kie;
         readonly Button m_Continue;
         DebriefPlayer m_Player;
-        bool m_Tapped, m_Leave, m_RankSounded;
+        Latch m_Tapped, m_Leave;
+        bool m_RankSounded;
         int m_Blips;
 
         public DebriefView(Transform parent)
         {
             m_Root = Ui.Canvas(parent, "Debrief", 15);
             m_Root.gameObject.AddComponent<GraphicRaycaster>();
-            Image shade = Ui.Cover(m_Root, "Shade", new Color(0.04f, 0.03f, 0.08f, 0.88f));
-            shade.raycastTarget = true;
-            shade.gameObject.AddComponent<Button>().onClick.AddListener(() => m_Tapped = true); // a tap anywhere
+            Ui.Tap(Ui.Cover(m_Root, "Shade", new Color(0.04f, 0.03f, 0.08f, 0.88f)), m_Tapped.Set); // a tap anywhere
 
             m_Panel = Ui.Fill(m_Root, "Panel");
             Ui.Label(m_Panel, "Title", Ui.Middle, new Vector2(40f, 145f), 26, TextAnchor.MiddleCenter, Gold).text = "MISSION COMPLETE!";
@@ -84,7 +83,7 @@ namespace PooketSlug
             // signing in, and on
             m_SignIn = Ui.Label(m_Panel, "Sign in", Ui.Middle, new Vector2(60f, -112f), 10, TextAnchor.MiddleCenter, Green);
             m_SignIn.text = "SIGN IN AT THE TOP LEFT TO KEEP YOUR XP AND RANK";
-            m_Continue = Ui.Button(m_Panel, "CONTINUE", new Vector2(60f, -142f), new Vector2(150f, 26f), () => m_Leave = true, out Text key);
+            m_Continue = Ui.Button(m_Panel, "CONTINUE", new Vector2(60f, -142f), new Vector2(150f, 26f), m_Leave.Set, out Text key);
             key.text = "ENTER";
             m_Hint = Ui.Label(m_Panel, "Hint", Ui.Middle, new Vector2(60f, -142f), 9, TextAnchor.MiddleCenter, Dim);
             m_Hint.text = "TAP TO GO ON";
@@ -102,7 +101,9 @@ namespace PooketSlug
         public void Show(DebriefPlayer player)
         {
             m_Player = player;
-            m_Tapped = m_Leave = m_RankSounded = false;
+            m_Tapped.Clear();
+            m_Leave.Clear();
+            m_RankSounded = false;
             m_Blips = 0;
             Ui.Show(m_Root, true);
             PlayerSkin tones2 = Art.SkinFor(Content.Tones2, 0), kie = Art.SkinFor(Content.Kie, 0);
@@ -118,20 +119,10 @@ namespace PooketSlug
         }
 
         /// <summary>A tap on the screen since the last call.</summary>
-        public bool TakeTap()
-        {
-            bool t = m_Tapped;
-            m_Tapped = false;
-            return t;
-        }
+        public bool TakeTap() => m_Tapped.Take();
 
         /// <summary>CONTINUE was pressed since the last call.</summary>
-        public bool TakeLeave()
-        {
-            bool l = m_Leave;
-            m_Leave = false;
-            return l;
-        }
+        public bool TakeLeave() => m_Leave.Take();
 
         public void Refresh()
         {

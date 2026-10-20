@@ -45,18 +45,13 @@ namespace PooketSlug
         ShotStage m_StageOf;
         int m_StageShot = -1;
         float m_FlickerUntil;
-        bool m_Tapped, m_SkipPressed;
+        Latch m_Tapped, m_SkipPressed;
 
         public CutsceneView(Transform parent)
         {
             m_Root = Ui.Canvas(parent, "Cutscene", 20);
             m_Root.gameObject.AddComponent<GraphicRaycaster>(); // taps and SKIP (the menus' event system serves it)
-            Image black = Build(m_Root, out m_Stage, out m_World);
-            black.raycastTarget = true;
-            var tap = black.gameObject.AddComponent<Button>();
-            tap.transition = Selectable.Transition.None;
-            tap.navigation = new Navigation { mode = Navigation.Mode.None };
-            tap.onClick.AddListener(() => m_Tapped = true);
+            Ui.Tap(Build(m_Root, out m_Stage, out m_World), m_Tapped.Set);
 
             m_Cast = new CutsceneCast(m_World);
             m_Effects = new CutsceneEffects(m_World, m_Stage);
@@ -104,7 +99,7 @@ namespace PooketSlug
             m_Note.rectTransform.pivot = new Vector2(0f, 1f);
             m_Note.rectTransform.sizeDelta = new Vector2(StageW * Px - 100f, 60f);
             m_Note.horizontalOverflow = HorizontalWrapMode.Wrap;
-            m_Skip = Ui.Button(m_Stage, "SKIP", new Vector2(StageW * Px / 2f - 42f, StageH * Px / 2f - 20f), new Vector2(64f, 22f), () => m_SkipPressed = true, out Text skipKey);
+            m_Skip = Ui.Button(m_Stage, "SKIP", new Vector2(StageW * Px / 2f - 42f, StageH * Px / 2f - 20f), new Vector2(64f, 22f), m_SkipPressed.Set, out Text skipKey);
             skipKey.text = "ESC";
 
             Ui.Show(m_Root, false);
@@ -119,7 +114,8 @@ namespace PooketSlug
             m_StageOf = null;
             m_StageShot = -1;
             m_FlickerUntil = 0f;
-            m_Tapped = m_SkipPressed = false;
+            m_Tapped.Clear();
+            m_SkipPressed.Clear();
             m_WaitingNote = null;
             m_Captions.Begin();
             m_Clock = 0f;
@@ -139,20 +135,10 @@ namespace PooketSlug
         }
 
         /// <summary>The screen was tapped or clicked since the last call.</summary>
-        public bool TakeTap()
-        {
-            bool t = m_Tapped;
-            m_Tapped = false;
-            return t;
-        }
+        public bool TakeTap() => m_Tapped.Take();
 
         /// <summary>SKIP was pressed since the last call.</summary>
-        public bool TakeSkip()
-        {
-            bool s = m_SkipPressed;
-            m_SkipPressed = false;
-            return s;
-        }
+        public bool TakeSkip() => m_SkipPressed.Take();
 
         /// <summary>Plays the sounds, and the stage's static, for cues that just came due (<see cref="Cues"/>).</summary>
         public void Cue(string id)

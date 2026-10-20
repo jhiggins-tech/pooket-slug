@@ -21,9 +21,9 @@ namespace PooketSlug
     /// been pressed, and the zoom into the TV.
     /// </para>
     /// </summary>
-    public sealed class DenView
+    public sealed class DenView : StageScreen
     {
-        readonly RectTransform m_Root, m_Stage, m_World, m_Paintings, m_InviteTap, m_RoomTap;
+        readonly RectTransform m_Paintings, m_InviteTap, m_RoomTap;
         readonly Image m_Fade;
         readonly DenCrew m_Crew;
         readonly DenBitPlayer m_Bits;
@@ -34,18 +34,13 @@ namespace PooketSlug
         string m_PaintedKey;
         float m_Clock, m_CamX;
 
-        SoldierDef m_Picked;
-        DenPlace m_Place;
-        bool m_Walk;
-        DenFloor m_WalkFloor;
-        float m_WalkX;
-        bool m_ReadyPressed, m_BackPressed, m_KitPressed, m_HostPressed, m_InviteDown;
+        Latch<SoldierDef> m_Picked;
+        Latch<DenPlace> m_Place;
+        Latch<(DenFloor floor, float x)> m_Walk;
+        Latch m_Ready, m_Back, m_Kit, m_Host, m_InviteDown;
 
-        public DenView(Transform parent)
+        public DenView(Transform parent) : base(parent, "Den", 8) // under the menus (10), so the ⓘ kit screen and notices show over it
         {
-            m_Root = Ui.Canvas(parent, "Den", 8); // under the menus (10), so the ⓘ kit screen and notices show over it
-            m_Root.gameObject.AddComponent<GraphicRaycaster>();
-            Build(m_Root, out m_Stage, out m_World);
             var rng = new System.Random();
             m_Crew = new DenCrew(m_World, rng);
             m_Bits = new DenBitPlayer(m_World, m_Crew, rng);
@@ -68,45 +63,35 @@ namespace PooketSlug
             // the TV, in a co-op room: a tap shares the invite link. It's armed as the finger goes down (Invite)
             m_InviteTap = Ui.Rect(m_World, "Tap TV", Vector2.zero, Vector2.zero, (TvCentre - new Vector2(30f, 17f)) * Px, new Vector2(60f, 34f) * Px);
             Ui.Catcher(m_InviteTap);
-            OnPointer(m_InviteTap, EventTriggerType.PointerDown, _ => m_InviteDown = true);
+            OnPointer(m_InviteTap, EventTriggerType.PointerDown, _ => m_InviteDown.Set());
 
             m_Crew.MakeVisitor();
             m_Fade = Ui.Cover(m_Stage, "Fade", new Color(0f, 0f, 0f, 0f));
 
-            m_Console.MakeButtons(() => m_BackPressed = true, () => m_ReadyPressed = true, () => m_KitPressed = true, () => m_HostPressed = true);
+            m_Console.MakeButtons(m_Back.Set, m_Ready.Set, m_Kit.Set, m_Host.Set);
 
             Ui.Show(m_Root, false);
-        }
-
-        static void OnPointer(RectTransform rt, EventTriggerType type, System.Action<PointerEventData> act)
-        {
-            var entry = new EventTrigger.Entry { eventID = type };
-            entry.callback.AddListener(e => act((PointerEventData)e));
-            rt.gameObject.AddComponent<EventTrigger>().triggers.Add(entry);
         }
 
         /// <summary>A tap on the room, in the den's art pixels: someone to swap to, a place to use, or the floor to walk on.</summary>
         void Tapped(PointerEventData e)
         {
-            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(m_World, e.position, e.pressEventCamera, out Vector2 local)) return;
-            Vector2 p = local / Px + new Vector2(StageW, StageH) / 2f; // the world's pivot is its middle
+            if (!ToArt(e, out Vector2 p)) return;
             DenActor who = m_Crew.At(p);
             if (who != null && who.Doing != DenDoing.Seated)
             {
-                m_Picked = who.Soldier;
+                m_Picked.Set(who.Soldier);
                 return;
             }
             DenPlace place = DenMap.PlaceAt(p.x, p.y);
             if (place != DenPlace.None)
             {
-                m_Place = place;
+                m_Place.Set(place);
                 return;
             }
-            m_Walk = true;
-            m_WalkFloor = DenMap.WalkTarget(p.x, p.y, Walker?.Floor ?? DenFloor.Ground, out m_WalkX);
+            DenFloor floor = DenMap.WalkTarget(p.x, p.y, Walker?.Floor ?? DenFloor.Ground, out float x);
+            m_Walk.Set((floor, x));
         }
-
-        public bool Showing => m_Root.gameObject.activeSelf;
 
         /// <summary>Opens the den on <paramref name="den"/>: each freed crewmate at their station, and yours by the couch.</summary>
         public void Begin(Den den, DenInfo info)
@@ -123,9 +108,14 @@ namespace PooketSlug
             m_Bits.Begin();
             m_Clock = 0f;
             m_CamX = 0f;
-            m_Picked = null;
-            m_Place = DenPlace.None;
-            m_Walk = m_ReadyPressed = m_BackPressed = m_KitPressed = m_HostPressed = m_InviteDown = false;
+            m_Picked.Clear();
+            m_Place.Clear();
+            m_Walk.Clear();
+            m_Ready.Clear();
+            m_Back.Clear();
+            m_Kit.Clear();
+            m_Host.Clear();
+            m_InviteDown.Clear();
             m_World.localScale = Vector3.one;
             m_World.anchoredPosition = Vector2.zero;
             Ui.Show(m_Root, true);
@@ -167,27 +157,17 @@ namespace PooketSlug
         }
 
         /// <summary>The crewmate tapped since the last call, or null.</summary>
-        public SoldierDef TakePick()
-        {
-            SoldierDef s = m_Picked;
-            m_Picked = null;
-            return s;
-        }
+        public SoldierDef TakePick() => m_Picked.Take(out SoldierDef s) ? s : null;
 
         /// <summary>The place tapped since the last call (to walk there and use it), or None.</summary>
-        public DenPlace TakePlace()
-        {
-            DenPlace p = m_Place;
-            m_Place = DenPlace.None;
-            return p;
-        }
+        public DenPlace TakePlace() => m_Place.Take(out DenPlace p) ? p : DenPlace.None;
 
         /// <summary>The floor was tapped since the last call: where to walk.</summary>
         public bool TakeWalk(out DenFloor floor, out float x)
         {
-            floor = m_WalkFloor;
-            x = m_WalkX;
-            return Take(ref m_Walk);
+            bool tapped = m_Walk.Take(out var to);
+            (floor, x) = to;
+            return tapped;
         }
 
         /// <summary>The soldier you're playing, walking round (null before there's a pick).</summary>
@@ -196,22 +176,15 @@ namespace PooketSlug
         /// <summary>The place the soldier you're playing has just walked up to, to use it; once.</summary>
         public DenPlace TakeReached() => m_Crew.TakeReached();
 
-        public bool TakeReady() => Take(ref m_ReadyPressed);
-        public bool TakeBack() => Take(ref m_BackPressed);
-        public bool TakeKit() => Take(ref m_KitPressed);
-        public bool TakeHost() => Take(ref m_HostPressed);
+        public bool TakeReady() => m_Ready.Take();
+        public bool TakeBack() => m_Back.Take();
+        public bool TakeKit() => m_Kit.Take();
+        public bool TakeHost() => m_Host.Take();
         /// <summary>A finger went down on the TV in a co-op room: arm the invite (<see cref="Invite"/>).</summary>
-        public bool TakeInvite() => Take(ref m_InviteDown);
+        public bool TakeInvite() => m_InviteDown.Take();
 
         /// <summary>The TV says this under the room code for a few seconds ("LINK COPIED").</summary>
         public void TvSay(string text) => m_Console.TvSay(text, m_Clock);
-
-        static bool Take(ref bool flag)
-        {
-            bool f = flag;
-            flag = false;
-            return f;
-        }
 
         /// <summary>Says something across the top for a few seconds (a pick undone, say).</summary>
         public void Note(string text, float seconds = 3f) => m_Console.Note(text, seconds, m_Clock);
