@@ -40,7 +40,7 @@ Up: [Research index](../README.md)
 | Photon **Fusion 2, Shared Mode** | The only Fusion topology available for WebGL; Photon recommends Fusion for new games | Choosing a stack |
 | Each client simulates its own soldier; the master client runs the world | No input lag for your own soldier; one authority for enemies and score; survives the host leaving | [Architecture](architecture.md#authority-model) |
 | The SDK lives in a private release, fetched by CI | Photon's license forbids redistributing it | [SDK in CI](sdk-in-ci.md) |
-| Network objects built in code, not prefabs | Keeps the project code-only | [Architecture](architecture.md#network-objects-without-prefabs) |
+| Network objects built in code, not prefabs | The project has no prefab assets, so the objects are made at runtime | [Architecture](architecture.md#network-objects-without-prefabs) |
 | One region (Australia); one room, MATES, by session name | Photon sessions exist per region, and the owner chose AU (NET-05) | [Sessions](sessions.md#one-room) |
 | Gameplay talks to interfaces, and the Fusion code is its own assembly that only compiles with the SDK | The game builds without the private SDK, and the compiler keeps game code off Fusion | [Architecture](architecture.md#the-boundary-between-game-and-netcode) |
 

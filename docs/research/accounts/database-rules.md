@@ -2,15 +2,15 @@
 
 This game's section of the shared Realtime Database rules: each player's record, a friends leaderboard, how the game should write them, and how the rules are tested.
 
-**Status, 2026-10-14: live.** Committed to Cardmaster with the owner's go-ahead (`121c939`), merged as [jhiggins-tech/cardmaster#11](https://github.com/jhiggins-tech/cardmaster/pull/11), and deployed to the shared Firebase project by Cardmaster's CI. Cardmaster's [`firebase/database.rules.json`](https://github.com/jhiggins-tech/cardmaster/blob/main/firebase/database.rules.json) is now the source of truth.
+**Status: live** since 2026-10-14. Cardmaster's [`firebase/database.rules.json`](https://github.com/jhiggins-tech/cardmaster/blob/main/firebase/database.rules.json) is the source of truth, deployed by its CI.
 
-**Read this when** you're writing the game's save code, changing what it stores, or reviewing the rules pull request.
+**Read this when** you're changing the game's save code or what it stores, or changing the rules.
 
 Up: [Accounts](README.md)
 
 ## The record
 
-Each player has one record at `pooketSlug/players/{uid}`. Only they read and write it, and nobody can list the players. It holds what the refactor plan scoped from the design, plus a save number:
+Each player has one record at `pooketSlug/players/{uid}`. Only they read and write it, and nobody can list the players. It holds what the design keeps per player, plus a save number:
 
 | Field | Meaning | Rules |
 |---|---|---|
@@ -45,7 +45,7 @@ Each player has one record at `pooketSlug/players/{uid}`. Only they read and wri
 
 ## Writing it from the game
 
-This is the plan for the save code. The local half is written: the [`Profile`](../../../Assets/Scripts/Core/Lobby/Profile.cs) record, its merge, and a local store behind `IProfileStore` (refactor plan step 15).
+How the save code works, in [`CloudAccount.cs`](../../../Assets/Scripts/Save/CloudAccount.cs) and the page's `pooket-auth.js`. The [`Profile`](../../../Assets/Scripts/Core/Lobby/Profile.cs) record and its merge are in Core, with a local store behind `IProfileStore`.
 - **On sign-in:** `GET pooketSlug/players/{uid}.json?auth=<Firebase ID token>`. It returns `null` until the first save. Keep its `rev`.
 - **Merging:** take the better of each, as `Profile.Merge` does: the higher numbers, both copies' list entries, co-op if either has it, and the earlier `first`. Clears take the higher count, not the sum, since the same clears may be on both copies.
 - **First save:** `PUT` the whole record, with `rev` 1 and with `first` and `ts` both set to `{".sv": "timestamp"}`.
@@ -63,11 +63,9 @@ The section is in [Cardmaster's rules file](https://github.com/jhiggins-tech/car
 - **Maps** must be objects (`hasChildren()`), so a plain value can't skip the checks on their entries.
 - **A worn item** must be under `owned` in the new data: `newData.parent().parent().child('owned').child(newData.val()).exists()`.
 
-The same commit updates Cardmaster's README: the `pooketSlug` section and the extra sign-in origin belong to this game, so later rules changes keep them.
-
 ## Tests
 
-The commit adds 13 tests to Cardmaster's `firebase/tests/rules.test.mjs`, and signed-out cases for both paths. Each talks to the emulator over the REST API, as the game will. They check that:
+The tests include signed-out cases for both paths. Each talks to the emulator over the REST API, as the game will. They check that:
 - the player creates their record, reads it, and saves over it with `PATCH` and `PUT`
 - nobody else reads or writes it, and nobody lists the players
 - each save goes one up: a save from a device that's behind, one that skips ahead, and a write below the record are all refused
@@ -82,16 +80,7 @@ The commit adds 13 tests to Cardmaster's `firebase/tests/rules.test.mjs`, and si
 - an entry is a name, a whole best and the server time
 - a player can take their own entry down, and nobody else can
 
-All 30 of Cardmaster's rules tests pass, its own 17 included.
-
-**Mutation check:** the new rules were weakened 32 ways, one at a time. Every time, the run failed and a named test reported it:
-- **Saves:** deleting the record; no save number check; a save number that skips ahead; a first save at any number.
-- **Progress:** a lower XP, rank, version, mission best, clear count or kill count; co-op closing again.
-- **Shape:** a worn item that isn't owned; unknown fields; XP not required; fractional XP; no upper bound on XP; unbounded tokens; unknown settings; a tally entry without its counters; a list or a mission as a plain value; list entries other than `true`.
-- **Times and access:** a client-chosen save time; a `first` that changes; others reading or writing the record.
-- **The board:** others writing; a lower best; signed-out readers; a client-chosen time; extra fields; overlong mission ids.
-
-
+A mutation check run when the rules were written (weaken each rule, a named test must fail) is in [history](../history/rules-mutation-check.md); redo it when you change a rule.
 
 ## Running the tests in the cloud sandbox
 

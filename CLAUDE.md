@@ -34,8 +34,10 @@ There is no Unity licence in a cloud session, so CI is the build and test run: p
 (EditMode tests, the WebGL build, the kit demo recording and the two-player co-op tests; spike branches skip the
 last two). Before pushing, run the same checks yourself in one command:
 ```sh
-tools/check.sh           # compile every assembly as Unity would for WebGL, run Fusion's weaver, run the EditMode tests
+tools/check.sh           # compile every assembly as Unity would for WebGL, Fusion's weaver, the EditMode tests,
+                         # the scene check and the docs link check (about 30 s)
 tools/check.sh compile   # only the type-check
+tools/check.sh docs      # only the docs link check: every relative link in a .md resolves
 ```
 The first run in a session downloads the Unity kit for the project's Unity version and the Photon SDK from the private
 vendor repository (about a minute). After a Unity upgrade, run the vendor repository's *Unity kit* workflow with the
@@ -82,7 +84,7 @@ Each file starts with a summary comment saying what it's for.
 | `Assets/Tests/EditMode/` | NUnit tests against Core, in the same folders as Core, run by CI before every build |
 | `Assets/Tests/Gameplay/` | PlayMode tests (assembly `PooketSlug.Game.Tests`): a real `World`, ticked frame by frame (`GameplayFixture`), for combat, the world, the spawner, set pieces, bosses and `NetSync`; CI runs them with the EditMode tests, Unity only |
 | `tools/` | `check.sh` (the local checks), `pages_deploy.sh` (the gh-pages deploy), `slug.sh` (a branch's preview folder), `vendor_fetch.sh` + `vendor_lock.sh` (the vendor repo's sounds, as the root's `vendor.lock` pins them), `check_scenes.sh` (the scene check), `coop.mjs` (co-op tests), `touch.mjs` (touch play), `demos.mjs` (kit demo clips), `unpack_unitypackage.py`, `new_meta.py`, `title_logo.py` (the splash's logo and its parts) |
-| `docs/design/` | The game design. `docs/research/`: how the pipeline, netcode, accounts and verification work, and [lessons learned](docs/research/lessons-learned.md) |
+| `docs/` | `design/`: the game design. `research/`: how the pipeline, netcode, accounts and verification work (`history/`: finished research). [scenes.md](docs/scenes.md): writing cutscenes; [sandbox.md](docs/sandbox.md): the sandbox's setups |
 
 ## How the game fits together
 - **Flow**: `Game` owns the state and one `World`, and hands each frame to the flow for what's up (`Game/*Flow.cs`).
@@ -120,20 +122,43 @@ its sound in `Sfx` / `ChipSounds`, and the kit that fires it.
 **Add a sound cue**: in a scene, its constant and effect in `Cues` (a new `CueSound`: its clip in `CueSounds`); in the boss intro, its
 place on the `Cue` timeline in `BossIntroShow`. Either way its sound goes in `Sfx` / `ChipSounds`.
 
-**Add a mission**: a `MissionDef` in `Missions` (map rows: `Level.Markers` says what each character places), its story
-(`MissionStory`: its scenes, coda, solo only), its spawns, its boss (`boss:` a `BossTabk`, whose attacks come from its
-row in `BossKits`; `pilot:` the pilot's `EnemyDef`), and where it opens (`Profile`, `MissionBoard`).
+**Add a mission** (Mission two touched about 40 files; `MissionsTests`, `ContentTests`, `SpawnerTests` and the scene check hold
+much of it):
+- Core: a `MissionDef` in `Missions` (id `mission-<N>`, the next `NetId`) in `Missions.All`, its map rows
+  (`Level.Markers` says what each character places; new ones per *Add a goon* and *Add a hazard*), its boss (`boss:` a
+  `BossTabk`, attacks from its row in `BossKits`) and pilot (`pilot:` an `EnemyDef`, see *Add a crew member*), its
+  pickups from the shared table; rules of its own in `Core/Missions/<Place>.cs` (as `Creamery`) with tests.
+- What it opens: `MissionBoard` (the mission screen, hard), who it frees (`Crew`), the tabk it wins (`Garage`).
+- Story (*Add a cutscene*): briefing and freeing scenes in `MissionStory` and `SceneLibrary`, the boss intro
+  (`BossIntroShow`), its start line in `Cues` (and the announcer's take in the vendor repo); `levels.md` and
+  `story.md` say whether it's solo.
+- Its own pieces in `Missions/<N>/` (art in `<Place>Art`), painted plates in `Resources/Plates/<mission id>/`,
+  sounds in `Sfx` / `ChipSounds`; `?mission=N` and the sandbox's `mission` find it by its id.
 
 **Add a goon** (or anything that's shot, like a set piece): its `EnemyBrain` and an `EnemyDef` row in `Content` with
 the next unused id (ids ride the network), its `SpawnKind` and map character (`marker:`, `map:`; left out for one only
 made mid-game), and `real: true` unless it's a Trollogram; then its class (a goon in `Enemies/`, a set piece a
 `SetPiece` in its mission's folder) and its row in `Spawner`'s brain table. Its rules and numbers go in Core with tests,
-its art in `Art` / `ArtData`, its sounds in `Sfx` / `ChipSounds`. A hazard or scenery that isn't shot is a `SpawnKind`,
-its character in `Level.Markers` and its row in `Spawner`'s scenery table.
+its art in `Art` / `ArtData`, its sounds in `Sfx` / `ChipSounds`.
 
-**Add a crew member**: a `SoldierDef` in `Content` (stable id), their numbers in `Core/Crew/<Name>Tuning.cs` with tests,
-their kit in `Crew/<Name>/` (a `CrewKit`, picked in `CrewKit.For`; moves a partner copies go as a `KitMove`), art in `ArtData`, sounds in `Sfx` / `ChipSounds`, their place in `Crew`, their kit
-screen demos (`KitGuide`), team supers (`TeamSuper`), and their boss tabk if they have one (`BossKit`).
+**Add a hazard** (or scenery that isn't shot): a `SpawnKind`, its character in `Level.Markers` (`ContentTests`) and
+its row in `Spawner`'s scenery table (`SpawnerTests`); its timing and numbers in Core with tests, from
+`World.Elapsed` so every phone agrees without the network (as `BaseHazards`, `Creamery`); then a `Hazard` in its
+mission's folder (Mission one's are in `World/Hazards.cs`) that hurts or freezes only this phone's soldier (goons:
+the authority only) and plays its sounds only on screen; art in its mission's `*Art`, sounds in `Sfx` / `ChipSounds`.
+
+**Add a crew member** (kcaj touched about 55 files):
+- Core: a `SoldierDef` in `Content` (stable id: `ContentTests`), numbers in `Core/Crew/<Name>Tuning.cs` with tests,
+  their place in `Crew` (who frees them), team supers (`TeamSuper`), kit screen moves and demos (`KitGuide`), and
+  `KitMove` ids for moves a partner copies (`NetContracts`, `WireMeter`).
+- Kit in `Crew/<Name>/`: a `CrewKit` (picked in `CrewKit.For`), `<Name>Copy` for a partner's (`KitCopy.For`,
+  `RemotePlayer`), art in `<Name>Art` (registered in `Art`), each combo's show in `TeamActs`.
+- Their tabk: `<Name>TabkSpec` (Core) + `<Name>Tabk` and `<Name>TabkArt`, a card in `Garage`, a `TabkKit`.
+- As a boss: their boss tabk's charged shot (`Core/Bosses/<Name>TankSpec`), their attacks on it (a `BossKit`, row in
+  `BossKits`), a pilot (`Enemies/<Name>Pilot`, `PilotBrain`).
+- Around them: a den station (`Ui/Den/DenRoom`), the cutscenes' cast (`Staging`, `CutsceneCast`), the launch flags
+  and sandbox if they need a way in (`LaunchFlags`, `Sandbox`, `Knobs`), sounds in `Sfx` / `ChipSounds`, and
+  `docs/design/kits.md`.
 
 **Add a spike**: a key in `Spike.cs` (solo only unless it says otherwise), on branch `claude/spike-<name>`. Its
 preview link with `?spike=<key>` is the Try it link.

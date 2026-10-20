@@ -35,7 +35,7 @@ A preview is up about 12 minutes after a push; a main-line push is live in about
 |---|---|---|
 | GameCI `unity-builder@v4` with a custom `buildMethod` | It worked first time with a Personal license, and one editor script controls the whole build | [Workflow](workflow.md#6-the-build-step) |
 | Unity tests beside the build | They run at once, and a failing test stops the deploy, so a broken build never goes up | [EditMode tests](../verification/edit-mode-tests.md) |
-| A code-only Unity project | No hand-authored Unity YAML; scenes, art and sound are generated | [Unity project](unity-project.md#a-code-only-project) |
+| A mostly-code Unity project | No hand-authored Unity YAML; the scene and the game are built from code | [Unity project](unity-project.md#whats-committed) |
 | WebGL compression disabled | Pages can't send `Content-Encoding` for Unity's pre-compressed files, and it gzips responses itself | [GitHub Pages](github-pages.md#compression) |
 | Deploy through a `gh-pages` branch | Lets a feature branch deploy without changing environment protection rules | [GitHub Pages](github-pages.md#deploying) |
 | Photon SDK fetched at build time | Photon's license forbids committing it to this public repo | [SDK in CI](../netcode/sdk-in-ci.md) |
@@ -43,7 +43,7 @@ A preview is up about 12 minutes after a push; a main-line push is live in about
 ## Documents
 
 - [workflow.md](workflow.md): every workflow step and why it's there, plus secrets, caching, concurrency and reading CI logs.
-- [unity-project.md](unity-project.md): the Unity version and image, the code-only project, packages and modules, input handling and `WebGLBuild.cs`.
+- [unity-project.md](unity-project.md): the Unity version and image, what is committed, packages and modules, input handling and `WebGLBuild.cs`.
 - [github-pages.md](github-pages.md): deploying, compression, the WebGL template, and what browsers download.
 
 Source files:

@@ -2,7 +2,7 @@
 
 Fusion's networked properties and RPCs only work once its IL weaver has rewritten the compiled code, and the weaver has rules the C# compiler doesn't check. We run the real weaver, from the SDK, on our compiled assembly without Unity. Its errors then show up in seconds instead of in a CI run.
 
-**Read this when** you've added or changed a `NetworkBehaviour`, an `[Networked]` property, an `INetworkStruct` or an RPC, or upgraded Fusion.
+**Read this when** `check.sh` fails in the weaver step, you've added or changed a `NetworkBehaviour`, an `[Networked]` property, an `INetworkStruct` or an RPC, or upgraded Fusion.
 
 Up: [Verification](README.md)
 
@@ -26,16 +26,11 @@ Up: [Verification](README.md)
 3. Hands it a minimal `ICompiledAssembly` built from the assembly to weave (`.dll` + `.pdb`), its reference list and its defines. That's the netcode's own assembly, `PooketSlug.Net`, by default; `ASSEMBLY=Assembly-CSharp weave.sh …` picks another.
 4. Prints every diagnostic, writes the woven assembly, and exits non-zero on errors.
 
-It runs on the **.NET 6 runtime bundled in the editor image** (`Editor/Data/NetCoreRuntime`). An `AssemblyLoadContext` resolver finds the Fusion, Cecil and Unity DLLs.
+It runs on the **.NET 6 runtime in the Unity kit** (the editor's own `NetCoreRuntime`). An `AssemblyLoadContext` resolver finds the Fusion, Cecil and Unity DLLs.
 
-[`weave.sh`](tools/weave.sh) builds and runs it:
+[`weave.sh`](tools/weave.sh) builds and runs it. [`tools/check.sh`](../../../tools/check.sh) calls it after the compile. To see what the weaver generated, run it by hand with `DUMP="PlayerNet WorldNet"` (see its header comment).
 
-```sh
-python3 -I compile_unity.py --editor-data $D --project . --out $OUT --cecil-dir $CECIL --inputsystem $IS all
-DUMP="PlayerNet WorldNet" weave.sh $D "$PWD" $OUT $CECIL $WORK
-```
-
-Output on 2026-10-14, once the netcode had its own assembly (before that, the same types were woven inside `Assembly-CSharp`):
+Example output with `DUMP` set:
 
 ```text
 Fusion.CodeGen.ILWeaverBindings.WillProcess(PooketSlug.Net) = True

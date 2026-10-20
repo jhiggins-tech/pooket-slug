@@ -35,16 +35,16 @@ Known trade-off: clients trust each other. A modified client could claim hits or
   - Each event is a typed payload: `ShotEvent` (a weapon, origin and velocity), `HitReport`, `PickupGrant`, and damage as a plain number.
   - `INetSession` is used by `Game`: the lobby, state, room code, ping.
   - `IAvatarLink` is a remote soldier. `NetEnemyState` and `NetPickupState` are snapshot entries, and `NetLimits` holds the tables' sizes.
-- **The netcode never sees `World` either:** it talks to `INetEvents`. That keeps the boundary in one place, so the Fusion code can become its own assembly (refactor plan, step 8).
+- **The netcode never sees `World` either:** it talks to `INetEvents`. That keeps the boundary in one place, and it is why the Fusion code is its own assembly.
 - **The Fusion implementation lives in [`Assets/Scripts/Net/`](../../../Assets/Scripts/Net/),** in its own assembly, `PooketSlug.Net`. It references Core and the SDK, and only compiles when `FUSION2` is defined (a define constraint). Nothing references it, so the compiler keeps game code from touching Fusion. It registers itself through `NetSessions.Factory`; without the SDK, the factory stays `null` and the title screen offers solo only.
 - **Inside it, `NetSession` connects and `NetReplication` shares.** `NetSession` joins the one co-op room (to play or to watch), reports failures and owns the runner. `NetReplication` holds the `PlayerNet` and `WorldNet` objects, is the game's `INetLink`, and passes the RPCs' events to `INetEvents`. Reconnects will grow in `NetSession`.
 - **`World` takes an optional `INetLink`.** `null` means solo, and solo behaviour is unchanged.
 
 ## Replicated state
 
-Sizes come from the woven assembly, where Fusion's weaver records them in words of 4 bytes.
+Sizes are in words of 4 bytes, as the weaver recorded them when this was written (14 Oct 2026). The code is the source of truth: the tables below are not re-measured, and the state has grown since (the `Mission` byte, `NetSoldier`).
 
-**`PlayerNet`**: one per player, state authority = its owner, 9 words.
+**`PlayerNet`**: one per player, state authority = its owner.
 
 | Property | Meaning |
 |---|---|
@@ -55,7 +55,7 @@ Sizes come from the woven assembly, where Fusion's weaver records them in words 
 | `NetSoldier` (`byte`) | Which soldier they play, as a `SoldierDef` id. Their partner's game uses it for the soldier's size and health |
 | `NetRound` (`int`) | `World.Round + 1` once playing; 0 = still in the lobby. Lets clients ignore a soldier that hasn't reached the current round |
 
-**`WorldNet`**: one per session, a master-client object, 215 words.
+**`WorldNet`**: one per session, a master-client object.
 
 | Property | Meaning |
 |---|---|
@@ -71,7 +71,7 @@ Sizes come from the woven assembly, where Fusion's weaver records them in words 
 - **An enemy's or pickup's identity comes from [`NetIds`](../../../Assets/Scripts/Core/Platform/NetIds.cs).** A level spawn's id is its index in `Level.Spawns`, which every client knows without a message. Anything spawned mid-game gets the ids after those (`Spawner.SpawnEnemy`, `Spawner.SpawnPickup`), from `NextNetId`, which a new master continues from. The snapshot carries the id, so followers make the enemy or pickup on first sight.
 - **The tables hold what's live, not the whole level.** A slot frees when its enemy is gone or its pickup is given out, so a mission can have any number of each. The sizes are in `NetLimits` (Core). If more are live than fit, the newest wait until older ones are gone. Pickups never despawn, so a [test](../verification/edit-mode-tests.md) checks that all of Mission one's fit at once.
 - **Followers remember what they collected,** so a snapshot that arrives late doesn't bring a pickup back. A pickup that leaves the table before its grant arrives is collected then (the state beat the message).
-- **Bosses and the tanks you ride will be network objects of their own** (refactor plan, step 10). They wait for those features.
+- **The boss is a network object of its own,** `BossNet` (`Assets/Scripts/Net/BossNet.cs`). It carries the boss tabk's state (phase, aim, charge, power, landing) for the followers.
 - **Writes happen from Unity's `Update`, not `FixedUpdateNetwork`.** Shared Mode lets the state authority set networked properties at any time. Fusion's own Shared-Mode sample does the same (`PlayerInteract.Update()` → `[Networked]` writes).
 
 ## RPCs
@@ -79,6 +79,7 @@ Sizes come from the woven assembly, where Fusion's weaver records them in words 
 | RPC | On | Sources → targets | Purpose |
 |---|---|---|---|
 | `RPC_Shot(weapon, origin, vel)` | `PlayerNet` | StateAuthority → Proxies, `InvokeLocal = false` | Replay a soldier's shot elsewhere as a harmless copy (`Cosmetic = true`) |
+| `RPC_Kit(move, at, data)` | `PlayerNet` | StateAuthority → Proxies, `InvokeLocal = false` | A crewmate's move that isn't a shot (a kit move: `KitMove`, crossing as a `KitEvent`), played on the partner's phone by `KitCopy` |
 | `RPC_Hurt(damage)` | `PlayerNet` | All → StateAuthority | The master's melee or contact damage, applied by the owner |
 | `RPC_EnemyShot(weapon, origin, vel)` | `WorldNet` | StateAuthority → Proxies, `InvokeLocal = false` | Replay enemy fire; each client damages only its own soldier |
 | `RPC_Hit(enemyId, damage)` | `WorldNet` | All → StateAuthority | A follower's bullet or grenade hit an enemy |
@@ -86,6 +87,7 @@ Sizes come from the woven assembly, where Fusion's weaver records them in words 
 | `RPC_Granted(id, kind, playerId)` | `WorldNet` | StateAuthority → All | Everyone removes the pickup with its popup; the winner applies its effect, using `kind` if it never saw the pickup |
 | `RPC_RequestRestart()` | `WorldNet` | All → StateAuthority | Restart a won mission (ignored unless `Victory`, so a double press restarts once) |
 
+- **A crewmate's move that isn't a shot crosses as a `KitEvent`** (`RPC_Kit`), which the partner's `KitCopy` plays. Its `KitMove` values are pinned like content ids.
 - **Shots carry a weapon id,** a byte from [`Content`](../../../Assets/Scripts/Core/Content.cs). The receiver makes the weapon's projectile and plays its sound. The ids are pinned by [tests](../verification/edit-mode-tests.md), and an id the receiver doesn't know is ignored.
 
 Fusion rules worth knowing (2.1.3):
@@ -154,4 +156,4 @@ The session delivers its events (shots, hits, pickups, damage) to `NetSync` too.
 - **The new authority's puppets become real enemies.** Their AI timers start fresh.
 - **Spawning resumes** from `max(own cursor, NextSpawn)`, and mid-game ids from `NextNetId`.
 - **Its pickups carry on:** they're the ones it made from the snapshot, so it starts listing them itself.
-- **Tested on every build:** the [CI co-op test](../build-pipeline/workflow.md#the-two-player-co-op-test-job) makes the master leave and checks that the other client takes over. First confirmed on 2026-10-14 (run 38573051144).
+- **Tested on every build:** the [CI co-op test](../build-pipeline/workflow.md#the-two-player-co-op-test-job) makes the master leave and checks that the other client takes over.

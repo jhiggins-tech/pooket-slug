@@ -1,45 +1,39 @@
 # Verification tools
 
-The scripts behind the [verification](../README.md) docs. They're research tools, not part of the build; CI doesn't run them, and pushes to `docs/**` don't trigger a build. Each script's header comment says how to call it.
+The scripts behind the [verification](../README.md) docs. Agents run [`tools/check.sh`](../../../../tools/check.sh) at the repository root, not these. Each script's header comment says how to call it.
 
-**Read this when** you want to run a check yourself.
+**Read this when** you want to know what a script here does, or you're changing one.
 
 Up: [Verification](../README.md)
 
-| File | What it does | Tested |
-|---|---|---|
-| [`extract-unity.sh`](extract-unity.sh) | Streams the GameCI editor image's editor layer from Docker Hub and extracts Unity's Roslyn compiler, the .NET runtime, the reference DLLs, module metadata, and the bundled Input System, Cecil and uGUI packages (~300 MB written; ~7 GB streamed) | 2026-10-14: re-run for uGUI, about 20 minutes through the sandbox's proxy |
-| [`build-ugui.sh`](build-ugui.sh) | Compiles uGUI's runtime sources (not its TextMeshPro half) into `UnityEngine.UI.dll` | 2026-10-14: 88 files, no errors |
-| [`build-inputsystem.sh`](build-inputsystem.sh) | Compiles the Input System package's runtime sources into `Unity.InputSystem.dll`. With `UGUI=<UnityEngine.UI.dll>`, it also builds the UI support, as Unity does once uGUI is in the project | 2026-10-14: 281 files, warnings only, with and without the UI support |
-| [`compile_unity.py`](compile_unity.py) | Compiles the Photon SDK (player and editor), the project's assembly definitions (Core and its tests) and the game's assemblies, as Unity would for WebGL, against only the enabled engine modules. Also writes the PDB, reference list and defines for the weaver. `--input legacy\|new\|both` picks the Active Input Handling to compile for, and `--ugui` adds uGUI | 2026-10-14: SDK OK; Core, tests and game OK, with and without the SDK, for each input backend |
-| [`run_tests.py`](run_tests.py) | Runs the [EditMode tests](../edit-mode-tests.md) outside Unity: builds them against NuGet's NUnit 3.14 with an NUnitLite entry point, and runs them on the editor's .NET runtime | 2026-10-14: 177 of 177; 32 of 32 deliberate bugs caught (11 in the first tests, then 21 in the touch pad, input, profile and missions on the finished refactor) |
-| [`weave.sh`](weave.sh) + [`WeaveHarness.cs`](WeaveHarness.cs) | Runs Fusion's `ILPostProcessor` (the IL weaver) over the game assembly outside Unity, on the editor's own .NET runtime | 2026-10-14: woven, no diagnostics |
-| [`WeaveDump.cs`](WeaveDump.cs) | Prints what the weaver generated for named types: word counts, generated RPC invokers, getter IL. Run via `DUMP="PlayerNet WorldNet" weave.sh …` | 2026-10-14 |
-| [`smoke.mjs`](smoke.mjs) | Playwright: loads a deployed build, plays a few seconds with scripted input, saves screenshots and console logs | Used against every deploy |
-| [`touch.mjs`](../../../../tools/touch.mjs) (in `tools/`) | Playwright: plays a build on an emulated phone held sideways, with two thumbs (the stick and FIRE) sent through Chromium's DevTools protocol, then pauses with II. Fails on a page error or a START that does not get the mission going. Saves screenshots, the console log and `result.json` | Runs in CI on every build, before it deploys |
-| [`coop.mjs`](../../../../tools/coop.mjs) (in `tools/`) | Playwright: two separate Chromium instances, where A hosts, B joins by invite link, both play, then A leaves and B should take over. Exits non-zero if a check fails | Runs in CI on every build ([the job](../../build-pipeline/workflow.md#the-two-player-co-op-test-job)) |
-| [`fetch-docs.mjs`](fetch-docs.mjs) | Playwright: renders documentation pages behind a JavaScript bot challenge (Photon's docs site) and saves their text and links | Used for the Photon research |
-| [`auth-page.mjs`](auth-page.mjs) | Playwright: the page's sign-in and cloud saves (`pooket-auth.js`) against the database emulator with Cardmaster's rules, with a stand-in for the game and fake Google and Auth servers. Two devices, a refused save, reloads, signing out, and a second tab | 2026-10-15: 24 of 24 (the game hiding and showing the button); 2026-10-14: 3 of 3 deliberate breakages caught |
-| [`rules-test.sh`](rules-test.sh) | Runs Cardmaster's database rules tests, including this game's `pooketSlug` section, against the database emulator's JAR started directly. That works around the Firebase CLI ignoring `NO_PROXY` ([why](../../accounts/database-rules.md#running-the-tests-in-the-cloud-sandbox)) | 2026-10-14: 30 of 30 with the full record and the friends board, and 32 of 32 rule weakenings caught |
+## Called by `tools/check.sh`
 
-A full local check, assuming a scratch directory `W`:
+| File | What it does |
+|---|---|
+| [`compile_unity.py`](compile_unity.py) | Compiles the Photon SDK, the project's assembly definitions (Core and its tests) and the game's assemblies as Unity would for WebGL, against only the enabled engine modules. Writes the PDB, reference list and defines the weaver needs ([type-check.md](../type-check.md)) |
+| [`weave.sh`](weave.sh) + [`WeaveHarness.cs`](WeaveHarness.cs) | Runs Fusion's `ILPostProcessor` over the netcode assembly outside Unity ([fusion-weaver.md](../fusion-weaver.md)) |
+| [`WeaveDump.cs`](WeaveDump.cs) | Prints what the weaver generated for named types. Run via `DUMP="PlayerNet WorldNet" weave.sh ...` |
+| [`run_tests.py`](run_tests.py) | Runs the [EditMode tests](../edit-mode-tests.md) outside Unity with NUnitLite on the kit's .NET runtime |
 
-```sh
-T=docs/research/verification/tools
-$T/extract-unity.sh ubuntu-6000.3.26f1-webgl-3 $W/unity            # once; ~7 GB streamed
-D=$W/unity/opt/unity/Editor/Data
-tar -xzf $D/Resources/PackageManager/Editor/com.unity.nuget.mono-cecil-*.tgz -C $W   # → $W/package/Mono.Cecil*.dll
-$T/build-ugui.sh $D $W/ugui
-UGUI=$W/ugui/UnityEngine.UI.dll $T/build-inputsystem.sh $D $W/is
-python3 -I tools/unpack_unitypackage.py <Photon-Fusion-….unitypackage> .   # the SDK, if not already unpacked
-python3 -I $T/compile_unity.py --editor-data $D --project . --out $W/out \
-        --cecil-dir $W/package --inputsystem $W/is/Unity.InputSystem.dll --ugui $W/ugui/UnityEngine.UI.dll \
-        --nunit $W/ext-nunit/package/net40/unity-custom/nunit.framework.dll all
-DUMP="PlayerNet WorldNet" $T/weave.sh $D "$PWD" $W/out $W/package $W/weave
-python3 -I $T/run_tests.py --editor-data $D --project . --core $W/out/game/PooketSlug.Core.dll \
-        --nunit $W/nunit/lib/netstandard2.0 --nunitlite $W/nunitlite/lib/netstandard2.0 --out $W/tests
-```
+## Called by the vendor repository's Unity kit workflow
 
-The two NUnit builds come from Unity's package registry and NuGet ([where](../edit-mode-tests.md#locally)).
+These make the kit that `check.sh` downloads. Agents never run them: the first one streams a 7 GB editor image.
 
-Playwright needs Chromium. In the cloud sandbox it's preinstalled: set `PW_PATH=$(npm root -g)/playwright` and don't run `playwright install`. Elsewhere, run `npm i playwright && npx playwright install chromium`.
+| File | What it does |
+|---|---|
+| [`extract-unity.sh`](extract-unity.sh) | Streams the GameCI editor image's editor layer from Docker Hub and keeps Unity's compiler, reference DLLs and bundled packages |
+| [`build-ugui.sh`](build-ugui.sh) | Compiles uGUI's runtime sources into `UnityEngine.UI.dll` |
+| [`build-inputsystem.sh`](build-inputsystem.sh) | Compiles the Input System package's runtime sources into `Unity.InputSystem.dll` |
+
+## The odd ones
+
+| File | What it does |
+|---|---|
+| [`smoke.mjs`](smoke.mjs) | Playwright: loads a deployed build, plays a few seconds with scripted input, saves screenshots |
+| [`auth-page.mjs`](auth-page.mjs) | Playwright: the page's sign-in and cloud saves (`pooket-auth.js`) against the database emulator, with fake Google and Auth servers |
+| [`fetch-docs.mjs`](fetch-docs.mjs) | Playwright: renders documentation pages behind a JavaScript bot challenge (Photon's docs) and saves their text |
+| [`rules-test.sh`](rules-test.sh) | Runs Cardmaster's database rules tests, which cover this game's `pooketSlug` section, against the emulator ([why](../../accounts/database-rules.md#running-the-tests-in-the-cloud-sandbox)) |
+
+The browser tests that CI runs, [`touch.mjs`](../../../../tools/touch.mjs), [`coop.mjs`](../../../../tools/coop.mjs) and [`demos.mjs`](../../../../tools/demos.mjs), live in `tools/` ([browser-tests.md](../browser-tests.md)).
+
+Playwright needs Chromium. In the cloud sandbox it's preinstalled: set `PW_PATH=$(npm root -g)/playwright` and don't run `playwright install`.

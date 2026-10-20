@@ -11,9 +11,7 @@ Up: [Build pipeline](README.md)
 - **The workflow deploys into the `gh-pages` branch** with `tools/pages_deploy.sh`: the main line, `claude/gallant-keller-3qzp97`, into the root, and any other branch into `previews/<branch without claude/>/`, leaving the rest of the site as it was. gh-pages stays one commit with no history, pushed with a lease so builds of different branches can land at once.
 - **One-time setting:** Settings → Pages → Build and deployment → Source: **Deploy from a branch** → `gh-pages` / `(root)`.
 - **Why a branch and not `actions/deploy-pages`:** the official route deploys through the `github-pages` environment, which by default only accepts the default branch. The branch route let a `claude/**` feature branch deploy with no environment changes.
-- **Timing:**
-  - The first publish after switching the Pages source took a couple of minutes, and the site returned 404 until then.
-  - After that, GitHub's own "pages build and deployment" job takes about 20 s per deploy.
+- **Timing:** GitHub's own "pages build and deployment" job takes about 20 s per deploy. After the Pages source is first switched, the site returns 404 for a couple of minutes.
 
 ## Compression
 
@@ -46,4 +44,4 @@ Template notes:
 ## Gotchas
 
 - **The deploy step needs `permissions: contents: write`.**
-- **Browsers pause hidden tabs.** Unity WebGL runs on `requestAnimationFrame`, so a backgrounded tab stops the game, and in co-op it stops servicing the connection. See [sessions](../netcode/sessions.md#hidden-tabs).
+- **Browsers pause hidden tabs.** Unity WebGL runs on `requestAnimationFrame`, so a backgrounded tab stops the game, and in co-op it stops servicing the connection. See [sessions](../netcode/sessions.md#build-versions-and-hidden-tabs).

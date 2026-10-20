@@ -1,12 +1,12 @@
 # Google Cloud / Firebase setup for sign-in
 
-The one-time console steps for the [sign-in spike](README.md). **Plan, as of 2026-10-14:** reuse the Firebase project of the owner's game Cardmaster, which already has Google sign-in and a Realtime Database. Players see "Cardmaster" on Google's consent screen. The owner accepted that, since this game is for friends. A separate project is documented [below](#alternative-a-separate-project) in case that changes. Console labels are as of October 2026, so they may drift.
+The one-time console steps for [sign-in](README.md), done on 2026-10-14. The setup is to reuse the Firebase project of the owner's game Cardmaster, which already has Google sign-in and a Realtime Database. Players see "Cardmaster" on Google's consent screen. The owner accepted that, since this game is for friends. Console labels are as of October 2026, so they may drift.
 
 **Read this when** you're setting up, or checking, the Firebase side of sign-in.
 
 Up: [Accounts](README.md)
 
-## Plan: reuse the Cardmaster project
+## The setup: reuse the Cardmaster project
 
 All four steps are in the **Cardmaster** Firebase and Google Cloud project. Steps 1–3 each *add* this game's origin, and don't affect Cardmaster itself. Step 4 is a check: the publishing status and test users apply to both games.
 
@@ -30,7 +30,7 @@ These are public identifiers: they're already in Cardmaster's shipped web bundle
 | `FIREBASE_API_KEY` | `FIREBASE.apiKey` | Signing in to Firebase and token refresh |
 | `FIREBASE_DB_URL` | `FIREBASE.databaseURL` | Saving and loading progress |
 
-The workflow will pass each one as its own `customParameters` flag. They're kept separate because GameCI splits `customParameters` on spaces, which would break a JSON blob.
+The workflow passes each one as its own `customParameters` flag. They're kept separate because GameCI splits `customParameters` on spaces, which would break a JSON blob.
 
 ## Trade-offs of sharing
 
@@ -40,18 +40,4 @@ The workflow will pass each one as its own `customParameters` flag. They're kept
 - **Shared blast radius.** A mistake in either game's rules could affect the other game's data. Keep the data namespaced under `pooketSlug/` and covered by the rules tests.
 - **Branding:** Google's consent screen and account chooser name Cardmaster.
 
-## Alternative: a separate project
-
-If this game ever needs its own name on the consent screen or its own quotas:
-
-1. **Firebase console → Create a project** (for example `pooket-slug`). Use the Spark plan, with Analytics off.
-2. **Project settings → Your apps → Add app → Web** (skip Hosting). Note the `apiKey`.
-3. **Authentication → Sign-in method → Google → Enable.** Set the public name and a support email, and copy the Web client ID.
-4. **Authentication → Settings → Authorized domains:** add `jhiggins-tech.github.io`.
-5. **Realtime Database → Create database**, in **Locked mode** and a region near players. Copy the URL.
-6. **Realtime Database → Rules:** publish this game's rules. Or deploy them from CI with a `FIREBASE_SERVICE_ACCOUNT` secret.
-7. **Google Auth Platform → Clients → "Web client (auto created by Google Service)" → Authorized JavaScript origins:** add `https://jhiggins-tech.github.io`.
-8. **Google Auth Platform:** set Branding to the app name. Audience: External, left in Testing, with each player added as a test user. Add no scopes.
-9. **Credentials → "Browser key (auto created by Firebase)":** restrict it to `https://jhiggins-tech.github.io/*`, and to the Identity Toolkit and Token Service APIs.
-
-Then hand back the same three variables, from the new project.
+A separate Firebase project was the other option. The owner chose to share Cardmaster's; the steps for a separate one are in [history](../history/accounts-decisions.md#alternative-a-separate-firebase-project).

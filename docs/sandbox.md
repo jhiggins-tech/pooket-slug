@@ -25,11 +25,11 @@ One per line, `keyword what-follows` (the keyword ends at a space, `:` or `=`). 
 
 | Line | What it does |
 |---|---|
-| `soldier kie` | Who plays: `tones2` (the default) or `kie`. |
-| `ground ..P...s...T` | One row of markers on flat ground, sky above (like the kit demos). Markers are `Level.cs`'s: `P` start, `s` rifleman, `r` knife runner, `d` drone, `T` the boss tabk, `H` heavy machine gun crate, `B` bomb crate, `+` medkit, `U` 1-up, `x` barrel, `=` sandbags, `-` bridge, `Z` live fence, `V` steam vent, `L` lift, `K` checkpoint. |
+| `soldier kie` | Who plays: any crewmate by name (`tones2`, the default, `kie`, `kcaj`). |
+| `ground ..P...s...T` | One row of markers on flat ground, sky above (like the kit demos). Markers are the maps' own: `P` start, `=` sandbags, `-` bridge, and every spawn in `Level.Markers` (its header comment says what each is). |
 | `air ......d.....` | With `ground`: a row higher up, for drones. |
 | `map <row>` | A whole map instead, one row per line, top first, `#` for ground (files only). |
-| `mission 1` | Mission one's own map. |
+| `mission 2` | A mission's own map, by its number or id. |
 | `at boss` | Start a screen short of the boss tabk. Also `at coda` (Mission one's coda, its gate open) or `at 120` (a column). |
 | `boss kcaj` | The boss tabk is kcaj's. `boss pilot` skips to the pilot round; `boss weak-pilot` too, with a pilot who goes down quickly. |
 | `cheat invincible super specials tank` | Any of: nothing hurts; the super stays charged; the special stays full; a tabk to call in, as often as you like. |
