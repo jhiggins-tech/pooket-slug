@@ -53,13 +53,13 @@ needs them.
 
 The second reveal: your tabk, called in and driven ([reveals](#reveals-are-story-beats)). Mission one's last stretch, straight after [freeing kie](cutscenes.md#freeing-kie): a short mini-level after the boss, still part of Mission one, played every time the mission is (owner, 2026-10-16). Draft. Short, action-packed and loud: lots of goons, lots of explosions, and a tabk to do it with.
 
-**The setup** (a beat, no scene): the base's alarms are going, the motor pool's back gate grinds open, and goons pour in. kie stays behind, asleep against the wall. The first time, a prompt blinks: **HOLD DOWN + SP TO CALL YOUR TABK** ([calling in a tabk](tanks.md#calling-in-a-tabk)), shown until you call it. The call charges, and the cargo drone drops tones2's tabk beside him, full of fuel. Climb in.
+**The setup** (a beat, no scene): the base's alarms are going, the motor pool's back gate grinds open, and goons pour in. kie stays behind, asleep against the wall. The first time, a prompt blinks: **HOLD DOWN + SP TO CALL YOUR TABK** ([calling in a tabk](tabks/driving.md#calling-in-a-tabk)), shown until you call it. The call charges, and the cargo drone drops tones2's tabk beside him, full of fuel. Climb in.
 
 **The run** (about a minute, playable): out of the back of the motor pool, along the base's service road and through the last gate onto the road outside. It's a gauntlet built for the tabk: goons in waves, drones overhead, sandbag nests, fuel drums and barrels that go up in chains, a watchtower that topples when you shoot its legs, and squashable goons all the way (the payoff for spending fuel). The first time, prompts teach the tabk one at a time, each shown only until you've done it once:
 1. **"DRIVE"** with the stick (or arrows), shown until you've moved.
 2. **"AIM"**: a few goons on a gantry above; the gun points the same eight ways you aim on foot.
-3. **"FIRE"**: the watchtower standing in the road; shoot it down. The tabk's rounds counter appears for the first time (5 main shots, 3 specials, 1 super), with a note that rounds never refill ([driving a tabk](tanks.md#driving-a-tabk)).
-4. **"SP"**: a wall of goons behind a sandbag nest blocks the road; the mud jump hops the tabk over it, leaving the goons behind it in the mud ([tones2's tabk](tanks.md#tones2s-tabk)).
+3. **"FIRE"**: the watchtower standing in the road; shoot it down. The tabk's rounds counter appears for the first time (5 main shots, 3 specials, 1 super), with a note that rounds never refill ([driving a tabk](tabks/driving.md#driving-a-tabk)).
+4. **"SP"**: a wall of goons behind a sandbag nest blocks the road; the mud jump hops the tabk over it, leaving the goons behind it in the mud ([tones2's tabk](tabks/tones2.md)).
 5. **The gate:** you smash through it and out onto the road, the snow, the searchlights and a few last explosions behind you. The gate wins the mission: the announcer calls "Mission complete!", and the debrief's MISSION COMPLETE! banner follows. There's no caption card here (owner, 2026-10-16).
 
 **Tuned to the tabk:** a full tank of fuel gets you through, and the run is beatable on foot if the tabk is wrecked, just harder. Lose your last life in the coda and the continue restarts you at its start, not at the boss.

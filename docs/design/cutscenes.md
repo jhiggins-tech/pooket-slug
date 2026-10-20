@@ -450,7 +450,7 @@ mission's version names its own (kie's below, [kcaj's](#kcajs-tabk-arrives) in M
   [kcaj's tabk arrives](#kcajs-tabk-arrives) (owner, 2026-10-19). The boss intro after a reveal skips the roll-out.
 - **In co-op,** the world's authority starts it and both players see it together. Nobody taps, so neither waits.
 - **When it ends:** wrecking the tabk plays a short victory sting over the boss music, which runs on through
-  [the pilot round](tanks.md#the-pilot-round) and stops when the pilot glitches out.
+  [the pilot round](tabks/bosses.md#the-pilot-round) and stops when the pilot glitches out.
 - **The music** (picked 2026-10-15): the mission's looping track through the run, and a faster, minor-key boss track
   for the fight, both made in code with the chip synth ([music](music.md); when it changes is `Core/Audio/Soundtrack`).
 
@@ -497,14 +497,14 @@ lines are in the vendor repository's `voice/lines.json`.
 
 ### Freeing kie
 
-The freeing scene, after Trollogram kie is beaten on foot ([the pilot round](tanks.md#the-pilot-round)). kie frees
+The freeing scene, after Trollogram kie is beaten on foot ([the pilot round](tabks/bosses.md#the-pilot-round)). kie frees
 tones2's own tabk, then bows out (owner, 2026-10-16): he's spent, and sits out the rest of Mission one, so tones2
 finishes it alone, with his tabk. About 28 seconds: the glitch-out's 3 seconds in the game, then about 25 of scene.
 It can be skipped once seen, on a replay. Intro: kie, as he drops. Scene file: `scenes/freeing-kie.txt` (shots 2 to
 5; shot 1 is the game's).
 
 **How the release is done** (owner, 2026-10-16): the cargo drone hauls the tabk out, and kie hands over its remote.
-It's what makes every call-in drop from the sky ([calling in a tabk](tanks.md#calling-in-a-tabk)). Then straight into
+It's what makes every call-in drop from the sky ([calling in a tabk](tabks/driving.md#calling-in-a-tabk)). Then straight into
 [the coda](story.md#the-coda), every time.
 
 ```text
@@ -962,7 +962,7 @@ shot. On a later fight the tabk rolls out of the fog in play first, as it used t
 
 ### Freeing kcaj
 
-After Trollogram kcaj is beaten on foot ([the pilot round](tanks.md#the-pilot-round)), like
+After Trollogram kcaj is beaten on foot ([the pilot round](tabks/bosses.md#the-pilot-round)), like
 [freeing kie](#freeing-kie). About 15 seconds, five shots; it can be skipped once seen. Intro: kcaj, shot 2.
 **Afterwards:** the next time the den loads, kcaj [moves in](#a-crewmate-moves-in) to his nook on the upper floor and his corner lights
 up.

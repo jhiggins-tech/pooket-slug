@@ -32,7 +32,7 @@ Up: [Design](README.md)
 - **Phones come first,** with an arcade pad:
   - **Left thumb:** a stick to run, aim up, and crouch (or aim down while in the air).
   - **Right thumb:** FIRE (hold to keep firing), JUMP, special (SP), super (SU), and an ability (AB) for the soldiers who have one.
-  - **Once you've won a tabk,** holding the stick down and holding SP calls it in ([tabks](tanks.md#calling-in-a-tabk)).
+  - **Once you've won a tabk,** holding the stick down and holding SP calls it in ([tabks](tabks/driving.md#calling-in-a-tabk)).
 - **A keyboard works too.** Gamepads are a Could.
 - **Moving:** run, jump (hold for higher), crouch, and drop through thin floors. Getting hit knocks you back a little.
 - **Aiming:** up, down while in the air, and diagonals.
