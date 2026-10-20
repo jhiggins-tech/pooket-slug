@@ -56,8 +56,47 @@ namespace PooketSlug
         /// </summary>
         public int CallIns => Coda ? 0 : 1;
 
+        /// <summary>
+        /// Whether the boss reveal plays as the boss wakes in <paramref name="run"/>: once ever, solo, the first time
+        /// (<paramref name="firstWake"/>, and <paramref name="due"/>: not yet seen; co-op opens only once Mission one's
+        /// beaten, so its motor pool has been seen by then); with <see cref="BossRevealCoop"/>, at the first boss wake of
+        /// every co-op run instead, the same on both phones whatever their saves say. A test start skips it, unless it's
+        /// <c>?test=reveal</c>; a sandbox always does.
+        /// </summary>
+        public bool PlaysBossReveal(StoryRun run, bool firstWake, bool due)
+        {
+            if (run.Sandbox || BossReveal == null) return false;
+            if (run.TestReveal) return true;
+            if (run.Testing) return false;
+            if (run.Coop) return BossRevealCoop;
+            return firstWake && due;
+        }
+
+        /// <summary>
+        /// Whether freeing the boss's pilot plays <see cref="PilotFreed"/> (then the coda, or the win): solo, or in co-op
+        /// where <see cref="PilotFreedCoop"/> says so; never in a sandbox. Otherwise the mission's won at once.
+        /// </summary>
+        public bool PlaysPilotFreed(StoryRun run) => PilotFreed != null && !run.Sandbox && PilotGlitches(run.Coop);
+
+        /// <summary>The boss's pilot glitches out when beaten (and is freed), rather than going the goons' way: solo, or in co-op with <see cref="PilotFreedCoop"/>.</summary>
+        public bool PilotGlitches(bool coop) => !coop || PilotFreedCoop;
+
         /// <summary>A mission with no story: no scenes, no coda, open to co-op.</summary>
         public static readonly MissionStory None = new MissionStory();
+    }
+
+    /// <summary>How a mission's being played, as its story's rules need to know: in co-op, a sandbox, a test start (<c>?test=</c>), or <c>?test=reveal</c>.</summary>
+    public readonly struct StoryRun
+    {
+        public readonly bool Coop, Sandbox, Testing, TestReveal;
+
+        public StoryRun(bool coop, bool sandbox = false, bool testing = false, bool testReveal = false)
+        {
+            Coop = coop;
+            Sandbox = sandbox;
+            Testing = testing;
+            TestReveal = testReveal;
+        }
     }
 
     /// <summary>

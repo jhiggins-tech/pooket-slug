@@ -256,7 +256,7 @@ namespace PooketSlug
         /// The big glitch-out, then the freeing scene: solo, or on both phones in co-op where the mission's story says
         /// so (Mission two's). Otherwise a co-op pilot goes the goons' way and wins the mission.
         /// </summary>
-        bool Glitches => !World.Coop || World.Mission.Story.PilotFreedCoop;
+        bool Glitches => World.Mission.Story.PilotGlitches(World.Coop);
 
         /// <summary>Glitched out: the real crewmate is freed (the freeing scene), or the mission's won.</summary>
         public override void Destroy()

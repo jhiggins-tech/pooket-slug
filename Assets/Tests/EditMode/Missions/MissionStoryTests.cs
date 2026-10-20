@@ -81,5 +81,34 @@ namespace PooketSlug.Tests
             veteran.RecordRun(Missions.One, Setting.Normal, 100, won: true, solo: true);
             Assert.IsTrue(StoryRecord.ShowsSuper(veteran), "a save past Mission one has seen it");
         }
+
+        [Test]
+        public void TheBossRevealPlaysOnceSolo_EveryCoopRunWhereTheStorySays_AndTestsSkipIt()
+        {
+            MissionStory one = Missions.One.Story, two = Missions.Two.Story;
+            var solo = new StoryRun(coop: false);
+            Assert.IsTrue(one.PlaysBossReveal(solo, firstWake: true, due: true));
+            Assert.IsFalse(one.PlaysBossReveal(solo, firstWake: true, due: false), "seen once already");
+            Assert.IsFalse(one.PlaysBossReveal(solo, firstWake: false, due: true), "a retry at the boss");
+            Assert.IsFalse(one.PlaysBossReveal(new StoryRun(coop: true), true, true), "Mission one's isn't for co-op");
+            Assert.IsTrue(two.PlaysBossReveal(new StoryRun(coop: true), firstWake: false, due: false), "Mission two's plays in every co-op run, whatever the saves say");
+            Assert.IsFalse(one.PlaysBossReveal(new StoryRun(false, testing: true), true, true), "a test start skips it");
+            Assert.IsTrue(one.PlaysBossReveal(new StoryRun(false, testing: true, testReveal: true), false, false), "?test=reveal plays it");
+            Assert.IsFalse(two.PlaysBossReveal(new StoryRun(true, sandbox: true, testReveal: true), true, true), "never in a sandbox");
+            Assert.IsFalse(MissionStory.None.PlaysBossReveal(solo, true, true), "no reveal, nothing to play");
+        }
+
+        [Test]
+        public void FreeingThePilotPlaysItsScene_SoloOrWhereTheStorySaysInCoop_NeverInASandbox()
+        {
+            MissionStory one = Missions.One.Story, two = Missions.Two.Story;
+            Assert.IsTrue(one.PlaysPilotFreed(new StoryRun(coop: false)));
+            Assert.IsFalse(one.PlaysPilotFreed(new StoryRun(coop: true)), "Mission one's pilot goes the goons' way in co-op");
+            Assert.IsFalse(one.PilotGlitches(coop: true));
+            Assert.IsTrue(two.PlaysPilotFreed(new StoryRun(coop: true)), "freeing kcaj plays on both phones");
+            Assert.IsTrue(two.PilotGlitches(coop: true));
+            Assert.IsFalse(two.PlaysPilotFreed(new StoryRun(false, sandbox: true)), "a sandbox skips it");
+            Assert.IsFalse(MissionStory.None.PlaysPilotFreed(new StoryRun(false)), "no scene: won at once");
+        }
     }
 }

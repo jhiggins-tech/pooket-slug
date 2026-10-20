@@ -421,21 +421,15 @@ namespace PooketSlug
             m_SuperPrompt = SuperPromptTime;
         }
 
-        /// <summary>
-        /// The mission's boss reveal plays once, ever, solo: the first time the boss wakes (co-op opens only once Mission
-        /// one's beaten, so its motor pool has been seen by then). One that plays in co-op too (Mission two's) plays at
-        /// the first boss wake of each co-op run instead, the same on both phones whatever their saves say. Test starts
-        /// skip it, unless ?test=reveal.
-        /// </summary>
+        /// <summary>The mission's boss reveal plays as its boss wakes (<see cref="MissionStory.PlaysBossReveal"/>), once per world.</summary>
         bool PlaysBossReveal(bool firstTime)
         {
             MissionStory story = Mission.Story;
-            if (Sandbox.Active || story.BossReveal == null || m_BossRevealed == m_World) return false;
-            if (m_Flags.Reveal) return true;
-            if (m_Flags.Testing) return false;
-            if (m_Coop) return story.BossRevealCoop;
-            return firstTime && Story.Due(story.BossReveal);
+            return m_BossRevealed != m_World && story.PlaysBossReveal(Run, firstTime, story.BossReveal != null && Story.Due(story.BossReveal));
         }
+
+        /// <summary>How this mission's being played, for its story's rules.</summary>
+        StoryRun Run => new StoryRun(m_Coop, Sandbox.Active, m_Flags.Testing, m_Flags.Reveal);
 
         /// <summary>The world whose boss reveal has played, so its boss waking again doesn't play it twice.</summary>
         World m_BossRevealed;
@@ -447,7 +441,7 @@ namespace PooketSlug
         void OnPilotFreed()
         {
             MissionStory story = Mission.Story;
-            if ((m_Coop && !story.PilotFreedCoop) || Sandbox.Active || story.PilotFreed == null) // a sandbox skips the scene too
+            if (!story.PlaysPilotFreed(Run))
             {
                 m_World.OnBossDestroyed();
                 return;
