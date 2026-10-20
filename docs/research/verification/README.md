@@ -30,7 +30,7 @@ A full run takes about 30 seconds once the kit is cached. The first run download
 | Unity's import itself: `.meta` files, serialisation, IL2CPP and stripping, the jslib bridge | Only Unity does the import | The build |
 | The WebGL build | Needs the editor | The build |
 | Touch play (`tools/touch.mjs`) | Needs the build | The build workflow |
-| Kit demos (`tools/demos.mjs`) | Needs the build | The build workflow |
+| Kit demos (`tools/demos.mjs`) | Needs the build | The main line's builds; a preview's only with a `CI: demos` commit line |
 | Co-op tests (`tools/coop.mjs`: code, boss, scene, dropin, handover, watch, debrief) | Needs Photon's WebSockets, which cloud sessions can't open | The build workflow, one job per scenario |
 
 A preview is up about 12 minutes after a push, and the live game about 18 to 20. Read the run and fix it if red ([workflow](../build-pipeline/workflow.md)).

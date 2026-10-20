@@ -4,8 +4,9 @@ name: WebGL build → GitHub Pages
 # - the main line, claude/gallant-keller-3qzp97, runs every check and deploys the game to the root only once the
 #   co-op tests have passed (the live game never gets a build they failed);
 # - every other branch deploys a preview to previews/<branch without claude/>/ (its item's Try it link) straight after
-#   the build. The co-op tests run only when the branch changes the netcode, the kit demos only when it changes the
-#   crew (what counts: the plan job), or when a commit message asks with a line "CI: co-op" or "CI: demos". Spike
+#   the build. The co-op tests run only when the branch changes the netcode (what counts: the plan job), and the kit
+#   demos are recorded only on the main line (a preview's kit screen plays the live game's clips), unless a commit
+#   message asks with a line "CI: co-op" or "CI: demos". Spike
 #   branches (claude/spike-<name>) skip both;
 # - a branch whose commit the main line already has builds nothing (a mirror of the main line, or a merged branch);
 # - a deleted or merged branch's preview goes at the next deploy (tools/pages_deploy.sh); a deleted one's goes at once
@@ -75,8 +76,8 @@ jobs:
             changes() { grep -qE "^(\?|.github/workflows/webgl-pages.yml|$1)" <<<"$files"; }
             changes 'Assets/Scripts/Net/|Assets/Scripts/World/NetSync.cs|Assets/Scripts/Core/Platform/NetContracts.cs|tools/coop.mjs' ||
               grep -qix 'CI: co-op' <<<"$MESSAGE" || coop=false
-            changes 'Assets/Scripts/Crew/|Assets/Scripts/Core/Crew/KitGuide.cs|Assets/Plugins/WebGL/PooketDemo.jslib|tools/demos.mjs' ||
-              grep -qix 'CI: demos' <<<"$MESSAGE" || demos=false
+            # The demos take minutes and most previews don't need their own: only on request (demos-main-only, 20 Oct).
+            grep -qix 'CI: demos' <<<"$MESSAGE" || demos=false
             if [ $light = true ]; then coop=false; demos=false; fi
             if [ "$status" = identical ] || [ "$status" = behind ]; then
               build=false
@@ -360,7 +361,7 @@ jobs:
   build-and-deploy:
     name: Build WebGL with GameCI and deploy
     needs: [plan, scenes, tests, build, touch, demos]
-    # the demos may be skipped (the crew didn't change) and never stop a deploy
+    # the demos may be skipped (a preview that didn't ask for them) and never stop a deploy
     if: >-
       always() && needs.plan.outputs.build == 'true' && needs.scenes.result == 'success' &&
       needs.tests.result == 'success' && needs.build.result == 'success' && needs.touch.result == 'success'
@@ -390,13 +391,19 @@ jobs:
           name: kit-demos
           path: demos
 
+      # A build without its own clips (a preview that didn't ask for them) borrows the live game's, so its kit screen
+      # isn't empty; a move the live game hasn't got says there's no demo yet.
       - name: Add the demos
         run: |
+          mkdir -p site/demos
           if ls demos/*.mp4 >/dev/null 2>&1; then
-            mkdir -p site/demos
             cp demos/*.mp4 site/demos/
-            ls -l site/demos
+          elif git config --unset remote.origin.partialclonefilter; git fetch --no-tags --depth=1 origin gh-pages &&
+            git cat-file -e FETCH_HEAD:demos 2>/dev/null; then
+            git archive FETCH_HEAD demos | tar -x -C site
+            echo "No clips recorded for this build: the live game's are in."
           fi
+          ls -l site/demos
 
       # The sandbox's setups (sandbox-files.yml puts them up between builds), so a deploy keeps them.
       - name: Add the sandbox's setups
@@ -474,7 +481,8 @@ jobs:
   coop-test:
     name: Co-op test (${{ matrix.mode }})
     needs: [plan, build-and-deploy]
-    if: needs.plan.outputs.coop == 'true'
+    # always(): a job skipped further back (the demos, on most previews) would otherwise skip this one too
+    if: always() && needs.plan.outputs.coop == 'true' && needs.build-and-deploy.result == 'success'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     strategy:
@@ -626,7 +634,9 @@ jobs:
   deploy-live:
     name: Deploy the live game
     needs: [plan, build-and-deploy, coop-test]
-    if: needs.plan.outputs.slug == '' && needs.build-and-deploy.result == 'success' && needs.coop-test.result == 'success'
+    if: >-
+      always() && needs.plan.result == 'success' && needs.plan.outputs.slug == '' &&
+      needs.build-and-deploy.result == 'success' && needs.coop-test.result == 'success'
     runs-on: ubuntu-24.04
     permissions:
       contents: write # pushes the build to the gh-pages branch

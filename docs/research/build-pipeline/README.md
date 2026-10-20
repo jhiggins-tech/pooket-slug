@@ -16,7 +16,7 @@ GitHub Actions: .github/workflows/webgl-pages.yml   (jobs on ubuntu-24.04)
          └─ build                    game-ci/unity-builder@v4.8.2, image unityci/editor:ubuntu-6000.3.26f1-webgl-3
               │                        └─ Unity -executeMethod PooketSlug.EditorTools.WebGLBuild.Build
               ├─ touch               touch play on an emulated phone
-              └─ demos               the kit screen's clips (only when the crew changes)
+              └─ demos               the kit screen's clips (main line only, or "CI: demos")
    build-and-deploy                  once scenes, tests, build and touch pass: the build + demos, sandbox and scenes
                                      as PooketSlug-WebGL; a preview deploys to previews/<branch>/ now
    coop-test (7 scenarios, 3 at once) then, on the main line, deploy-live to the site root
