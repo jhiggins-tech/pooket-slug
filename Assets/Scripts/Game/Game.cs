@@ -175,7 +175,7 @@ namespace PooketSlug
         World NewWorld(MissionDef mission, INetLink net = null)
         {
             if (Sandbox.Active) return Sandbox.MakeWorld(m_Camera);
-            var world = new World(m_Camera, mission, net, Soldier) { TanksToCall = m_Flags.UnlockTank || m_Flags.Tank ? 1 : 0, SkipToPilot = m_Flags.Pilot, WeakPilot = m_Flags.WeakPilot, TestTeam = m_Flags.Team,
+            var world = new World(m_Camera, mission, net, Soldier) { TanksToCall = m_Flags.UnlockTank || m_Flags.Tank ? 1 : mission.Story.CallIns, SkipToPilot = m_Flags.Pilot, WeakPilot = m_Flags.WeakPilot, TestTeam = m_Flags.Team,
                 KcajTank = m_Flags.KcajTank || mission.Boss == BossTabk.Kcaj,
                 Tabk = TabkKit.Dropped(m_Flags.KieTabk ? TabkCards.Kie : m_Flags.SoftServe ? TabkCards.Kcaj : LoadedTabk) };
             // a replay meets the boss a second time: the quick intro (?test=reveal plays the first meeting whatever's saved)

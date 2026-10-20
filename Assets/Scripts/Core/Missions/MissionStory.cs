@@ -49,6 +49,13 @@ namespace PooketSlug
         /// <summary>What the den calls it when a co-op room plays it anyway (a test), or null for its own name.</summary>
         public string CoopName;
 
+        /// <summary>
+        /// Tabk call-ins it starts with (<c>docs/design/tanks.md</c>, Calling in a tabk): one, for the tabk loaded in the
+        /// bay, in every mission after Mission one's coda; none in a mission with a coda, which gives the first call-in
+        /// there, once its tabk's been freed. Each player has their own, so co-op phones start alike.
+        /// </summary>
+        public int CallIns => Coda ? 0 : 1;
+
         /// <summary>A mission with no story: no scenes, no coda, open to co-op.</summary>
         public static readonly MissionStory None = new MissionStory();
     }

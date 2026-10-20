@@ -60,6 +60,15 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void EveryMissionAfterTheCodaStartsWithACallIn_MissionOnesComesInItsCoda()
+        {
+            Assert.AreEqual(0, Missions.One.Story.CallIns, "Mission one's call-in is the coda's, once tones2's tabk is freed");
+            foreach (MissionDef m in Missions.All)
+                if (m != Missions.One) Assert.AreEqual(1, m.Story.CallIns, m.Id + ": one call-in, the bay's tabk");
+            Assert.AreEqual(1, MissionStory.None.CallIns);
+        }
+
+        [Test]
         public void ACoopRoomPlaysTheFirstMissionOpenToCoop()
         {
             Assert.IsTrue(Missions.One.Story.SoloOnly);
