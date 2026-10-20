@@ -324,6 +324,11 @@ namespace PooketSlug
         /// </summary>
         internal void AfterDebrief()
         {
+            if (m_Coop)
+            {
+                BackToCoopDen();
+                return;
+            }
             MissionDef next = StartFlow.Next(m_Profile);
             ToTitle();
             if (Sandbox.Active) return;
@@ -524,6 +529,10 @@ namespace PooketSlug
             else if (DropIn.UnderWay(m_Net.Link.IsAuthority, m_Net.Link.CamX)) // the co-op test's drop-in round looks for it
                 Log.Net.Info($"Dropped in to a mission under way, {m_Net.Link.CamX:0} m in, with {m_World.Player.Lives.Lives} lives and our own score at 0");
             m_Coop = true;
+            if (!m_Net.Watching) Log.Game.Info($"Co-op mission start: {m_World.Mission.Name}, round {m_World.Round}"); // the co-op test's debrief round looks for it
+            // ?test=debrief in co-op: the room's first round is won at once (the shared world's runner wins it; the
+            // partner's world follows), for the co-op test's debrief round
+            if (m_Flags.Debrief && m_Net.Link.IsAuthority && m_World.Round == 0) m_World.OnBossDestroyed();
             MissionMusic.MissionStart(); // each phone plays the mission's music, following its own screen
             m_Paused = false;
             m_LeaveArmed = 0f;
@@ -541,6 +550,32 @@ namespace PooketSlug
             NewTitleWorld();
             Notice(notice);
             SetState(GameState.Title);
+        }
+
+        /// <summary>
+        /// After a co-op win's debrief: back to the room's den, still together, for the next mission. The first phone
+        /// out of its debrief resets the shared world for the next round; the den waits for the other (it shows them in
+        /// the den, not seated, until their own debrief's done). With the room gone, the den on our own.
+        /// </summary>
+        void BackToCoopDen()
+        {
+            Scenes.Abandon();
+            m_Net.Events = null;
+            m_Coop = false;
+            NewTitleWorld();
+            m_Paused = false;
+            Music.Silence();
+            if (!m_Net.Ready)
+            {
+                m_Net.Leave();
+                Notice("DISCONNECTED");
+                SetState(GameState.Title);
+                if (CrewOpen) Den.Show(DenMode.Solo);
+                return;
+            }
+            m_Net.Link.RequestRestart(); // the shared world's next round (only the first ask counts)
+            Log.Game.Info("Debrief done: back to the co-op den");
+            Den.Show(DenMode.Coop);
         }
 
         /// <summary>Drops back to the title screen if the session is gone. True while co-op can go on.</summary>
@@ -730,6 +765,7 @@ namespace PooketSlug
                     break;
 
                 case GameState.Victory when Debrief.Now != null: // the world holds still behind it, so nothing can hurt tones2
+                    if (m_Coop && m_Net.Ready) m_Net.Link.SendDen(null, PooketSlug.Den.InDen); // a partner already in the den waits for us
                     Debrief.Tick(dt, keys, soldier);
                     break;
 
@@ -860,7 +896,7 @@ namespace PooketSlug
             int best = m_Profile.Best(m_World.Mission), clears = m_Profile.Clears(m_World.Mission);
             m_Profile.RecordRun(m_World.Mission, m_Coop ? Setting.Normal : Setting, m_World.Scoring.Points, won, solo: !m_Coop);
             m_CoopJustOpened = !wasOpen && m_Profile.coop;
-            if (won && !m_Coop)
+            if (won) // solo or co-op: each phone's debrief, its own player's XP and rank
             {
                 Debrief.Show(best, firstClear: clears == 0 || m_Flags.Debrief);
                 MissionMusic.Debrief(m_World.VictoryTime);
