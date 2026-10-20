@@ -26,8 +26,8 @@ Tabks stay hidden until they matter ([progressive disclosure](README.md#progress
 1. **Before the first tabk,** nothing mentions tabks: not the menus, the HUD, the loading screens, the controls or the web page around the game. No enemy tabks appear before then either. The one exception is [the opening](cutscenes.md#the-opening), as foreshadowing: tones2 cries out for the crew's tabks and finds their bay empty, but none is shown (owner, 2026-10-19).
 2. **The first tabk** is kie's, at the end of Mission one, with a full [boss intro](cutscenes.md#the-boss-intro).
 3. **The first call-in and the first drive** come straight after kie is freed (owner, 2026-10-16): kie frees tones2's own tabk and bows out, and in Mission one's coda, a short mini-level after the boss, a prompt has you call it in, then drive it out of the base ([the coda](story.md#the-coda)).
-4. **kie's tabk** is wrecked in the boss fight, so Mission one wins only tones2's. kie's comes back repaired once Mission two is beaten (owner, 2026-10-16), rebuilt as [THE PROJECTIONIST](#kies-tabk) ([kie's tabk comes home](cutscenes.md#kies-tabk-comes-home)).
-5. **The tabk choice** is made in the den's tabk bay once you have two tabks to pick from, after Mission two: the one on the repair stands is the one you call in ([the tabk bay](lobby.md#the-tabk-bay)).
+4. **kie's tabk** is wrecked in the boss fight, so the coda is driven in tones2's. kie rebuilds his straight after Mission one (owner, 2026-10-20; it was after Mission two), as [THE PROJECTIONIST](#kies-tabk), and it waits in the tabk bay for whoever goes looking ([kie's tabk comes home](cutscenes.md#kies-tabk-comes-home)).
+5. **The tabk choice** is made in the den's tabk bay, which opens with the den after Mission one with two tabks to pick from, tones2's and kie's: the one on the repair stands is the one you call in ([the tabk bay](lobby.md#the-tabk-bay)). Nothing points you there: players who explore find it and the swap (owner, 2026-10-20). kcaj's joins them after Mission two.
 
 ## Tabk bosses
 
@@ -110,16 +110,16 @@ The first tabk you win, freed by kie at the end of Mission one and called in for
 - **Paint** (owner, 2026-10-16): orange and black, with a pumpkin-head stencil on the hull.
 - **Its name** on screen while you drive it: TONES2'S TABK, over its rounds (WATER 5, MUD 3, SPEW 1).
 - **The rest is shared** with every tabk: health, fuel, speed, the hop, squashing goons, eject and the runaway.
-- **One player:** Mission one is single player only (owner, 2026-10-16), so the coda never has two tabks. Open: what a co-op partner calls in during Mission two, before kie's tabk is back.
+- **One player:** Mission one is single player only (owner, 2026-10-16), so the coda never has two tabks. In Mission two each player calls in the tabk loaded in their own bay, tones2's or kie's.
 - **The cargo drone** that lowers it is the crew's own, in tones2's orange and black, and every call-in uses it ([freeing kie](cutscenes.md#freeing-kie)). For now it's the goons' drone repainted, scaled up.
 
 **Built** (2026-10-16): your tabk is tones2's now, wherever one appears (`?test=tank`, `?unlock=tank`, and the coda); the shell, mortar and barrage are retired (weapons 18 and 19 and shots 9 and 10 stay reserved). The hull is the tabk's shape painted orange with black tracks and gun, a jack-o'-lantern face on its flank. FIRE runs one spray cycle per round (1 s building in four spurts, 0.8 s held, 1 s easing off), SP shakes for 1 s and launches at 21 along the aim with a mud carpet 6.4 wide, SU pours 3 s of spew. In co-op a partner sees the tabk and its mud, not its water or spew (Mission one is single player). Code: `PlayerTank.cs`, numbers `Tones2TabkSpec` (`Core/Crew/Tones2TabkSpec.cs`, as `Tones2Tuning.Tabk`), art `Tones2Art.TabkHull`, `TabkBarrel`, `TabkDrone`.
 
 ## kie's tabk
 
-THE PROJECTIONIST: the second tabk you win, kie's own, back after Mission two (owner, 2026-10-19, kie-tabk-design; page https://claude.ai/artifact/Hp8MXScfoogFsPouTpdexn).
+THE PROJECTIONIST: the second tabk you win, kie's own, back after Mission one (owner, 2026-10-20; it was after Mission two; theme owner, 2026-10-19, kie-tabk-design; page https://claude.ai/artifact/Hp8MXScfoogFsPouTpdexn).
 
-- **The theme** (owner picked the projector, 2026-10-19): the boss tabk was wrecked in Mission one, and kie rebuilds it around a Trollogram projector he took from the creamery's cold store (the Trollograms' server room). So it comes back still frosted, wrapped in copper freezer pipes, patched with welded plates and a few rust spots. The projector is the turret, its short fat lens the gun, and two film reels on top spin while a shot charges. Its return is a den beat ([kie's tabk comes home](cutscenes.md#kies-tabk-comes-home)).
+- **The theme** (owner picked the projector, 2026-10-19): the boss tabk was wrecked in Mission one, and kie rebuilds it around the Trollogram projector that made Trollogram kie, pulled from the wreck. Trollograms run hot, so he wraps it in copper freezer pipes and it comes back frosted over, patched with welded plates and a few rust spots. The projector is the turret, its short fat lens the gun, and two film reels on top spin while a shot charges. Its return is a den beat ([kie's tabk comes home](cutscenes.md#kies-tabk-comes-home)).
 - **Paint** (owner, 2026-10-19): kie's blue (#4ea8ff) with a green (#46d27a) stripe on the hull and green on the reels' spokes, from his Pooket Tabks colours. The lens glows warm gold, the friendly colour, never cyan (cyan is the villains'). The reference painting is blue take 2 (`/mnt/project-files/concepts/kie-tabk/proj-blue-2.png`).
 - **Its own guns:** kie's kit, tabk-sized, like tones2's; rounds 5, 3 and 1, never refilled, and the same controls ([driving a tabk](#driving-a-tabk)).
   - **Weasel Pop** (FIRE, 5 rounds): weasels tumble out of the lens, lobbed, and scurry under goons to pop, as on foot.
@@ -129,7 +129,7 @@ THE PROJECTIONIST: the second tabk you win, kie's own, back after Mission two (o
 - **Its name** on screen while you drive it: KIE'S TABK, over its rounds (WEASEL 5, TROLLOGRAM 3, STEAL 1).
 - **The sprite** is 52 × 28, six rows taller than the tabk's 52 × 22 for the reels: the tabk's own hull and tracks, the projector body over them with frost on top and a copper coil and pipe behind, the lens in front and the two reels above. Its source (the rows and a renderer) is in `/mnt/project-files/concepts/kie-tabk/sprite/`, for the build card to put in `ArtData`.
 - **Mission one's boss stays the plain olive tabk** with Trollogram kie at the controls ([tabk bosses](#tabk-bosses)); this one is clearly kie's own.
-- **In the bay** it parks downstairs once it's back, and the drone swaps it onto the repair stands when you pick it ([the tabk bay](lobby.md#the-tabk-bay)).
+- **In the bay** it parks downstairs once it's back, after Mission one, and the drone swaps it onto the repair stands when you pick it ([the tabk bay](lobby.md#the-tabk-bay)).
 - **Built so far** (kie-tabk-build): drivable when it's loaded in the bay, solo and co-op (a partner's screen draws it in its own look, from the tabk's pose). The sprite is Design's rows in `Crew/Kie/KieTabkArt.cs`, the lens turning at the projector's front, the reels a second frame. Guns: `Crew/Kie/KieTabk.cs`, numbers and rules in `Core/Crew/KieTabkSpec.cs` (tested). FIRE spins the reels for a moment, then lobs five weasels (his are three), bigger pops; with no room for a volley the round isn't spent. SP spins the reels and beams a Trollogram of the whole tabk 3.6 ahead, on screen, that goons shoot instead and that blows up bigger than his own (it can't be swapped with). SU is his Steal; the loot is his, and while he drives FIRE shoots it from the lens until it's spent (the HUD shows it in the first gun's place). `?test=kietabk` parks one at the start.
 
 ## Calling in a tabk
