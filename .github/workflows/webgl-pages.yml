@@ -481,7 +481,8 @@ jobs:
   coop-test:
     name: Co-op test (${{ matrix.mode }})
     needs: [plan, build-and-deploy]
-    if: needs.plan.outputs.coop == 'true'
+    # always(): a job skipped further back (the demos, on most previews) would otherwise skip this one too
+    if: always() && needs.plan.outputs.coop == 'true' && needs.build-and-deploy.result == 'success'
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     strategy:
@@ -633,7 +634,9 @@ jobs:
   deploy-live:
     name: Deploy the live game
     needs: [plan, build-and-deploy, coop-test]
-    if: needs.plan.outputs.slug == '' && needs.build-and-deploy.result == 'success' && needs.coop-test.result == 'success'
+    if: >-
+      always() && needs.plan.result == 'success' && needs.plan.outputs.slug == '' &&
+      needs.build-and-deploy.result == 'success' && needs.coop-test.result == 'success'
     runs-on: ubuntu-24.04
     permissions:
       contents: write # pushes the build to the gh-pages branch
