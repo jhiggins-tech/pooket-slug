@@ -27,16 +27,16 @@ namespace PooketSlug
             ".........SsssS..........",
         };
 
-        /// <summary>Looking down at their work (repairing): eyes lowered. A stand-in until Design draws the crew's.</summary>
+        /// <summary>Bowed over their work (repairing): the bandana tipped forward, the eye lowered under a lid, the chin tucked in.</summary>
         public static readonly string[] HeadDown =
         {
-            ".........rrrrr..........",
-            "........rrrrrrr.........",
-            "......RRrrrrrrr.........",
-            ".....R..hhsssss.........",
-            "........hssssss.........",
+            ".........rrrrrr.........",
+            "........rrrrrrrr........",
+            "......RRrrrrrrrr........",
+            ".....R..hhssssss........",
+            "........hssssSss........",
             "........hsssses.........",
-            ".........SsssS..........",
+            ".........SSss...........",
         };
 
         // ---- The shared bodies ----
@@ -119,24 +119,24 @@ namespace PooketSlug
             "........bbbybb..........",
         };
 
-        // ---- Shared moves (the same canvas and rows as TorsoForward): stand-ins until Design draws them ----
+        // ---- Shared moves (the same canvas and rows as TorsoForward) ----
 
-        /// <summary>Repairing a tabk, crouched (<see cref="CrewFigure.Repair"/>): the wrench up.</summary>
+        /// <summary>Repairing a tabk, crouched (<see cref="CrewFigure.Repair"/>): the wrench raised high, the back hand braced on the hull.</summary>
         public static readonly string[] Repair1 =
         {
             "........................",
-            "........................",
-            "........................",
-            "........................",
-            "........................",
-            "........................",
-            "........................",
-            "........................",
-            "........cgggggc...mm....",
-            ".......ccgggggccc.mM....",
-            ".......cCgGgggCCcsM.....",
-            ".......cgGgggg...M......",
-            ".......sgGgggg..........",
+            ".................m.m....",
+            ".................mmm....",
+            "..................M.....",
+            "..................M.....",
+            "..................s.....",
+            ".................c......",
+            "................c.......",
+            "........cgggggcc........",
+            ".......ccgggggcc........",
+            ".......cCgGgggCc........",
+            ".......cgGggggC.........",
+            "........gGggggCs........",
             "........bbbybb..........",
         };
 
@@ -151,15 +151,15 @@ namespace PooketSlug
             "........................",
             "........................",
             "........................",
-            "........cgggggc.........",
-            ".......ccgggggccc.......",
-            ".......cCgGgggCCcsmm....",
-            ".......cgGgggg....MM....",
-            ".......sgGgggg..........",
+            "........cgggggc...m.m...",
+            ".......ccgggggccc.mmm...",
+            ".......cCgGgggCcsM......",
+            ".......cgGggggC.........",
+            "........gGggggCs........",
             "........bbbybb..........",
         };
 
-        /// <summary>Repairing: the wrench on the bolt.</summary>
+        /// <summary>Repairing: the wrench on the bolt, with sparks.</summary>
         public static readonly string[] Repair3 =
         {
             "........................",
@@ -173,13 +173,29 @@ namespace PooketSlug
             "........cgggggc.........",
             ".......ccgggggcc........",
             ".......cCgGgggCcc.......",
-            ".......cgGggggCCcs......",
-            ".......sgGgggg...mMMm...",
-            "........bbbybb..........",
+            ".......cgGggggC.cs...mmx",
+            "........gGggggCs.sMMm...",
+            "........bbbybb.......mmx",
         };
 
         /// <summary>Repairing: the wrench going back up.</summary>
-        public static readonly string[] Repair4 = Repair2;
+        public static readonly string[] Repair4 =
+        {
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "..................m.m...",
+            "..................mmm...",
+            "..................M.....",
+            "........cgggggc..sM.....",
+            ".......ccgggggccs.......",
+            ".......cCgGgggCc........",
+            ".......cgGggggC.........",
+            "........gGggggCs........",
+            "........bbbybb..........",
+        };
 
         public const int TorsoUpTop = 0;
         public static readonly string[] TorsoUp =
