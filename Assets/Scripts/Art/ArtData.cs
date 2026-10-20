@@ -39,13 +39,13 @@ namespace PooketSlug
             ".........SSss...........",
         };
 
-        /// <summary>tones2's head: short black hair with a combover, facing forward.</summary>
+        /// <summary>tones2's head: short black hair, a combover spiking a little at the front, facing forward.</summary>
         public static readonly string[] Tones2Head =
         {
-            ".........uuuuu..........",
-            "........uuDDDDu.........",
-            "........uuuuuuuu........",
-            "........uusssss.........",
+            "...........u.u..........",
+            ".........uuuuuuu........",
+            "........uuDDDuuuu.......",
+            "........uusssuss........",
             "........usssses.........",
             "........sssssss.........",
             ".........SsssS..........",
@@ -54,10 +54,10 @@ namespace PooketSlug
         /// <summary>tones2 bowed over his work.</summary>
         public static readonly string[] Tones2HeadDown =
         {
-            "..........uuuuu.........",
-            ".........uuDDDDu........",
-            "........uuuuuuuuu.......",
-            "........uussssss........",
+            "............u.u.........",
+            "..........uuuuuuu.......",
+            ".........uuDDDuuuu......",
+            "........uussssuss.......",
             "........ussssSss........",
             "........ssssses.........",
             ".........SSss...........",
