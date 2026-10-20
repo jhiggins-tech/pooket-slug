@@ -17,12 +17,9 @@ namespace PooketSlug
     /// </summary>
     public sealed class CutsceneEffects
     {
-        // the other crew's paint on the parked tabks (tones2's pink is his own thing's colour)
-        static readonly Color[] RowPaint = { new Color(1f, 0.62f, 0.8f), new Color(0.6f, 0.78f, 1f), new Color(1f, 0.9f, 0.5f) };
-
         readonly RectTransform m_World, m_Stage;
         readonly Image[] m_Snow = new Image[36], m_Chips = new Image[10], m_Jet = new Image[8], m_Beams = new Image[2];
-        readonly Image[] m_Row = new Image[2], m_Junk = new Image[9], m_Steam = new Image[4], m_Lamps = new Image[3];
+        readonly Image[] m_Row = new Image[1], m_Junk = new Image[9], m_Steam = new Image[4], m_Lamps = new Image[3];
         readonly Image[] m_Cage = new Image[7], m_Stars = new Image[3], m_Frost = new Image[10], m_Icicles = new Image[4];
         RectTransform m_ShutterMask, m_BigCard, m_Board;
         Image m_Shutter, m_ColdLight, m_Dim, m_Alarm;
@@ -58,7 +55,8 @@ namespace PooketSlug
         /// <summary>The row of the crew's parked tabks, the Trollograms' junk over it, and the steam.</summary>
         public void MakeRow()
         {
-            for (int i = 0; i < m_Row.Length; i++) m_Row[i] = Picture("Tabk", Art.Tank, 0f, 0f, Art.Tank.rect.width, Art.Tank.rect.height, RowPaint[i + 1]);
+            Sprite kcaj = TabkKit.Kcaj.Parked; // kcaj's, SOFT SERVE, beside tones2's (kie's rolls in)
+            m_Row[0] = Picture("kcaj's tabk", kcaj, 0f, 0f, kcaj.rect.width, kcaj.rect.height, Color.white);
             for (int i = 0; i < m_Junk.Length; i++) m_Junk[i] = Picture("Trollogram junk", null, 0f, 0f, 3f, 2f, Cyan);
             for (int i = 0; i < m_Steam.Length; i++) m_Steam[i] = Picture("Steam", null, 0f, 0f, 5f, 5f, new Color(0.85f, 0.88f, 0.95f, 0.5f));
         }
