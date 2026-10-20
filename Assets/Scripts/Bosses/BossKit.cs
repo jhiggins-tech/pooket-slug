@@ -41,4 +41,17 @@ namespace PooketSlug
         /// <summary>Follower: whether the authority's tabk shows its landing marker.</summary>
         bool ShowsMarker(int netState);
     }
+
+    /// <summary>Which crewmate's attacks a boss tabk has, by whose it is (<see cref="BossTabk"/>): a new boss tabk is its row here.</summary>
+    public static class BossKits
+    {
+        public static IBossKit For(BossTabk tabk, World world, TankBoss boss)
+        {
+            switch (tabk)
+            {
+                case BossTabk.Kcaj: return new KcajBoss(world, boss);
+                default: return new KieBoss(world, boss);
+            }
+        }
+    }
 }

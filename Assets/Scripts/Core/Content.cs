@@ -120,41 +120,58 @@ namespace PooketSlug
         // ------------------------------------------------------------------ enemies
         // Ids are the byte the co-op snapshot sent for each kind before (its SpawnKind).
 
-        public static readonly EnemyDef Rifleman = new EnemyDef(0, "Rifleman", EnemyBrain.Rifleman, halfWidth: 0.3f, height: 1.35f, hp: 3, score: 100);
-        public static readonly EnemyDef Runner = new EnemyDef(1, "Knife runner", EnemyBrain.Runner, halfWidth: 0.3f, height: 1.35f, hp: 2, score: 150);
-        public static readonly EnemyDef Drone = new EnemyDef(2, "Drone", EnemyBrain.Drone, halfWidth: 0.5f, height: 0.7f, hp: 3, score: 200);
-        public static readonly EnemyDef Tank = new EnemyDef(3, "Tabk", EnemyBrain.Tank, halfWidth: 1.5f, height: 1.3f, hp: 45, score: 3000);
-        public static readonly EnemyDef Barrel = new EnemyDef(4, "Explosive barrel", EnemyBrain.Barrel, halfWidth: 0.38f, height: 1.1f, hp: 3, score: 100);
+        public static readonly EnemyDef Rifleman = new EnemyDef(0, "Rifleman", EnemyBrain.Rifleman, halfWidth: 0.3f, height: 1.35f, hp: 3, score: 100,
+            marker: SpawnKind.Rifleman, map: 's');
+        public static readonly EnemyDef Runner = new EnemyDef(1, "Knife runner", EnemyBrain.Runner, halfWidth: 0.3f, height: 1.35f, hp: 2, score: 150,
+            marker: SpawnKind.Runner, map: 'r');
+        public static readonly EnemyDef Drone = new EnemyDef(2, "Drone", EnemyBrain.Drone, halfWidth: 0.5f, height: 0.7f, hp: 3, score: 200,
+            marker: SpawnKind.Drone, map: 'd');
+        public static readonly EnemyDef Tank = new EnemyDef(3, "Tabk", EnemyBrain.Tank, halfWidth: 1.5f, height: 1.3f, hp: 45, score: 3000,
+            marker: SpawnKind.Tank, map: 'T', real: true);
+        public static readonly EnemyDef Barrel = new EnemyDef(4, "Explosive barrel", EnemyBrain.Barrel, halfWidth: 0.38f, height: 1.1f, hp: 3, score: 100,
+            marker: SpawnKind.Barrel, map: 'x', real: true);
         /// <summary>kie's tank's weasels and hologram copies (<see cref="KieTank"/>), made mid-fight.</summary>
-        public static readonly EnemyDef Weasel = new EnemyDef(5, "Weasel", EnemyBrain.Weasel, halfWidth: 0.35f, height: 0.55f, hp: 1, score: 50);
+        public static readonly EnemyDef Weasel = new EnemyDef(5, "Weasel", EnemyBrain.Weasel, halfWidth: 0.35f, height: 0.55f, hp: 1, score: 50, real: true);
         public static readonly EnemyDef TankCopy = new EnemyDef(6, "Tabk copy", EnemyBrain.TankCopy, halfWidth: 1.5f, height: 1.3f, hp: 45, score: 100);
         /// <summary>Hologram kie, who jumps out of the wrecked tank (<see cref="KiePilotSpec"/>), and the Trollogram he drops.</summary>
         public static readonly EnemyDef Pilot = new EnemyDef(7, "Trollogram kie", EnemyBrain.Pilot, halfWidth: 0.3f, height: 1.35f, hp: KieTuning.Pilot.Hp, score: 5000);
         public static readonly EnemyDef PilotDecoy = new EnemyDef(8, "Trollogram", EnemyBrain.PilotDecoy, halfWidth: 0.3f, height: 1.35f, hp: 1, score: 100);
         /// <summary>The coda's watchtower and the base's last gate (<c>docs/design/story.md</c>, The coda).</summary>
-        public static readonly EnemyDef ToppleTower = new EnemyDef(9, "Watchtower", EnemyBrain.ToppleTower, halfWidth: 1.1f, height: 5.2f, hp: 14, score: 1000);
-        public static readonly EnemyDef ExitGate = new EnemyDef(10, "Last gate", EnemyBrain.ExitGate, halfWidth: 1.0f, height: 4f, hp: 24, score: 2000);
+        public static readonly EnemyDef ToppleTower = new EnemyDef(9, "Watchtower", EnemyBrain.ToppleTower, halfWidth: 1.1f, height: 5.2f, hp: 14, score: 1000,
+            marker: SpawnKind.ToppleTower, map: 'Y', real: true);
+        public static readonly EnemyDef ExitGate = new EnemyDef(10, "Last gate", EnemyBrain.ExitGate, halfWidth: 1.0f, height: 4f, hp: 24, score: 2000,
+            marker: SpawnKind.ExitGate, map: 'E', real: true);
         /// <summary>Mission two's breakables: a box of cones and a nitrogen tank (<see cref="Creamery"/>).</summary>
-        public static readonly EnemyDef ConeBox = new EnemyDef(11, "Box of cones", EnemyBrain.ConeBox, halfWidth: 0.45f, height: 0.9f, hp: 3, score: 50);
-        public static readonly EnemyDef NitrogenTank = new EnemyDef(12, "Nitrogen tank", EnemyBrain.NitrogenTank, halfWidth: 0.38f, height: 1.25f, hp: 3, score: 100);
+        public static readonly EnemyDef ConeBox = new EnemyDef(11, "Box of cones", EnemyBrain.ConeBox, halfWidth: 0.45f, height: 0.9f, hp: 3, score: 50,
+            marker: SpawnKind.ConeBox, map: 'c', real: true);
+        public static readonly EnemyDef NitrogenTank = new EnemyDef(12, "Nitrogen tank", EnemyBrain.NitrogenTank, halfWidth: 0.38f, height: 1.25f, hp: 3, score: 100,
+            marker: SpawnKind.NitrogenTank, map: 'n', real: true);
         /// <summary>Mission two's goons (<see cref="ShieldSpec"/>, <see cref="GrenadierSpec"/>) and the sign yard's miniboss (<see cref="BigScoopSpec"/>).</summary>
-        public static readonly EnemyDef ShieldSoldier = new EnemyDef(13, "Shield soldier", EnemyBrain.Shield, halfWidth: 0.35f, height: 1.35f, hp: 6, score: 300);
-        public static readonly EnemyDef Grenadier = new EnemyDef(14, "Grenadier", EnemyBrain.Grenadier, halfWidth: 0.3f, height: 1.35f, hp: 3, score: 250);
-        public static readonly EnemyDef BigScoop = new EnemyDef(15, "Big Scoop", EnemyBrain.BigScoop, halfWidth: 0.8f, height: 2.6f, hp: 40, score: 4000);
-        public static readonly EnemyDef Projector = new EnemyDef(16, "Trollogram projector", EnemyBrain.Projector, halfWidth: 0.6f, height: 1.4f, hp: 4, score: 500);
+        public static readonly EnemyDef ShieldSoldier = new EnemyDef(13, "Shield soldier", EnemyBrain.Shield, halfWidth: 0.35f, height: 1.35f, hp: 6, score: 300,
+            marker: SpawnKind.ShieldSoldier, map: 'h');
+        public static readonly EnemyDef Grenadier = new EnemyDef(14, "Grenadier", EnemyBrain.Grenadier, halfWidth: 0.3f, height: 1.35f, hp: 3, score: 250,
+            marker: SpawnKind.Grenadier, map: 'g');
+        public static readonly EnemyDef BigScoop = new EnemyDef(15, "Big Scoop", EnemyBrain.BigScoop, halfWidth: 0.8f, height: 2.6f, hp: 40, score: 4000,
+            marker: SpawnKind.BigScoop, map: 'S');
+        public static readonly EnemyDef Projector = new EnemyDef(16, "Trollogram projector", EnemyBrain.Projector, halfWidth: 0.6f, height: 1.4f, hp: 4, score: 500,
+            marker: SpawnKind.Projector, map: 'J', real: true);
         /// <summary>Trollogram kcaj, who jumps out of Mission two's wrecked tabk (<see cref="KcajPilotSpec"/>).</summary>
         public static readonly EnemyDef KcajPilot = new EnemyDef(17, "Trollogram kcaj", EnemyBrain.KcajPilot, halfWidth: 0.3f, height: 1.35f, hp: KcajTuning.Pilot.Hp, score: 5000);
 
         // ------------------------------------------------------------------ pickups
 
         public static readonly PickupDef HeavyMachineGunCrate = new PickupDef(0, "Heavy machine gun crate", PickupEffect.Gun,
-            "HEAVY MACHINE GUN!", Palette.Gold, score: 500, gun: HeavyMachineGun);
+            "HEAVY MACHINE GUN!", Palette.Gold, score: 500, gun: HeavyMachineGun,
+            marker: SpawnKind.CrateHeavy, map: 'H');
         public static readonly PickupDef BombCrate = new PickupDef(1, "Bomb crate", PickupEffect.Specials,
-            "BOMBS!", new Color(0.6f, 1f, 0.5f), score: 500);
+            "BOMBS!", new Color(0.6f, 1f, 0.5f), score: 500,
+            marker: SpawnKind.CrateBombs, map: 'B');
         public static readonly PickupDef Medkit = new PickupDef(2, "Medkit", PickupEffect.Heal,
-            "MEDKIT!", new Color(1f, 0.5f, 0.5f), score: 500, amount: Tuning.Crates.MedkitHearts);
+            "MEDKIT!", new Color(1f, 0.5f, 0.5f), score: 500, amount: Tuning.Crates.MedkitHearts,
+            marker: SpawnKind.Medkit, map: '+');
         public static readonly PickupDef OneUp = new PickupDef(3, "1-up", PickupEffect.Life,
-            "1UP!", new Color(0.5f, 1f, 0.6f), score: 1000, amount: 1);
+            "1UP!", new Color(0.5f, 1f, 0.6f), score: 1000, amount: 1,
+            marker: SpawnKind.OneUp, map: 'U');
 
         // ------------------------------------------------------------------ soldiers
 
@@ -225,39 +242,21 @@ namespace PooketSlug
         /// <summary>The enemy with this id, or null for an id no enemy has.</summary>
         public static EnemyDef Enemy(int id) => id >= 0 && id < Enemies.Count ? Enemies[id] : null;
 
-        /// <summary>The pickup a level marker places, or null if it places something else.</summary>
-        public static PickupDef PickupFor(SpawnKind kind)
-        {
-            switch (kind)
-            {
-                case SpawnKind.CrateHeavy: return HeavyMachineGunCrate;
-                case SpawnKind.CrateBombs: return BombCrate;
-                case SpawnKind.Medkit: return Medkit;
-                case SpawnKind.OneUp: return OneUp;
-                default: return null;
-            }
-        }
+        /// <summary>The pickup a level marker places (its <see cref="PickupDef.Marker"/>), or null if it places something else.</summary>
+        public static PickupDef PickupFor(SpawnKind kind) => s_PickupMarkers.TryGetValue(kind, out PickupDef def) ? def : null;
 
-        /// <summary>The enemy a level marker places, or null if it places something else.</summary>
-        public static EnemyDef EnemyFor(SpawnKind kind)
+        /// <summary>The enemy a level marker places (its <see cref="EnemyDef.Marker"/>), or null if it places something else.</summary>
+        public static EnemyDef EnemyFor(SpawnKind kind) => s_EnemyMarkers.TryGetValue(kind, out EnemyDef def) ? def : null;
+
+        static readonly Dictionary<SpawnKind, EnemyDef> s_EnemyMarkers = Markers(Enemies, e => e.Marker);
+        static readonly Dictionary<SpawnKind, PickupDef> s_PickupMarkers = Markers(Pickups, p => p.Marker);
+
+        static Dictionary<SpawnKind, T> Markers<T>(IReadOnlyList<T> defs, Func<T, SpawnKind?> marker)
         {
-            switch (kind)
-            {
-                case SpawnKind.Rifleman: return Rifleman;
-                case SpawnKind.Runner: return Runner;
-                case SpawnKind.Drone: return Drone;
-                case SpawnKind.Tank: return Tank;
-                case SpawnKind.Barrel: return Barrel;
-                case SpawnKind.ToppleTower: return ToppleTower;
-                case SpawnKind.ExitGate: return ExitGate;
-                case SpawnKind.ConeBox: return ConeBox;
-                case SpawnKind.NitrogenTank: return NitrogenTank;
-                case SpawnKind.ShieldSoldier: return ShieldSoldier;
-                case SpawnKind.Grenadier: return Grenadier;
-                case SpawnKind.BigScoop: return BigScoop;
-                case SpawnKind.Projector: return Projector;
-                default: return null;
-            }
+            var map = new Dictionary<SpawnKind, T>();
+            foreach (T def in defs)
+                if (marker(def) is SpawnKind kind) map.Add(kind, def);
+            return map;
         }
 
         /// <summary>A table where each definition sits at its id. Throws if two share an id or one leaves a gap.</summary>

@@ -153,6 +153,45 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void OnlyTheseAreRealEverythingElseIsATrollogram()
+        {
+            // Real: the set pieces, the boss tabk and kie's weasels. A goon added with real left out is a Trollogram.
+            var real = new System.Collections.Generic.List<EnemyDef>();
+            foreach (EnemyDef e in Content.Enemies)
+                if (e.Real) real.Add(e);
+            CollectionAssert.AreEquivalent(new[] { Content.Tank, Content.Barrel, Content.Weasel, Content.ToppleTower, Content.ExitGate,
+                Content.ConeBox, Content.NitrogenTank, Content.Projector }, real);
+        }
+
+        [Test]
+        public void EveryMapCharacterPlacesOneThing()
+        {
+            // the characters each enemy and pickup is placed by, and the scenery's, are one table (Level throws on a repeat)
+            Assert.AreEqual('s', Content.Rifleman.Map);
+            Assert.AreEqual(SpawnKind.Rifleman, Level.Markers['s']);
+            Assert.AreEqual(SpawnKind.CrateHeavy, Level.Markers['H']);
+            Assert.AreEqual(SpawnKind.Fog, Level.Markers['f']);
+            foreach (EnemyDef e in Content.Enemies)
+            {
+                if (e.Marker == null) continue;
+                Assert.AreNotEqual('\0', e.Map, e.Name + " has a marker but no map character");
+                Assert.AreEqual(e.Marker, Level.Markers[e.Map], e.Name);
+                Assert.AreSame(e, Content.EnemyFor(e.Marker.Value), e.Name);
+            }
+            foreach (PickupDef p in Content.Pickups)
+                Assert.AreSame(p, Content.PickupFor(Level.Markers[p.Map]), p.Name);
+            Assert.IsFalse(Level.Markers.ContainsKey('P'), "the soldier's start isn't a spawn");
+            Assert.IsFalse(Level.Markers.ContainsKey(Level.Ground) || Level.Markers.ContainsKey(Level.Block) || Level.Markers.ContainsKey(Level.Empty));
+        }
+
+        [Test]
+        public void EnemiesMadeOnlyMidGameHaveNoMarker()
+        {
+            foreach (EnemyDef e in new[] { Content.Weasel, Content.TankCopy, Content.Pilot, Content.PilotDecoy, Content.KcajPilot })
+                Assert.IsNull(e.Marker, e.Name);
+        }
+
+        [Test]
         public void SoldierIdsNeverChange()
         {
             // Each player's soldier is replicated by id.
