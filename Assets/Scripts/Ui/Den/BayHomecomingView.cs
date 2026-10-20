@@ -83,8 +83,8 @@ namespace PooketSlug
 
             // the tabk: the bare hull till the projector's on, then whole, its reels turning as they spin up
             bool spinning = beat.Reels > 0f && (int)(clock * (6f + 18f * beat.Reels)) % 2 == 0;
-            body.sprite = !beat.Projector ? KieTabkArt.Bare : spinning ? KieTabkArt.ParkedSpun : KieTabkArt.Parked;
             bool lowering = beat.Projector && beat.Lowered < 1f;
+            body.sprite = !beat.Projector || lowering ? KieTabkArt.Bare : spinning ? KieTabkArt.ParkedSpun : KieTabkArt.Parked;
             Ui.Show(m_Turret, lowering);
             Ui.Show(m_Cable, lowering);
             if (lowering)
