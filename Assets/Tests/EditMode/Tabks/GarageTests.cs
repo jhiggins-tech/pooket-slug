@@ -43,15 +43,6 @@ namespace PooketSlug.Tests
             Assert.AreEqual("KIE'S TABK  WEASEL 5   TROLLOGRAM 3   STEAL 0", TabkCards.Kie.HudLine(5, 3, 0, "RIFLE", 0), "once it's spent, the weasels again");
         }
 
-        [Test]
-        public void AMissionDropsTheLoadedTabk_OnceItsBuilt()
-        {
-            Assert.AreSame(TabkCards.Tones2, TabkCards.Dropped(TabkCards.Tones2));
-            Assert.AreSame(TabkCards.Kie, TabkCards.Dropped(TabkCards.Kie), "kie's is built");
-            Assert.AreSame(TabkCards.Kcaj, TabkCards.Dropped(TabkCards.Kcaj), "kcaj's is built");
-            Assert.AreSame(TabkCards.Tones2, TabkCards.Dropped(null));
-        }
-
         static string[] Names(TabkCard c) => new[] { c.Guns[0].name, c.Guns[1].name, c.Guns[2].name };
 
         [Test]

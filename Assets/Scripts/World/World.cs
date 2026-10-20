@@ -139,7 +139,7 @@ namespace PooketSlug
 
         /// <summary>Tanks our soldier can still call in this mission (<c>docs/design/tanks.md</c>).</summary>
         public int TanksToCall;
-        /// <summary>The tabk a call-in drops: the one loaded in the bay, once it's built (<see cref="TabkKit.Dropped"/>).</summary>
+        /// <summary>The tabk a call-in drops: the one loaded in the bay.</summary>
         public TabkKit Tabk = TabkKit.Tones2;
         /// <summary>Our soldier called in a tank, at this spot: it drops in (<see cref="PlayerTank"/>). In co-op each player calls their own.</summary>
         public event System.Action<Vector2> TankCalled;

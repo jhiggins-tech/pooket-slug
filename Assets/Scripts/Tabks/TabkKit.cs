@@ -75,12 +75,6 @@ namespace PooketSlug
 
         /// <summary>The tabk a card in the bay is for (tones2's for none).</summary>
         public static TabkKit Of(TabkCard card) => card == TabkCards.Kie ? Kie : card == TabkCards.Kcaj ? Kcaj : Tones2;
-
-        /// <summary>
-        /// The tabk a mission drops with <paramref name="loaded"/> picked in the bay: it, once it's built, else tones2's
-        /// (<see cref="TabkCards.Dropped"/>).
-        /// </summary>
-        public static TabkKit Dropped(TabkCard loaded) => Of(TabkCards.Dropped(loaded));
     }
 
     /// <summary>

@@ -44,8 +44,8 @@ namespace PooketSlug
 
     /// <summary>
     /// The crew's tabks and who has won which (<c>docs/design/tanks.md</c>): tones2's from Mission one's coda, kie's and
-    /// kcaj's once Mission two is beaten (kie's parks downstairs, kcaj's on the top deck). All three are drivable; a tabk
-    /// that's won but not built yet drops tones2's in its place (the owner, 19 Oct; <see cref="Built"/>).
+    /// kcaj's once Mission two is beaten (kie's parks downstairs, kcaj's on the top deck). A tabk won stays won, and drops
+    /// into a mission as itself (the owner, 20 Oct: unlocked is unlocked).
     /// </summary>
     public static class TabkCards
     {
@@ -61,12 +61,6 @@ namespace PooketSlug
             ("CONES", Rounds5), ("FIXATE", Rounds3), ("PILLS", Rounds1));
 
         public static readonly IReadOnlyList<TabkCard> All = new[] { Tones2, Kie, Kcaj };
-
-        /// <summary>Whether <paramref name="card"/>'s tabk is built, so a mission drops it when it's loaded (else tones2's).</summary>
-        public static bool Built(TabkCard card) => card == Tones2 || card == Kie || card == Kcaj;
-
-        /// <summary>The tabk a mission drops for <paramref name="loaded"/>: it, if it's built, else tones2's.</summary>
-        public static TabkCard Dropped(TabkCard loaded) => loaded != null && Built(loaded) ? loaded : Tones2;
 
         /// <summary>The tabk with id <paramref name="id"/> (its crewmate's soldier id), or null.</summary>
         public static TabkCard ById(int id)
