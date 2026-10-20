@@ -24,6 +24,8 @@ namespace PooketSlug
         public readonly bool Tank;
         /// <summary>?test=kietabk: as <see cref="Tank"/>, and it's kie's, whatever's loaded in the bay.</summary>
         public readonly bool KieTabk;
+        /// <summary>?test=softserve: as <see cref="Tank"/>, and it's kcaj's (SOFT SERVE), whatever's loaded in the bay.</summary>
+        public readonly bool SoftServe;
         /// <summary>?test=1up: a 1-up just ahead of the start.</summary>
         public readonly bool OneUp;
         /// <summary>?test=debrief: the mission's won as it starts, so the debrief shows (as if it's the first); in co-op, the room's first round.</summary>
@@ -72,7 +74,8 @@ namespace PooketSlug
             UnlockCrew = Has(unlock, "crew");
             Crate = Has(test, "crate");
             KieTabk = Has(test, "kietabk");
-            Tank = KieTabk || Has(test, "tank");
+            SoftServe = Has(test, "softserve");
+            Tank = KieTabk || SoftServe || Has(test, "tank");
             OneUp = Has(test, "1up");
             Debrief = Has(test, "debrief");
             Coda = Has(test, "coda");

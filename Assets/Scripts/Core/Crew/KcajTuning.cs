@@ -11,6 +11,8 @@ namespace PooketSlug
         public static readonly DoubleParkSpec Cones = new DoubleParkSpec();
         public static readonly HyperfixateSpec Beam = new HyperfixateSpec();
         public static readonly UnmedicatedSpec Pills = new UnmedicatedSpec();
+        /// <summary>His tabk's guns, SOFT SERVE's (<see cref="KcajTabkSpec"/>).</summary>
+        public static readonly KcajTabkSpec Tabk = new KcajTabkSpec();
         /// <summary>Trollogram kcaj, Mission two's pilot, playing the same kit against the soldiers.</summary>
         public static readonly KcajPilotSpec Pilot = new KcajPilotSpec();
     }

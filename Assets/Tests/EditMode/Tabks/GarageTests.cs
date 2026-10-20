@@ -21,7 +21,7 @@ namespace PooketSlug.Tests
         {
             CollectionAssert.AreEqual(new[] { "WATER", "MUD", "SPEW" }, Names(TabkCards.Tones2));
             CollectionAssert.AreEqual(new[] { "WEASEL", "TROLLOGRAM", "STEAL" }, Names(TabkCards.Kie));
-            CollectionAssert.AreEqual(new[] { "CONES", "BEAM", "PILLS" }, Names(TabkCards.Kcaj));
+            CollectionAssert.AreEqual(new[] { "CONES", "FIXATE", "PILLS" }, Names(TabkCards.Kcaj));
             foreach (TabkCard c in TabkCards.All)
             {
                 CollectionAssert.AreEqual(new[] { 5, 3, 1 }, new[] { c.Guns[0].rounds, c.Guns[1].rounds, c.Guns[2].rounds }, c.Name);
@@ -48,7 +48,7 @@ namespace PooketSlug.Tests
         {
             Assert.AreSame(TabkCards.Tones2, TabkCards.Dropped(TabkCards.Tones2));
             Assert.AreSame(TabkCards.Kie, TabkCards.Dropped(TabkCards.Kie), "kie's is built");
-            Assert.AreSame(TabkCards.Tones2, TabkCards.Dropped(TabkCards.Kcaj), "kcaj's isn't yet: tones2's drops in");
+            Assert.AreSame(TabkCards.Kcaj, TabkCards.Dropped(TabkCards.Kcaj), "kcaj's is built");
             Assert.AreSame(TabkCards.Tones2, TabkCards.Dropped(null));
         }
 

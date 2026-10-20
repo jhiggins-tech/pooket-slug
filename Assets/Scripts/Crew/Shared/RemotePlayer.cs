@@ -12,6 +12,7 @@ namespace PooketSlug
         public readonly IAvatarLink Link;
         readonly PlayerVisual m_Visual;
         readonly KitCopy m_Kit; // what their kit shows from their pose (tones2's liquids), as harmless copies
+        KitCopy m_TabkKit; // what their tabk's guns show, for a tabk whose moves aren't shots (kcaj's beam and pills)
         AvatarPose m_Pose;
         FrostLook m_Ice; // frozen by Mission two's nitrogen, on their screen
         readonly Presence m_Presence = new Presence();
@@ -38,6 +39,23 @@ namespace PooketSlug
 
         /// <summary>What their kit shows here, or null when it shows nothing (<see cref="KitCopy"/>).</summary>
         public KitCopy Kit => m_Kit;
+
+        /// <summary>
+        /// Who plays a move of theirs that isn't a shot (<see cref="CrewKit.OnPartnerMove"/>): their tabk's copy while they
+        /// drive one that has its own (kcaj's), else their kit's.
+        /// </summary>
+        public KitCopy Moves => Driving && m_TabkKit != null ? m_TabkKit : m_Kit;
+
+        /// <summary>Where their tabk's shots leave its gun, as it's drawn here.</summary>
+        public Vector2 TabkMuzzle
+        {
+            get
+            {
+                float a = m_TankAngle * Mathf.Deg2Rad;
+                Vector2 at = Driving ? Pos : m_TankPos;
+                return at + m_Tank.Kit.PivotLocal(m_TankPose.Facing) + new Vector2(Mathf.Cos(a), Mathf.Sin(a)) * m_Tank.Kit.GunLength;
+            }
+        }
 
         public override bool IsDown => m_Pose.Dead;
         public bool Invulnerable => m_Pose.Blink || m_Pose.Dead;
@@ -77,6 +95,7 @@ namespace PooketSlug
                 Pos = Vector2.Lerp(Pos, target, 1f - Mathf.Exp(-Tuning.Coop.RemoteSoldierSmoothing * dt));
             }
             m_Kit?.Tick(dt, m_Pose, Link.Vel);
+            m_TabkKit?.Tick(dt, m_Pose, Link.Vel);
         }
 
         /// <summary>Their tank: where it is, which way its gun points, and a blast when one of theirs blows up.</summary>
@@ -96,6 +115,7 @@ namespace PooketSlug
             {
                 m_Tank.Destroy();
                 m_Tank = new TankLook(Go.transform, SortOrder.Player - 4, kit);
+                if (kit == TabkKit.Kcaj && m_TabkKit == null) m_TabkKit = new KcajCopy(this, tabk: true);
             }
             float want = TankAim.Angle(TankPose.AimOf(m_TankPose.AimOctant));
             m_TankAngle = Mathf.MoveTowardsAngle(m_TankAngle, want, Content.PlayerTank.BarrelTurn * dt);
@@ -126,6 +146,7 @@ namespace PooketSlug
                 Go.transform.localPosition += (Vector3)m_Kit.ShakeOffset(m_Pose);
                 m_Kit.Render(m_Pose);
             }
+            m_TabkKit?.Render(m_Pose);
             m_Visual.Skin = Art.SkinFor(Link.Soldier, Link.Skin);
             m_Visual.Apply(m_Pose);
             bool frozen = m_Pose.Frozen && !Driving;

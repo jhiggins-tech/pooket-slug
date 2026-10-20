@@ -105,8 +105,8 @@ namespace PooketSlug
                 case KitMove.Trollogram: KieKit.OnTrollEvent(w, move); break;
                 case KitMove.Mud: Tones2Kit.CopyMud(w, move.At); break;
                 default:
-                    // the rest are played by the partner's copy (kcaj's beam and pills)
-                    foreach (RemotePlayer r in w.Remotes) r.Kit?.OnMove(move);
+                    // the rest are played by the partner's copy (kcaj's beam and pills, from him or his tabk)
+                    foreach (RemotePlayer r in w.Remotes) r.Moves?.OnMove(move);
                     break;
             }
         }

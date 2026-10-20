@@ -59,6 +59,17 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void KcajsTabkIsATabkTest()
+        {
+            LaunchFlags f = LaunchFlags.Read(Page + "?test=softserve");
+            Assert.IsTrue(f.SoftServe);
+            Assert.IsTrue(f.Tank, "it parks one, as ?test=tank does");
+            Assert.IsFalse(f.KieTabk);
+            Assert.IsFalse(f.KcajTank, "kcaj's boss tabk is ?test=kcajtank");
+            Assert.IsFalse(LaunchFlags.Read(Page + "?test=tank").SoftServe);
+        }
+
+        [Test]
         public void AWeakPilotNeedsThePilot()
         {
             Assert.IsTrue(LaunchFlags.Read(Page + "?test=pilot,weak").WeakPilot);
