@@ -129,5 +129,35 @@ namespace PooketSlug.Tests
             Assert.AreEqual(BayDeck.Top, w.Deck, "doesn't fall off the end");
             Assert.IsTrue(w.FaceLeft);
         }
+
+        [Test]
+        public void WalkingIntoTheDensDoor_GoesThroughIt()
+        {
+            var w = new BayWalker(BayDeck.Floor, BayMap.XOf(BayPlace.Door) + 14f);
+            w.Walk(-1);
+            BayErrand done = Run(w, 1f);
+            Assert.AreEqual(BayPlace.Door, done.Place, "as if you'd tapped it");
+
+            w = new BayWalker(BayDeck.Floor, 300f);
+            w.Walk(-1);
+            for (int f = 0; f < 30; f++) { w.Walk(-1); w.Step(1f / 60f); }
+            w.Walk(0);
+            Assert.IsFalse(Run(w, 5f).Any, "let go before the door: you stay");
+
+            w = new BayWalker(BayDeck.Floor, 300f);
+            w.Walk(1);
+            Assert.IsFalse(Run(w, 15f).Any, "the other way: the street door stays shut");
+            w = new BayWalker(BayDeck.Top, 400f);
+            w.Walk(-1);
+            Assert.IsFalse(Run(w, 10f).Any, "the top deck's end is no door");
+        }
+
+        [Test]
+        public void JumpUsesTheDoor_OnlyRightByIt()
+        {
+            Assert.AreEqual(BayPlace.Door, new BayWalker(BayDeck.Floor, BayMap.XOf(BayPlace.Door) + 14f).PlaceHere, "where you come in");
+            Assert.AreEqual(BayPlace.None, new BayWalker(BayDeck.Floor, BayMap.StandBy(BayMap.Stands)).PlaceHere, "by the stands");
+            Assert.AreEqual(BayPlace.None, new BayWalker(BayDeck.Top, BayMap.DeckLeft).PlaceHere);
+        }
     }
 }
