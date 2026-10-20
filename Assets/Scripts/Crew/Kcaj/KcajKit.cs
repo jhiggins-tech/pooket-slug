@@ -475,13 +475,8 @@ namespace PooketSlug
             root.SetParent(parent, false);
             for (int i = 0; i < count; i++)
             {
-                var go = new GameObject("Pill");
-                go.transform.SetParent(root, false);
-                go.transform.localScale = new Vector3(scale, scale, 1f);
-                var sr = go.AddComponent<SpriteRenderer>();
-                sr.sprite = KcajArt.Pills[i % KcajArt.Pills.Length];
-                sr.sortingOrder = SortOrder.Projectiles;
-                sr.enabled = false;
+                SpriteRenderer sr = Art.Renderer(root, "Pill", KcajArt.Pills[i % KcajArt.Pills.Length], SortOrder.Projectiles, shown: false);
+                sr.transform.localScale = new Vector3(scale, scale, 1f);
                 m_Sprites[i] = sr;
                 m_Spin[i] = Rng.Fx.Range(-720f, 720f);
             }

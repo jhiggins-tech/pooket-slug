@@ -38,12 +38,8 @@ namespace PooketSlug
             m_Tex.SetPixels32(m_Px);
             m_Tex.Apply(false, false); // kept readable: it's redrawn as it's dug
 
-            var go = new GameObject("CraterGround");
-            go.transform.SetParent(parent, false);
-            go.transform.position = new Vector3(ground.X0, 0, 0);
-            var sr = go.AddComponent<SpriteRenderer>();
-            sr.sprite = Sprite.Create(m_Tex, new Rect(0, 0, ground.W, ground.H), Vector2.zero, Art.PPU, 0, SpriteMeshType.FullRect);
-            sr.sortingOrder = SortOrder.Tiles;
+            Sprite sprite = Sprite.Create(m_Tex, new Rect(0, 0, ground.W, ground.H), Vector2.zero, Art.PPU, 0, SpriteMeshType.FullRect);
+            Art.Renderer(parent, "CraterGround", sprite, SortOrder.Tiles).transform.position = new Vector3(ground.X0, 0, 0);
         }
 
         /// <summary>Redraws whatever's been dug since last time.</summary>

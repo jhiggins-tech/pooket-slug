@@ -77,12 +77,7 @@ namespace PooketSlug
             for (int i = 0; i < m_Parts.Length; i++)
             {
                 SpriteRenderer part = m_Parts[i];
-                var go = new GameObject(part.name + " ghost");
-                go.transform.SetParent(part.transform.parent, false);
-                SpriteRenderer ghost = go.AddComponent<SpriteRenderer>();
-                ghost.sortingOrder = part.sortingOrder - 3;
-                ghost.enabled = false;
-                m_Ghosts[i] = ghost;
+                m_Ghosts[i] = Art.Renderer(part.transform.parent, part.name + " ghost", null, part.sortingOrder - 3, shown: false);
             }
         }
 
@@ -187,12 +182,8 @@ namespace PooketSlug
                 if (!shown || holo == null) continue;
                 foreach (Sprite band in Bands(holo, BandPx))
                 {
-                    var go = new GameObject("Band");
-                    go.transform.SetParent(part.transform.parent, false);
-                    go.transform.localPosition = part.transform.localPosition;
-                    SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
-                    sr.sprite = band;
-                    sr.sortingOrder = part.sortingOrder;
+                    SpriteRenderer sr = Art.Renderer(part.transform.parent, "Band", band, part.sortingOrder);
+                    sr.transform.localPosition = part.transform.localPosition;
                     m_Bands.Add(sr);
                 }
             }

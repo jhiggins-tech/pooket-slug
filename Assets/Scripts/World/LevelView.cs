@@ -25,12 +25,8 @@ namespace PooketSlug
                         if (level.Belt(cx + x, y) != 0) CreameryArt.DrawBelt(canvas, x * 16, y * 16); // its tread moves: BeltTread
                         else Art.DrawTile(canvas, x * 16, y * 16, t, exposed, (cx + x) * 31 + y * 17);
                     }
-                var go = new GameObject("Chunk" + cx / Chunk);
-                go.transform.SetParent(root.transform, false);
-                go.transform.position = new Vector3(cx, 0, 0);
-                var sr = go.AddComponent<SpriteRenderer>();
-                sr.sprite = Art.ToSprite(canvas, Vector2.zero);
-                sr.sortingOrder = SortOrder.Tiles;
+                SpriteRenderer sr = Art.Renderer(root.transform, "Chunk" + cx / Chunk, Art.ToSprite(canvas, Vector2.zero), SortOrder.Tiles);
+                sr.transform.position = new Vector3(cx, 0, 0);
             }
             return root;
         }
