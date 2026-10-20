@@ -5,7 +5,7 @@ namespace PooketSlug
 {
     /// <summary>
     /// kie's tabk, THE PROJECTIONIST (<c>docs/design/tanks.md</c>, kie's tabk), 52 × 28: the tabk's hull and tracks in his
-    /// blue with a green stripe, rebuilt round a Trollogram projector from the creamery's cold store. The projector is
+    /// blue with a green stripe, rebuilt round the Trollogram projector that made Trollogram kie (owner, 2026-10-20). The projector is
     /// the turret, frosted, with a copper coil and pipe; its short fat lens, glowing gold, is the gun, drawn on its own
     /// so it turns (<see cref="Lens"/>); two film reels on top spin while a shot charges (<see cref="Spun"/>). The rows
     /// are Design's (<c>concepts/kie-tabk/sprite/</c>), the second frame's spokes turned 30°.
@@ -25,7 +25,7 @@ namespace PooketSlug
             { 'B', 0x4ea8ff }, { 'b', 0x2a70c0 }, { 'G', 0x46d27a }, { 'g', 0x2a9050 }, { 'P', 0x3a5f9a },
         };
 
-        static Sprite s_Hull, s_HullSpun, s_Lens, s_Parked;
+        static Sprite s_Hull, s_HullSpun, s_Lens, s_Parked, s_ParkedSpun, s_Bare, s_Turret;
 
         /// <summary>The hull without its lens, its reels still and turned.</summary>
         public static Sprite Hull => s_Hull ??= Art.FromRows(Cut(Whole, false), Feet, Paint);
@@ -34,6 +34,28 @@ namespace PooketSlug
         public static Sprite Lens => s_Lens ??= Art.FromRows(Cut(Whole, true), new Vector2(17f / 18f, 0.5f), Paint);
         /// <summary>It whole, lens and all, parked (and its Trollogram).</summary>
         public static Sprite Parked => s_Parked ??= Art.FromRows(Whole, Feet, Paint);
+
+        /// <summary>It whole with its reels turned (the second frame), parked.</summary>
+        public static Sprite ParkedSpun => s_ParkedSpun ??= Art.FromRows(Spun, Feet, Paint);
+
+        /// <summary>
+        /// Its homecoming in the bay (<see cref="KieHomecoming"/>): the bare hull and tracks without the projector, and the
+        /// projector alone (lens and reels), the crane lowering it on. Both are the whole sprite's size, so the projector
+        /// lands where it belongs.
+        /// </summary>
+        public static Sprite Bare => s_Bare ??= Art.FromRows(Rows(Whole, TurretRows, Whole.Length), Feet, Paint);
+        public static Sprite Turret => s_Turret ??= Art.FromRows(Rows(Whole, 0, TurretRows), Feet, Paint);
+
+        /// <summary>The projector's rows (the reels and the projector, down to the turret ring); the hull's are the rest.</summary>
+        const int TurretRows = 14;
+
+        /// <summary>Only rows <paramref name="from"/> up to <paramref name="to"/> of <paramref name="rows"/>, the rest blank.</summary>
+        static string[] Rows(string[] rows, int from, int to)
+        {
+            var kept = new string[rows.Length];
+            for (int r = 0; r < rows.Length; r++) kept[r] = r >= from && r < to ? rows[r] : new string('.', rows[r].Length);
+            return kept;
+        }
 
         static readonly Vector2 Feet = new Vector2(0.5f, 0f);
 

@@ -43,9 +43,10 @@ namespace PooketSlug
     }
 
     /// <summary>
-    /// The crew's tabks and who has won which (<c>docs/design/tanks.md</c>): tones2's from Mission one's coda, kie's and
-    /// kcaj's once Mission two is beaten (kie's parks downstairs, kcaj's on the top deck). A tabk won stays won, and drops
-    /// into a mission as itself (the owner, 20 Oct: unlocked is unlocked).
+    /// The crew's tabks and who has won which (<c>docs/design/tanks.md</c>): tones2's from Mission one's coda, kie's
+    /// rebuilt straight after Mission one (owner, 2026-10-20: it parks downstairs, and comes home with a beat in the bay,
+    /// <see cref="KieHomecoming"/>), and kcaj's once Mission two is beaten (on the top deck). A tabk won stays won, and
+    /// drops into a mission as itself (the owner, 20 Oct: unlocked is unlocked).
     /// </summary>
     public static class TabkCards
     {
@@ -74,11 +75,8 @@ namespace PooketSlug
         public static IReadOnlyList<TabkCard> Won(Profile profile, bool everything = false)
         {
             var won = new List<TabkCard> { Tones2 };
-            if (everything || MissionBoard.Cleared(profile, Missions.Two))
-            {
-                won.Add(Kie);
-                won.Add(Kcaj);
-            }
+            if (everything || MissionBoard.Cleared(profile, Missions.One)) won.Add(Kie);
+            if (everything || MissionBoard.Cleared(profile, Missions.Two)) won.Add(Kcaj);
             return won;
         }
 
