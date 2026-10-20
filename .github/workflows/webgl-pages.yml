@@ -24,7 +24,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write # the deploy pushes the build to the gh-pages branch
+  contents: read # the jobs that push to the gh-pages branch (the deploys and the prune) ask for write themselves
 
 env:
   MAIN_LINE: claude/gallant-keller-3qzp97
@@ -42,7 +42,7 @@ jobs:
   plan:
     name: Plan the build
     if: github.event_name != 'delete'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       build: ${{ steps.plan.outputs.build }}
       light: ${{ steps.plan.outputs.light }}
@@ -93,7 +93,7 @@ jobs:
     name: Check the scenes
     needs: plan
     if: needs.plan.outputs.build == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -122,92 +122,32 @@ jobs:
           if-no-files-found: error
           retention-days: 7 # GitHub's default is 90; a run's files are only read for a few days
 
-  build-and-deploy:
-    name: Build WebGL with GameCI and deploy
-    needs: [plan, scenes]
-    if: needs.plan.outputs.build == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      # The unityci/editor WebGL image is ~7 GB compressed. Rather than spend 2 minutes deleting preinstalled tools to
-      # make room for it, Docker keeps its images on the runner's second disk (/mnt), which is mostly empty
-      # (spike-ci-disk: 8 s instead of 126).
-      - name: Move Docker's storage to the second disk
-        run: |
-          sudo systemctl stop docker docker.socket
-          sudo mkdir -p /mnt/docker
-          echo '{"data-root": "/mnt/docker"}' | sudo tee /etc/docker/daemon.json
-          sudo systemctl start docker
-          docker info --format 'Docker storage: {{.DockerRootDir}}'
-          df -h / /mnt
+  # The Unity tests and the WebGL build run side by side, each in its own runner and editor container; touch play and
+  # the kit demos then play the build side by side; build-and-deploy puts it together once they've all passed.
 
+  # EditMode tests for the pure game logic (Assets/Scripts/Core, tests in Assets/Tests/EditMode), then PlayMode tests
+  # for the gameplay (Assets/Tests/Gameplay: a real World, ticked frame by frame). A failing test stops the deploy.
+  # Pinned to v4.3.2, the last release that runs Unity itself: v4.4.0 (the v4 tag) wraps game-ci/cli, which rejected
+  # the flag the action passed for coverageEnabled: false. No githubToken, so no check run: the summary lists results.
+  # One Unity (and one container) per test mode: run together, PlayMode can leave Unity's IL post-processing runner
+  # alive, and EditMode then dies with "Cannot access a closed pipe", reported as compiler errors.
+  tests:
+    name: Unity tests
+    needs: plan
+    if: needs.plan.outputs.build == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
       - name: Checkout
         uses: actions/checkout@v5
 
-      # Photon's license forbids redistributing the SDK, so it is stored as a release asset in a private
-      # repo and unpacked into Assets/Photon here, before Unity starts (see tools/unpack_unitypackage.py).
-      - name: Fetch Photon Fusion SDK
-        env:
-          GH_TOKEN: ${{ secrets.VENDOR_PAT }}
-          FUSION_TAG: fusion-2.1.3
-          FUSION_FILE: Photon-Fusion-2.1.3-Stable-2390.unitypackage
-          FUSION_SHA256: 375e21bc771ce5f7cea942b5f804e7c28c8f4d858f7e9aab96725214564bc52e
-        run: |
-          if [ -z "$GH_TOKEN" ]; then
-            echo "::error::Repository secret VENDOR_PAT is not set (read-only token for jhiggins-tech/pooket-slug-vendor)."
-            exit 1
-          fi
-          gh release download "$FUSION_TAG" -R jhiggins-tech/pooket-slug-vendor -p "$FUSION_FILE" -D vendor
-          echo "$FUSION_SHA256  vendor/$FUSION_FILE" | sha256sum -c -
-          python3 -I tools/unpack_unitypackage.py "vendor/$FUSION_FILE" .
-          # our committed Fusion config wins over anything the package ships
-          git checkout -- Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion
-
-      # Sounds the vendor repository's CI makes, exactly as vendor.lock pins them (tools/vendor_fetch.sh): the arcade
-      # announcer (voice/lines.json there), the cutscene narrator (voice/narration.json, <line>.wav for each line), the
-      # boss music's orchestral section, and the title and den themes (one seamless-loop WAV each). On the main line a
-      # missing one fails the build, so the live game never ships silent; a preview builds without it, a little quieter.
-      - name: Fetch the announcer, narrator, orchestra, title theme and den theme
-        env:
-          GH_TOKEN: ${{ secrets.VENDOR_PAT }}
-          VENDOR_STRICT: ${{ github.ref_name == env.MAIN_LINE }}
-        run: |
-          tools/vendor_fetch.sh --bytes announcer Assets/Resources/Voice "the announcer stays quiet in this build"
-          tools/vendor_fetch.sh --bytes narration Assets/Resources/Narration "the narrator is subtitles only"
-          tools/vendor_fetch.sh --bytes orchestra Assets/Resources/Music "the boss music stays chip"
-          tools/vendor_fetch.sh --bytes start-music Assets/Resources/Music "the splash screen is silent"
-          tools/vendor_fetch.sh --bytes den-music Assets/Resources/Music "the den is silent"
-
-      # The cutscenes built into the game (scenes/*.txt as Resources/Scenes), the copy that plays when the site's can't
-      # be reached or has a problem.
-      - name: Build in the scenes
-        run: |
-          mkdir -p Assets/Resources/Scenes
-          cp scenes/*.txt Assets/Resources/Scenes/
-          ls -l Assets/Resources/Scenes
-
-      - name: Cache Unity Library
-        uses: actions/cache@v5
+      - name: Get the project ready for Unity
+        id: project
+        uses: ./.github/actions/unity-project
         with:
-          path: Library
-          key: Library-WebGL-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
-          restore-keys: |
-            Library-WebGL-
+          vendor-token: ${{ secrets.VENDOR_PAT }}
+          strict: ${{ github.ref_name == env.MAIN_LINE }}
 
-      # The tests run in the same editor image as the build, so it's only pulled once.
-      - name: Pick the editor image
-        id: editor
-        run: |
-          version=$(sed -n 's/^m_EditorVersion: //p' ProjectSettings/ProjectVersion.txt)
-          echo "image=unityci/editor:ubuntu-$version-webgl-3" >> "$GITHUB_OUTPUT"
-
-      # EditMode tests for the pure game logic (Assets/Scripts/Core, tests in Assets/Tests/EditMode), then
-      # PlayMode tests for the gameplay (Assets/Tests/Gameplay: a real World, ticked frame by frame). A
-      # failing test stops the job here, so a broken build never deploys. Pinned to v4.3.2, the last
-      # release that runs Unity itself: v4.4.0 (the v4 tag) wraps game-ci/cli, which rejected the flag the
-      # action passed for coverageEnabled: false. No githubToken, so no check run: the summary lists results.
-      # One Unity (and one container) per test mode: run together, PlayMode can leave Unity's IL post-processing
-      # runner alive, and EditMode then dies with "Cannot access a closed pipe", reported as compiler errors.
       - name: Run the EditMode tests (GameCI)
         id: editmode
         uses: game-ci/unity-test-runner@v4.3.2
@@ -216,7 +156,7 @@ jobs:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
-          customImage: ${{ steps.editor.outputs.image }}
+          customImage: ${{ steps.project.outputs.image }}
           testMode: editmode
           artifactsPath: test-results/editmode
 
@@ -230,7 +170,7 @@ jobs:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
-          customImage: ${{ steps.editor.outputs.image }}
+          customImage: ${{ steps.project.outputs.image }}
           testMode: playmode
           artifactsPath: test-results/playmode
 
@@ -238,7 +178,7 @@ jobs:
         if: always() && steps.editmode.outcome != 'skipped'
         run: |
           # to the log as well as the summary, so a failure can be read from the job's log alone
-          python3 - <<'EOF' | tee -a "$GITHUB_STEP_SUMMARY"
+          python3 - <<'PY' | tee -a "$GITHUB_STEP_SUMMARY"
           import glob, sys, xml.etree.ElementTree as ET
           files = sorted(glob.glob('test-results/**/*.xml', recursive=True))
           if not files:
@@ -263,7 +203,7 @@ jobs:
                   message = (t.findtext('failure/message') or '').strip().splitlines()
                   print(f"- `{t.get('fullname')}`: {message[0] if message else 'failed'}")
               print()
-          EOF
+          PY
 
       - name: Upload test results
         if: always() && steps.editmode.outcome != 'skipped'
@@ -274,6 +214,24 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7 # GitHub's default is 90; a run's files are only read for a few days
 
+  build:
+    name: Build WebGL with GameCI
+    needs: plan
+    if: needs.plan.outputs.build == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Get the project ready for Unity
+        id: project
+        uses: ./.github/actions/unity-project
+        with:
+          vendor-token: ${{ secrets.VENDOR_PAT }}
+          strict: ${{ github.ref_name == env.MAIN_LINE }}
+          save-library: 'true'
+
       - name: Build WebGL (GameCI)
         uses: game-ci/unity-builder@v4.8.2 # pinned, as the test runner is: the floating v4 tag could change under us
         env:
@@ -281,64 +239,100 @@ jobs:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
+          customImage: ${{ steps.project.outputs.image }}
           targetPlatform: WebGL
           buildMethod: PooketSlug.EditorTools.WebGLBuild.Build
           customParameters: -buildSha ${{ github.sha }} -photonAppId ${{ secrets.PHOTON_APP_ID }} -googleClientId ${{ vars.GOOGLE_CLIENT_ID || secrets.GOOGLE_CLIENT_ID }} -firebaseApiKey ${{ vars.FIREBASE_API_KEY || secrets.FIREBASE_API_KEY }} -firebaseDbUrl ${{ vars.FIREBASE_DB_URL || secrets.FIREBASE_DB_URL }}
           versioning: None
 
-      # Two thumbs on an emulated phone held sideways (tools/touch.mjs: the stick and FIRE, then pause), against the
-      # build just made: a page error or a START that doesn't get the mission going stops it before it deploys.
-      - name: Set up Node for the touch test
-        uses: actions/setup-node@v7
+      # Only for the jobs after this one: the site's build is PooketSlug-WebGL, put together by build-and-deploy.
+      - name: Upload the build for touch play and the demos
+        uses: actions/upload-artifact@v6
         with:
-          node-version: 22
+          name: unity-build
+          path: build/WebGL/WebGL
+          if-no-files-found: error
+          retention-days: 1
+
+  # Two thumbs on an emulated phone held sideways (tools/touch.mjs: the stick and FIRE, then pause), against the build
+  # just made: a page error or a START that doesn't get the mission going stops it before it deploys.
+  touch:
+    name: Play it by touch
+    needs: build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          sparse-checkout: |
+            tools
+            .github/actions
+
+      - name: Download the build
+        uses: actions/download-artifact@v8
+        with:
+          name: unity-build
+          path: site
+
+      - name: Set up Playwright
+        uses: ./.github/actions/playwright
 
       - name: Play it by touch
-        id: touch
         run: |
-          npm install --no-save --no-audit --no-fund playwright@1.56.1
-          npx playwright install --with-deps chromium
-          python3 -m http.server 8001 --bind 127.0.0.1 --directory build/WebGL/WebGL > touch-server.log 2>&1 &
+          python3 -m http.server 8001 --bind 127.0.0.1 --directory site > touch-server.log 2>&1 &
           for i in $(seq 30); do curl -fsS -o /dev/null http://127.0.0.1:8001/index.html && break; sleep 1; done
           node tools/touch.mjs http://127.0.0.1:8001/index.html touch-test
 
       - name: Upload the touch test
-        if: always() && steps.touch.outcome != 'skipped'
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: touch-test
           path: touch-test
           if-no-files-found: ignore
+          retention-days: 7 # GitHub's default is 90; a run's files are only read for a few days
 
-      # The ⓘ kit screen's demo clips: the build just made plays each move's scripted scene (?demo=all, KitGuide.cs) in
-      # headless Chromium, which records it, and tools/demos.mjs cuts it into a clip for each move in demos/, so the
-      # clips always match the build they ship with. If recording fails, the build still deploys, and the kit screen
-      # says there's no demo yet.
-      - name: Set up Node
-        if: needs.plan.outputs.demos == 'true'
-        uses: actions/setup-node@v7
+  # The ⓘ kit screen's demo clips: the build just made plays each move's scripted scene (?demo=all, KitGuide.cs) in
+  # headless Chromium, which records it, and tools/demos.mjs cuts it into a clip for each move in demos/, so the clips
+  # always match the build they ship with. If recording fails, the build still deploys, and the kit screen says
+  # there's no demo yet.
+  demos:
+    name: Record the kit demos
+    needs: [plan, build]
+    if: needs.plan.outputs.demos == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
         with:
-          node-version: 22
+          sparse-checkout: |
+            tools
+            .github/actions
+
+      - name: Download the build
+        uses: actions/download-artifact@v8
+        with:
+          name: unity-build
+          path: site
+
+      - name: Set up Playwright
+        uses: ./.github/actions/playwright
 
       - name: Record the kit screen's demos
         id: demos
-        if: needs.plan.outputs.demos == 'true'
         continue-on-error: true
         run: |
           sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg > /dev/null
-          npm install --no-save --no-audit --no-fund playwright@1.56.1
-          npx playwright install --with-deps chromium
-          python3 -m http.server 8000 --bind 127.0.0.1 --directory build/WebGL/WebGL > demo-server.log 2>&1 &
+          python3 -m http.server 8000 --bind 127.0.0.1 --directory site > demo-server.log 2>&1 &
           for i in $(seq 30); do curl -fsS -o /dev/null http://127.0.0.1:8000/index.html && break; sleep 1; done
           node tools/demos.mjs http://127.0.0.1:8000/index.html demos
-          sudo mkdir -p build/WebGL/WebGL/demos
-          sudo cp demos/*.mp4 build/WebGL/WebGL/demos/
-          ls -l build/WebGL/WebGL/demos
 
       - name: Demos summary
-        if: always() && steps.demos.outcome != 'skipped'
+        if: always()
         run: |
-          python3 - >> "$GITHUB_STEP_SUMMARY" <<'EOF'
+          python3 - >> "$GITHUB_STEP_SUMMARY" <<'PY'
           import json
           try:
               demos = json.load(open('demos/demos.json'))
@@ -350,10 +344,10 @@ jobs:
           print("|---|---|---|---|")
           for d in demos:
               print(f"| `{d['id']}` | {d['gameSeconds']} s | {d['recordedSeconds']} s | {d['bytes'] // 1024} KB |")
-          EOF
+          PY
 
       - name: Upload the demos
-        if: always() && steps.demos.outcome != 'skipped'
+        if: always()
         uses: actions/upload-artifact@v6
         with:
           name: kit-demos
@@ -361,12 +355,55 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7 # GitHub's default is 90; a run's files are only read for a few days
 
+  # The build with what the site serves beside it (the demos, the sandbox's setups, the checked scenes) as
+  # PooketSlug-WebGL, the artifact the co-op tests play and the main line deploys; a preview deploys from here.
+  build-and-deploy:
+    name: Build WebGL with GameCI and deploy
+    needs: [plan, scenes, tests, build, touch, demos]
+    # the demos may be skipped (the crew didn't change) and never stop a deploy
+    if: >-
+      always() && needs.plan.outputs.build == 'true' && needs.scenes.result == 'success' &&
+      needs.tests.result == 'success' && needs.build.result == 'success' && needs.touch.result == 'success'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write # a preview's deploy pushes it to the gh-pages branch
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          sparse-checkout: |
+            tools
+            sandbox
+            ProjectSettings
+
+      - name: Download the build
+        uses: actions/download-artifact@v8
+        with:
+          name: unity-build
+          path: site
+
+      - name: Download the demos
+        if: needs.demos.result == 'success'
+        continue-on-error: true # none recorded: the kit screen says there's no demo yet
+        uses: actions/download-artifact@v8
+        with:
+          name: kit-demos
+          path: demos
+
+      - name: Add the demos
+        run: |
+          if ls demos/*.mp4 >/dev/null 2>&1; then
+            mkdir -p site/demos
+            cp demos/*.mp4 site/demos/
+            ls -l site/demos
+          fi
+
       # The sandbox's setups (sandbox-files.yml puts them up between builds), so a deploy keeps them.
       - name: Add the sandbox's setups
         run: |
           if ls sandbox/*.txt >/dev/null 2>&1; then
-            sudo mkdir -p build/WebGL/WebGL/sandbox
-            sudo cp sandbox/*.txt build/WebGL/WebGL/sandbox/
+            mkdir -p site/sandbox
+            cp sandbox/*.txt site/sandbox/
           fi
 
       # The scenes and the narrator's recordings, checked (the scenes job), so a deploy keeps them.
@@ -378,15 +415,15 @@ jobs:
 
       - name: Add the scenes
         run: |
-          sudo mkdir -p build/WebGL/WebGL/scenes
-          sudo cp -R site-scenes/. build/WebGL/WebGL/scenes/
-          ls -lR build/WebGL/WebGL/scenes | head -40
+          mkdir -p site/scenes
+          cp -R site-scenes/. site/scenes/
+          ls -lR site/scenes | head -40
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v6
         with:
           name: PooketSlug-WebGL
-          path: build/WebGL/WebGL
+          path: site
           if-no-files-found: error
           retention-days: 7 # GitHub's default is 90; a run's files are only read for a few days
 
@@ -396,7 +433,7 @@ jobs:
         if: needs.plan.outputs.slug != ''
         env:
           SLUG: ${{ needs.plan.outputs.slug }}
-        run: tools/pages_deploy.sh preview "$SLUG" build/WebGL/WebGL
+        run: tools/pages_deploy.sh preview "$SLUG" site
 
       - name: Summary
         env:
@@ -408,7 +445,7 @@ jobs:
             echo ""
             echo "- Commit: \`${GITHUB_SHA::7}\` on \`${GITHUB_REF_NAME}\`"
             echo "- Unity: \`$(sed -n 's/^m_EditorVersion: //p' ProjectSettings/ProjectVersion.txt)\`"
-            echo "- Build size: $(du -sh build/WebGL/WebGL | cut -f1)"
+            echo "- Build size: $(du -sh site | cut -f1)"
             if [ -z "$SLUG" ]; then echo "- Goes live at $site once the co-op tests pass"; else echo "- Preview: ${site}previews/$SLUG/ (all previews: ${site}previews/)"; fi
           } >> "$GITHUB_STEP_SUMMARY"
 
@@ -417,7 +454,9 @@ jobs:
   prune-previews:
     name: Remove deleted branches' previews
     if: github.event_name == 'delete' || github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write # removes the previews from the gh-pages branch
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -430,12 +469,13 @@ jobs:
   # Two players in two headless browsers, against the build just made: A and B join the co-op room (one of its own per round, ?room=),
   # both play, then A leaves and B must take over the shared world, and the other scenarios below. GitHub's runners
   # can open the WebSockets Photon needs (the cloud sandbox can't), so this is where co-op gets tested. Three run at
-  # once: at most 7 players per branch, so two branches testing together stay under Photon's free 20.
+  # once, at most 7 players a branch (watch has three phones), so two branches testing at the same moment stay under
+  # Photon's free 20; a third could go over, and a round that can't get into its room fails.
   coop-test:
     name: Co-op test (${{ matrix.mode }})
     needs: [plan, build-and-deploy]
     if: needs.plan.outputs.coop == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     strategy:
       fail-fast: false
@@ -460,15 +500,8 @@ jobs:
           name: PooketSlug-WebGL
           path: site
 
-      - name: Set up Node
-        uses: actions/setup-node@v7
-        with:
-          node-version: 22
-
-      - name: Install Playwright and Chromium
-        run: |
-          npm install --no-save --no-audit --no-fund playwright@1.56.1
-          npx playwright install --with-deps chromium
+      - name: Set up Playwright
+        uses: ./.github/actions/playwright
 
       - name: Serve the build
         run: |
@@ -594,7 +627,9 @@ jobs:
     name: Deploy the live game
     needs: [plan, build-and-deploy, coop-test]
     if: needs.plan.outputs.slug == '' && needs.build-and-deploy.result == 'success' && needs.coop-test.result == 'success'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write # pushes the build to the gh-pages branch
     steps:
       - name: Checkout
         uses: actions/checkout@v5
