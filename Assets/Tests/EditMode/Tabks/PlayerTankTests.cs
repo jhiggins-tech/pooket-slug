@@ -166,5 +166,14 @@ namespace PooketSlug.Tests
             Assert.Greater(Content.PlayerTank.DriveSpeed, 0f);
             Assert.Less(Content.PlayerTank.DriveSpeed, Content.Tones2.RunSpeed, "a tank is a little slower than a soldier on foot");
         }
+
+        [Test]
+        public void APlayableTabkHasTwiceItsOldHealth_AndAPartnerCanSeeAllOfIt()
+        {
+            // Jack, 20 Oct: playable tabks died too quickly; 12 became 24
+            Assert.AreEqual(24, Content.PlayerTank.Hp);
+            TankPose back = TankPose.Unpack(new TankPose { State = TankPose.Mode.Driven, Facing = 1, Hp = Content.PlayerTank.Hp }.Pack());
+            Assert.AreEqual(Content.PlayerTank.Hp, back.Hp, "the pose carries a full tabk's health");
+        }
     }
 }

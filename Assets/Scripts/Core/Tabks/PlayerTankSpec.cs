@@ -9,8 +9,9 @@ namespace PooketSlug
     /// </summary>
     public sealed class PlayerTankSpec
     {
-        /// <summary>Its own health, apart from the driver's hearts.</summary>
-        public int Hp = 12;
+        /// <summary>Its own health, apart from the driver's hearts: doubled from 12 on 20 Oct (Jack: tabks died too quickly).
+        /// Every playable tabk has it; a partner sees it through <see cref="TankPose"/>, which holds up to 63.</summary>
+        public int Hp = 24;
         /// <summary>Seconds it can't be hurt again after a hit, so a burst of bullets doesn't strip it at once.</summary>
         public float HurtGrace = 0.3f;
         /// <summary>Units per second, a little slower than a soldier on foot.</summary>
