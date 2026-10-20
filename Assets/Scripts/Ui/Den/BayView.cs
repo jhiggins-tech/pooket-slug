@@ -363,8 +363,8 @@ namespace PooketSlug
             }
             m_CardGuns.text = guns;
             m_CardRounds.text = rounds;
-            // a tabk that's won but not built yet: missions drop tones2's in its place (the owner, 19 Oct)
-            m_CardNote.text = TabkCards.Built(card) ? "" : "MISSIONS DROP TONES2'S FOR NOW";
+            // the owner's call while tabk select was built (19 Oct): missions drop tones2's tabk until kie's and kcaj's are built
+            m_CardNote.text = card == TabkCards.Tones2 ? "" : "MISSIONS DROP TONES2'S FOR NOW";
             bool isLoaded = m_Garage.Loaded == card && !loading;
             Ui.Show(m_Take, !isLoaded);
             Ui.Show(m_Loaded, isLoaded);
