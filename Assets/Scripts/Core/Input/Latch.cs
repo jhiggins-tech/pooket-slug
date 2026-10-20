@@ -1,9 +1,10 @@
 // A button press or a tap, held till the flow takes it: set by a click handler, read once and cleared (screens-tidy,
-// Audit 3). Every screen's Take* methods go through these.
+// Audit 3). Every screen's Take* methods go through these. They're classes, not structs, so a handler made from a
+// method (`m_Back.Set`) sets the screen's own latch rather than a boxed copy of it.
 namespace PooketSlug
 {
     /// <summary>Something pressed since the last <see cref="Take"/>.</summary>
-    public struct Latch
+    public sealed class Latch
     {
         bool m_On;
 
@@ -21,7 +22,7 @@ namespace PooketSlug
     }
 
     /// <summary>A tap that carries what was tapped (a crewmate, a place, where to walk), held till it's taken.</summary>
-    public struct Latch<T>
+    public sealed class Latch<T>
     {
         bool m_On;
         T m_Value;

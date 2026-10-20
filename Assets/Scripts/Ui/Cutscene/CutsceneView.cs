@@ -45,7 +45,8 @@ namespace PooketSlug
         ShotStage m_StageOf;
         int m_StageShot = -1;
         float m_FlickerUntil;
-        Latch m_Tapped, m_SkipPressed;
+        readonly Latch m_Tapped = new Latch();
+        readonly Latch m_SkipPressed = new Latch();
 
         public CutsceneView(Transform parent)
         {

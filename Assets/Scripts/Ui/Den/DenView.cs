@@ -34,10 +34,14 @@ namespace PooketSlug
         string m_PaintedKey;
         float m_Clock, m_CamX;
 
-        Latch<SoldierDef> m_Picked;
-        Latch<DenPlace> m_Place;
-        Latch<(DenFloor floor, float x)> m_Walk;
-        Latch m_Ready, m_Back, m_Kit, m_Host, m_InviteDown;
+        readonly Latch<SoldierDef> m_Picked = new Latch<SoldierDef>();
+        readonly Latch<DenPlace> m_Place = new Latch<DenPlace>();
+        readonly Latch<(DenFloor floor, float x)> m_Walk = new Latch<(DenFloor floor, float x)>();
+        readonly Latch m_Ready = new Latch();
+        readonly Latch m_Back = new Latch();
+        readonly Latch m_Kit = new Latch();
+        readonly Latch m_Host = new Latch();
+        readonly Latch m_InviteDown = new Latch();
 
         public DenView(Transform parent) : base(parent, "Den", 8) // under the menus (10), so the ⓘ kit screen and notices show over it
         {

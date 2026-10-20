@@ -24,7 +24,8 @@ namespace PooketSlug
         readonly StageFigure m_Tones2, m_Kie;
         readonly Button m_Continue;
         DebriefPlayer m_Player;
-        Latch m_Tapped, m_Leave;
+        readonly Latch m_Tapped = new Latch();
+        readonly Latch m_Leave = new Latch();
         bool m_RankSounded;
         int m_Blips;
 

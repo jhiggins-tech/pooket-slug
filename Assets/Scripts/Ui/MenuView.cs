@@ -80,7 +80,7 @@ namespace PooketSlug
         readonly Button m_HardButton, m_MissionPlay;
         readonly Text m_HardLabel, m_MissionPlayLabel, m_MissionPlayKey, m_HardKey, m_MissionsBackKey, m_MissionsHint, m_MissionTabk;
         MenuScreen m_Shown;
-        Latch<MenuAction> m_Clicked;
+        readonly Latch<MenuAction> m_Clicked = new Latch<MenuAction>();
         bool m_SecondIsLeave; // the victory screen's second button leaves a shared game instead of going to the menu
 
         public MenuView(Transform parent)

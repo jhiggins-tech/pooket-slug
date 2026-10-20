@@ -42,10 +42,12 @@ namespace PooketSlug
         SoldierDef m_SoldierDef;
         int m_Skin;
 
-        Latch<int> m_TapSpot;
-        Latch<BayPlace> m_TapPlace;
-        Latch<(BayDeck deck, float x)> m_TapWalk;
-        Latch m_Back, m_TakeIt, m_Close;
+        readonly Latch<int> m_TapSpot = new Latch<int>();
+        readonly Latch<BayPlace> m_TapPlace = new Latch<BayPlace>();
+        readonly Latch<(BayDeck deck, float x)> m_TapWalk = new Latch<(BayDeck deck, float x)>();
+        readonly Latch m_Back = new Latch();
+        readonly Latch m_TakeIt = new Latch();
+        readonly Latch m_Close = new Latch();
 
         public BayView(Transform parent) : base(parent, "Tabk bay", 9) // over the den (8), under the menus (10)
         {
