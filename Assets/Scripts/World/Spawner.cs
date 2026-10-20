@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace PooketSlug
@@ -30,44 +32,73 @@ namespace PooketSlug
         /// <summary>How far through the level's spawns the authority has got; the next index to place.</summary>
         public int Next => m_Next;
 
-        /// <summary>Makes an enemy (not yet in the world's list), driven by its definition's brain.</summary>
+        /// <summary>
+        /// The class that plays each brain (<see cref="EnemyDef.Brain"/>): one row per kind of enemy. The boss tabk and the
+        /// pilots are the world's boss as they're made.
+        /// </summary>
+        static readonly Dictionary<EnemyBrain, Func<World, EnemyDef, Vector2, Enemy>> s_Brains = new Dictionary<EnemyBrain, Func<World, EnemyDef, Vector2, Enemy>>
+        {
+            [EnemyBrain.Rifleman] = (w, d, p) => new Rifleman(w, d, p),
+            [EnemyBrain.Runner] = (w, d, p) => new Runner(w, d, p),
+            [EnemyBrain.Drone] = (w, d, p) => new Drone(w, d, p),
+            [EnemyBrain.Tank] = (w, d, p) => w.Boss = new TankBoss(w, d, p),
+            [EnemyBrain.TankCopy] = (w, d, p) => new TankBoss(w, d, p, decoy: true),
+            [EnemyBrain.Barrel] = (w, d, p) => new Barrel(w, d, p),
+            [EnemyBrain.NitrogenTank] = (w, d, p) => new Barrel(w, d, p),
+            [EnemyBrain.Weasel] = (w, d, p) => new Weasel(w, d, p),
+            [EnemyBrain.Pilot] = (w, d, p) => w.Boss = new KiePilot(w, d, p),
+            [EnemyBrain.KcajPilot] = (w, d, p) => w.Boss = new KcajPilot(w, d, p),
+            [EnemyBrain.PilotDecoy] = (w, d, p) => new PilotDecoy(w, d, p),
+            [EnemyBrain.ToppleTower] = (w, d, p) => new ToppleTower(w, d, p),
+            [EnemyBrain.ExitGate] = (w, d, p) => new ExitGate(w, d, p),
+            [EnemyBrain.ConeBox] = (w, d, p) => new ConeBox(w, d, p),
+            [EnemyBrain.Shield] = (w, d, p) => new ShieldSoldier(w, d, p),
+            [EnemyBrain.Grenadier] = (w, d, p) => new Grenadier(w, d, p),
+            [EnemyBrain.BigScoop] = (w, d, p) => new BigScoop(w, d, p),
+            [EnemyBrain.Projector] = (w, d, p) => new Projector(w, d, p),
+        };
+
+        /// <summary>What each map marker that isn't an enemy or a pickup puts in the world: one row per kind of scenery or hazard.</summary>
+        static readonly Dictionary<SpawnKind, Action<World, Vector2>> s_Scenery = new Dictionary<SpawnKind, Action<World, Vector2>>
+        {
+            [SpawnKind.Flag] = (w, p) => w.Props.Add(new Prop(w, Art.Flag, p, SortOrder.Pickups)),
+            [SpawnKind.TowerScenery] = (w, p) => w.Props.Add(new Prop(w, Art.Watchtower, p, SortOrder.Scenery)),
+            [SpawnKind.MotorPool] = (w, p) => w.Props.Add(new Prop(w, Art.MotorPoolGate, p, SortOrder.Scenery)),
+            [SpawnKind.LiveFence] = (w, p) => w.Props.Add(new LiveFence(w, p)),
+            [SpawnKind.SteamVent] = (w, p) => w.Props.Add(new SteamVent(w, p)),
+            [SpawnKind.Icicles] = (w, p) => w.Props.Add(new Icicles(w, p)),
+            [SpawnKind.Lift] = (w, p) =>
+            {
+                w.Props.Add(new Prop(w, Art.LiftRails, p + new Vector2(0.5f, 0f), SortOrder.Scenery));
+                w.Props.Add(new Lift(w, p));
+            },
+            [SpawnKind.Checkpoint] = (w, p) => w.Props.Add(new Checkpoint(w, p)),
+            [SpawnKind.BackGate] = (w, p) => w.Props.Add(w.BackGate = new BackGate(w, p)),
+            [SpawnKind.NitrogenVent] = (w, p) => w.Props.Add(new NitrogenVent(w, p)),
+            [SpawnKind.ScoopDropper] = (w, p) => w.Props.Add(new ScoopDropper(w, p)),
+            [SpawnKind.ColdStore] = (w, p) => w.Props.Add(new ColdStoreDoor(w, p)),
+            [SpawnKind.Fog] = (w, p) =>
+            {
+                float end = w.Level.FogEnd(p.x);
+                if (end > 0f) w.Props.Add(new FogBank(w, p, end));
+            },
+        };
+
+        /// <summary>The brains the spawner can make, for the tests: every <see cref="EnemyBrain"/> has a row.</summary>
+        public static IEnumerable<EnemyBrain> Brains => s_Brains.Keys;
+        /// <summary>The scenery and hazards the spawner can place, for the tests.</summary>
+        public static IEnumerable<SpawnKind> Scenery => s_Scenery.Keys;
+
+        /// <summary>
+        /// Makes an enemy (not yet in the world's list), driven by its definition's brain. Unless it's real
+        /// (<see cref="EnemyDef.Real"/>), it wears the Trollogram look, on every screen in co-op.
+        /// </summary>
         public Enemy CreateEnemy(EnemyDef def, Vector2 pos, int id)
         {
-            World w = m_World;
-            Enemy e;
-            switch (def.Brain)
-            {
-                case EnemyBrain.Rifleman: e = new Rifleman(w, def, pos); break;
-                case EnemyBrain.Runner: e = new Runner(w, def, pos); break;
-                case EnemyBrain.Drone: e = new Drone(w, def, pos); break;
-                case EnemyBrain.Tank:
-                    e = w.Boss = new TankBoss(w, def, pos);
-                    break;
-                case EnemyBrain.Barrel: e = new Barrel(w, def, pos); break;
-                case EnemyBrain.Weasel: e = new Weasel(w, def, pos); break;
-                case EnemyBrain.TankCopy: e = new TankBoss(w, def, pos, decoy: true); break;
-                case EnemyBrain.Pilot:
-                    e = w.Boss = new KiePilot(w, def, pos);
-                    break;
-                case EnemyBrain.KcajPilot:
-                    e = w.Boss = new KcajPilot(w, def, pos);
-                    break;
-                case EnemyBrain.PilotDecoy: e = new PilotDecoy(w, def, pos); break;
-                case EnemyBrain.ToppleTower: e = new ToppleTower(w, def, pos); break;
-                case EnemyBrain.ExitGate: e = new ExitGate(w, def, pos); break;
-                case EnemyBrain.ConeBox: e = new ConeBox(w, def, pos); break;
-                case EnemyBrain.NitrogenTank: e = new Barrel(w, def, pos); break;
-                case EnemyBrain.Shield: e = new ShieldSoldier(w, def, pos); break;
-                case EnemyBrain.Grenadier: e = new Grenadier(w, def, pos); break;
-                case EnemyBrain.BigScoop: e = new BigScoop(w, def, pos); break;
-                case EnemyBrain.Projector: e = new Projector(w, def, pos); break;
-                default: return null;
-            }
+            if (!s_Brains.TryGetValue(def.Brain, out Func<World, EnemyDef, Vector2, Enemy> make)) return null;
+            Enemy e = make(m_World, def, pos);
             e.NetId = id;
-            if (def.Brain != EnemyBrain.Tank && def.Brain != EnemyBrain.Barrel && def.Brain != EnemyBrain.Weasel &&
-                def.Brain != EnemyBrain.ToppleTower && def.Brain != EnemyBrain.ExitGate && def.Brain != EnemyBrain.ConeBox &&
-                def.Brain != EnemyBrain.NitrogenTank && def.Brain != EnemyBrain.Projector)
-                e.Look = new HoloLook(e); // the goons, kie's tank copies and its pilot are holograms (on every screen in co-op); the tank, barrels, weasels, the watchtower, the last gate and the creamery's boxes, tanks and projectors are real
+            if (!def.Real) e.Look = new HoloLook(e);
             return e;
         }
 
@@ -102,27 +133,7 @@ namespace PooketSlug
             World w = m_World;
             PickupDef pickup = Content.PickupFor(s.Kind);
             if (pickup != null) w.Pickups.Add(new Pickup(w, pickup, s.Pos) { NetId = index });
-            else if (s.Kind == SpawnKind.Flag) w.Props.Add(new Prop(w, Art.Flag, s.Pos, SortOrder.Pickups));
-            else if (s.Kind == SpawnKind.TowerScenery) w.Props.Add(new Prop(w, Art.Watchtower, s.Pos, SortOrder.Scenery));
-            else if (s.Kind == SpawnKind.MotorPool) w.Props.Add(new Prop(w, Art.MotorPoolGate, s.Pos, SortOrder.Scenery));
-            else if (s.Kind == SpawnKind.LiveFence) w.Props.Add(new LiveFence(w, s.Pos));
-            else if (s.Kind == SpawnKind.SteamVent) w.Props.Add(new SteamVent(w, s.Pos));
-            else if (s.Kind == SpawnKind.Icicles) w.Props.Add(new Icicles(w, s.Pos));
-            else if (s.Kind == SpawnKind.Lift)
-            {
-                w.Props.Add(new Prop(w, Art.LiftRails, s.Pos + new Vector2(0.5f, 0f), SortOrder.Scenery));
-                w.Props.Add(new Lift(w, s.Pos));
-            }
-            else if (s.Kind == SpawnKind.Checkpoint) w.Props.Add(new Checkpoint(w, s.Pos));
-            else if (s.Kind == SpawnKind.BackGate) w.Props.Add(w.BackGate = new BackGate(w, s.Pos));
-            else if (s.Kind == SpawnKind.NitrogenVent) w.Props.Add(new NitrogenVent(w, s.Pos));
-            else if (s.Kind == SpawnKind.ScoopDropper) w.Props.Add(new ScoopDropper(w, s.Pos));
-            else if (s.Kind == SpawnKind.ColdStore) w.Props.Add(new ColdStoreDoor(w, s.Pos));
-            else if (s.Kind == SpawnKind.Fog)
-            {
-                float end = w.Level.FogEnd(s.Pos.x);
-                if (end > 0f) w.Props.Add(new FogBank(w, s.Pos, end));
-            }
+            else if (s_Scenery.TryGetValue(s.Kind, out Action<World, Vector2> place)) place(w, s.Pos);
         }
 
         public void SpawnAhead()

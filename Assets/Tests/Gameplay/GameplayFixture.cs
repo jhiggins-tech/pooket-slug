@@ -35,11 +35,18 @@ namespace PooketSlug.Tests
             Object.DestroyImmediate(m_Camera.gameObject);
         }
 
-        protected World Make(string row, INetLink net = null, SoldierDef soldier = null)
+        protected World Make(string row, INetLink net = null, SoldierDef soldier = null, BossTabk boss = BossTabk.Kie, EnemyDef pilot = null)
         {
-            World = new World(m_Camera, new MissionDef("test", byte.MaxValue, "TEST", "", Strip(row)), net, soldier);
+            World = new World(m_Camera, new MissionDef("test", byte.MaxValue, "TEST", "", Strip(row), boss: boss, pilot: pilot), net, soldier)
+            {
+                BossTabk = boss,
+            };
             return World;
         }
+
+        /// <summary>Puts a <paramref name="def"/> on the ground <paramref name="ahead"/> tiles in front of our soldier's start.</summary>
+        protected Enemy Spawn(EnemyDef def, float ahead) =>
+            World.Spawner.SpawnEnemy(def, World.Level.PlayerStart + Vector2.right * ahead);
 
         /// <summary>Runs the world for <paramref name="seconds"/> with the given input held.</summary>
         protected void Run(float seconds, SoldierInput input = default)

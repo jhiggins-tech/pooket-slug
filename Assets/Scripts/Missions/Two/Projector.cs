@@ -8,25 +8,22 @@ namespace PooketSlug
     /// come near it never appear (<see cref="Creamery.SwitchedOff"/>). Every screen notes where it stood as it dies, so
     /// an authority that takes over carries on without them.
     /// </summary>
-    public sealed class Projector : Enemy
+    public sealed class Projector : SetPiece
     {
         static readonly Color Beam = new Color(0.45f, 1f, 1f, 0.35f), Sparks = new Color(0.55f, 1f, 1f);
-        readonly SpriteRenderer m_Body, m_Glass, m_Glow;
+        readonly SpriteRenderer m_Glass, m_Glow;
         bool m_Out;
 
-        public Projector(World world, EnemyDef def, Vector2 feet) : base(world, def, feet)
+        public Projector(World world, EnemyDef def, Vector2 feet) : base(world, def, feet, CreameryArt.Projector, SortOrder.Enemies - 1)
         {
-            m_Body = AddRenderer(Visual, "Body", CreameryArt.Projector, SortOrder.Enemies - 1);
             m_Glow = AddRenderer(Visual, "Glow", CreameryArt.ProjectorGlow, SortOrder.Enemies - 2);
             m_Glow.color = Beam;
             m_Glow.transform.localPosition = new Vector3(0f, 14f / Art.PPU, 0f);
             m_Glass = AddRenderer(Go.transform, "Glass", CreameryArt.FrostedGlass, SortOrder.Enemies);
         }
 
-        protected override void TickAlive(float dt)
-        {
-            Vel = Vector2.zero; // bolted down: belts don't carry it
-        }
+        // bolted down: belts don't carry it (SetPiece doesn't fall)
+        protected override float Lingers => 0.6f; // sputtering out
 
         protected override void Die()
         {
@@ -34,11 +31,7 @@ namespace PooketSlug
             SwitchOff();
         }
 
-        protected override void TickDying(float dt)
-        {
-            SwitchOff(); // a follower's comes from the snapshot
-            if (DyingTime > 0.6f) Remove();
-        }
+        protected override void GoesOff() => SwitchOff(); // a follower's comes from the snapshot
 
         /// <summary>It's out: the goons near it flicker out (the authority's to decide), and no more come near it.</summary>
         void SwitchOff()
@@ -57,11 +50,10 @@ namespace PooketSlug
         public override void Render()
         {
             base.Render();
-            m_Body.sprite = Flashed(CreameryArt.Projector);
             bool lit = !Dying;
             m_Glow.enabled = lit;
             if (lit) m_Glow.color = new Color(Beam.r, Beam.g, Beam.b, Beam.a * (0.75f + 0.25f * Mathf.Sin(Anim * 9f)));
-            else m_Body.enabled = (int)(DyingTime * 20f) % 2 == 0; // sputters out
+            else Body.enabled = (int)(DyingTime * 20f) % 2 == 0; // sputters out
         }
     }
 }

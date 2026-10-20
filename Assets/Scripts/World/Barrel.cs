@@ -9,47 +9,33 @@ namespace PooketSlug
     /// Mission two's nitrogen tank is one too (<see cref="EnemyBrain.NitrogenTank"/>): a smaller bang, and a wide freeze
     /// over soldiers and goons alike (<see cref="Creamery"/>).
     /// </summary>
-    public sealed class Barrel : Enemy
+    public sealed class Barrel : SetPiece
     {
         const float BlastRadius = 1.8f;
         const int BlastDamage = 2, GoonDamage = 6;
         static readonly Color Mist = new Color(0.85f, 0.95f, 1f);
-        readonly SpriteRenderer m_Sr;
-        readonly Sprite m_Look;
         readonly bool m_Nitrogen;
-        bool m_Blown;
 
-        public Barrel(World world, EnemyDef def, Vector2 feet) : base(world, def, feet)
+        public Barrel(World world, EnemyDef def, Vector2 feet)
+            : base(world, def, feet, def.Brain == EnemyBrain.NitrogenTank ? CreameryArt.NitrogenTank : Art.Barrel, SortOrder.Enemies - 1)
         {
             m_Nitrogen = def.Brain == EnemyBrain.NitrogenTank;
-            m_Look = m_Nitrogen ? CreameryArt.NitrogenTank : Art.Barrel;
-            m_Sr = AddRenderer(Visual, "Body", m_Look, SortOrder.Enemies - 1);
         }
 
-        protected override void TickAlive(float dt)
-        {
-            Vel.x = 0f;
-            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
-            MoveWithTiles(dt);
-        }
+        protected override bool Falls => true;
 
-        protected override void TickDying(float dt)
+        protected override void GoesOff()
         {
-            if (!m_Blown)
+            Vector2 at = Center;
+            if (m_Nitrogen)
             {
-                m_Blown = true;
-                Vector2 at = Center;
-                if (m_Nitrogen)
-                {
-                    FreezeBlast(at);
-                    return;
-                }
-                World.Combat.Explode(at, BlastRadius, BlastDamage, true, 1.4f);
-                if (World.IsAuthority)
-                    foreach (Enemy e in World.Enemies)
-                        if (e != this && e.Shootable && Vector2.Distance(e.Center, at) <= BlastRadius + e.HalfW) e.Hurt(GoonDamage);
+                FreezeBlast(at);
+                return;
             }
-            Remove();
+            World.Combat.Explode(at, BlastRadius, BlastDamage, true, 1.4f);
+            if (World.IsAuthority)
+                foreach (Enemy e in World.Enemies)
+                    if (e != this && e.Shootable && Vector2.Distance(e.Center, at) <= BlastRadius + e.HalfW) e.Hurt(GoonDamage);
         }
 
         /// <summary>The nitrogen tank's blast: everyone near it frozen first (our soldier here, the goons by the authority), then a little hurt.</summary>
@@ -73,14 +59,6 @@ namespace PooketSlug
                     e.Freeze(Creamery.TankGoonFreeze);
                     e.Hurt(Creamery.TankGoonDamage);
                 }
-            Remove();
-        }
-
-        public override void Render()
-        {
-            base.Render();
-            m_Sr.sprite = Flashed(m_Look);
-            m_Sr.enabled = !Dying;
         }
     }
 }
