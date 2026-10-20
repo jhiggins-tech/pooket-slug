@@ -64,10 +64,10 @@ Each file starts with a summary comment saying what it's for.
 | `Core/Input/`, `Core/World/` | `ArcadePad` (the touch pad's logic), `SoldierInput`; `TilePhysics`, `Frost` (frozen by nitrogen), `Backdrop` (the parallax layers, and which plates cover the screen) |
 | `Core/Platform/` | `LaunchFlags` (`?test=`, `?unlock=` and the rest), `Spike.cs` (`?spike=` flags), `PageQuery`, `Sandbox` + `Knobs` + `SetupText`, `Rng`, `Log`; co-op's side: `NetContracts` / `NetIds` / `NetConfig` (interfaces and ids), `Rooms` (a room's listing), `Handover` (the world moving to the partner), `DropIn` (joining a mission under way, own scores), `PartnerBeacon` (the partner arrow and warnings), `WireMeter` (the kinds of message a phone sends its partner) |
 | `Game/` | `Game.cs`: `Bootstrap` and `Game`, the state machine (`GameState`: Title, Settings, Lobby, Den, Cutscene, Playing, GameOver, Victory, Demo), the world, the launch flags and the mission's story beats (from its `MissionStory`); then a flow per part of the game it hands frames to: `SceneFlow` (cutscenes, the site's copies, `?scene=` drafts), `DenFlow`, `KitFlow` (the ⓘ kit screen), `BoardFlow` (the mission screen), `DemoFlow` (`?demo=`), `SandboxFlow` (`?sandbox=`), `BossIntroFlow`, `MusicFlow`, `DebriefFlow`, `BayFlow` (the tabk bay) |
-| `World/` | One play-through (`World.cs`), rebuilt on restart, split by concern: `ScrollCamera` + `BackdropView` (the parallax: painted plates from `Resources/Plates/<mission id>/`, else drawn), `Spawner`, `Combat` (shots, hits, who owns damage), `Scoring`, `NetSync` (the world's side of co-op), `Hazards` (the fence, vents and icicles), `Barrel`, `Lift`, `Checkpoint`, `Liquids` (tones2's); and what every play-through is made of: `Entity` / `EntityPool`, `Projectile`, `Effect`, `Particle`, `Pickup`, `Prop`, `HitFeel`, `LevelView` |
+| `World/` | One play-through (`World.cs`), rebuilt on restart, split by concern: `ScrollCamera` + `BackdropView` (the parallax: painted plates from `Resources/Plates/<mission id>/`, else drawn), `Spawner` (what each brain and map marker makes, as two tables), `Combat` (shots, hits, who owns damage), `Scoring`, `NetSync` (the world's side of co-op), `Hazards` (the fence, vents and icicles), `SetPiece` (the base of what stands in the level until it's shot: `Barrel`, the missions' boxes, projectors, tower and gate), `Lift`, `Checkpoint`, `Liquids` (tones2's); and what every play-through is made of: `Entity` / `EntityPool`, `Projectile`, `Effect`, `Particle`, `Pickup`, `Prop`, `HitFeel`, `LevelView` |
 | `Crew/` | `Shared/` (`Player`: your soldier, `CrewKit`: the kit base every crewmate's kit fills and the soldier calls, with `KitCopy` for a partner's, `RemotePlayer`: your partner's, `PlayerVisual`, `TeamSuperShow` + `TeamActs`: each combo's show), then one folder per crew member: `Tones2/` (`Tones2Kit`, `Tones2Art`: his liquids, `Tones2Tabk`: his tabk's guns), `Kie/` (`KieKit`, `KieRoulette`, `KieTabk`: his tabk's guns, `KieTabkArt`: The Projectionist), `Kcaj/` (`KcajKit`: the cones, the beam and the pills, with `KcajCopy` for a partner's, his or his tabk's; `KcajTabk`: his tabk's guns, `KcajTabkArt`: SOFT SERVE) |
 | `Enemies/` | `Enemies` (`Enemy` and the goons: `Rifleman`, `Runner`, `Drone`), `CreameryGoons` (`ShieldSoldier`, `Grenadier`), `BigScoop` (Mission two's miniboss), `HoloLook` (Trollogram goons), `Weasels`, `Pilot` (a boss's Trollogram pilot on foot, playing a crewmate's kit: `KiePilot` with `PilotDecoy`, `KcajPilot`) |
-| `Bosses/` | `TankBoss` (the artillery boss tabk) + `BossKit` (a crew member's attacks on it: `KieBoss`, `KcajBoss`), `HostilePills` (kcaj's pill rain, from his tabk or his pilot), `CraterView` (the diggable arena spike) |
+| `Bosses/` | `TankBoss` (the artillery boss tabk) + `BossKit` (a crew member's attacks on it: `KieBoss`, `KcajBoss`; `BossKits` picks one by `BossTabk`), `HostilePills` (kcaj's pill rain, from his tabk or his pilot), `CraterView` (the diggable arena spike) |
 | `Tabks/` | `PlayerTank` (your tabk) + `TankLook`, `TabkKit` (a crew member's tabk: its look, gun pivot and guns) |
 | `Missions/One/` | Mission one's own pieces: the coda's `BackGate`, `ToppleTower` (the watchtower in the road), `ExitGate` (Design's sprite: `ExitGateArt`) and `SleepingKie`, drawn by `CodaArt` |
 | `Missions/Two/` | Mission two's (the creamery): `CreameryHazards` (belt treads, nitrogen vents, scoop droppers, the cold store's doors, the corridor's `FogBank`), `ConeBox`, `Projector` (a Trollogram projector: shot out, its goons go), drawn by `CreameryArt`; the nitrogen tank is a `Barrel`, and `FrostLook` (in `World/`) is the ice on whoever's frozen |
@@ -79,7 +79,7 @@ Each file starts with a summary comment saying what it's for.
 | `Save/` | `LocalProfileStore` / `OptionsStore` (PlayerPrefs), `CloudAccount` (sign-in and cloud saves through the page's `pooket-auth.js`), `SiteFile` (a text file fetched from beside the game) |
 | `Assets/Editor/WebGLBuild.cs` | The build: the scene, the WebGL template (`Assets/WebGLTemplates/PooketSlug`), the commit and secrets baked in |
 | `Assets/Tests/EditMode/` | NUnit tests against Core, in the same folders as Core, run by CI before every build |
-| `Assets/Tests/Gameplay/` | PlayMode tests (assembly `PooketSlug.Game.Tests`): a real `World`, ticked frame by frame (`GameplayFixture`), for combat, the world and `NetSync`; CI runs them with the EditMode tests, Unity only |
+| `Assets/Tests/Gameplay/` | PlayMode tests (assembly `PooketSlug.Game.Tests`): a real `World`, ticked frame by frame (`GameplayFixture`), for combat, the world, the spawner, set pieces, bosses and `NetSync`; CI runs them with the EditMode tests, Unity only |
 | `tools/` | `check.sh` (the local checks), `pages_deploy.sh` (the gh-pages deploy), `slug.sh` (a branch's preview folder), `vendor_fetch.sh` + `vendor_lock.sh` (the vendor repo's sounds, as the root's `vendor.lock` pins them), `check_scenes.sh` (the scene check), `coop.mjs` (co-op tests), `touch.mjs` (touch play), `demos.mjs` (kit demo clips), `unpack_unitypackage.py`, `new_meta.py`, `title_logo.py` (the splash's logo and its parts) |
 | `docs/design/` | The game design. `docs/research/`: how the pipeline, netcode, accounts and verification work, and [lessons learned](docs/research/lessons-learned.md) |
 
@@ -119,8 +119,16 @@ its sound in `Sfx` / `ChipSounds`, and the kit that fires it.
 **Add a sound cue**: in a scene, its constant and effect in `Cues` (a new `CueSound`: its clip in `CueSounds`); in the boss intro, its
 place on the `Cue` timeline in `BossIntroShow`. Either way its sound goes in `Sfx` / `ChipSounds`.
 
-**Add a mission**: a `MissionDef` in `Missions` (map rows: `Level.cs` says what each character is), its story
-(`MissionStory`: its scenes, coda, solo only), its spawns, and where it opens (`Profile`, `MissionBoard`).
+**Add a mission**: a `MissionDef` in `Missions` (map rows: `Level.Markers` says what each character places), its story
+(`MissionStory`: its scenes, coda, solo only), its spawns, its boss (`boss:` a `BossTabk`, whose attacks come from its
+row in `BossKits`; `pilot:` the pilot's `EnemyDef`), and where it opens (`Profile`, `MissionBoard`).
+
+**Add a goon** (or anything that's shot, like a set piece): its `EnemyBrain` and an `EnemyDef` row in `Content` with
+the next unused id (ids ride the network), its `SpawnKind` and map character (`marker:`, `map:`; left out for one only
+made mid-game), and `real: true` unless it's a Trollogram; then its class (a goon in `Enemies/`, a set piece a
+`SetPiece` in its mission's folder) and its row in `Spawner`'s brain table. Its rules and numbers go in Core with tests,
+its art in `Art` / `ArtData`, its sounds in `Sfx` / `ChipSounds`. A hazard or scenery that isn't shot is a `SpawnKind`,
+its character in `Level.Markers` and its row in `Spawner`'s scenery table.
 
 **Add a crew member**: a `SoldierDef` in `Content` (stable id), their numbers in `Core/Crew/<Name>Tuning.cs` with tests,
 their kit in `Crew/<Name>/` (a `CrewKit`, picked in `CrewKit.For`; moves a partner copies go as a `KitMove`), art in `ArtData`, sounds in `Sfx` / `ChipSounds`, their place in `Crew`, their kit

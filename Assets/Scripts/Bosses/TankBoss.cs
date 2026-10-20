@@ -17,7 +17,7 @@ namespace PooketSlug
     /// It's kie's tank: its charged shots cycle through weasels, hologram copies and a roulette that steals
     /// (<see cref="KieBoss"/>). The copies are tanks of this kind too (<see cref="Content.TankCopy"/>, made with
     /// <c>decoy</c>): they stand where kie's trick put them and copy the real one's every move, turret, charge and shot.
-    /// With <see cref="World.KcajTank"/> it's kcaj's instead (<see cref="KcajBoss"/>): a floor sweep and a pill rain.
+    /// With <see cref="World.BossTabk"/> kcaj's, it's his instead (<see cref="KcajBoss"/>): a floor sweep and a pill rain.
     /// Whose it is, is its kit (<see cref="IBossKit"/>).
     /// </summary>
     public sealed class TankBoss : BossEnemy
@@ -61,8 +61,8 @@ namespace PooketSlug
             m_MeterFill = Bar("Power", SortOrder.Effects + 1, MeterFill);
             m_Marker = Art.Renderer(Go.transform, "Landing marker", Art.LandingMarker, SortOrder.Effects, shown: false); // goes with the tank; placed in the world each frame
             if (decoy) Engaged = true;
-            else m_Kie = world.KcajTank ? new KcajBoss(world, this) : new KieBoss(world, this); // on every screen in co-op: the roulette and the disguise are drawn on each
-            if (!decoy && world.KcajTank)
+            else m_Kie = BossKits.For(world.BossTabk, world, this); // on every screen in co-op: the roulette and the disguise are drawn on each
+            if (!decoy && world.BossTabk == BossTabk.Kcaj) // his Trollogram's at the controls, a cone on the antenna
             {
                 m_Pilot = AddRenderer(Visual, "Pilot", Art.Holo(Art.SkinFor(Content.Kcaj, 0).TorsoForward), SortOrder.Boss - 2);
                 m_ConeLeft = AddRenderer(m_Pilot.transform, "Cone", KcajArt.Cone, SortOrder.Boss - 1);

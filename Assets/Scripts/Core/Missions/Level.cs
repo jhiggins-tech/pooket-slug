@@ -36,6 +36,37 @@ namespace PooketSlug
         /// <summary>Conveyor belts: ground, carrying right or left.</summary>
         public const char BeltRight = '>', BeltLeft = '<';
 
+        /// <summary>
+        /// What each map character places: the scenery and hazards here, one row each, and every enemy and pickup with a
+        /// <see cref="EnemyDef.Map"/> or <see cref="PickupDef.Map"/> character (so a new goon is only its row in
+        /// <see cref="Content"/>). 'P' is where the soldier starts.
+        /// </summary>
+        public static readonly IReadOnlyDictionary<char, SpawnKind> Markers = BuildMarkers(new Dictionary<char, SpawnKind>
+        {
+            ['F'] = SpawnKind.Flag,
+            ['W'] = SpawnKind.TowerScenery,
+            ['M'] = SpawnKind.MotorPool,
+            ['Z'] = SpawnKind.LiveFence,
+            ['V'] = SpawnKind.SteamVent,
+            ['I'] = SpawnKind.Icicles,
+            ['L'] = SpawnKind.Lift,
+            ['K'] = SpawnKind.Checkpoint,
+            ['G'] = SpawnKind.BackGate,
+            ['Q'] = SpawnKind.ScoopDropper,
+            ['N'] = SpawnKind.NitrogenVent,
+            ['C'] = SpawnKind.ColdStore,
+            ['f'] = SpawnKind.Fog,
+        });
+
+        static Dictionary<char, SpawnKind> BuildMarkers(Dictionary<char, SpawnKind> scenery)
+        {
+            foreach (EnemyDef e in Content.Enemies)
+                if (e.Map != '\0' && e.Marker is SpawnKind kind) scenery.Add(e.Map, kind); // a character used twice throws here
+            foreach (PickupDef p in Content.Pickups)
+                if (p.Map != '\0' && p.Marker is SpawnKind kind) scenery.Add(p.Map, kind);
+            return scenery;
+        }
+
         public readonly int Width, Height;
         public readonly List<Spawn> Spawns = new List<Spawn>();
         public Vector2 PlayerStart;
@@ -66,42 +97,11 @@ namespace PooketSlug
                     m_Tiles[x, y] = ch == Ground || ch == Block || ch == Bridge ? ch : ch == BeltRight || ch == BeltLeft ? Ground : Empty;
                     if (ch == BeltRight || ch == BeltLeft) m_Belts[x, y] = (sbyte)(ch == BeltRight ? 1 : -1);
                     var feet = new Vector2(x + 0.5f, y);
-                    switch (ch)
+                    if (ch == 'P') PlayerStart = feet;
+                    else if (Markers.TryGetValue(ch, out SpawnKind kind))
                     {
-                        case 'P': PlayerStart = feet; break;
-                        case 's': Spawns.Add(new Spawn { Kind = SpawnKind.Rifleman, Pos = feet }); break;
-                        case 'r': Spawns.Add(new Spawn { Kind = SpawnKind.Runner, Pos = feet }); break;
-                        case 'd': Spawns.Add(new Spawn { Kind = SpawnKind.Drone, Pos = feet }); break;
-                        case 'T': Spawns.Add(new Spawn { Kind = SpawnKind.Tank, Pos = feet }); break;
-                        case 'H': Spawns.Add(new Spawn { Kind = SpawnKind.CrateHeavy, Pos = feet }); break;
-                        case 'B': Spawns.Add(new Spawn { Kind = SpawnKind.CrateBombs, Pos = feet }); break;
-                        case '+': Spawns.Add(new Spawn { Kind = SpawnKind.Medkit, Pos = feet }); break;
-                        case 'U': Spawns.Add(new Spawn { Kind = SpawnKind.OneUp, Pos = feet }); break;
-                        case 'F': Spawns.Add(new Spawn { Kind = SpawnKind.Flag, Pos = feet }); break;
-                        case 'W': Spawns.Add(new Spawn { Kind = SpawnKind.TowerScenery, Pos = feet }); break;
-                        case 'M': Spawns.Add(new Spawn { Kind = SpawnKind.MotorPool, Pos = feet }); break;
-                        case 'x': Spawns.Add(new Spawn { Kind = SpawnKind.Barrel, Pos = feet }); break;
-                        case 'Z': Spawns.Add(new Spawn { Kind = SpawnKind.LiveFence, Pos = feet }); break;
-                        case 'V': Spawns.Add(new Spawn { Kind = SpawnKind.SteamVent, Pos = feet }); break;
-                        case 'I': Spawns.Add(new Spawn { Kind = SpawnKind.Icicles, Pos = feet }); break;
-                        case 'L': Spawns.Add(new Spawn { Kind = SpawnKind.Lift, Pos = feet }); break;
-                        case 'K': Spawns.Add(new Spawn { Kind = SpawnKind.Checkpoint, Pos = feet }); break;
-                        case 'G':
-                            Spawns.Add(new Spawn { Kind = SpawnKind.BackGate, Pos = feet });
-                            CodaX = x;
-                            break;
-                        case 'Y': Spawns.Add(new Spawn { Kind = SpawnKind.ToppleTower, Pos = feet }); break;
-                        case 'E': Spawns.Add(new Spawn { Kind = SpawnKind.ExitGate, Pos = feet }); break;
-                        case 'Q': Spawns.Add(new Spawn { Kind = SpawnKind.ScoopDropper, Pos = feet }); break;
-                        case 'N': Spawns.Add(new Spawn { Kind = SpawnKind.NitrogenVent, Pos = feet }); break;
-                        case 'c': Spawns.Add(new Spawn { Kind = SpawnKind.ConeBox, Pos = feet }); break;
-                        case 'n': Spawns.Add(new Spawn { Kind = SpawnKind.NitrogenTank, Pos = feet }); break;
-                        case 'C': Spawns.Add(new Spawn { Kind = SpawnKind.ColdStore, Pos = feet }); break;
-                        case 'h': Spawns.Add(new Spawn { Kind = SpawnKind.ShieldSoldier, Pos = feet }); break;
-                        case 'g': Spawns.Add(new Spawn { Kind = SpawnKind.Grenadier, Pos = feet }); break;
-                        case 'S': Spawns.Add(new Spawn { Kind = SpawnKind.BigScoop, Pos = feet }); break;
-                        case 'f': Spawns.Add(new Spawn { Kind = SpawnKind.Fog, Pos = feet }); break;
-                        case 'J': Spawns.Add(new Spawn { Kind = SpawnKind.Projector, Pos = feet }); break;
+                        Spawns.Add(new Spawn { Kind = kind, Pos = feet });
+                        if (kind == SpawnKind.BackGate) CodaX = x;
                     }
                 }
             }

@@ -197,8 +197,11 @@ namespace PooketSlug
             ArenaEdge = float.MaxValue;
         }
 
-        /// <summary>The boss tabk is kcaj's (<see cref="KcajBoss"/>): Mission two's, or in whatever arena this is with <c>?test=kcajtank</c>.</summary>
-        public bool KcajTank;
+        /// <summary>
+        /// Whose boss tabk it is (<see cref="BossKits.For"/>): the mission's (<see cref="MissionDef.Boss"/>), or kcaj's in
+        /// whatever arena this is with <c>?test=kcajtank</c>.
+        /// </summary>
+        public BossTabk BossTabk;
 
         public void OnBossIntro(BossEnemy boss, bool firstTime)
         {

@@ -169,7 +169,10 @@ namespace PooketSlug
         KcajPilot,
     }
 
-    /// <summary>One kind of enemy: its body, health and worth. The co-op snapshot carries its id.</summary>
+    /// <summary>
+    /// One kind of enemy: its body, health and worth, where maps place it, and whether it's a Trollogram. The co-op
+    /// snapshot carries its id. A new kind is its row in <see cref="Content"/> and its brain's row in the game's spawner.
+    /// </summary>
     public sealed class EnemyDef
     {
         public readonly byte Id;
@@ -179,8 +182,14 @@ namespace PooketSlug
         public readonly int Hp;
         /// <summary>Points for destroying it.</summary>
         public readonly int Score;
+        /// <summary>What it is on a map (<see cref="Level"/>), and the character that places it; null for one only made mid-game.</summary>
+        public readonly SpawnKind? Marker;
+        public readonly char Map;
+        /// <summary>Real, not a Trollogram: set pieces, the boss tabk and kie's weasels. Everything else wears the Trollogram look.</summary>
+        public readonly bool Real;
 
-        public EnemyDef(byte id, string name, EnemyBrain brain, float halfWidth, float height, int hp, int score)
+        public EnemyDef(byte id, string name, EnemyBrain brain, float halfWidth, float height, int hp, int score,
+            SpawnKind? marker = null, char map = '\0', bool real = false)
         {
             Id = id;
             Name = name;
@@ -189,6 +198,9 @@ namespace PooketSlug
             Height = height;
             Hp = hp;
             Score = score;
+            Marker = marker;
+            Map = map;
+            Real = real;
         }
 
         public override string ToString() => Name;
@@ -220,10 +232,15 @@ namespace PooketSlug
         public readonly Color AnnounceColor;
         /// <summary>Points for collecting it.</summary>
         public readonly int Score;
+        /// <summary>What it is on a map (<see cref="Level"/>), and the character that places it.</summary>
+        public readonly SpawnKind? Marker;
+        public readonly char Map;
 
         public PickupDef(byte id, string name, PickupEffect effect, string announce, Color announceColor, int score,
-            WeaponDef gun = null, int amount = 0)
+            WeaponDef gun = null, int amount = 0, SpawnKind? marker = null, char map = '\0')
         {
+            Marker = marker;
+            Map = map;
             Id = id;
             Name = name;
             Effect = effect;
