@@ -6,7 +6,7 @@ using static PooketSlug.StageKit;
 
 namespace PooketSlug
 {
-    /// <summary>A crewmate's figure (<see cref="StageFigure"/>), with tones2's slushie; sitting, the torso drops and the legs fold (the off-duty poses: <see cref="PlayerSkin.TorsoPad"/>).</summary>
+    /// <summary>A crewmate's figure (<see cref="StageFigure"/>), with tones2's slushie; sitting, the torso drops and the legs fold (the off-duty poses: <see cref="CrewBody.Pad"/>).</summary>
     sealed class DenFigure
     {
         public readonly StageFigure Body;

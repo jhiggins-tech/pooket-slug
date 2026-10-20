@@ -63,7 +63,7 @@ Each file starts with a summary comment saying what it's for.
 | `Core/Audio/` | `MusicTracks` / `Notation` / `Chip` (the chip music, its notation and the synth), `Soundtrack` (when a mission's music changes), `MusicRender` (a track into samples), `Wav`, `MusicMidi` |
 | `Core/Enemies/` | Mission two's goons: `Goons.cs` (`ShieldSpec`: what the shield stops; `GrenadierSpec`: the lob), `BigScoopBrain` (the miniboss's moves) |
 | `Core/Title/` | `TitleLogo` (the title logo's parts, `Resources/Title/layout.txt`), `TitleMotion` (its entrance, hover and glint, and when its sounds play) |
-| `Core/Anim/` | `Clip` (frames at a rate, looped or held, with events; `Clips`: who runs at what rate), `Fx` (blinks, shivers and flickers: `Pulse`, and the named ones such as `TrolloFlicker`), `StagePose` (a stage soldier's legs and top, and the cutscenes' pose names, drawn by `StageFigure.Pose`) |
+| `Core/Anim/` | `Clip` (frames at a rate, looped or held, with events; `Clips`: who runs at what rate), `Fx` (blinks, shivers and flickers: `Pulse`, and the named ones such as `TrolloFlicker`), `StagePose` (a stage soldier's legs and top, and the cutscenes' pose names, drawn by `StageFigure.Pose`), `CrewFigure` (the playable crew's one set of clips: idle, run, jump, crouch, down, repair; and the figure's layers: shared legs and body, each crewmate's own head) |
 | `Core/Input/`, `Core/World/` | `ArcadePad` (the touch pad's logic), `SoldierInput`, `Latch` (a press or tap held till a screen's `Take*` takes it); `TilePhysics`, `Frost` (frozen by nitrogen), `HazardBeat` (a timed hazard's on, warning and cycle, and Mission one's: `BaseHazards`), `Backdrop` (the parallax layers, and which plates cover the screen) |
 | `Core/Platform/` | `LaunchFlags` (`?test=`, `?unlock=` and the rest), `Spike.cs` (`?spike=` flags), `PageQuery`, `Sandbox` + `Knobs` + `SetupText`, `Rng`, `Log`; co-op's side: `NetContracts` / `NetIds` / `NetConfig` (interfaces and ids), `Rooms` (a room's listing), `Handover` (the world moving to the partner), `DropIn` (joining a mission under way, own scores), `PartnerBeacon` (the partner arrow and warnings), `WireMeter` (the kinds of message a phone sends its partner) |
 | `Game/` | `Game.cs`: `Bootstrap` and `Game`, the state machine (`GameState`: Title, Settings, Lobby, Den, Cutscene, Playing, GameOver, Victory, Demo), the world, the launch flags and the mission's story beats (from its `MissionStory`); then a flow per part of the game it hands frames to: `SceneFlow` (cutscenes, the site's copies, `?scene=` drafts), `DenFlow`, `KitFlow` (the ⓘ kit screen), `BoardFlow` (the mission screen), `DemoFlow` (`?demo=`), `SandboxFlow` (`?sandbox=`), `BossIntroFlow`, `MusicFlow`, `DebriefFlow`, `BayFlow` (the tabk bay) |
@@ -75,7 +75,7 @@ Each file starts with a summary comment saying what it's for.
 | `Missions/One/` | Mission one's own pieces: the coda's `BackGate`, `ToppleTower` (the watchtower in the road), `ExitGate` (Design's sprite: `ExitGateArt`) and `SleepingKie`, drawn by `CodaArt` |
 | `Missions/Two/` | Mission two's (the creamery): `CreameryHazards` (belt treads, nitrogen vents, scoop droppers, the cold store's doors, the corridor's `FogBank`), `ConeBox`, `Projector` (a Trollogram projector: shot out, its goons go), drawn by `CreameryArt`; the nitrogen tank is a `Barrel`, and `FrostLook` (in `World/`) is the ice on whoever's frozen |
 | `Stage/` | `StageKit`: the shared stage for cutscenes, the den and the debrief; `StageScreen`: the base of a screen on it (the den, the tabk bay): its canvas, and a tap in art pixels |
-| `Art/`, `Audio/` | `Art` + `ArtData` (ASCII pixel art; `Art.Renderer` makes a sprite's child object); `Sfx` + `ChipSounds`, `Music` |
+| `Art/`, `Audio/` | `Art` + `ArtData` (ASCII pixel art; `Art.Renderer` makes a sprite's child object), `CrewArt` (each crewmate's look: their head, and any body or legs part of their own, built into a `PlayerSkin`); `Sfx` + `ChipSounds`, `Music` |
 | `Ui/` | uGUI built in code (`Ui.cs`, with the shared helpers: `Cover`, `Tap`, `Stretch`; screens hold a press for their `Take*` in a `Latch`): `HudView`, `MenuView`, `TitleView` (the splash: logo, colour ramp, START and SETTINGS) + `TitleLogoView` (the logo in parts, animated), `DebriefView`, `DemoClip`, `Invite` (sharing an invite link); `Cutscene/` (`CutsceneView` and its parts: backdrops, cast, effects, bubbles, captions, camera, cue sounds, `CutsceneSnacks`: tones2's crisp packet and crisps) and `Den/` (`DenView`, the lobby, and its parts: room, crew, bits, TV and buttons, `DenBeatView` its beats; `BayView`, the tabk bay through its roller door, with `BayHomecomingView`; `DenRollerDoor`) |
 | `Input/` | `InputSources` (a keyboard, a gamepad or the touch pad) into one `SoldierInput` a frame, and `GameInput` (the menu and system buttons) |
 | `Net/` (assembly `PooketSlug.Net`) | Photon Fusion 2, Shared Mode: `NetSession` (joining the co-op room, to play or watch), `NetReplication` (`PlayerNet`, `WorldNet`, `BossNet`), `NetPrefabs` (network objects built in code) |
@@ -151,6 +151,7 @@ the authority only) and plays its sounds only on screen; art in its mission's `*
 - Core: a `SoldierDef` in `Content` (stable id: `ContentTests`), numbers in `Core/Crew/<Name>Tuning.cs` with tests,
   their place in `Crew` (who frees them), team supers (`TeamSuper`), kit screen moves and demos (`KitGuide`), and
   `KitMove` ids for moves a partner copies (`NetContracts`, `WireMeter`).
+- Their look in `CrewArt`: their own head over the shared body and legs, which brings every crew clip (`CrewFigure`) with it.
 - Kit in `Crew/<Name>/`: a `CrewKit` (picked in `CrewKit.For`), `<Name>Copy` for a partner's (`KitCopy.For`,
   `RemotePlayer`), art in `<Name>Art` (registered in `Art`), each combo's show in `TeamActs`.
 - Their tabk: `<Name>TabkSpec` (Core) + `<Name>Tabk` and `<Name>TabkArt`, a card in `Garage`, a `TabkKit`.
@@ -168,7 +169,7 @@ get reused (the tests pin them).
 
 ## Invariants and gotchas
 - Gameplay randomness only through a seeded `Rng`; cosmetic effects use their own.
-- A blink, flicker or walk cycle goes through `Fx` or a `Clip`, not an inline `(int)(t * hz) % n`; a figure on a stage is posed with `StageFigure.Pose`.
+- A blink, flicker or walk cycle goes through `Fx` or a `Clip`, not an inline `(int)(t * hz) % n`; a figure on a stage is posed with `StageFigure.Pose`; a crewmate's figure plays `CrewFigure`'s clips (a new shared move is a clip there and body frames in `ArtData`).
 - The build is uncompressed: Pages gzips it on the fly ([why](docs/research/build-pipeline/github-pages.md)).
 - Docs-only pushes (`**.md`, `docs/**`) don't build: a redeploy changes the build version co-op players must share.
 - Fusion's own config (`NetworkProjectConfig.fusion`) is committed and wins over the one the SDK ships.

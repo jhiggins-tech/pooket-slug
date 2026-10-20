@@ -58,7 +58,7 @@ namespace PooketSlug
 
         /// <summary>WARNING! is on screen, and this frame it's lit (it flashes).</summary>
         public bool Warning => T >= 0f && T < BannerFor;
-        public bool WarningLit => Warning && (int)(T * FlashRate * 2f) % 2 == 0;
+        public bool WarningLit => Warning && Fx.Blink(T, FlashRate * 2f);
 
         /// <summary>How far the hazard stripes are in, 0..1: they sweep in, hold, and sweep out with the banner.</summary>
         public float Stripes

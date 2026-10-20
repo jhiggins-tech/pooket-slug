@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace PooketSlug
 {
-    /// <summary>Legs + torso + muzzle flash sprites for one soldier, driven by an <see cref="AvatarPose"/>.</summary>
+    /// <summary>Legs + top half (body and head) + muzzle flash sprites for one soldier, driven by an <see cref="AvatarPose"/>.</summary>
     public sealed class PlayerVisual
     {
         readonly Transform m_Visual;
@@ -13,8 +13,8 @@ namespace PooketSlug
         {
             m_Visual = visual;
             Skin = skin;
-            m_Legs = Add("Legs", skin.LegsIdle, order);
-            m_Torso = Add("Torso", skin.TorsoForward, order + 1);
+            m_Legs = Add("Legs", skin.Legs(CrewLegs.Idle), order);
+            m_Torso = Add("Torso", skin.Portrait, order + 1);
             m_Flash = Add("Muzzle", Art.MuzzleFlash, order + 2);
             m_Flash.enabled = false;
         }
@@ -31,27 +31,16 @@ namespace PooketSlug
             return new Vector2(11.5f, crouching ? 8.5f : 14.5f) / Art.PPU;
         }
 
-        /// <summary>Applies the pose. The owner flips <c>Visual</c> by facing (see <see cref="Actor.Render"/>).</summary>
+        /// <summary>Applies the pose, as the crew's figure plays it (<see cref="CrewFigure.Frame"/>). The owner flips <c>Visual</c> by facing (see <see cref="Actor.Render"/>).</summary>
         public void Apply(in AvatarPose p)
         {
-            int runFrame = Clips.SoldierRun.Frame(p.Anim);
-            Sprite legs;
-            if (p.Dead || !p.Grounded) legs = Skin.LegsJump;
-            else if (p.Crouching) legs = Skin.LegsCrouch;
-            else if (p.Running) legs = Skin.LegsRun[runFrame];
-            else legs = Skin.LegsIdle;
-            Sprite torso = p.AimY > 0 ? (p.Diagonal ? Skin.TorsoUpDiag : Skin.TorsoUp)
-                : p.AimY < 0 ? (p.Diagonal ? Skin.TorsoDownDiag : Skin.TorsoDown)
-                : Skin.TorsoForward;
+            CrewFrame f = CrewFigure.Frame(p, Time.unscaledTime);
+            Sprite legs = Skin.Legs(f.Legs), torso = Skin.Body(f.Body);
+            m_Legs.sprite = f.Flash ? Art.Flash(legs) : legs;
+            m_Torso.sprite = f.Flash ? Art.Flash(torso) : torso;
+            m_Torso.transform.localPosition = new Vector3(0f, f.Lift / Art.PPU, 0f);
 
-            m_Legs.sprite = p.Flash ? Art.Flash(legs) : legs;
-            m_Torso.sprite = p.Flash ? Art.Flash(torso) : torso;
-
-            float bob = p.Running && (runFrame == 0 || runFrame == 2) ? -1f : 0f;
-            float drop = p.Crouching ? -ArtData.CrouchDrop : bob;
-            m_Torso.transform.localPosition = new Vector3(0f, drop / Art.PPU, 0f);
-
-            m_Flash.enabled = p.Muzzle && !p.Dead;
+            m_Flash.enabled = f.Muzzle;
             if (m_Flash.enabled)
             {
                 // Visual is mirrored by facing, so work in right-facing local space.
@@ -60,11 +49,8 @@ namespace PooketSlug
                 m_Flash.transform.localPosition = new Vector3(tip.x, tip.y, 0f);
             }
 
-            // blink while invulnerable, flicker out when dead
-            bool hidden = (p.Blink && Fx.HurtBlink.On(Time.unscaledTime)) ||
-                          (p.Dead && p.DeadTime > 1.2f && Fx.DeathFlicker.On(p.DeadTime)) || (p.Dead && p.Gone);
-            m_Visual.gameObject.SetActive(!hidden);
-            m_Visual.localRotation = p.Dead ? Quaternion.Euler(0f, 0f, Mathf.Min(90f, p.DeadTime * 300f) * p.Facing) : Quaternion.identity;
+            m_Visual.gameObject.SetActive(!f.Hidden);
+            m_Visual.localRotation = Quaternion.Euler(0f, 0f, f.Tilt);
         }
     }
 }
