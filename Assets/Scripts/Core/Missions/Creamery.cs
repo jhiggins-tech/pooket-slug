@@ -50,25 +50,20 @@ namespace PooketSlug
         /// <summary>What a box of cones drops when it's broken, by weight: mostly a medkit, sometimes bombs.</summary>
         public static readonly (PickupDef pickup, int weight)[] ConeBoxDrops = { (Content.Medkit, 2), (Content.BombCrate, 1) };
 
-        /// <summary>A hazard at <paramref name="x"/> keeps its own beat, so a row of them doesn't pulse as one.</summary>
-        static float Phase(float elapsed, float x, float cycle) => Mathf.Repeat(elapsed + x * 0.53f, cycle);
+        /// <summary>A nitrogen vent's beat, and a scoop dropper's (each keeps its own, by where it stands).</summary>
+        public static readonly HazardBeat Vent = new HazardBeat(VentCycle, VentFor, VentTell), Dropper = new HazardBeat(ScoopCycle, 0f, ScoopTell);
 
         /// <summary>The vent at <paramref name="x"/> is blasting.</summary>
-        public static bool VentOn(float elapsed, float x) => Phase(elapsed, x, VentCycle) < VentFor;
+        public static bool VentOn(float elapsed, float x) => Vent.On(elapsed, x);
 
         /// <summary>The vent at <paramref name="x"/> is about to blast: it hisses first, the tell.</summary>
-        public static bool VentSoon(float elapsed, float x) => Phase(elapsed, x, VentCycle) >= VentCycle - VentTell;
+        public static bool VentSoon(float elapsed, float x) => Vent.Soon(elapsed, x);
 
         /// <summary>The dropper at <paramref name="x"/> is shaking: a scoop's about to fall.</summary>
-        public static bool ScoopTelling(float elapsed, float x) => Phase(elapsed, x, ScoopCycle) >= ScoopCycle - ScoopTell;
+        public static bool ScoopTelling(float elapsed, float x) => Dropper.Soon(elapsed, x);
 
         /// <summary>The dropper at <paramref name="x"/> let a scoop go in the <paramref name="dt"/> seconds up to <paramref name="elapsed"/>.</summary>
-        public static bool ScoopDrops(float elapsed, float dt, float x)
-        {
-            if (dt <= 0f) return false;
-            float offset = x * 0.53f;
-            return Mathf.FloorToInt((elapsed + offset) / ScoopCycle) != Mathf.FloorToInt((elapsed - dt + offset) / ScoopCycle);
-        }
+        public static bool ScoopDrops(float elapsed, float dt, float x) => Dropper.Went(elapsed, dt, x);
 
         /// <summary>What a broken box of cones drops (gameplay randomness: the world's seeded <see cref="Rng"/>).</summary>
         public static PickupDef ConeBoxDrop(Rng rng)

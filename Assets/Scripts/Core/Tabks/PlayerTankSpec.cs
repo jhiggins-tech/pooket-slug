@@ -119,6 +119,9 @@ namespace PooketSlug
         }
     }
 
+    /// <summary>A tabk's three guns, on its three buttons.</summary>
+    public enum TabkGun { Main, Special, Super }
+
     /// <summary>A tank's rounds for the ride (<see cref="PlayerTankSpec"/>): spent one at a time, never refilled.</summary>
     public sealed class TankRounds
     {
@@ -134,6 +137,9 @@ namespace PooketSlug
         public bool UseMain() => Use(ref Main);
         public bool UseSpecial() => Use(ref Specials);
         public bool UseSuper() => Use(ref Supers);
+
+        /// <summary>Spends a round of <paramref name="gun"/>: false when it's out.</summary>
+        public bool Use(TabkGun gun) => gun == TabkGun.Main ? UseMain() : gun == TabkGun.Special ? UseSpecial() : UseSuper();
 
         /// <summary>Nothing left to fire: time to eject.</summary>
         public bool Empty => Main <= 0 && Specials <= 0 && Supers <= 0;

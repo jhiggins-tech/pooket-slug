@@ -337,15 +337,6 @@ namespace PooketSlug
             return any;
         }
 
-        /// <summary>The spot a moved tabk ends in, or null if this show doesn't move it.</summary>
-        public int? EndSpot(TabkCard tabk)
-        {
-            int? end = null;
-            foreach (var m in m_Moves)
-                if (m.tabk == tabk) end = m.to;
-            return end;
-        }
-
         static Point SpotFeet(int spot) => new Point(BayMap.SpotX(spot), BayMap.SpotY(spot));
 
         /// <summary>The drone over a tabk in <paramref name="spot"/>: lifted clear to carry it, or dipped to its roof.</summary>

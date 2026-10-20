@@ -26,7 +26,8 @@ namespace PooketSlug
         readonly PlayerVisual m_Visual;
         readonly SoldierDef m_Kit;
         protected Vector2 m_Aim = Vector2.right;
-        float m_Coyote, m_JumpBuffer, m_DropThrough, m_Tell;
+        SoldierJump m_Jump;
+        float m_Tell;
         protected float m_Shield, m_Muzzle;
         int m_Shots, m_SeenShots = -1, m_HeartsSeen = -1, m_NetPose;
         protected bool m_Crouching;
@@ -166,24 +167,17 @@ namespace PooketSlug
             if (!m_Leaping) Vel.x = moveX * (m_Crouching ? m_Kit.CrawlSpeed : m_Kit.RunSpeed * RunScale);
             if (input.MoveX != 0f) Facing = input.MoveX > 0f ? 1 : -1;
 
-            m_Coyote = Grounded ? Tuning.Soldier.CoyoteTime : m_Coyote - dt;
-            m_JumpBuffer = jump ? Tuning.Soldier.JumpBuffer : m_JumpBuffer - dt;
-            m_DropThrough -= dt;
-            if (m_JumpBuffer > 0f && m_Coyote > 0f)
+            if (m_Jump.Tick(dt, Grounded, jump))
             {
-                if (down && TilePhysics.OnBridge(World.Level, Pos, HalfW)) m_DropThrough = Tuning.Soldier.DropThroughTime;
+                if (down && TilePhysics.OnBridge(World.Level, Pos, HalfW)) m_Jump.Drop();
                 else
                 {
                     Vel.y = m_Kit.JumpVelocity * JumpScale;
                     Sfx.Play(Sfx.Jump, 0.4f);
                 }
-                m_JumpBuffer = 0f;
-                m_Coyote = 0f;
             }
-            float gravity = Gravity;
-            if (Vel.y > 0f && !input.Jump && !m_Leaping) gravity *= Tuning.Soldier.ShortHopGravity;
-            Vel.y = Mathf.Max(Vel.y - gravity * dt, -MaxFall);
-            MoveWithTiles(dt, m_DropThrough > 0f);
+            Fall(dt, SoldierJump.Gravity(Vel.y, input.Jump, m_Leaping));
+            MoveWithTiles(dt, m_Jump.DroppingThrough);
             Pos.x = Mathf.Clamp(Pos.x, World.View.Left + HalfW, World.View.Right - HalfW); // never off the screen
 
             m_Aim = Aiming.Direction(input.Up, down && !Grounded, input.MoveX, Facing, Grounded);

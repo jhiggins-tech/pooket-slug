@@ -36,11 +36,7 @@ namespace PooketSlug
                 if (PopWeasel.Out(w) + Guns.Weasels.Count <= Guns.Weasels.MaxOut && tank.Rounds.UseMain()) StartCharge();
                 else tank.Click();
             }
-            if (input.SpecialPressed && m_Beam < 0f)
-            {
-                if (tank.Rounds.UseSpecial()) StartBeam(tank);
-                else tank.Click();
-            }
+            if (tank.Fire(TabkGun.Special, input.SpecialPressed && m_Beam < 0f)) StartBeam(tank);
             if (input.SuperPressed && m_Stealing <= 0f)
             {
                 // nobody to rob: the round isn't spent

@@ -30,9 +30,6 @@ namespace PooketSlug
         /// <summary>Dazed on the floor this long, saying his line, before the mission's won.</summary>
         public float Dazed = 2.6f;
 
-        /// <summary>Is the cage lit <paramref name="t"/> seconds in: steady, then stuttering faster and faster, then out.</summary>
-        public bool CageLit(float t) => CageLitFor(t, Cage);
-
         /// <summary>The same flicker-out over <paramref name="length"/> seconds (a scene can time its own: <c>0-1.5 cage flicker-out</c>).</summary>
         public static bool CageLitFor(float t, float length)
         {

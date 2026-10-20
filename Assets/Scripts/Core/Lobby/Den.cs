@@ -100,19 +100,6 @@ namespace PooketSlug
         }
 
         /// <summary>
-        /// READY, or UNREADY: our soldier presses START. With nobody on the couch it seats the first free crewmate
-        /// first, so a keyboard's Enter always gets going. False when it can't (CREW has no mission, or the zoom's begun).
-        /// </summary>
-        public bool ToggleReady()
-        {
-            if (Mode == DenMode.Crew || Zoom >= 0f) return false;
-            if (Pick == null && !TryPick(NextFree())) return false;
-            Ready = !Ready;
-            if (!Ready) Countdown = -1f;
-            return true;
-        }
-
-        /// <summary>
         /// Sitting down on the couch (ready) or getting up (not), as the soldier walks to it or away. False when it
         /// can't: CREW has no mission, nobody's picked, or the zoom's begun.
         /// </summary>

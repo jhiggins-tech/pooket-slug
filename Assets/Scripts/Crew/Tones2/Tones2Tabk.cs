@@ -26,21 +26,9 @@ namespace PooketSlug
 
         public override void Tick(PlayerTank tank, float dt, in SoldierInput input)
         {
-            if (input.FirePressed && m_Cycle < 0f)
-            {
-                if (tank.Rounds.UseMain()) StartCycle();
-                else tank.Click();
-            }
-            if (input.SpecialPressed && m_Build < 0f && !m_Flying && tank.Grounded)
-            {
-                if (tank.Rounds.UseSpecial()) StartBuild(tank);
-                else tank.Click();
-            }
-            if (input.SuperPressed && m_SpewLeft <= 0f)
-            {
-                if (tank.Rounds.UseSuper()) StartSpew(tank);
-                else tank.Click();
-            }
+            if (tank.Fire(TabkGun.Main, input.FirePressed && m_Cycle < 0f)) StartCycle();
+            if (tank.Fire(TabkGun.Special, input.SpecialPressed && m_Build < 0f && !m_Flying && tank.Grounded)) StartBuild(tank);
+            if (tank.Fire(TabkGun.Super, input.SuperPressed && m_SpewLeft <= 0f)) StartSpew(tank);
             Spray(tank, dt);
             BuildUp(tank, dt);
             Pour(tank, dt);

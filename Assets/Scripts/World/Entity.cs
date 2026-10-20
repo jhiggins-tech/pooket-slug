@@ -80,6 +80,21 @@ namespace PooketSlug
 
         protected Sprite Flashed(Sprite s) => FlashTimer > 0f ? Art.Flash(s) : s;
 
+        /// <summary>Gravity for a tick: falling faster, up to the top speed (<paramref name="gravity"/>: a lighter or heavier pull).</summary>
+        protected internal void Fall(float dt, float gravity) => Vel.y = Mathf.Max(Vel.y - gravity * dt, -Tuning.Physics.MaxFall);
+
+        /// <summary>Gravity for a tick, at the world's pull.</summary>
+        protected internal void Fall(float dt) => Fall(dt, Tuning.Physics.Gravity);
+
+        /// <summary>Falls and moves with the tiles; walking into a wall on the ground, hops at <paramref name="hop"/> (0: doesn't).</summary>
+        protected internal MoveResult Walk(float dt, float hop = 0f)
+        {
+            Fall(dt);
+            MoveResult r = MoveWithTiles(dt);
+            if (hop > 0f && r.HitWall && Grounded) Vel.y = hop;
+            return r;
+        }
+
         /// <summary>Moves with the tiles: walls, floors and bridges, and a conveyor belt underfoot carries it along.</summary>
         protected internal MoveResult MoveWithTiles(float dt, bool dropThrough = false)
         {

@@ -114,8 +114,7 @@ namespace PooketSlug
         void TickFrozen(float dt)
         {
             Vel.x = 0f;
-            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
-            MoveWithTiles(dt);
+            Walk(dt);
         }
 
         /// <summary>Co-op follower: anything beyond gliding to the snapshot, each tick while it's alive.</summary>
@@ -167,7 +166,7 @@ namespace PooketSlug
         protected virtual void TickDying(float dt)
         {
             if (DyingTime < dt * 1.5f) Vel = new Vector2(-Facing * 2.5f, 6f);
-            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
+            Fall(dt);
             Vel.x = Mathf.MoveTowards(Vel.x, 0f, 4f * dt);
             MoveWithTiles(dt);
             if (DyingTime > 1.1f) Remove();
@@ -221,9 +220,7 @@ namespace PooketSlug
             Vel.x = 0f;
             if (dist > 7f && !Target.IsDown) Vel.x = Facing * 1.8f;
 
-            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
-            MoveResult r = MoveWithTiles(dt);
-            if (r.HitWall && Grounded) Vel.y = 11f; // hop small obstacles
+            Walk(dt, 11f); // hop small obstacles
 
             m_Cooldown -= dt;
             m_Muzzle -= dt;
@@ -272,9 +269,7 @@ namespace PooketSlug
                 if (Mathf.Abs(dx) > 0.6f && m_AttackCooldown < 0.5f) Vel.x = Facing * 4.2f;
             }
 
-            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
-            MoveResult r = MoveWithTiles(dt);
-            if (r.HitWall && Grounded) Vel.y = 13f;
+            Walk(dt, 13f);
 
             if (!Target.IsDown && m_AttackCooldown <= 0f && Bounds.Overlaps(Target.Bounds))
             {

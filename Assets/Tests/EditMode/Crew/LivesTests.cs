@@ -52,15 +52,6 @@ namespace PooketSlug.Tests
         }
 
         [Test]
-        public void DecliningIsOut()
-        {
-            LifeBank b = Bank(spare: 0);
-            b.Fallen();
-            b.Decline();
-            Assert.IsTrue(b.IsOut);
-        }
-
-        [Test]
         public void NoContinuesLeftIsOut()
         {
             LifeBank b = Bank(spare: 0, continues: 0);

@@ -88,12 +88,6 @@ namespace PooketSlug
             return true;
         }
 
-        /// <summary>Lets the offered continue go.</summary>
-        public void Decline()
-        {
-            if (Now == State.Offering) Now = State.Out;
-        }
-
         /// <summary>A 1-up. True if it brought the player back in (they were out of lives).</summary>
         public bool AddLife()
         {

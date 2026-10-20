@@ -386,8 +386,7 @@ namespace PooketSlug
             }
             // it stands where it was dropped, falling if the floor wasn't under it (dropped mid-jump)
             Vel.x = 0f;
-            Vel.y = Mathf.Max(Vel.y - Tuning.Physics.Gravity * dt, -Tuning.Physics.MaxFall);
-            MoveWithTiles(dt);
+            Walk(dt);
             if (Pos.y < -2f) Remove();
             if (Rng.Fx.Value < dt * 1.5f) m_Jitter = new Vector2(Rng.Fx.Range(-2, 3), 0f) / Art.PPU; // a glitch now and then
             else if (Rng.Fx.Value < dt * 10f) m_Jitter = Vector2.zero;

@@ -30,24 +30,16 @@ namespace PooketSlug
                 m_Nozzle = new Nozzle(tank);
                 m_Beam = new KcajBeam(m_Nozzle, Guns.Beam);
             }
-            if (input.FirePressed && m_Volley < 0f && !m_Beam.Locked)
-            {
-                if (tank.Rounds.UseMain()) m_Volley = 0f;
-                else tank.Click();
-            }
+            if (tank.Fire(TabkGun.Main, input.FirePressed && m_Volley < 0f && !m_Beam.Locked)) m_Volley = 0f;
             Piping(tank, dt);
             // a beam that touches nothing fizzles and keeps its round (KcajBeam spends it only on a lock)
             if (input.SpecialPressed && m_Volley < 0f && !m_Beam.Locked && tank.Rounds.Specials <= 0) tank.Click();
             m_Beam.Tick(dt, input.SpecialPressed && m_Volley < 0f, input.Special);
-            if (input.SuperPressed)
+            if (tank.Fire(TabkGun.Super, input.SuperPressed))
             {
-                if (tank.Rounds.UseSuper())
-                {
-                    w.Props.Add(new PillShower(w, Guns.Pills));
-                    w.Scoring.Popup("UNMEDICATED!", tank.Pos + Vector2.up * 2.6f, KcajArt.Beam);
-                    tank.FlashMuzzle();
-                }
-                else tank.Click();
+                w.Props.Add(new PillShower(w, Guns.Pills));
+                w.Scoring.Popup("UNMEDICATED!", tank.Pos + Vector2.up * 2.6f, KcajArt.Beam);
+                tank.FlashMuzzle();
             }
         }
 

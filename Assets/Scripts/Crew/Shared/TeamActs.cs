@@ -229,8 +229,7 @@ namespace PooketSlug
                 float across = (i + Rng.Fx.Range(0.2f, 0.8f)) / Pills;
                 m_PillX[i] = Dir > 0 ? view.xMin + across * view.width : view.xMax - across * view.width;
                 m_PillAt[i] = rainFrom + rainFor * (i / (float)Pills) + Rng.Fx.Range(0f, 0.08f);
-                m_Pills[i] = Renderer("Pill", KcajArt.Pills[i % KcajArt.Pills.Length], SortOrder.Effects);
-                m_Pills[i].enabled = false;
+                m_Pills[i] = KcajArt.Pill(Root, i, SortOrder.Effects);
             }
             for (int i = 0; i < Geysers; i++)
             {
@@ -301,8 +300,7 @@ namespace PooketSlug
                 pill.enabled = falling;
                 if (!falling) continue;
                 float y = top - FallSpeed * (t - m_PillAt[i]);
-                pill.transform.localPosition = new Vector3(Entity.Snap(m_PillX[i]), Entity.Snap(y), 0f);
-                pill.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Round((t * 900f + i * 45f) / 45f) * 45f);
+                KcajArt.Place(pill, new Vector2(m_PillX[i], y), t * 900f + i * 45f);
             }
             for (int g = 0; g < Geysers; g++)
             {
@@ -361,7 +359,7 @@ namespace PooketSlug
             for (int i = 0; i < m_To.Count; i++)
             {
                 m_Weasels.Add(Renderer("Weasel", KieArt.Weasel[0], SortOrder.Effects));
-                m_Pills.Add(Renderer("Pill", KcajArt.Pills[i % KcajArt.Pills.Length], SortOrder.Effects + 1));
+                m_Pills.Add(KcajArt.Pill(Root, i, SortOrder.Effects + 1));
             }
         }
 
@@ -425,8 +423,7 @@ namespace PooketSlug
                 weasel.sprite = KieArt.Weasel[run < 1f ? Fx.Step(t, 16f, 2, i) : 0];
                 // the pill rides on its back, wobbling, and shakes as the weasel waits under its goon
                 float shake = run >= 1f ? Mathf.Sin(t * 60f + i) * 0.04f : 0f;
-                pill.transform.localPosition = new Vector3(Entity.Snap(x - face * 0.05f + shake), Entity.Snap(floor + hop + 0.55f), 0f);
-                pill.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Round(Mathf.Sin(t * 8f + i) * 2f) * 22.5f);
+                KcajArt.Place(pill, new Vector2(x - face * 0.05f + shake, floor + hop + 0.55f), Mathf.Sin(t * 8f + i) * 45f, 22.5f);
             }
         }
     }

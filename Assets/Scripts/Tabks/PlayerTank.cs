@@ -120,7 +120,7 @@ namespace PooketSlug
             if (Mode != State.Driven) m_Guns.Stop();
             switch (Mode)
             {
-                case State.Dropping: Fall(dt); break;
+                case State.Dropping: Descend(dt); break;
                 case State.Parked: Idle(dt); break;
                 case State.Driven: Drive(dt); break;
                 default: Roll(dt); break;
@@ -128,9 +128,8 @@ namespace PooketSlug
             if (Pos.y < -3f) Remove(); // into a pit
         }
 
-        void Gravity(float dt) => Vel.y = Mathf.Max(Vel.y - Tuning.Physics.Gravity * dt, -Tuning.Physics.MaxFall);
 
-        void Fall(float dt)
+        void Descend(float dt)
         {
             Vel.x = 0f;
             Vel.y = Mathf.Min(Vel.y, -Spec.DropSpeed);
@@ -147,7 +146,7 @@ namespace PooketSlug
         void Idle(float dt)
         {
             Vel.x = 0f;
-            Gravity(dt);
+            Fall(dt);
             MoveWithTiles(dt);
             // a nudge to hop in, while the soldier is close by
             Player p = World.Player;
@@ -188,7 +187,7 @@ namespace PooketSlug
                 World.Scoring.Popup("OUT OF FUEL!", Pos + Vector2.up * 2.4f, new Color(1f, 0.6f, 0.4f));
                 Sfx.Play(Sfx.Servo, 0.7f);
             }
-            Gravity(dt);
+            Fall(dt);
             MoveWithTiles(dt);
             // Metal Slug style: the camera never scrolls back, and you can't leave it (co-op: either side)
             float minX = World.View.Left + HalfW;
@@ -227,7 +226,7 @@ namespace PooketSlug
         {
             m_Runaway += dt;
             Vel.x = Facing * Spec.RunawaySpeed;
-            Gravity(dt);
+            Fall(dt);
             MoveResult r = MoveWithTiles(dt);
             bool hit = r.HitWall || m_Runaway >= Spec.RunawayTime;
             foreach (Enemy e in World.Enemies)
@@ -243,6 +242,18 @@ namespace PooketSlug
 
         /// <summary>Out of rounds for that gun.</summary>
         public void Click() => Sfx.Play(Sfx.Servo, 0.5f);
+
+        /// <summary>
+        /// A gun's button pressed while it's free (<paramref name="press"/>): spends a round and says go, or clicks when
+        /// it's out. Not pressed: nothing.
+        /// </summary>
+        public bool Fire(TabkGun gun, bool press)
+        {
+            if (!press) return false;
+            if (Rounds.Use(gun)) return true;
+            Click();
+            return false;
+        }
 
         /// <summary>Hit while someone's inside (every hurt meant for the driver comes here).</summary>
         public void Hurt(int damage)
