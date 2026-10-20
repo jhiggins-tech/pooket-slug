@@ -455,6 +455,7 @@ jobs:
             optional: true
           - mode: handover # hand the world over when the host's phone goes to the background
           - mode: watch # a third phone watches a full room (three phones)
+          - mode: debrief # a co-op win's debrief on both phones, back to the den, and the next round
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -542,6 +543,15 @@ jobs:
                   ("tookOver", "B runs the shared world"),
                   ("quick", "Within 10 s of A freezing, before Photon would time A out"),
                   ("playedOn", "B plays on with no errors or disconnects"),
+              ]),
+              "debrief": ("Co-op win: debrief and back to the den (?test=debrief)", [
+                  ("hostOnline", "A joins the co-op room"),
+                  ("guestOnline", "B joins the same room"),
+                  ("joined", "A sees B join"),
+                  ("bothDebriefs", "The win gives both phones a debrief, with XP"),
+                  ("bothInDen", "Tapping through it, both land back in the room's den"),
+                  ("nextRound", "Both start the next round together, not already won"),
+                  ("played", "Nobody has errors or disconnects"),
               ]),
               "watch": ("Watching a full room", [
                   ("hostOnline", "A joins the co-op room"),

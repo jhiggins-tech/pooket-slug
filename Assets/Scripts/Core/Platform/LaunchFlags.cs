@@ -26,7 +26,7 @@ namespace PooketSlug
         public readonly bool KieTabk;
         /// <summary>?test=1up: a 1-up just ahead of the start.</summary>
         public readonly bool OneUp;
-        /// <summary>?test=debrief: the mission's won as it starts, so the debrief shows (as if it's the first).</summary>
+        /// <summary>?test=debrief: the mission's won as it starts, so the debrief shows (as if it's the first); in co-op, the room's first round.</summary>
         public readonly bool Debrief;
         /// <summary>?test=coda: a game starts at the coda, the tabk run after the boss, with its prompts.</summary>
         public readonly bool Coda;

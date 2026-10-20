@@ -15,6 +15,9 @@
 //   watch mode:          A and B join (H) and play, then C joins (H) the room with both seats taken and watches it
 //                        (?unlock=coop counts the mission as cleared): C must follow the game with no soldier of its
 //                        own, and A's room must count C watching. Nobody leaves.
+//   debrief mode:        as scene mode, with ?test=debrief: the room's first round is won at once, both phones get
+//                        their debrief (XP and rank), tap through it and land back in the room's den together, then
+//                        sit down and start the next round, which must not be won already. Nobody leaves.
 //   scene mode:          as code mode, but both sit down in the den together and start at once, with ?test=scene, so
 //                        a stand-in scene plays on both phones (Mission one is single player only, so its own scenes
 //                        never play in co-op): both tap through it, and it must move on for both, together, each shot
@@ -24,16 +27,17 @@
 // ?test=crate, which puts a crate just ahead of the start: one of them must be handed it by A's world.
 // Writes screenshots, console.log and result.json to <outdir>, and exits non-zero if any check fails.
 // CI runs it against each build (.github/workflows/webgl-pages.yml).
-// usage: PW_PATH=... node coop.mjs <url> <outdir> [code|boss|dropin|handover|watch|scene]
+// usage: PW_PATH=... node coop.mjs <url> <outdir> [code|boss|dropin|handover|watch|scene|debrief]
 import { createRequire } from 'module';
 import fs from 'fs';
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PW_PATH || 'playwright');
 
 const [base, out, mode = 'code'] = process.argv.slice(2);
-const BOSS = mode === 'boss', SCENE = mode === 'scene', DROPIN = mode === 'dropin', HANDOVER = mode === 'handover', WATCH = mode === 'watch';
+const BOSS = mode === 'boss', SCENE = mode === 'scene', DEBRIEF = mode === 'debrief', DROPIN = mode === 'dropin', HANDOVER = mode === 'handover', WATCH = mode === 'watch';
 const ROOM = 'CI' + Math.random().toString(36).slice(2, 8).toUpperCase(); // this round's room
-const url = base + (base.includes('?') ? '&' : '?') + 'room=' + ROOM + '&unlock=coop&test=' + (BOSS ? 'boss' : SCENE ? 'crate,scene' : 'crate');
+const url = base + (base.includes('?') ? '&' : '?') + 'room=' + ROOM + '&unlock=coop&test=' + (BOSS ? 'boss' : SCENE ? 'crate,scene' : DEBRIEF ? 'debrief' : 'crate');
+const TOGETHER = SCENE || DEBRIEF; // both sit down in the den and start together
 fs.mkdirSync(out, { recursive: true });
 const T0 = Date.now();
 const t = () => ((Date.now() - T0) / 1000).toFixed(1).padStart(6);
@@ -49,6 +53,8 @@ const checks = WATCH
   ? { hostOnline: false, guestOnline: false, joined: false, droppedIn: false, played: false }
   : BOSS
   ? { hostOnline: false, guestOnline: false, joined: false, played: false, bossIntro: false, bossFought: false, bossFollowed: false, bossFired: false }
+  : DEBRIEF
+  ? { hostOnline: false, guestOnline: false, joined: false, bothDebriefs: false, bothInDen: false, nextRound: false, played: false }
   : SCENE
     ? { hostOnline: false, guestOnline: false, joined: false, bothInScene: false, waited: false, tappedThrough: false, together: false, played: false }
     : { hostOnline: false, guestOnline: false, joined: false, invite: false, played: false, pickup: false, takeover: false };
@@ -197,7 +203,7 @@ try {
     console.log(`${t()} invite: ${copied ? 'copied ' + clip : 'NO'}`);
     await shot(A, 'den-invited');
   }
-  if (SCENE) await denOpen(A); // A waits in the den for B, so they start together
+  if (TOGETHER) await denOpen(A); // A waits in the den for B, so they start together
   else {
     await denStart(A);
     await A.page.waitForTimeout(3000);
@@ -209,7 +215,7 @@ try {
   await shot(B, '0-title');
   if (!(await goOnline(B))) throw new Error('B never got online');
   checks.guestOnline = true;
-  if (SCENE) {
+  if (TOGETHER) {
     await denOpen(B);
     await B.page.waitForTimeout(1500);
     await Promise.all([A.page.keyboard.press('Enter'), B.page.keyboard.press('Enter')]); // both sit down and press START
@@ -282,6 +288,37 @@ try {
     checks.played = ![...A.logs, ...B.logs].some(l => /\[pageerror\]|Disconnected from Photon|Session ended/.test(l));
     const scored = p => p.logs.some(l => /First points of our own/.test(l)), seen = p => p.logs.some(l => /own score: \d+/.test(l));
     console.log(`${t()} own scores: A scored ${scored(A)}, B saw it ${seen(B)}; B scored ${scored(B)}, A saw it ${seen(A)}`);
+  } else if (DEBRIEF) {
+    const debriefs = [await waitLog(A, /Debrief: \d+ XP/, 30000), await waitLog(B, /Debrief: \d+ XP/, 30000)];
+    checks.bothDebriefs = debriefs.every(Boolean);
+    console.log(`${t()} debriefs: A ${debriefs[0] ? 'yes' : 'NO'}, B ${debriefs[1] ? 'yes' : 'NO'}`);
+    await Promise.all([shot(A, '3-debrief'), shot(B, '3-debrief')]);
+    if (!checks.bothDebriefs) throw new Error('the win never gave both phones a debrief');
+    // tap through it (fire), B a few seconds behind A, so A waits in the den for B
+    const through = async (p, ms) => {
+      const end = Date.now() + ms;
+      while (Date.now() < end && !p.logs.some(l => /back to the co-op den/.test(l))) {
+        await p.page.keyboard.down('x'); await p.page.waitForTimeout(250); await p.page.keyboard.up('x');
+        await p.page.waitForTimeout(350);
+      }
+    };
+    await through(A, 60000);
+    await B.page.waitForTimeout(4000);
+    await through(B, 60000);
+    const dens = p => p.logs.filter(l => /Den open: Coop/.test(l)).length;
+    checks.bothInDen = dens(A) >= 2 && dens(B) >= 2;
+    console.log(`${t()} back in the den: A ${dens(A) >= 2 ? 'yes' : 'NO'}, B ${dens(B) >= 2 ? 'yes' : 'NO'}`);
+    await Promise.all([shot(A, '4-den-again'), shot(B, '4-den-again')]);
+    if (!checks.bothInDen) throw new Error('the debrief never led both phones back to the den');
+    await A.page.waitForTimeout(1500);
+    await Promise.all([A.page.keyboard.press('Enter'), B.page.keyboard.press('Enter')]); // both sit down and press START
+    const next = [await waitLog(A, /Co-op mission start: .*, round 1/, 30000), await waitLog(B, /Co-op mission start: .*, round 1/, 30000)];
+    await Promise.all([play(A, 'ArrowRight', 5000), play(B, 'ArrowRight', 5000)]);
+    const wonAgain = p => p.logs.filter(l => /Debrief: \d+ XP/.test(l)).length > 1;
+    checks.nextRound = next.every(Boolean) && !wonAgain(A) && !wonAgain(B);
+    console.log(`${t()} next round: A ${next[0] ? 'yes' : 'NO'}, B ${next[1] ? 'yes' : 'NO'}, won again: ${wonAgain(A) || wonAgain(B)}`);
+    await Promise.all([shot(A, '5-next-round'), shot(B, '5-next-round')]);
+    checks.played = ![...A.logs, ...B.logs].some(l => /\[pageerror\]|Disconnected from Photon|Session ended/.test(l));
   } else if (BOSS) {
     // Both walk up past the gate, far enough for the camera to show the whole tank (it wakes then), and fight
     // from there. B's tank follows A's (its network object) and fires when A's does. A tabk parked by the map's end
