@@ -10,11 +10,11 @@ Up: [Build pipeline](README.md)
 
 - **Triggers:**
   - Pushes to `main` and `claude/**`, branch deletions, and manual dispatch. A plan job decides what a push builds: the main line deploys to the root, other branches to a preview folder, and a commit the main line already has builds nothing. A preview runs the co-op tests only when the branch changes the netcode (`Net/`, `World/NetSync.cs`, `Core/Platform/NetContracts.cs`, `tools/coop.mjs`) and the kit demos only when it changes the crew (`Crew/`, `Core/Crew/KitGuide.cs`, `PooketDemo.jslib`, `tools/demos.mjs`), or this workflow; a commit message line `CI: co-op` or `CI: demos` asks for either. Spikes (`claude/spike-*`) skip both. The main line always runs everything.
-  - `paths-ignore` skips pushes that only touch `**.md` or `docs/**`. A doc change never redeploys the game, and a redeploy changes the build version, which [splits co-op players](../netcode/sessions.md#build-versions).
+  - `paths-ignore` skips pushes that only touch `**.md`, `docs/**`, `sandbox/**` or `scenes/**`. A doc change never redeploys the game, because a redeploy changes the build version, which [splits co-op players](../netcode/sessions.md#build-versions-and-hidden-tabs).
+- **Sibling workflows** put text files live without a build. [`scene-files.yml`](../../../.github/workflows/scene-files.yml) runs the scene check on a push that changes `scenes/**` and, if it passes, copies the scenes (with the narrator's list) beside the game; the game fetches them at start-up ([how to write them](../../scenes.md)). [`sandbox-files.yml`](../../../.github/workflows/sandbox-files.yml) copies `sandbox/**` the same way ([the sandbox](../../sandbox.md)). Each puts them in the main line's root or a branch's own preview, and the full build carries both in its own deploy.
 - **Permissions:** the workflow's token is read-only (`contents: read`); the three jobs that push the `gh-pages` branch (`build-and-deploy`, `deploy-live`, `prune-previews`) ask for `contents: write` themselves.
 - **Runners:** `ubuntu-24.04`, pinned, so an image change under `ubuntu-latest` can't change the build unannounced.
 - **Concurrency:** a group per branch (`webgl-pages-<branch>`) with `cancel-in-progress: false`, so branches build side by side, and within a branch a build in flight always finishes and deploys; pushes that land meanwhile queue, and only the newest of them runs next.
-  - Until 16 Oct the group was global, and with `cancel-in-progress: true` several threads pushing to the same branch kept cancelling each other and nothing deployed for over an hour.
 
 ## Secrets
 
@@ -26,6 +26,8 @@ All are repository secrets on `jhiggins-tech/pooket-slug` (Settings → Secrets 
 | `UNITY_EMAIL`, `UNITY_PASSWORD` | The Unity account the license belongs to | GameCI activation |
 | `VENDOR_PAT` | A fine-grained token, repository access **only** `pooket-slug-vendor`, permission **Contents: Read-only** | SDK fetch step ([detail](../netcode/sdk-in-ci.md)) |
 | `PHOTON_APP_ID` | The **Fusion 2** AppId from the Photon dashboard | Baked into the build. Optional: without it the build passes but co-op is off |
+
+Sign-in's public identifiers, `GOOGLE_CLIENT_ID`, `FIREBASE_API_KEY` and `FIREBASE_DB_URL`, are read from repository **variables** (a secret of the same name works too). Without all three, sign-in is off ([accounts](../accounts/gcloud-setup.md#values-to-hand-back)).
 
 How secrets behave:
 - **A missing secret expands to an empty string, not an error.** The build step logged `customParameters: -buildSha … -photonAppId ` with nothing after the flag, and the build script reported `No -photonAppId: online co-op is off in this build`.
@@ -48,7 +50,6 @@ Since ci-faster (20 Oct) the Unity work is split so the slow parts run at once: 
 
 - The `unityci/editor` WebGL image is about 7 GB compressed, more than the runner's main disk has free.
 - Docker's storage moves to the runner's second disk, `/mnt`, which is mostly empty: about 8 s.
-- Until 17 Oct, `jlumbroso/free-disk-space@v1.3.1` deleted Android, .NET, Haskell and pre-pulled Docker images instead, which took 51 to 145 s. The `spike-ci-disk` run showed the second disk is enough.
 
 ### 2. Checkout
 
@@ -58,8 +59,8 @@ Since ci-faster (20 Oct) the Unity work is split so the slow parts run at once: 
 
 First, a check: if anything of Photon's is committed (anything under `Assets/Photon/` but our `NetworkProjectConfig.fusion`, a `.unitypackage`, or Fusion's DLLs), the job fails, as the SDK's licence forbids it in this public repository.
 
-1. Downloads `Photon-Fusion-2.1.3-Stable-2390.unitypackage` from release `fusion-2.1.3` of the private repo `jhiggins-tech/pooket-slug-vendor`, using `gh release download` with `GH_TOKEN: secrets.VENDOR_PAT`.
-2. Checks the file against a pinned SHA-256.
+1. Downloads the Fusion package (tag and file are in [`action.yml`](../../../.github/actions/unity-project/action.yml)) from the private repo `jhiggins-tech/pooket-slug-vendor`, using `gh release download` with `GH_TOKEN: secrets.VENDOR_PAT`.
+2. Checks the file against the SHA-256 pinned beside the tag.
 3. Unpacks it with `tools/unpack_unitypackage.py`.
 4. Restores our committed `NetworkProjectConfig.fusion` over the package's copy.
 
@@ -70,7 +71,6 @@ It takes 1 to 2 s. Why it works this way, and how to upgrade the SDK: [SDK in CI
 - `actions/cache@v5`, path `Library`.
 - The key is `Library-WebGL-<hash of Assets/**, Packages/**, ProjectSettings/**>`, with the restore key `Library-WebGL-`.
 - Any asset change misses the exact key, then restores the most recent Library and imports incrementally.
-- Before Fusion, the cache was 83 MB compressed and saved about 70 s per build.
 
 ### 5. EditMode and PlayMode tests
 
@@ -99,7 +99,7 @@ The `tests` job runs the [EditMode tests](../verification/edit-mode-tests.md) an
 |---|---|---|
 | `targetPlatform` | `WebGL` | Selects the `-webgl-3` editor image and `-buildTarget WebGL` |
 | `buildMethod` | `PooketSlug.EditorTools.WebGLBuild.Build` | Our own entry point instead of GameCI's default builder ([build script](unity-project.md#the-build-script)) |
-| `customParameters` | `-buildSha ${{ github.sha }} -photonAppId ${{ secrets.PHOTON_APP_ID }}` | Arbitrary flags passed to Unity; the build script reads them with `Environment.GetCommandLineArgs()` |
+| `customParameters` | `-buildSha`, `-photonAppId`, `-googleClientId`, `-firebaseApiKey`, `-firebaseDbUrl` (the values from the secrets and variables above) | Flags passed to Unity; the build script reads them with `Environment.GetCommandLineArgs()` ([build script](unity-project.md#the-build-script)). One flag each, because GameCI splits on spaces |
 | `versioning` | `None` | The default, `Semantic`, needs full git history (`fetch-depth: 0`). We stamp the SHA ourselves |
 
 - **Unity version:** read from `ProjectSettings/ProjectVersion.txt`.
@@ -108,7 +108,7 @@ The `tests` job runs the [EditMode tests](../verification/edit-mode-tests.md) an
 
 ### 6b. The kit screen's demos
 
-The `demos` job downloads the build, serves it on `127.0.0.1:8000` and runs [`tools/demos.mjs`](../../../tools/demos.mjs): headless Chromium opens `?demo=all`, the game plays every move's scripted scene in turn ([`KitGuide.cs`](../../../Assets/Scripts/Core/Crew/KitGuide.cs)) on a fixed 30 fps step, and records its own canvas from each demo's first frame to its last ([`PooketDemo.jslib`](../../../Assets/Plugins/WebGL/PooketDemo.jslib), `MediaRecorder`; the first cut recorded the whole page and cut it at logged times, which drifted by seconds). The script collects each recording, speeds it back up to real time (SwiftShader draws slower than 30 fps) and encodes it with ffmpeg (installed by the step) as 640×360 H.264. The clips are uploaded as the `kit-demos` artifact, with `demos.json` and the console log, and `build-and-deploy` puts them in the build's `demos/`, so they always match the build. The recording has `continue-on-error`: without clips the build still deploys, and the kit screen says there's no demo yet. Added 2026-10-16.
+The `demos` job downloads the build, serves it locally and runs [`tools/demos.mjs`](../../../tools/demos.mjs): headless Chromium opens `?demo=all` and the game plays every move's scripted scene ([`KitGuide.cs`](../../../Assets/Scripts/Core/Crew/KitGuide.cs)) at a fixed 30 fps, recording its own canvas per demo ([`PooketDemo.jslib`](../../../Assets/Plugins/WebGL/PooketDemo.jslib), `MediaRecorder`). The script speeds each recording back to real time and encodes it with ffmpeg as 640×360 H.264. The clips are the `kit-demos` artifact, and `build-and-deploy` puts them in the build's `demos/`. The recording has `continue-on-error`: without clips the build still deploys, and the kit screen says there's no demo yet.
 
 ### 7. Upload build artifact
 
@@ -124,10 +124,10 @@ Writes the commit, Unity version, build size and live URL to the job summary.
 
 ## The two-player co-op test job
 
-`coop-test` runs after the build, as one job per scenario, three at a time (a matrix). It tests co-op on the exact build just made:
+`coop-test` runs after the build, as one job per scenario (seven), three at a time (a matrix). It tests co-op on the exact build just made:
 1. **It downloads the build artifact** and serves it on the runner with `python3 -m http.server`, so it doesn't wait for GitHub Pages to update.
 2. **It sets up Playwright** (the `playwright` action: 1.56.1, Chromium from the cache).
-3. **It runs [`tools/coop.mjs`](../../../tools/coop.mjs)** in its scenario's mode, in separate headless Chromium instances: `code` (A hosts, B joins with the invite link, both play, then A leaves and B must take over the shared world: [details](../verification/browser-tests.md#two-browser-co-op-test)), `boss`, `scene`, `dropin` (a spike: its failure doesn't fail the job), `handover` and `watch` (three phones). GitHub's runners can open the WebSockets Photon needs; the cloud sandbox can't.
+3. **It runs [`tools/coop.mjs`](../../../tools/coop.mjs)** in its scenario's mode, in separate headless Chromium instances: `code` (both join, play, then A leaves and B must take over the shared world: [details](../verification/browser-tests.md#two-browser-co-op-test)), `boss`, `scene`, `dropin` (its failure doesn't fail the job), `handover`, `watch` (three phones) and `debrief`. GitHub's runners can open the WebSockets Photon needs; the cloud sandbox can't.
 4. **Each job's summary lists its checks.** Its `coop-test-<mode>` artifact keeps the players' screenshots and console logs, even when the test fails.
 
 - **On the main line, the live deploy waits for it.** The `deploy-live` job puts the build live only once every scenario has passed, so the live game never gets a build co-op failed. Previews deploy straight after the build.
@@ -135,17 +135,10 @@ Writes the commit, Unity version, build size and live URL to the job summary.
 
 ## Action versions
 
-- **`unity-builder` v4 or v6:**
-  - v6 (August 2026) is a thin wrapper around `game-ci/cli` on Node 24.
-  - v4.8.x is the long-standing implementation on Node 20, and still gets backports.
-  - We use v4. It logs a harmless "Node.js 20 is deprecated … forced to run on Node.js 24" warning.
-  - Revisit v6 after a few point releases.
-- **`unity-test-runner` is pinned to v4.3.2.**
-  - That's the last release that runs Unity itself.
-  - v4.4.0, which the `v4` tag now points to, is a thin wrapper around the `game-ci/cli` binary, fetched at `latest`.
-  - Our first test run used `v4` with `coverageEnabled: false`. The action passed `--no-coverageEnabled`, CLI v0.1.72 rejected it as an unknown argument, and the step failed before Unity started (run 38578138923).
-- **Node 24 majors:** `actions/cache@v5`, `actions/upload-artifact@v6`, `actions/download-artifact@v8` and `actions/setup-node@v7` are already on Node 24.
-- **Third-party actions are pinned by tag, not SHA.**
+Third-party actions are pinned by tag, not SHA. The notable pins ([why, in history](../history/ci-decisions.md)):
+- **`unity-builder` v4.8.2:** the long-standing implementation on Node 20. v6 is a thin wrapper around `game-ci/cli`; revisit it after a few point releases.
+- **`unity-test-runner` v4.3.2:** the last release that runs Unity itself. v4.4.0 (the `v4` tag) wraps the `game-ci/cli` binary at `latest`, which rejected our `coverageEnabled: false`.
+- **`cache` v5, `upload-artifact` v6, `download-artifact` v8, `setup-node` v7:** already on Node 24.
 
 ## Reading CI logs
 

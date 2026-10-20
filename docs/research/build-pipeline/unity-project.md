@@ -1,6 +1,6 @@
 # The Unity project and build script
 
-How the Unity side is set up: the version and editor image, a project that's almost entirely code, the packages it uses, input handling, and what [`WebGLBuild.cs`](../../../Assets/Editor/WebGLBuild.cs) does.
+How the Unity side is set up: the version and editor image, a project that's mostly code, the packages it uses, input handling, and what [`WebGLBuild.cs`](../../../Assets/Editor/WebGLBuild.cs) does.
 
 **Read this when** you're upgrading Unity, adding a package or module, changing PlayerSettings, or wondering where a generated file comes from.
 
@@ -20,9 +20,9 @@ Up: [Build pipeline](README.md)
   When we checked (October 2026), the 6000.0 and 6000.3 LTS lines and the 6000.4–6000.6 tech-stream lines all had WebGL images.
 - **Scripts compile as C# 9,** like the editor. `-langversion:9.0` is what the [type-check harness](../verification/type-check.md) uses.
 
-## A code-only project
+## What's committed
 
-The committed Unity project is small:
+The committed Unity project is small, and almost all of it is code:
 
 | Path | What it is |
 |---|---|
@@ -31,14 +31,16 @@ The committed Unity project is small:
 | `Assets/Scripts/**.cs`, `Assets/Editor/WebGLBuild.cs` | All gameplay, art, audio and UI, plus the build entry point, each with its `.meta` |
 | `Assets/Scripts/Core/` | The pure logic, in its own assembly, `PooketSlug.Core` (an `.asmdef` with `autoReferenced`, so the rest of the game sees it) |
 | `Assets/Tests/EditMode/` | NUnit tests for Core, in an editor-only test assembly ([EditMode tests](../verification/edit-mode-tests.md)) |
-| `Assets/WebGLTemplates/PooketSlug/index.html` | The page around the canvas ([GitHub Pages](github-pages.md#the-webgl-template)) |
+| `Assets/WebGLTemplates/PooketSlug/index.html`, `pooket-auth.js` | The page around the canvas ([GitHub Pages](github-pages.md#the-webgl-template)), and the sign-in script it loads (the button, the session and the database calls: [accounts](../accounts/README.md)) |
+| `Assets/Plugins/WebGL/*.jslib` | The bridges from C# to the page: `PooketAuth` (sign-in and cloud saves), `PooketDemo` (recording the kit demos, [workflow](workflow.md#6b-the-kit-screens-demos)) and `PooketInvite` (sharing the co-op invite link) |
+| `Assets/Resources/` | Painted art as data: `Plates/<mission id>/` (the parallax backdrops), `Title/` (the logo) and `Den/`. CI adds the vendor repository's announcer, narrator and music WAVs here (`.bytes`, made into clips in code), and the scenes ([workflow](workflow.md)) |
 | `Assets/link.xml` | Keeps `Assembly-CSharp`, `PooketSlug.Core` and `PooketSlug.Net` whole under managed code stripping. Everything is created from code at runtime, so no scene or prefab references keep types alive |
 | `Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion` | Fusion's config: only `AssembliesToWeave`, which lists the netcode's assembly ([SDK in CI](../netcode/sdk-in-ci.md)) |
 
 Everything else is generated:
 - **The scene:** `Assets/Scenes/Main.unity` is created empty by the build script and git-ignored.
 - **The game:** a `[RuntimeInitializeOnLoadMethod(AfterSceneLoad)]` bootstrap in [`Game.cs`](../../../Assets/Scripts/Game/Game.cs) spawns it into that scene.
-- **Content:** sprites (ASCII art in `ArtData.cs`), tiles, parallax backgrounds and sound effects are all built at startup. There's no asset import pipeline.
+- **Content:** sprites (ASCII art in `ArtData.cs`), tiles and sound effects are built at startup. The painted plates and the voice and music WAVs above are loaded from `Resources` as raw bytes and turned into textures and clips in code, so Unity's importers are not involved.
 - **Network objects:** built in code too ([architecture](../netcode/architecture.md#network-objects-without-prefabs)).
 
 Why it's worth it:
@@ -47,7 +49,7 @@ Why it's worth it:
 - The project can be type-checked without Unity ([verification](../verification/README.md)).
 
 The cost:
-- Real content needs an asset pipeline eventually.
+- Painted art and recorded audio go in as raw bytes, which the game decodes itself.
 - A few Unity defaults stay unknown until CI generates them. Active Input Handling is one of them, handled [below](#input).
 
 ## Packages and engine modules
@@ -72,15 +74,7 @@ The cost:
 
 - **Active Input Handling is unknown.** It isn't set until Unity generates ProjectSettings, so the [input sources](../../../Assets/Scripts/Input/InputSources.cs) support both backends: `#if ENABLE_INPUT_SYSTEM` (keyboard, gamepad and touch) and the legacy Input Manager (keyboard and touch).
 - **Each source adds to one frame.** [`GameInput`](../../../Assets/Scripts/Input/GameInput.cs) polls the keyboard, a gamepad and the touch screen once per frame into a `SoldierInput` (in Core) and a `MenuInput`, so they can be mixed. The world hands `SoldierInput` to the local soldier, so gameplay never reads a device.
-- **The touch arcade pad** follows the [design](../../design/player.md#controls). [`ArcadePad`](../../../Assets/Scripts/Core/Input/ArcadePad.cs), in Core and [tested](../verification/edit-mode-tests.md), turns fingers into soldier input:
-  - The stick appears where the left thumb lands and follows it past its rim, so turning round is a short move. Its thresholds are the gamepad stick's.
-  - FIRE (held), JUMP and SP sit under the right thumb. They answer near misses, and a thumb can slide from one to another.
-  - Any finger but the stick's presses buttons, so a thumb that lands near the middle can slide onto one. A finger counts from the frame it's first seen, even if its touch-down was missed.
-  - **II** pauses a solo game. In co-op it reads **EXIT**, and two presses leave, like Esc.
-  - It shows while playing once the screen has been touched, and hides when a key or gamepad button is pressed. A phone starts with touch hints (`Application.isMobilePlatform`).
-  - The menus are uGUI buttons, so taps work them directly. A finger that's still down when the pad appears (from the START button, say) does nothing until it lifts.
-  - It reads touches itself rather than using the Input System's on-screen controls. Those need uGUI's event system, and they give neither a stick that follows the thumb nor sliding between buttons.
-  - It's drawn by the uGUI HUD (`HudView`).
+- **The touch arcade pad** follows the [design](../../design/player.md#controls). [`ArcadePad`](../../../Assets/Scripts/Core/Input/ArcadePad.cs), in Core and [tested](../verification/edit-mode-tests.md), turns fingers into soldier input; `HudView` draws it. It reads touches itself rather than using the Input System's on-screen controls, which need uGUI's event system and give neither a stick that follows the thumb nor sliding between buttons. It shows once the screen has been touched and hides when a key or gamepad button is pressed. The menus are uGUI buttons, so taps work them directly.
 - **The page gives the canvas every touch:** `touch-action: none`, with no text selection or long-press menu. On a phone held sideways, the header and footer hide and the game fits the screen; held upright, the page asks to turn it.
 - **The Input System's "enable the new backends and restart?" dialog can't hang CI.** It's skipped in batch mode: `!Application.isBatchMode` in `InputSystemEditorInitializer.cs`.
 
@@ -88,19 +82,19 @@ The cost:
 
 [`Assets/Editor/WebGLBuild.cs`](../../../Assets/Editor/WebGLBuild.cs) is GameCI's `buildMethod`. It's also on the menu at **Pooket Slug → Build WebGL**, which writes to `Builds/WebGL`. In order, it:
 
-1. **Reads its arguments** with `Environment.GetCommandLineArgs()`: `-customBuildPath` (from GameCI), `-buildSha`, `-photonAppId` and `-photonRegion` (from `customParameters`). A flag whose value is missing or starts with `-` counts as absent.
-2. **Writes the Photon config** to `Assets/Resources/pooket-net.json` (`{"appId": …, "region": …}`, git-ignored), then runs `AssetDatabase.Refresh()`.
+1. **Reads its arguments** with `Environment.GetCommandLineArgs()`: `-customBuildPath` (from GameCI), then `-buildSha`, `-photonAppId`, `-photonRegion`, `-googleClientId`, `-firebaseApiKey` and `-firebaseDbUrl` (from `customParameters`; the workflow passes no region). A flag whose value is missing or starts with `-` counts as absent.
+2. **Writes the Photon config** (`WriteNetConfig`) to `Assets/Resources/pooket-net.json` (`{"appId": …, "region": …}`, git-ignored), then runs `AssetDatabase.Refresh()`.
    - Without `-photonAppId`, it logs that co-op is off and leaves any existing local file alone.
 3. **Ensures a scene** at `Assets/Scenes/Main.unity` and sets it as the only build scene.
 4. **Configures the player:**
    - `EditorSettings.serializationMode = ForceText`, which Fusion requires.
    - Company and product names.
-   - `bundleVersion` = `0.2.0+<short sha>`, or `0.2.0-local`. This is the version shown in-game, and it's also Photon's `AppVersion` ([sessions](../netcode/sessions.md#build-versions)).
+   - `bundleVersion` = `0.2.0+<short sha>`, or `0.2.0-local`. This is the version shown in-game, and it's also Photon's `AppVersion` ([sessions](../netcode/sessions.md#build-versions-and-hidden-tabs)).
    - A 960×540 default canvas, `runInBackground`, no splash screen.
    - **WebGL:** compression `Disabled`, `decompressionFallback` off, `nameFilesAsHashes` off, `dataCaching` on, template `PROJECT:PooketSlug`.
    - **Managed stripping is Unity's default, `Minimal`.** `Low` was tried on 2026-10-14 and saved 24 KB of a 42 MB wasm, because what uGUI added can't be stripped.
 5. **Runs `AssetDatabase.SaveAssets()`,** then **logs one `[PooketSlug]` diagnostics line:** SDK present, weaver compiled, co-op code compiled, WebGL defines.
-6. **Builds** with `BuildPipeline.BuildPlayer`, prints a result summary and exits `0` or `101`.
+6. **Builds** with `BuildPipeline.BuildPlayer`. When it succeeds, it **writes `pooket-config.js`** beside the page (`window.POOKET_CONFIG`: the Google client ID, Firebase API key and database URL; `{}`, so sign-in is off, unless all three are given). It then prints a result summary and exits `0` or `101`.
 
 ## Gotchas
 

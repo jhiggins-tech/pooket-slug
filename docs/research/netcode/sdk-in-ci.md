@@ -10,37 +10,13 @@ Up: [Netcode](README.md)
 
 Photon's license forbids redistributing the SDK, and this repository is public. So the SDK must never be committed. Only the compiled game is published.
 
-## Options considered
-
-| Option | Verdict |
-|---|---|
-| Make the repo private and commit the SDK (Photon's normal setup) | Pages from a private repo needs a paid plan, or a separate public "site" repo |
-| A private git submodule at `Assets/Photon/` | Works, but Fusion's per-project config would live in the private repo |
-| A private Unity package (GameCI supports `gitPrivateToken`) | Fusion expects to live in `Assets/Photon` and write its config there, and packages are read-only |
-| CI downloads from Photon directly | **Blocked.** The download URL returned 403 from Photon's bot protection, and downloads need a login |
-| Ask Photon for an exception | Slow and uncertain |
-| **A private release asset, fetched with a token** | **Chosen.** The SDK isn't in any branch's history, there's one fetch step, and a checksum pins the exact file |
+The options weighed (a private repo, a submodule, a private package, a direct download) and why a private release asset won are in [history](../history/sdk-in-ci-decisions.md).
 
 ## How it works
 
-1. **The SDK is stored once.** A person downloads `Photon-Fusion-2.1.3-Stable-2390.unitypackage` (6.4 MB) while logged in to Photon, and attaches it to release `fusion-2.1.3` of the private repo `jhiggins-tech/pooket-slug-vendor`. Secrets can't hold it: GitHub caps a secret at 48 KB.
+1. **The SDK is stored once.** A person downloads the `.unitypackage` (6.4 MB) while logged in to Photon, and attaches it to a release of the private repo `jhiggins-tech/pooket-slug-vendor`. Secrets can't hold it: GitHub caps a secret at 48 KB.
 2. **CI gets a read-only token.** `VENDOR_PAT` is a fine-grained token with access to that one repo and **Contents: Read-only** ([secrets](../build-pipeline/workflow.md#secrets)). The workflow's default `GITHUB_TOKEN` can't read other private repos.
-3. **The workflow fetches, verifies and unpacks it before Unity starts:**
-
-   ```yaml
-   - name: Fetch Photon Fusion SDK
-     env:
-       GH_TOKEN: ${{ secrets.VENDOR_PAT }}
-       FUSION_TAG: fusion-2.1.3
-       FUSION_FILE: Photon-Fusion-2.1.3-Stable-2390.unitypackage
-       FUSION_SHA256: 375e21bc771ce5f7cea942b5f804e7c28c8f4d858f7e9aab96725214564bc52e
-     run: |
-       if [ -z "$GH_TOKEN" ]; then echo "::error::Repository secret VENDOR_PAT is not set …"; exit 1; fi
-       gh release download "$FUSION_TAG" -R jhiggins-tech/pooket-slug-vendor -p "$FUSION_FILE" -D vendor
-       echo "$FUSION_SHA256  vendor/$FUSION_FILE" | sha256sum -c -
-       python3 -I tools/unpack_unitypackage.py "vendor/$FUSION_FILE" .
-       git checkout -- Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion   # our config wins
-   ```
+3. **The workflow fetches, verifies and unpacks it before Unity starts**, in the composite action [`.github/actions/unity-project/action.yml`](../../../.github/actions/unity-project/action.yml), which is the owner of the tag, file name and SHA-256. It fails by name when `VENDOR_PAT` is unset, downloads with `gh release download`, checks the checksum, unpacks, and restores our committed config over the package's.
 
 4. **Unpacking needs no Unity.** A `.unitypackage` is a gzipped tar of `<guid>/pathname`, `<guid>/asset` and `<guid>/asset.meta` entries. [`tools/unpack_unitypackage.py`](../../../tools/unpack_unitypackage.py), about 50 lines of Python using `tarfile`:
    - writes each asset and its `.meta` where the editor's importer would put it, with the same GUIDs
@@ -72,35 +48,16 @@ The package also contains nested `.unitypackage` files (`FusionDemos/`, `FusionM
 ```
 
 - **The IL weaver reads this file at compile time** to decide which assemblies to weave. It's JSON, read with `EditorJsonUtility.FromJsonOverwrite`, so every other setting takes Fusion's default.
-- **The netcode is its own assembly, `PooketSlug.Net`,** so it's listed first (refactor plan step 8). `Assembly-CSharp` has no network code left, and stays listed in case some arrives there.
+- **The netcode is its own assembly, `PooketSlug.Net`,** so it's listed first. `Assembly-CSharp` has no network code left, and stays listed in case some arrives there.
 - **We don't commit `PhotonAppSettings.asset`.** The AppId reaches the game through our own `Resources/pooket-net.json` instead (below).
 
 ## Fusion's defines and the IL weaver
 
-**The expected problem.**
-- Fusion's weaver, `Unity.Fusion.CodeGen`, only compiles when the `FUSION_WEAVER` scripting define is set.
-- Fusion's `[InitializeOnLoad]` installer only adds that define after the editor has loaded and compiled once.
-- On a fresh CI checkout, ProjectSettings are regenerated with no defines. So the first compile would build no weaver, and networked properties and RPCs would ship un-woven.
-- We planned a warm-up run, then committing the ProjectSettings it generated.
+Fusion's weaver (`Unity.Fusion.CodeGen`) only compiles when the `FUSION_WEAVER` define is set, and Fusion's installer only adds it once the editor has loaded. On a fresh checkout that looked like it needed a warm-up run and committed ProjectSettings. It doesn't ([the log that showed it](../history/sdk-in-ci-decisions.md#the-first-build-log)). In practice:
 
-**What actually happens:** none of that was needed. The first build log (run 38531767207) shows:
-
-```text
-[ScriptCompilation] Requested script compilation because: Define symbols changed
-[FusionEditor/Installer] Updating scripting define symbols for 'WebGL' | added: FUSION_WEAVER, FUSION2, FUSION_2,
-    FUSION_2_1, FUSION_2_1_3, FUSION_2_OR_NEWER, FUSION_2_0_OR_NEWER, FUSION_2_1_OR_NEWER, FUSION_LOGLEVEL_INFO
-Csc Library/Bee/artifacts/2000b0aE.dag/Unity.Fusion.CodeGen.dll
-ILPostProcess Library/Bee/artifacts/2000b0aE.dag/post-processed/Assembly-CSharp.dll (+pdb)
-Reloading assemblies after forced synchronous recompile.
-…                                              (then -executeMethod runs our build method)
-ILPostProcess Library/Bee/artifacts/2000b0aP.dag/post-processed/Assembly-CSharp.dll (+pdb)   ← WebGL player compile
-[PooketSlug] Fusion SDK present: True; IL weaver compiled: True; co-op code compiled: True; WebGL defines: '…'
-```
-
-So:
 1. **Batch-mode Unity recompiles straight away.** When the installer changes the defines during the initial import, Unity does a *forced synchronous recompile* before running `-executeMethod`, and that recompile builds the weaver.
 2. **Both compiles get woven.** The editor compile and the WebGL player compile are IL-post-processed.
-3. **The project stays code-only.** There's no ProjectSettings commit and no warm-up run. Every build repeats the define change, which costs one extra script compile, about 7 s.
+3. **No ProjectSettings are committed, and there's no warm-up run.** Every build repeats the define change, which costs one extra script compile, about 7 s.
 4. **The build log checks it every time.** The build script's `[PooketSlug]` line reports `IL weaver compiled: True/False` on every build.
 
 What else the installer does:
@@ -108,7 +65,7 @@ What else the installer does:
 - **It adds defines for every build target,** Standalone and Android included, not just WebGL.
 - **It can modify the package manifest mid-build.** If `Packages/manifest.json` doesn't contain the text `nuget.mono-cecil`, it calls `Client.Add("com.unity.nuget.mono-cecil@1.10.2")`, which changes packages mid-build. We list `com.unity.nuget.mono-cecil` 1.11.6, the version bundled with the editor, to prevent that.
 
-**Engine modules.** The SDK needs engine modules the solo game didn't: `ai`, `animation`, `imageconversion`, `physics`, `physics2d` and `unitywebrequest`. We found each one by compiling the SDK locally against only the enabled modules ([table](../build-pipeline/unity-project.md#packages-and-engine-modules), [method](../verification/type-check.md#emulating-disabled-modules)).
+**Engine modules.** The SDK needs engine modules the solo game didn't ([table](../build-pipeline/unity-project.md#packages-and-engine-modules), [how they were found](../verification/type-check.md#emulating-disabled-modules)).
 
 ## The AppId
 
@@ -129,6 +86,4 @@ What else the installer does:
 
 ## Local development
 
-1. Get the package, either from Photon or with `gh release download fusion-2.1.3 -R jhiggins-tech/pooket-slug-vendor`. Then either import it in the editor, or run `python3 -I tools/unpack_unitypackage.py <package> .`.
-2. To play co-op from the editor, create `Assets/Resources/pooket-net.json` containing `{"appId": "<your Fusion AppId>", "region": ""}`. Git ignores it.
-3. Without the SDK, the project compiles and plays solo. The Fusion code is its own assembly, `PooketSlug.Net`, which only compiles when `FUSION2` is defined.
+`tools/check.sh` fetches and unpacks the SDK itself ([verification](../verification/README.md)). To play co-op from the editor, create `Assets/Resources/pooket-net.json` containing `{"appId": "<your Fusion AppId>", "region": ""}` (git ignores it). Without the SDK, the project compiles and plays solo.

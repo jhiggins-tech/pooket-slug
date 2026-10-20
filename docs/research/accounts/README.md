@@ -1,10 +1,8 @@
-# Accounts: "Sign in with Google" spike
+# Accounts: sign in with Google
 
-Plan for identifying players with their Google account and keeping their stats and progression across devices and browsers. The record holds what the game design keeps per player: best scores and clears, freed crew, the co-op unlock, career XP, cosmetics, rank progress and the tally ([database rules](database-rules.md#the-record)), and there's a friends board per mission. It reuses the Firebase project of the owner's game Cardmaster ([setup](gcloud-setup.md)). Roadmap rows SOC-01 and SOC-02, which then unlock SCR-07…09.
+Optional sign-in with a Google account, so a player's stats and progression follow them across devices and browsers. The record holds what the game design keeps per player: best scores and clears, freed crew, the co-op unlock, career XP, cosmetics, rank progress and the tally ([database rules](database-rules.md#the-record)), and there's a friends board per mission. It reuses the Firebase project of the owner's game Cardmaster ([setup](gcloud-setup.md)). 
 
-**Status, 2026-10-14:**
-- **Database rules:** live since 2026-10-14, merged into Cardmaster and deployed by its CI ([database rules](database-rules.md)).
-- **Page, bridge and game code:** written 2026-10-14 and tested against the database emulator. Since live and confirmed by the owner (2026-10-15).
+**Status:** live. The database rules went live on 2026-10-14 (merged into Cardmaster and deployed by its CI, [database rules](database-rules.md)); the page, bridge and game code have been live since the owner confirmed them on 2026-10-15.
 
 How it's wired:
 - **Config:** CI passes the repository variables to `WebGLBuild`, which writes `pooket-config.js` beside the page. Missing values mean no sign-in, and progress stays in the browser.
@@ -16,7 +14,7 @@ How it's wired:
 
 Up: [Research index](../README.md)
 
-## Recommendation: Google button + Firebase over REST, no server
+## The design
 
 ```text
 page header (outside the Unity canvas)
@@ -32,20 +30,7 @@ page header (outside the Unity canvas)
   Unity: Profile, merged with this browser's copy (Profile.Merge)
 ```
 
-Why this design:
-- **No server and no Firebase SDK.** It fits Firebase's free Spark plan, needs no billing account, and needs no deploy pipeline for the game itself.
-- **Firebase does the verification.** It checks Google's token, and the database rules check Firebase's token, so there's no token-checking code of our own.
-- **No popup blocking.** Google's button is a real page element that handles its own click, so browsers don't block it. A sign-in popup started from inside the Unity canvas arrives a frame late through Unity's input queue, and browsers (Safari especially) may block it.
-- **It's a proven pattern.** The owner's other web games already use it, and Pooket Tabks runs it live on this same origin (`jhiggins-tech.github.io`).
-- **It reuses existing infrastructure.** Cardmaster's Firebase project already has Google sign-in and a Realtime Database, so this game only adds its origin there and keeps its data under its own key, `pooketSlug/`. The cost is that players see "Cardmaster" on Google's consent screen, which the owner accepted ([trade-offs](gcloud-setup.md#trade-offs-of-sharing)).
-
-Options considered:
-
-| Option | Verdict |
-|---|---|
-| **Google button + Firebase Auth and Realtime Database over REST** | **Chosen.** Effort S–M; free plan; no server |
-| Firebase JS SDK, `signInWithPopup` + Firestore | Workable, but off Firebase Hosting it must use the popup (the redirect flow breaks where third-party storage is blocked), and the popup must be started by a real click on a page element |
-| Google button + Cloud Run or Functions + Firestore | Needs the paid Blaze plan and a deploy pipeline, and still can't prove scores honest, because the game computes them in the browser |
+Why: no server and no Firebase SDK (the free plan is enough), Firebase checks Google's token and the rules check Firebase's, and the button is a real page element, so browsers don't block its popup the way they can one started from inside the canvas. It reuses the owner's Cardmaster Firebase project, whose consent screen players see. The options weighed and the effort estimate are in [history](../history/accounts-decisions.md).
 
 ## How it fits the game
 
@@ -53,14 +38,13 @@ Options considered:
   - an `#account` element in the header
   - a small `pooket-auth.js`, ported from TypeScript to plain JavaScript, that loads Google's button, exchanges tokens, refreshes them and calls the database
   - it keeps `unityInstance` in a global, and queues results that arrive before the game has loaded.
-- **Bridge:** a `PooketAuth.jslib` plugin exposes `PS_AuthInit(config)`, `PS_Save(json)` and `PS_ShowAccount(show)` to C# (signing out is the page's own button). JavaScript replies with `SendMessage(gameObject, method, json)`, which takes one string argument.
+- **Bridge:** a `PooketAuth.jslib` plugin exposes `PS_AuthInit()`, `PS_Save(json)` and `PS_ShowAccount(show)` to C# (signing out is the page's own button). JavaScript replies with `SendMessage(gameObject, method, json)`, which takes one string argument.
 - **Game:**
   - **Account state in the HUD:** signed in or not, and the display name.
   - **The profile:** [`Profile`](../../../Assets/Scripts/Core/Lobby/Profile.cs), in Core and tested, is written. It holds the best score and clears for each mission and setting, whether co-op is open, the reveals already seen, and the first and last save. It's saved at the end of every run. Two copies merge by taking the better of each field, never adding clears up, which is the rule the cloud copy needs ([how](database-rules.md#writing-it-from-the-game)).
-  - **The seam:** [`IProfileStore`](../../../Assets/Scripts/Core/Lobby/Profile.cs) is written, with [`LocalProfileStore`](../../../Assets/Scripts/Save/LocalProfileStore.cs) (PlayerPrefs, which also took over the old high-score key). The cloud store is still to come: on sign-in it loads the cloud's copy, merges, and saves both. Refactor plan step 15.
+  - **The seam:** [`IProfileStore`](../../../Assets/Scripts/Core/Lobby/Profile.cs) has [`LocalProfileStore`](../../../Assets/Scripts/Save/LocalProfileStore.cs) (PlayerPrefs, which also took over the old high-score key) and `CloudProfileStore` in [`CloudAccount.cs`](../../../Assets/Scripts/Save/CloudAccount.cs). On sign-in the game loads the cloud's copy, merges and saves both.
 - **Config:**
-  - The public identifiers reach the game through the build: `-googleClientId`, `-firebaseApiKey`, `-firebaseDbUrl`, and so on, as `customParameters`. `WebGLBuild` writes them into `Resources/pooket-net.json`, and `NetConfig` reads them.
-  - `WriteNetConfig` currently returns early when there's no `-photonAppId`, so it has to be decoupled.
+  - The public identifiers reach the page through the build: `-googleClientId`, `-firebaseApiKey` and `-firebaseDbUrl`, as `customParameters`. `WebGLBuild` writes them into `pooket-config.js` beside the page (`window.POOKET_CONFIG`), which `pooket-auth.js` reads. Without all three, sign-in is off. The Photon settings are separate (`Resources/pooket-net.json`, read by `NetConfig`).
   - These are public identifiers, so they go in repository **variables**, not secrets ([values](gcloud-setup.md#values-to-hand-back)).
 
 ## Database rules
@@ -79,7 +63,7 @@ Options considered:
 
 ## Photon
 
-**Skip Photon authentication for this spike.**
+**Photon authentication is not used.**
 - Photon's Custom Authentication needs a web service that Photon calls (a Cloud Function, so the Blaze plan). Without it, Photon's user ID is unverified anyway.
 - **Don't put the Firebase uid into Photon:** the partner can see it.
 
@@ -90,27 +74,10 @@ Options considered:
   - **Prefix every key here with `pooket-slug.`**, or the two sessions could overwrite each other. The shared auth code treats a project mismatch as a dead session and signs out.
   - A cross-site scripting bug in either game would also expose both.
 - **The button lives in the page, not the game.** It's hidden in fullscreen, and clicking it moves keyboard focus off the canvas (refocus afterwards).
-- **Every `claude/**` build deploys live** and uses the same Firebase project. That's fine for a spike.
+- **Every `claude/**` branch deploys a preview** on the same origin (only the main line deploys live), and all of them use the same Firebase project and the same `localStorage`. Test accounts are real accounts there.
 - **The project is shared with Cardmaster:** one account across both games, shared free-plan limits, and rules changes go through Cardmaster's repository ([trade-offs](gcloud-setup.md#trade-offs-of-sharing)).
 - **Privacy:** request only the default `openid email profile`, and store no email.
 - **Third-party cookies and FedCM:** opt into FedCM for the button (`use_fedcm_for_button: true`); other browsers fall back to Google's popup. The page sends no restrictive security headers (CSP or COOP), so nothing needs changing.
-
-## Effort
-
-**M overall, about 2–3 days:**
-
-| Part | Effort |
-|---|---|
-| Page and JavaScript bridge | S–M |
-| Unity side: account state, progress model and merge, HUD, save at end of run | S–M |
-| Database rules | S, or M with emulator tests and a CI deploy of the rules |
-| CI (pass the new variables) | S |
-| Testing | M |
-
-What can be tested where:
-- **In the cloud sandbox:** the rules and the bridge, against the emulators and in headless Chromium.
-- **CI only:** the Unity build.
-- **By a person:** a real Google sign-in.
 
 Sources:
 - **Firebase:** [Google sign-in (web)](https://firebase.google.com/docs/auth/web/google-signin) · [Redirect best practices](https://firebase.google.com/docs/auth/web/redirect-best-practices) · [Realtime Database REST auth](https://firebase.google.com/docs/database/rest/auth) · [Rule conditions](https://firebase.google.com/docs/database/security/rules-conditions) · [API keys](https://firebase.google.com/docs/projects/api-keys) · [Pricing](https://firebase.google.com/pricing)

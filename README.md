@@ -1,90 +1,17 @@
-# pooket-slug
+# Pooket Slug
 
-A spike to test **[GameCI](https://game.ci)** on GitHub Actions. It builds a small Metal Slug–style side-scrolling shooter in **Unity 6.3 LTS** for **WebGL**, then publishes it to **GitHub Pages**.
+A Metal Slug-style run-and-gun starring the crew from Pooket Tabks, for phone browsers (landscape, touch; keyboard and gamepad work too). Unity 6.3 WebGL, built by GameCI and hosted on GitHub Pages.
 
-▶ **Play:** https://jhiggins-tech.github.io/pooket-slug/ · 📚 **Research notes and reference guide:** [CLAUDE.md](CLAUDE.md) and [docs/research](docs/research/README.md) (start with [lessons learned](docs/research/lessons-learned.md))
+**Play:** https://jhiggins-tech.github.io/pooket-slug/
 
-## What's in the demo
+Mission one is solo and teaches the game. Beating it opens the crew and online two-player co-op, which uses one global room, MATES (no room codes, hosting or quick match). Sign in with Google is optional and keeps your save in the cloud.
 
-- Run, jump, crouch and shoot forward, up, or down while airborne. There are grenades, one-way bridges to drop through, and coyote-time and buffered jumps.
-- Three enemy types: riflemen (crouch under their shots), knife runners, and bomb-dropping drones. A **tank boss** at the end lobs shells and fires low bursts you have to jump.
-- Pickups: Heavy Machine Gun crate, bomb crate and medkit. There's also health, score, a saved profile (high score, clears and the co-op unlock), pause, mute and restart.
-- **Plays on phones** with a touch arcade pad: a stick under the left thumb, and FIRE, JUMP and SP under the right.
-- **Online two-player co-op** with [Photon Fusion 2](https://doc.photonengine.com/fusion/current/fusion-intro) in Shared Mode. Everyone joins one always-there co-op room: two play, and up to four more watch missions they've cleared. A partner can drop in mid-mission. The screen scrolls for both players, and a fallen soldier comes back after a couple of seconds.
-- **No imported assets.** All pixel art (ASCII sprites in `ArtData.cs`), level tiles, parallax backgrounds and sound effects are generated from code at startup. The only scene is an empty one created by the build script, and `Bootstrap` spawns the game into it.
+## For people and agents working on it
 
-Controls: arrows/WASD move · Z/Space jump · X fire · C grenade · Up aim up · Down crouch (or aim down in the air) · Down+Jump drops through bridges · P pause · M mute · R restart. Gamepads work too. On a touch screen, the pad appears once you tap to start: the stick appears where your left thumb lands, FIRE fires while held, and **II** pauses.
+- [CLAUDE.md](CLAUDE.md): the working rules, the code map and the recipes. Start here.
+- [docs/design](docs/design/README.md): the game design, the one source for what the game is. Controls are in [player.md](docs/design/player.md) and `Assets/Scripts/Core/Crew/Controls.cs`.
+- [docs/research](docs/research/README.md): how the build pipeline, netcode, sign-in and checks work.
+- [docs/scenes.md](docs/scenes.md): writing cutscenes.
+- [docs/sandbox.md](docs/sandbox.md): the sandbox's setups.
 
-Co-op opens once you've beaten Mission one solo, as the [design](docs/design/levels.md#what-the-player-sees-and-when) asks; until then the menus don't mention it. To test it sooner, add `?unlock=coop` to the address (for that visit only). Then, from the title screen: **CO-OP** (or **H**) hosts a game and shows its room code (for example `ABCD-EU`, which is the session name plus the Photon region), **J** joins with a code, and **Q** quick-matches. Opening the page with `?room=ABCD-EU` fills in the code: press **Enter** or **JOIN**. A friend who hasn't beaten Mission one is told co-op opens after it, and the mission starts. In co-op, press **Esc** (or **EXIT** on the pad) twice to leave. Keep the game's tab visible: browsers pause hidden tabs, which freezes that player and eventually drops them. To try it alone, use two side-by-side windows, not two tabs.
-
-### How co-op works
-
-Fusion's Shared Mode is the topology Fusion supports for WebGL. There is no host process: Photon's cloud relays state between the clients.
-
-- **Your own soldier** is simulated by your client and replicated by a `PlayerNet` object you own.
-- **The shared world** is simulated by the room's master client: enemies, pickups, score, the scrolling camera and the spawn cursor. It's published through `WorldNet`, a *master-client object*, so if the host leaves, the next master client inherits it and its game becomes the authority. The other clients mirror the snapshot.
-- **Hits on enemies** are reported to the authority. **Damage to a soldier** is applied by that soldier's own client. **Crates** go to whoever the authority hears from first.
-- Gameplay code only talks to `INetLink` / `INetSession`, and the netcode to `INetEvents` (`Core/Platform/NetContracts.cs`). The Fusion code in `Assets/Scripts/Net/` is its own assembly, `PooketSlug.Net`, which compiles only when the SDK is present, so the game still builds as a solo game without it.
-- The project has no prefabs, so the two network objects are built in code too: templates are baked with `NetworkObjectBaker` and registered in Fusion's prefab table under fixed GUIDs.
-
-## Pipeline
-
-`.github/workflows/webgl-pages.yml` runs on pushes to `main` and `claude/**`, and on manual dispatch:
-
-1. Frees disk space on the hosted runner. The `unityci/editor` WebGL image is about 7 GB compressed.
-2. Downloads the **Photon Fusion SDK** from a release in the private repo `jhiggins-tech/pooket-slug-vendor`, verifies its SHA-256, and unpacks it into `Assets/Photon/` with `tools/unpack_unitypackage.py`. Photon's license forbids redistributing the SDK, so it is never committed here; only our `NetworkProjectConfig.fusion` is.
-3. Restores the cached `Library/` folder.
-4. Runs **`game-ci/unity-builder@v4`** with `targetPlatform: WebGL` and the custom build method `PooketSlug.EditorTools.WebGLBuild.Build`. The Unity version comes from `ProjectSettings/ProjectVersion.txt`. The Photon AppId is passed as `-photonAppId`, and the build bakes it into `Resources/pooket-net.json`.
-5. Uploads the build as a workflow artifact.
-6. Records the ⓘ kit screen's demo clips, then deploys with `tools/pages_deploy.sh` to the **`gh-pages`** branch, and runs the two-player co-op tests against the build.
-
-Where a build goes depends on its branch. The main line, `claude/gallant-keller-3qzp97`, deploys the game to the site's root. Every other branch deploys a preview to `previews/<branch without claude/>/`, e.g. https://jhiggins-tech.github.io/pooket-slug/previews/sandbox-mode/, and https://jhiggins-tech.github.io/pooket-slug/previews/ lists them. Each branch has its own queue, so branches build side by side. Spike branches (`claude/spike-<name>`) skip the demos and the co-op tests. A branch whose commit the main line already has builds nothing, and a deleted or merged branch's preview is removed at the next deploy (the branch itself is kept).
-
-The build script (`Assets/Editor/WebGLBuild.cs`) does the following:
-
-- Creates the scene.
-- Uses the custom WebGL template in `Assets/WebGLTemplates/PooketSlug`.
-- Stamps the commit SHA into the version shown in-game.
-- Disables WebGL compression. GitHub Pages can't serve Unity's pre-compressed files with the right `Content-Encoding` header, so the build ships uncompressed and Pages gzips it on the fly.
-
-### One-time setup
-
-- Repository secrets:
-  - `UNITY_LICENSE` (contents of the `.ulf` file), `UNITY_EMAIL`, `UNITY_PASSWORD`. See [GameCI activation](https://game.ci/docs/github/activation).
-  - `VENDOR_PAT`: a fine-grained token with **Contents: Read-only** on `pooket-slug-vendor`, used to download the Photon SDK.
-  - `PHOTON_APP_ID`: the **Fusion 2** AppId from the [Photon dashboard](https://dashboard.photonengine.com). Without it the build still works, but co-op is off.
-- **Settings → Pages → Build and deployment → Source: Deploy from a branch → `gh-pages` / `(root)`.**
-
-## Local development
-
-First get the Photon Fusion SDK (`Photon-Fusion-2.1.3-Stable-2390.unitypackage`, from Photon or the `fusion-2.1.3` release of `pooket-slug-vendor`) and either import it in the editor or run `python3 -I tools/unpack_unitypackage.py <package> .`. It lands in `Assets/Photon/`, which git ignores.
-
-To play co-op from the editor, create `Assets/Resources/pooket-net.json` containing `{"appId": "<your Fusion AppId>", "region": ""}`. Git ignores it. An empty `region` means the best region by ping. Without the SDK, the project still compiles and plays solo.
-
-Open the folder with Unity **6000.3.26f1**, open any scene (or a new empty one) and press Play. The game bootstraps itself. **Pooket Slug → Build WebGL** writes a build to `Builds/WebGL`.
-
-Project layout:
-
-| Path | What |
-| --- | --- |
-| `Assets/Scripts/Game/` | `Game.cs`: bootstrap, camera, and the game's state machine (title, online menus, play, pause, game over, victory), which hands the views what to show; a flow per part beside it (`SceneFlow`, `DenFlow`, `DebriefFlow` and the rest) |
-| `Assets/Scripts/Save/`, `Core/Lobby/Profile.cs` | The player's profile (`Profile`, in Core and tested) and where it's kept (`IProfileStore`): this browser for now (`LocalProfileStore`), the cloud once sign-in arrives |
-| `Assets/Scripts/Ui/` | uGUI built in code: the HUD (`HudView`) with the touch pad, the menus (`MenuView`), and the helpers that build them (`Ui`) |
-| `Assets/Scripts/World/` | `World` (the entities, their pools and the order things run in) and its systems: `ScrollCamera` (scrolling, shake, parallax), `Spawner`, `Combat` (hits, damage, explosions), `Scoring` and `NetSync` (the co-op session's side) |
-| `Assets/Scripts/Core/` | Pure logic in its own assembly (`PooketSlug.Core`): the missions and their ASCII maps (`Missions`), map parsing, tile physics (AABB vs grid, one-way bridges), content definitions, pose packing, room codes, the touch pad's logic, the profile, seeded randomness, log channels and tuning |
-| `Assets/Tests/EditMode/` | NUnit tests for `Core`. CI runs them before each build |
-| `Assets/Scripts/World/LevelView.cs` | Draws the level as chunked textures |
-| `Assets/Scripts/World/Entity.cs` | Entity/Actor base classes |
-| `Assets/Scripts/Crew/Shared/Player.cs`, `Enemies/Enemies.cs`, `World/Projectile.cs` | Gameplay |
-| `Assets/Scripts/World/EntityPool.cs` | Reuses bullets, explosions and debris instead of creating and destroying a GameObject for each |
-| `Assets/Scripts/Crew/Shared/RemotePlayer.cs`, `PlayerVisual.cs` | The partner's soldier (a smoothed puppet) and the soldier rendering both share |
-| `Assets/Scripts/Core/Platform/NetContracts.cs` | The boundary with the netcode: what gameplay needs from an online session (`INetLink`, `INetSession`), what the session tells the world (`INetEvents`), and the typed event payloads |
-| `Assets/Scripts/Net/` | Photon Fusion implementation, in its own assembly (`PooketSlug.Net`): `NetSession` (runner, rooms), `NetReplication` (what the session shares), `NetPrefabs`, `PlayerNet`, `WorldNet` |
-| `Assets/Scripts/Art/`, `Assets/Scripts/Audio/` | Procedural sprites, backgrounds and audio |
-| `Assets/Scripts/Input/` | Input sources (keyboard, gamepad and the touch pad) that add up into one frame. They work with either the Input System package or the legacy Input Manager. The pad's logic (`ArcadePad`) and the frame (`SoldierInput`) are in Core |
-| `Assets/Editor/WebGLBuild.cs` | Build entry point for GameCI and the editor menu |
-| `Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion` | Our Fusion config (weaver settings); the rest of `Assets/Photon/` is the SDK and is ignored |
-| `tools/unpack_unitypackage.py` | Unpacks a `.unitypackage` into the project without Unity (used by CI) |
-| `docs/design/` | The game design: story, tanks, player, levels and the crew's kits |
-| `docs/design/` | The design: four sign-off documents (story, tanks, player mechanics, and maps and progression), every cutscene's script (`cutscenes.md`) and the rest. Start at [`README.md`](docs/design/README.md) |
-| `docs/research/` | Research notes: pipeline, netcode, accounts, verification. Start at [its README](docs/research/README.md); the code map is [`CLAUDE.md`](CLAUDE.md) |
+The Photon Fusion SDK is licensed, so it is never committed: CI fetches it from a private repository.

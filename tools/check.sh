@@ -1,12 +1,15 @@
 #!/usr/bin/env bash
 # The checks CI runs before a build, in one command and without Unity: compiles every assembly as Unity would for
-# WebGL (Core, its tests, Net and the game), runs Fusion's IL weaver over the netcode, and runs the EditMode tests.
+# WebGL (Core, its tests, Net and the game), runs Fusion's IL weaver over the netcode, runs the EditMode tests, then
+# the scene check (tools/scenecheck, with the narrator's recordings when they can be had) and the docs link check
+# (tools/doclinks.py). CI runs the scene check too; the docs link check is only here.
 # The first run downloads the Unity kit for this project's Unity version (the vendor repository's Unity kit
 # workflow makes it) and the Photon SDK, both from the private vendor repository's releases, through `gh` (or curl
 # with GH_TOKEN); later runs reuse them.
 #
 #   tools/check.sh                 everything
 #   tools/check.sh compile         only the type-check
+#   tools/check.sh docs            only the docs link check (no kit needed)
 #   KIT=<dir> tools/check.sh       use an unpacked kit instead of the cached one
 #
 # Exits non-zero at the first failure; the test run's exit code is the number of failed tests.
@@ -15,7 +18,7 @@ cd "$(dirname "$0")/.."
 T=docs/research/verification/tools
 VENDOR=jhiggins-tech/pooket-slug-vendor
 what=${1:-all}
-case $what in all|compile) ;; *) echo "usage: $0 [all|compile]" >&2; exit 2 ;; esac
+case $what in all|compile) ;; docs) exec python3 -I tools/doclinks.py ;; *) echo "usage: $0 [all|compile|docs]" >&2; exit 2 ;; esac
 
 version=$(sed -n 's/^m_EditorVersion: //p' ProjectSettings/ProjectVersion.txt)
 cache=${XDG_CACHE_HOME:-$HOME/.cache}/pooket-slug
@@ -71,4 +74,21 @@ $T/weave.sh "$D" "$PWD" "$W/out" "$K/package" "$W/weave"
 echo "== EditMode tests"
 python3 -I $T/run_tests.py --editor-data "$D" --project . --core "$W/out/game/PooketSlug.Core.dll" \
   --nunit "$K/nunit/lib/netstandard2.0" --nunitlite "$K/nunitlite/lib/netstandard2.0" --out "$W/tests"
+echo "== The scene check"
+# tools/scenecheck as CI builds it with dotnet, here built and run on the kit's own .NET (as run_tests.py does).
+S=$W/scenecheck; mkdir -p "$S"
+RT=$(ls -d "$D"/NetCoreRuntime/shared/Microsoft.NETCore.App/* | sort -V | tail -1)
+mapfile -t refs < <(find "$RT" -maxdepth 1 -name '*.dll' ! -name 'Microsoft.VisualBasic*' -printf '-r:%p\n')
+mapfile -t core < <(find Assets/Scripts/Core -name '*.cs')
+"$D/NetCoreRuntime/dotnet" "$D/DotNetSdkRoslyn/csc.dll" -nologo -noconfig -nostdlib -langversion:9.0 -target:exe \
+  -nowarn:1701,1702,618,414,649,169,8632 -out:"$S/scenecheck.dll" "${refs[@]}" "${core[@]}" tools/scenecheck/*.cs > "$S/csc.log" ||
+  { cat "$S/csc.log"; exit 1; }
+echo "{\"runtimeOptions\": {\"tfm\": \"net6.0\", \"framework\": {\"name\": \"Microsoft.NETCore.App\", \"version\": \"${RT##*/}\"}}}" \
+  > "$S/scenecheck.runtimeconfig.json"
+voice=-
+if tools/vendor_fetch.sh narration "$S/narration" "narrator lines are checked for reading time only" > /dev/null &&
+  ls "$S"/narration/*.wav > /dev/null 2>&1; then voice=$S/narration; fi
+"$D/NetCoreRuntime/dotnet" "$S/scenecheck.dll" scenes "$voice"
+echo "== The docs link check"
+python3 -I tools/doclinks.py
 echo "All checks passed."

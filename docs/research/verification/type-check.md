@@ -1,37 +1,32 @@
 # Type-checking against Unity's own DLLs
 
-How we compile the project the way the Unity editor does, without Unity and without a license. We use the compiler and reference assemblies from the same GameCI image CI builds with.
+How we compile the project the way the Unity editor does, without Unity and without a licence. We use the compiler and reference assemblies from the same GameCI image CI builds with. `tools/check.sh` does it all; this is why and how.
 
-**Read this when** you want to check C# before pushing, are upgrading Unity or an SDK, or a CI compile error needs reproducing.
+**Read this when** a compile error needs explaining, you are upgrading Unity or an SDK, or a CI compile error needs reproducing.
 
 Up: [Verification](README.md)
 
-## 1. Get Unity's compiler and DLLs from the editor image
+## 1. Where the compiler and DLLs come from
 
-- **The `unityci/editor` image is ~7 GB compressed, and Docker isn't needed.** [`extract-unity.sh`](tools/extract-unity.sh) does it with plain HTTP:
-  1. Asks Docker Hub for an anonymous pull token.
-  2. Resolves the `linux/amd64` manifest of the tag (for example `ubuntu-6000.3.26f1-webgl-3`).
-  3. Streams its **largest layer**, the editor: 7.12 GB for 6000.3.26f1.
-  4. Pipes it through `tar -xz --wildcards`, so only the parts below reach the disk.
-- **What it keeps:**
+- **A prebuilt Unity kit.** The vendor repository's *Unity kit* workflow streams the GameCI editor image's editor layer (about 7 GB), keeps only what type-checking needs, builds uGUI and the Input System from the editor's bundled sources, and publishes the result as a release. [`tools/check.sh`](../../../tools/check.sh) downloads it once per Unity version (the version is in `ProjectSettings/ProjectVersion.txt`) and caches it. Agents never run the extraction scripts ([tools](tools/README.md)).
+- **What the kit holds:**
 
-  | Path under `Editor/Data` | Why |
+  | Part | Why |
   |---|---|
-  | `Managed/UnityEngine/UnityEngine.*.dll`, `UnityEditor*.dll` | Reference assemblies, one per engine module, plus the editor APIs. Each has an XML doc file, which is handy for checking an API exists |
-  | `Managed/Unity.CompilationPipeline.Common.dll` | The ILPostProcessor contract, for the [weaver harness](fusion-weaver.md) |
-  | `NetStandard/ref/2.1.0/netstandard.dll` | The base class library the scripts compile against |
-  | `DotNetSdkRoslyn/csc.dll`, `NetCoreRuntime/` | Unity's own Roslyn compiler and the .NET 6 runtime it runs on |
-  | `Resources/PackageManager/BuiltInPackages/*/package.json` | Module dependencies, used to work out which modules are enabled |
-  | `Resources/PackageManager/Editor/com.unity.inputsystem-*.tgz`, `com.unity.nuget.mono-cecil-*.tgz` | The package versions bundled with this editor |
-  | `PlaybackEngines/WebGLSupport/BuildTools/WebGLTemplates/` | Unity's stock templates, for reference when editing ours |
+  | `UnityEngine.*.dll`, `UnityEditor*.dll` | Reference assemblies, one per engine module, plus the editor APIs. Each has an XML doc file, which is handy for checking an API exists |
+  | `Unity.CompilationPipeline.Common.dll` | The ILPostProcessor contract, for the [weaver harness](fusion-weaver.md) |
+  | `netstandard.dll` | The base class library the scripts compile against |
+  | Unity's Roslyn (`csc.dll`) and the .NET runtime it runs on | The compiler, as the editor uses it |
+  | Built-in package metadata | Module dependencies, used to work out which modules are enabled |
+  | `UnityEngine.UI.dll`, `Unity.InputSystem.dll`, Cecil, NUnit | Built from the editor's bundled packages |
 
-- **Rate limit.** Docker Hub allows **100 anonymous manifest requests per hour per IP.** The cloud sandbox's shared egress IP ran out on 2026-10-14 (HTTP 429). Authenticate with `DOCKER_USER` / `DOCKER_TOKEN` if that happens.
+- **After a Unity upgrade,** run the vendor repository's *Unity kit* workflow with the new version first, or `check.sh` stops with an error saying so.
 
 ## 2. Compile like the editor
 
 - **Compiler flags:** `csc.dll` run on the bundled `dotnet`, with `-langversion:9.0 -nostdlib -noconfig -target:library`, `netstandard.dll`, and the engine module DLLs as references.
 - **Defines:** `UNITY_6000_3_OR_NEWER` and friends, `UNITY_WEBGL`, plus the input defines.
-- **uGUI and the Input System's UI support** come from source too: `build-ugui.sh` builds `UnityEngine.UI.dll`, and `build-inputsystem.sh` with `UGUI=` builds the Input System against it, as Unity does once uGUI is in the project. Pass `--ugui` to `compile_unity.py`.
+- **uGUI and the Input System's UI support** come from the kit, built together as Unity does once uGUI is in the project. They are passed to `compile_unity.py` as `--ugui` and `--inputsystem`.
 - **Check both input backends.** The active one isn't known until Unity generates ProjectSettings ([why](../build-pipeline/unity-project.md#input)). Compile once with `ENABLE_LEGACY_INPUT_MANAGER`, once with `ENABLE_INPUT_SYSTEM` (referencing `Unity.InputSystem.dll`), and once with both: `compile_unity.py --input legacy`, `--input new`, and the default, `--input both`.
 - **Then the editor assembly:** compile `Assets/Editor/**` against the game assembly plus `UnityEditor*.dll`, with `UNITY_EDITOR` defined.
 - **Assembly definitions first.** Each `.asmdef` outside `Assets/Photon` compiles the scripts under its folder, after the ones it references. `Assembly-CSharp` gets everything else and references the auto-referenced ones, such as `PooketSlug.Core`.
@@ -39,7 +34,6 @@ Up: [Verification](README.md)
   - A test assembly compiles only when its define constraint, `UNITY_INCLUDE_TESTS`, holds. The Test Framework defines it in the editor.
   - It also needs `--nunit` ([EditMode tests](edit-mode-tests.md)).
 - [`compile_unity.py`](tools/compile_unity.py) does all of this: the `game` stage, or `all` for the SDK and the game.
-- **Track record:** zero errors and zero warnings before the first push of the game, and no compile failures in CI since.
 
 ## Emulating disabled modules
 
@@ -57,7 +51,7 @@ Up: [Verification](README.md)
 
 ## Compiling the Input System and the Photon SDK
 
-- **Input System:** [`build-inputsystem.sh`](tools/build-inputsystem.sh) compiles the bundled package's runtime sources into `Unity.InputSystem.dll`. That's 281 files, everything except `Editor/` folders and the `InputForUI` plugin, which uses Unity-internal APIs.
+- **Input System:** the kit has it built from the bundled package's runtime sources, without the `Editor/` folders and the `InputForUI` plugin (it uses Unity-internal APIs).
 - **Photon SDK:** with the SDK unpacked into `Assets/Photon/`, the `sdk` stage compiles each asmdef as its own assembly, for the player and for the editor. `Unity.Fusion.CodeGen` is compiled with `FUSION_WEAVER_ILPOSTPROCESSOR`, as its asmdef's version-defines would set it:
 
   | Assembly | Notes |

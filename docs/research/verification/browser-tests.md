@@ -28,7 +28,7 @@ Up: [Verification](README.md)
 
 ## Two-browser co-op test
 
-[`coop.mjs`](../../../tools/coop.mjs) `<url> <outdir> [code|boss|scene|dropin|handover|watch]` runs **two separate Chromium instances**, not two tabs. **CI runs it on every build** ([the job](../build-pipeline/workflow.md#the-two-player-co-op-test-job)). Tabs could be throttled ([hidden tabs](../netcode/sessions.md#hidden-tabs)).
+[`coop.mjs`](../../../tools/coop.mjs) `<url> <outdir> [code|boss|scene|dropin|handover|watch|debrief]` runs seven modes (the default is `code`) in **two separate Chromium instances**, not two tabs. **CI runs it on every build** ([the job](../build-pipeline/workflow.md#the-two-player-co-op-test-job)). Tabs could be throttled when hidden.
 
 1. A loads the page with `?room=CI…&unlock=coop&test=crate`. `room` gives the round a room of its own (a random name), so rounds running at once, and real players in MATES, never meet. `unlock` is needed because a new browser hides co-op until Mission one is beaten solo; `test=crate` makes the world's authority put a bomb crate 2.75 tiles ahead of the start, just past where B appears. It presses **H** (CO-OP) until its console logs `Joining room CI…`, then waits for `[PooketSlug/Net] Online … room CI…`. In the den it presses **H** again (the TV's invite), and the copied link must end `?room=CI…`.
 2. B opens the same link and presses **H**. In `watch` mode a third phone, C, joins with both seats taken and must watch.

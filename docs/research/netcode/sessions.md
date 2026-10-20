@@ -52,7 +52,10 @@ runner.StartGame(new StartGameArgs {
 - **A room holds six:** two players and four watchers (Photon's free plan allows 20 connections in all).
 - **Known gaps:** two phones arriving within a second of each other could both take the last seat, as the listing is a second behind; a watcher doesn't take a seat that frees up without leaving and joining again.
 
-- **Test with two visible windows side by side, or two devices.** Not two tabs in one window.
+## Build versions and hidden tabs
+
+- **Build versions:** `AppVersion` is the build's version (`Application.version`, the commit stamped by the build script), and Photon only matches clients with the same one. Two different builds never meet, so every preview is its own co-op world. It is also why a redeploy during a session splits it, and why [docs-only pushes don't build](../build-pipeline/workflow.md#triggers-permissions-and-concurrency).
+- **Hidden tabs:** browsers pause a hidden tab (Unity WebGL runs on `requestAnimationFrame`), which freezes that player and stops servicing the connection. A paused master stops running the shared world. [`MasterWatch`](../../../Assets/Scripts/Core/Platform/Handover.cs) in Core notices when the master's beat goes quiet (2 s) and asks Photon to make this client the master, which Photon grants once its own idle threshold has passed. Test with two visible windows, not two tabs; the CI `handover` round covers this.
 
 ## Testing by hand
 
