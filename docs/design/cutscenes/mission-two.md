@@ -141,7 +141,7 @@ shot. On a later fight the tabk rolls out of the fog in play first, as it used t
 
 ## Freeing kcaj
 
-After Trollogram kcaj is beaten on foot ([the pilot round](../tanks.md#the-pilot-round)), like
+After Trollogram kcaj is beaten on foot ([the pilot round](../tabks/bosses.md#the-pilot-round)), like
 [freeing kie](mission-one.md#freeing-kie). About 15 seconds, five shots; it can be skipped once seen. Intro: kcaj, shot 2.
 **Afterwards:** the next time the den loads, kcaj [moves in](den.md#a-crewmate-moves-in) to his nook on the upper floor and his corner lights
 up.
