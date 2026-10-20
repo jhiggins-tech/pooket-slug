@@ -10,32 +10,31 @@ How a push becomes a playable page. This overview fits on one screen; the linked
 git push to main or claude/**        (pushes that only touch *.md or docs/** are skipped)
    │
    ▼
-GitHub Actions: .github/workflows/webgl-pages.yml   (two jobs on ubuntu-latest)
-   1. Docker on the second disk      ~8 s; the Unity editor image is ~7 GB
-   2. Checkout
-   3. Fetch Photon Fusion SDK        private release → SHA-256 check → unpack into Assets/Photon/
-   4. Restore the Library cache
-   5. game-ci/unity-test-runner      v4.3.2: EditMode tests; a failure stops here
-   6. game-ci/unity-builder@v4.8.2   Docker image unityci/editor:ubuntu-6000.3.26f1-webgl-3
-        └─ Unity -executeMethod PooketSlug.EditorTools.WebGLBuild.Build
-             bake the Photon AppId, create the scene, set PlayerSettings, BuildPlayer(WebGL)
-   7. Upload the build as an artifact
-   8. Deploy build/WebGL/WebGL into the gh-pages branch: the site root for the main line, previews/<branch>/ for others
-   then, in a second job:
-   9. Two-player co-op test          two headless browsers against the new build
+GitHub Actions: .github/workflows/webgl-pages.yml   (jobs on ubuntu-24.04)
+   plan ─┬─ scenes                   the scene check
+         ├─ tests                    EditMode, then PlayMode (game-ci/unity-test-runner v4.3.2)
+         └─ build                    game-ci/unity-builder@v4.8.2, image unityci/editor:ubuntu-6000.3.26f1-webgl-3
+              │                        └─ Unity -executeMethod PooketSlug.EditorTools.WebGLBuild.Build
+              ├─ touch               touch play on an emulated phone
+              └─ demos               the kit screen's clips (only when the crew changes)
+   build-and-deploy                  once scenes, tests, build and touch pass: the build + demos, sandbox and scenes
+                                     as PooketSlug-WebGL; a preview deploys to previews/<branch>/ now
+   coop-test (7 scenarios, 3 at once) then, on the main line, deploy-live to the site root
+   (tests and build each get the project ready the same way: Docker on the second disk, the Photon SDK, the vendor
+   sounds, the scenes, the Library cache; .github/actions/unity-project)
    │
    ▼
 GitHub Pages serves gh-pages at https://jhiggins-tech.github.io/pooket-slug/
 ```
 
-A main-line push is live, and any other branch's preview is up, in about 15 to 20 minutes.
+A preview is up about 12 minutes after a push; a main-line push is live in about 20, once the co-op tests pass (ci-faster, 20 Oct: 15 and 23 before).
 
 ## Key decisions
 
 | Decision | Why | Detail |
 |---|---|---|
 | GameCI `unity-builder@v4` with a custom `buildMethod` | It worked first time with a Personal license, and one editor script controls the whole build | [Workflow](workflow.md#6-the-build-step) |
-| EditMode tests before the build | A failing test stops the job, so a broken build never deploys | [EditMode tests](../verification/edit-mode-tests.md) |
+| Unity tests beside the build | They run at once, and a failing test stops the deploy, so a broken build never goes up | [EditMode tests](../verification/edit-mode-tests.md) |
 | A code-only Unity project | No hand-authored Unity YAML; scenes, art and sound are generated | [Unity project](unity-project.md#a-code-only-project) |
 | WebGL compression disabled | Pages can't send `Content-Encoding` for Unity's pre-compressed files, and it gzips responses itself | [GitHub Pages](github-pages.md#compression) |
 | Deploy through a `gh-pages` branch | Lets a feature branch deploy without changing environment protection rules | [GitHub Pages](github-pages.md#deploying) |
