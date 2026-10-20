@@ -296,6 +296,12 @@ namespace PooketSlug
             world.View.Shake(0.45f);
         }
 
+        public override void Destroy()
+        {
+            m_Guns.Destroy();
+            base.Destroy();
+        }
+
         public override void Render()
         {
             base.Render();
@@ -303,6 +309,7 @@ namespace PooketSlug
             float shaking = m_Guns.Shake; // building up a shot, say
             Vector2 shake = shaking > 0f ? new Vector2(Mathf.Round(Rng.Fx.Range(-1f, 1f) * shaking) / Art.PPU, 0f) : Vector2.zero;
             m_Look.Apply(shake, Facing, m_BarrelAngle, FlashTimer > 0f, m_Muzzle > 0f, blink, m_Guns.Spinning);
+            m_Guns.Render(this);
             if (m_Marker != null)
             {
                 bool shown = Mode == State.Dropping && (int)(Time.time * 8f) % 2 == 0;

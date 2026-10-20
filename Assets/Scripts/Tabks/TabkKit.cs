@@ -14,7 +14,7 @@ namespace PooketSlug
         /// <summary>What it says as you climb in.</summary>
         public readonly string Name;
         public readonly Sprite Hull, Barrel;
-        /// <summary>The hull's second frame while a shot charges (kie's reels turning), or null for none.</summary>
+        /// <summary>The hull's second frame while a shot charges (kie's reels turning, kcaj's swirl wobbling), or null for none.</summary>
         public readonly Sprite HullSpun;
         /// <summary>It whole, gun and all, parked (in the tabk bay, <see cref="BayView"/>).</summary>
         public readonly Sprite Parked;
@@ -67,21 +67,11 @@ namespace PooketSlug
             () => new KieTabkGuns(), KieTabkArt.HullSpun, KieTabkArt.LensPivot, KieTabkArt.LensLength);
 
         /// <summary>
-        /// kcaj's tabk, won by beating Mission two (<see cref="TabkCards"/>): the tabk in his paint. For now it's only parked
-        /// in the bay: missions drop tones2's until his is built (the owner's call, 19 Oct, while tabk select was built), so
-        /// its guns are tones2's.
+        /// kcaj's tabk, SOFT SERVE (<see cref="KcajTabkArt"/>): Double Park, Hyperfixate and Unmedicated tabk-sized
+        /// (<see cref="KcajTabkGuns"/>), from a nozzle that turns at the soft-serve machine's front.
         /// </summary>
-        public static TabkKit Kcaj => s_Kcaj ??= Painted(TabkCards.Kcaj);
-
-        static TabkKit Painted(TabkCard card)
-        {
-            var paint = new System.Collections.Generic.Dictionary<char, uint> { { 't', card.Paint }, { 'T', card.Shade } };
-            string[] whole = ArtData.Tank, hull = (string[])ArtData.Tank.Clone();
-            for (int r = 4; r <= 5; r++) hull[r] = new string('.', 22) + hull[r].Substring(22); // the gun is drawn on its own
-            var feet = new Vector2(0.5f, 0f);
-            return new TabkKit(card, Art.FromRows(hull, feet, paint), Art.TankBarrel, Art.FromRows(whole, feet, paint),
-                Tones2Art.TabkDrone, () => new Tones2TabkGuns());
-        }
+        public static TabkKit Kcaj => s_Kcaj ??= new TabkKit(TabkCards.Kcaj, KcajTabkArt.Hull, KcajTabkArt.Nozzle, KcajTabkArt.Parked, Tones2Art.TabkDrone,
+            () => new KcajTabkGuns(), KcajTabkArt.HullCharging, KcajTabkArt.NozzlePivot, KcajTabkArt.NozzleLength);
 
         /// <summary>The tabk a card in the bay is for (tones2's for none).</summary>
         public static TabkKit Of(TabkCard card) => card == TabkCards.Kie ? Kie : card == TabkCards.Kcaj ? Kcaj : Tones2;
@@ -107,6 +97,11 @@ namespace PooketSlug
         public virtual float Shake => 0f;
         /// <summary>Charging a shot, so its hull's second frame shows (kie's reels spin, <see cref="TabkKit.HullSpun"/>).</summary>
         public virtual bool Spinning => false;
+
+        /// <summary>Each frame, after the tabk's drawn: what its guns draw themselves (kcaj's beam).</summary>
+        public virtual void Render(PlayerTank tank) { }
+        /// <summary>The tabk's gone: whatever its guns drew goes too.</summary>
+        public virtual void Destroy() { }
 
         /// <summary>Each tick it's driven, after it's moved and aimed: the buttons, and whatever's firing.</summary>
         public abstract void Tick(PlayerTank tank, float dt, in SoldierInput input);

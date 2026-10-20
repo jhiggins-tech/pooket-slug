@@ -44,8 +44,8 @@ namespace PooketSlug
 
     /// <summary>
     /// The crew's tabks and who has won which (<c>docs/design/tanks.md</c>): tones2's from Mission one's coda, kie's and
-    /// kcaj's once Mission two is beaten (kie's parks downstairs, kcaj's on the top deck). tones2's and kie's are drivable:
-    /// kcaj's can be loaded in the bay, but missions drop tones2's until it's built (the owner, 19 Oct; <see cref="Built"/>).
+    /// kcaj's once Mission two is beaten (kie's parks downstairs, kcaj's on the top deck). All three are drivable; a tabk
+    /// that's won but not built yet drops tones2's in its place (the owner, 19 Oct; <see cref="Built"/>).
     /// </summary>
     public static class TabkCards
     {
@@ -56,13 +56,14 @@ namespace PooketSlug
         // kie's is THE PROJECTIONIST, in his blue with a green stripe
         public static readonly TabkCard Kie = new TabkCard(Content.Kie, "KIE'S TABK", 0x4ea8ff, 0x2a70c0, 1,
             ("WEASEL", Rounds5), ("TROLLOGRAM", Rounds3), ("STEAL", Rounds1));
-        public static readonly TabkCard Kcaj = new TabkCard(Content.Kcaj, "KCAJ'S TABK", 0xff5ad8, 0xb02aa8, BayMap.PerDeck,
-            ("CONES", Rounds5), ("BEAM", Rounds3), ("PILLS", Rounds1));
+        // kcaj's is SOFT SERVE, in his purple with a gold stripe
+        public static readonly TabkCard Kcaj = new TabkCard(Content.Kcaj, "KCAJ'S TABK", 0xa060e0, 0x6a3aa0, BayMap.PerDeck,
+            ("CONES", Rounds5), ("FIXATE", Rounds3), ("PILLS", Rounds1));
 
         public static readonly IReadOnlyList<TabkCard> All = new[] { Tones2, Kie, Kcaj };
 
         /// <summary>Whether <paramref name="card"/>'s tabk is built, so a mission drops it when it's loaded (else tones2's).</summary>
-        public static bool Built(TabkCard card) => card == Tones2 || card == Kie;
+        public static bool Built(TabkCard card) => card == Tones2 || card == Kie || card == Kcaj;
 
         /// <summary>The tabk a mission drops for <paramref name="loaded"/>: it, if it's built, else tones2's.</summary>
         public static TabkCard Dropped(TabkCard loaded) => loaded != null && Built(loaded) ? loaded : Tones2;

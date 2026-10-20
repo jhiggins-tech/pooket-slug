@@ -17,8 +17,8 @@ namespace PooketSlug
 
         public KcajKit(Player player) : base(player)
         {
-            m_Beam = new KcajBeam(player, KcajTuning.Beam);
-            m_Pills = new KcajPills(player, KcajTuning.Pills);
+            m_Beam = new KcajBeam(new Soldier(player), KcajTuning.Beam);
+            m_Pills = new KcajPills(player.World, KcajTuning.Pills);
         }
 
         public override bool Fixated => m_Beam.Locked;
@@ -55,11 +55,45 @@ namespace PooketSlug
             m_Pills.Render();
             m_Beam.Render();
         }
+
+        /// <summary>His beam on foot: from his gun, along his aim, from his specials, and he turns to what it's stuck to.</summary>
+        sealed class Soldier : IFixateHost
+        {
+            readonly Player m_Player;
+            public Soldier(Player player) => m_Player = player;
+            public World World => m_Player.World;
+            public Vector2 BeamFrom => m_Player.MuzzlePos;
+            public Vector2 BeamAim => m_Player.Aim;
+            public Vector2 Center => m_Player.Center;
+            public bool Down => m_Player.Dead;
+            public bool HasCharge => m_Player.Specials > 0;
+            public void SpendCharge() => m_Player.Kit.UseSpecial();
+            public void Face(Vector2 at) => m_Player.Facing = at.x >= m_Player.Pos.x ? 1 : -1;
+        }
+    }
+
+    /// <summary>Whoever shines Hyperfixate (<see cref="KcajBeam"/>): kcaj on foot, or his tabk's nozzle (<see cref="KcajTabkGuns"/>).</summary>
+    public interface IFixateHost
+    {
+        World World { get; }
+        /// <summary>Where the beam leaves from, and which way.</summary>
+        Vector2 BeamFrom { get; }
+        Vector2 BeamAim { get; }
+        /// <summary>Where it's measured from, for how far the target's got.</summary>
+        Vector2 Center { get; }
+        /// <summary>Down, so the beam isn't drawn.</summary>
+        bool Down { get; }
+        /// <summary>A charge (a special, a tabk's round) is left to lock with, and spending it.</summary>
+        bool HasCharge { get; }
+        void SpendCharge();
+        /// <summary>Held on something at <paramref name="at"/>: turn to it, if it turns.</summary>
+        void Face(Vector2 at);
     }
 
     /// <summary>
     /// A partner's kcaj on our screen: his beam, drawn from his gun to what it's stuck to, and his pills, rained from
-    /// the same seed. Both are harmless here; his screen does the damage.
+    /// the same seed. Both are harmless here; his screen does the damage. The same plays a partner's SOFT SERVE
+    /// (<paramref name="tabk"/>), whoever drives it: its beam from its nozzle (<see cref="RemotePlayer.TabkMuzzle"/>).
     /// </summary>
     public sealed class KcajCopy : KitCopy
     {
@@ -67,21 +101,25 @@ namespace PooketSlug
         readonly PillRain m_Rain;
         readonly PillView m_Pills;
         readonly KcajPills.Ground m_Ground;
+        readonly HyperfixateSpec m_Spec;
+        readonly bool m_Tabk;
         Enemy m_Target;
         float m_Held;
         bool m_Raining;
 
-        public KcajCopy(RemotePlayer remote) : base(remote)
+        public KcajCopy(RemotePlayer remote, bool tabk = false) : base(remote)
         {
+            m_Tabk = tabk;
+            m_Spec = tabk ? KcajTuning.Tabk.Beam : KcajTuning.Beam;
             m_Beam = Art.Renderer(remote.Go.transform, "Hyperfixate", Art.Pixel, SortOrder.Effects + 2, shown: false);
-            m_Rain = new PillRain(KcajTuning.Pills);
+            m_Rain = new PillRain(tabk ? KcajTuning.Tabk.Pills : KcajTuning.Pills);
             m_Pills = new PillView(remote.Go.transform, m_Rain.Capacity, 1f);
             m_Ground = new KcajPills.Ground(remote.World);
         }
 
         public override void Tick(float dt, in AvatarPose pose, Vector2 vel)
         {
-            HyperfixateSpec spec = KcajTuning.Beam;
+            HyperfixateSpec spec = m_Spec;
             if (m_Target != null)
             {
                 m_Held += dt;
@@ -97,13 +135,13 @@ namespace PooketSlug
 
         public override void Render(in AvatarPose pose)
         {
-            bool locked = m_Target != null;
+            bool locked = m_Target != null && (!m_Tabk || Remote.Driving);
             m_Beam.enabled = locked;
             if (locked)
             {
                 Vector2 local = PlayerVisual.MuzzleLocal(pose.AimY, pose.Crouching, pose.Diagonal);
-                Vector2 from = Remote.Pos + new Vector2(local.x * pose.Facing, local.y);
-                KcajArt.DrawBeam(m_Beam, from, m_Target.Center, Mathf.Clamp01(m_Held / KcajTuning.Beam.RampTime));
+                Vector2 from = m_Tabk ? Remote.TabkMuzzle : Remote.Pos + new Vector2(local.x * pose.Facing, local.y);
+                KcajArt.DrawBeam(m_Beam, from, m_Target.Center, Mathf.Clamp01(m_Held / m_Spec.RampTime));
             }
             m_Pills.Render(m_Rain, m_Raining);
         }
@@ -136,7 +174,7 @@ namespace PooketSlug
     /// </summary>
     public sealed class KcajBeam
     {
-        readonly Player m_Player;
+        readonly IFixateHost m_Host;
         readonly HyperfixateSpec m_Spec;
         readonly Hyperfixation m_Fix;
         readonly SpriteRenderer m_Beam;
@@ -147,12 +185,12 @@ namespace PooketSlug
         Vector2 m_MissEnd;
         float m_Miss;
 
-        public KcajBeam(Player player, HyperfixateSpec spec)
+        public KcajBeam(IFixateHost host, HyperfixateSpec spec)
         {
-            m_Player = player;
+            m_Host = host;
             m_Spec = spec;
-            m_Fix = new Hyperfixation(spec); // its charges are kcaj's specials (Content.Kcaj)
-            Transform root = player.World.Root;
+            m_Fix = new Hyperfixation(spec); // its charges are the host's: kcaj's specials (Content.Kcaj), or his tabk's rounds
+            Transform root = host.World.Root;
             m_Beam = MakeRenderer(root, "Hyperfixate", SortOrder.Effects + 2);
             for (int i = 0; i < m_Edges.Length; i++)
             {
@@ -167,6 +205,13 @@ namespace PooketSlug
         public bool Locked => m_Fix.Locked;
         public Enemy Target => Locked ? m_Target : null;
 
+        /// <summary>Its renderers go (its tabk's gone).</summary>
+        public void Destroy()
+        {
+            Object.Destroy(m_Beam.gameObject);
+            foreach (SpriteRenderer sr in m_Edges) Object.Destroy(sr.gameObject);
+        }
+
         /// <summary>Lets go at once (he's down, or in a tabk).</summary>
         public void Cancel()
         {
@@ -180,11 +225,15 @@ namespace PooketSlug
 
         /// <summary>Tells the partner the beam stuck to <paramref name="e"/>, or let go of it.</summary>
         void Tell(Enemy e, bool holds) =>
-            CrewKit.Send(m_Player.World, KitMove.Fixate, e != null ? e.Center : m_Player.Pos, new Vector2(e != null ? e.NetId : -1, holds ? 1f : 0f));
+            CrewKit.Send(m_Host.World, KitMove.Fixate, e != null ? e.Center : m_Host.Center, new Vector2(e != null ? e.NetId : -1, holds ? 1f : 0f));
 
-        public void Tick(float dt, bool pressed, bool held)
+        /// <summary>
+        /// A frame with SP <paramref name="pressed"/> or <paramref name="held"/>. Returns whether a press locked on (a
+        /// charge spent) or fizzled; false when it held on, wasn't pressed or had no charge to lock with.
+        /// </summary>
+        public bool Tick(float dt, bool pressed, bool held)
         {
-            Player p = m_Player;
+            IFixateHost p = m_Host;
             m_Miss -= dt;
 
             if (m_Fix.Locked)
@@ -198,12 +247,12 @@ namespace PooketSlug
                     m_Target = null;
                     if (m_Fix.Ended == FixateEnd.Spent || m_Fix.Ended == FixateEnd.OutOfReach) Sfx.Play(Sfx.BeamSnap, 0.6f);
                 }
-                else p.Facing = e.Pos.x >= p.Pos.x ? 1 : -1;
-                return;
+                else p.Face(e.Pos);
+                return false;
             }
 
-            if (!pressed || p.Specials <= 0) return;
-            Vector2 origin = p.MuzzlePos, dir = p.Aim.normalized;
+            if (!pressed || !p.HasCharge) return false;
+            Vector2 origin = p.BeamFrom, dir = p.BeamAim.normalized;
             float wall = WallDistance(origin, dir);
             Enemy hit = FirstTouched(origin, dir, wall);
             if (hit == null)
@@ -212,19 +261,20 @@ namespace PooketSlug
                 m_MissEnd = origin + dir * Mathf.Min(wall, m_Spec.Range);
                 m_Miss = 0.12f;
                 Sfx.Play(Sfx.BeamFizzle, 0.5f);
-                return;
+                return true;
             }
-            p.Kit.UseSpecial();
+            p.SpendCharge();
             m_Target = hit;
             m_Fix.Lock();
             Tell(hit, true);
             Sfx.Play(Sfx.BeamLock, 0.7f);
+            return true;
         }
 
         Enemy FirstTouched(Vector2 origin, Vector2 dir, float wall)
         {
             m_Seen.Clear();
-            foreach (Enemy e in m_Player.World.Enemies)
+            foreach (Enemy e in m_Host.World.Enemies)
                 if (e.Shootable) m_Seen.Add(e);
             if (m_Centres.Length < m_Seen.Count)
             {
@@ -243,7 +293,7 @@ namespace PooketSlug
 
         float WallDistance(Vector2 origin, Vector2 dir)
         {
-            Level level = m_Player.World.Level;
+            Level level = m_Host.World.Level;
             const float step = 0.12f;
             for (float d = 0f; d <= m_Spec.Range; d += step)
                 if (level.IsSolidAt(origin + dir * d)) return d;
@@ -252,7 +302,7 @@ namespace PooketSlug
 
         void Burn(Enemy e, float burn)
         {
-            World w = m_Player.World;
+            World w = m_Host.World;
             w.ShotsHit++;
             e.Soak += burn;
             while (e.Soak >= 1f && e.Shootable)
@@ -271,14 +321,14 @@ namespace PooketSlug
 
         public void Render()
         {
-            Player p = m_Player;
-            bool locked = m_Fix.Locked && m_Target != null && !p.Dead;
+            IFixateHost p = m_Host;
+            bool locked = m_Fix.Locked && m_Target != null && !p.Down;
             bool miss = !locked && m_Miss > 0f;
             m_Beam.enabled = locked || miss;
             if (m_Beam.enabled)
             {
-                if (locked) KcajArt.DrawBeam(m_Beam, p.MuzzlePos, m_Target.Center, Mathf.Clamp01(m_Fix.Held / m_Spec.RampTime));
-                else KcajArt.DrawFaintBeam(m_Beam, p.MuzzlePos, m_MissEnd, new Color(1f, 1f, 1f, 0.5f));
+                if (locked) KcajArt.DrawBeam(m_Beam, p.BeamFrom, m_Target.Center, Mathf.Clamp01(m_Fix.Held / m_Spec.RampTime));
+                else KcajArt.DrawFaintBeam(m_Beam, p.BeamFrom, m_MissEnd, new Color(1f, 1f, 1f, 0.5f));
             }
 
             // The screen edges close in while he's fixated.
@@ -343,19 +393,20 @@ namespace PooketSlug
             }
         }
 
-        readonly Player m_Player;
+        readonly World m_World;
         readonly UnmedicatedSpec m_Spec;
         readonly PillRain m_Rain;
         readonly PillView m_View;
         readonly Ground m_Ground;
 
-        public KcajPills(Player player, UnmedicatedSpec spec)
+        /// <param name="parent">What the pills are drawn under: the world's root, unless something that comes and goes owns them.</param>
+        public KcajPills(World world, UnmedicatedSpec spec, Transform parent = null)
         {
-            m_Player = player;
+            m_World = world;
             m_Spec = spec;
             m_Rain = new PillRain(spec);
-            m_Ground = new Ground(player.World);
-            m_View = new PillView(player.World.Root, m_Rain.Capacity, 1f);
+            m_Ground = new Ground(world);
+            m_View = new PillView(parent != null ? parent : world.Root, m_Rain.Capacity, 1f);
         }
 
         /// <summary>Pills are still falling or bouncing.</summary>
@@ -363,7 +414,7 @@ namespace PooketSlug
 
         public void Start()
         {
-            World w = m_Player.World;
+            World w = m_World;
             Rect view = w.View.Rect;
             uint seed = PillRain.Seed(w.Rng);
             m_Rain.Start(seed, view.xMin, view.xMax, view.yMax);
@@ -376,7 +427,7 @@ namespace PooketSlug
         {
             if (!Raining) return;
             m_Rain.Step(dt, m_Ground, m_Ground.OnGoon);
-            World w = m_Player.World;
+            World w = m_World;
             for (int p = 0; p < m_Rain.PopCount; p++)
             {
                 Vector2 at = m_Rain.Pops[p];
