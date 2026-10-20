@@ -33,6 +33,20 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void ItDipsToBlackOnlyIntoANewScene()
+        {
+            var a = new CutsceneShot("Outside", 3f, new CutsceneLine[0], set: "street");
+            var b = new CutsceneShot("Still outside", 3f, new CutsceneLine[0], set: "street");
+            var c = new CutsceneShot("Inside", 3f, new CutsceneLine[0], set: "den");
+            var scene = new CutsceneDef("dips", 99, a, b, c);
+            Assert.IsTrue(scene.NewScene(0), "into the first shot");
+            Assert.IsFalse(scene.NewScene(1), "the same set: a cut, no dip between lines");
+            Assert.IsTrue(scene.NewScene(2), "a new set");
+            for (int i = 1; i < TestScenes.MotorPool.Shots.Length; i++)
+                Assert.IsFalse(TestScenes.MotorPool.NewScene(i), "the motor pool's all one scene: shot " + i);
+        }
+
+        [Test]
         public void EveryLineHasTimeToBeRead()
         {
             // about three words a second, counted from when a line appears to when it goes (SceneCheck.Timing)
