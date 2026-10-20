@@ -15,7 +15,7 @@ namespace PooketSlug
         /// <summary>The canvas row a head's top sits on, unnudged.</summary>
         public const int HeadTop = 9;
 
-        /// <summary>The bandana head everyone wears until their own is drawn, facing forward.</summary>
+        /// <summary>The bandana head: anyone without a head of their own (the trooper), facing forward.</summary>
         public static readonly string[] Head =
         {
             ".........rrrrr..........",
@@ -37,6 +37,78 @@ namespace PooketSlug
             "........hssssSss........",
             "........hsssses.........",
             ".........SSss...........",
+        };
+
+        /// <summary>tones2's head: short black hair with a combover, facing forward.</summary>
+        public static readonly string[] Tones2Head =
+        {
+            ".........uuuuu..........",
+            "........uuDDDDu.........",
+            "........uuuuuuuu........",
+            "........uusssss.........",
+            "........usssses.........",
+            "........sssssss.........",
+            ".........SsssS..........",
+        };
+
+        /// <summary>tones2 bowed over his work.</summary>
+        public static readonly string[] Tones2HeadDown =
+        {
+            "..........uuuuu.........",
+            ".........uuDDDDu........",
+            "........uuuuuuuuu.......",
+            "........uussssss........",
+            "........ussssSss........",
+            "........ssssses.........",
+            ".........SSss...........",
+        };
+
+        /// <summary>kie's head: a black fedora with a band in his colour, facing forward.</summary>
+        public static readonly string[] KieHead =
+        {
+            "..........uuu...........",
+            ".........uDuuu..........",
+            ".........RRRRR..........",
+            "......uuuuuuuuuu........",
+            "........hsssses.........",
+            "........hssssss.........",
+            ".........SsssS..........",
+        };
+
+        /// <summary>kie bowed over his work: the fedora tipped forward.</summary>
+        public static readonly string[] KieHeadDown =
+        {
+            "...........uuu..........",
+            "..........uDuuu.........",
+            "..........RRRRR.........",
+            ".......uuuuuuuuuu.......",
+            "........hssssSss........",
+            "........hsssses.........",
+            ".........SSss...........",
+        };
+
+        /// <summary>kcaj's head: short brown hair and a beard, facing forward.</summary>
+        public static readonly string[] KcajHead =
+        {
+            ".........hhhhh..........",
+            "........hhbhhhh.........",
+            "........hhhsssh.........",
+            "........hhsssss.........",
+            "........hsssses.........",
+            "........hhshhhh.........",
+            ".........hhhhh..........",
+        };
+
+        /// <summary>kcaj bowed over his work.</summary>
+        public static readonly string[] KcajHeadDown =
+        {
+            "..........hhhhh.........",
+            ".........hhbhhhh........",
+            "........hhhhsssh........",
+            "........hhssssss........",
+            "........hssssSss........",
+            "........hhhshhh.........",
+            ".........hhhh...........",
         };
 
         // ---- The shared bodies ----

@@ -24,7 +24,7 @@ namespace PooketSlug
             m_Legs = legs ?? new Dictionary<CrewLegs, string[]>();
         }
 
-        /// <summary>The bandana head everyone wears until Design draws their own, on the shared body and legs.</summary>
+        /// <summary>The bandana head, on the shared body and legs: anyone without a look of their own.</summary>
         public static readonly CrewLook Shared = new CrewLook(new Dictionary<CrewHead, string[]>
         {
             { CrewHead.Front, ArtData.Head }, { CrewHead.Down, ArtData.HeadDown },
@@ -67,8 +67,14 @@ namespace PooketSlug
         /// <summary>Each crewmate's look; anyone not here wears <see cref="CrewLook.Shared"/>.</summary>
         static readonly Dictionary<SoldierDef, CrewLook> s_Looks = new Dictionary<SoldierDef, CrewLook>
         {
-            { Content.Tones2, CrewLook.Shared }, { Content.Kie, CrewLook.Shared }, { Content.Kcaj, CrewLook.Shared },
+            { Content.Tones2, HeadOf(ArtData.Tones2Head, ArtData.Tones2HeadDown) },
+            { Content.Kie, HeadOf(ArtData.KieHead, ArtData.KieHeadDown) },
+            { Content.Kcaj, HeadOf(ArtData.KcajHead, ArtData.KcajHeadDown) },
         };
+
+        /// <summary>A look that's only a head of their own (facing forward, and bowed) on the shared body and legs.</summary>
+        static CrewLook HeadOf(string[] front, string[] down) =>
+            new CrewLook(new Dictionary<CrewHead, string[]> { { CrewHead.Front, front }, { CrewHead.Down, down } });
 
         public static CrewLook LookOf(SoldierDef soldier) =>
             soldier != null && s_Looks.TryGetValue(soldier, out CrewLook look) ? look : CrewLook.Shared;
