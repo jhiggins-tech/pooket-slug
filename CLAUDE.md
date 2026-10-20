@@ -31,8 +31,8 @@ sign-in for cloud saves. Mission one is solo and teaches the game; beating it op
 
 ## Checking your work
 There is no Unity licence in a cloud session, so CI is the build and test run: push your branch and read the run
-(EditMode tests, the WebGL build, the kit demo recording and the two-player co-op tests; spike branches skip the
-last two). Before pushing, run the same checks yourself in one command:
+(EditMode tests, the WebGL build and touch play; the two-player co-op tests when you change the netcode; the kit demo
+recording only on the main line, or with a "CI: demos" line in a commit message; spikes skip co-op). Before pushing, run the same checks yourself in one command:
 ```sh
 tools/check.sh           # compile every assembly as Unity would for WebGL, Fusion's weaver, the EditMode tests,
                          # the scene check and the docs link check (about 30 s)
