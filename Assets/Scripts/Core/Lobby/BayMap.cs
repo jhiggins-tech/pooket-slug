@@ -186,14 +186,23 @@ namespace PooketSlug
             WalkTo(other, BayMap.LiftX - (other == BayDeck.Top ? 12f : 0f));
         }
 
-        /// <summary>By hand: walks <paramref name="dir"/> along the deck, or stops at 0. Not on the lift.</summary>
+        /// <summary>
+        /// By hand: walks <paramref name="dir"/> along the deck, or stops at 0. Not on the lift. Walking left along the floor
+        /// is walking into the den's roller door: reach it and you go through, as if you'd tapped it.
+        /// </summary>
         public void Walk(int dir)
         {
             if (Riding) return;
-            Errand = BayErrand.None;
             ToDeck = Deck;
             ToX = dir == 0 ? X : dir < 0 ? BayMap.MinX(Deck) : BayMap.MaxX(Deck);
+            Errand = dir < 0 && Deck == BayDeck.Floor ? new BayErrand(BayPlace.Door, null) : BayErrand.None;
         }
+
+        /// <summary>The place you're standing at, to use with jump: the den's door, just inside it; None elsewhere.</summary>
+        public BayPlace PlaceHere => !Riding && Deck == BayDeck.Floor && X <= BayMap.XOf(BayPlace.Door) + DoorReach ? BayPlace.Door : BayPlace.None;
+
+        /// <summary>How far from the den's door you can still jump to use it: where you come in, and a step more.</summary>
+        public const float DoorReach = 24f;
 
         /// <summary>Moves them on, and the lift. Returns the errand they've just finished walking to, once; None otherwise.</summary>
         public BayErrand Step(float dt)

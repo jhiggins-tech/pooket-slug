@@ -99,7 +99,7 @@ namespace PooketSlug
             Log.Game.Info("Tabk bay left");
         }
 
-        /// <summary>The bay's buttons and keys: taps walk, a tabk's card (or jump by one), TAKE IT (Enter, fire), BACK (Esc), the lift (up, down).</summary>
+        /// <summary>The bay's buttons and keys: taps walk, a tabk's card (or jump by one), the den's door (walk into it, or jump by it), TAKE IT (Enter, fire), BACK (Esc), the lift (up, down).</summary>
         public void Tick(MenuInput keys, SoldierInput soldier)
         {
             if (m_Home != null)
@@ -127,7 +127,11 @@ namespace PooketSlug
             bool walk = m_View.TakeWalk(out BayDeck deck, out float x);
             int dir = soldier.Left == soldier.Right ? 0 : soldier.Left ? -1 : 1;
             int ride = soldier.Up == soldier.Down ? 0 : soldier.Up ? 1 : -1;
-            if (soldier.JumpPressed && w.Standing) spot = Near(w);
+            if (soldier.JumpPressed && w.Standing)
+            {
+                spot = Near(w);
+                if (spot == null && w.PlaceHere != BayPlace.None) place = w.PlaceHere; // jump at the door: back to the den
+            }
             if (spot != null || place != BayPlace.None || walk || dir != 0 || ride != 0) m_Card = null;
             if (spot != null) w.Visit(spot.Value);
             else if (place != BayPlace.None) w.Go(place);
