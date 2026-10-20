@@ -813,6 +813,12 @@ THE PROJECTIONIST
 ([picking another](lobby.md#the-tabk-bay)). During the beat the player's loaded tabk waits in its own space, so the
 stands are kie's; the cargo drone swaps them back as the beat ends.
 
+**Built** (2026-10-20, kie-tabk-home-m1): kie's tabk is won once Mission one is cleared (`TabkCards.Won`), and this
+beat plays the first time the bay opens after that, in the bay itself rather than as a scene file:
+`Core/Tabks/KieHomecoming` (when it's due and its timing, tested) and `Ui/Den/BayHomecomingView`. The second shot
+runs 4.5 seconds, not 3, so its three lines can be read, which makes it about 10.5 seconds in all. The crane lowers
+the projector (the sprite's top 14 rows) onto the bare hull. A tap skips it, and a `?test=` jump never plays it.
+
 ## Mission two
 
 kcaj's mission, at the Brain Freeze creamery ([why the creamery](story.md#mission-two-the-creamery)). It's the

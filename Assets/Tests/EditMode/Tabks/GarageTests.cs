@@ -55,11 +55,12 @@ namespace PooketSlug.Tests
         static string[] Names(TabkCard c) => new[] { c.Guns[0].name, c.Guns[1].name, c.Guns[2].name };
 
         [Test]
-        public void TonesTabkIsWonFirst_TheOthersOnceMissionTwoIsBeaten()
+        public void TonesTabkIsWonFirst_KiesComesHomeAfterMissionOne_KcajsAfterMissionTwo()
         {
-            var fresh = new Profile();
-            fresh.RecordRun(Missions.One, Setting.Normal, 100, won: true, solo: true);
-            CollectionAssert.AreEqual(new[] { TabkCards.Tones2 }, TabkCards.Won(fresh));
+            CollectionAssert.AreEqual(new[] { TabkCards.Tones2 }, TabkCards.Won(new Profile()));
+            var one = new Profile();
+            one.RecordRun(Missions.One, Setting.Normal, 100, won: true, solo: true);
+            CollectionAssert.AreEqual(new[] { TabkCards.Tones2, TabkCards.Kie }, TabkCards.Won(one), "two to pick from after Mission one (owner, 2026-10-20)");
             CollectionAssert.AreEqual(TabkCards.All, TabkCards.Won(BeatenTwo()));
             CollectionAssert.AreEqual(TabkCards.All, TabkCards.Won(new Profile(), everything: true));
         }

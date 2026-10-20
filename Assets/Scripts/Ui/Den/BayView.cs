@@ -12,7 +12,8 @@ namespace PooketSlug
     /// game's size: the loaded one on the repair stands, ticking over with its lights on while a fuel hose fills it and a
     /// gauge climbs, the rest in their spaces. The cargo drone waits over the stands and carries them about
     /// (<see cref="DroneShow"/>); the lift's platform carries you to the top deck. A tabk you walk up to shows its card:
-    /// its name in its crewmate's colour, its guns and their rounds, and TAKE IT (or LOADED).
+    /// its name in its crewmate's colour, its guns and their rounds, and TAKE IT (or LOADED). The first visit with kie's
+    /// tabk won, it comes home (<see cref="BayHomecomingView"/>).
     /// <para>
     /// The rules are Core's (<see cref="BayMap"/>, <see cref="BayWalker"/>, <see cref="Garage"/>); <see cref="BayFlow"/>
     /// runs them, and this draws them and takes the taps.
@@ -35,6 +36,7 @@ namespace PooketSlug
         readonly Button m_Take;
         readonly Dictionary<TabkCard, Image> m_Bodies = new Dictionary<TabkCard, Image>();
         readonly System.Random m_Rng = new System.Random();
+        readonly BayHomecomingView m_Home;
 
         float m_Clock, m_CamX, m_NoteUntil, m_SparkAt, m_SparkUntil, m_Fill;
         SoldierDef m_SoldierDef;
@@ -67,6 +69,7 @@ namespace PooketSlug
             m_Nozzle = Picture(m_World, "Nozzle", null, 0f, 0f, 3f, 3f, Gold);
             for (int i = 0; i < 2; i++) m_Lights[i] = Picture(m_World, "Light", null, 0f, 0f, 4f, 3f, new Color(1f, 0.9f, 0.5f, 0.65f));
             m_Spark = Picture(m_World, "Spark", Art.Spark[0], 0f, 0f, 10f, 10f, Color.white);
+            m_Home = new BayHomecomingView(m_World, m_Stage);
             m_Soldier = new StageFigure(m_World, "You");
             m_Cable = Picture(m_World, "Cable", null, 0f, 0f, 1f, 1f, new Color(0.1f, 0.1f, 0.12f));
             m_Hook = Picture(m_World, "Hook", null, 0f, 0f, 4f, 2f, new Color(0.55f, 0.58f, 0.62f));
@@ -161,7 +164,29 @@ namespace PooketSlug
             Ui.Show(m_Root, true);
         }
 
-        public void Hide() => Ui.Show(m_Root, false);
+        public void Hide()
+        {
+            EndHomecoming();
+            Ui.Show(m_Root, false);
+        }
+
+        /// <summary>kie's tabk coming home, playing over the bay (<see cref="BayFlow"/> sets it), or null.</summary>
+        public KieHomecoming Homecoming { get; private set; }
+
+        public void PlayHomecoming(KieHomecoming beat) => Homecoming = beat;
+
+        /// <summary>The homecoming's over (or skipped): kie's tabk whole, the bay as it is.</summary>
+        public void EndHomecoming()
+        {
+            if (Homecoming == null) return;
+            Homecoming = null;
+            m_Home.Hide();
+            if (m_Bodies.TryGetValue(TabkCards.Kie, out Image body))
+            {
+                body.sprite = TabkKit.Of(TabkCards.Kie).Parked;
+                body.color = Color.white;
+            }
+        }
 
         public int? TakeSpot()
         {
@@ -218,7 +243,10 @@ namespace PooketSlug
             You(walker);
             m_Lift.rectTransform.anchoredPosition = new Vector2(BayMap.LiftX, walker.LiftY - 3f) * Px;
             m_LiftEdge.rectTransform.anchoredPosition = new Vector2(BayMap.LiftX, walker.LiftY - 1f) * Px;
-            Card(card, loading);
+            Card(Homecoming != null ? null : card, loading);
+            if (Homecoming != null && m_Bodies.TryGetValue(TabkCards.Kie, out Image kie))
+                m_Home.Draw(Homecoming, kie, m_Soldier.Head, m_Clock);
+            Ui.Show(m_Hint, Homecoming == null);
             m_Hint.text = touch ? "TAP A TABK TO LOOK IT OVER · THE LIFT GOES UP · THE DOOR'S BACK TO THE DEN"
                 : "LEFT / RIGHT WALK · JUMP LOOKS A TABK OVER · UP / DOWN AT THE LIFT";
             Ui.Show(m_Note, m_Clock < m_NoteUntil);
@@ -335,8 +363,8 @@ namespace PooketSlug
             }
             m_CardGuns.text = guns;
             m_CardRounds.text = rounds;
-            // the owner's call while tabk select was built (19 Oct): missions drop tones2's tabk until kie's and kcaj's are built
-            m_CardNote.text = card == TabkCards.Tones2 ? "" : "MISSIONS DROP TONES2'S FOR NOW";
+            // a tabk that's won but not built yet: missions drop tones2's in its place (the owner, 19 Oct)
+            m_CardNote.text = TabkCards.Built(card) ? "" : "MISSIONS DROP TONES2'S FOR NOW";
             bool isLoaded = m_Garage.Loaded == card && !loading;
             Ui.Show(m_Take, !isLoaded);
             Ui.Show(m_Loaded, isLoaded);
