@@ -68,5 +68,5 @@ kie at 836
 3.3 cue shutter
 0.3 narrator m2-briefing-4: The Trollograms like it cold. | So, as it turns out, does kcaj.
 4.6 cue card
-4.8 say mission-start
+4.8 say mission-two-start
 4.6 caption: MISSION 2 · THE CREAMERY | FIND KCAJ
