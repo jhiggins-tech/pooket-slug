@@ -23,10 +23,10 @@ They share a crewmate's look and paint, and nothing else needs to carry over.
 ## Discovering tabks
 
 Tabks stay hidden until they matter ([progressive disclosure](README.md#progressive-disclosure-the-thread-through-all-four)):
-1. **Before the first tabk,** nothing mentions tabks: not the menus, the HUD, the loading screens, the controls or the web page around the game. No enemy tabks appear before then either. The one exception is [the opening](cutscenes.md#the-opening), as foreshadowing: tones2 cries out for the crew's tabks and finds their bay empty, but none is shown (owner, 2026-10-19).
-2. **The first tabk** is kie's, at the end of Mission one, with a full [boss intro](cutscenes.md#the-boss-intro).
+1. **Before the first tabk,** nothing mentions tabks: not the menus, the HUD, the loading screens, the controls or the web page around the game. No enemy tabks appear before then either. The one exception is [the opening](cutscenes/mission-one.md#the-opening), as foreshadowing: tones2 cries out for the crew's tabks and finds their bay empty, but none is shown (owner, 2026-10-19).
+2. **The first tabk** is kie's, at the end of Mission one, with a full [boss intro](cutscenes/mission-one.md#the-boss-intro).
 3. **The first call-in and the first drive** come straight after kie is freed (owner, 2026-10-16): kie frees tones2's own tabk and bows out, and in Mission one's coda, a short mini-level after the boss, a prompt has you call it in, then drive it out of the base ([the coda](story.md#the-coda)).
-4. **kie's tabk** is wrecked in the boss fight, so the coda is driven in tones2's. kie rebuilds his straight after Mission one (owner, 2026-10-20; it was after Mission two), as [THE PROJECTIONIST](#kies-tabk), and it waits in the tabk bay for whoever goes looking ([kie's tabk comes home](cutscenes.md#kies-tabk-comes-home)).
+4. **kie's tabk** is wrecked in the boss fight, so the coda is driven in tones2's. kie rebuilds his straight after Mission one (owner, 2026-10-20; it was after Mission two), as [THE PROJECTIONIST](#kies-tabk), and it waits in the tabk bay for whoever goes looking ([kie's tabk comes home](cutscenes/den.md#kies-tabk-comes-home)).
 5. **The tabk choice** is made in the den's tabk bay, which opens with the den after Mission one with two tabks to pick from, tones2's and kie's: the one on the repair stands is the one you call in ([the tabk bay](lobby.md#the-tabk-bay)). Nothing points you there: players who explore find it and the swap (owner, 2026-10-20). kcaj's joins them after Mission two.
 
 ## Tabk bosses
@@ -47,7 +47,7 @@ Tabks stay hidden until they matter ([progressive disclosure](README.md#progress
 
 A boss tabk's arrival, with its warning banner, name card and music, is a cutscene played in the game itself: its
 script and rules (the quick second time, the pilot's intro, co-op, the music) are in
-[cutscenes](cutscenes.md#the-boss-intro).
+[cutscenes](cutscenes/mission-one.md#the-boss-intro).
 
 ## The pilot round
 
@@ -73,7 +73,7 @@ Wreck the tabk and its Trollogram pilot jumps out to fight you on foot with the 
 
 **In co-op** (owner, 2026-10-15): one pilot with exactly the same health and moves as in solo, since missions don't change with two players ([difficulty](levels.md#difficulty)); the fight is simply easier with two. It switches targets between you: whoever is nearest, or whoever hurt it last.
 
-**When it's beaten,** the pilot glitches out like the Trollogram goons, and the freeing scene plays ([freeing kie](cutscenes.md#freeing-kie)). The boss music keeps playing through the pilot round ([the boss intro](cutscenes.md#the-boss-intro)).
+**When it's beaten,** the pilot glitches out like the Trollogram goons, and the freeing scene plays ([freeing kie](cutscenes/mission-one.md#freeing-kie)). The boss music keeps playing through the pilot round ([the boss intro](cutscenes/mission-one.md#the-boss-intro)).
 
 **The plan to build it:**
 1. **Sides:** a soldier gets a side, players or Trollograms. Shots, blasts and kit effects already know whether they're hostile; the pilot's are hostile to players.
@@ -111,7 +111,7 @@ The first tabk you win, freed by kie at the end of Mission one and called in for
 - **Its name** on screen while you drive it: TONES2'S TABK, over its rounds (WATER 5, MUD 3, SPEW 1).
 - **The rest is shared** with every tabk: health, fuel, speed, the hop, squashing goons, eject and the runaway.
 - **One player:** Mission one is single player only (owner, 2026-10-16), so the coda never has two tabks. In Mission two each player calls in the tabk loaded in their own bay, tones2's or kie's.
-- **The cargo drone** that lowers it is the crew's own, in tones2's orange and black, and every call-in uses it ([freeing kie](cutscenes.md#freeing-kie)). For now it's the goons' drone repainted, scaled up.
+- **The cargo drone** that lowers it is the crew's own, in tones2's orange and black, and every call-in uses it ([freeing kie](cutscenes/mission-one.md#freeing-kie)). For now it's the goons' drone repainted, scaled up.
 
 **Built** (2026-10-16): your tabk is tones2's now, wherever one appears (`?test=tank`, `?unlock=tank`, and the coda); the shell, mortar and barrage are retired (weapons 18 and 19 and shots 9 and 10 stay reserved). The hull is the tabk's shape painted orange with black tracks and gun, a jack-o'-lantern face on its flank. FIRE runs one spray cycle per round (1 s building in four spurts, 0.8 s held, 1 s easing off), SP shakes for 1 s and launches at 21 along the aim with a mud carpet 6.4 wide, SU pours 3 s of spew. In co-op a partner sees the tabk and its mud, not its water or spew (Mission one is single player). Code: `PlayerTank.cs`, numbers `Tones2TabkSpec` (`Core/Crew/Tones2TabkSpec.cs`, as `Tones2Tuning.Tabk`), art `Tones2Art.TabkHull`, `TabkBarrel`, `TabkDrone`.
 
@@ -119,7 +119,7 @@ The first tabk you win, freed by kie at the end of Mission one and called in for
 
 THE PROJECTIONIST: the second tabk you win, kie's own, back after Mission one (owner, 2026-10-20; it was after Mission two; theme owner, 2026-10-19, kie-tabk-design; page https://claude.ai/artifact/Hp8MXScfoogFsPouTpdexn).
 
-- **The theme** (owner picked the projector, 2026-10-19): the boss tabk was wrecked in Mission one, and kie rebuilds it around the Trollogram projector that made Trollogram kie, pulled from the wreck. Trollograms run hot, so he wraps it in copper freezer pipes and it comes back frosted over, patched with welded plates and a few rust spots. The projector is the turret, its short fat lens the gun, and two film reels on top spin while a shot charges. Its return is a den beat ([kie's tabk comes home](cutscenes.md#kies-tabk-comes-home)).
+- **The theme** (owner picked the projector, 2026-10-19): the boss tabk was wrecked in Mission one, and kie rebuilds it around the Trollogram projector that made Trollogram kie, pulled from the wreck. Trollograms run hot, so he wraps it in copper freezer pipes and it comes back frosted over, patched with welded plates and a few rust spots. The projector is the turret, its short fat lens the gun, and two film reels on top spin while a shot charges. Its return is a den beat ([kie's tabk comes home](cutscenes/den.md#kies-tabk-comes-home)).
 - **Paint** (owner, 2026-10-19): kie's blue (#4ea8ff) with a green (#46d27a) stripe on the hull and green on the reels' spokes, from his Pooket Tabks colours. The lens glows warm gold, the friendly colour, never cyan (cyan is the villains'). The reference painting is blue take 2 (`/mnt/project-files/concepts/kie-tabk/proj-blue-2.png`).
 - **Its own guns:** kie's kit, tabk-sized, like tones2's; rounds 5, 3 and 1, never refilled, and the same controls ([driving a tabk](#driving-a-tabk)).
   - **Weasel Pop** (FIRE, 5 rounds): weasels tumble out of the lens, lobbed, and scurry under goons to pop, as on foot.
@@ -137,7 +137,7 @@ THE PROJECTIONIST: the second tabk you win, kie's own, back after Mission one (o
 
 SOFT SERVE: the third tabk you win, kcaj's own, from Mission two (owner, 2026-10-20, kcaj-tabk-design; page https://claude.ai/artifact/LHWwsaCRSVdzqgiFZwsdKm). Hand-drawn only, no generated art (owner, 2026-10-20).
 
-- **The theme** (owner picked the soft-serve machine, 2026-10-20): an ice cream van gone to war. The turret is a soft-serve machine with a serving hatch under a striped awning, a menu sign and a van's loudspeaker, and a twist of vanilla with a strawberry ribbon on top; the gun is its chrome nozzle. It keeps the cone on its antenna from [its arrival](cutscenes.md#kcajs-tabk-arrives).
+- **The theme** (owner picked the soft-serve machine, 2026-10-20): an ice cream van gone to war. The turret is a soft-serve machine with a serving hatch under a striped awning, a menu sign and a van's loudspeaker, and a twist of vanilla with a strawberry ribbon on top; the gun is its chrome nozzle. It keeps the cone on its antenna from [its arrival](cutscenes/mission-two.md#kcajs-tabk-arrives).
 - **How it gets home:** the cargo drone hauls the wreck back from the creamery after Mission two, and kcaj rebuilds it round a soft-serve machine he brought out with him, as kie did with his projector. The creamery's own look turned on the Trollograms is the joke: it's his now, in his colours, not Brain Freeze's.
 - **Paint:** kcaj's purple (#a060e0, shade #6a3aa0) with his gold (#ffc53d) in a stripe along the hull, on the awning and the loudspeaker, from his Pooket Tabks colours; the machine is pale grey (#e2e8f0); a cone decal on the flank. The bay card's stand-in magenta goes.
 - **Its own guns:** kcaj's kit, tabk-sized, like tones2's and kie's; rounds 5, 3 and 1, never refilled, and the same controls ([driving a tabk](#driving-a-tabk)).

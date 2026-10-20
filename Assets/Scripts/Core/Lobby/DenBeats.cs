@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PooketSlug
 {
-    /// <summary>The den's beats (<c>docs/design/cutscenes.md</c>, The den): the first visit, and a crewmate moving in.</summary>
+    /// <summary>The den's beats (<c>docs/design/cutscenes/den.md</c>, The den): the first visit, and a crewmate moving in.</summary>
     public enum DenBeatKind { FirstVisit, MoveIn }
 
     /// <summary>

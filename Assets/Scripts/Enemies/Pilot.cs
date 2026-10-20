@@ -47,7 +47,7 @@ namespace PooketSlug
         /// <summary>His run and jump next to his crewmate's own.</summary>
         protected abstract float RunScale { get; }
         protected abstract float JumpScale { get; }
-        /// <summary>His last words as he freezes mid-taunt (<c>docs/design/cutscenes.md</c>).</summary>
+        /// <summary>His last words as he freezes mid-taunt (<c>docs/design/cutscenes/README.md</c>).</summary>
         protected abstract string LastWords { get; }
 
         /// <summary>Authority: out of the wreck, with a leap and a moment no shot can touch him.</summary>
@@ -235,7 +235,7 @@ namespace PooketSlug
         void GlitchOut()
         {
             if (!Glitches) return;
-            // the big glitch-out: frozen mid-taunt, the music cut, then torn apart (cutscenes.md, Freeing kie and kcaj)
+            // the big glitch-out: frozen mid-taunt, the music cut, then torn apart (cutscenes/mission-one.md, Freeing kie and kcaj)
             PilotFreeingSpec spec = KieTuning.Freeing;
             Look?.Big(spec.Freeze, spec.Stretch, spec.TearPx);
             World.BossMusicOff = true;

@@ -6,7 +6,7 @@ using static PooketSlug.StageKit;
 namespace PooketSlug
 {
     /// <summary>
-    /// The cutscenes (<c>docs/design/cutscenes.md</c>, How every cutscene plays): draws a <see cref="CutscenePlayer"/>'s scene in uGUI, over
+    /// The cutscenes (<c>docs/design/cutscenes/README.md</c>, How every cutscene plays): draws a <see cref="CutscenePlayer"/>'s scene in uGUI, over
     /// the game. It's the game's own sprites on painted backdrops, with speech bubbles, a caption card, a SKIP button once
     /// the scene's been seen, and in co-op a line saying who's still to tap.
     /// <para>
