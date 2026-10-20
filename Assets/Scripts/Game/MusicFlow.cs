@@ -27,12 +27,18 @@ namespace PooketSlug
 
         /// <summary>
         /// Each frame: the title theme loops while the splash or the settings over it is up, and the den's theme while the
-        /// den is, quieter and dipping under a menu over it (<see cref="MusicTracks.MenuRecording"/>). Each fades as it's
-        /// left, and going between them, one fades out before the other starts (<c>docs/design/music.md</c>).
+        /// den is (once its beat, if one's playing, is over), quieter and dipping under a menu over it
+        /// (<see cref="MusicTracks.MenuRecording"/>). Each fades as it's left, and going between them, one fades out before
+        /// the other starts (<c>docs/design/music.md</c>).
         /// </summary>
-        public void Menus(bool splash, bool den, bool menuOpen)
+        public void Menus(bool splash, bool den, bool menuOpen, bool beat)
         {
-            string want = MusicTracks.MenuRecording(splash, den);
+            string want = MusicTracks.MenuRecording(splash, den, beat);
+            if (den && want == null)
+            {
+                if (!Music.Fading) Music.Stop(fade: true); // the debrief's loop too: quiet till the den's beat is over
+                return;
+            }
             Music.Dip = den && menuOpen ? MusicTracks.MenuDip : 1f;
             string playing = Music.Recording;
             bool ours = playing == MusicTracks.TitleRecording || playing == MusicTracks.DenRecording;

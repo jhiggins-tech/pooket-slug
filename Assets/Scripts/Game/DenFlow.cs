@@ -46,6 +46,9 @@ namespace PooketSlug
             NextBeat();
         }
 
+        /// <summary>One of the den's beats is playing (the den's theme waits for it).</summary>
+        public bool BeatPlaying => m_Beat != null;
+
         /// <summary>The next of the den's beats due, if there is one.</summary>
         void NextBeat()
         {
