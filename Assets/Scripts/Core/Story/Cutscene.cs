@@ -113,6 +113,12 @@ namespace PooketSlug
                 return s;
             }
         }
+        /// <summary>
+        /// Does shot <paramref name="shot"/> open a new scene, so the picture dips to black into it? The first shot does,
+        /// and so does a shot on a different set from the one before. A shot on the same set just cuts: a dip between lines
+        /// there reads as nothing happening (the owner, 20 Oct).
+        /// </summary>
+        public bool NewScene(int shot) => shot <= 0 || shot >= Shots.Length || Shots[shot].Set != Shots[shot - 1].Set;
     }
 
     /// <summary>

@@ -195,10 +195,10 @@ namespace PooketSlug
             CutsceneIntro intro = shot.Intro;
             m_Camera.Draw(p, m_Cast.Figure(intro != null ? intro.Figure : "tones2"), m_Clock);
 
-            // a quick cut between shots, and the Trollograms' static: one soft cyan pulse that fades, never a strobe
-            // (it's timed on the scene's own clock; it was once timed against the real one, and strobed for the rest
-            // of the scene)
-            m_Fade.color = new Color(0f, 0f, 0f, Mathf.Clamp01(1f - t / 0.18f));
+            // a quick dip to black into a new scene (a shot on the same set just cuts), and the Trollograms' static: one
+            // soft cyan pulse that fades, never a strobe (it's timed on the scene's own clock; it was once timed against
+            // the real one, and strobed for the rest of the scene)
+            m_Fade.color = new Color(0f, 0f, 0f, p.Scene.NewScene(p.Shot) ? Mathf.Clamp01(1f - t / 0.18f) : 0f);
             float flicker = now < m_FlickerUntil ? 0.3f * (m_FlickerUntil - now) / FlickerFor : 0f;
             m_Flicker.color = new Color(0.4f, 1f, 1f, flicker);
 
