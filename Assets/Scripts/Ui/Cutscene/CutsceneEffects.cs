@@ -97,7 +97,11 @@ namespace PooketSlug
         /// <summary>The chips.</summary>
         public void MakeChips()
         {
-            for (int i = 0; i < m_Chips.Length; i++) m_Chips[i] = Picture("Chip", null, 0f, 0f, 3f, 2f, new Color(1f, 0.82f, 0.3f));
+            for (int i = 0; i < m_Chips.Length; i++)
+            {
+                m_Chips[i] = Picture("Chip", CutsceneSnacks.Crisp, 0f, 0f, 4f, 2f, Color.white); // the hand-drawn crisps
+                if (i % 2 == 1) m_Chips[i].rectTransform.localScale = new Vector3(-1f, 1f, 1f);
+            }
         }
 
         /// <summary>tones2's water jet, and the snow, in front of everything.</summary>
