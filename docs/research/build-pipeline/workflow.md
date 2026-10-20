@@ -11,7 +11,8 @@ Up: [Build pipeline](README.md)
 - **Triggers:**
   - Pushes to `main` and `claude/**`, branch deletions, and manual dispatch. A plan job decides what a push builds: the main line deploys to the root, other branches to a preview folder, and a commit the main line already has builds nothing. A preview runs the co-op tests only when the branch changes the netcode (`Net/`, `World/NetSync.cs`, `Core/Platform/NetContracts.cs`, `tools/coop.mjs`) and the kit demos only when it changes the crew (`Crew/`, `Core/Crew/KitGuide.cs`, `PooketDemo.jslib`, `tools/demos.mjs`), or this workflow; a commit message line `CI: co-op` or `CI: demos` asks for either. Spikes (`claude/spike-*`) skip both. The main line always runs everything.
   - `paths-ignore` skips pushes that only touch `**.md` or `docs/**`. A doc change never redeploys the game, and a redeploy changes the build version, which [splits co-op players](../netcode/sessions.md#build-versions).
-- **`permissions: contents: write`:** needed to push the `gh-pages` branch.
+- **Permissions:** the workflow's token is read-only (`contents: read`); the three jobs that push the `gh-pages` branch (`build-and-deploy`, `deploy-live`, `prune-previews`) ask for `contents: write` themselves.
+- **Runners:** `ubuntu-24.04`, pinned, so an image change under `ubuntu-latest` can't change the build unannounced.
 - **Concurrency:** a group per branch (`webgl-pages-<branch>`) with `cancel-in-progress: false`, so branches build side by side, and within a branch a build in flight always finishes and deploys; pushes that land meanwhile queue, and only the newest of them runs next.
   - Until 16 Oct the group was global, and with `cancel-in-progress: true` several threads pushing to the same branch kept cancelling each other and nothing deployed for over an hour.
 
@@ -33,6 +34,14 @@ How secrets behave:
 - **Re-running a workflow run uses the current secret values,** so a secret added after a run can be picked up with "Re-run all jobs". No new commit is needed.
 - **Secret values are masked as `***` in logs.**
 
+## The jobs
+
+Since ci-faster (20 Oct) the Unity work is split so the slow parts run at once: `plan` → `scenes`, `tests` and `build` side by side → `touch` and `demos` side by side on the build → `build-and-deploy` (once scenes, tests, build and touch have passed; the demos are optional) → `coop-test` → `deploy-live` (main line). Before, one job ran tests, build, touch play and demos one after another.
+
+- **`tests` and `build` get the project ready the same way**, with the composite action [`.github/actions/unity-project`](../../../.github/actions/unity-project/action.yml): steps 1 to 4 below, then the editor image's name. Only `build` saves the Library cache; `tests` restores it.
+- **`build` uploads the raw build** as `unity-build` (kept a day) for `touch` and `demos`. `build-and-deploy` adds the demos, the sandbox's setups and the checked scenes, uploads it as `PooketSlug-WebGL` (what the co-op tests play and `deploy-live` deploys) and deploys a preview.
+- **Playwright** (Node 22, Playwright 1.56.1, Chromium cached by version) is the composite action [`.github/actions/playwright`](../../../.github/actions/playwright/action.yml), used by `touch`, `demos` and `coop-test`.
+
 ## Steps
 
 ### 1. Room for the editor image
@@ -46,6 +55,8 @@ How secrets behave:
 `actions/checkout@v5` with default settings. No submodules and no LFS.
 
 ### 3. Fetch Photon Fusion SDK
+
+First, a check: if anything of Photon's is committed (anything under `Assets/Photon/` but our `NetworkProjectConfig.fusion`, a `.unitypackage`, or Fusion's DLLs), the job fails, as the SDK's licence forbids it in this public repository.
 
 1. Downloads `Photon-Fusion-2.1.3-Stable-2390.unitypackage` from release `fusion-2.1.3` of the private repo `jhiggins-tech/pooket-slug-vendor`, using `gh release download` with `GH_TOKEN: secrets.VENDOR_PAT`.
 2. Checks the file against a pinned SHA-256.
@@ -63,20 +74,20 @@ It takes 1 to 2 s. Why it works this way, and how to upgrade the SDK: [SDK in CI
 
 ### 5. EditMode and PlayMode tests
 
-Five steps run the [EditMode tests](../verification/edit-mode-tests.md) and the PlayMode ones before the build:
-1. **Pick the editor image:** `unityci/editor:ubuntu-<version>-webgl-3`, with the version read from `ProjectVersion.txt`. The builder picks the same image, so it's pulled once.
+The `tests` job runs the [EditMode tests](../verification/edit-mode-tests.md) and the PlayMode ones, beside the build:
+1. **Pick the editor image:** `unityci/editor:ubuntu-<version>-webgl-3`, with the version read from `ProjectVersion.txt`; the builder is given the same one.
 2. **Run the EditMode tests**, then 3. **the PlayMode tests**, each with `game-ci/unity-test-runner@v4.3.2` ([why that version](#action-versions)) in its own Unity and container. Run together (`testMode: all`), PlayMode could leave Unity's IL post-processing runner alive, and EditMode then died with "Cannot access a closed pipe", reported as "Scripts have compiler errors". The PlayMode step runs after a red EditMode one too, so a run shows both modes.
 
    | Input | Value | Why |
    |---|---|---|
-   | `customImage` | The image from step 1 | One pull for all three Unity runs |
+   | `customImage` | The image from step 1 | One pull for both test modes |
    | `testMode` | `editmode`, then `playmode` | Core's rules, then gameplay (`Assets/Tests/Gameplay`) |
    | `artifactsPath` | `test-results/editmode`, `test-results/playmode` | Where each mode's NUnit XML and Unity's log go |
 
    - Each activates Unity with the same three secrets as the build.
    - There's no `githubToken`, so it creates no check run, which would need `checks: write`. The summary covers it.
    - It always passes `-enableCodeCoverage`. Without the coverage package, Unity writes no coverage report.
-   - A failing test fails the step, so the build and deploy don't run.
+   - A failing test fails the job, so `build-and-deploy` doesn't run: nothing deploys.
 4. **Summarise the results:** each mode's counts (or that a mode wrote none), and the first line of each failure. The counts are also a notice on the run, which the checks API reads (`check-runs/<id>/annotations`) when the log and artifact are out of reach.
 5. **Upload the NUnit XML** as the `tests` artifact (both modes, in a folder each).
 
@@ -97,11 +108,11 @@ Five steps run the [EditMode tests](../verification/edit-mode-tests.md) and the 
 
 ### 6b. The kit screen's demos
 
-After the build, the job serves it on `127.0.0.1:8000` and runs [`tools/demos.mjs`](../../../tools/demos.mjs): headless Chromium opens `?demo=all`, the game plays every move's scripted scene in turn ([`KitGuide.cs`](../../../Assets/Scripts/Core/Crew/KitGuide.cs)) on a fixed 30 fps step, and records its own canvas from each demo's first frame to its last ([`PooketDemo.jslib`](../../../Assets/Plugins/WebGL/PooketDemo.jslib), `MediaRecorder`; the first cut recorded the whole page and cut it at logged times, which drifted by seconds). The script collects each recording, speeds it back up to real time (SwiftShader draws slower than 30 fps) and encodes it with ffmpeg (installed by the step) as 640×360 H.264. The clips go into the build's `demos/` before it's uploaded and deployed, so they always match the build; they're also uploaded as the `kit-demos` artifact, with `demos.json` and the console log. The step has `continue-on-error`: without clips the build still deploys, and the kit screen says there's no demo yet. Added 2026-10-16.
+The `demos` job downloads the build, serves it on `127.0.0.1:8000` and runs [`tools/demos.mjs`](../../../tools/demos.mjs): headless Chromium opens `?demo=all`, the game plays every move's scripted scene in turn ([`KitGuide.cs`](../../../Assets/Scripts/Core/Crew/KitGuide.cs)) on a fixed 30 fps step, and records its own canvas from each demo's first frame to its last ([`PooketDemo.jslib`](../../../Assets/Plugins/WebGL/PooketDemo.jslib), `MediaRecorder`; the first cut recorded the whole page and cut it at logged times, which drifted by seconds). The script collects each recording, speeds it back up to real time (SwiftShader draws slower than 30 fps) and encodes it with ffmpeg (installed by the step) as 640×360 H.264. The clips are uploaded as the `kit-demos` artifact, with `demos.json` and the console log, and `build-and-deploy` puts them in the build's `demos/`, so they always match the build. The recording has `continue-on-error`: without clips the build still deploys, and the kit screen says there's no demo yet. Added 2026-10-16.
 
 ### 7. Upload build artifact
 
-`actions/upload-artifact@v6` uploads `build/WebGL/WebGL` as `PooketSlug-WebGL`. Set `if-no-files-found: error`.
+`build-and-deploy` uploads the build, with the demos, the sandbox's setups and the scenes, as `PooketSlug-WebGL`. Set `if-no-files-found: error`.
 
 ### 8. Deploy to `gh-pages`
 
@@ -115,12 +126,12 @@ Writes the commit, Unity version, build size and live URL to the job summary.
 
 `coop-test` runs after the build, as one job per scenario, three at a time (a matrix). It tests co-op on the exact build just made:
 1. **It downloads the build artifact** and serves it on the runner with `python3 -m http.server`, so it doesn't wait for GitHub Pages to update.
-2. **It installs Playwright 1.56.1 and Chromium.**
+2. **It sets up Playwright** (the `playwright` action: 1.56.1, Chromium from the cache).
 3. **It runs [`tools/coop.mjs`](../../../tools/coop.mjs)** in its scenario's mode, in separate headless Chromium instances: `code` (A hosts, B joins with the invite link, both play, then A leaves and B must take over the shared world: [details](../verification/browser-tests.md#two-browser-co-op-test)), `boss`, `scene`, `dropin` (a spike: its failure doesn't fail the job), `handover` and `watch` (three phones). GitHub's runners can open the WebSockets Photon needs; the cloud sandbox can't.
 4. **Each job's summary lists its checks.** Its `coop-test-<mode>` artifact keeps the players' screenshots and console logs, even when the test fails.
 
 - **On the main line, the live deploy waits for it.** The `deploy-live` job puts the build live only once every scenario has passed, so the live game never gets a build co-op failed. Previews deploy straight after the build.
-- **Three at a time keeps Photon's free plan in reach:** at most 7 of its 20 concurrent users per branch, so two branches testing together still fit.
+- **Three at a time keeps Photon's free plan in reach:** at most 7 of its 20 concurrent users per branch (`watch` has three phones), so two branches testing at the same moment fit; a third could go over, and a round that can't get into its room fails.
 
 ## Action versions
 

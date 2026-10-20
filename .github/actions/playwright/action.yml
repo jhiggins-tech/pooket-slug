@@ -1,0 +1,23 @@
+# Node and Playwright's Chromium, for the jobs that play a build in a browser (webgl-pages.yml: touch play, the kit
+# demos, the co-op tests): one place for the version, and the browser comes from the cache rather than a download.
+name: Playwright
+description: Node 22, Playwright and its Chromium
+runs:
+  using: composite
+  steps:
+    - name: Set up Node
+      uses: actions/setup-node@v7
+      with:
+        node-version: 22
+
+    - name: Cache Playwright's Chromium
+      uses: actions/cache@v5
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-1.56.1-chromium-${{ runner.os }}
+
+    - name: Install Playwright and Chromium
+      shell: bash
+      run: |
+        npm install --no-save --no-audit --no-fund playwright@1.56.1
+        npx playwright install --with-deps chromium
