@@ -34,7 +34,7 @@ namespace PooketSlug
         /// <summary>Applies the pose. The owner flips <c>Visual</c> by facing (see <see cref="Actor.Render"/>).</summary>
         public void Apply(in AvatarPose p)
         {
-            int runFrame = (int)(p.Anim * 12f) % 4;
+            int runFrame = Clips.SoldierRun.Frame(p.Anim);
             Sprite legs;
             if (p.Dead || !p.Grounded) legs = Skin.LegsJump;
             else if (p.Crouching) legs = Skin.LegsCrouch;
@@ -61,8 +61,8 @@ namespace PooketSlug
             }
 
             // blink while invulnerable, flicker out when dead
-            bool hidden = (p.Blink && (int)(Time.unscaledTime * 20f) % 2 == 0) ||
-                          (p.Dead && p.DeadTime > 1.2f && (int)(p.DeadTime * 12f) % 2 == 0) || (p.Dead && p.Gone);
+            bool hidden = (p.Blink && Fx.HurtBlink.On(Time.unscaledTime)) ||
+                          (p.Dead && p.DeadTime > 1.2f && Fx.DeathFlicker.On(p.DeadTime)) || (p.Dead && p.Gone);
             m_Visual.gameObject.SetActive(!hidden);
             m_Visual.localRotation = p.Dead ? Quaternion.Euler(0f, 0f, Mathf.Min(90f, p.DeadTime * 300f) * p.Facing) : Quaternion.identity;
         }

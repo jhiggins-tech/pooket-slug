@@ -290,7 +290,7 @@ namespace PooketSlug
             if (line)
             {
                 if (m_PilotLine.text != info.PilotLine) m_PilotLine.text = info.PilotLine;
-                bool flick = (int)(show.T * 30f) % 9 == 0; // the Trollograms' flicker
+                bool flick = Fx.TrolloFlicker.On(show.T); // the Trollograms' flicker
                 m_PilotLine.color = new Color(Palette.Cyan.r, Palette.Cyan.g, Palette.Cyan.b, flick ? 0.4f : 1f);
             }
         }
@@ -330,7 +330,7 @@ namespace PooketSlug
             bool words = slam >= 1f && leave <= 0f;
             Ui.Show(m_TeamTitle, words);
             Ui.Show(m_TeamName, words);
-            if (words) m_TeamTitle.color = (int)(t * 12f) % 2 == 0 ? Palette.Gold : Color.white;
+            if (words) m_TeamTitle.color = Fx.TeamTitle.On(t) ? Palette.Gold : Color.white;
         }
 
         static Image Meter(RectTransform parent, string name, Vector2 at, out Image fill, Color color)
@@ -345,7 +345,7 @@ namespace PooketSlug
         {
             KitMeters kit = p.Kit;
             m_SuperFill.rectTransform.sizeDelta = new Vector2(MeterWidth * kit.SuperCharge, 4f);
-            m_SuperFill.color = kit.SuperReady && (int)(Time.unscaledTime * 6f) % 2 == 0 ? Color.white : Palette.Gold;
+            m_SuperFill.color = kit.SuperReady && Fx.SuperReady.On(Time.unscaledTime) ? Color.white : Palette.Gold;
             m_RefillFill.rectTransform.sizeDelta = new Vector2(MeterWidth * kit.SpecialRefillProgress, 2f);
             Ui.Show(m_AbilityLabel, kit.HasAbility);
             Ui.Show(m_AbilityBack, kit.HasAbility);
@@ -427,7 +427,7 @@ namespace PooketSlug
                     m_TankFill.rectTransform.sizeDelta = new Vector2(MeterWidth * Mathf.Clamp01(tank.Hp / (float)tank.MaxHp), 4f);
                     m_FuelFill.rectTransform.sizeDelta = new Vector2(MeterWidth * tank.Fuel.Fraction, 4f);
                     // a dry tank's label blinks
-                    m_FuelLabel.color = tank.Fuel.Empty && (int)(Time.unscaledTime * 4f) % 2 == 0 ? Hurt : Arms;
+                    m_FuelLabel.color = tank.Fuel.Empty && Fx.Warning.On(Time.unscaledTime) ? Hurt : Arms;
                 }
                 Kit(p);
                 Lives(p, info.Net != null);
@@ -513,7 +513,7 @@ namespace PooketSlug
             INetSession net = info.Net;
             string room = net.RoomCode;
             bool alone = w.Remotes.Count == 0 && !w.Victory && !info.Watching;
-            Ui.Show(m_Waiting, alone && (int)(Time.unscaledTime * 2f) % 2 == 0);
+            Ui.Show(m_Waiting, alone && Fx.Blink(Time.unscaledTime, 2f));
             Ui.Show(m_Room, alone);
             Ui.Show(m_Link, alone && room != null && info.PageUrl.Length > 0);
             if (alone)
@@ -556,7 +556,7 @@ namespace PooketSlug
         bool Beacon(Camera cam, Rect view, int i, Vector2 feet, float height, string name, Color colour, bool low, bool away)
         {
             bool on = PartnerBeacon.OnScreen(view, feet, height);
-            bool blink = (int)(Time.unscaledTime * 4f) % 2 == 0;
+            bool blink = Fx.Warning.On(Time.unscaledTime);
             Image arrow = Pooled(m_Arrows, i, m_NewArrow);
             Text label = Pooled(m_ArrowLabels, i, m_NewArrowLabel);
             Text warning = Pooled(m_Warnings, i, m_NewWarning);
@@ -637,7 +637,7 @@ namespace PooketSlug
                 image.rectTransform.anchoredPosition = Down(pad.Center(b));
                 image.rectTransform.sizeDelta = Vector2.one * pad.Radius(b) * 2f;
                 image.color = held ? PadHeld : b == ArcadePad.Button.Super && p.Kit.SuperReady ? PadReady
-                    : b == ArcadePad.Button.Team ? ((int)(Time.unscaledTime * 5f) % 2 == 0 ? PadReady : PadHeld) : PadFill;
+                    : b == ArcadePad.Button.Team ? (Fx.Blink(Time.unscaledTime, 5f) ? PadReady : PadHeld) : PadFill;
                 m_ButtonLabels[i].color = held ? Color.white : new Color(1f, 1f, 1f, 0.85f);
             }
         }

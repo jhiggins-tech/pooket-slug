@@ -205,7 +205,7 @@ namespace PooketSlug
             else if (move == ScoopMove.Hurl) angle = telling ? 160f : 40f;
             else if (move == ScoopMove.Charge) angle = telling ? 10f + Mathf.Sin(Anim * 40f) * 8f : 0f;
             m_Arm.localRotation = Quaternion.Euler(0f, 0f, angle);
-            if (telling && (int)(Anim * 20f) % 2 == 0) Go.transform.localPosition += new Vector3(1f / Art.PPU, 0f, 0f);
+            if (telling && Fx.Blink(Anim, 20f)) Go.transform.localPosition += new Vector3(1f / Art.PPU, 0f, 0f);
 
             bool frozen = LooksFrozen;
             if (frozen && !m_WasFrozen) World.Scoring.Popup("FROZEN! HIT HIM!", Pos + Vector2.up * 3.2f, new Color(0.7f, 0.9f, 1f));

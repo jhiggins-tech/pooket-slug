@@ -240,7 +240,7 @@ namespace PooketSlug
                 return;
             }
             Color c = stage.Colour("clamp", t, now);
-            c.a *= (int)(now * 6f) % 4 == 0 ? 0.5f : 0.9f;
+            c.a *= Fx.Step(now, 6f, 4) == 0 ? 0.5f : 0.9f;
             clamp.color = c;
             RectTransform rt = clamp.rectTransform;
             rt.anchoredPosition += new Vector2(-rip * 40f, Mathf.Sin(rip * Mathf.PI) * 24f) * Px;
@@ -255,7 +255,7 @@ namespace PooketSlug
             if (on)
             {
                 Vector2 at = stage.Where("drone", t, now);
-                m_Rotor.rectTransform.anchoredPosition = new Vector2(at.x + (int)(now * 20f) % 2 * 2f, ground + at.y + 10f) * Px;
+                m_Rotor.rectTransform.anchoredPosition = new Vector2(at.x + Fx.Rotor.Step(now) * 2f, ground + at.y + 10f) * Px;
             }
             Image cable = m_Props["cable"];
             if (!cable.gameObject.activeSelf) return;
@@ -285,18 +285,15 @@ namespace PooketSlug
             if (!on) return;
             Vector2 at = stage.Where(name, t, now);
             string pose = stage.Pose(name, t);
-            Ui.Show(f.Legs, pose != "hatch");
-            f.Legs.sprite = pose == "run" ? skin.LegsRun[(int)(t * runRate) % skin.LegsRun.Length] : pose == "crouch" ? skin.LegsCrouch : skin.LegsIdle;
-            f.Torso.sprite = skin.TorsoForward;
-            f.Torso.rectTransform.anchoredPosition = pose == "spray" ? new Vector2(-1f, 0f) : Vector2.zero;
+            f.Pose(skin, StagePose.Cutscene(pose, t, runRate));
             Color tint = stage.Colour(name, t, now);
             if (stage.Look(name, t) == "trollo")
             {
-                bool flick = (int)(now * 30f) % 9 == 0;
+                bool flick = Fx.TrolloFlicker.On(now);
                 tint = new Color(0.45f, 1f, 1f, flick ? 0.35f : 0.85f);
-                if ((int)(now * 20f) % 7 == 0) at.x += 1f;
+                if (Fx.TrolloJitter.On(now)) at.x += 1f;
             }
-            f.Legs.color = f.Torso.color = tint;
+            f.Tint(tint);
             f.Rt.localScale = new Vector3(stage.Facing(name, t), 1f, 1f);
             f.At(at.x, ground + at.y);
         }
@@ -317,18 +314,18 @@ namespace PooketSlug
             Vector2 at = stage.Where("goon", t, now);
             float rise = stage.Progress("goon", "appear", t);
             if (rise < 0f) rise = 1f;
-            float jitter = (int)(now * 20f) % 7 == 0 ? 1f : 0f;
-            Color tint = new Color(0.45f, 1f, 1f, rise < 1f ? ((int)(now * 30f) % 2 == 0 ? rise : 0.2f) : 0.9f);
+            float jitter = Fx.TrolloJitter.On(now) ? 1f : 0f;
+            Color tint = new Color(0.45f, 1f, 1f, rise < 1f ? (Fx.TrolloFizz.On(now) ? rise : 0.2f) : 0.9f);
             float facing = stage.Facing("goon", t);
             Vector3 scale = new Vector3(facing, 1f, 1f);
             if (died >= 0f)
             {
-                tint = died < 0.08f ? Color.white : Color.Lerp(Cyan, new Color(1f, 0.4f, 0.9f), (int)(now * 30f) % 2);
+                tint = died < 0.08f ? Color.white : Color.Lerp(Cyan, new Color(1f, 0.4f, 0.9f), Fx.TrolloFizz.Step(now));
                 jitter = Mathf.Sin(now * 90f) * died * 14f;
                 scale = new Vector3(facing * (1f + died * 0.6f), Mathf.Max(0.04f, 1f - died * 1.6f), 1f);
                 tint.a = 1f - Mathf.Clamp01((died - 0.4f) / 0.2f);
             }
-            m_Goon.Legs.color = m_Goon.Torso.color = tint;
+            m_Goon.Tint(tint);
             m_Goon.Rt.localScale = scale;
             m_Goon.At(at.x + jitter, ground + at.y);
         }

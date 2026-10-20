@@ -219,7 +219,7 @@ namespace PooketSlug
             Running = Grounded && Mathf.Abs(Vel.x) > 0.1f,
             Muzzle = m_Muzzle > 0f,
             Blink = m_Shield > 0f,
-            Flash = FlashTimer > 0f || (m_Telling && (int)(m_Tell * 14f) % 2 == 0),
+            Flash = FlashTimer > 0f || (m_Telling && Fx.TellFlash.On(m_Tell)),
             Anim = Anim,
         };
 
@@ -319,7 +319,7 @@ namespace PooketSlug
                     pose = AvatarPose.Unpack(m_NetPose, Anim, 0f);
                     pose.Facing = Facing;
                     pose.Muzzle = m_Muzzle > 0f;
-                    pose.Flash = FlashTimer > 0f || (m_Telling && (int)(m_Tell * 14f) % 2 == 0);
+                    pose.Flash = FlashTimer > 0f || (m_Telling && Fx.TellFlash.On(m_Tell));
                 }
                 if (Dying) pose.Blink = pose.Muzzle = false;
                 return pose;

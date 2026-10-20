@@ -253,7 +253,7 @@ namespace PooketSlug
                     break;
                 case MenuScreen.Connecting:
                     Dim(new Color(0f, 0f, 0f, 0.6f));
-                    string dots = new string('.', 1 + (int)(Time.unscaledTime * 3f) % 3);
+                    string dots = new string('.', 1 + Fx.Step(Time.unscaledTime, 3f, 3));
                     m_Status.text = (string.IsNullOrEmpty(info.Status) ? "CONNECTING" : info.Status.TrimEnd('.')) + dots;
                     Key(m_CancelKey, keys, "ESC");
                     break;

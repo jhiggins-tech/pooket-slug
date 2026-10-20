@@ -263,7 +263,7 @@ namespace PooketSlug
             Ui.Show(m_BigCard, on);
             if (!on) return;
             float up = Mathf.Clamp01((t - stage.ShownSince("closeup", t)) / 0.35f);
-            m_BigCard.anchoredPosition = new Vector2((int)(now * 10f) % 9 == 0 ? 2f : 0f, Mathf.Lerp(-140f, 26f, 1f - (1f - up) * (1f - up)));
+            m_BigCard.anchoredPosition = new Vector2(new Pulse(10f, 9).On(now) ? 2f : 0f, Mathf.Lerp(-140f, 26f, 1f - (1f - up) * (1f - up)));
             m_BigCard.localRotation = Quaternion.Euler(0f, 0f, (1f - up) * -8f);
         }
 
@@ -295,7 +295,7 @@ namespace PooketSlug
             float up = s == null ? 0f : s.Verb == "up" ? 1f : s.Progress(t);
             if (on)
             {
-                float grind = up > 0f && up < 1f ? (int)(now * 16f) % 2 : 0f;
+                float grind = up > 0f && up < 1f ? Fx.Step(now, 16f, 2) : 0f;
                 m_ShutterMask.anchoredPosition = new Vector2(MotorOpenX, ground) * Px;
                 m_Shutter.rectTransform.anchoredPosition = new Vector2(0f, up * MotorOpenH + grind) * Px;
                 m_ColdLight.rectTransform.anchoredPosition = new Vector2(MotorOpenX + MotorOpenW / 2f, 0f) * Px;
@@ -309,7 +309,7 @@ namespace PooketSlug
             {
                 Ui.Show(m_Lamps[i], lamps);
                 if (!lamps) continue;
-                bool flick = stutter && (int)(now * 11f + i * 5) % 17 == 0; // a work light stutters now and then
+                bool flick = stutter && Fx.Step(now, 11f, 17, i * 5) == 0; // a work light stutters now and then
                 m_Lamps[i].rectTransform.anchoredPosition = new Vector2(MotorRow[i] + 6f, ground + 6f) * Px;
                 m_Lamps[i].color = new Color(1f, 0.95f, 0.75f, up * (flick ? 0.05f : 0.14f));
             }
@@ -331,7 +331,7 @@ namespace PooketSlug
                 if (!junk) continue;
                 float x = MotorRow[i % MotorRow.Length] - 14f + (i * 11 % 26);
                 float y = ground + 8f + (i * 7 % 13);
-                bool lit = (int)(now * 8f + i * 3) % 6 != 0;
+                bool lit = Fx.Step(now, 8f, 6, i * 3) != 0;
                 m_Junk[i].color = new Color(0.45f, 1f, 1f, lit ? 0.9f : 0.25f);
                 m_Junk[i].rectTransform.anchoredPosition = new Vector2(x, y) * Px;
             }

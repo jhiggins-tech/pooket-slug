@@ -101,11 +101,27 @@ namespace PooketSlug
         public void At(float x, float y) => Rt.anchoredPosition = new Vector2(x, y) * m_Scale;
 
         /// <summary>Standing still, facing the camera.</summary>
-        public void Stand(PlayerSkin skin)
+        public void Stand(PlayerSkin skin) => Pose(skin, StagePose.Stand);
+
+        /// <summary>Strikes <paramref name="pose"/> in <paramref name="skin"/>: its legs (or none, in a hatch), its top and the top's nudge.</summary>
+        public void Pose(PlayerSkin skin, StagePose pose)
         {
-            Legs.sprite = skin.LegsIdle;
-            Torso.sprite = skin.TorsoForward;
+            Ui.Show(Legs, pose.Legs != StageLegs.Hidden);
+            switch (pose.Legs)
+            {
+                case StageLegs.Walk: Legs.sprite = skin.LegsRun[pose.WalkFrame(skin.LegsRun.Length)]; break;
+                case StageLegs.Crouch: Legs.sprite = skin.LegsCrouch; break;
+                case StageLegs.Sit: Legs.sprite = skin.LegsSit; break;
+                case StageLegs.Jump: Legs.sprite = skin.LegsJump; break;
+                default: Legs.sprite = skin.LegsIdle; break;
+            }
+            Torso.sprite = pose.Torso == StageTorso.Unarmed ? skin.TorsoUnarmed : pose.Torso == StageTorso.Lounge ? skin.TorsoLounge
+                : pose.Torso == StageTorso.Pad ? skin.TorsoPad : skin.TorsoForward;
+            Torso.rectTransform.anchoredPosition = new Vector2(pose.TorsoX, pose.TorsoY) * m_Scale;
         }
+
+        /// <summary>Tints the whole figure.</summary>
+        public void Tint(Color c) => Legs.color = Torso.color = c;
 
         /// <summary>Just above its head, where its bubble points.</summary>
         public Vector2 Head => Rt.anchoredPosition + new Vector2(0f, 30f * m_Scale);

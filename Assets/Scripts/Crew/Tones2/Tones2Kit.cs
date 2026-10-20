@@ -129,7 +129,7 @@ namespace PooketSlug
             m_GaugeFill.transform.localPosition = new Vector3((-(width - 2f) * 0.5f + fill * 0.5f) / Art.PPU, y, 0f);
             m_GaugeFill.transform.localScale = new Vector3(fill, 2f, 1f);
             // A flicker of white once the jet is at full pressure.
-            m_GaugeFill.color = Pressure >= 0.999f && (int)(Time.unscaledTime * 12f) % 2 == 0 ? Color.white : Tones2Art.Water;
+            m_GaugeFill.color = Pressure >= 0.999f && Fx.Blink(Time.unscaledTime, 12f) ? Color.white : Tones2Art.Water;
         }
     }
 

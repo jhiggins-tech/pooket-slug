@@ -114,7 +114,7 @@ namespace PooketSlug
             Ui.Show(m_Spark, beat.Sparking);
             if (beat.Sparking)
             {
-                m_Spark.sprite = Art.Spark[(int)(clock * 24f) % 2];
+                m_Spark.sprite = Art.Spark[Fx.Spark.Step(clock)];
                 m_Spark.rectTransform.anchoredPosition = new Vector2(feet.x + 24f, ground + 4f) * Px;
             }
 
@@ -129,7 +129,7 @@ namespace PooketSlug
                 float x0 = feet.x + BayMap.TabkW / 2f - 6f + slide;
                 m_LegL.rectTransform.anchoredPosition = new Vector2(x0, ground) * Px;
                 m_LegR.rectTransform.anchoredPosition = new Vector2(x0 + 1f, ground + 3f) * Px;
-                m_LegL.color = m_LegR.color = (int)(clock * 3f) % 2 == 0 ? Legs : Boots; // working away under there
+                m_LegL.color = m_LegR.color = Fx.Blink(clock, 3f) ? Legs : Boots; // working away under there
             }
             bool standing = !under && k1 < 2f;
             Ui.Show(m_Kie.Rt, standing);
@@ -139,8 +139,7 @@ namespace PooketSlug
                 PlayerSkin skin = Art.SkinFor(Content.Kie, 0);
                 float climb = Mathf.Clamp01(k1 - 1f);
                 kieAt = Vector2.Lerp(new Vector2(KieX, ground), new Vector2(feet.x + 8f, ground + 30f), climb);
-                m_Kie.Legs.sprite = climb > 0f ? skin.LegsJump : skin.LegsIdle;
-                m_Kie.Torso.sprite = climb > 0f ? skin.TorsoLounge : skin.TorsoUnarmed;
+                m_Kie.Pose(skin, climb > 0f ? new StagePose(StageLegs.Jump, StageTorso.Lounge) : new StagePose(StageLegs.Idle, StageTorso.Unarmed));
                 m_Kie.At(kieAt.x, kieAt.y);
                 m_Kie.Rt.localScale = new Vector3(-1f, 1f, 1f) * (1f - 0.3f * climb); // facing his tabk and the door
             }
@@ -169,7 +168,7 @@ namespace PooketSlug
             {
                 m_Holo.rectTransform.anchoredPosition = new Vector2(feet.x + 6f, 112f + Mathf.Round(Mathf.Sin(clock * 3f))) * Px;
                 m_Holo.rectTransform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(clock * 5f) * 8f); // waving
-                m_Holo.color = new Color(Cyan.r, Cyan.g, Cyan.b, (int)(clock * 20f) % 4 == 0 ? 0.3f : 0.6f);
+                m_Holo.color = new Color(Cyan.r, Cyan.g, Cyan.b, Fx.Step(clock, 20f, 4) == 0 ? 0.3f : 0.6f);
             }
 
             // the line, from kie (or where he climbed in) or the player

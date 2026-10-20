@@ -125,7 +125,7 @@ namespace PooketSlug
             base.Render();
             bool telling = Creamery.ScoopTelling(World.Elapsed, Pos.x);
             m_Shadow.enabled = telling;
-            m_Body.transform.localPosition = telling && (int)(World.Elapsed * 30f) % 2 == 0 ? new Vector3(1f / Art.PPU, 0f, 0f) : Vector3.zero;
+            m_Body.transform.localPosition = telling && Fx.Blink(World.Elapsed, 30f) ? new Vector3(1f / Art.PPU, 0f, 0f) : Vector3.zero;
         }
     }
 

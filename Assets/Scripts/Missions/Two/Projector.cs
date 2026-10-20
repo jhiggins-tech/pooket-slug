@@ -61,7 +61,7 @@ namespace PooketSlug
             bool lit = !Dying;
             m_Glow.enabled = lit;
             if (lit) m_Glow.color = new Color(Beam.r, Beam.g, Beam.b, Beam.a * (0.75f + 0.25f * Mathf.Sin(Anim * 9f)));
-            else m_Body.enabled = (int)(DyingTime * 20f) % 2 == 0; // sputters out
+            else m_Body.enabled = Fx.Blink(DyingTime, 20f); // sputters out
         }
     }
 }

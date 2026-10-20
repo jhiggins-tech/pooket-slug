@@ -184,7 +184,7 @@ namespace PooketSlug
             if (Dying && Look == null)
             {
                 Visual.localRotation = Quaternion.Euler(0f, 0f, Mathf.Min(90f, DyingTime * 400f) * Facing);
-                Visual.gameObject.SetActive(DyingTime < 0.6f || ((int)(DyingTime * 16f) % 2 == 0));
+                Visual.gameObject.SetActive(DyingTime < 0.6f || Fx.DyingFlicker.On(DyingTime));
             }
         }
 
@@ -240,7 +240,7 @@ namespace PooketSlug
         {
             base.Render();
             bool walking = Mathf.Abs(Vel.x) > 0.1f && Grounded && !Dying;
-            m_Legs.sprite = Flashed(walking ? Art.SoldierLegsRun[(int)(Anim * 8f) % 4] : Art.SoldierLegsIdle);
+            m_Legs.sprite = Flashed(walking ? Clips.RiflemanRun.Pick(Art.SoldierLegsRun, Anim) : Art.SoldierLegsIdle);
             m_Torso.sprite = Flashed(Art.SoldierTorso);
             m_Flash.enabled = m_Muzzle > 0f && !Dying;
         }
@@ -287,7 +287,7 @@ namespace PooketSlug
         public override void Render()
         {
             base.Render();
-            Sprite legs = !Grounded ? Art.RunnerLegsJump : Mathf.Abs(Vel.x) > 0.1f ? Art.RunnerLegsRun[(int)(Anim * 14f) % 4] : Art.RunnerLegsRun[0];
+            Sprite legs = !Grounded ? Art.RunnerLegsJump : Mathf.Abs(Vel.x) > 0.1f ? Clips.RunnerRun.Pick(Art.RunnerLegsRun, Anim) : Art.RunnerLegsRun[0];
             m_Legs.sprite = Flashed(legs);
             m_Torso.sprite = Flashed(Art.RunnerTorso);
             // slash lunge
@@ -342,7 +342,7 @@ namespace PooketSlug
         public override void Render()
         {
             base.Render();
-            m_Sr.sprite = Flashed(Art.Drone[(int)(Anim * 20f) % 2]);
+            m_Sr.sprite = Flashed(Art.Drone[Fx.Rotor.Step(Anim)]);
             if (Dying && Look == null)
             {
                 Visual.gameObject.SetActive(true);

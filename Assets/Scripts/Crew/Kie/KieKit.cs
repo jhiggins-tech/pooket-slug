@@ -185,7 +185,7 @@ namespace PooketSlug
         }
 
         static void Blink(SpriteRenderer sr, float left) =>
-            sr.color = left < 0.6f && (int)(left * 20f) % 2 == 0 ? new Color(1f, 0.6f, 0.6f) : Color.white;
+            sr.color = left < 0.6f && Fx.Blink(left, 20f) ? new Color(1f, 0.6f, 0.6f) : Color.white;
     }
 }
 

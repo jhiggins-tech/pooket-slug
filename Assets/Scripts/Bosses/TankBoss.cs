@@ -89,7 +89,7 @@ namespace PooketSlug
             // his waist at the turret's pivot once he's up; below it, hidden behind the hull, before
             float y = Art.TankBarrelPivot.y - (12f - 11f * HatchPilot) / Art.PPU;
             m_Pilot.transform.localPosition = new Vector3(Art.TankBarrelPivot.x, y + rumble, 0f);
-            float a = (int)(Anim * 30f) % 9 == 0 ? 0.4f : 0.9f;
+            float a = Fx.TrolloFlicker.On(Anim) ? 0.4f : 0.9f;
             m_Pilot.color = m_ConeLeft.color = m_ConeRight.color = new Color(1f, 1f, 1f, a);
         }
 
@@ -462,7 +462,7 @@ namespace PooketSlug
             Go.transform.localPosition = new Vector3(Snap(Pos.x), Snap(Pos.y), 0f);
             Visual.localScale = Vector3.one;
             Visual.gameObject.SetActive(Engaged || !Entering); // in the motor pool until it wakes
-            float rumble = !Dying && Mathf.Abs(Vel.x) > 0.05f && ((int)(Anim * 16f) % 2 == 0) ? 1f / Art.PPU : 0f;
+            float rumble = !Dying && Mathf.Abs(Vel.x) > 0.05f && Fx.Blink(Anim, 16f) ? 1f / Art.PPU : 0f;
             m_Hull.transform.localPosition = new Vector3(0f, rumble, 0f);
             m_Hull.sprite = Flashed(Art.TankHull);
             m_Barrel.sprite = Flashed(Art.TankBarrel);

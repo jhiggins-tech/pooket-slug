@@ -43,7 +43,7 @@ namespace PooketSlug
         public override void Render()
         {
             base.Render();
-            m_Sr.sprite = Live ? Art.LiveFence[1 + (int)(World.Elapsed * 12f) % 2] : Art.LiveFence[0];
+            m_Sr.sprite = Live ? Art.LiveFence[1 + Fx.Step(World.Elapsed, 12f, 2)] : Art.LiveFence[0];
         }
     }
 
@@ -122,7 +122,7 @@ namespace PooketSlug
         {
             base.Render();
             if (m_Fuse > 0f && !m_Falling)
-                Go.transform.localPosition += new Vector3(((int)(m_Fuse * 40f) % 2 == 0 ? 1f : -1f) / Art.PPU, 0f, 0f);
+                Go.transform.localPosition += new Vector3(Fx.Shiver(m_Fuse, 40f, 1f) / Art.PPU, 0f, 0f);
         }
     }
 }

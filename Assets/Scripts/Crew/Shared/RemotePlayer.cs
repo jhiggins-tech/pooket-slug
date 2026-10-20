@@ -138,7 +138,7 @@ namespace PooketSlug
             {
                 // driving, it goes where the soldier does (smoothed); otherwise where it was last sent
                 Vector2 at = Driving ? Vector2.zero : m_TankPos - Pos;
-                bool blink = m_TankPose.State == TankPose.Mode.Runaway && (int)(m_TankClock * 12f) % 2 == 0;
+                bool blink = m_TankPose.State == TankPose.Mode.Runaway && Fx.RunawayBlink.On(m_TankClock);
                 m_Tank.Apply(at, m_TankPose.Facing, m_TankAngle, m_TankPose.Flash, m_TankPose.Muzzle, blink, m_TankPose.Spin);
             }
             if (m_Kit != null)

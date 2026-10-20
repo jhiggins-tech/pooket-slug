@@ -40,7 +40,7 @@ namespace PooketSlug
             base.Render();
             // it rolls up into the wall above: squashed from the bottom up
             float k = m_Open < 0f ? 0f : Mathf.Clamp01(m_Open / OpenTime);
-            float judder = k > 0f && k < 1f ? ((int)(m_Open * 14f) % 2) * 0.04f : 0f;
+            float judder = k > 0f && k < 1f ? Fx.Step(m_Open, 14f, 2) * 0.04f : 0f;
             float left = Mathf.Max(0.04f, 1f - k + judder);
             Transform t = m_Sr.transform;
             t.localScale = new Vector3(1f, left, 1f);

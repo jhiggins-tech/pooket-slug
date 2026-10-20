@@ -265,14 +265,14 @@ namespace PooketSlug
             bool seated = a.OnCouch;
             bool climbing = a.Walk.Climbing;
             bool walking = !seated && !a.Walk.Standing && !climbing;
-            f.Legs.sprite = seated ? skin.LegsSit : climbing ? skin.LegsJump : walking ? skin.LegsRun[(int)(m_Clock * 10f) % skin.LegsRun.Length] : skin.LegsIdle;
             // off duty, no guns: gaming on the couch, lounging at their station between loops (and reaching up the ladder)
             bool lounging = climbing || a.Doing == DenDoing.Station && a.Cycle == 2;
-            f.Torso.sprite = seated ? skin.TorsoPad : lounging ? skin.TorsoLounge : skin.TorsoUnarmed;
             float bob = 0f, shiver = 0f;
             if (a.Doing == DenDoing.Station) Idle(a, out bob, out shiver);
-            else if (climbing) shiver = (int)(m_Clock * 6f) % 2 == 0 ? 0.5f : -0.5f; // hand over hand
-            f.Torso.rectTransform.anchoredPosition = new Vector2(0f, (seated ? -6f : bob) * Px);
+            else if (climbing) shiver = Fx.Shiver(m_Clock, 6f, 0.5f); // hand over hand
+            StageLegs legs = seated ? StageLegs.Sit : climbing ? StageLegs.Jump : walking ? StageLegs.Walk : StageLegs.Idle;
+            StageTorso top = seated ? StageTorso.Pad : lounging ? StageTorso.Lounge : StageTorso.Unarmed;
+            f.Body.Pose(skin, new StagePose(legs, top, 0f, seated ? -6f : bob) { WalkT = m_Clock });
             float x = seated ? SeatX[a.Seat] : a.X, y = seated ? SitY : a.Y;
             // through the roller door: in under it, into the dark of the bay, a little smaller as they go
             float through = a == Mine ? Through : 0f;
@@ -284,7 +284,7 @@ namespace PooketSlug
             }
             Ui.Show(f.Rt, through < 1f);
             Color shade = Color.Lerp(Color.white, new Color(0.15f, 0.15f, 0.2f), through);
-            f.Legs.color = f.Torso.color = shade;
+            f.Body.Tint(shade);
             float size = 1f - 0.2f * through;
             f.Rt.anchoredPosition = new Vector2(x + shiver, y) * Px;
             f.Rt.localScale = new Vector3((a.Walk.FaceLeft && !seated && !climbing ? -1f : 1f) * size, size, 1f);
@@ -300,7 +300,7 @@ namespace PooketSlug
         /// </summary>
         void Idle(DenActor a, out float bob, out float shiver)
         {
-            bob = (int)(m_Clock * 1.6f + a.X) % 2 == 0 ? 0f : -0.5f;
+            bob = Fx.Step(m_Clock, 1.6f, 2, a.X) == 0 ? 0f : -0.5f;
             shiver = 0f;
             a.CycleT += Time.unscaledDeltaTime;
             if (a.CycleT >= a.CycleLen)
@@ -313,7 +313,7 @@ namespace PooketSlug
             if (a.Soldier == Content.Tones2)
             {
                 a.Walk.Face(a.Cycle == 1); // sprays the slushie machine, to his left
-                if (a.Cycle == 0 && a.CycleT > 2.2f && a.CycleT < 3.4f) shiver = (int)(m_Clock * 30f) % 2 == 0 ? 0.6f : -0.6f; // brain freeze
+                if (a.Cycle == 0 && a.CycleT > 2.2f && a.CycleT < 3.4f) shiver = Fx.Shiver(m_Clock, 30f, 0.6f); // brain freeze
             }
             else if (a.Soldier == Content.Kie) a.Walk.Face(a.Cycle == 0); // the projector's on the bench behind him
         }
@@ -335,9 +335,9 @@ namespace PooketSlug
             DenActor first = Bits.First;
             bool holoBit = Bits.Slushie && Bits.T > 2.6f && Bits.T < 3.6f;
             Ui.Show(m_Holo, tinkering || holoBit);
-            if (tinkering) m_Holo.rectTransform.anchoredPosition = new Vector2(Holo.x + ((int)(m_Clock * 14f) % 5 == 0 ? 1f : 0f), Holo.y) * Px;
+            if (tinkering) m_Holo.rectTransform.anchoredPosition = new Vector2(Holo.x + (Fx.Step(m_Clock, 14f, 5) == 0 ? 1f : 0f), Holo.y) * Px;
             if (holoBit && first != null) m_Holo.rectTransform.anchoredPosition = new Vector2(first.X + 10f, first.Y + 14f) * Px;
-            m_Holo.color = new Color(0.45f, 1f, 1f, (int)(m_Clock * 20f) % 3 == 0 ? 0.35f : 0.75f);
+            m_Holo.color = new Color(0.45f, 1f, 1f, Fx.Step(m_Clock, 20f, 3) == 0 ? 0.35f : 0.75f);
             bool weasel = kie != null && kie.Doing == DenDoing.Station && kie.Cycle == 1;
             Ui.Show(m_Weasel, weasel);
             if (weasel) m_Weasel.rectTransform.anchoredPosition = new Vector2(WeaselHole.x, WeaselHole.y + Mathf.Max(0f, Mathf.Sin(kie.CycleT * 2.4f)) * 4f) * Px;

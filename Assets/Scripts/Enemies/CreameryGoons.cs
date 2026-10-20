@@ -65,7 +65,7 @@ namespace PooketSlug
         {
             base.Render();
             bool walking = Mathf.Abs(Vel.x) > 0.1f && Grounded && !Dying;
-            m_Legs.sprite = Flashed(walking ? Art.SoldierLegsRun[(int)(Anim * 6f) % 4] : Art.SoldierLegsIdle);
+            m_Legs.sprite = Flashed(walking ? Clips.CreameryRun.Pick(Art.SoldierLegsRun, Anim) : Art.SoldierLegsIdle);
             m_Torso.sprite = Flashed(Art.SoldierTorso);
             m_Shield.sprite = Flashed(CreameryArt.Shield);
             m_Flash.enabled = m_Muzzle > 0f && !Dying;

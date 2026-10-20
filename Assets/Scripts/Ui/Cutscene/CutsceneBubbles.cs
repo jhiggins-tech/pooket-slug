@@ -57,7 +57,7 @@ namespace PooketSlug
             float top = StageH * Px / 2f - m_World.anchoredPosition.y / zoom + StageH * Px / 2f / zoom;
             at.y = Stack(at.x, at.y, w, top);
             m_Placed.Add(new Rect(at.x - w / 2f, at.y, w, BubbleH));
-            if (glitchy && (int)(now * 12f) % 5 == 0) at.x += 2f; // the holograms' bubbles glitch too
+            if (glitchy && Fx.Step(now, 12f, 5) == 0) at.x += 2f; // the holograms' bubbles glitch too
             b.Place(at, who.Head.x);
         }
 

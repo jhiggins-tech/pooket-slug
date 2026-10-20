@@ -76,7 +76,7 @@ namespace PooketSlug
         {
             bool running = landed && weasel.Grounded && Mathf.Abs(weasel.Vel.x) > 0.1f;
             weasel.VisualRoot.localRotation = landed ? Quaternion.identity : Quaternion.Euler(0f, 0f, time * -720f * weasel.Facing);
-            return KieArt.Weasel[running && (int)(time * 16f) % 2 == 1 ? 1 : 0];
+            return KieArt.Weasel[running && !Fx.Blink(time, 16f) ? 1 : 0];
         }
     }
 }

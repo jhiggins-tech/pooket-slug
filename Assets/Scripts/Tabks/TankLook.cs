@@ -55,7 +55,7 @@ namespace PooketSlug
         {
             m_Root.transform.localPosition = offset;
             m_HullRoot.localScale = new Vector3(-facing, 1f, 1f); // the art faces left
-            Sprite hull = spin && m_HullSpun != null && (int)(Time.time * KieTuning.Tabk.ReelFrames) % 2 == 1 ? m_HullSpun : m_HullArt;
+            Sprite hull = spin && m_HullSpun != null && Fx.Step(Time.time, KieTuning.Tabk.ReelFrames, 2) == 1 ? m_HullSpun : m_HullArt;
             m_Hull.sprite = flash ? Art.Flash(hull) : hull;
             m_Hull.color = blink ? RunawayBlink : Color.white;
             m_BarrelPivot.localPosition = m_Kit.PivotLocal(facing);

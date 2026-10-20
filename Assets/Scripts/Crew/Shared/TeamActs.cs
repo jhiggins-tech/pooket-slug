@@ -187,7 +187,7 @@ namespace PooketSlug
                 weasel.transform.localPosition = new Vector3(Entity.Snap(x), Entity.Snap(y), 0f);
                 weasel.transform.localScale = new Vector3(Dir, 1f, 1f);
                 weasel.transform.localRotation = Quaternion.Euler(0f, 0f, Mathf.Sin(t * 10f + i * 1.7f) * 12f);
-                weasel.sprite = KieArt.Weasel[(int)(t * 16f + i) % 2];
+                weasel.sprite = KieArt.Weasel[Fx.Step(t, 16f, 2, i)];
                 if (Rng.Fx.Value < 0.15f)
                     World.SpawnParticle(new Vector2(x - Dir * 0.2f, y), new Vector2(-Dir * Rng.Fx.Range(1f, 3f), Rng.Fx.Range(1f, 3f)), FloodLayer.Foam, 1f, 0.3f);
             }
@@ -422,7 +422,7 @@ namespace PooketSlug
                 int face = to >= m_From ? 1 : -1;
                 weasel.transform.localPosition = new Vector3(Entity.Snap(x), Entity.Snap(floor + hop), 0f);
                 weasel.transform.localScale = new Vector3(face, 1f, 1f);
-                weasel.sprite = KieArt.Weasel[run < 1f ? (int)(t * 16f + i) % 2 : 0];
+                weasel.sprite = KieArt.Weasel[run < 1f ? Fx.Step(t, 16f, 2, i) : 0];
                 // the pill rides on its back, wobbling, and shakes as the weasel waits under its goon
                 float shake = run >= 1f ? Mathf.Sin(t * 60f + i) * 0.04f : 0f;
                 pill.transform.localPosition = new Vector3(Entity.Snap(x - face * 0.05f + shake), Entity.Snap(floor + hop + 0.55f), 0f);

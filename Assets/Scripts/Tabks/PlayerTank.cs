@@ -305,14 +305,14 @@ namespace PooketSlug
         public override void Render()
         {
             base.Render();
-            bool blink = Mode == State.Runaway && (int)(m_Runaway * 12f) % 2 == 0;
+            bool blink = Mode == State.Runaway && Fx.RunawayBlink.On(m_Runaway);
             float shaking = m_Guns.Shake; // building up a shot, say
             Vector2 shake = shaking > 0f ? new Vector2(Mathf.Round(Rng.Fx.Range(-1f, 1f) * shaking) / Art.PPU, 0f) : Vector2.zero;
             m_Look.Apply(shake, Facing, m_BarrelAngle, FlashTimer > 0f, m_Muzzle > 0f, blink, m_Guns.Spinning);
             m_Guns.Render(this);
             if (m_Marker != null)
             {
-                bool shown = Mode == State.Dropping && (int)(Time.time * 8f) % 2 == 0;
+                bool shown = Mode == State.Dropping && Fx.Blink(Time.time, 8f);
                 if (m_Marker.enabled != shown) m_Marker.enabled = shown;
                 m_Marker.transform.localPosition = new Vector3(0f, m_LandY - Pos.y + 0.05f, 0f);
             }
@@ -325,7 +325,7 @@ namespace PooketSlug
                 if (shown)
                 {
                     float t = carrying ? 0f : m_DroneAway, y = Height + DroneUp + t * (3f + 6f * t);
-                    m_Drone.sprite = m_Kit.Drone[(int)(Time.time * 20f) % 2];
+                    m_Drone.sprite = m_Kit.Drone[Fx.Rotor.Step(Time.time)];
                     m_Drone.transform.localPosition = new Vector3(-Facing * t * 1.5f, y, 0f);
                 }
                 if (carrying)

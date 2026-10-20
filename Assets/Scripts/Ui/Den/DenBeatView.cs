@@ -100,13 +100,11 @@ namespace PooketSlug
             PlayerSkin skin = Art.SkinFor(Content.Kie, 0);
             Ui.Show(f.Rt, true);
             bool heaving = beat.Heave > 0f && beat.Heave < 1f;
-            f.Legs.sprite = skin.LegsIdle;
-            f.Torso.sprite = heaving ? skin.TorsoLounge : skin.TorsoUnarmed;
-            float strain = heaving ? ((int)(clock * 18f) % 2 == 0 ? 0.5f : -0.5f) : 0f;
-            f.Torso.rectTransform.anchoredPosition = new Vector2(0f, heaving ? -1f : 0f) * Px;
+            f.Pose(skin, new StagePose(StageLegs.Idle, heaving ? StageTorso.Lounge : StageTorso.Unarmed, 0f, heaving ? -1f : 0f));
+            float strain = heaving ? Fx.Shiver(clock, 18f, 0.5f) : 0f;
             f.At(HeaveX + strain, DenMap.FloorY(DenFloor.Ground));
             f.Rt.localScale = Vector3.one; // facing the couch, to his right
-            f.Legs.color = f.Torso.color = Color.white;
+            f.Tint(Color.white);
         }
 
         /// <summary>tones2 down at the TV's plug, then up again once it's in.</summary>
@@ -115,12 +113,10 @@ namespace PooketSlug
             PlayerSkin skin = Art.SkinFor(Content.Tones2, 0);
             Ui.Show(f.Rt, true);
             bool down = beat.Plug > 0f && beat.Plug < 1f;
-            f.Legs.sprite = down ? skin.LegsJump : skin.LegsIdle;
-            f.Torso.sprite = down ? skin.TorsoLounge : skin.TorsoUnarmed;
-            f.Torso.rectTransform.anchoredPosition = new Vector2(0f, down ? -3f : 0f) * Px;
+            f.Pose(skin, new StagePose(down ? StageLegs.Jump : StageLegs.Idle, down ? StageTorso.Lounge : StageTorso.Unarmed, 0f, down ? -3f : 0f));
             f.At(PlugX, DenMap.FloorY(DenFloor.Ground));
             f.Rt.localScale = new Vector3(-1f, 1f, 1f); // facing the TV, to his left
-            f.Legs.color = f.Torso.color = Color.white;
+            f.Tint(Color.white);
         }
 
         /// <summary>The newcomer: out of the dark under the door, then walking in, looking round.</summary>
@@ -131,14 +127,12 @@ namespace PooketSlug
             Vector2 sill = DenRollerDoor.Sill;
             float through = beat.Through, x = NewcomerX(beat);
             bool walking = through < 1f && beat.Walked < 1f;
-            f.Legs.sprite = walking ? skin.LegsRun[(int)(clock * 10f) % skin.LegsRun.Length] : skin.LegsIdle;
-            f.Torso.sprite = skin.TorsoUnarmed;
-            f.Torso.rectTransform.anchoredPosition = Vector2.zero;
+            f.Pose(skin, StagePose.Walking(walking, clock));
             f.At(x, Mathf.Lerp(DenMap.FloorY(DenFloor.Ground), sill.y, through));
             Color shade = Color.Lerp(Color.white, new Color(0.15f, 0.15f, 0.2f), through);
-            f.Legs.color = f.Torso.color = shade;
+            f.Tint(shade);
             float size = 1f - 0.2f * through;
-            bool lookBack = beat.Walked >= 1f && (int)(clock * 1.5f) % 2 == 0; // looking round their corner
+            bool lookBack = beat.Walked >= 1f && Fx.Blink(clock, 1.5f); // looking round their corner
             f.Rt.localScale = new Vector3((lookBack ? 1f : -1f) * size, size, 1f);
         }
 

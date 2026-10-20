@@ -554,7 +554,7 @@ namespace PooketSlug
         /// </summary>
         public static void DrawBeam(SpriteRenderer beam, Vector2 from, Vector2 to, float heat)
         {
-            Stretch(beam, from, to, 1f + Mathf.Round(heat * 2f) + ((int)(Time.time * 30f) % 2));
+            Stretch(beam, from, to, 1f + Mathf.Round(heat * 2f) + Fx.Step(Time.time, 30f, 2));
             beam.color = Color.Lerp(Beam, Hot, heat * (0.6f + 0.4f * Mathf.Sin(Time.time * 40f)));
         }
 

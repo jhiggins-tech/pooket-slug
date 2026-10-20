@@ -358,7 +358,7 @@ namespace PooketSlug
             base.Render();
             float hop = m_Landed ? Mathf.Abs(Mathf.Sin(m_Time * 4f)) * 2f : 0f;
             m_Sr.transform.localPosition = new Vector3(0f, Mathf.Round(hop) / Art.PPU, 0f);
-            m_Sr.enabled = m_Time < Life - 3f || (int)(m_Time * 10f) % 2 == 0; // blinks before it's gone
+            m_Sr.enabled = m_Time < Life - 3f || Fx.Blink(m_Time, 10f); // blinks before it's gone
         }
     }
 

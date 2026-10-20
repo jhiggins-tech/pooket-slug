@@ -273,7 +273,7 @@ namespace PooketSlug
                 }
                 bool onStands = Mathf.Abs(feet.x - BayMap.StandX) < 0.5f && Mathf.Abs(feet.y - BayMap.StandY) < 0.5f;
                 if (onStands && hose >= 1f) idling = c;
-                float tick = onStands && hose >= 1f && (int)(m_Clock * 8f) % 2 == 0 ? 0.5f : 0f; // ticking over
+                float tick = onStands && hose >= 1f && Fx.Blink(m_Clock, 8f) ? 0.5f : 0f; // ticking over
                 kv.Value.rectTransform.anchoredPosition = new Vector2(feet.x, feet.y + tick) * Px;
             }
             if (carried != null) carried.transform.SetAsLastSibling();
@@ -295,7 +295,7 @@ namespace PooketSlug
             Ui.Show(m_Spark, spark);
             if (spark)
             {
-                m_Spark.sprite = Art.Spark[(int)(m_Clock * 24f) % 2];
+                m_Spark.sprite = Art.Spark[Fx.Spark.Step(m_Clock)];
                 m_Spark.rectTransform.anchoredPosition = new Vector2(BayMap.StandX + 22f, BayMap.StandY + 20f) * Px;
             }
         }
@@ -316,7 +316,7 @@ namespace PooketSlug
             if (hose >= 1f) m_Fill += dt / 7f;
             if (m_Fill > 1.25f) m_Fill = 0.25f;
             m_GaugeFill.rectTransform.sizeDelta = new Vector2(4f, 13f * Mathf.Min(1f, m_Fill)) * Px;
-            m_GaugeFill.color = m_Fill >= 1f && (int)(m_Clock * 4f) % 2 == 0 ? Gold : new Color(0.3f, 1f, 0.45f);
+            m_GaugeFill.color = m_Fill >= 1f && Fx.Warning.On(m_Clock) ? Gold : new Color(0.3f, 1f, 0.45f);
         }
 
         /// <summary>The drone, at home over the stands or on the move, with its cable (and a tabk on it).</summary>
@@ -325,7 +325,7 @@ namespace PooketSlug
             DroneShow.Point d = show != null ? show.Drone : DroneShow.Home;
             float bob = show == null || show.Done ? Mathf.Round(Mathf.Sin(m_Clock * 2.4f)) : 0f;
             Vector2 at = new Vector2(d.X, d.Y + bob);
-            m_Drone.sprite = Tones2Art.TabkDrone[(int)(m_Clock * 20f) % 2];
+            m_Drone.sprite = Tones2Art.TabkDrone[Fx.Rotor.Step(m_Clock)];
             m_Drone.rectTransform.anchoredPosition = at * Px;
             bool loaded = show?.Carried != null;
             float cable = loaded ? DroneShow.Hang - 8f : 3f; // from under its body to the tabk's roof, or a short hook
@@ -339,8 +339,7 @@ namespace PooketSlug
         {
             PlayerSkin skin = Art.SkinFor(m_SoldierDef, m_Skin);
             bool walking = !w.Standing && !w.Riding;
-            m_Soldier.Legs.sprite = walking ? skin.LegsRun[(int)(m_Clock * 10f) % skin.LegsRun.Length] : skin.LegsIdle;
-            m_Soldier.Torso.sprite = skin.TorsoUnarmed;
+            m_Soldier.Pose(skin, StagePose.Walking(walking, m_Clock));
             m_Soldier.At(w.X, w.Y);
             m_Soldier.Rt.localScale = new Vector3(w.FaceLeft ? -1f : 1f, 1f, 1f);
         }

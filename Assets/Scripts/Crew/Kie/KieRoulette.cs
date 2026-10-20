@@ -204,7 +204,7 @@ namespace PooketSlug
                 // flicks between the two, slowing, and settles on what it'll take (the same spin as kie's own, RouletteSpin)
                 float t = m_LocalSpin / SpinTime;
                 face = RouletteSpin.Settled(t) ? m_Pick : (RouletteSpin.Face(t, 2) == 0 ? KieSteal.Special : KieSteal.Super);
-                if (face == KieSteal.Nothing) face = (int)(m_LocalSpin * 8f) % 2 == 0 ? KieSteal.Special : KieSteal.Super;
+                if (face == KieSteal.Nothing) face = Fx.Blink(m_LocalSpin, 8f) ? KieSteal.Special : KieSteal.Super;
                 m_Frame.color = RouletteSpin.Lit(t, m_LocalSpin) ? Color.white : Palette.Pink;
             }
             else

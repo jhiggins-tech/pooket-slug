@@ -61,6 +61,7 @@ Each file starts with a summary comment saying what it's for.
 | `Core/Audio/` | `MusicTracks` / `Notation` / `Chip` (the chip music, its notation and the synth), `Soundtrack` (when a mission's music changes), `MusicRender` (a track into samples), `Wav`, `MusicMidi` |
 | `Core/Enemies/` | Mission two's goons: `Goons.cs` (`ShieldSpec`: what the shield stops; `GrenadierSpec`: the lob), `BigScoopBrain` (the miniboss's moves) |
 | `Core/Title/` | `TitleLogo` (the title logo's parts, `Resources/Title/layout.txt`), `TitleMotion` (its entrance, hover and glint, and when its sounds play) |
+| `Core/Anim/` | `Clip` (frames at a rate, looped or held, with events; `Clips`: who runs at what rate), `Fx` (blinks, shivers and flickers: `Pulse`, and the named ones such as `TrolloFlicker`), `StagePose` (a stage soldier's legs and top, and the cutscenes' pose names, drawn by `StageFigure.Pose`) |
 | `Core/Input/`, `Core/World/` | `ArcadePad` (the touch pad's logic), `SoldierInput`; `TilePhysics`, `Frost` (frozen by nitrogen), `Backdrop` (the parallax layers, and which plates cover the screen) |
 | `Core/Platform/` | `LaunchFlags` (`?test=`, `?unlock=` and the rest), `Spike.cs` (`?spike=` flags), `PageQuery`, `Sandbox` + `Knobs` + `SetupText`, `Rng`, `Log`; co-op's side: `NetContracts` / `NetIds` / `NetConfig` (interfaces and ids), `Rooms` (a room's listing), `Handover` (the world moving to the partner), `DropIn` (joining a mission under way, own scores), `PartnerBeacon` (the partner arrow and warnings), `WireMeter` (the kinds of message a phone sends its partner) |
 | `Game/` | `Game.cs`: `Bootstrap` and `Game`, the state machine (`GameState`: Title, Settings, Lobby, Den, Cutscene, Playing, GameOver, Victory, Demo), the world, the launch flags and the mission's story beats (from its `MissionStory`); then a flow per part of the game it hands frames to: `SceneFlow` (cutscenes, the site's copies, `?scene=` drafts), `DenFlow`, `KitFlow` (the ⓘ kit screen), `BoardFlow` (the mission screen), `DemoFlow` (`?demo=`), `SandboxFlow` (`?sandbox=`), `BossIntroFlow`, `MusicFlow`, `DebriefFlow`, `BayFlow` (the tabk bay) |
@@ -134,6 +135,7 @@ get reused (the tests pin them).
 
 ## Invariants and gotchas
 - Gameplay randomness only through a seeded `Rng`; cosmetic effects use their own.
+- A blink, flicker or walk cycle goes through `Fx` or a `Clip`, not an inline `(int)(t * hz) % n`; a figure on a stage is posed with `StageFigure.Pose`.
 - The build is uncompressed: Pages gzips it on the fly ([why](docs/research/build-pipeline/github-pages.md)).
 - Docs-only pushes (`**.md`, `docs/**`) don't build: a redeploy changes the build version co-op players must share.
 - Fusion's own config (`NetworkProjectConfig.fusion`) is committed and wins over the one the SDK ships.

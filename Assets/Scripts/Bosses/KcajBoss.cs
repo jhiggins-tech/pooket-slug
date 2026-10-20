@@ -155,7 +155,7 @@ namespace PooketSlug
         {
             bool on = m_Phase != 0 && !m_Tank.Dying;
             // The tell flickers thin; the sweep burns thick.
-            m_Beam.enabled = on && (m_Phase == Sweeping || (int)(m_T * 24f) % 2 == 0);
+            m_Beam.enabled = on && (m_Phase == Sweeping || Fx.Blink(m_T, 24f));
             if (m_Beam.enabled)
             {
                 // the sweep is kcaj's own beam at full heat
