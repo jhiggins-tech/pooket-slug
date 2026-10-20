@@ -20,6 +20,8 @@ namespace PooketSlug
         public const float LadderX = 209f;
         /// <summary>The bunks' short ladder, from the loft floor up to the platform in the roof (beside the bathroom).</summary>
         public const float BunkLadderX = 88f;
+        /// <summary>How near a ladder you climb it by hand (up or down), and how wide a tap on the den's ladder is: a finger's a little wider than a soldier.</summary>
+        public const float LadderReach = 12f, LadderTapReach = 16f;
         /// <summary>The loft painting's ends and bottom, and its height (the hatch, at its own x 190, is over the den's ladder).</summary>
         public const float LoftLeft = 19f, LoftRight = 401f, LoftY = 180f, LoftH = 164f;
         /// <summary>The soldier's height, which everything is drawn to (docs/design/lobby.md, Den 2.0: Scale).</summary>
@@ -73,7 +75,7 @@ namespace PooketSlug
         public static DenFloor WalkTarget(float x, float y, DenFloor on, out float toX)
         {
             bool up = on == DenFloor.Loft || on == DenFloor.Bunks;
-            if (Math.Abs(x - LadderX) <= 16f && y >= FloorY(DenFloor.Upper) + 12f && y < (up ? FloorY(DenFloor.Loft) + 10f : LoftY))
+            if (Math.Abs(x - LadderX) <= LadderTapReach && y >= FloorY(DenFloor.Upper) + 12f && y < (up ? FloorY(DenFloor.Loft) + 10f : LoftY))
             {
                 toX = LadderX;
                 return up ? DenFloor.Upper : DenFloor.Loft;
@@ -256,15 +258,24 @@ namespace PooketSlug
         /// <summary>By hand (up or down): at a ladder, climbs to the next floor that way. False when there's no ladder here or no floor that way.</summary>
         public bool Climb(int dir)
         {
-            if (Climbing || dir == 0) return false;
-            int next = (int)Floor + Math.Sign(dir);
-            if (next < 0 || next > (int)DenFloor.Bunks) return false;
-            float ladder = DenMap.LadderUp((DenFloor)Math.Min((int)Floor, next));
-            if (Math.Abs(X - ladder) > 12f) return false;
-            ToFloor = (DenFloor)next;
+            if (!CanClimb(dir, out float ladder)) return false;
+            ToFloor = (DenFloor)((int)Floor + Math.Sign(dir));
             ToX = ladder;
             Errand = DenPlace.None;
             return true;
+        }
+
+        /// <summary>Whether <see cref="Climb"/> would climb that way from here: standing by a ladder to a floor there is.</summary>
+        public bool CanClimb(int dir) => CanClimb(dir, out _);
+
+        bool CanClimb(int dir, out float ladder)
+        {
+            ladder = 0f;
+            if (Climbing || dir == 0) return false;
+            int next = (int)Floor + Math.Sign(dir);
+            if (next < 0 || next > (int)DenFloor.Bunks) return false;
+            ladder = DenMap.LadderUp((DenFloor)Math.Min((int)Floor, next));
+            return Math.Abs(X - ladder) <= DenMap.LadderReach;
         }
 
         // on a ladder: the floor below it (the climb is between that and the one above)

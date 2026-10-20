@@ -222,7 +222,7 @@ namespace PooketSlug
             }
             int dir = soldier.Left == soldier.Right ? 0 : soldier.Left ? -1 : 1;
             int climb = soldier.Up == soldier.Down ? 0 : soldier.Up ? 1 : -1;
-            bool moving = place != DenPlace.None || walk || dir != 0 || (climb != 0 && !w.Climbing && Mathf.Abs(w.X - DenMap.LadderX) <= 12f);
+            bool moving = place != DenPlace.None || walk || dir != 0 || w.CanClimb(climb);
             if (moving && m_Den.Ready && place != DenPlace.Couch) Sit(false);
             if (place != DenPlace.None) w.Go(place);
             else if (walk) w.WalkTo(floor, x);

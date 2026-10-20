@@ -94,6 +94,20 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void CanClimb_AgreesWithClimb_AtBothLaddersAndTheReachsEdge()
+        {
+            foreach ((DenFloor floor, float ladder) in new[] { (DenFloor.Ground, DenMap.LadderX), (DenFloor.Loft, DenMap.BunkLadderX) })
+                foreach (float off in new[] { 0f, DenMap.LadderReach, DenMap.LadderReach + 1f, -DenMap.LadderReach - 1f })
+                {
+                    var w = new DenWalker(floor, ladder + off);
+                    bool can = w.CanClimb(1);
+                    Assert.AreEqual(System.Math.Abs(off) <= DenMap.LadderReach, can, $"{floor}, {off} from the ladder");
+                    Assert.AreEqual(can, w.Climb(1), "the flow's check and the climb agree");
+                }
+            Assert.That(DenMap.LadderTapReach, Is.GreaterThanOrEqualTo(DenMap.LadderReach), "a tap on the ladder is at least as wide as standing by it");
+        }
+
+        [Test]
         public void FromTheBunks_DownBothLadders_ToTheCouch()
         {
             var w = new DenWalker(DenFloor.Bunks, 300f);
