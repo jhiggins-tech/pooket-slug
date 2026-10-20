@@ -36,7 +36,8 @@ namespace PooketSlug
         /// </summary>
         public PlayerTank Riding { get; private set; }
 
-        float m_Coyote, m_JumpBuffer, m_FireCooldown, m_Anim, m_Muzzle, m_Invuln, m_DropThrough, m_Knock;
+        SoldierJump m_Jump;
+        float m_FireCooldown, m_Anim, m_Muzzle, m_Invuln, m_Knock;
         bool m_Fell; // this death's fall has been counted against the lives
         bool m_LeftTank; // just popped out of a tank's hatch this frame
         readonly CallInGesture m_CallIn = new CallInGesture(Tuning.Kit.CallInTapTime, Tuning.Kit.CallInChargeTime);
@@ -109,7 +110,7 @@ namespace PooketSlug
                 m_Kit.LetGo();
                 m_CallIn.Reset();
                 DeadTime += dt;
-                Vel.y = Mathf.Max(Vel.y - Tuning.Physics.Gravity * dt, -Tuning.Physics.MaxFall);
+                Fall(dt);
                 Vel.x = Mathf.MoveTowards(Vel.x, 0f, 6f * dt);
                 MoveWithTiles(dt);
                 Down(dt);
@@ -140,28 +141,18 @@ namespace PooketSlug
             SlowTimer -= dt;
 
             // --- jumping (with coyote time + input buffering) ---
-            m_Coyote = Grounded ? Tuning.Soldier.CoyoteTime : m_Coyote - dt;
-            m_JumpBuffer = input.JumpPressed ? Tuning.Soldier.JumpBuffer : m_JumpBuffer - dt;
-            m_DropThrough -= dt;
-            if (m_JumpBuffer > 0f && m_Coyote > 0f && !rooted && !fixated)
+            if (m_Jump.Tick(dt, Grounded, input.JumpPressed, !rooted && !fixated))
             {
-                if (down && TilePhysics.OnBridge(World.Level, Pos, HalfW))
-                {
-                    m_DropThrough = Tuning.Soldier.DropThroughTime;
-                }
+                if (down && TilePhysics.OnBridge(World.Level, Pos, HalfW)) m_Jump.Drop();
                 else
                 {
                     Vel.y = Def.JumpVelocity;
                     Sfx.Play(Sfx.Jump, 0.6f);
                 }
-                m_JumpBuffer = 0f;
-                m_Coyote = 0f;
             }
 
-            float gravity = Tuning.Physics.Gravity;
-            if (Vel.y > 0f && !input.Jump && !m_Kit.Rising) gravity *= Tuning.Soldier.ShortHopGravity; // short hop when released
-            Vel.y = Mathf.Max(Vel.y - gravity * dt, -Tuning.Physics.MaxFall);
-            MoveWithTiles(dt, m_DropThrough > 0f);
+            Fall(dt, SoldierJump.Gravity(Vel.y, input.Jump, m_Kit.Rising)); // short hop when released
+            MoveWithTiles(dt, m_Jump.DroppingThrough);
 
             // Metal Slug style: the camera never scrolls back, and you can't leave it (co-op: either side).
             float minX = World.View.Left + HalfW;

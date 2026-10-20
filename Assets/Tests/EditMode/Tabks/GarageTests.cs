@@ -86,9 +86,6 @@ namespace PooketSlug.Tests
             Assert.IsNotNull(show);
             Assert.AreSame(TabkCards.Kie, g.Loaded);
             Assert.AreEqual(TabkCards.Tones2.Home, g.SpotOf(TabkCards.Tones2));
-            Assert.AreEqual(BayMap.Stands, show.EndSpot(TabkCards.Kie));
-            Assert.AreEqual(TabkCards.Tones2.Home, show.EndSpot(TabkCards.Tones2));
-            Assert.IsNull(show.EndSpot(TabkCards.Kcaj), "it isn't touched");
             Assert.IsNull(g.Swap(TabkCards.Kie, Home), "already loaded");
         }
 

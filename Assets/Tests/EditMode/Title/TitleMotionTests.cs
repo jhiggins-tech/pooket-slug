@@ -91,7 +91,6 @@ namespace PooketSlug.Tests
             Assert.AreEqual(1, fired);
             Assert.Greater(TitleMotion.MusicAt, TitleMotion.Fire);
             Assert.Less(TitleMotion.MusicAt, TitleMotion.SpringsAt(logo, Index(logo, "G")), "the music's going as S-L-U-G pop up");
-            Assert.AreEqual(10, TitleMotion.Sprang(logo, -1f, TitleMotion.End(logo)));
         }
 
         [Test]

@@ -58,9 +58,6 @@ namespace PooketSlug
         public SceneScript Script(string name) =>
             m_Site.TryGetValue(name, out SceneScript s) || m_BuiltIn.TryGetValue(name, out s) ? s : null;
 
-        /// <summary>The site's copy took over from the built-in one.</summary>
-        public bool FromSite(string name) => m_Site.ContainsKey(name);
-
         /// <summary>
         /// A number for which copy of each scene this phone plays: the same on two phones with the same copies. Fixed
         /// once <see cref="StartCoop"/> is called, so a copy fetched mid-session can't make the two phones differ.

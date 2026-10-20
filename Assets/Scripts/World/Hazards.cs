@@ -23,17 +23,14 @@ namespace PooketSlug
     /// <summary>A fence that switches on and off, sparking while it's live. Touch it live and it hurts.</summary>
     public sealed class LiveFence : Hazard
     {
-        const float Cycle = 3f, LiveFor = 1.4f;
         readonly SpriteRenderer m_Sr;
-        readonly float m_Offset;
 
         public LiveFence(World world, Vector2 feet) : base(world, "LiveFence", feet)
         {
             m_Sr = AddRenderer(Go.transform, "Sprite", Art.LiveFence[0], SortOrder.Pickups);
-            m_Offset = feet.x * 0.37f % Cycle;
         }
 
-        bool Live => (World.Elapsed + m_Offset) % Cycle < LiveFor;
+        bool Live => BaseHazards.Fence.On(World.Elapsed, Pos.x);
 
         public override void Tick(float dt)
         {
@@ -50,18 +47,14 @@ namespace PooketSlug
     /// <summary>A grate in the ground that blasts a column of steam every few seconds.</summary>
     public sealed class SteamVent : Hazard
     {
-        const float Cycle = 2.6f, VentFor = 1f;
-        readonly float m_Offset;
-
         public SteamVent(World world, Vector2 feet) : base(world, "SteamVent", feet)
         {
             AddRenderer(Go.transform, "Sprite", Art.SteamVent, SortOrder.Pickups);
-            m_Offset = feet.x * 0.53f % Cycle;
         }
 
         public override void Tick(float dt)
         {
-            if ((World.Elapsed + m_Offset) % Cycle >= VentFor) return;
+            if (!BaseHazards.Steam.On(World.Elapsed, Pos.x)) return;
             HurtInside(new Rect(Pos.x - 0.4f, Pos.y, 0.8f, 2.6f), 1);
             if (Rng.Fx.Range(0f, 1f) < 0.6f) // the steam itself is cosmetic
             {

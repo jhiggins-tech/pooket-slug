@@ -181,17 +181,5 @@ namespace PooketSlug
         /// <summary>The tabk fired between <paramref name="from"/> and <paramref name="to"/> (for its sound).</summary>
         public static bool Fired(float from, float to) => from < Fire && to >= Fire;
 
-        /// <summary>How many letters sprang up between <paramref name="from"/> and <paramref name="to"/> (for their sound).</summary>
-        public static int Sprang(TitleLogo logo, float from, float to)
-        {
-            int n = 0;
-            for (int i = 0; i < logo.Parts.Count; i++)
-            {
-                if (i == logo.TabkIndex) continue;
-                float at = SpringsAt(logo, i);
-                if (from < at && to >= at) n++;
-            }
-            return n;
-        }
     }
 }

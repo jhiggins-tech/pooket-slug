@@ -268,8 +268,7 @@ namespace PooketSlug.Tests
 
         sealed class Flat : IPillGround
         {
-            public float Floor;
-            public bool Solid(float x, float y) => y < Floor;
+            public bool Solid(float x, float y) => y < 0f;
         }
 
         sealed class Pit : IPillGround

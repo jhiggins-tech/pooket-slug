@@ -172,8 +172,7 @@ namespace PooketSlug
             m_Life += dt;
             if (m_Life >= KieTuning.Trollogram.Life) SwitchOff();
             Vel.x = 0f;
-            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
-            MoveWithTiles(dt);
+            Walk(dt);
         }
 
         /// <summary>Shot: it blows up on the soldiers near it (scoring nothing, like a weasel).</summary>

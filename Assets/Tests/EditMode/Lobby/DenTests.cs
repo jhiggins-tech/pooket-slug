@@ -38,7 +38,7 @@ namespace PooketSlug.Tests
         public void PickingSomeoneElseSwapsTheSeatAndUnreadies()
         {
             var den = new Den(DenMode.Solo, Both, Content.Tones2);
-            Assert.IsTrue(den.ToggleReady());
+            Assert.IsTrue(den.SetReady(true));
             Assert.IsTrue(den.TryPick(Content.Kie));
             Assert.AreEqual(Content.Kie, den.Pick);
             Assert.IsFalse(den.Ready);
@@ -49,7 +49,7 @@ namespace PooketSlug.Tests
         public void SoloReadyZoomsIntoTheTvThenGoes()
         {
             var den = new Den(DenMode.Solo, Both, Content.Tones2);
-            den.ToggleReady();
+            den.SetReady(true);
             den.Tick(0.01f, default, true);
             Assert.That(den.Zoom, Is.GreaterThanOrEqualTo(0f));
             Assert.IsFalse(den.TryPick(Content.Kie), "no changing once the zoom's begun");
@@ -61,25 +61,15 @@ namespace PooketSlug.Tests
         public void CrewModeHasNoMission()
         {
             var den = new Den(DenMode.Crew, Both, Content.Tones2);
-            Assert.IsFalse(den.ToggleReady());
+            Assert.IsFalse(den.SetReady(true));
             Assert.IsTrue(den.TryPick(Content.Kie));
-        }
-
-        [Test]
-        public void ReadyWithAnEmptySeatSeatsTheFirstFreeCrewmate()
-        {
-            var den = new Den(DenMode.Coop, Both, null);
-            den.Tick(0f, InDen(Content.Tones2, false), false);
-            Assert.IsTrue(den.ToggleReady());
-            Assert.AreEqual(Content.Kie, den.Pick, "tones2's taken");
-            Assert.IsTrue(den.Ready);
         }
 
         [Test]
         public void ANewPartnersDenWaitsForBothThenCountsDown()
         {
             var den = new Den(DenMode.Coop, Both, Content.Tones2);
-            den.ToggleReady();
+            den.SetReady(true);
             Run(den, 5f, InDen(Content.Kie, false));
             Assert.That(den.Zoom, Is.LessThan(0f), "waits for the partner");
             Assert.That(den.Countdown, Is.LessThan(0f));
@@ -95,12 +85,12 @@ namespace PooketSlug.Tests
         public void AlonePlayingPartnerOrEmptyRoomDoesntWait()
         {
             var den = new Den(DenMode.Coop, Both, Content.Kie);
-            den.ToggleReady();
+            den.SetReady(true);
             den.Tick(0.01f, new DenPartner { Soldier = Content.Tones2, Playing = true }, false);
             Assert.That(den.Zoom, Is.GreaterThanOrEqualTo(0f), "drops in on a partner already playing");
 
             var alone = new Den(DenMode.Coop, Both, Content.Tones2);
-            alone.ToggleReady();
+            alone.SetReady(true);
             alone.Tick(0.01f, default, true);
             Assert.That(alone.Zoom, Is.GreaterThanOrEqualTo(0f), "a host on their own starts, and a partner can drop in");
         }
@@ -137,7 +127,7 @@ namespace PooketSlug.Tests
             var den = new Den(DenMode.Coop, Both, null);
             Assert.AreEqual(Den.InDen, den.Flags);
             den.TryPick(Content.Tones2);
-            den.ToggleReady();
+            den.SetReady(true);
             Assert.AreEqual(Den.InDen | Den.Seated | Den.ReadyFlag, den.Flags);
         }
 

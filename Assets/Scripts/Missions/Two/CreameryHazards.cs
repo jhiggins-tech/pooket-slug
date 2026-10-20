@@ -74,7 +74,7 @@ namespace PooketSlug
             m_On = on;
             if (!on)
             {
-                if (Creamery.VentSoon(World.Elapsed, Pos.x) && Rng.Fx.Range(0f, 1f) < 0.25f) Puff(1.5f, 0.25f); // the tell: a hiss of mist
+                if (soon && Rng.Fx.Range(0f, 1f) < 0.25f) Puff(1.5f, 0.25f); // the tell: a hiss of mist
                 return;
             }
             var column = new Rect(Pos.x - Creamery.VentHalfWidth, Pos.y, Creamery.VentHalfWidth * 2f, Creamery.VentHeight);

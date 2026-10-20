@@ -32,18 +32,6 @@ namespace PooketSlug.Tests
         }
 
         [Test]
-        public void AKitCanSetItsOwnRefill()
-        {
-            var kit = new KitMeters(3, 0, 0f, 12, 0f);
-            kit.Recharge(3, 4f);
-            Assert.IsTrue(kit.UseSpecial());
-            kit.Tick(4f);
-            Assert.AreEqual(3, kit.Specials);
-            Assert.AreEqual(3, kit.SpecialMax);
-            Assert.AreEqual(4f, kit.SpecialRefill);
-        }
-
-        [Test]
         public void ARefillOnItsOwnFillsCharges()
         {
             var refill = new ChargeRefill(2, 5f);

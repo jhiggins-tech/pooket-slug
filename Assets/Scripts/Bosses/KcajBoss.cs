@@ -21,11 +21,10 @@ namespace PooketSlug
     /// every screen (their seed comes from the count of rains).
     /// </para>
     /// </summary>
-    public sealed class KcajBoss : IBossKit
+    public sealed class KcajBoss : BossKit
     {
         static KcajTankSpec Spec => Content.KcajTank;
         const int Tell = 1, Sweeping = 2, PhaseBits = 3, Right = 8;
-        static readonly IReadOnlyList<TankBoss> NoCopies = new List<TankBoss>();
 
         readonly World m_World;
         readonly TankBoss m_Tank;
@@ -43,17 +42,13 @@ namespace PooketSlug
             m_Beam = Art.Renderer(world.Root, "Sweep beam", Art.Pixel, SortOrder.Effects + 2, shown: false);
         }
 
-        public string Name => "KCAJ'S TABK";
-        public IReadOnlyList<TankBoss> Copies => NoCopies;
-        public bool Disguised => false;
-        public void SetDisguised(bool on) { }
+        public override string Name => "KCAJ'S TABK";
 
         bool Raining => m_Pills.Raining;
         KcajAttack Next => KcajTankSpec.AttackFor(m_Turn, Raining);
-        public bool NextLands => Next == KcajAttack.Shell;
-        public float Wait { get; private set; }
+        public override bool NextLands => Next == KcajAttack.Shell;
 
-        public bool Fire(Vector2 muzzle, float angle, out bool thrown)
+        public override bool Fire(Vector2 muzzle, float angle, out bool thrown)
         {
             KcajAttack attack = Next;
             m_Turn++;
@@ -104,7 +99,7 @@ namespace PooketSlug
             }
         }
 
-        public void Tick(float dt)
+        public override void Tick(float dt)
         {
             float rage = m_Tank.Fury;
             if (m_Phase == Tell)
@@ -144,14 +139,12 @@ namespace PooketSlug
             p.Hurt(Spec.SweepDamage);
         }
 
-        public void OnHurt(int damage) { }
-
-        public void OnDie()
+        public override void OnDie()
         {
             m_Phase = 0;
         }
 
-        public void Render()
+        public override void Render()
         {
             bool on = m_Phase != 0 && !m_Tank.Dying;
             // The tell flickers thin; the sweep burns thick.
@@ -167,12 +160,11 @@ namespace PooketSlug
 
         // ------------------------------------------------------------------ co-op
 
-        public int NetState(bool markerShown) => m_Phase | (m_Dir > 0 ? Right : 0) | (markerShown ? 0 : KieTankSpec.NoMarker);
-        public float Progress => m_Phase == Sweeping ? m_T : 0f;
-        public int Drops => m_Rains;
-        public bool ShowsMarker(int netState) => (netState & KieTankSpec.NoMarker) == 0;
+        public override int NetState(bool markerShown) => m_Phase | (m_Dir > 0 ? Right : 0) | (markerShown ? 0 : KieTankSpec.NoMarker);
+        public override float Progress => m_Phase == Sweeping ? m_T : 0f;
+        public override int Drops => m_Rains;
 
-        public void ApplyNet(int state, float progress, int drops)
+        public override void ApplyNet(int state, float progress, int drops)
         {
             if (m_World.IsAuthority) return;
             int phase = state & PhaseBits;

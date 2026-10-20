@@ -23,7 +23,7 @@ namespace PooketSlug
     /// drops its own soldier's loot, so the wheel takes from everyone at once.
     /// </para>
     /// </summary>
-    public sealed class KieBoss : IBossKit
+    public sealed class KieBoss : BossKit
     {
         static KieTankSpec Spec => Content.KieTank;
 
@@ -45,42 +45,38 @@ namespace PooketSlug
         }
 
         /// <summary>Authority: the copies standing with it, which fire its shells with it.</summary>
-        public IReadOnlyList<TankBoss> Copies => m_Copies;
+        public override IReadOnlyList<TankBoss> Copies => m_Copies;
 
         /// <summary>It's wearing its hologram look among its copies.</summary>
-        public bool Disguised => m_Disguised;
+        public override bool Disguised => m_Disguised;
 
         KieAttack Next => KieTankSpec.AttackFor(m_Turn, m_Copies.Count > 0, m_Roulette.Busy);
 
         /// <summary>Authority: the next charged shot comes down somewhere, so the landing marker means something.</summary>
-        public bool NextLands => Next == KieAttack.Shell || Next == KieAttack.Weasels;
-
-        /// <summary>Extra seconds the tank rests after the attack just made (the wheel spinning).</summary>
-        public float Wait { get; private set; }
+        public override bool NextLands => Next == KieAttack.Shell || Next == KieAttack.Weasels;
 
         /// <summary>Authority: how close it is to dropping what it stole, 0 to 1.</summary>
-        public float Progress => m_Roulette.Progress;
+        public override float Progress => m_Roulette.Progress;
 
         /// <summary>Authority: times it has dropped what it stole.</summary>
-        public int Drops => m_Roulette.Drops;
+        public override int Drops => m_Roulette.Drops;
 
         /// <summary>Authority: the roulette for the network object, with whether the landing marker is shown.</summary>
-        public int NetState(bool markerShown) => m_Roulette.NetState(markerShown);
+        public override int NetState(bool markerShown) => m_Roulette.NetState(markerShown);
 
         /// <summary>Follower: whether the authority's tank shows its landing marker.</summary>
         public static bool MarkerShown(int netState) => KieRoulette.MarkerShown(netState);
-        public bool ShowsMarker(int netState) => MarkerShown(netState);
 
-        public string Name => Content.BossTank.Name;
+        public override string Name => Content.BossTank.Name;
 
         /// <summary>Every screen: follow the roulette as the authority runs it (<see cref="KieRoulette.ApplyNet"/>).</summary>
-        public void ApplyNet(int state, float progress, int drops) => m_Roulette.ApplyNet(state, progress, drops);
+        public override void ApplyNet(int state, float progress, int drops) => m_Roulette.ApplyNet(state, progress, drops);
 
         /// <summary>
         /// Authority: the tank's charged shot, kie's attack in its place, or false for a plain shell.
         /// <paramref name="thrown"/>: it came out of the barrel (the weasels), so the tank kicks as if it fired.
         /// </summary>
-        public bool Fire(Vector2 muzzle, float angle, out bool thrown)
+        public override bool Fire(Vector2 muzzle, float angle, out bool thrown)
         {
             KieAttack attack = Next;
             m_Turn++;
@@ -181,7 +177,7 @@ namespace PooketSlug
         }
 
         /// <summary>Puts on or takes off the real tank's hologram look (on a follower, as the authority's snapshot says).</summary>
-        public void SetDisguised(bool on)
+        public override void SetDisguised(bool on)
         {
             if (on == m_Disguised) return;
             m_Disguised = on;
@@ -198,7 +194,7 @@ namespace PooketSlug
         // ------------------------------------------------------------------ the tank's side
 
         /// <summary>Each tick of the tank once it's awake (on a follower, each tick it's alive).</summary>
-        public void Tick(float dt)
+        public override void Tick(float dt)
         {
             m_Roulette.Fury = m_Tank.Fury;
             m_Roulette.Tick(dt);
@@ -211,20 +207,20 @@ namespace PooketSlug
         }
 
         /// <summary>Authority: the real tank took <paramref name="damage"/>.</summary>
-        public void OnHurt(int damage)
+        public override void OnHurt(int damage)
         {
             EndHolograms(true);
             m_Roulette.OnHurt(damage);
         }
 
         /// <summary>Authority: the tank is destroyed. The trick ends and anything it stole falls out.</summary>
-        public void OnDie()
+        public override void OnDie()
         {
             EndHolograms(false);
             m_Roulette.OnDie();
         }
 
-        public void Render() => m_Roulette.Render();
+        public override void Render() => m_Roulette.Render();
     }
 
     /// <summary>

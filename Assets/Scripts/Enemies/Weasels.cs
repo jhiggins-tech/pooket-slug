@@ -54,7 +54,7 @@ namespace PooketSlug
         /// <summary>In the air: falls at <paramref name="gravity"/> and moves. True once it's landed.</summary>
         public static bool Tumble(Actor weasel, float dt, float gravity)
         {
-            weasel.Vel.y = Mathf.Max(weasel.Vel.y - gravity * dt, -Tuning.Physics.MaxFall);
+            weasel.Fall(dt, gravity);
             weasel.MoveWithTiles(dt);
             return weasel.Grounded;
         }
@@ -63,9 +63,7 @@ namespace PooketSlug
         public static void Scurry(Actor weasel, float dt, float speed)
         {
             weasel.Vel.x = weasel.Facing * speed;
-            weasel.Vel.y = Mathf.Max(weasel.Vel.y - Tuning.Physics.Gravity * dt, -Tuning.Physics.MaxFall);
-            MoveResult r = weasel.MoveWithTiles(dt);
-            if (r.HitWall && weasel.Grounded) weasel.Vel.y = Hop;
+            weasel.Walk(dt, Hop);
         }
 
         /// <summary>

@@ -46,8 +46,7 @@ namespace PooketSlug
                 return;
             }
             Vel.x = 0f;
-            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
-            MoveWithTiles(dt);
+            Walk(dt);
         }
 
         protected override void Die()

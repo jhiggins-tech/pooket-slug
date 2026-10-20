@@ -160,7 +160,6 @@ namespace PooketSlug.Tests
             Assert.AreEqual(0, lib.Versions, "nothing from the site");
             Assert.IsTrue(lib.UseSite("tiny", Tiny.Replace("HI", "HELLO"), out why), why);
             Assert.AreEqual("HELLO", lib.Get("tiny").Shots[0].Lines[0].Text);
-            Assert.IsTrue(lib.FromSite("tiny"));
             Assert.AreNotEqual(0, lib.Versions);
         }
 

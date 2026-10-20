@@ -89,11 +89,11 @@ namespace PooketSlug.Tests
         public void TheCageOfLightFlickersOut()
         {
             PilotFreeingSpec spec = KieTuning.Freeing;
-            Assert.IsTrue(spec.CageLit(0f), "lit as he appears");
-            Assert.IsTrue(spec.CageLit(spec.Cage * 0.2f), "steady at first");
-            Assert.IsFalse(spec.CageLit(spec.Cage), "out when he drops");
+            Assert.IsTrue(PilotFreeingSpec.CageLitFor(0f, spec.Cage), "lit as he appears");
+            Assert.IsTrue(PilotFreeingSpec.CageLitFor(spec.Cage * 0.2f, spec.Cage), "steady at first");
+            Assert.IsFalse(PilotFreeingSpec.CageLitFor(spec.Cage, spec.Cage), "out when he drops");
             int off = 0, steps = 200;
-            for (int i = 0; i < steps; i++) if (!spec.CageLit(spec.Cage * (0.3f + 0.7f * i / steps))) off++;
+            for (int i = 0; i < steps; i++) if (!PilotFreeingSpec.CageLitFor(spec.Cage * (0.3f + 0.7f * i / steps), spec.Cage)) off++;
             Assert.That(off, Is.InRange(steps / 5, steps * 3 / 4), "it stutters on and off before it goes");
         }
 

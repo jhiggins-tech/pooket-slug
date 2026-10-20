@@ -67,13 +67,6 @@ namespace PooketSlug
         /// <summary>Seconds to refill one charge; 0 for none.</summary>
         public float SpecialRefill => m_Refill.Seconds;
 
-        /// <summary>A kit whose special keeps its own numbers (tones2's rocket jump, kcaj's fixation) sets them here.</summary>
-        public void Recharge(int max, float seconds)
-        {
-            m_Refill.Max = max;
-            m_Refill.Seconds = seconds;
-        }
-
         /// <summary>How far the next special charge has refilled, 0 to 1 (0 when full or not refilling).</summary>
         public float SpecialRefillProgress => m_Refill.Progress(Specials);
         /// <summary>How charged the super is, 0 to 1.</summary>

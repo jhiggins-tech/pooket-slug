@@ -125,8 +125,7 @@ namespace PooketSlug
             Vel.x = 0f;
             if (m_Brain.Phase == ScoopPhase.Rest && Mathf.Abs(dx) > 2f && !Target.IsDown) Vel.x = Facing * Spec.WalkSpeed;
             if (m_Brain.Phase == ScoopPhase.Act && m_Brain.Move == ScoopMove.Charge) Vel.x = Facing * Spec.ChargeSpeed;
-            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
-            MoveResult r = MoveWithTiles(dt);
+            MoveResult r = Walk(dt);
             if (m_Brain.Phase == ScoopPhase.Act && m_Brain.Move == ScoopMove.Charge)
             {
                 bool edge = Pos.x - HalfW <= World.View.Left + 0.3f || Pos.x + HalfW >= World.View.Right - 0.3f;

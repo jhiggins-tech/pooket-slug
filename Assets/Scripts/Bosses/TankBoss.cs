@@ -18,7 +18,7 @@ namespace PooketSlug
     /// (<see cref="KieBoss"/>). The copies are tanks of this kind too (<see cref="Content.TankCopy"/>, made with
     /// <c>decoy</c>): they stand where kie's trick put them and copy the real one's every move, turret, charge and shot.
     /// With <see cref="World.BossTabk"/> kcaj's, it's his instead (<see cref="KcajBoss"/>): a floor sweep and a pill rain.
-    /// Whose it is, is its kit (<see cref="IBossKit"/>).
+    /// Whose it is, is its kit (<see cref="BossKit"/>).
     /// </summary>
     public sealed class TankBoss : BossEnemy
     {
@@ -29,7 +29,7 @@ namespace PooketSlug
         readonly BossTankSpec m_Spec;
         readonly SpriteRenderer m_Hull, m_Barrel, m_MeterBack, m_MeterFill, m_Marker;
         readonly Transform m_BarrelPivot;
-        readonly IBossKit m_Kie; // the crewmate's attacks: kie's, or kcaj's
+        readonly BossKit m_Kie; // the crewmate's attacks: kie's, or kcaj's
         // the Trollogram pilot up in the hatch for their intro (Mission two's kcaj), and the cones he holds
         readonly SpriteRenderer m_Pilot, m_ConeLeft, m_ConeRight;
 
@@ -235,8 +235,7 @@ namespace PooketSlug
                     break;
             }
 
-            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
-            MoveWithTiles(dt);
+            Walk(dt);
             World.Combat.DamageAvatarsTouching(Bounds, 1);
             m_Kie.Tick(dt);
         }

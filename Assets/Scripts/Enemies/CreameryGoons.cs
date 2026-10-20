@@ -45,9 +45,7 @@ namespace PooketSlug
 
             float dist = Mathf.Abs(Target.Pos.x - Pos.x);
             Vel.x = dist > ShieldSpec.StopAt && want == Facing && !Target.IsDown ? Facing * ShieldSpec.WalkSpeed : 0f;
-            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
-            MoveResult r = MoveWithTiles(dt);
-            if (r.HitWall && Grounded) Vel.y = 10f; // hops a crate
+            Walk(dt, 10f); // hops a crate
 
             m_Cooldown -= dt;
             m_Muzzle -= dt;
@@ -103,8 +101,7 @@ namespace PooketSlug
         {
             FaceTarget();
             Vel.x = 0f;
-            Vel.y = Mathf.Max(Vel.y - Gravity * dt, -MaxFall);
-            MoveWithTiles(dt);
+            Walk(dt);
 
             float dx = Target.Pos.x - Pos.x;
             bool onScreen = Pos.x < World.View.Right - 0.5f && Pos.x > World.View.Left + 0.5f;
