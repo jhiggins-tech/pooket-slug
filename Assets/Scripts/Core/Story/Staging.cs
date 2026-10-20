@@ -87,7 +87,7 @@ namespace PooketSlug
             new Thing("goon", Kind.Figure, 0f, 0f, White, "appear", "glitch-out"),
             // props
             new Thing("bag", Kind.Prop, 0f, 0f, White), // the crisp packet, painted (its own colours)
-            new Thing("cup", Kind.Prop, 0f, 0f, new Color(0.55f, 0.35f, 0.95f)),
+            new Thing("cup", Kind.Prop, 0f, 0f, White), // tones2's slushie, painted (its own colours)
             new Thing("card", Kind.Prop, 0f, 0f, Cyan),
             new Thing("remote", Kind.Prop, 0f, 0f, new Color(0.9f, 0.3f, 0.3f)),
             new Thing("sign", Kind.Prop, 232f, 84f, new Color(1f, 0.55f, 0.2f)),
@@ -109,7 +109,7 @@ namespace PooketSlug
             new Thing("store-opening", Kind.Prop, 261f, 11f, new Color(0.08f, 0.12f, 0.2f)),
             new Thing("freezer", Kind.Prop, 40f, 0f, new Color(0.82f, 0.9f, 0.97f)),
             new Thing("tub", Kind.Prop, 0f, 0f, new Color(0.96f, 0.93f, 0.86f)),
-            new Thing("slushie", Kind.Prop, 0f, 0f, new Color(0.3f, 0.7f, 1f)),
+            new Thing("slushie", Kind.Prop, 0f, 0f, White), // the same slushie, painted
             new Thing("cones", Kind.Prop, 0f, 0f, new Color(0.88f, 0.66f, 0.36f)),
             new Thing("note", Kind.Prop, 0f, 0f, new Color(1f, 0.92f, 0.3f)),
             // named effects: bits of staging drawn by the view, timed and placed by the scene

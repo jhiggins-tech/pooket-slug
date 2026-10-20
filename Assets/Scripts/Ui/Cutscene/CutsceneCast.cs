@@ -151,10 +151,11 @@ namespace PooketSlug
             m_Tones2 = new StageFigure(m_World, "tones2");
             Sprite packet = CutsceneSnacks.Packet;
             PaintedProp("bag", packet, packet.rect.width, packet.rect.height); // tones2's crisp packet, hand-drawn
-            Prop("cup", 6f, 12f);
+            Sprite slushie = CutsceneSnacks.Slushie; // his blue raspberry slushie, hand-drawn
+            PaintedProp("cup", slushie, slushie.rect.width, slushie.rect.height);
             Prop("card", 8f, 5f);
             Prop("tub", 8f, 6f);
-            Prop("slushie", 5f, 11f);
+            PaintedProp("slushie", slushie, slushie.rect.width, slushie.rect.height);
             Sprite cone = KcajArt.Cone;
             PaintedProp("cones", cone, cone.rect.width, cone.rect.height);
             Prop("note", 4f, 4f);
@@ -180,6 +181,7 @@ namespace PooketSlug
             foreach (KeyValuePair<string, Image> kv in m_Props) Place(kv.Value, kv.Key, stage, t, now, ground);
             Sign(stage, t, now, ground);
             Clamp(stage, t, now);
+            Crush(stage, t);
             Drone(stage, t, now, ground);
             Beacon(stage, t);
 
@@ -204,6 +206,15 @@ namespace PooketSlug
             Vector2 size = stage.Size(name, t);
             rt.localScale = new Vector3(size.x, size.y, 1f);
             img.color = stage.Colour(name, t, now);
+        }
+
+        /// <summary>The cup squashed by the script (<c>cup size 1 0.5</c>): drawn crushed instead, full size.</summary>
+        void Crush(ShotStage stage, float t)
+        {
+            if (!m_Props.TryGetValue("cup", out Image cup) || !cup.gameObject.activeSelf) return;
+            bool crushed = stage.Size("cup", t).y < 0.99f;
+            cup.sprite = crushed ? CutsceneSnacks.Crushed : CutsceneSnacks.Slushie;
+            if (crushed) cup.rectTransform.localScale = Vector3.one;
         }
 
         /// <summary>The hangout's sign: words, not a picture.</summary>

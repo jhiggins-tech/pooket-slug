@@ -18,7 +18,7 @@ namespace PooketSlug
         public DenFigure(RectTransform world, string name)
         {
             Body = new StageFigure(world, name);
-            Cup = Ui.Picture(Rt, "Slushie", null, Ui.Middle, Ui.Middle, new Vector2(6f, 0f) * Px, new Vector2(3f, 5f) * Px, new Color(0.55f, 0.35f, 0.95f));
+            Cup = Ui.Picture(Rt, "Slushie", CutsceneSnacks.Tiny, Ui.Middle, Ui.Middle, new Vector2(6f, 0f) * Px, new Vector2(3f, 5f) * Px, Color.white);
         }
     }
 
@@ -90,7 +90,7 @@ namespace PooketSlug
             for (int i = 0; i < m_Drops.Length; i++) m_Drops[i] = Picture("Water", 0f, 0f, 3f, 2f, new Color(0.45f, 0.75f, 1f));
             m_Holo = Picture("Tiny Trollogram", Holo.x, Holo.y, 6f, 9f, new Color(0.45f, 1f, 1f, 0.7f));
             m_Weasel = Picture("Weasel", WeaselHole.x, WeaselHole.y, 5f, 4f, new Color(0.72f, 0.5f, 0.3f));
-            m_Splash = Picture("Splash", 0f, DenMap.FloorY(DenFloor.Ground), 10f, 2f, new Color(0.55f, 0.35f, 0.95f));
+            m_Splash = Picture("Splash", 0f, DenMap.FloorY(DenFloor.Ground), 10f, 2f, Art.Hex(0x40a8ff)); // blue raspberry
         }
 
         /// <summary>The visitor's figure, in front of the stations.</summary>
