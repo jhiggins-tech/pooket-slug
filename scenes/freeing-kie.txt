@@ -1,4 +1,4 @@
-// Freeing kie (docs/design/cutscenes.md, Freeing kie), after Trollogram kie is beaten on foot. His glitch-out (the
+// Freeing kie (docs/design/cutscenes/mission-one.md, Freeing kie), after Trollogram kie is beaten on foot. His glitch-out (the
 // design's shot 1) plays in the game itself (Pilot); the scene picks up as the cage of light flickers out and the real
 // kie drops, with his intro. Then the snacks, the release of tones2's tabk (the cargo drone, and its remote handed
 // over), and kie nodding off as the alarms start. It can be skipped once seen. How to write a scene: docs/scenes.md.

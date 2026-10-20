@@ -6,7 +6,7 @@ The game's music: every track and short sting, the style they share, and how the
 
 **Read this when** you're building the music player or writing a track, or a new mission or boss needs music.
 
-Up: [Design](README.md) · Builds on: [the boss intro](cutscenes.md#the-boss-intro) (a mission track, then a faster minor-key boss track), [cutscenes](cutscenes.md#how-every-cutscene-plays) (scenes use the music around them)
+Up: [Design](README.md) · Builds on: [the boss intro](cutscenes/mission-one.md#the-boss-intro) (a mission track, then a faster minor-key boss track), [cutscenes](cutscenes/README.md#how-every-cutscene-plays) (scenes use the music around them)
 
 ## The track list
 
@@ -30,14 +30,14 @@ There are two kinds of music: **loops**, which play under a whole stretch of the
 | **Mission start** | Under the caption card, as the announcer calls the start, leading straight into the mission theme | About 2 s |
 | **Boss victory** | When the tabk is wrecked, leading into the boss theme's final section for the pilot round | About 2 s |
 | **Mission complete** | As MISSION COMPLETE! lands (the gate at the end of the coda), after the boss theme stops | About 3 s |
-| **Rank up** | The RANK UP! stamp in the debrief: the chip fanfare the [first debrief](cutscenes.md#the-first-debrief) calls for | About 2 s |
+| **Rank up** | The RANK UP! stamp in the debrief: the chip fanfare the [first debrief](cutscenes/mission-one.md#the-first-debrief) calls for | About 2 s |
 | **Game over** | When the last continue runs out: a sad descending run that ends on a buzz | About 3 s |
 | **Continue countdown** | Under the CONTINUE? count: a ticking bass note that rises a semitone every second | As long as the offer (9 s, `Tuning.Lives.ContinueSeconds`) |
 | **New crewmate** | When a freed crewmate first joins the crew screen | About 2 s |
 
 ### What has no music of its own
 
-- **Cutscenes** use what's playing around them: the opening is street ambience until the caption card, where the mission start sting and the mission theme kick in ([the opening](cutscenes.md#the-opening)). The motor pool reveal cuts the mission theme and leads into the boss theme ([the motor pool reveal](cutscenes.md#the-motor-pool-reveal)). The boss theme cuts out when the pilot glitches out ([freeing kie](cutscenes.md#freeing-kie)).
+- **Cutscenes** use what's playing around them: the opening is street ambience until the caption card, where the mission start sting and the mission theme kick in ([the opening](cutscenes/mission-one.md#the-opening)). The motor pool reveal cuts the mission theme and leads into the boss theme ([the motor pool reveal](cutscenes/mission-one.md#the-motor-pool-reveal)). The boss theme cuts out when the pilot glitches out ([freeing kie](cutscenes/mission-one.md#freeing-kie)).
 - **The boss intro's siren** is a sound effect, not music: the screen locks, the music cuts, the siren and WARNING! banner play in silence, and the boss theme kicks in on the tabk's first shot.
 - **The coda** depends on a pick (below).
 - **Pause** keeps the track playing, quieter. **Co-op** plays the same music on both phones, each following its own screen, like the sound effects.

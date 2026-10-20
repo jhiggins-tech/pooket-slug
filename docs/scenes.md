@@ -1,7 +1,7 @@
 # Writing the cutscenes
 
 What each scene says and shows (its shots, lines, narrator and timings) is designed in one script,
-[docs/design/cutscenes.md](design/cutscenes.md). The script leads: change a scene there first, then its file here to
+[docs/design/cutscenes/README.md](design/cutscenes/README.md). The script leads: change a scene there first, then its file here to
 match. This page is how a file stages it.
 
 Every cutscene is a text file in `scenes/`, one per scene `SceneLibrary.Names` lists (`coop-test.txt` is the two-phone

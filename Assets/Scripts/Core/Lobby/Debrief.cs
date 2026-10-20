@@ -84,7 +84,7 @@ namespace PooketSlug
     }
 
     /// <summary>
-    /// Mission one's debrief, and every won mission's after it (<c>docs/design/cutscenes.md</c>, The first debrief): the
+    /// Mission one's debrief, and every won mission's after it (<c>docs/design/cutscenes/mission-one.md</c>, The first debrief): the
     /// tally, then the XP, then the rank, then (for players who aren't signed in) the sign-in offer, then CONTINUE.
     /// Each part counts up fast and a tap fills it at once; another tap moves on.
     /// </summary>
@@ -130,7 +130,7 @@ namespace PooketSlug
 
         /// <summary>
         /// What kie says now, or null: the first debrief explains the XP as it counts up, and the sign-in offer asks
-        /// (<c>docs/design/cutscenes.md</c>, The first debrief).
+        /// (<c>docs/design/cutscenes/mission-one.md</c>, The first debrief).
         /// </summary>
         public string KieSays =>
             Now == Part.SignIn ? "SIGN IN SO THIS DOESN'T VANISH." : Result.First && Now == Part.Xp ? "YOU GET XP FOR THAT." : null;

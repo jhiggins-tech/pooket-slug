@@ -1,4 +1,4 @@
-// The Mission two briefing (docs/design/cutscenes.md, The Mission two briefing): the morning after Mission one, the
+// The Mission two briefing (docs/design/cutscenes/mission-two.md, The Mission two briefing): the morning after Mission one, the
 // motor pool's empty, and kcaj's string board, still up in his dark corner of the den's upper floor, points to the
 // creamery. It plays as Mission two starts from the den: solo, or on both phones in co-op. Always tones2 and kie, whoever's picked: they're the only crew free
 // at this point in the story.

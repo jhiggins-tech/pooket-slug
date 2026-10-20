@@ -4,7 +4,7 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// The debrief's flow (<c>docs/design/cutscenes.md</c>, The first debrief): a won run's XP and rank go on the
+    /// The debrief's flow (<c>docs/design/cutscenes/mission-one.md</c>, The first debrief): a won run's XP and rank go on the
     /// profile, and the debrief shows them part by part over the held world. In co-op each phone shows its own player's
     /// (their kills, lives and XP; the score is the shared one), and CONTINUE goes back to the room's den.
     /// </summary>

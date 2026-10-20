@@ -1,4 +1,4 @@
-// kcaj's tabk arrives (docs/design/cutscenes.md, kcaj's tabk arrives): Mission two's reveal, like Mission one's motor
+// kcaj's tabk arrives (docs/design/cutscenes/mission-two.md, kcaj's tabk arrives): Mission two's reveal, like Mission one's motor
 // pool. It plays the first time the players reach the loading yard before the cold store, on both phones in co-op,
 // and it's kcaj's tabk's entrance: the boss intro after it skips the roll-out and goes straight to the warning and
 // the name card. Trollogram kcaj gets his intro as he rises in the hatch. How to write a scene: docs/scenes.md.

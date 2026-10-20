@@ -1,4 +1,4 @@
-// A stand-in for later missions' co-op scenes (docs/design/cutscenes.md, The co-op check), for the two-phone check (?test=scene, CI's co-op test): Mission one is
+// A stand-in for later missions' co-op scenes (docs/design/cutscenes/coop-check.md, The co-op check), for the two-phone check (?test=scene, CI's co-op test): Mission one is
 // single player only, so its own scenes never play in a co-op room. Six plain shots outside the hangout, each held
 // long enough that a phone tapping alone is plainly waiting. CI counts the moves between them, so keep it at six.
 net 63

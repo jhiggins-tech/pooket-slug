@@ -382,7 +382,7 @@ namespace PooketSlug
             {
                 // The reveal (Mission one's motor pool, Mission two's cold store) is the tabk's entrance, so after it the
                 // tabk's in place and the intro goes straight to the banner, the name card and the music, its pilot met in
-                // the scene (docs/design/cutscenes.md, The boss intro). In co-op both phones play it together.
+                // the scene (docs/design/cutscenes/mission-one.md, The boss intro). In co-op both phones play it together.
                 m_BossRevealed = m_World;
                 float playedFor = m_StateTime; // the mission's clock (and its start banner) carry on from where they were
                 bool together = m_Coop && Net.Link.Partners.Count > 0;

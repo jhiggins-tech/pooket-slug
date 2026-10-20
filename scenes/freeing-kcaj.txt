@@ -1,4 +1,4 @@
-// Freeing kcaj (docs/design/cutscenes.md, Freeing kcaj), after Trollogram kcaj is beaten on foot in the creamery's
+// Freeing kcaj (docs/design/cutscenes/mission-two.md, Freeing kcaj), after Trollogram kcaj is beaten on foot in the creamery's
 // loading yard. His glitch-out (the design's shot 1) plays in the game itself (Pilot); the scene picks up as the cold
 // store's doors part and the real kcaj stumbles out, rimed with frost, with his intro. Then the evidence, the cones, and
 // the sticky note. It plays on both phones in co-op, and can be skipped once seen. Always tones2 and kie, whoever's

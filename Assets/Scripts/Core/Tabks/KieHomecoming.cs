@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace PooketSlug
 {
     /// <summary>
-    /// kie's tabk comes home (<c>docs/design/cutscenes.md</c>, kie's tabk comes home): a beat in the tabk bay the first
+    /// kie's tabk comes home (<c>docs/design/cutscenes/den.md</c>, kie's tabk comes home): a beat in the tabk bay the first
     /// time the player walks in once kie's tabk is won (after Mission one), once ever, kept in the profile so it follows a
     /// sign-in; a tap skips it. Three shots, timed here; <see cref="BayFlow"/> plays it and the bay draws it.
     /// <list type="number">

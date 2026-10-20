@@ -126,7 +126,7 @@ namespace PooketSlug
         }
 
         /// <summary>
-        /// On the stage: kcaj's string board, close up (docs/design/cutscenes.md, The Mission two briefing): cork, sticky
+        /// On the stage: kcaj's string board, close up (docs/design/cutscenes/mission-two.md, The Mission two briefing): cork, sticky
         /// notes tied together with red string, and one string off to a photo of the creamery, its giant soft-serve sign
         /// on the roof, with THEY NEED IT COLD scrawled under it.
         /// </summary>
