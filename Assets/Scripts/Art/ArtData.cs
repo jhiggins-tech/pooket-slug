@@ -7,12 +7,17 @@ namespace PooketSlug
     /// </summary>
     public static class ArtData
     {
-        // ---- Character torsos (24x32 canvas, rows start at the given top row) ----
+        // ---- The crew's figure (24x32 canvas, rows start at the given top row): CrewFigure's layers ----
+        // A crewmate is a head (their own: hair, face, hats) under a shared body (the torsos below, arms and gun) on
+        // shared legs. The bodies leave the head's rows blank where it sits: CrewArt draws the head at HeadTop, nudged
+        // as each body frame says (CrewFigure.HeadOn), and the body over it, so an arm can pass in front of the face.
 
-        public const int TorsoForwardTop = 8;
-        public static readonly string[] TorsoForward =
+        /// <summary>The canvas row a head's top sits on, unnudged.</summary>
+        public const int HeadTop = 9;
+
+        /// <summary>The bandana head: anyone without a head of their own (the trooper), facing forward.</summary>
+        public static readonly string[] Head =
         {
-            "........................",
             ".........rrrrr..........",
             "........rrrrrrr.........",
             "......RRrrrrrrr.........",
@@ -20,6 +25,105 @@ namespace PooketSlug
             "........hsssses.........",
             "........hssssss.........",
             ".........SsssS..........",
+        };
+
+        /// <summary>Bowed over their work (repairing): the bandana tipped forward, the eye lowered under a lid, the chin tucked in.</summary>
+        public static readonly string[] HeadDown =
+        {
+            ".........rrrrrr.........",
+            "........rrrrrrrr........",
+            "......RRrrrrrrrr........",
+            ".....R..hhssssss........",
+            "........hssssSss........",
+            "........hsssses.........",
+            ".........SSss...........",
+        };
+
+        /// <summary>tones2's head: short black hair, a combover spiking a little at the front, facing forward.</summary>
+        public static readonly string[] Tones2Head =
+        {
+            "...........u.u..........",
+            ".........uuuuuuu........",
+            "........uuDDDuuuu.......",
+            "........uusssuss........",
+            "........usssses.........",
+            "........sssssss.........",
+            ".........SsssS..........",
+        };
+
+        /// <summary>tones2 bowed over his work.</summary>
+        public static readonly string[] Tones2HeadDown =
+        {
+            "............u.u.........",
+            "..........uuuuuuu.......",
+            ".........uuDDDuuuu......",
+            "........uussssuss.......",
+            "........ussssSss........",
+            "........ssssses.........",
+            ".........SSss...........",
+        };
+
+        /// <summary>kie's head: a black fedora with a band in his colour, facing forward.</summary>
+        public static readonly string[] KieHead =
+        {
+            "..........uuu...........",
+            ".........uDuuu..........",
+            ".........RRRRR..........",
+            "......uuuuuuuuuu........",
+            "........hsssses.........",
+            "........hssssss.........",
+            ".........SsssS..........",
+        };
+
+        /// <summary>kie bowed over his work: the fedora tipped forward.</summary>
+        public static readonly string[] KieHeadDown =
+        {
+            "...........uuu..........",
+            "..........uDuuu.........",
+            "..........RRRRR.........",
+            ".......uuuuuuuuuu.......",
+            "........hssssSss........",
+            "........hsssses.........",
+            ".........SSss...........",
+        };
+
+        /// <summary>kcaj's head: short brown hair and a beard, facing forward.</summary>
+        public static readonly string[] KcajHead =
+        {
+            ".........hhhhh..........",
+            "........hhbhhhh.........",
+            "........hhhsssh.........",
+            "........hhsssss.........",
+            "........hsssses.........",
+            "........hhshhhh.........",
+            ".........hhhhh..........",
+        };
+
+        /// <summary>kcaj bowed over his work.</summary>
+        public static readonly string[] KcajHeadDown =
+        {
+            "..........hhhhh.........",
+            ".........hhbhhhh........",
+            "........hhhhsssh........",
+            "........hhssssss........",
+            "........hssssSss........",
+            "........hhhshhh.........",
+            ".........hhhh...........",
+        };
+
+        // ---- The shared bodies ----
+
+        public const int TorsoForwardTop = 8;
+        public static readonly string[] TorsoForward =
+        {
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
             "........cgggggc.........",
             ".......ccgggggcsmmmmmmm.",
             ".......cCgGgggCsMMMmMM..",
@@ -34,13 +138,13 @@ namespace PooketSlug
         public static readonly string[] TorsoUnarmed =
         {
             "........................",
-            ".........rrrrr..........",
-            "........rrrrrrr.........",
-            "......RRrrrrrrr.........",
-            ".....R..hhsssss.........",
-            "........hsssses.........",
-            "........hssssss.........",
-            ".........SsssS..........",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
             "........cgggggc.........",
             ".......ccgggggcc........",
             ".......cCgGgggCc........",
@@ -53,13 +157,13 @@ namespace PooketSlug
         public static readonly string[] TorsoPad =
         {
             "........................",
-            ".........rrrrr..........",
-            "........rrrrrrr.........",
-            "......RRrrrrrrr.........",
-            ".....R..hhsssss.........",
-            "........hsssses.........",
-            "........hssssss.........",
-            ".........SsssS..........",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
             "........cgggggc.........",
             ".......ccgggggccc.......",
             ".......cCgGgggCCcss.....",
@@ -72,18 +176,96 @@ namespace PooketSlug
         public static readonly string[] TorsoLounge =
         {
             "........................",
-            ".........rrrrr..........",
-            "........rrrrrrr.........",
-            "......RRrrrrrrr.........",
-            ".....csshhsssss.........",
-            ".....cc.hsssses.........",
-            ".....cc.hssssss.........",
-            "......cc.SsssS..........",
+            "........................",
+            "........................",
+            "........................",
+            ".....css................",
+            ".....cc.................",
+            ".....cc.................",
+            "......cc................",
             ".......ccgggggc.........",
             "........cgggggc.........",
             "........gGgggg..........",
             "........gGgggg..........",
             "........gGgggg..........",
+            "........bbbybb..........",
+        };
+
+        // ---- Shared moves (the same canvas and rows as TorsoForward) ----
+
+        /// <summary>Repairing a tabk, crouched (<see cref="CrewFigure.Repair"/>): the wrench raised high, the back hand braced on the hull.</summary>
+        public static readonly string[] Repair1 =
+        {
+            "........................",
+            ".................m.m....",
+            ".................mmm....",
+            "..................M.....",
+            "..................M.....",
+            "..................s.....",
+            ".................c......",
+            "................c.......",
+            "........cgggggcc........",
+            ".......ccgggggcc........",
+            ".......cCgGgggCc........",
+            ".......cgGggggC.........",
+            "........gGggggCs........",
+            "........bbbybb..........",
+        };
+
+        /// <summary>Repairing: the wrench coming down.</summary>
+        public static readonly string[] Repair2 =
+        {
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........cgggggc...m.m...",
+            ".......ccgggggccc.mmm...",
+            ".......cCgGgggCcsM......",
+            ".......cgGggggC.........",
+            "........gGggggCs........",
+            "........bbbybb..........",
+        };
+
+        /// <summary>Repairing: the wrench on the bolt, with sparks.</summary>
+        public static readonly string[] Repair3 =
+        {
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........cgggggc.........",
+            ".......ccgggggcc........",
+            ".......cCgGgggCcc.......",
+            ".......cgGggggC.cs...mmx",
+            "........gGggggCs.sMMm...",
+            "........bbbybb.......mmx",
+        };
+
+        /// <summary>Repairing: the wrench going back up.</summary>
+        public static readonly string[] Repair4 =
+        {
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "..................m.m...",
+            "..................mmm...",
+            "..................M.....",
+            "........cgggggc..sM.....",
+            ".......ccgggggccs.......",
+            ".......cCgGgggCc........",
+            ".......cgGggggC.........",
+            "........gGggggCs........",
             "........bbbybb..........",
         };
 
@@ -99,13 +281,13 @@ namespace PooketSlug
             "...............mM.......",
             "...............mMM......",
             "...............mM.......",
-            ".........rrrrr.mM.......",
-            "........rrrrrrrmM.......",
-            "......RRrrrrrrrsM.......",
-            ".....R..hhssssssM.......",
-            "........hsssses.M.......",
-            "........hssssssC........",
-            ".........SsssScC........",
+            "...............mM.......",
+            "...............mM.......",
+            "...............sM.......",
+            "...............sM.......",
+            "................M.......",
+            "...............C........",
+            "..............cC........",
             "........cgggggc.........",
             ".......ccgggggc.........",
             ".......cCgGgggC.........",
@@ -118,13 +300,13 @@ namespace PooketSlug
         public static readonly string[] TorsoDown =
         {
             "........................",
-            ".........rrrrr..........",
-            "........rrrrrrr.........",
-            "......RRrrrrrrr.........",
-            ".....R..hhsssss.........",
-            "........hsssses.........",
-            "........hssssss.........",
-            ".........SsssS..........",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
             "........cgggggc.........",
             ".......ccgggggcc........",
             ".......cCgGgggCc........",
@@ -145,13 +327,13 @@ namespace PooketSlug
         public static readonly string[] TorsoUpDiag =
         {
             "........................",
-            ".........rrrrr.......mm.",
-            "........rrrrrrr.....mM..",
-            "......RRrrrrrrr....mM...",
-            ".....R..hhsssss...mM....",
-            "........hsssses..mM.....",
-            "........hssssss.mM......",
-            ".........SsssS.mMM......",
+            ".....................mm.",
+            "....................mM..",
+            "...................mM...",
+            "..................mM....",
+            ".................mM.....",
+            "................mM......",
+            "...............mMM......",
             "........cgggggsM........",
             ".......ccgggggcs........",
             ".......cCgGgggC.........",
@@ -165,13 +347,13 @@ namespace PooketSlug
         public static readonly string[] TorsoDownDiag =
         {
             "........................",
-            ".........rrrrr..........",
-            "........rrrrrrr.........",
-            "......RRrrrrrrr.........",
-            ".....R..hhsssss.........",
-            "........hsssses.........",
-            "........hssssss.........",
-            ".........SsssS..........",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
             "........cgggggc.........",
             ".......ccgggggcc........",
             ".......cCgGgggCsM.......",

@@ -309,8 +309,8 @@ namespace PooketSlug
                 m_TeamShownLeft = show.Fired;
                 m_TeamLeft.color = CardColour(show.Fired);
                 m_TeamRight.color = CardColour(show.Partner);
-                m_TeamLeftPic.sprite = Art.SkinFor(show.Fired, 0).TorsoForward;
-                m_TeamRightPic.sprite = Art.SkinFor(show.Partner, 1).TorsoForward;
+                m_TeamLeftPic.sprite = Art.SkinFor(show.Fired, 0).Portrait;
+                m_TeamRightPic.sprite = Art.SkinFor(show.Partner, 1).Portrait;
                 m_TeamRightPic.rectTransform.localScale = new Vector3(-1f, 1f, 1f); // facing the presser
                 m_TeamLeftName.text = show.Fired.Name.ToUpperInvariant();
                 m_TeamRightName.text = show.Partner.Name.ToUpperInvariant();

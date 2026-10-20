@@ -109,14 +109,13 @@ namespace PooketSlug
             Ui.Show(Legs, pose.Legs != StageLegs.Hidden);
             switch (pose.Legs)
             {
-                case StageLegs.Walk: Legs.sprite = skin.LegsRun[pose.WalkFrame(skin.LegsRun.Length)]; break;
-                case StageLegs.Crouch: Legs.sprite = skin.LegsCrouch; break;
-                case StageLegs.Sit: Legs.sprite = skin.LegsSit; break;
-                case StageLegs.Jump: Legs.sprite = skin.LegsJump; break;
-                default: Legs.sprite = skin.LegsIdle; break;
+                case StageLegs.Walk: Legs.sprite = skin.RunLegs(pose.WalkFrame(4)); break;
+                case StageLegs.Crouch: Legs.sprite = skin.Legs(CrewLegs.Crouch); break;
+                case StageLegs.Sit: Legs.sprite = skin.Legs(CrewLegs.Sit); break;
+                case StageLegs.Jump: Legs.sprite = skin.Legs(CrewLegs.Jump); break;
+                default: Legs.sprite = skin.Legs(CrewLegs.Idle); break;
             }
-            Torso.sprite = pose.Torso == StageTorso.Unarmed ? skin.TorsoUnarmed : pose.Torso == StageTorso.Lounge ? skin.TorsoLounge
-                : pose.Torso == StageTorso.Pad ? skin.TorsoPad : skin.TorsoForward;
+            Torso.sprite = skin.Body(pose.Body);
             Torso.rectTransform.anchoredPosition = new Vector2(pose.TorsoX, pose.TorsoY) * m_Scale;
         }
 

@@ -55,7 +55,7 @@ namespace PooketSlug
         public int Shot => T < Shot2 ? 1 : T < Shot3 ? 2 : 3;
 
         /// <summary>Sparks under the crane, crackling on and off, through the first shot.</summary>
-        public bool Sparking => T < Shot2 && (int)(T * 5f) % 3 != 2;
+        public bool Sparking => T < Shot2 && Fx.Step(T, 5f, 3) != 2;
 
         /// <summary>The weasel's spanner held up (before the hand takes it), and the cone handed back.</summary>
         public bool Spanner => T >= SpannerFrom && T < SpannerTaken;

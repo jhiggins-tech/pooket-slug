@@ -74,17 +74,8 @@ namespace PooketSlug
         }
     }
 
-    /// <summary>The sprite set for one playable soldier (palette-swapped per player).</summary>
-    public sealed class PlayerSkin
-    {
-        public Sprite TorsoForward, TorsoUp, TorsoDown, TorsoUpDiag, TorsoDownDiag, LegsIdle, LegsJump, LegsCrouch;
-        /// <summary>Off duty, in the den: no gun (standing, gaming, lounging), and sitting on the couch.</summary>
-        public Sprite TorsoUnarmed, TorsoPad, TorsoLounge, LegsSit;
-        public Sprite[] LegsRun;
-    }
-
     /// <summary>Builds every sprite in the game procedurally at startup (no imported assets).</summary>
-    public static class Art
+    public static partial class Art
     {
         public const float PPU = Tuning.Pixels.PerUnit;
         public static readonly Color32 OutlineColor = Hex(0x1c1420);
@@ -166,15 +157,15 @@ namespace PooketSlug
             });
 
             Vector2 feet = new Vector2(0.5f, 0f);
-            PlayerSkins = new[] { BuildSkin(s_Pal), BuildSkin(player2) };
+            PlayerSkins = new[] { BuildSkin(CrewLook.Shared, s_Pal), BuildSkin(CrewLook.Shared, player2) };
             foreach (CrewMember m in Crew.All)
             {
                 var skins = new PlayerSkin[m.Paint.Count];
-                for (int k = 0; k < skins.Length; k++) skins[k] = BuildSkin(Swap(m.Paint[k]));
+                for (int k = 0; k < skins.Length; k++) skins[k] = BuildSkin(CrewArt.LookOf(m.Soldier), Swap(m.Paint[k]));
                 s_CrewSkins[m.Soldier] = skins;
             }
-            SoldierTorso = Part(ArtData.TorsoForward, ArtData.TorsoForwardTop, soldier);
-            RunnerTorso = Part(ArtData.TorsoForward, ArtData.TorsoForwardTop, runner);
+            SoldierTorso = Figure(CrewLook.Shared, CrewBody.Forward, soldier);
+            RunnerTorso = Figure(CrewLook.Shared, CrewBody.Forward, runner);
 
             string[][] run = { ArtData.LegsRun1, ArtData.LegsRun2, ArtData.LegsRun3, ArtData.LegsRun4 };
             SoldierLegsRun = new Sprite[4];
@@ -243,29 +234,6 @@ namespace PooketSlug
         }
 
         static Vector2 Center => new Vector2(0.5f, 0.5f);
-
-        static PlayerSkin BuildSkin(Dictionary<char, Color32> pal)
-        {
-            string[][] run = { ArtData.LegsRun1, ArtData.LegsRun2, ArtData.LegsRun3, ArtData.LegsRun4 };
-            var skin = new PlayerSkin
-            {
-                TorsoForward = Part(ArtData.TorsoForward, ArtData.TorsoForwardTop, pal),
-                TorsoUp = Part(ArtData.TorsoUp, ArtData.TorsoUpTop, pal),
-                TorsoDown = Part(ArtData.TorsoDown, ArtData.TorsoDownTop, pal),
-                TorsoUpDiag = Part(ArtData.TorsoUpDiag, ArtData.TorsoUpDiagTop, pal),
-                TorsoDownDiag = Part(ArtData.TorsoDownDiag, ArtData.TorsoDownDiagTop, pal),
-                LegsIdle = Part(ArtData.LegsIdle, ArtData.LegsTop, pal),
-                LegsJump = Part(ArtData.LegsJump, ArtData.LegsTop, pal),
-                LegsCrouch = Part(ArtData.LegsCrouch, ArtData.LegsCrouchTop, pal),
-                TorsoUnarmed = Part(ArtData.TorsoUnarmed, ArtData.TorsoForwardTop, pal),
-                TorsoPad = Part(ArtData.TorsoPad, ArtData.TorsoForwardTop, pal),
-                TorsoLounge = Part(ArtData.TorsoLounge, ArtData.TorsoForwardTop, pal),
-                LegsSit = Part(ArtData.LegsSit, ArtData.LegsSitTop, pal),
-                LegsRun = new Sprite[4],
-            };
-            for (int i = 0; i < 4; i++) skin.LegsRun[i] = Part(run[i], ArtData.LegsTop, pal);
-            return skin;
-        }
 
         /// <summary>A pickup's sprite.</summary>
         public static Sprite PickupSprite(PickupDef def) => s_Pickups[def.Id];

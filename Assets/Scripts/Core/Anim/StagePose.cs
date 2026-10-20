@@ -1,12 +1,12 @@
-// How a soldier on a stage stands (a cutscene, the den, the bay, a den beat, the debrief): which legs and which top,
-// where in their walk, and the top's nudge. Every screen poses its figures through this, and StageFigure draws it.
+// How a soldier on a stage stands (a cutscene, the den, the bay, a den beat, the debrief): which legs and which top
+// (a frame of the crew's figure, CrewFigure), where in their walk, and the top's nudge. Every screen poses its figures through this, and StageFigure draws it.
 namespace PooketSlug
 {
     /// <summary>A stage soldier's legs.</summary>
     public enum StageLegs { Idle, Walk, Crouch, Sit, Jump, Hidden }
 
-    /// <summary>A stage soldier's top half: facing the camera (with their gun), off duty, lounging, or holding a pad.</summary>
-    public enum StageTorso { Forward, Unarmed, Lounge, Pad }
+    /// <summary>A stage soldier's top half: facing the camera (with their gun), off duty, lounging, holding a pad, or repairing.</summary>
+    public enum StageTorso { Forward, Unarmed, Lounge, Pad, Repair }
 
     /// <summary>A stage soldier's pose: legs, top, where in the walk, and how far the top's nudged (art pixels).</summary>
     public struct StagePose
@@ -40,12 +40,33 @@ namespace PooketSlug
             return p;
         }
 
+        /// <summary>Crouched over a tabk with a wrench, <paramref name="t"/> seconds into the crew's repair (<see cref="CrewFigure.Repair"/>).</summary>
+        public static StagePose Repairing(float t) =>
+            new StagePose(StageLegs.Crouch, StageTorso.Repair, 0f, CrewFigure.Repair.Lift(t)) { WalkT = t };
+
+        /// <summary>The crew figure's body frame the top shows (repairing steps through its clip, <see cref="WalkT"/> seconds in).</summary>
+        public CrewBody Body
+        {
+            get
+            {
+                switch (Torso)
+                {
+                    case StageTorso.Unarmed: return CrewBody.Unarmed;
+                    case StageTorso.Lounge: return CrewBody.Lounge;
+                    case StageTorso.Pad: return CrewBody.Pad;
+                    case StageTorso.Repair: return CrewFigure.Repair.Body(WalkT, CrewBody.Forward);
+                    default: return CrewBody.Forward;
+                }
+            }
+        }
+
         /// <summary>The walk's frame, of <paramref name="frames"/>.</summary>
         public int WalkFrame(int frames) => new Clip("walk", frames, WalkFps).Frame(WalkT);
 
         /// <summary>
         /// A cutscene's pose by its name in the scene files: <c>run</c>, <c>crouch</c>, <c>spray</c> (the top leans into
-        /// the spray), <c>hatch</c> (just their top half, in a tabk's hatch); anything else stands.
+        /// the spray), <c>hatch</c> (just their top half, in a tabk's hatch), <c>repair</c> (crouched, working a wrench);
+        /// anything else stands.
         /// </summary>
         public static StagePose Cutscene(string pose, float t, float runFps)
         {
@@ -56,6 +77,7 @@ namespace PooketSlug
                 case "crouch": p.Legs = StageLegs.Crouch; break;
                 case "spray": p.TorsoX = -1f; break;
                 case "hatch": p.Legs = StageLegs.Hidden; break;
+                case "repair": return Repairing(t);
             }
             return p;
         }

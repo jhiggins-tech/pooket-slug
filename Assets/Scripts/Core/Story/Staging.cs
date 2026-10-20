@@ -142,7 +142,7 @@ namespace PooketSlug
         public static readonly string[] Common = { "show", "hide", "at", "move", "turn", "size", "colour", "fade", "flicker", "blink", "shake", "on" };
         /// <summary>The verbs the soldiers have besides.</summary>
         public static readonly string[] FigureVerbs = { "walk", "face", "pose", "look", "holds", "sway" };
-        public static readonly string[] Poses = { "idle", "run", "crouch", "spray", "hatch" };
+        public static readonly string[] Poses = { "idle", "run", "crouch", "spray", "hatch", "repair" };
         public static readonly string[] Looks = { "plain", "holo", "trollo" };
 
         /// <summary>Colours by name; anything else is written #rrggbb or #rrggbbaa.</summary>
@@ -317,7 +317,7 @@ namespace PooketSlug
             StageStep sway = Latest(thing, t, "sway");
             if (sway != null && (!sway.Window || t < sway.To)) at.x += Mathf.Round(Mathf.Sin(t * 3f) * 1.4f);
             StageStep shake = Latest(thing, t, "shake");
-            if (shake != null && (!shake.Window || t < shake.To)) at.x += (int)(now * 20f) % 2 * (shake.N.Length > 0 ? shake.N[0] : 1f);
+            if (shake != null && (!shake.Window || t < shake.To)) at.x += Fx.SceneShake.On(now) ? 0f : shake.N.Length > 0 ? shake.N[0] : 1f;
             return at;
         }
 

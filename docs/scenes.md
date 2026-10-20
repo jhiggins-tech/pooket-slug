@@ -95,7 +95,7 @@ A thing is on stage once a line stages it (or `show` names it), until `hide`.
 | `on` | `stars on kie 0 22`: rides on a soldier |
 
 **Soldiers also**: `walk` (`0-1 kie walk 100 166`: they run), `face left` / `right`, `pose idle run crouch spray
-hatch`, `look plain holo trollo`, `holds bag cup` (or `holds bag -7 9` for where), `sway`. The goon also `appear`s
+hatch repair`, `look plain holo trollo`, `holds bag cup` (or `holds bag -7 9` for where), `sway`. The goon also `appear`s
 (over a window) and `glitch-out`s.
 
 **Effects' own verbs**: `chips burst 66` / `spill 66`; `jet spray 66 168` (over a window); `shutter open` (over a
