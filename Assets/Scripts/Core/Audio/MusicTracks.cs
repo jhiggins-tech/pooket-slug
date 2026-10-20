@@ -46,11 +46,18 @@ namespace PooketSlug
         /// <summary>
         /// The recording that loops behind a menu screen: the den's theme in the den, the title theme on the splash and the
         /// settings over it, and none anywhere else (cutscenes, missions and the debrief have their own music, or none).
+        /// While one of the den's beats plays as you come back (the first visit, a crewmate moving in), its theme waits till
+        /// the beat's over (the owner, 20 Oct).
         /// </summary>
-        public static string MenuRecording(bool splash, bool den) => den ? DenRecording : splash ? TitleRecording : null;
+        public static string MenuRecording(bool splash, bool den, bool beat = false) =>
+            den ? (beat ? null : DenRecording) : splash ? TitleRecording : null;
 
         /// <summary>How loud a recording plays, against the title theme: the den's is background music, so about half.</summary>
         public static float Level(string recording) => recording == DenRecording ? 0.5f : 1f;
+
+        /// <summary>How long a recording fades in as it starts: the den's theme comes up gently (Jack, 20 Oct), the title's at once.</summary>
+        public static float FadeIn(string recording) => recording == DenRecording ? DenFadeIn : 0f;
+        public const float DenFadeIn = 3f;
 
         /// <summary>How far the den's theme dips while a menu (the kit screen, the mission screen) is open over the den.</summary>
         public const float MenuDip = 0.6f;

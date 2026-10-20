@@ -83,7 +83,7 @@ Picked by the owner on 2026-10-18 (Roadmap item start-music): **Lyria 3 take D**
 
 ## The den's theme
 
-Picked by the owner on 2026-10-19 (den-theme-music): **B, the console-shop bossa, take 2**, full length, cut to a 170 s seamless loop (`den.wav` in the vendor repository's `den-music` release). It's background music: it plays at about half the title theme's level, and dips a little more (to 60%, fading) while the kit screen or the mission screen is open over the den. The title theme stays on the splash; going between them, one fades out before the other starts. The debrief keeps its own loop, and cutscenes have none of the den's (built: den-theme-switch, 2026-10-19; `MusicTracks.MenuRecording`, `MusicFlow.Menus`).
+Picked by the owner on 2026-10-19 (den-theme-music): **B, the console-shop bossa, take 2**, full length, cut to a 170 s seamless loop (`den.wav` in the vendor repository's `den-music` release). It's background music: it plays at about half the title theme's level, and dips a little more (to 60%, fading) while the kit screen or the mission screen is open over the den. The title theme stays on the splash; going between them, one fades out before the other starts. The debrief keeps its own loop, and cutscenes have none of the den's (built: den-theme-switch, 2026-10-19; `MusicTracks.MenuRecording`, `MusicFlow.Menus`). While one of the den's beats plays as you come back (the first visit, a crewmate moving in), the den is quiet, the debrief's loop fading out, and its theme starts once the beat's over or skipped, fading in over 3 s (the owner, 2026-10-20; den-music-after-cutscene).
 
 ## Open questions
 
