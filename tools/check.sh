@@ -47,9 +47,9 @@ if [ ! -f "$K/VERSION" ]; then
 fi
 D=$K/Data
 
-# The Photon SDK, as CI unpacks it (the tag, file and checksum come from the workflow, so they never disagree).
+# The Photon SDK, as CI unpacks it (the tag, file and checksum come from CI's unity-project action, so they never disagree).
 if ! find Assets/Photon -name '*.dll' -print -quit 2>/dev/null | grep -q .; then
-  wf=.github/workflows/webgl-pages.yml
+  wf=.github/actions/unity-project/action.yml
   get() { sed -n "s/^ *$1: //p" "$wf" | head -1; }
   tag=$(get FUSION_TAG); file=$(get FUSION_FILE); sum=$(get FUSION_SHA256)
   echo "Downloading the Photon SDK ($file, once)..."
