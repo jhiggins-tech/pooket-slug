@@ -43,7 +43,7 @@ namespace PooketSlug
             string playing = Music.Recording;
             bool ours = playing == MusicTracks.TitleRecording || playing == MusicTracks.DenRecording;
             if (ours && playing != want) Music.Stop(fade: true);
-            else if (want != null && !Music.Fading) Music.Loop(want); // over the debrief's loop too, back in the den
+            else if (want != null && !Music.Fading) Music.Loop(want, MusicTracks.FadeIn(want)); // over the debrief's loop too, back in the den
         }
 
         /// <summary>A mission starting (or restarting, or joined in co-op): the start sting, then the mission's theme.</summary>

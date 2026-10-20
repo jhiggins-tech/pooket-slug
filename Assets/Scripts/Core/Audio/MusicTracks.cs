@@ -55,6 +55,10 @@ namespace PooketSlug
         /// <summary>How loud a recording plays, against the title theme: the den's is background music, so about half.</summary>
         public static float Level(string recording) => recording == DenRecording ? 0.5f : 1f;
 
+        /// <summary>How long a recording fades in as it starts: the den's theme comes up gently (Jack, 20 Oct), the title's at once.</summary>
+        public static float FadeIn(string recording) => recording == DenRecording ? DenFadeIn : 0f;
+        public const float DenFadeIn = 3f;
+
         /// <summary>How far the den's theme dips while a menu (the kit screen, the mission screen) is open over the den.</summary>
         public const float MenuDip = 0.6f;
 

@@ -33,6 +33,8 @@ namespace PooketSlug
         static float s_DuckFor, s_Duck = 1f;
         /// <summary>The recording's own level (<see cref="MusicTracks.Level"/>), and the dip under a menu: wanted and as it stands.</summary>
         static float s_Level = 1f, s_DipTo = 1f, s_Dip = 1f;
+        /// <summary>A fade in after <see cref="Loop"/>: how long it takes (0: none) and how far it's got, in seconds.</summary>
+        static float s_InFor, s_In;
         /// <summary>How fast a menu's dip goes down and comes back.</summary>
         const float DipSpeed = 1.6f;
 
@@ -154,6 +156,7 @@ namespace PooketSlug
             s_Loop.Stop();
             s_Loop.clip = clip;
             s_Mix = 0f;
+            s_InFor = 0f;
             s_CrossIn = -1f;
             if (s_Layer != null)
             {
@@ -174,7 +177,7 @@ namespace PooketSlug
         /// Loops the recording <c>Resources/Music/&lt;id&gt;.bytes</c> on its own, from the start (a seamless loop, like the
         /// title theme), unless it's already playing. Nothing plays in a build without it.
         /// </summary>
-        public static void Loop(string id)
+        public static void Loop(string id, float fadeIn = 0f)
         {
             if (s_Loop == null || s_Recording == id && s_Loop.isPlaying && s_Fade < 0f) return;
             AudioClip clip = Layer(id);
@@ -185,6 +188,8 @@ namespace PooketSlug
             s_Fade = -1f;
             s_CrossIn = -1f;
             s_Mix = 0f;
+            s_InFor = fadeIn;
+            s_In = 0f;
             if (s_Layer != null) s_Layer.Stop();
             s_Loop.Stop();
             s_Loop.clip = clip;
@@ -240,6 +245,7 @@ namespace PooketSlug
             float duck = s_DuckFor > 0f || Sfx.Speaking ? DuckedTo : 1f;
             s_Duck = Mathf.MoveTowards(s_Duck, duck, (duck < s_Duck ? DuckDown : DuckUp) * dt);
             s_Dip = Mathf.MoveTowards(s_Dip, s_DipTo, DipSpeed * dt);
+            if (s_InFor > 0f && (s_In += dt) >= s_InFor) s_InFor = 0f;
             if (s_CrossIn >= 0f)
             {
                 float was = s_CrossIn;
@@ -264,12 +270,12 @@ namespace PooketSlug
             ApplyVolume();
         }
 
-        /// <summary>The track's and its layer's volumes, from pause, any fade out and the crossfade.</summary>
+        /// <summary>The track's and its layer's volumes, from pause, any fade in or out and the crossfade.</summary>
         static void ApplyVolume()
         {
             if (s_Loop == null) return;
             float level = (s_Paused ? PausedVolume : Volume) * s_Duck * s_Gain;
-            float v = level * s_Level * s_Dip * (s_Fade >= 0f ? s_Fade / FadeTime : 1f);
+            float v = level * s_Level * s_Dip * (s_Fade >= 0f ? s_Fade / FadeTime : 1f) * (s_InFor > 0f ? s_In / s_InFor : 1f);
             s_Loop.volume = v * (1f - s_Mix);
             if (s_Layer != null) s_Layer.volume = v * s_Mix;
             if (s_Sting != null) s_Sting.volume = level;

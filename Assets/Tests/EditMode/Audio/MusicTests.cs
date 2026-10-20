@@ -11,6 +11,8 @@ namespace PooketSlug.Tests
             Assert.AreEqual(MusicTracks.TitleRecording, MusicTracks.MenuRecording(splash: true, den: false));
             Assert.IsNull(MusicTracks.MenuRecording(splash: false, den: false), "cutscenes, missions, the debrief");
             Assert.IsNull(MusicTracks.MenuRecording(splash: false, den: true, beat: true), "the den's theme waits for its beat");
+            Assert.That(MusicTracks.FadeIn(MusicTracks.DenRecording), Is.GreaterThanOrEqualTo(2f).And.LessThanOrEqualTo(5f), "the den's theme fades in over a few seconds");
+            Assert.AreEqual(0f, MusicTracks.FadeIn(MusicTracks.TitleRecording), "the title's starts at once");
             Assert.AreEqual(0.5f, MusicTracks.Level(MusicTracks.DenRecording) / MusicTracks.Level(MusicTracks.TitleRecording), 1e-4f, "about half");
             Assert.That(MusicTracks.MenuDip, Is.GreaterThan(0.3f).And.LessThan(1f), "a little quieter, not gone");
         }
