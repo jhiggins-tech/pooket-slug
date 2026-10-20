@@ -4,24 +4,24 @@ namespace PooketSlug
 {
     /// <summary>
     /// The art of the coda's gates (<c>docs/design/story.md</c>, The coda): the shutter of the motor pool's back gate
-    /// that grinds open once kie's freed (<see cref="BackGate"/>), and the base's last gate (<see cref="ExitGate"/>)
-    /// with the rubble it leaves when smashed. The watchtower (<see cref="ToppleTower"/>) and kie asleep against the
+    /// that grinds open once kie's freed (<see cref="BackGate"/>), and the base's last gate (<see cref="ExitGate"/>, Design's sprite in
+    /// <see cref="ExitGateArt"/>) with the rubble it leaves when smashed. The watchtower (<see cref="ToppleTower"/>) and kie asleep against the
     /// wall (<see cref="SleepingKie"/>) draw their own. Mission one is single player only, so none of them is shared
     /// over the network.
     /// </summary>
     static class CodaArt
     {
-        static Sprite s_Gate, s_Exit, s_Rubble;
+        static Sprite s_Gate, s_Rubble;
 
         static readonly Color32 Steel = Art.Hex(0x5a6478), SteelDark = Art.Hex(0x2e3444), SteelLight = Art.Hex(0x8a96aa);
-        static readonly Color32 Hazard = Art.Hex(0xf0c030), HazardDark = Art.Hex(0x24242c), Red = Art.Hex(0xd83838);
+        static readonly Color32 Hazard = Art.Hex(0xf0c030), HazardDark = Art.Hex(0x24242c);
         static readonly Color32 Snow = Art.Hex(0xf4f8ff), Ink = Art.OutlineColor;
 
         /// <summary>The back gate: a narrow blast shutter, hazard-striped, 1.5 tiles wide and 4 tall.</summary>
-        public static Sprite BackGate => s_Gate != null ? s_Gate : s_Gate = Shutter(24, 64, false);
+        public static Sprite BackGate => s_Gate != null ? s_Gate : s_Gate = Shutter(24, 64);
 
-        /// <summary>The last gate: a heavier shutter with EXIT lamps, 2 tiles wide and 4 tall.</summary>
-        public static Sprite ExitGate => s_Exit != null ? s_Exit : s_Exit = Shutter(32, 64, true);
+        /// <summary>The last gate: Design's blue shutter with its painted arrow (<see cref="ExitGateArt"/>), 4 tiles tall.</summary>
+        public static Sprite ExitGate => ExitGateArt.Gate;
 
         /// <summary>What's left of a smashed gate: a heap of bent slats.</summary>
         public static Sprite Rubble
@@ -42,7 +42,7 @@ namespace PooketSlug
             }
         }
 
-        static Sprite Shutter(int w, int h, bool exit)
+        static Sprite Shutter(int w, int h)
         {
             var c = new PixelCanvas(w, h);
             c.Rect(0, 0, w, h, Ink);
@@ -57,13 +57,6 @@ namespace PooketSlug
                     c.Set(x, y, ((x + y) / 3) % 2 == 0 ? Hazard : HazardDark); // a hazard-striped kick plate
             c.Rect(1, h - 6, w - 2, 5, SteelDark);
             c.Rect(1, h - 2, w - 2, 1, Snow);
-            if (exit)
-            {
-                c.Rect(4, h - 5, 4, 3, Red);
-                c.Rect(w - 8, h - 5, 4, 3, Red);
-                c.Rect(w / 2 - 6, h / 2, 12, 5, HazardDark);
-                c.Rect(w / 2 - 5, h / 2 + 1, 10, 3, Hazard); // EXIT, at this size a bright plate
-            }
             return Art.ToSprite(c, new Vector2(0.5f, 0f), withFlash: true);
         }
     }

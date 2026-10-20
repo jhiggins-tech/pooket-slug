@@ -69,7 +69,7 @@ Each file starts with a summary comment saying what it's for.
 | `Enemies/` | `Enemies` (`Enemy` and the goons: `Rifleman`, `Runner`, `Drone`), `CreameryGoons` (`ShieldSoldier`, `Grenadier`), `BigScoop` (Mission two's miniboss), `HoloLook` (Trollogram goons), `Weasels`, `Pilot` (a boss's Trollogram pilot on foot, playing a crewmate's kit: `KiePilot` with `PilotDecoy`, `KcajPilot`) |
 | `Bosses/` | `TankBoss` (the artillery boss tabk) + `BossKit` (a crew member's attacks on it: `KieBoss`, `KcajBoss`), `HostilePills` (kcaj's pill rain, from his tabk or his pilot), `CraterView` (the diggable arena spike) |
 | `Tabks/` | `PlayerTank` (your tabk) + `TankLook`, `TabkKit` (a crew member's tabk: its look, gun pivot and guns) |
-| `Missions/One/` | Mission one's own pieces: the coda's `BackGate`, `ToppleTower` (the watchtower in the road), `ExitGate` and `SleepingKie`, drawn by `CodaArt` |
+| `Missions/One/` | Mission one's own pieces: the coda's `BackGate`, `ToppleTower` (the watchtower in the road), `ExitGate` (Design's sprite: `ExitGateArt`) and `SleepingKie`, drawn by `CodaArt` |
 | `Missions/Two/` | Mission two's (the creamery): `CreameryHazards` (belt treads, nitrogen vents, scoop droppers, the cold store's doors, the corridor's `FogBank`), `ConeBox`, `Projector` (a Trollogram projector: shot out, its goons go), drawn by `CreameryArt`; the nitrogen tank is a `Barrel`, and `FrostLook` (in `World/`) is the ice on whoever's frozen |
 | `Stage/` | `StageKit`: the shared stage for cutscenes, the den and the debrief |
 | `Art/`, `Audio/` | `Art` + `ArtData` (ASCII pixel art; `Art.Renderer` makes a sprite's child object); `Sfx` + `ChipSounds`, `Music` |
