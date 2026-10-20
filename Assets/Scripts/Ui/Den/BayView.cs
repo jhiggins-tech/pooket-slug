@@ -31,7 +31,7 @@ namespace PooketSlug
         readonly Image m_Lift, m_LiftEdge, m_GaugeFill, m_Spark, m_Drone, m_Cable, m_Hook, m_Nozzle;
         readonly Image[] m_Hose = new Image[HoseDots], m_Lights = new Image[2];
         readonly StageFigure m_Soldier;
-        readonly Text m_Hint, m_Note, m_CardName, m_CardGuns, m_CardRounds, m_CardNote, m_TakeLabel, m_Loaded;
+        readonly Text m_Hint, m_Note, m_CardName, m_CardGuns, m_CardRounds, m_TakeLabel, m_Loaded;
         readonly Button m_Take;
         readonly Dictionary<TabkCard, Image> m_Bodies = new Dictionary<TabkCard, Image>();
         readonly System.Random m_Rng = new System.Random();
@@ -97,7 +97,6 @@ namespace PooketSlug
             m_CardGuns.rectTransform.sizeDelta = new Vector2(124f, 52f);
             m_CardRounds = Ui.Label(m_Card, "Rounds", Ui.TopCenter, new Vector2(70f, -34f), 11, TextAnchor.UpperRight, Gold);
             m_CardRounds.rectTransform.sizeDelta = new Vector2(30f, 52f);
-            m_CardNote = Ui.Label(m_Card, "Note", Ui.Middle, new Vector2(0f, -24f), 8, TextAnchor.MiddleCenter, new Color(1f, 1f, 1f, 0.55f));
             m_Take = Ui.Button(m_Card, "TAKE IT", new Vector2(0f, -48f), new Vector2(110f, 26f), () => m_TakePressed = true, out Text takeKey);
             takeKey.text = "ENTER";
             m_TakeLabel = m_Take.GetComponentInChildren<Text>();
@@ -335,8 +334,6 @@ namespace PooketSlug
             }
             m_CardGuns.text = guns;
             m_CardRounds.text = rounds;
-            // the owner's call while tabk select was built (19 Oct): missions drop tones2's tabk until kie's and kcaj's are built
-            m_CardNote.text = card == TabkCards.Tones2 ? "" : "MISSIONS DROP TONES2'S FOR NOW";
             bool isLoaded = m_Garage.Loaded == card && !loading;
             Ui.Show(m_Take, !isLoaded);
             Ui.Show(m_Loaded, isLoaded);
