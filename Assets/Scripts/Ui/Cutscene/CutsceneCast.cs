@@ -141,13 +141,14 @@ namespace PooketSlug
             Prop("beacon", 8f, 5f);
         }
 
-        /// <summary>The goon, kcaj, tones2, and what they carry: the bag, the cup, the keycard, the tub, the slushie, the cones and the sticky note.</summary>
+        /// <summary>The goon, kcaj, tones2, and what they carry: the bag (the crisp packet: <see cref="CutsceneSnacks"/>), the cup, the keycard, the tub, the slushie, the cones and the sticky note.</summary>
         public void MakeFrontCast()
         {
             m_Goon = new StageFigure(m_World, "goon");
             m_Kcaj = new StageFigure(m_World, "kcaj");
             m_Tones2 = new StageFigure(m_World, "tones2");
-            Prop("bag", 9f, 11f);
+            Sprite packet = CutsceneSnacks.Packet;
+            PaintedProp("bag", packet, packet.rect.width, packet.rect.height); // tones2's crisp packet, hand-drawn
             Prop("cup", 6f, 12f);
             Prop("card", 8f, 5f);
             Prop("tub", 8f, 6f);

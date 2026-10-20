@@ -86,7 +86,7 @@ namespace PooketSlug
             new Thing("kcaj", Kind.Figure, 0f, 0f, White),
             new Thing("goon", Kind.Figure, 0f, 0f, White, "appear", "glitch-out"),
             // props
-            new Thing("bag", Kind.Prop, 0f, 0f, new Color(0.95f, 0.3f, 0.35f)),
+            new Thing("bag", Kind.Prop, 0f, 0f, White), // the crisp packet, painted (its own colours)
             new Thing("cup", Kind.Prop, 0f, 0f, new Color(0.55f, 0.35f, 0.95f)),
             new Thing("card", Kind.Prop, 0f, 0f, Cyan),
             new Thing("remote", Kind.Prop, 0f, 0f, new Color(0.9f, 0.3f, 0.3f)),
