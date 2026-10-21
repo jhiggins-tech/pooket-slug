@@ -53,10 +53,10 @@ rewrite in the crew's own voice.
 | [The first debrief](mission-one.md#the-first-debrief) | After every solo win | 12 s | none: a screen (`DebriefView`) | Built |
 | [The first visit](den.md#the-first-visit) | The den's first opening, once ever | 4 s | none: in the den itself (`DenBeats`) | Built (2026-10-19) |
 | [A crewmate moves in](den.md#a-crewmate-moves-in) | The den, after each freeing | 3 s | none: in the den itself (`DenBeats`) | Built (2026-10-19) |
-| [kie's tabk comes home](den.md#kies-tabk-comes-home) | The tabk bay, the first visit after Mission one | 9 s | none yet | Drafted; moved to after Mission one (owner, 2026-10-20), to build |
+| [kie's tabk comes home](den.md#kies-tabk-comes-home) | The tabk bay, the first visit after Mission one | 10.5 s | none: in the bay itself (`KieHomecoming`) | Built (kie-tabk-home-m1, 2026-10-20) |
 | [The Mission two briefing](mission-two.md#the-mission-two-briefing) | Mission two starts | 24 s | `m2-briefing.txt` | Built, narrator voiced |
-| [kcaj's tabk arrives](mission-two.md#kcajs-tabk-arrives) | The first time the players reach the cold store | 11.5 s | `scenes/kcaj-tabk.txt`, then the boss intro | Built (m2-finish): solo the first time; in co-op, together at each run's first boss wake (the phones' saves can differ); a test start keeps the in-play TROLLO-KCAJ band |
-| [Freeing kcaj](mission-two.md#freeing-kcaj) | Trollogram kcaj beaten on foot | 23.5 s | `scenes/freeing-kcaj.txt` | Built (m2-finish), on both phones in co-op; the cold store is drawn in code until it's painted |
+| [kcaj's tabk arrives](mission-two.md#kcajs-tabk-arrives) | The first time the players reach the cold store | 12 s | `scenes/kcaj-tabk.txt`, then the boss intro | Built (m2-finish): solo the first time; in co-op, together at each run's first boss wake (the phones' saves can differ); a test start keeps the in-play TROLLO-KCAJ band |
+| [Freeing kcaj](mission-two.md#freeing-kcaj) | Trollogram kcaj beaten on foot | 23.5 s, after the glitch-out in play | `scenes/freeing-kcaj.txt` (shots 2 to 5) | Built (m2-finish), on both phones in co-op; the cold store is drawn in code until it's painted |
 | [Two of the crew](retired.md#retired-two-of-the-crew) | Retired | 8 s | none | Retired, 2026-10-18 |
 | [The co-op check](coop-check.md#the-co-op-check) | `?test=scene` and CI only | 36 s | `coop-test.txt` | A test, not the story |
 

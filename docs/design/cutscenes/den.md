@@ -62,7 +62,7 @@ kie's tabk was wrecked in Mission one's boss fight, and it comes back straight a
 Trollogram projector that made Trollogram kie, pulled from the wreck, and since Trollograms run hot he wraps it in
 copper freezer pipes, which frost it over. This beat plays the first time the player walks into
 [the tabk bay](../lobby.md#the-tabk-bay) after Mission one is beaten, so the players who go looking find a second tabk
-waiting (owner, 2026-10-20, docs-progression-fixes). About 9 seconds, three shots; tap to skip. Once ever, kept with
+waiting (owner, 2026-10-20, docs-progression-fixes). About 10.5 seconds, three shots; tap to skip. Once ever, kept with
 the player's progress, so it follows a sign-in. Drafted 2026-10-19 (kie-tabk-return-script); moved to after Mission
 one 2026-10-20.
 
@@ -83,7 +83,7 @@ SFX: a chip welding crackle, on and off.
 
                                                    CUT TO:
 
-2. INT. THE TABK BAY - CONTINUOUS                       3 s
+2. INT. THE TABK BAY - CONTINUOUS                       4.5 s
 
 The crane lowers the projector onto the turret ring.
 Frost on its body, steam curling off the copper pipes.
