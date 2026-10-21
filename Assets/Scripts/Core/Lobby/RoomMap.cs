@@ -54,8 +54,10 @@ namespace PooketSlug
     /// </summary>
     public static class RoomMap
     {
-        /// <summary>A room's width: every room is one screen across.</summary>
+        /// <summary>A room's width: one screen across, unless a room is wider and the player scrolls through it.</summary>
         public const float Width = 320f;
+        /// <summary>The kitchen's width: wider than a screen, so the player scrolls through it.</summary>
+        public const float KitchenWidth = 420f;
         /// <summary>A room's height, except the wintergarden's.</summary>
         public const float Height = 180f;
         /// <summary>The wintergarden's height: two screens up, for the stair to the rose.</summary>
@@ -67,8 +69,8 @@ namespace PooketSlug
         /// <summary>How near a way you can still use it, walking: where you come in, and a step more.</summary>
         public const float WayReach = 24f;
 
-        /// <summary>A room's width: every room is one screen across.</summary>
-        public static float WidthOf(RoomId room) => Width;
+        /// <summary>A room's width: one screen across, unless it is wider and the player scrolls through it.</summary>
+        public static float WidthOf(RoomId room) => room == RoomId.Kitchen ? KitchenWidth : Width;
 
         /// <summary>A room's height.</summary>
         public static float HeightOf(RoomId room) => room == RoomId.Wintergarden ? WinterHeight : Height;
@@ -192,7 +194,7 @@ namespace PooketSlug
 
         /// <summary>How far you can walk in a room: short of the walls.</summary>
         public static float MinX(RoomId room) => 16f;
-        public static float MaxX(RoomId room) => 304f;
+        public static float MaxX(RoomId room) => WidthOf(room) - 16f;
 
         public static float Clamp(RoomId room, float x) => Math.Max(MinX(room), Math.Min(MaxX(room), x));
 

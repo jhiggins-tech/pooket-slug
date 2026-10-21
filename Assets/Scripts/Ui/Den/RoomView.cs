@@ -75,9 +75,11 @@ namespace PooketSlug
             if (m_Plate != null) m_Plate.transform.SetAsFirstSibling();
             m_Soldier.Rt.SetAsLastSibling();
             m_Tap.SetAsLastSibling();
-            // the taps cover the whole room, which is taller than the screen for the wintergarden
-            m_Tap.sizeDelta = new Vector2(RoomMap.Width, RoomMap.HeightOf(room)) * Px;
+            // the taps cover the whole room, which is wider or taller than the screen for some rooms
+            m_Tap.sizeDelta = new Vector2(RoomMap.WidthOf(room), RoomMap.HeightOf(room)) * Px;
             m_Tap.anchoredPosition = Vector2.zero;
+            // the world is as big as the room, so a room wider than a screen scrolls within it
+            m_World.sizeDelta = new Vector2(RoomMap.WidthOf(room), RoomMap.HeightOf(room)) * Px;
 
             m_TapWay.Clear();
             m_TapWalk.Clear();
@@ -118,11 +120,12 @@ namespace PooketSlug
         }
 
         /// <summary>
-        /// The camera: on the room's floor, and up the wintergarden's stair with you, so the rose at the top is out of
-        /// reach until you've climbed.
+        /// The camera: on the room, following you. A room wider than a screen scrolls along, and the wintergarden rises
+        /// with you up its stair, so the rose at the top is out of reach until you've climbed.
         /// </summary>
         void Camera(float dt, RoomWalker w)
         {
+            float width = RoomMap.WidthOf(m_Room);
             float height = RoomMap.HeightOf(m_Room);
             float toX = 0f, toY = 0f;
             if (m_Room == RoomId.Wintergarden)
@@ -130,8 +133,9 @@ namespace PooketSlug
                 // up the stair: the camera rises with you, and pans a little to the stair's foot
                 float rise = Mathf.Clamp01((w.Y - RoomMap.FloorY) / (RoomMap.LandingY - RoomMap.FloorY));
                 toY = rise * (height - StageH);
-                toX = Mathf.Clamp(w.X - StageW / 2f, 0f, RoomMap.Width - StageW);
             }
+            // a room wider than a screen scrolls along to keep you in the middle
+            if (width > StageW) toX = Mathf.Clamp(w.X - StageW / 2f, 0f, width - StageW);
             m_CamX = Mathf.Lerp(m_CamX, toX, 1f - Mathf.Exp(-8f * dt));
             m_CamY = Mathf.Lerp(m_CamY, toY, 1f - Mathf.Exp(-8f * dt));
             if (Mathf.Abs(m_CamX - toX) < 0.05f) m_CamX = toX;

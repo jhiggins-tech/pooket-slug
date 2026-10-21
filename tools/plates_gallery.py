@@ -33,17 +33,23 @@ STYLE = """  :root { color-scheme: dark; }
   h2 { font-size: 15px; color: #f0c14b; margin: 28px 0 8px; font-weight: 600; }
   h3 { font-size: 13px; color: #a89c8c; margin: 20px 0 6px; font-weight: 600; }
   .note { color: #a89c8c; font-size: 13px; max-width: 70ch; }
-  .pair { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+  .pair { display: grid; grid-template-columns: minmax(320px, 1fr) 422px; gap: 20px;
+          align-items: start; }
+  .pair.full-only { grid-template-columns: 1fr; }
+  .pair.game-only { grid-template-columns: 422px; }
   figure { margin: 0; min-width: 0; max-width: 100%; }
   figure img { display: block; box-sizing: border-box; image-rendering: pixelated;
                border: 1px solid #2c2622; }
-  figure.full { flex: 1 1 560px; }
   figure.full img { width: 100%; height: auto; }
-  figure.game { flex: 0 0 auto; }
-  figure.game img { width: 420px; max-width: 100%; height: auto; }
+  /* the game cut is shown at its own size: 420 wide, a pixel for a pixel */
+  figure.game img { width: 422px; max-width: 100%; height: auto; }
   figcaption { color: #a89c8c; font-size: 12px; margin-top: 4px; }
   figcaption span { display: block; }
-  .ref img { width: 640px; max-width: 100%; height: auto; border: 1px solid #2c2622; }
+  .ref img { box-sizing: border-box; width: 640px; max-width: 100%; height: auto;
+             border: 1px solid #2c2622; }
+  @media (max-width: 820px) {
+    .pair { grid-template-columns: 1fr; }
+  }
 """
 
 
@@ -60,10 +66,14 @@ def picture_size(path):
         return (0, 0)
 
 
-def take_number(name):
-    """The take's number from a name like take2-kitchen-1260x540.png, or None."""
-    m = re.search(r"take(\d+)", name)
-    return int(m.group(1)) if m else None
+def take_of(name):
+    """The take a picture is from: its number and whether it's a pro pass, or
+    None if it isn't a take at all. take2-kitchen.png is take 2; takepro2-
+    kitchen.png is the pro pass at take 2."""
+    m = re.search(r"take(pro)?(\d+)", name)
+    if not m:
+        return None
+    return (int(m.group(2)), bool(m.group(1)))
 
 
 def group_key(name):
@@ -134,25 +144,28 @@ def generations(pictures):
 
     out = []
     for key, names in groups.items():
-        take = next((t for t in (take_number(n) for n in names) if t is not None), None)
+        take = next((t for t in (take_of(n) for n in names) if t is not None), None)
         if any(n.startswith("wip") for n in names):
             order = (0, 0)
         elif take is not None:
-            order = (1, -take)
+            # a plain take first, then its pro pass, then the next take
+            order = (1, -take[0], take[1])
         else:
-            order = (2, -max(mtime(n) for n in names))
-        out.append((order, take, key, names))
+            order = (2, 0, -max(mtime(n) for n in names))
+        out.append((order, take, names))
     out.sort()
-    return [(title(take, names), pair_up(names)) for _, take, key, names in out]
+    return [(title(take, names), pair_up(names)) for _, take, names in out]
 
 
 def title(take, names):
     """The heading for a generation: what a reader calls it."""
     if any(n.startswith("wip") for n in names):
         return "The latest"
-    if take is not None:
-        return "Take %d" % take
-    return "Another"
+    if take is None:
+        return "Another"
+    if take[1]:
+        return "Take %d, the pro pass" % take[0]
+    return "Take %d" % take[0]
 
 
 def picture_html(name, kind, alt):
@@ -199,7 +212,8 @@ def build_page(pictures, vectors):
     for heading, rows in generations(pictures):
         s.append("<h2>%s</h2>" % heading)
         for full, cut in rows:
-            s.append('<div class="pair">')
+            kind = "pair full-only" if not cut else ("pair game-only" if not full else "pair")
+            s.append('<div class="%s">' % kind)
             if full:
                 s.append(picture_html(full, "full", "%s: the plate, full size" % full))
             if cut:

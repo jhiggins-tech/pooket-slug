@@ -14,17 +14,23 @@
   h2 { font-size: 15px; color: #f0c14b; margin: 28px 0 8px; font-weight: 600; }
   h3 { font-size: 13px; color: #a89c8c; margin: 20px 0 6px; font-weight: 600; }
   .note { color: #a89c8c; font-size: 13px; max-width: 70ch; }
-  .pair { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
+  .pair { display: grid; grid-template-columns: minmax(320px, 1fr) 422px; gap: 20px;
+          align-items: start; }
+  .pair.full-only { grid-template-columns: 1fr; }
+  .pair.game-only { grid-template-columns: 422px; }
   figure { margin: 0; min-width: 0; max-width: 100%; }
   figure img { display: block; box-sizing: border-box; image-rendering: pixelated;
                border: 1px solid #2c2622; }
-  figure.full { flex: 1 1 560px; }
   figure.full img { width: 100%; height: auto; }
-  figure.game { flex: 0 0 auto; }
-  figure.game img { width: 420px; max-width: 100%; height: auto; }
+  /* the game cut is shown at its own size: 420 wide, a pixel for a pixel */
+  figure.game img { width: 422px; max-width: 100%; height: auto; }
   figcaption { color: #a89c8c; font-size: 12px; margin-top: 4px; }
   figcaption span { display: block; }
-  .ref img { width: 640px; max-width: 100%; height: auto; border: 1px solid #2c2622; }
+  .ref img { box-sizing: border-box; width: 640px; max-width: 100%; height: auto;
+             border: 1px solid #2c2622; }
+  @media (max-width: 820px) {
+    .pair { grid-template-columns: 1fr; }
+  }
 
 </style>
 </head>
@@ -35,7 +41,7 @@
 <div class="ref"><img src="wip/ref-kitchen-clean.svg" alt="The vector reference the plates are painted from"></div>
 <p class="note">The vector reference the painter works from: the room drawn to scale, with the soldier in it. Every picture below is made from it.</p>
 <h2>The latest</h2>
-<div class="pair">
+<div class="pair full-only">
 <figure class="full">
   <img src="wip/wip-kitchen.png" alt="wip-kitchen.png: the plate, full size">
   <figcaption>wip-kitchen.png<span>1260 &times; 540</span></figcaption>
@@ -63,10 +69,21 @@
   <figcaption>take2-kitchen-game.png<span>420 &times; 180</span></figcaption>
 </figure>
 </div>
-<div class="pair">
+<div class="pair full-only">
 <figure class="full">
   <img src="wip/take2-kitchen-1260x540.png" alt="take2-kitchen-1260x540.png: the plate, full size">
   <figcaption>take2-kitchen-1260x540.png<span>1260 &times; 540</span></figcaption>
+</figure>
+</div>
+<h2>Take 2, the pro pass</h2>
+<div class="pair">
+<figure class="full">
+  <img src="wip/takepro2-kitchen.png" alt="takepro2-kitchen.png: the plate, full size">
+  <figcaption>takepro2-kitchen.png<span>1260 &times; 540</span></figcaption>
+</figure>
+<figure class="game">
+  <img src="wip/takepro2-kitchen-game.png" alt="takepro2-kitchen-game.png: the plate, at the game's size">
+  <figcaption>takepro2-kitchen-game.png<span>420 &times; 180</span></figcaption>
 </figure>
 </div>
 <h2>Take 1</h2>
@@ -80,24 +97,13 @@
   <figcaption>take1-kitchen-game.png<span>420 &times; 180</span></figcaption>
 </figure>
 </div>
-<div class="pair">
+<div class="pair full-only">
 <figure class="full">
   <img src="wip/take1-kitchen-1536x768.png" alt="take1-kitchen-1536x768.png: the plate, full size">
   <figcaption>take1-kitchen-1536x768.png<span>1536 &times; 768</span></figcaption>
 </figure>
 </div>
-<h2>Another</h2>
-<div class="pair">
-<figure class="full">
-  <img src="wip/takepro2-kitchen.png" alt="takepro2-kitchen.png: the plate, full size">
-  <figcaption>takepro2-kitchen.png<span>1260 &times; 540</span></figcaption>
-</figure>
-<figure class="game">
-  <img src="wip/takepro2-kitchen-game.png" alt="takepro2-kitchen-game.png: the plate, at the game's size">
-  <figcaption>takepro2-kitchen-game.png<span>420 &times; 180</span></figcaption>
-</figure>
-</div>
-<h2>Another</h2>
+<h2>Take 1, the pro pass</h2>
 <div class="pair">
 <figure class="full">
   <img src="wip/takepro1-kitchen.png" alt="takepro1-kitchen.png: the plate, full size">

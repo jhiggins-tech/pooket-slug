@@ -1,0 +1,82 @@
+- generic [active] [ref=f40e1]:
+  - heading "The plate generations" [level=1] [ref=f40e2]
+  - paragraph [ref=f40e3]: "Every generation of the room plates as it lands, newest first: the picture the painter made, and the same picture cut down to the game's size, so the detail can be judged at the size the player sees it."
+  - heading "The reference this was made from" [level=2] [ref=f40e4]
+  - img "The vector reference the plates are painted from" [ref=f40e6]
+  - paragraph [ref=f40e7]: "The vector reference the painter works from: the room drawn to scale, with the soldier in it. Every picture below is made from it."
+  - heading "The latest" [level=2] [ref=f40e8]
+  - figure "wip-kitchen.png 1260 × 540" [ref=f40e10]:
+    - 'img "wip-kitchen.png: the plate, full size" [ref=f40e11]'
+    - generic [ref=f40e12]:
+      - text: wip-kitchen.png
+      - generic [ref=f40e13]: 1260 × 540
+  - heading "Take 3" [level=2] [ref=f40e14]
+  - generic [ref=f40e15]:
+    - figure "take3-kitchen.png 1260 × 540" [ref=f40e16]:
+      - 'img "take3-kitchen.png: the plate, full size" [ref=f40e17]'
+      - generic [ref=f40e18]:
+        - text: take3-kitchen.png
+        - generic [ref=f40e19]: 1260 × 540
+    - figure "take3-kitchen-game.png 420 × 180" [ref=f40e20]:
+      - 'img "take3-kitchen-game.png: the plate, at the game''s size" [ref=f40e21]'
+      - generic [ref=f40e22]:
+        - text: take3-kitchen-game.png
+        - generic [ref=f40e23]: 420 × 180
+  - heading "Take 2" [level=2] [ref=f40e24]
+  - generic [ref=f40e25]:
+    - figure "take2-kitchen.png 1260 × 540" [ref=f40e26]:
+      - 'img "take2-kitchen.png: the plate, full size" [ref=f40e27]'
+      - generic [ref=f40e28]:
+        - text: take2-kitchen.png
+        - generic [ref=f40e29]: 1260 × 540
+    - figure "take2-kitchen-game.png 420 × 180" [ref=f40e30]:
+      - 'img "take2-kitchen-game.png: the plate, at the game''s size" [ref=f40e31]'
+      - generic [ref=f40e32]:
+        - text: take2-kitchen-game.png
+        - generic [ref=f40e33]: 420 × 180
+  - figure "take2-kitchen-1260x540.png 1260 × 540" [ref=f40e35]:
+    - 'img "take2-kitchen-1260x540.png: the plate, full size" [ref=f40e36]'
+    - generic [ref=f40e37]:
+      - text: take2-kitchen-1260x540.png
+      - generic [ref=f40e38]: 1260 × 540
+  - heading "Take 2, the pro pass" [level=2] [ref=f40e39]
+  - generic [ref=f40e40]:
+    - figure "takepro2-kitchen.png 1260 × 540" [ref=f40e41]:
+      - 'img "takepro2-kitchen.png: the plate, full size" [ref=f40e42]'
+      - generic [ref=f40e43]:
+        - text: takepro2-kitchen.png
+        - generic [ref=f40e44]: 1260 × 540
+    - figure "takepro2-kitchen-game.png 420 × 180" [ref=f40e45]:
+      - 'img "takepro2-kitchen-game.png: the plate, at the game''s size" [ref=f40e46]'
+      - generic [ref=f40e47]:
+        - text: takepro2-kitchen-game.png
+        - generic [ref=f40e48]: 420 × 180
+  - heading "Take 1" [level=2] [ref=f40e49]
+  - generic [ref=f40e50]:
+    - figure "take1-kitchen.png 1260 × 540" [ref=f40e51]:
+      - 'img "take1-kitchen.png: the plate, full size" [ref=f40e52]'
+      - generic [ref=f40e53]:
+        - text: take1-kitchen.png
+        - generic [ref=f40e54]: 1260 × 540
+    - figure "take1-kitchen-game.png 420 × 180" [ref=f40e55]:
+      - 'img "take1-kitchen-game.png: the plate, at the game''s size" [ref=f40e56]'
+      - generic [ref=f40e57]:
+        - text: take1-kitchen-game.png
+        - generic [ref=f40e58]: 420 × 180
+  - figure "take1-kitchen-1536x768.png 1536 × 768" [ref=f40e60]:
+    - 'img "take1-kitchen-1536x768.png: the plate, full size" [ref=f40e61]'
+    - generic [ref=f40e62]:
+      - text: take1-kitchen-1536x768.png
+      - generic [ref=f40e63]: 1536 × 768
+  - heading "Take 1, the pro pass" [level=2] [ref=f40e64]
+  - generic [ref=f40e65]:
+    - figure "takepro1-kitchen.png 1260 × 540" [ref=f40e66]:
+      - 'img "takepro1-kitchen.png: the plate, full size" [ref=f40e67]'
+      - generic [ref=f40e68]:
+        - text: takepro1-kitchen.png
+        - generic [ref=f40e69]: 1260 × 540
+    - figure "takepro1-kitchen-game.png 420 × 180" [ref=f40e70]:
+      - 'img "takepro1-kitchen-game.png: the plate, at the game''s size" [ref=f40e71]'
+      - generic [ref=f40e72]:
+        - text: takepro1-kitchen-game.png
+        - generic [ref=f40e73]: 420 × 180

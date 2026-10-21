@@ -49,7 +49,7 @@ namespace PooketSlug
             if (m_Room == RoomId.None) return;
             if (m_View.TakeBack() || keys.Back) m_Game.Rooms.Back(m_Room);
             RoomWay way = m_View.TakeWay();
-            if (way != RoomWay.None) Use(way);
+            if (way != RoomWay.None) m_Walker.Go(way);   // walk to it, and use it on arriving
             if (m_View.TakeWalk(out float x)) m_Walker.WalkTo(x);
 
             // by hand: jump uses the way you stand at, up and down work on the wintergarden's stair
