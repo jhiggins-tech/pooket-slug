@@ -124,6 +124,46 @@ in `Assets/Tests/EditMode/Lobby/`.
 - The host cannot change the mission from the den.
 ```
 
+**The story domain's briefing is shaped differently**, because its authority is a rule rather than a file. It says
+where the plot is expressed and who owns each place, not only what this domain owns:
+
+```
+# The story domain
+
+## What this domain is
+The plot: what happens, in what order, and each reveal. Changes to the story go through here.
+
+## The files
+`Assets/Scripts/Core/Missions/MissionStory.cs` and `docs/design/story.md`.
+
+## The rules this domain keeps
+- The plot of record is `docs/design/story.md`. The plot in code is `MissionStory.cs`. They must say the same thing.
+- A change decided in `story.md` is this domain's; a change decided in `docs/design/cutscenes/` is the cutscene
+  domain's. A story change that needs a scene is a handover to the cutscene domain.
+- The mission order, the roster, the reveals and the scene names are not this domain's, but this domain keeps them
+  agreeing with the plot: `Missions.All` (gameplay), `Crew.All` (gameplay), `Profile.Reveals` (shell),
+  `SceneLibrary.Names` (cutscene).
+- The premise: the crew are missing and only tones2 is left; kie's Trollograms have gone rogue; each mission frees
+  one crewmate from their own tabk. Do not change it without the owner.
+
+## The vocabulary
+The reveals are the ids in `Profile.Reveals` (`coop`, `tank`). The story beats are `StoryRecord`'s (`coda`, `debrief`,
+`super`). A scene is named by its file (`SceneLibrary`).
+
+## The invariants
+- No crewmate is freed twice, and each is freed by the mission the plot says.
+- A once-only beat stays once-only. The second time you meet something, it is quick.
+- Mission one is solo only, and it opens co-op when it is beaten.
+
+## How it is checked
+`tools/check.sh`, and `Assets/Tests/EditMode/Missions/MissionStoryTests.cs` for a mission's own story. **The plot's
+agreement is not tested yet** — that is this domain's first card.
+
+## Known unfinished
+- Mission order after kcaj is an open question in `story.md`.
+- Each mission's story after Mission two is undecided: its briefing, and how its crewmate's freeing plays out.
+```
+
 ### The rule about updating it
 
 **The briefing is updated in the same commit as the change that made it wrong.** Not afterwards, not in a separate
