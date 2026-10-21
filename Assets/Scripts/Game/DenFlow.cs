@@ -102,7 +102,7 @@ namespace PooketSlug
             return new DenInfo
             {
                 // Mission one is solo only (docs/design/lobby.md, Co-op): a co-op room plays the first mission open to it
-                Mission = m_Den.Mode == DenMode.Crew ? null : coop && mission.Story.CoopName != null ? mission.Story.CoopName : mission.Name.ToUpperInvariant(),
+                Mission = m_Den.Mode == DenMode.Crew ? null : mission.Name.ToUpperInvariant(),
                 Room = coop ? g.Net.RoomCode : null,
                 InviteLink = coop ? CoopRoom.Link(g.PageUrl, g.Net.RoomCode) : null,
                 Watchers = coop ? g.Net.Watchers : 0,
