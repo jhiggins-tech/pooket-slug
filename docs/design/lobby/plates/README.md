@@ -8,14 +8,14 @@ in the game yet: the game loads its paintings from `Assets/Resources/Den/` as
 `.bytes`, and nothing here has been put there.
 
 Each room is one screen, 320 × 180 in the game's art pixels, except the
-wintergarden, which is a tall room at 320 × 320.
+wintergarden, which is a tall room at 320 × 360: one screen across, two up.
 
 | Room | Reached from | Plate | At game size |
 |---|---|---|---|
 | The kitchen | the den's side door | `wip-kitchen.png` | `game-kitchen.png` |
 | The back yard | the kitchen's back door | `wip-yard.png` | `game-yard.png` |
 | B1, the basement | down the trapdoor in front of the couch | `wip-basement.png` | `game-basement.png` |
-| B2, the bunker | down through the hole in B1's floor | | |
+| B2, the bunker | down through the hole in B1's floor | `wip-bunker.png` | `game-bunker.png` |
 | The rooftop | the loft's far-left door | `wip-rooftop.png` | `game-rooftop.png` |
 | The shower block | the loft's shower door | `wip-shower.png` | `game-shower.png` |
 | The wintergarden | the loft's wintergarden door | `wip-winter.png` | `game-winter.png` |
@@ -24,7 +24,10 @@ wintergarden, which is a tall room at 320 × 320.
 
 `wip-*.png` is the painting as the model made it, at 1280 × 720 (the wintergarden
 at 1024 × 1024). `game-*.png` is the same painting cut down to the game's size
-and 64 colours: that's the one the game would load.
+and 64 colours: that's the one the game would load. The palette is cut with a
+**median cut**, not by keeping the most common colours: the model's paintings
+have ramps of light, and keeping the commonest colours crushes a ramp into one
+muddy band.
 
 `wip-kitchen.png`, `wip-kitchen-artmd.png` and `wip-kitchen-arcade.png` are three
 takes of the kitchen, kept so the difference the references make can be seen:

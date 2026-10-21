@@ -247,23 +247,30 @@ orect(0, 15, 24, 52, "door", Wn, LY); olabel(0, 24, 40, "←", "loft", Wn, LY)
 orect(30, 15, 106, 60, "st", Wn, LY); olabel(30, 106, 48, "ROSES", "the beds", Wn, LY)
 orect(112, 15, 168, 58, "st2", Wn, LY); olabel(112, 168, 46, "PLANTERS", None, Wn, LY)
 orect(242, 15, 320, 64, "st2", Wn, LY); olabel(242, 320, 50, "GREENHOUSE", "the cold", Wn, LY)
-# the spiral stair, turning up the wall to the rose at the top: a post, and treads winding round it
+# the spiral stair, turning up the wall to the rose at the top: a post, and treads winding round it.
+# The treads are a step apart (about 8 px, for the 22 px soldier), so the stair is climbable.
 sx = 205
-for i in range(13):
-    t = i / 12.0
+RISER = 8
+treads = 34
+for i in range(treads):
+    t = i / (treads - 1.0)
     rx = 26 - 8 * t                       # the stair tightens as it rises
-    out.append(f'<ellipse cx="{Wn + sx:g}" cy="{LY(26 + i * 26):g}" rx="{rx:g}" ry="{rx * 0.32:g}" class="spiral"/>')
-    out.append(f'<line x1="{Wn + sx - rx:g}" y1="{LY(26 + i * 26):g}" x2="{Wn + sx + rx:g}" y2="{LY(26 + i * 26):g}" class="spiral"/>')
-out.append(f'<line x1="{Wn + sx:g}" y1="{LY(15):g}" x2="{Wn + sx:g}" y2="{LY(326):g}" class="spiralpost"/>')
+    ty = 22 + i * RISER
+    out.append(f'<ellipse cx="{Wn + sx:g}" cy="{LY(ty):g}" rx="{rx:g}" ry="{rx * 0.3:g}" class="spiral"/>')
+    out.append(f'<line x1="{Wn + sx - rx:g}" y1="{LY(ty):g}" x2="{Wn + sx + rx:g}" y2="{LY(ty):g}" class="spiral"/>')
+out.append(f'<line x1="{Wn + sx:g}" y1="{LY(15):g}" x2="{Wn + sx:g}" y2="{LY(294):g}" class="spiralpost"/>')
 for rx, ry in ((46, 30), (64, 26), (84, 31), (130, 28), (150, 32)):
     out.append(f'<circle cx="{Wn + rx:g}" cy="{LY(ry):g}" r="2.4" class="rose"/>')
-# the rose at the top, under its glass dome, up where only the stair reaches
-out.append(f'<circle cx="{Wn + 205:g}" cy="{LY(322):g}" r="7" class="rose"/>')
-out.append(f'<circle cx="{Wn + 205:g}" cy="{LY(322):g}" r="11" class="dome"/>')
-out.append(f'<text x="{Wn + 232:g}" y="{LY(324):g}" class="t" text-anchor="start">THE ROSE</text>')
-out.append(f'<text x="{Wn + 232:g}" y="{LY(316):g}" class="s" text-anchor="start">under glass, at the top</text>')
-# the landing the stair arrives at
-out.append(f'<line x1="{Wn + 174:g}" y1="{LY(300):g}" x2="{Wn + 236:g}" y2="{LY(300):g}" class="fl"/>')
+# the landing at the top: a platform wide enough for two crew to stand on it
+LAND = 296
+orect(158, LAND, 256, LAND + 8, "fl2", Wn, LY)
+orect(158, LAND, 166, LAND + 8, "fl2", Wn, LY)
+out.append(f'<line x1="{Wn + 158:g}" y1="{LY(LAND + 8):g}" x2="{Wn + 256:g}" y2="{LY(LAND + 8):g}" class="fl"/>')
+# the rose on the landing, under its glass dome, up where only the stair reaches
+out.append(f'<circle cx="{Wn + 232:g}" cy="{LY(LAND + 16):g}" r="7" class="rose"/>')
+out.append(f'<circle cx="{Wn + 232:g}" cy="{LY(LAND + 16):g}" r="11" class="dome"/>')
+out.append(f'<text x="{Wn + 258:g}" y="{LY(LAND + 18):g}" class="t" text-anchor="start">THE ROSE</text>')
+out.append(f'<text x="{Wn + 258:g}" y="{LY(LAND + 10):g}" class="s" text-anchor="start">under glass, at the top</text>')
 
 # ---- the ways in, matched by number: the badge on the door in the house, and the badge on the door in the room
 out.append(f'<text x="{BB2_X}" y="{BBAND - 12:g}" class="h">B2 · below the basement</text>')
@@ -307,6 +314,7 @@ svg = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="{-M} 0 {W + M} {VH}" 
 .wall{{fill:#5a4a42;stroke:#3a2c26}}
 .bunks{{fill:#e3cfae;stroke:#3a2c26}} .roof{{fill:none;stroke:#3a2c26;stroke-width:1.5}}
 .fl{{stroke:#3a2c26;stroke-width:2}} .lad{{stroke:#6a4424;stroke-width:1}} .drone{{fill:#586078;stroke:#1c1420}}
+.fl2{{fill:#8a6a48;stroke:#3a2c26}}
 .kitchen{{fill:#f2e0c4;stroke:#3a2c26}} .yard{{fill:#dfe6c8;stroke:#3a2c26}} .base{{fill:#d8cfc4;stroke:#3a2c26}}
 .roofroom{{fill:#c8d4e6;stroke:#3a2c26}} .earth{{fill:#a89078;stroke:#3a2c26}}
 .bunker{{fill:#c8bcae;stroke:#3a2c26}}

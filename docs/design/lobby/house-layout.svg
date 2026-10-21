@@ -7,6 +7,7 @@
 .wall{fill:#5a4a42;stroke:#3a2c26}
 .bunks{fill:#e3cfae;stroke:#3a2c26} .roof{fill:none;stroke:#3a2c26;stroke-width:1.5}
 .fl{stroke:#3a2c26;stroke-width:2} .lad{stroke:#6a4424;stroke-width:1} .drone{fill:#586078;stroke:#1c1420}
+.fl2{fill:#8a6a48;stroke:#3a2c26}
 .kitchen{fill:#f2e0c4;stroke:#3a2c26} .yard{fill:#dfe6c8;stroke:#3a2c26} .base{fill:#d8cfc4;stroke:#3a2c26}
 .roofroom{fill:#c8d4e6;stroke:#3a2c26} .earth{fill:#a89078;stroke:#3a2c26}
 .bunker{fill:#c8bcae;stroke:#3a2c26}
@@ -351,43 +352,87 @@ text{fill:#231a17} .t{font-size:7px;font-weight:bold} .s{font-size:5.5px;fill:#5
 <rect x="582" y="1220" width="78" height="49" class="st2"/>
 <text x="621" y="1234" class="t" text-anchor="middle">GREENHOUSE</text>
 <text x="621" y="1242" class="s" text-anchor="middle">the cold</text>
-<ellipse cx="545" cy="1258" rx="26" ry="8.32" class="spiral"/>
-<line x1="519" y1="1258" x2="571" y2="1258" class="spiral"/>
-<ellipse cx="545" cy="1232" rx="25.3333" ry="8.10667" class="spiral"/>
-<line x1="519.667" y1="1232" x2="570.333" y2="1232" class="spiral"/>
-<ellipse cx="545" cy="1206" rx="24.6667" ry="7.89333" class="spiral"/>
-<line x1="520.333" y1="1206" x2="569.667" y2="1206" class="spiral"/>
-<ellipse cx="545" cy="1180" rx="24" ry="7.68" class="spiral"/>
-<line x1="521" y1="1180" x2="569" y2="1180" class="spiral"/>
-<ellipse cx="545" cy="1154" rx="23.3333" ry="7.46667" class="spiral"/>
-<line x1="521.667" y1="1154" x2="568.333" y2="1154" class="spiral"/>
-<ellipse cx="545" cy="1128" rx="22.6667" ry="7.25333" class="spiral"/>
-<line x1="522.333" y1="1128" x2="567.667" y2="1128" class="spiral"/>
-<ellipse cx="545" cy="1102" rx="22" ry="7.04" class="spiral"/>
-<line x1="523" y1="1102" x2="567" y2="1102" class="spiral"/>
-<ellipse cx="545" cy="1076" rx="21.3333" ry="6.82667" class="spiral"/>
-<line x1="523.667" y1="1076" x2="566.333" y2="1076" class="spiral"/>
-<ellipse cx="545" cy="1050" rx="20.6667" ry="6.61333" class="spiral"/>
-<line x1="524.333" y1="1050" x2="565.667" y2="1050" class="spiral"/>
-<ellipse cx="545" cy="1024" rx="20" ry="6.4" class="spiral"/>
-<line x1="525" y1="1024" x2="565" y2="1024" class="spiral"/>
-<ellipse cx="545" cy="998" rx="19.3333" ry="6.18667" class="spiral"/>
-<line x1="525.667" y1="998" x2="564.333" y2="998" class="spiral"/>
-<ellipse cx="545" cy="972" rx="18.6667" ry="5.97333" class="spiral"/>
-<line x1="526.333" y1="972" x2="563.667" y2="972" class="spiral"/>
-<ellipse cx="545" cy="946" rx="18" ry="5.76" class="spiral"/>
-<line x1="527" y1="946" x2="563" y2="946" class="spiral"/>
-<line x1="545" y1="1269" x2="545" y2="958" class="spiralpost"/>
+<ellipse cx="545" cy="1262" rx="26" ry="7.8" class="spiral"/>
+<line x1="519" y1="1262" x2="571" y2="1262" class="spiral"/>
+<ellipse cx="545" cy="1254" rx="25.7576" ry="7.72727" class="spiral"/>
+<line x1="519.242" y1="1254" x2="570.758" y2="1254" class="spiral"/>
+<ellipse cx="545" cy="1246" rx="25.5152" ry="7.65455" class="spiral"/>
+<line x1="519.485" y1="1246" x2="570.515" y2="1246" class="spiral"/>
+<ellipse cx="545" cy="1238" rx="25.2727" ry="7.58182" class="spiral"/>
+<line x1="519.727" y1="1238" x2="570.273" y2="1238" class="spiral"/>
+<ellipse cx="545" cy="1230" rx="25.0303" ry="7.50909" class="spiral"/>
+<line x1="519.97" y1="1230" x2="570.03" y2="1230" class="spiral"/>
+<ellipse cx="545" cy="1222" rx="24.7879" ry="7.43636" class="spiral"/>
+<line x1="520.212" y1="1222" x2="569.788" y2="1222" class="spiral"/>
+<ellipse cx="545" cy="1214" rx="24.5455" ry="7.36364" class="spiral"/>
+<line x1="520.455" y1="1214" x2="569.545" y2="1214" class="spiral"/>
+<ellipse cx="545" cy="1206" rx="24.303" ry="7.29091" class="spiral"/>
+<line x1="520.697" y1="1206" x2="569.303" y2="1206" class="spiral"/>
+<ellipse cx="545" cy="1198" rx="24.0606" ry="7.21818" class="spiral"/>
+<line x1="520.939" y1="1198" x2="569.061" y2="1198" class="spiral"/>
+<ellipse cx="545" cy="1190" rx="23.8182" ry="7.14545" class="spiral"/>
+<line x1="521.182" y1="1190" x2="568.818" y2="1190" class="spiral"/>
+<ellipse cx="545" cy="1182" rx="23.5758" ry="7.07273" class="spiral"/>
+<line x1="521.424" y1="1182" x2="568.576" y2="1182" class="spiral"/>
+<ellipse cx="545" cy="1174" rx="23.3333" ry="7" class="spiral"/>
+<line x1="521.667" y1="1174" x2="568.333" y2="1174" class="spiral"/>
+<ellipse cx="545" cy="1166" rx="23.0909" ry="6.92727" class="spiral"/>
+<line x1="521.909" y1="1166" x2="568.091" y2="1166" class="spiral"/>
+<ellipse cx="545" cy="1158" rx="22.8485" ry="6.85455" class="spiral"/>
+<line x1="522.152" y1="1158" x2="567.848" y2="1158" class="spiral"/>
+<ellipse cx="545" cy="1150" rx="22.6061" ry="6.78182" class="spiral"/>
+<line x1="522.394" y1="1150" x2="567.606" y2="1150" class="spiral"/>
+<ellipse cx="545" cy="1142" rx="22.3636" ry="6.70909" class="spiral"/>
+<line x1="522.636" y1="1142" x2="567.364" y2="1142" class="spiral"/>
+<ellipse cx="545" cy="1134" rx="22.1212" ry="6.63636" class="spiral"/>
+<line x1="522.879" y1="1134" x2="567.121" y2="1134" class="spiral"/>
+<ellipse cx="545" cy="1126" rx="21.8788" ry="6.56364" class="spiral"/>
+<line x1="523.121" y1="1126" x2="566.879" y2="1126" class="spiral"/>
+<ellipse cx="545" cy="1118" rx="21.6364" ry="6.49091" class="spiral"/>
+<line x1="523.364" y1="1118" x2="566.636" y2="1118" class="spiral"/>
+<ellipse cx="545" cy="1110" rx="21.3939" ry="6.41818" class="spiral"/>
+<line x1="523.606" y1="1110" x2="566.394" y2="1110" class="spiral"/>
+<ellipse cx="545" cy="1102" rx="21.1515" ry="6.34545" class="spiral"/>
+<line x1="523.848" y1="1102" x2="566.152" y2="1102" class="spiral"/>
+<ellipse cx="545" cy="1094" rx="20.9091" ry="6.27273" class="spiral"/>
+<line x1="524.091" y1="1094" x2="565.909" y2="1094" class="spiral"/>
+<ellipse cx="545" cy="1086" rx="20.6667" ry="6.2" class="spiral"/>
+<line x1="524.333" y1="1086" x2="565.667" y2="1086" class="spiral"/>
+<ellipse cx="545" cy="1078" rx="20.4242" ry="6.12727" class="spiral"/>
+<line x1="524.576" y1="1078" x2="565.424" y2="1078" class="spiral"/>
+<ellipse cx="545" cy="1070" rx="20.1818" ry="6.05455" class="spiral"/>
+<line x1="524.818" y1="1070" x2="565.182" y2="1070" class="spiral"/>
+<ellipse cx="545" cy="1062" rx="19.9394" ry="5.98182" class="spiral"/>
+<line x1="525.061" y1="1062" x2="564.939" y2="1062" class="spiral"/>
+<ellipse cx="545" cy="1054" rx="19.697" ry="5.90909" class="spiral"/>
+<line x1="525.303" y1="1054" x2="564.697" y2="1054" class="spiral"/>
+<ellipse cx="545" cy="1046" rx="19.4545" ry="5.83636" class="spiral"/>
+<line x1="525.545" y1="1046" x2="564.455" y2="1046" class="spiral"/>
+<ellipse cx="545" cy="1038" rx="19.2121" ry="5.76364" class="spiral"/>
+<line x1="525.788" y1="1038" x2="564.212" y2="1038" class="spiral"/>
+<ellipse cx="545" cy="1030" rx="18.9697" ry="5.69091" class="spiral"/>
+<line x1="526.03" y1="1030" x2="563.97" y2="1030" class="spiral"/>
+<ellipse cx="545" cy="1022" rx="18.7273" ry="5.61818" class="spiral"/>
+<line x1="526.273" y1="1022" x2="563.727" y2="1022" class="spiral"/>
+<ellipse cx="545" cy="1014" rx="18.4848" ry="5.54545" class="spiral"/>
+<line x1="526.515" y1="1014" x2="563.485" y2="1014" class="spiral"/>
+<ellipse cx="545" cy="1006" rx="18.2424" ry="5.47273" class="spiral"/>
+<line x1="526.758" y1="1006" x2="563.242" y2="1006" class="spiral"/>
+<ellipse cx="545" cy="998" rx="18" ry="5.4" class="spiral"/>
+<line x1="527" y1="998" x2="563" y2="998" class="spiral"/>
+<line x1="545" y1="1269" x2="545" y2="990" class="spiralpost"/>
 <circle cx="386" cy="1254" r="2.4" class="rose"/>
 <circle cx="404" cy="1258" r="2.4" class="rose"/>
 <circle cx="424" cy="1253" r="2.4" class="rose"/>
 <circle cx="470" cy="1256" r="2.4" class="rose"/>
 <circle cx="490" cy="1252" r="2.4" class="rose"/>
-<circle cx="545" cy="962" r="7" class="rose"/>
-<circle cx="545" cy="962" r="11" class="dome"/>
-<text x="572" y="960" class="t" text-anchor="start">THE ROSE</text>
-<text x="572" y="968" class="s" text-anchor="start">under glass, at the top</text>
-<line x1="514" y1="984" x2="576" y2="984" class="fl"/>
+<rect x="498" y="980" width="98" height="8" class="fl2"/>
+<rect x="498" y="980" width="8" height="8" class="fl2"/>
+<line x1="498" y1="980" x2="596" y2="980" class="fl"/>
+<circle cx="572" cy="972" r="7" class="rose"/>
+<circle cx="572" cy="972" r="11" class="dome"/>
+<text x="598" y="970" class="t" text-anchor="start">THE ROSE</text>
+<text x="598" y="978" class="s" text-anchor="start">under glass, at the top</text>
 <text x="680" y="688" class="h">B2 · below the basement</text>
 <circle cx="24" cy="288" r="5" class="badge"/>
 <text x="24" y="290" class="bn">1</text>
