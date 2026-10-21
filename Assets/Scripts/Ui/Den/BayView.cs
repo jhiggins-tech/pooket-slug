@@ -12,8 +12,9 @@ namespace PooketSlug
     /// game's size: the loaded one on the repair stands, ticking over with its lights on while a fuel hose fills it and a
     /// gauge climbs, the rest in their spaces. The cargo drone waits over the stands and carries them about
     /// (<see cref="DroneShow"/>); the lift's platform carries you to the top deck. A tabk you walk up to shows its card:
-    /// its name in its crewmate's colour, its guns and their rounds, and TAKE IT (or LOADED). The first visit with kie's
-    /// tabk won, it comes home (<see cref="BayHomecomingView"/>).
+    /// its name in its crewmate's colour, its guns and their rounds, and TAKE IT (or LOADED). In co-op the tabk your
+    /// partner has loaded is taken: dimmed in its space under their P1 or P2 tag, its card saying TAKEN (<see cref="CoopTabks"/>).
+    /// The first visit with kie's tabk won, it comes home (<see cref="BayHomecomingView"/>).
     /// <para>
     /// The rules are Core's (<see cref="BayMap"/>, <see cref="BayWalker"/>, <see cref="Garage"/>); <see cref="BayFlow"/>
     /// runs them, and this draws them and takes the taps.
@@ -23,6 +24,8 @@ namespace PooketSlug
     {
         /// <summary>Tabks here are drawn 1.5 times the game's sprite (Design's scale rule for the bay).</summary>
         const float Scale = 1.5f;
+        /// <summary>The partner's tabk, taken: dimmed in its space.</summary>
+        static readonly Color TakenDim = new Color(0.42f, 0.42f, 0.48f, 0.8f);
         /// <summary>The fuel hose: where it comes from (the gas bottles by the bench), where it hangs when it's out, and its filler on the tabk on the stands.</summary>
         static readonly Vector2 HoseFrom = new Vector2(168f, 42f), HoseHang = new Vector2(160f, 18f), Filler = new Vector2(BayMap.StandX + 26f, BayMap.StandY + 20f);
         static readonly Vector2 Gauge = new Vector2(150f, 50f);
@@ -32,7 +35,7 @@ namespace PooketSlug
         readonly Image m_Lift, m_LiftEdge, m_GaugeFill, m_Spark, m_Drone, m_Cable, m_Hook, m_Nozzle;
         readonly Image[] m_Hose = new Image[HoseDots], m_Lights = new Image[2];
         readonly StageFigure m_Soldier;
-        readonly Text m_Hint, m_Note, m_CardName, m_CardGuns, m_CardRounds, m_TakeLabel, m_Loaded;
+        readonly Text m_Hint, m_Note, m_CardName, m_CardGuns, m_CardRounds, m_TakeLabel, m_Loaded, m_TakenTag;
         readonly Button m_Take;
         readonly Dictionary<TabkCard, Image> m_Bodies = new Dictionary<TabkCard, Image>();
         readonly System.Random m_Rng = new System.Random();
@@ -40,7 +43,8 @@ namespace PooketSlug
 
         float m_Clock, m_CamX, m_NoteUntil, m_SparkAt, m_SparkUntil, m_Fill;
         SoldierDef m_SoldierDef;
-        int m_Skin;
+        TabkCard m_Taken;
+        int m_TakenSeat;
 
         readonly Latch<int> m_TapSpot = new Latch<int>();
         readonly Latch<BayPlace> m_TapPlace = new Latch<BayPlace>();
@@ -67,6 +71,7 @@ namespace PooketSlug
             m_Nozzle = Picture(m_World, "Nozzle", null, 0f, 0f, 3f, 3f, Gold);
             for (int i = 0; i < 2; i++) m_Lights[i] = Picture(m_World, "Light", null, 0f, 0f, 4f, 3f, new Color(1f, 0.9f, 0.5f, 0.65f));
             m_Spark = Picture(m_World, "Spark", Art.Spark[0], 0f, 0f, 10f, 10f, Color.white);
+            m_TakenTag = Label(m_World, "Taken tag", 0f, 0f, 9, TextAnchor.LowerCenter, Palette.Players[1]);
             m_Home = new BayHomecomingView(m_World, m_Stage);
             m_Soldier = new StageFigure(m_World, "You");
             m_Cable = Picture(m_World, "Cable", null, 0f, 0f, 1f, 1f, new Color(0.1f, 0.1f, 0.12f));
@@ -128,12 +133,11 @@ namespace PooketSlug
 
         Garage m_Garage;
 
-        /// <summary>Opens the bay on <paramref name="garage"/>'s tabks, with <paramref name="soldier"/> (in <paramref name="skin"/>) walking it.</summary>
-        public void Begin(Garage garage, SoldierDef soldier, int skin)
+        /// <summary>Opens the bay on <paramref name="garage"/>'s tabks, with <paramref name="soldier"/> walking it.</summary>
+        public void Begin(Garage garage, SoldierDef soldier)
         {
             m_Garage = garage;
             m_SoldierDef = soldier;
-            m_Skin = skin;
             foreach (Image body in m_Bodies.Values) Object.Destroy(body.gameObject);
             m_Bodies.Clear();
             foreach (TabkCard c in garage.Won)
@@ -207,11 +211,14 @@ namespace PooketSlug
 
         /// <summary>
         /// Draws the bay: <paramref name="walker"/> you, <paramref name="show"/> the drone's moves (or null, waiting at
-        /// home), <paramref name="card"/> the tabk whose card is open (or null), and whether it's being loaded now.
+        /// home), <paramref name="card"/> the tabk whose card is open (or null), and whether it's being loaded now;
+        /// <paramref name="taken"/> the partner's tabk in co-op (or null), and their seat.
         /// </summary>
-        public void Refresh(float dt, BayWalker walker, DroneShow show, TabkCard card, bool loading, bool touch)
+        public void Refresh(float dt, BayWalker walker, DroneShow show, TabkCard card, bool loading, bool touch, TabkCard taken, int takenSeat)
         {
             m_Clock += dt;
+            m_Taken = taken;
+            m_TakenSeat = takenSeat;
             float hose = show?.Hose ?? 1f;
             Tabks(show, hose);
             Hose(hose, dt);
@@ -252,6 +259,15 @@ namespace PooketSlug
                 if (onStands && hose >= 1f) idling = c;
                 float tick = onStands && hose >= 1f && Fx.Blink(m_Clock, 8f) ? 0.5f : 0f; // ticking over
                 kv.Value.rectTransform.anchoredPosition = new Vector2(feet.x, feet.y + tick) * Px;
+                if (Homecoming == null) kv.Value.color = c == m_Taken ? TakenDim : Color.white; // the homecoming paints kie's itself
+                if (c == m_Taken) m_TakenTag.rectTransform.anchoredPosition = new Vector2(feet.x, feet.y + BayMap.TabkH + 3f) * Px;
+            }
+            bool tagged = m_Taken != null && m_Bodies.ContainsKey(m_Taken);
+            Ui.Show(m_TakenTag, tagged);
+            if (tagged)
+            {
+                m_TakenTag.text = "P" + (m_TakenSeat + 1);
+                m_TakenTag.color = Palette.Players[Mathf.Clamp(m_TakenSeat, 0, 1)];
             }
             if (carried != null) carried.transform.SetAsLastSibling();
             for (int i = 0; i < 2; i++)
@@ -314,7 +330,7 @@ namespace PooketSlug
 
         void You(BayWalker w)
         {
-            PlayerSkin skin = Art.SkinFor(m_SoldierDef, m_Skin);
+            PlayerSkin skin = Art.SkinFor(m_SoldierDef);
             bool walking = !w.Standing && !w.Riding;
             m_Soldier.Pose(skin, StagePose.Walking(walking, m_Clock));
             m_Soldier.At(w.X, w.Y);
@@ -338,9 +354,11 @@ namespace PooketSlug
             }
             m_CardGuns.text = guns;
             m_CardRounds.text = rounds;
-            bool isLoaded = m_Garage.Loaded == card && !loading;
-            Ui.Show(m_Take, !isLoaded);
-            Ui.Show(m_Loaded, isLoaded);
+            bool isLoaded = m_Garage.Loaded == card && !loading, taken = card == m_Taken && !isLoaded;
+            Ui.Show(m_Take, !isLoaded && !taken);
+            Ui.Show(m_Loaded, isLoaded || taken);
+            m_Loaded.text = taken ? "TAKEN" : "LOADED";
+            m_Loaded.color = taken ? Palette.Players[Mathf.Clamp(m_TakenSeat, 0, 1)] : new Color(0.3f, 1f, 0.45f);
             m_TakeLabel.text = loading ? "SKIP" : "TAKE IT";
         }
 

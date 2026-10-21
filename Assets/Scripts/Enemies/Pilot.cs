@@ -37,7 +37,7 @@ namespace PooketSlug
         {
             m_Kit = kit;
             m_Brain = new PilotBrain(book, new PilotSpec(), (uint)(feet.x * 977f) ^ 0x9e3779b9u);
-            m_Visual = new PlayerVisual(Visual, Art.SkinFor(kit, 0), SortOrder.Enemies);
+            m_Visual = new PlayerVisual(Visual, Art.SkinFor(kit), SortOrder.Enemies);
             Engaged = true; // the boss bar is his from the moment he's out
         }
 

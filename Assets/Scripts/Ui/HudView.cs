@@ -309,8 +309,8 @@ namespace PooketSlug
                 m_TeamShownLeft = show.Fired;
                 m_TeamLeft.color = CardColour(show.Fired);
                 m_TeamRight.color = CardColour(show.Partner);
-                m_TeamLeftPic.sprite = Art.SkinFor(show.Fired, 0).Portrait;
-                m_TeamRightPic.sprite = Art.SkinFor(show.Partner, 1).Portrait;
+                m_TeamLeftPic.sprite = Art.SkinFor(show.Fired).Portrait;
+                m_TeamRightPic.sprite = Art.SkinFor(show.Partner).Portrait;
                 m_TeamRightPic.rectTransform.localScale = new Vector3(-1f, 1f, 1f); // facing the presser
                 m_TeamLeftName.text = show.Fired.Name.ToUpperInvariant();
                 m_TeamRightName.text = show.Partner.Name.ToUpperInvariant();
@@ -487,19 +487,19 @@ namespace PooketSlug
             int row = 0, hearts = 0;
             foreach (RemotePlayer r in w.Remotes)
             {
-                int skin = Mathf.Clamp(r.Link.Skin, 0, 1);
-                string name = skin == 0 ? "P1" : "P2";
+                int seat = Mathf.Clamp(r.Link.Seat, 0, 1);
+                string name = seat == 0 ? "P1" : "P2";
                 float y = 80f + 14f * row; // under the kit's meters
                 Text label = Pooled(m_PartnerLabels, row, m_NewPartnerLabel);
                 label.rectTransform.anchoredPosition = new Vector2(8f, -y);
                 label.text = name;
-                label.color = Palette.Players[skin];
-                hearts = Hearts(m_PartnerHearts, m_NewPartnerHeart, hearts, r.MaxHp, r.Hp, new Vector2(28f, -(y + 2f)), 10f, 9f, Palette.Players[skin]);
+                label.color = Palette.Players[seat];
+                hearts = Hearts(m_PartnerHearts, m_NewPartnerHeart, hearts, r.MaxHp, r.Hp, new Vector2(28f, -(y + 2f)), 10f, 9f, Palette.Players[seat]);
 
                 Text tag = Pooled(m_Tags, row, m_NewTag);
                 tag.rectTransform.anchoredPosition = Ui.FromScreen(cam.WorldToScreenPoint(new Vector3(r.Pos.x, r.Pos.y + 1.9f, 0f)));
                 tag.text = name + "  " + DropIn.Points(r.Link.Score);
-                tag.color = Palette.Players[skin];
+                tag.color = Palette.Players[seat];
                 row++;
             }
             HideFrom(m_PartnerLabels, row);
@@ -540,8 +540,8 @@ namespace PooketSlug
             int n = 0;
             foreach (RemotePlayer r in w.Remotes)
             {
-                int skin = Mathf.Clamp(r.Link.Skin, 0, 1);
-                Beacon(cam, view, n++, r.Pos, r.Height, skin == 0 ? "P1" : "P2", Palette.Players[skin], r.LowHealth, r.Away);
+                int seat = Mathf.Clamp(r.Link.Seat, 0, 1);
+                Beacon(cam, view, n++, r.Pos, r.Height, seat == 0 ? "P1" : "P2", Palette.Players[seat], r.LowHealth, r.Away);
             }
             HideFrom(m_Arrows, n);
             HideFrom(m_ArrowLabels, n);

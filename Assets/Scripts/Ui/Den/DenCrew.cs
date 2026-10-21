@@ -33,7 +33,7 @@ namespace PooketSlug
         public DenFigure Fig;
         public DenWalker Walk;
         public DenDoing Doing;
-        public int Seat = -1, Skin;
+        public int Seat = -1;
         public int Cycle;
         public float CycleT, CycleLen;
         public float X => Walk.X;
@@ -120,7 +120,7 @@ namespace PooketSlug
                 if (den.Pick == s)
                 {
                     a.Walk.Place(DenFloor.Ground, DenMap.XOf(DenPlace.Couch));
-                    TakeOver(a, info.Skin);
+                    TakeOver(a);
                 }
             }
             m_VisitorActor = null;
@@ -141,15 +141,15 @@ namespace PooketSlug
             {
                 if (a.Soldier == den.Pick)
                 {
-                    if (a != Mine) TakeOver(a, info.Skin);
+                    if (a != Mine) TakeOver(a);
                     a.Seat = den.Ready ? den.Seat : -1;
                 }
-                else if (den.Mode == DenMode.Coop && partner.Soldier == a.Soldier && partner.InDenNow && partner.Seated) Sit(a, partnerSeat, 1 - info.Skin);
+                else if (den.Mode == DenMode.Coop && partner.Soldier == a.Soldier && partner.InDenNow && partner.Seated) Sit(a, partnerSeat);
                 else if (den.Mode == DenMode.Coop && partner.Soldier == a.Soldier && partner.Playing) a.Doing = DenDoing.Away;
                 else if (a.Doing == DenDoing.Yours || a.Seat >= 0 || a.Doing == DenDoing.Away) GoHome(a);
             }
             if (Mine != null && Mine.Soldier != den.Pick) Mine = null;
-            Visitor(den, partner, partnerSeat, 1 - info.Skin);
+            Visitor(den, partner, partnerSeat);
         }
 
         /// <summary>Moves everyone on and draws them, and the props (<paramref name="clock"/> is the den's).</summary>
@@ -170,7 +170,7 @@ namespace PooketSlug
         public bool VisitorOn(int seat) => m_VisitorActor != null && m_VisitorActor.Seat == seat;
 
         /// <summary>A partner whose soldier isn't freed on this phone walks in by the roller door and sits down as a visitor.</summary>
-        void Visitor(Den den, DenPartner partner, int seat, int skin)
+        void Visitor(Den den, DenPartner partner, int seat)
         {
             bool needed = den.Mode == DenMode.Coop && partner.InDenNow && partner.Seated && partner.Soldier != null && !Has(den.Crew, partner.Soldier);
             if (!needed)
@@ -185,25 +185,23 @@ namespace PooketSlug
                 m_VisitorActor.Walk.Face(true);
                 Ui.Show(m_Visitor.Rt, true);
             }
-            Sit(m_VisitorActor, seat, skin);
+            Sit(m_VisitorActor, seat);
         }
 
         /// <summary>You're playing <paramref name="a"/> now: they stop what they're doing and are yours to walk.</summary>
-        void TakeOver(DenActor a, int skin)
+        void TakeOver(DenActor a)
         {
             Bits.EndIfIn(a);
             Mine = a;
             a.Doing = DenDoing.Yours;
-            a.Skin = skin;
             a.Seat = -1;
             a.Walk.WalkTo(a.Walk.Floor, a.Walk.X); // stop where they stand
             Sfx.Play(Sfx.Pickup, 0.4f);
         }
 
         /// <summary>Off to seat <paramref name="seat"/> (the partner's pick, or the visitor).</summary>
-        void Sit(DenActor a, int seat, int skin)
+        void Sit(DenActor a, int seat)
         {
-            a.Skin = skin;
             if (a.Seat == seat && (a.Doing == DenDoing.Seated || a.Doing == DenDoing.Walking)) return;
             if (a.Home != null) Bits.EndIfIn(a);
             a.Seat = seat;
@@ -215,7 +213,6 @@ namespace PooketSlug
         {
             if (a.Doing == DenDoing.Bit) return;
             a.Seat = -1;
-            a.Skin = 0;
             if (a.Doing == DenDoing.Away)
             {
                 a.Walk.Place(a.Home.Floor, a.Home.Spot); // back from the mission: they're just there
@@ -261,7 +258,7 @@ namespace PooketSlug
             bool away = a.Doing == DenDoing.Away || InBeat(a);
             Ui.Show(f.Rt, !away);
             if (away) return;
-            PlayerSkin skin = Art.SkinFor(a.Soldier, a.Skin);
+            PlayerSkin skin = Art.SkinFor(a.Soldier);
             bool seated = a.OnCouch;
             bool climbing = a.Walk.Climbing;
             bool walking = !seated && !a.Walk.Standing && !climbing;

@@ -71,7 +71,7 @@ namespace PooketSlug.Tests
         public readonly List<HitReport> Hits = new List<HitReport>();
 
         public bool IsAuthority => Authority;
-        public int LocalSkin => 0;
+        public int LocalSeat => 0;
         public int LocalPlayerId => 1;
         public int Round => 0;
 
@@ -79,6 +79,7 @@ namespace PooketSlug.Tests
         public IReadOnlyList<IAvatarLink> Partners { get; } = new List<IAvatarLink>();
         public void SendAvatar(SoldierDef soldier, Vector2 pos, Vector2 vel, int poseFlags, int hp, int tankFlags, Vector2 tankPos) { }
         public void SendDen(SoldierDef soldier, int flags) { }
+        public void SendTabk(int id) { }
         public void SendScene(int taps) { }
         public void SendSceneVersions(int versions) { }
         public int SceneVersions => 0;

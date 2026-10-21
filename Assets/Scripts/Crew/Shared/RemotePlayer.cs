@@ -28,7 +28,7 @@ namespace PooketSlug
             : base(world, "RemotePlayer", link.Pos, link.Soldier.HalfWidth, link.Soldier.StandHeight, link.Soldier.MaxHp)
         {
             Link = link;
-            m_Visual = new PlayerVisual(Visual, Art.SkinFor(link.Soldier, link.Skin), SortOrder.Player - 5);
+            m_Visual = new PlayerVisual(Visual, Art.SkinFor(link.Soldier), SortOrder.Player - 5);
             m_Kit = KitCopy.For(this);
             m_Tank = new TankLook(Go.transform, SortOrder.Player - 4, TabkKit.Tones2);
             m_Tank.Shown = false;
@@ -147,7 +147,7 @@ namespace PooketSlug
                 m_Kit.Render(m_Pose);
             }
             m_TabkKit?.Render(m_Pose);
-            m_Visual.Skin = Art.SkinFor(Link.Soldier, Link.Skin);
+            m_Visual.Skin = Art.SkinFor(Link.Soldier);
             m_Visual.Apply(m_Pose);
             bool frozen = m_Pose.Frozen && !Driving;
             if (frozen && m_Ice == null) m_Ice = new FrostLook(Go.transform);

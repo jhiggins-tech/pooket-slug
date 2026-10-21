@@ -80,10 +80,10 @@ namespace PooketSlug
         public const float PPU = Tuning.Pixels.PerUnit;
         public static readonly Color32 OutlineColor = Hex(0x1c1420);
 
-        /// <summary>[0] = player 1 (red bandana), [1] = player 2 (blue bandana).</summary>
-        public static PlayerSkin[] PlayerSkins;
-        /// <summary>Each crewmate in their paint (<see cref="CrewMember.Paint"/>): [0] player 1, [1] player 2.</summary>
-        static readonly Dictionary<SoldierDef, PlayerSkin[]> s_CrewSkins = new Dictionary<SoldierDef, PlayerSkin[]>();
+        /// <summary>The trooper, a soldier who isn't one of the crew (red bandana).</summary>
+        static PlayerSkin s_TrooperSkin;
+        /// <summary>Each crewmate in their paint (<see cref="CrewMember.Paint"/>), the same from either seat.</summary>
+        static readonly Dictionary<SoldierDef, PlayerSkin> s_CrewSkins = new Dictionary<SoldierDef, PlayerSkin>();
         public static Sprite[] SoldierLegsRun, RunnerLegsRun;
         public static Sprite SoldierLegsIdle, RunnerLegsJump;
         public static Sprite SoldierTorso, RunnerTorso;
@@ -151,19 +151,9 @@ namespace PooketSlug
                 { 'p', 0x5a4a6a }, { 'P', 0x3a2e48 }, { 'm', 0xe8ecf4 }, { 'M', 0x9098a8 },
             });
 
-            var player2 = Swap(new Dictionary<char, uint>
-            {
-                { 'r', 0x3a7ad8 }, { 'R', 0x22508c }, { 'g', 0x3c7c8c }, { 'G', 0x285a68 },
-            });
-
             Vector2 feet = new Vector2(0.5f, 0f);
-            PlayerSkins = new[] { BuildSkin(CrewLook.Shared, s_Pal), BuildSkin(CrewLook.Shared, player2) };
-            foreach (CrewMember m in Crew.All)
-            {
-                var skins = new PlayerSkin[m.Paint.Count];
-                for (int k = 0; k < skins.Length; k++) skins[k] = BuildSkin(CrewArt.LookOf(m.Soldier), Swap(m.Paint[k]));
-                s_CrewSkins[m.Soldier] = skins;
-            }
+            s_TrooperSkin = BuildSkin(CrewLook.Shared, s_Pal);
+            foreach (CrewMember m in Crew.All) s_CrewSkins[m.Soldier] = BuildSkin(CrewArt.LookOf(m.Soldier), Swap(m.Paint));
             SoldierTorso = Figure(CrewLook.Shared, CrewBody.Forward, soldier);
             RunnerTorso = Figure(CrewLook.Shared, CrewBody.Forward, runner);
 
@@ -238,12 +228,9 @@ namespace PooketSlug
         /// <summary>A pickup's sprite.</summary>
         public static Sprite PickupSprite(PickupDef def) => s_Pickups[def.Id];
 
-        /// <summary>How <paramref name="soldier"/> looks as player <paramref name="skin"/> + 1.</summary>
-        public static PlayerSkin SkinFor(SoldierDef soldier, int skin)
-        {
-            if (soldier == null || !s_CrewSkins.TryGetValue(soldier, out PlayerSkin[] skins)) skins = PlayerSkins;
-            return skins[Mathf.Clamp(skin, 0, skins.Length - 1)];
-        }
+        /// <summary>How <paramref name="soldier"/> looks, from either seat (there's no second paint: owner, 2026-10-21).</summary>
+        public static PlayerSkin SkinFor(SoldierDef soldier) =>
+            soldier != null && s_CrewSkins.TryGetValue(soldier, out PlayerSkin skin) ? skin : s_TrooperSkin;
 
         /// <summary>A projectile's sprite (the content is data in Core; how it looks lives here). Ids past the table borrow the shell's.</summary>
         public static Sprite ProjectileSprite(ProjectileDef def) => def.Id < s_Projectiles.Length ? s_Projectiles[def.Id] : Shell;

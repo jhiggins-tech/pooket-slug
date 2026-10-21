@@ -107,7 +107,6 @@ namespace PooketSlug
                 InviteLink = coop ? CoopRoom.Link(g.PageUrl, g.Net.RoomCode) : null,
                 Watchers = coop ? g.Net.Watchers : 0,
                 CanHost = g.CoopReady && m_Den.Mode == DenMode.Solo,
-                Skin = coop ? g.Net.Link.LocalSkin : 0,
                 DoorLift = Mathf.Max(m_Door.Lift, m_Beat?.DoorLift ?? 0f), // the roller door's rolled up for someone moving in
                 DoorThrough = m_Door.Through,
             };
@@ -266,7 +265,7 @@ namespace PooketSlug
         void Door(float dt)
         {
             Game g = m_Game;
-            if (m_Door.Tick(dt)) g.Bay.Show(m_Den.Pick ?? g.Soldier, m_Den.Mode == DenMode.Coop ? g.Net.Link.LocalSkin : 0);
+            if (m_Door.Tick(dt)) g.Bay.Show(m_Den.Pick ?? g.Soldier);
             else if (m_Door.Inside && !g.Bay.Open) m_Door.ComeOut();
             if (m_Door.TakeRolled())
             {
@@ -308,6 +307,32 @@ namespace PooketSlug
         }
 
         /// <summary>
+        /// One of each tabk in co-op (<see cref="CoopTabks"/>): the partner's is taken in our bay, and if we both have the
+        /// same one loaded and it's theirs to keep, the next we've won is loaded instead (the bay's drone swaps it in, if
+        /// it's open), and we're told who has ours.
+        /// </summary>
+        void Tabks(bool coop, DenPartner partner, bool authority)
+        {
+            Game g = m_Game;
+            int theirs = 1 - m_Den.Seat;
+            g.Bay.Taken = coop ? CoopTabks.Taken(partner) : null;
+            g.Bay.TakenSeat = theirs;
+            if (!coop) return;
+            TabkCard loaded = g.LoadedTabk;
+            if (!CoopTabks.GivesWay(loaded, partner, authority)) return;
+            TabkCard next = CoopTabks.Next(loaded, g.TabksWon, loaded);
+            if (next == null) return;
+            Options o = g.Options;
+            o.Tabk = next.Id;
+            g.ChangeOptions(o);
+            string note = "P" + (theirs + 1) + " HAS " + loaded.Name + ": " + next.Name + " IS LOADED";
+            if (g.Bay.Open) g.Bay.GaveWay(note);
+            else m_View.Note(note);
+            Sfx.Play(Sfx.Glitch, 0.4f);
+            Log.Game.Info("Tabk given way: the partner has " + loaded.Name + (partner.Playing ? " in the mission" : " and runs the room") + "; loaded " + next.Name);
+        }
+
+        /// <summary>
         /// Moves the den on each frame (over the kit screen and the mission screen too): the partner's seat and flags in,
         /// ours out, the countdown, the zoom, and the mission once it's done.
         /// </summary>
@@ -324,7 +349,7 @@ namespace PooketSlug
                 if (partners.Count > 0)
                 {
                     IAvatarLink p = partners[0];
-                    partner = new DenPartner { Flags = p.DenFlags, Playing = p.Playing };
+                    partner = new DenPartner { Flags = p.DenFlags, Playing = p.Playing, Tabk = p.Tabk };
                     if (partner.Seated || partner.Playing) partner.Soldier = p.Soldier; // otherwise it's whoever they played last
                 }
             }
@@ -341,10 +366,12 @@ namespace PooketSlug
                 Sfx.Play(Sfx.Start, 0.6f);
                 Log.Game.Info("Den START: " + m_Den.Pick.Name + (coop && partner.Present ? ", partner " + (partner.Playing ? "playing" : "in the den") : ""));
             }
+            Tabks(coop, partner, authority);
             SceneLibrary scenes = g.Scenes.Library;
             if (coop)
             {
                 g.Net.Link.SendDen(m_Den.Pick, m_Den.Flags);
+                g.Net.Link.SendTabk(g.LoadedTabk.Id);
                 // which copies of the scenes we'd play, fixed for the session (SceneLibrary): only a partner with
                 // exactly the same plays them with us, otherwise both play the built-in ones
                 if (!scenes.InCoop) Log.Game.Info("Scenes for co-op: " + scenes.StartCoop().ToString("x8"));

@@ -46,12 +46,12 @@ namespace PooketSlug
         readonly CrewKit m_Kit;
         FrostLook m_Ice;
 
-        public Player(World world, SoldierDef def, Vector2 feet, int skin)
+        public Player(World world, SoldierDef def, Vector2 feet)
             : base(world, "Player", feet, def.HalfWidth, def.StandHeight, def.MaxHp)
         {
             Def = def;
             Kit = new KitMeters(def.StartSpecials, def.SpecialMax, def.SpecialRefill, Tuning.Kit.SuperKills, def.Ability != null ? def.AbilityCooldown : 0f);
-            m_Visual = new PlayerVisual(Visual, Art.SkinFor(def, skin), SortOrder.Player);
+            m_Visual = new PlayerVisual(Visual, Art.SkinFor(def), SortOrder.Player);
             m_Kit = CrewKit.For(this);
             Grounded = true; // spawned standing on the ground (matters for the title-screen pose)
         }
@@ -62,7 +62,6 @@ namespace PooketSlug
         /// <summary>Where the soldier is aiming: forward, up, down in the air, or a diagonal (<see cref="Aiming"/>).</summary>
         public Vector2 Aim => m_Aim;
         public override bool IsDown => Dead;
-        public int Skin { set => m_Visual.Skin = Art.SkinFor(Def, value); }
 
         public AvatarPose Pose
         {

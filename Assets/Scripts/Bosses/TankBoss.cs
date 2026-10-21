@@ -64,7 +64,7 @@ namespace PooketSlug
             else m_Kie = BossKits.For(world.BossTabk, world, this); // on every screen in co-op: the roulette and the disguise are drawn on each
             if (!decoy && world.BossTabk == BossTabk.Kcaj) // his Trollogram's at the controls, a cone on the antenna
             {
-                m_Pilot = AddRenderer(Visual, "Pilot", Art.Holo(Art.SkinFor(Content.Kcaj, 0).Portrait), SortOrder.Boss - 2);
+                m_Pilot = AddRenderer(Visual, "Pilot", Art.Holo(Art.SkinFor(Content.Kcaj).Portrait), SortOrder.Boss - 2);
                 m_ConeLeft = AddRenderer(m_Pilot.transform, "Cone", KcajArt.Cone, SortOrder.Boss - 1);
                 m_ConeRight = AddRenderer(m_Pilot.transform, "Cone", KcajArt.Cone, SortOrder.Boss - 1);
                 m_ConeLeft.transform.localPosition = new Vector3(-6f / Art.PPU, 13f / Art.PPU, 0f);

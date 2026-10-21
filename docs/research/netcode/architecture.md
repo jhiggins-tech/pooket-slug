@@ -51,9 +51,11 @@ Sizes are in words of 4 bytes, as the weaver recorded them when this was written
 | `NetPos`, `NetVel` (`Vector2`) | Feet position and velocity |
 | `NetPose` (`int`) | `AvatarPose.Pack()` bits: facing, aim up/down, grounded, crouch, running, dead, muzzle flash, blink, hit flash |
 | `NetHp` (`int`) | Health |
-| `NetSkin` (`int`) | 0 = red P1, 1 = blue P2 |
 | `NetSoldier` (`byte`) | Which soldier they play, as a `SoldierDef` id. Their partner's game uses it for the soldier's size and health |
+| `NetTabk` (`byte`) | The tabk they have loaded (`TabkCard.Id`, 0 before they've said), so the partner's bay shows it taken (`CoopTabks`, 21 Oct) |
 | `NetRound` (`int`) | `World.Round + 1` once playing; 0 = still in the lobby. Lets clients ignore a soldier that hasn't reached the current round |
+
+There's no colour on the wire: everyone wears their own (21 Oct, `NetSkin` retired). A player's seat, P1 or P2, is worked out on each phone: player one is whoever runs the shared world (`NetReplication.SeatOf`).
 
 **`WorldNet`**: one per session, a master-client object.
 

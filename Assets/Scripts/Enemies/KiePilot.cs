@@ -143,7 +143,7 @@ namespace PooketSlug
 
         public PilotDecoy(World world, EnemyDef def, Vector2 feet) : base(world, def, feet)
         {
-            m_Visual = new PlayerVisual(Visual, Art.SkinFor(Content.Kie, 0), SortOrder.Enemies - 1);
+            m_Visual = new PlayerVisual(Visual, Art.SkinFor(Content.Kie), SortOrder.Enemies - 1);
             m_Pose = new AvatarPose { Facing = 1, Grounded = true };
         }
 

@@ -14,6 +14,8 @@ namespace PooketSlug
         public SoldierDef Soldier;
         /// <summary>They're already in the mission (a partner who readied up first, or one we're dropping in on).</summary>
         public bool Playing;
+        /// <summary>The tabk they have loaded (<see cref="TabkCard.Id"/>), 0 before they've said: one of each in co-op (<see cref="CoopTabks"/>).</summary>
+        public int Tabk;
 
         public bool Present => Soldier != null || Flags != 0 || Playing;
         public bool InDenNow => (Flags & Den.InDen) != 0 && !Playing;

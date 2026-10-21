@@ -124,7 +124,7 @@ namespace PooketSlug
                 m_Lights[seat].color = ready ? new Color(0.3f, 1f, 0.45f) : filled ? Palette.Gold : new Color(0.2f, 0.18f, 0.25f);
                 m_LoosePads[seat].enabled = !filled;
                 Ui.Show(m_Tags[seat], filled && (den.Mode == DenMode.Coop || seat == 0));
-                m_Tags[seat].color = Palette.Players[mine ? info.Skin : 1 - info.Skin];
+                m_Tags[seat].color = Palette.Players[seat]; // the tags say who's who: everyone wears their own colours
             }
             string l1 = den.Ready ? "READY" : den.Pick != null ? "IN" : "--"; // the console font has no dots
             string l2 = partnerSeat ? (den.Partner.Ready ? "READY" : "IN") : "--";

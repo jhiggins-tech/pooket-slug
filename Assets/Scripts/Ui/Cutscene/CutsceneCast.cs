@@ -185,9 +185,9 @@ namespace PooketSlug
             Drone(stage, t, now, ground);
             Beacon(stage, t);
 
-            Soldier(m_Tones2, "tones2", Art.SkinFor(Content.Tones2, 0), 10f, stage, t, now, ground);
-            Soldier(m_Kie, "kie", Art.SkinFor(Content.Kie, 0), 8f, stage, t, now, ground);
-            Soldier(m_Kcaj, "kcaj", Art.SkinFor(Content.Kcaj, 0), 9f, stage, t, now, ground);
+            Soldier(m_Tones2, "tones2", Art.SkinFor(Content.Tones2), 10f, stage, t, now, ground);
+            Soldier(m_Kie, "kie", Art.SkinFor(Content.Kie), 8f, stage, t, now, ground);
+            Soldier(m_Kcaj, "kcaj", Art.SkinFor(Content.Kcaj), 9f, stage, t, now, ground);
             Goon(stage, t, now, ground);
             Tabk(m_KieTabk, m_KieHull, m_KieGun, m_KieTurret, "kie-tabk", stage, t, now, ground);
             Tabk(m_KcajTabk, m_KcajHull, m_KcajGun, m_KcajTurret, "kcaj-tabk", stage, t, now, ground);

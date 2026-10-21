@@ -111,10 +111,10 @@ namespace PooketSlug
             if (Coop)
             {
                 // Joining a game in progress: start where the others are, a step apart from the partner.
-                float x = Mathf.Max(start.x + net.LocalSkin * 1.25f, View.Left + 2f);
+                float x = Mathf.Max(start.x + net.LocalSeat * 1.25f, View.Left + 2f);
                 start = new Vector2(x, Level.TopSurfaceY(x));
             }
-            Player = new Player(this, soldier ?? Content.Tones2, start, Coop ? net.LocalSkin : 0); // tones2 until the crew opens (Crew)
+            Player = new Player(this, soldier ?? Content.Tones2, start); // tones2 until the crew opens (Crew)
             View.Tick(0f);
             Spawner.SpawnAhead();
         }
