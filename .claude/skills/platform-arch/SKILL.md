@@ -83,7 +83,7 @@ The three coder definitions are shared by every domain manager. They are roles, 
 
 **A domain is a workflow, not a folder.** The owner set this: the unit of ownership is the job that gets done, and the
 job usually cuts across the code's folders. The map, with the exact file lists, is in
-[the domain map](references/domains.md). Six domains to start:
+[the domain map](references/domains.md). Six domains to start, plus the architect's own:
 
 | Domain | Subject | The owner's words |
 |---|---|---|

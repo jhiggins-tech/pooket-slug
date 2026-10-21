@@ -24,6 +24,10 @@ Up: [the platform architecture](../SKILL.md) · [the roles](roles.md) · [the pr
 
 The three the owner named are marked **owner's** below.
 
+A seventh, `architect`, owns the five assembly definitions (the `.asmdef` files). They are the boundaries between
+Core, Net, the game and the tests, and a change to one is a change to the shape of the system — so it is the
+architect's, not a domain's.
+
 ## The rule for a file
 
 A file belongs to the domain whose **workflow** would change it. Ask: *when this file changes, who does the
@@ -41,26 +45,26 @@ together. Rules live in `Core` with tests; the entities and views that draw them
   the shared colours. **The ids live here, and they are the most dangerous thing in the repository.**
 - `Crew/` — `Crew.cs`, `AvatarPose.cs`, `Controls.cs`, `DownLine.cs`, `Drip.cs`, `Lives.cs`, `SoldierJump.cs`,
   `TeamSuper.cs`, `KitGuide.cs`, `<name>Tuning.cs`, `<name>TabkSpec.cs`
-- `Bosses/` — `BossTankSpec.cs`, `KieTankSpec.cs`, `KcajTankSpec.cs`, `PilotBrain.cs`, `BossIntroShow.cs`,
-  `CraterGround.cs`
+- `Bosses/` — `BossTankSpec.cs`, `KieTankSpec.cs`, `KcajTankSpec.cs`, `PilotBrain.cs`, `CraterGround.cs`.
+  (`BossIntroShow.cs` is the cutscene domain's: the boss intro is a show.)
 - `Tabks/` — `PlayerTankSpec.cs`, `CallInCoach.cs`, `Garage.cs`, `CoopTabks.cs`, `KieHomecoming.cs`
 - `Missions/` — `Missions.cs`, `Level.cs`, `MissionBoard.cs`, `MissionStory.cs`, `StartFlow.cs`, `CodaCoach.cs`,
   `Creamery.cs`
 - `Enemies/` — `Goons.cs`, `BigScoopBrain.cs`
-- `World/` — `TilePhysics.cs`, `Frost.cs`, `HazardBeat.cs`
+- `World/` — `TilePhysics.cs`, `Frost.cs`, `HazardBeat.cs`, `Backdrop.cs` (the parallax layers and which plates cover
+  the screen)
 - `Input/` — `SoldierInput.cs`, `ArcadePad.cs`, `Latch.cs`
-- `Anim/` — `Clip.cs`, `Fx.cs` — the clip framework and the effect framework
 - `Audio/` — `Chip.cs`, `Notation.cs`, `MusicTracks.cs`, `MusicRender.cs`, `MusicMidi.cs`, `Wav.cs`, `Soundtrack.cs`
-- `Title/` — `TitleLogo.cs`, `TitleMotion.cs`
 - `Platform/` — everything except the netcode files: `LaunchFlags.cs`, `Spike.cs`, `PageQuery.cs`, `Sandbox.cs`,
   `Knobs.cs`, `SetupText.cs`, `Rng.cs`, `Log.cs`
+- `sandbox/*.txt` — the sandbox's setups, the links that set up a map, goons, a boss and tuning without a build
 
 **The game (`Assets/Scripts/`)**
 
-- `World/` — the whole folder: `World.cs`, `Spawner.cs`, `Combat.cs`, `Scoring.cs`, `NetSync.cs`, `Hazards.cs`,
-  `SetPiece.cs`, `Entity.cs`, `EntityPool.cs`, `Projectile.cs`, `Effect.cs`, `Particle.cs`, `Pickup.cs`, `Prop.cs`,
-  `HitFeel.cs`, `LevelView.cs`, `ScrollCamera.cs`, `BackdropView.cs`, `Barrel.cs`, `Checkpoint.cs`, `Lift.cs`,
-  `Liquids.cs`, `FrostLook.cs`
+- `World/` — every file but `NetSync.cs`, which is the netcode's: `World.cs`, `Spawner.cs`, `Combat.cs`,
+  `Scoring.cs`, `Hazards.cs`, `SetPiece.cs`, `Entity.cs`, `EntityPool.cs`, `Projectile.cs`, `Effect.cs`,
+  `Particle.cs`, `Pickup.cs`, `Prop.cs`, `HitFeel.cs`, `LevelView.cs`, `ScrollCamera.cs`, `BackdropView.cs`,
+  `Barrel.cs`, `Checkpoint.cs`, `Lift.cs`, `Liquids.cs`, `FrostLook.cs`
 - `Crew/` — every folder: `Shared/`, `Tones2/`, `Kie/`, `Kcaj/`
 - `Enemies/` — `Enemies.cs`, `CreameryGoons.cs`, `BigScoop.cs`, `HoloLook.cs`, `Weasels.cs`, `Pilot.cs`, `KiePilot.cs`,
   `KcajPilot.cs`
@@ -71,8 +75,11 @@ together. Rules live in `Core` with tests; the entities and views that draw them
 
 **Tests**
 
-- `Assets/Tests/EditMode/` — every folder except `Story/` and `Lobby/`, and except the content tests
-- `Assets/Tests/Gameplay/` — the gameplay tests
+- `Assets/Tests/EditMode/Audio/`, `Bosses/` (but `BossIntroShowTests.cs`), `Crew/`, `Enemies/`, `Input/`,
+  `Missions/`, `Tabks/`, `World/` — and `ContentTests.cs`, which pins the ids
+- `Assets/Tests/EditMode/Platform/` — the platform's own half: `LaunchFlagsTests.cs`, `LogTests.cs`,
+  `PageQueryTests.cs`, `RngTests.cs`, `SandboxTests.cs`, `SpikeTests.cs`
+- `Assets/Tests/Gameplay/` — the gameplay tests, but `NetSyncTests.cs`
 
 **The design it decides**
 
@@ -124,11 +131,14 @@ build.
 - `scenes/*.txt` — the scene files themselves, the game's own copies
 - `Assets/Scripts/Core/Story/` — every file: `SceneScript.cs`, `SceneLibrary.cs`, `Staging.cs`, `Cutscene.cs`,
   `Cues.cs`
+- `Assets/Scripts/Core/Bosses/BossIntroShow.cs` — the boss intro's timeline, as a pure function of the seconds since
+  it began. **The boss intro is a show**, so it is the cutscene domain's, with `Game/BossIntroFlow.cs`.
 - `Assets/Scripts/Ui/Cutscene/` — every file: `CutsceneView.cs`, `CutsceneBackdrops.cs`, `CutsceneCast.cs`,
   `CutsceneEffects.cs`, `CutsceneBubbles.cs`, `CutsceneCaptions.cs`, `CutsceneCamera.cs`, `CueSounds.cs`,
   `CutsceneSnacks.cs`
 - `Assets/Scripts/Stage/` — `StageKit.cs` (with `StageFigure`), `StageScreen.cs`. **The stage is the cutscene
-  engine**; the den and the debrief borrow it.
+  engine**; the den and the debrief borrow it — the den is drawn on it (`DenView` is a `StageScreen`), while the
+  debrief only takes the stage's figures and colours and builds its own canvas.
 - `Assets/Scripts/Game/SceneFlow.cs`, `BossIntroFlow.cs`
 - `tools/scenecheck/` — the scene check, and the reader it shares with the game
 - `docs/scenes.md` — how a scene is written
@@ -165,9 +175,12 @@ behaviour.
   the flash and hologram swaps. It is here because it is the art being built, not the game being played.
 - `Assets/Scripts/Art/CrewArt.cs` — each crewmate's head, and the shared body and legs, and the `PlayerSkin` that
   joins them.
+- `Assets/Scripts/Core/Anim/Clip.cs` and `Fx.cs` — the clip framework (frames at a rate, looped or held, with events)
+  and the effect framework (the blinks, shivers and flickers). **A clip is a list of frames, so the frame contract is
+  the sprites' domain**, and `Fx` is the same idea for a single frame's flicker.
 - `Assets/Scripts/Core/Anim/CrewFigure.cs` — the shared figure's clips: which frames a move steps through, and at
-  what rate. **The clip contract is the sprites' domain, because the frames are.** The `CrewMove`, `CrewLegs` and
-  `CrewBody` enums are its vocabulary.
+  what rate. **The clip contract is the sprites' domain, because the frames are.** The `CrewMove`, `CrewLegs`,
+  `CrewBody` and `CrewHead` enums are its vocabulary.
 - `Assets/Scripts/Core/Anim/StagePose.cs` — the stage figures' poses. It is here because it names the frames.
 
 **The assets**
@@ -189,6 +202,9 @@ them. **A frame that is missing is a bug in this domain**, and the check for it 
 which frames, and that nothing draws a missing one. That check is a card this domain should open early, because
 right now nothing in the repository tests it.
 
+**The tests** — `Assets/Tests/EditMode/Anim/` (`ClipTests.cs`, `CrewFigureTests.cs`, `StagePoseTests.cs`) and
+`Assets/Tests/EditMode/Title/` (`TitleMotionTests.cs`).
+
 **The boundary in one line** — the sprites domain makes the art and the frames; the `gameplay` domain writes the code
 that uses them. A new goon is two cards: the frames, then the brain.
 
@@ -207,8 +223,11 @@ input that drives them.
 - `Assets/Scripts/Input/` — `InputSources.cs`, `GameInput.cs`
 - `Assets/Scripts/Core/Title/` — `TitleLogo.cs`, `TitleMotion.cs` — the logo's parts and its motion
 - `Assets/Scripts/Core/Lobby/` — `Profile.cs`, `Options.cs`, `Ranks.cs`, `Debrief.cs`, `CoopRoom.cs`
+- `Assets/Plugins/WebGL/PooketInvite.jslib` and `PooketDemo.jslib` — the share sheet (`Ui/Invite.cs`) and the kit
+  demo recorder (`Game/DemoFlow.cs`)
 
-**The tests** — `Assets/Tests/EditMode/Lobby/`, `Title/`, and the content tests in `ContentTests.cs`.
+**The tests** — `Assets/Tests/EditMode/Lobby/` — but the den's half of it: `CoopRoomTests.cs`, `DebriefTests.cs`,
+`OptionsTests.cs`, `ProfileTests.cs`.
 
 ## `net`
 
@@ -216,13 +235,18 @@ The co-op: how two phones share a world, and what a player's progress outlives t
 
 **The code**
 
-- `Assets/Scripts/Net/` — every file: `NetSession.cs`, `NetReplication.cs`, `NetPrefabs.cs`
+- `Assets/Scripts/Net/` — every file: `NetSession.cs`, `NetReplication.cs`, `NetPrefabs.cs`, `BossNet.cs`,
+  `PlayerNet.cs`, `WorldNet.cs`
 - `Assets/Scripts/Core/Platform/` — the netcode half: `NetContracts.cs`, `NetIds.cs`, `NetConfig.cs`, `Rooms.cs`,
   `Handover.cs`, `DropIn.cs`, `PartnerBeacon.cs`, `WireMeter.cs`
 - `Assets/Scripts/Save/` — every file: `LocalProfileStore.cs`, `OptionsStore.cs`, `CloudAccount.cs`, `SiteFile.cs`
 - `Assets/Scripts/World/NetSync.cs` — the world's side of the co-op
+- `Assets/Plugins/WebGL/PooketAuth.jslib` — the page's sign-in and cloud saves, the other half of `CloudAccount.cs`
+- `Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion` — Fusion's own config, and it wins over the SDK's
 
-**The tests** — `Assets/Tests/EditMode/Platform/` — and the co-op tests in CI (`tools/coop.mjs`), which only run
+**The tests** — `Assets/Tests/EditMode/Platform/` — but the netcode's half of it: `DropInTests.cs`,
+`MasterWatchTests.cs`, `NetIdsTests.cs`, `PartnerBeaconTests.cs`, `RoomBrowserTests.cs`, `WireMeterTests.cs` — and
+the co-op tests in CI (`tools/coop.mjs`), which only run
 when the netcode changes or a commit asks for them.
 
 **What it may never break** — the content ids. They ride the network, and two phones only match on an identical
@@ -243,9 +267,30 @@ outside Core drifts.** When the `den` domain finds a rule in `DenView.cs` that b
 moves it there, with tests, in the same commit. The `den` domain's own rule, and it is the one the project's working
 rules single out.
 
+## The files the map does not cover yet
+
+The ownership check covers the game's code, its tests, its art, the scenes, the sandbox setups, the page's WebGL
+plugins and the design documents the domains decide — 376 files. These are **not** covered, because they belong to
+the build and the pipeline rather than to a domain:
+
+| Path | Whose it is |
+|---|---|
+| `Assets/WebGLTemplates/PooketSlug/`, `Packages/`, `ProjectSettings/`, `.github/` | the build and the pipeline, the architect's own business |
+| `docs/research/` | the record of how the pipeline works; kept, not maintained by a domain |
+| `CLAUDE.md`, `README.md`, `docs/design/` (the rest of it), `vendor.lock` | the owner's and the architect's |
+
+**Widening the check is a decision, not a chore.** The check is a tool; what it covers is a decision, and the
+decision should be written down rather than left to the globs in the script. When a domain is added, or a folder
+that clearly belongs to one grows, the `COVERED` list in `tools/check_ownership.py` moves with it.
+
 ## Keeping this page true
 
 The architect owns it. It changes when a file moves, when a domain grows a second subject, or when a card shows a
 boundary that is wrong in practice. A boundary that is wrong in practice is worth more than a boundary that reads
 well on paper: a card that crosses a line it should not have crossed is the signal, and the map is corrected after
 it, not before.
+
+**The prose and the map must agree.** This page says the same thing as `OWNERSHIP.txt` in words, and the words are
+the version a person reads. A fact-check that compares the two found seven files where they had drifted apart and
+one (`Core/World/Backdrop.cs`) that this page had simply forgotten. The authority is the file; the prose is not a
+second source of truth, and when they disagree the prose is wrong until it is fixed.

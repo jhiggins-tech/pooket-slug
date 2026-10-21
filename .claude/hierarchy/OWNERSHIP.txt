@@ -191,6 +191,13 @@ net Assets/Tests/EditMode/Platform/PartnerBeaconTests.cs
 net Assets/Tests/EditMode/Platform/RoomBrowserTests.cs
 net Assets/Tests/EditMode/Platform/WireMeterTests.cs
 net Assets/Tests/Gameplay/NetSyncTests.cs
+net Assets/Plugins/WebGL/PooketAuth.jslib
+net Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion
+# The shell's page-side halves: the share sheet and the kit demo recorder.
+shell Assets/Plugins/WebGL/PooketInvite.jslib
+shell Assets/Plugins/WebGL/PooketDemo.jslib
+# The sandbox's setups, read by Core/Platform/Sandbox.cs.
+gameplay sandbox/
 
 # ---------------------------------------------------------------- architect
 # The assembly definitions: the boundaries between Core, the game and the tests. They
@@ -200,3 +207,4 @@ architect Assets/Scripts/Net/PooketSlug.Net.asmdef
 architect Assets/Scripts/PooketSlug.Game.asmdef
 architect Assets/Tests/EditMode/PooketSlug.Core.Tests.asmdef
 architect Assets/Tests/Gameplay/PooketSlug.Game.Tests.asmdef
+architect Assets/Editor/WebGLBuild.cs

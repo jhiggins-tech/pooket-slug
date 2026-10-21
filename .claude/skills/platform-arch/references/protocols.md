@@ -109,8 +109,10 @@ roller door, rooftop). The floors are `DenFloor` (ground, upper, loft, bunks). D
 
 ## The invariants
 - The den is drawn on the cutscene domain's stage. Do not change `Stage/`; ask.
-- The ladder's x, the floor heights and the soldier's height are in `DenMap`. A room's doors are 37 px tall: 1.7
-  times the 22 px soldier. The build checks the doors and ladders against the soldier's height.
+- The ladder's x, the floor heights and the soldier's height are in `DenMap`. **A room's doors are meant to be 37 px
+  tall** — 1.7 times the 22 px soldier — and the build checks them against it. The den's own painting does not meet
+  that yet: its ground-floor doors are taller (`DenMap.Doors`), and the scale check is `[Test, Ignore]` for that
+  reason. A new room follows the 37 px rule; the old ground floor is a known exception, not a pattern to copy.
 
 ## How it is checked
 `tools/check.sh` (the type-check, the EditMode tests, the scene check, the docs link check). The den's own tests are
