@@ -49,12 +49,9 @@ more than a working week. A card that lies about its state is worse than no card
 ### 3. Every file has exactly one owner
 
 The domain map lists every file. A file in two domains' lists is a boundary that is wrong. A file in none is a hole.
-The check is a comparison of the map against the tree:
-
-```
-# every .cs file under Assets/Scripts, against the map's file lists
-git ls-files 'Assets/Scripts/**/*.cs' | sort > /tmp/in-repo
-```
+**The check is `tools/check.sh ownership`**, which reads `.claude/hierarchy/OWNERSHIP.txt` and proves all three: no
+file has two owners, none has none, and no claim points at a file that has moved. It runs in the local checks, so the
+boundary cannot rot quietly.
 
 ### 4. Every definition parses, and matches the policy
 

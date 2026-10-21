@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 # The checks CI runs before a build, in one command and without Unity: compiles every assembly as Unity would for
 # WebGL (Core, its tests, Net and the game), runs Fusion's IL weaver over the netcode, runs the EditMode tests, then
-# the scene check (tools/scenecheck, with the narrator's recordings when they can be had) and the docs link check
-# (tools/doclinks.py). CI runs the scene check too; the docs link check is only here.
+# the scene check (tools/scenecheck, with the narrator's recordings when they can be had), the docs link check
+# (tools/doclinks.py) and the ownership check (tools/check_ownership.py: every file belongs to exactly one agent
+# domain). CI runs the scene check too; the docs and ownership checks are only here.
 # The first run downloads the Unity kit for this project's Unity version (the vendor repository's Unity kit
 # workflow makes it) and the Photon SDK, both from the private vendor repository's releases, through `gh` (or curl
 # with GH_TOKEN); later runs reuse them.
@@ -10,6 +11,7 @@
 #   tools/check.sh                 everything
 #   tools/check.sh compile         only the type-check
 #   tools/check.sh docs            only the docs link check (no kit needed)
+#   tools/check.sh ownership       only the ownership check (no kit needed)
 #   KIT=<dir> tools/check.sh       use an unpacked kit instead of the cached one
 #
 # Exits non-zero at the first failure; the test run's exit code is the number of failed tests.
@@ -18,7 +20,12 @@ cd "$(dirname "$0")/.."
 T=docs/research/verification/tools
 VENDOR=jhiggins-tech/pooket-slug-vendor
 what=${1:-all}
-case $what in all|compile) ;; docs) exec python3 -I tools/doclinks.py ;; *) echo "usage: $0 [all|compile|docs]" >&2; exit 2 ;; esac
+case $what in
+  all|compile) ;;
+  docs) exec python3 -I tools/doclinks.py ;;
+  ownership) exec python3 -I tools/check_ownership.py ;;
+  *) echo "usage: $0 [all|compile|docs|ownership]" >&2; exit 2 ;;
+esac
 
 version=$(sed -n 's/^m_EditorVersion: //p' ProjectSettings/ProjectVersion.txt)
 cache=${XDG_CACHE_HOME:-$HOME/.cache}/pooket-slug
@@ -91,4 +98,6 @@ if tools/vendor_fetch.sh narration "$S/narration" "narrator lines are checked fo
 "$D/NetCoreRuntime/dotnet" "$S/scenecheck.dll" scenes "$voice"
 echo "== The docs link check"
 python3 -I tools/doclinks.py
+echo "== The ownership check"
+python3 -I tools/check_ownership.py
 echo "All checks passed."

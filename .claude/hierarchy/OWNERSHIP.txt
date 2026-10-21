@@ -1,0 +1,202 @@
+# Who owns what. The machine-checked map: every file below belongs to exactly one domain.
+#
+# Format: <domain> <path prefix or exact path>. A trailing / means "everything under here".
+# A file may appear once and only once. tools/check_ownership.py checks that, and that every
+# source file in the repository is claimed.
+#
+# Domains: gameplay, den, cutscene, sprites, shell, net
+#
+# The rule for a file: it belongs to the domain whose workflow would change it. See
+# .claude/skills/platform-arch/references/domains.md for the reasoning behind each entry.
+
+# ---------------------------------------------------------------- gameplay
+# The rules of play: the crew's kits, the missions, the goons, the bosses, the world.
+gameplay Assets/Scripts/Core/Content.cs
+gameplay Assets/Scripts/Core/Definitions.cs
+gameplay Assets/Scripts/Core/Tuning.cs
+gameplay Assets/Scripts/Core/Palette.cs
+gameplay Assets/Scripts/Core/Crew/
+gameplay Assets/Scripts/Core/Bosses/BossTankSpec.cs
+gameplay Assets/Scripts/Core/Bosses/CraterGround.cs
+gameplay Assets/Scripts/Core/Bosses/KcajTankSpec.cs
+gameplay Assets/Scripts/Core/Bosses/KieTankSpec.cs
+gameplay Assets/Scripts/Core/Bosses/PilotBrain.cs
+gameplay Assets/Scripts/Core/Tabks/
+gameplay Assets/Scripts/Core/Missions/
+gameplay Assets/Scripts/Core/Enemies/
+gameplay Assets/Scripts/Core/World/
+gameplay Assets/Scripts/Core/Input/
+gameplay Assets/Scripts/Core/Audio/
+gameplay Assets/Scripts/Core/Platform/LaunchFlags.cs
+gameplay Assets/Scripts/Core/Platform/Spike.cs
+gameplay Assets/Scripts/Core/Platform/PageQuery.cs
+gameplay Assets/Scripts/Core/Platform/Sandbox.cs
+gameplay Assets/Scripts/Core/Platform/Knobs.cs
+gameplay Assets/Scripts/Core/Platform/SetupText.cs
+gameplay Assets/Scripts/Core/Platform/Rng.cs
+gameplay Assets/Scripts/Core/Platform/Log.cs
+gameplay Assets/Scripts/World/BackdropView.cs
+gameplay Assets/Scripts/World/Barrel.cs
+gameplay Assets/Scripts/World/Checkpoint.cs
+gameplay Assets/Scripts/World/Combat.cs
+gameplay Assets/Scripts/World/Effect.cs
+gameplay Assets/Scripts/World/Entity.cs
+gameplay Assets/Scripts/World/EntityPool.cs
+gameplay Assets/Scripts/World/FrostLook.cs
+gameplay Assets/Scripts/World/Hazards.cs
+gameplay Assets/Scripts/World/HitFeel.cs
+gameplay Assets/Scripts/World/LevelView.cs
+gameplay Assets/Scripts/World/Lift.cs
+gameplay Assets/Scripts/World/Liquids.cs
+gameplay Assets/Scripts/World/Particle.cs
+gameplay Assets/Scripts/World/Pickup.cs
+gameplay Assets/Scripts/World/Projectile.cs
+gameplay Assets/Scripts/World/Prop.cs
+gameplay Assets/Scripts/World/Scoring.cs
+gameplay Assets/Scripts/World/ScrollCamera.cs
+gameplay Assets/Scripts/World/SetPiece.cs
+gameplay Assets/Scripts/World/Spawner.cs
+gameplay Assets/Scripts/World/World.cs
+gameplay Assets/Scripts/Crew/
+gameplay Assets/Scripts/Enemies/
+gameplay Assets/Scripts/Bosses/
+gameplay Assets/Scripts/Tabks/
+gameplay Assets/Scripts/Missions/
+gameplay Assets/Scripts/Audio/
+gameplay Assets/Tests/EditMode/Audio/
+gameplay Assets/Tests/EditMode/Bosses/BossTankTests.cs
+gameplay Assets/Tests/EditMode/Bosses/CraterGroundTests.cs
+gameplay Assets/Tests/EditMode/Bosses/KcajTankTests.cs
+gameplay Assets/Tests/EditMode/Bosses/KieTankTests.cs
+gameplay Assets/Tests/EditMode/Bosses/PilotBrainTests.cs
+gameplay Assets/Tests/EditMode/Crew/
+gameplay Assets/Tests/EditMode/Enemies/
+gameplay Assets/Tests/EditMode/Input/
+gameplay Assets/Tests/EditMode/Missions/
+gameplay Assets/Tests/EditMode/Tabks/
+gameplay Assets/Tests/EditMode/World/
+gameplay Assets/Tests/EditMode/ContentTests.cs
+gameplay Assets/Tests/EditMode/Platform/LaunchFlagsTests.cs
+gameplay Assets/Tests/EditMode/Platform/LogTests.cs
+gameplay Assets/Tests/EditMode/Platform/PageQueryTests.cs
+gameplay Assets/Tests/EditMode/Platform/RngTests.cs
+gameplay Assets/Tests/EditMode/Platform/SandboxTests.cs
+gameplay Assets/Tests/EditMode/Platform/SpikeTests.cs
+gameplay Assets/Tests/Gameplay/BossTests.cs
+gameplay Assets/Tests/Gameplay/CombatTests.cs
+gameplay Assets/Tests/Gameplay/GameplayFixture.cs
+gameplay Assets/Tests/Gameplay/SetPieceTests.cs
+gameplay Assets/Tests/Gameplay/SpawnerTests.cs
+gameplay Assets/Tests/Gameplay/WorldTests.cs
+
+# ---------------------------------------------------------------- den
+# The den: its design and art, the room layout, the unlock and progression, moving around it.
+den Assets/Scripts/Core/Lobby/Den.cs
+den Assets/Scripts/Core/Lobby/DenMap.cs
+den Assets/Scripts/Core/Lobby/DenBeats.cs
+den Assets/Scripts/Core/Lobby/BayMap.cs
+den Assets/Scripts/Core/Lobby/RollerDoor.cs
+den Assets/Scripts/Ui/Den/
+den Assets/Scripts/Game/DenFlow.cs
+den Assets/Scripts/Game/BayFlow.cs
+den Assets/Resources/Den/
+den Assets/Tests/EditMode/Lobby/BayMapTests.cs
+den Assets/Tests/EditMode/Lobby/DenBeatsTests.cs
+den Assets/Tests/EditMode/Lobby/DenMapTests.cs
+den Assets/Tests/EditMode/Lobby/DenTests.cs
+den Assets/Tests/EditMode/Lobby/RollerDoorTests.cs
+den docs/design/lobby.md
+den docs/design/lobby/
+
+# ---------------------------------------------------------------- cutscene
+# The cutscenes: the workflow, the accuracy to the scripts, the preview links.
+cutscene Assets/Scripts/Core/Story/
+cutscene Assets/Scripts/Core/Bosses/BossIntroShow.cs
+cutscene Assets/Scripts/Ui/Cutscene/
+cutscene Assets/Scripts/Stage/
+cutscene Assets/Scripts/Game/SceneFlow.cs
+cutscene Assets/Scripts/Game/BossIntroFlow.cs
+cutscene Assets/Tests/EditMode/Story/
+cutscene Assets/Tests/EditMode/Bosses/BossIntroShowTests.cs
+cutscene scenes/
+cutscene tools/scenecheck/
+cutscene docs/scenes.md
+cutscene docs/design/cutscenes/
+
+# ---------------------------------------------------------------- sprites
+# The art: the frames every entity needs, hand-drawn or generated, and their animation.
+sprites Assets/Scripts/Art/
+sprites Assets/Scripts/Core/Anim/Clip.cs
+sprites Assets/Scripts/Core/Anim/Fx.cs
+sprites Assets/Scripts/Core/Anim/CrewFigure.cs
+sprites Assets/Scripts/Core/Anim/StagePose.cs
+sprites Assets/Resources/Plates/
+sprites Assets/Resources/Title/
+sprites Assets/Tests/EditMode/Anim/ClipTests.cs
+sprites Assets/Tests/EditMode/Anim/CrewFigureTests.cs
+sprites Assets/Tests/EditMode/Anim/StagePoseTests.cs
+sprites Assets/Tests/EditMode/Title/
+
+# ---------------------------------------------------------------- shell
+# The shell around the game: the state machine and its flows, the screens, the title, the HUD.
+shell Assets/Scripts/Game/Game.cs
+shell Assets/Scripts/Game/BoardFlow.cs
+shell Assets/Scripts/Game/KitFlow.cs
+shell Assets/Scripts/Game/DebriefFlow.cs
+shell Assets/Scripts/Game/MusicFlow.cs
+shell Assets/Scripts/Game/DemoFlow.cs
+shell Assets/Scripts/Game/SandboxFlow.cs
+shell Assets/Scripts/Ui/Ui.cs
+shell Assets/Scripts/Ui/MenuView.cs
+shell Assets/Scripts/Ui/HudView.cs
+shell Assets/Scripts/Ui/TitleView.cs
+shell Assets/Scripts/Ui/TitleLogoView.cs
+shell Assets/Scripts/Ui/DebriefView.cs
+shell Assets/Scripts/Ui/DemoClip.cs
+shell Assets/Scripts/Ui/Invite.cs
+shell Assets/Scripts/Input/
+shell Assets/Scripts/Core/Title/
+shell Assets/Scripts/Core/Lobby/Profile.cs
+shell Assets/Scripts/Core/Lobby/Options.cs
+shell Assets/Scripts/Core/Lobby/Ranks.cs
+shell Assets/Scripts/Core/Lobby/Debrief.cs
+shell Assets/Scripts/Core/Lobby/CoopRoom.cs
+shell Assets/Tests/EditMode/Lobby/CoopRoomTests.cs
+shell Assets/Tests/EditMode/Lobby/DebriefTests.cs
+shell Assets/Tests/EditMode/Lobby/OptionsTests.cs
+shell Assets/Tests/EditMode/Lobby/ProfileTests.cs
+
+# ---------------------------------------------------------------- net
+# The co-op: the netcode, the contracts, the room, the handover, the saves, the account.
+net Assets/Scripts/Net/BossNet.cs
+net Assets/Scripts/Net/NetPrefabs.cs
+net Assets/Scripts/Net/NetReplication.cs
+net Assets/Scripts/Net/NetSession.cs
+net Assets/Scripts/Net/PlayerNet.cs
+net Assets/Scripts/Net/WorldNet.cs
+net Assets/Scripts/Save/
+net Assets/Scripts/World/NetSync.cs
+net Assets/Scripts/Core/Platform/NetContracts.cs
+net Assets/Scripts/Core/Platform/NetIds.cs
+net Assets/Scripts/Core/Platform/NetConfig.cs
+net Assets/Scripts/Core/Platform/Rooms.cs
+net Assets/Scripts/Core/Platform/Handover.cs
+net Assets/Scripts/Core/Platform/DropIn.cs
+net Assets/Scripts/Core/Platform/PartnerBeacon.cs
+net Assets/Scripts/Core/Platform/WireMeter.cs
+net Assets/Tests/EditMode/Platform/DropInTests.cs
+net Assets/Tests/EditMode/Platform/MasterWatchTests.cs
+net Assets/Tests/EditMode/Platform/NetIdsTests.cs
+net Assets/Tests/EditMode/Platform/PartnerBeaconTests.cs
+net Assets/Tests/EditMode/Platform/RoomBrowserTests.cs
+net Assets/Tests/EditMode/Platform/WireMeterTests.cs
+net Assets/Tests/Gameplay/NetSyncTests.cs
+
+# ---------------------------------------------------------------- architect
+# The assembly definitions: the boundaries between Core, the game and the tests. They
+# are the architect's, because a change to one is a change to the shape of the system.
+architect Assets/Scripts/Core/PooketSlug.Core.asmdef
+architect Assets/Scripts/Net/PooketSlug.Net.asmdef
+architect Assets/Scripts/PooketSlug.Game.asmdef
+architect Assets/Tests/EditMode/PooketSlug.Core.Tests.asmdef
+architect Assets/Tests/Gameplay/PooketSlug.Game.Tests.asmdef

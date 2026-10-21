@@ -97,8 +97,10 @@ job usually cuts across the code's folders. The map, with the exact file lists, 
 Three rules decide every boundary question:
 
 1. **One file, one owner.** Every file in the repository belongs to exactly one domain, and the map says which. A
-   folder may be split by file — `Core/Platform/` is `gameplay`'s except for the seven netcode files, which are
-   `net`'s. A file with two owners has no owner.
+   folder may be split by file — `Core/Platform/` is `gameplay`'s except for the eight netcode files, which are
+   `net`'s. A file with two owners has no owner. **The map is machine-checked**: `.claude/hierarchy/OWNERSHIP.txt` is
+   the authority, and `tools/check.sh ownership` proves that no file has two owners, none has none, and no claim is
+   stale.
 2. **A file goes to the domain whose *workflow* would change it.** This is the rule that replaces "which folder is it
    in". A file is asked: *when it changes, who does the thinking?* The answer is its owner. `ArtData.cs` is the
    `sprites` domain's, because filling in a missing frame is the sprites' work, even though the file is code and the

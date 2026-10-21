@@ -1,7 +1,11 @@
 # The domain map
 
-Who owns what. Every file in the repository has exactly one owner, and this page says which. It is the map the
-architect keeps true: when a file moves, this page moves with it.
+Who owns what. Every file in the repository has exactly one owner.
+
+**The map itself is machine-checked.** The authority is
+[`.claude/hierarchy/OWNERSHIP.txt`](../../../../.claude/hierarchy/OWNERSHIP.txt) — a list of `domain path` claims —
+and `tools/check_ownership.py` checks that no file has two owners, that none has none, and that no claim is stale.
+This page is the reasoning; the file is the map.
 
 **Read this when** you're taking a card, cutting a domain, or asking "whose is this?".
 
@@ -157,6 +161,8 @@ behaviour.
 
 - `Assets/Scripts/Art/ArtData.cs` — the ASCII pixel art: every frame, as rows of characters. This is the domain's
   main file.
+- `Assets/Scripts/Art/Art.cs` — the sprite builder: it turns `ArtData`'s rows into sprites, holds the palette, and
+  the flash and hologram swaps. It is here because it is the art being built, not the game being played.
 - `Assets/Scripts/Art/CrewArt.cs` — each crewmate's head, and the shared body and legs, and the `PlayerSkin` that
   joins them.
 - `Assets/Scripts/Core/Anim/CrewFigure.cs` — the shared figure's clips: which frames a move steps through, and at
