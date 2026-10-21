@@ -28,6 +28,9 @@ namespace PooketSlug
 
         public void Hide() => m_View.Hide();
 
+        /// <summary>You came back out of one of the outer rooms: the den takes over again.</summary>
+        public void RoomClosed() => m_View.Show();
+
         /// <summary>Opens the den: to start a solo mission, to look round the crew, or a co-op room's lobby.</summary>
         public void Show(DenMode mode)
         {
@@ -256,6 +259,14 @@ namespace PooketSlug
                     m_View.Note("THE TROPHY SHELF: " + Progression.RankAt(g.Profile.rank).Name.ToUpperInvariant()); // the one you hold, so never a spoiler
                     return;
                 default:
+                    // a place that opens one of the outer rooms
+                    RoomWay way = DenMap.RoomOf(place);
+                    if (way != RoomWay.None)
+                    {
+                        RoomId room = RoomMap.RoomOf(way);
+                        if (room != RoomId.None) g.Rooms.Open_(room, way);
+                        return;
+                    }
                     m_View.Note(DenMap.Note(place));
                     return;
             }

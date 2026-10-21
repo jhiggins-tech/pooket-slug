@@ -29,6 +29,7 @@ namespace PooketSlug
         readonly DenBitPlayer m_Bits;
         readonly DenConsole m_Console;
         readonly DenRollerDoor m_Door;
+        readonly DenTrapdoor m_Trap;
         readonly DenBeatView m_Beat;
         List<GameObject> m_Painted = new List<GameObject>();
         string m_PaintedKey;
@@ -54,6 +55,7 @@ namespace PooketSlug
             // made in drawing order, back to front: the paintings (filled as the den opens), the crew just in front of them
             m_Paintings = Ui.Rect(m_World, "Paintings", Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(StageW, StageH) * Px);
             m_Door = new DenRollerDoor(m_Paintings);
+            m_Trap = new DenTrapdoor(m_Paintings);
             m_Console.MakeTv();
             m_Crew.MakeProps();
             m_Beat = new DenBeatView(m_World);
@@ -107,6 +109,7 @@ namespace PooketSlug
                 foreach (GameObject g in m_Painted) Object.Destroy(g);
                 m_Painted = Paint(m_Paintings, den.Crew);
                 m_Door.OnTop();
+                m_Trap.OnTop();
             }
             m_Crew.Begin(den, info, m_Paintings);
             m_Bits.Begin();
@@ -159,6 +162,9 @@ namespace PooketSlug
             m_Bits.Stop();
             Ui.Show(m_Root, false);
         }
+
+        /// <summary>Shows the den again, as it was: you've come back out of one of the outer rooms.</summary>
+        public void Show() => Ui.Show(m_Root, true);
 
         /// <summary>The crewmate tapped since the last call, or null.</summary>
         public SoldierDef TakePick() => m_Picked.Take(out SoldierDef s) ? s : null;

@@ -16,6 +16,19 @@ Up: [Design](README.md)
 - Images are made by the vendor repository's CI (the Plates and Showcase workflows), and their spend goes in its usage ledger.
 - **In the game** (`Backdrop`, m1-plates-build): a mission's plates are PNGs in `Assets/Resources/Plates/<mission id>/` (`mission-1`), renamed `.bytes`, one strip per layer: `sky-0`, `sky-1`, … then `far-…` and `mid-…`, numbered along the map. A strip's plates are laid end to end and repeat, and any width works; the height is the layer's. The layers, back to front: **sky** (moves 0.95 of the camera, from the screen's bottom, a full screen tall: 180 pixels), **far** (0.85, its bottom 1.2 units up) and **mid** (0.6, 1 unit up), with the sky gradient behind them all. A layer with no plates is drawn in code, as before.
 
+## The house's room plates
+The house's outer rooms are their own screens, each one behind a door
+([the lobby](lobby.md#the-outer-rooms)). Each is a room plate, made like a
+background plate but standing in for a whole screen, and the work in progress
+is in [plates](lobby/plates/). To add one, follow [the workflow](lobby/rooms.md).
+
+- **Model:** Qwen Image 2.1 Turbo, as for every image now. It is not in OpenRouter's public model list: find it with `GET /api/v1/models/qwen/qwen-image-2.1-turbo/endpoints`.
+- **The endpoint** is `POST /api/v1/images/generations`, not `/chat/completions`: an image model on the chat endpoint is a 404 saying so.
+- **Two references.** The first is the room's layout, cut out of the house map ([lobby/house-layout.svg](lobby/house-layout.svg)) and rendered as a picture: the model then puts the things where the map says. The second is a **swatch** — a small crop of the game's own pixels, upscaled so the pixel technique is legible, with nothing recognisable in it: that is what makes the plate pixel art rather than a photograph. A whole plate as the second reference makes the model copy that room instead of drawing the one asked for.
+- **The size floor.** The provider wants at least 512 × 512, so a plate is generated at 1280 × 720 and cut down to the game's size and 64 colours afterwards.
+- **Moderation.** The provider's moderation blocks some *combinations*, not any single part: the style line above passes on its own, but adding "16-bit" to it is blocked, and a layout hint that says "paint it in the style of the second picture" is blocked too. Keep the style line exactly as it is, and keep the hint plain: "The first picture is a layout diagram for the room: where each thing goes."
+- **The palette.** Cut the plate down with a **median cut**, not by keeping the most common colours: the paintings have ramps of light, and the commonest-colours cut crushes a ramp into one muddy band.
+
 ## Editing a picked painting
 To change one part of a painting that's already picked (a room, a prop), edit it rather than make a new take: mark the part with a red circle or box and say what goes there. Tried on the loft's wintergarden (spike-qwen-edit, 2026-10-21; page https://claude.ai/artifact/RLupVt9zB3RAQU1tdHfYHw): eight takes, then six more on Turbo, about $0.50 in all.
 - **Model: Qwen Image 2.1 Turbo** on OpenRouter (`qwen/qwen-image-2.1-turbo`), about $0.02 an image and 30 to 50 seconds a call. It takes the whole painting as a reference, at full size, and changes what it's told to. Pro (`qwen/qwen-image-2.1-pro`, about $0.05) did no better here and missed a detail Turbo got (the lemons), so Turbo is the default. Both are only on `POST /api/v1/images`: each `input_references` entry is an object (`{"type": "image_url", "image_url": {"url": "data:…"}}`), not a string; 21:9 isn't an `aspect_ratio` they take, but `"size": "3024x1296"` came back at exactly that size. The vendor repository's `art/qwen_edit.py` (branch `claude/qwen-edit`) makes the calls.
@@ -23,6 +36,7 @@ To change one part of a painting that's already picked (a room, a prop), edit it
 - **Paste the answer back through a mask.** Qwen repaints the whole picture: a fifth of the pixels outside the mark shift a little, invisible at a glance but not identical. Keep only the marked part, pasted back through a mask of it, so the rest of the plate stays exactly as picked.
 - **It holds the look better than a fill edit.** Seedream's fill edit (a 16:9 crop, the part painted out) leaves the rest exact but paints softer, scales the contents up and wandered from the brief (pink roses, sliding doors). Qwen kept the hard pixel look and the scale. Pro missed one detail in all six of its takes (no lemons on the lemon tree), so check the brief item by item.
 - **Check it at game size in the plate's own colours:** cut it down and map it to the picked plate's palette, not a fresh 64 colours. A fresh palette fitted to the new warm room let the vending machine's red go orange.
+
 
 ## Sprites
 Sprites and their animations are hand-made in `ArtData`, and stay that way. Image models can't draw a usable sprite or sprite sheet at the game's size (gen-sprites, 2026-10-18). A video model can animate a sprite we drew, though: the workflow below was locked in on 2026-10-18 (sprite-model-research: https://claude.ai/artifact/LrvdRFdJF6R4qnVvWewhyw) and audited on the sprite-anim-pipeline card.

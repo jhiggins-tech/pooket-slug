@@ -85,6 +85,7 @@ namespace PooketSlug
         internal KitFlow Kit { get; private set; }
         internal BoardFlow Board { get; private set; }
         internal BayFlow Bay { get; private set; }
+        internal RoomsFlow Rooms { get; private set; }
         internal DemoFlow Demos { get; private set; }
         internal SandboxFlow Sandbox { get; private set; }
         internal BossIntroFlow Intro { get; private set; }
@@ -146,6 +147,7 @@ namespace PooketSlug
             Debrief = new DebriefFlow(this, transform);
             Den = new DenFlow(this, transform);
             Bay = new BayFlow(this, transform);
+            Rooms = new RoomsFlow(this, transform);
             Kit = new KitFlow();
             Board = new BoardFlow(this);
             Demos = new DemoFlow(this);
@@ -617,6 +619,7 @@ namespace PooketSlug
             else if (Kit.Open) Kit.Tick(click, keys, soldier);
             else if (Board.Open) Board.Tick(click, keys, soldier);
             else if (Bay.Open) Bay.Tick(keys, soldier);
+            else if (Rooms.Open) Rooms.Tick(keys, soldier);
             else switch (m_State)
             {
                 case GameState.Demo: Demos.Tick(keys, soldier); break;
@@ -643,6 +646,7 @@ namespace PooketSlug
             if (m_State == GameState.Den) Den.Move(dt); // over the kit screen and the tabk bay too
             else if (Den.Showing) Den.Hide();
             if (Bay.Open) Bay.Move(dt);
+            if (Rooms.Open) Rooms.Move(dt);
             m_World.Render();
             RefreshScreens();
         }

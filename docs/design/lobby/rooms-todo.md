@@ -1,0 +1,82 @@
+# The outer rooms: what's left
+
+The rooms are built and their art is picked. This is what's left to do, in the
+order it should be done.
+
+**Read this when** you're picking up the outer rooms again.
+
+Up: [The lobby](../lobby.md) · [The workflow](rooms.md) · [The house map](house-layout.svg)
+
+## To do
+
+### 1. The board is in two places (an annotated edit)
+
+The map says **the mission board moved up to kcaj** — the board *is* the string
+board, so it hangs in his nook on the upper floor, and the ground floor keeps
+only a nail where it used to be.
+
+The **code** has moved: `DenPlace.Board` is on the upper floor at x 60, and its
+tap area is kcaj's nook. The upper floor already has the board, in kcaj's
+moved-in layer (`kcaj.bytes`, 96 × 52 at x 12, top 14).
+
+But the **den's painting** (`den.bytes`) still has the old board on the ground
+floor, with its papers on it. So the game shows a board the map says is gone,
+and kcaj's nook has two.
+
+**This needs an annotated edit of the den's painting**: take the ground-floor
+board down, leave the nail. It can't be done in code — the board is painted into
+the plate. (The trapdoor, which goes in the same spot, is drawn in code by
+`Ui/Den/DenTrapdoor`, so it needs to be matched to the nail's look.)
+
+### 2. The rooms have no content yet
+
+They are spaces to walk round in. The design says what each thing is *for*, and
+none of it happens yet:
+
+| Room | What it should do |
+|---|---|
+| The kitchen | the table is to eat at |
+| The back yard | the drone's pile (the tabks it moves) |
+| B1, the basement | the PCs (a LAN), the arcade (a link to Pooket Tabks) |
+| B2, the bunker | the supplies in crates, and the door that stays shut |
+| The rooftop | the telescope **replays the missions** |
+| The shower block | the sinks and the cubicles |
+| The wintergarden | the rose, on its landing, for a cutscene with two crew |
+
+The rooftop's telescope is the clearest one: it's the mission replay, and the
+mission screen already exists (`BoardFlow`).
+
+### 3. The unlock rules
+
+Every room is **open** now, so the whole house can be looked at. The real game
+needs the rules: the design says most of the outer places come after Mission
+two ([den2-story](https://claude.ai/code/artifact/f6915f40-b462-4063-8250-a8c245d35353)
+says what each is for), and the tabk bay opens with the den, after Mission one.
+So the rules are known, they just aren't written down or built.
+
+### 4. The bunker isn't reachable
+
+Its hole says "not dug through yet" — the hole is dug later in the game, when
+the game creates it. The room is signed off as art, but it can't be seen in
+game yet, and the hole needs something to dig it.
+
+### 5. The trapdoor is drawn in code
+
+`Ui/Den/DenTrapdoor` draws the hatch over the den's floor, because the painting
+has no hatch in it. It's a flat grey rectangle in a painted room, and it should
+match the boards. Folded into the annotated edit above.
+
+### 6. The shower block's saloon doors
+
+At game size they read more like privacy stalls than **swinging saloon doors**,
+which is what the design calls for. The doors are painted flat, so making them
+swing means the art, or drawing them in code over the plate.
+
+## Looked at, and fine
+
+- The **wintergarden's stair** climbs to a landing wide enough for two crew,
+  with the rose under its glass dome at the top, and the camera rises with you.
+- The **rooftop** ends at a wall, and the **shower block** at a wall past the
+  lockers, so neither looks cut off.
+- The plates' **colour depth**: the palette is cut with a median cut, so the
+  ramps of light survive.
