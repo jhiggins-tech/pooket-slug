@@ -39,7 +39,7 @@ ROOMS = {
         ("bench", 100, 15, 148, 44),
         ("coffee machine", 152, 15, 176, 50),
         ("fridge", 180, 15, 216, 58),
-        ("eating table", 222, 15, 298, 44),
+        ("eating table", 232, 15, 304, 44),
         ("window", 180, 74, 216, 98),
         ("back door", 394, 15, 420, 52),
     ], [(70, 30, 176), (96, 30, 176), (122, 30, 176)]),
@@ -176,27 +176,29 @@ def eating_table(h):
     """A long dining table with a cloth on it, six chairs, and coffee cups.
     Its top is below the soldier's waist: about 18 px off the floor."""
     f = base(h)
+    X = 232   # the table's left edge, clear of the fridge
     chairs = ""
     # three chairs behind the table, three in front of it
-    for cx in (224, 246, 268):
+    for cx in (X + 2, X + 24, X + 46):
         chairs += ('<rect x="%d" y="%g" width="11" height="3" fill="#8a7458" stroke="#241c18"/>\n'
                    '<rect x="%d" y="%g" width="11" height="3" fill="#8a7458" stroke="#241c18"/>\n'
                    '<rect x="%d" y="%g" width="2" height="8" fill="#6a5a44" stroke="#241c18"/>\n' % (
                        cx, f - 18, cx, f - 27, cx + 9, f - 27))
     cups = ""
-    for cx in (226, 238, 250, 262, 274, 286):
+    for cx in (X + 4, X + 16, X + 28, X + 40, X + 52, X + 64):
         cups += '<rect x="%d" y="%g" width="4" height="4" fill="#e8e4d8" stroke="#241c18"/>' % (cx, f - 22)
     return """
 <!-- the chairs, behind the table -->
 %(chairs)s
 <!-- the table, with the cloth hanging over the front -->
-<rect x="222" y="%(top)s" width="72" height="4" fill="#b8a888" stroke="#241c18"/>
-<rect x="222" y="%(top)s" width="72" height="7" fill="#b04a3a" stroke="#241c18"/>
-<rect x="222" y="%(top)s" width="72" height="2" fill="#c86a52" stroke="#241c18"/>
-<rect x="227" y="%(top)s" width="3" height="%(lh)s" fill="#8a7458" stroke="#241c18"/>
-<rect x="286" y="%(top)s" width="3" height="%(lh)s" fill="#8a7458" stroke="#241c18"/>
+<rect x="%(x)s" y="%(top)s" width="72" height="4" fill="#b8a888" stroke="#241c18"/>
+<rect x="%(x)s" y="%(top)s" width="72" height="7" fill="#b04a3a" stroke="#241c18"/>
+<rect x="%(x)s" y="%(top)s" width="72" height="2" fill="#c86a52" stroke="#241c18"/>
+<rect x="%(l1)s" y="%(top)s" width="3" height="%(lh)s" fill="#8a7458" stroke="#241c18"/>
+<rect x="%(l2)s" y="%(top)s" width="3" height="%(lh)s" fill="#8a7458" stroke="#241c18"/>
 <!-- the coffee cups, on the table -->
-%(cups)s""" % {"chairs": chairs, "cups": cups, "top": f - 18, "lh": 18}
+%(cups)s""" % {"chairs": chairs, "cups": cups, "x": X, "l1": X + 5, "l2": X + 64,
+                "top": f - 18, "lh": 18}
 
 
 def fridge(h):
@@ -252,7 +254,9 @@ FURNITURE = {
 }
 
 
-def build_svg(room):
+def build_svg(room, clean=False):
+    """The room's reference. With clean, the annotation is left out: no labels, no
+    screen outline, no scale note. That's the version the painter works from."""
     width, height, items, shelves = ROOMS[room]
     soldier = soldier_canvas()
     STRIP = 0    # the scale strip is its own picture now
@@ -272,8 +276,9 @@ def build_svg(room):
             s.append(door(x0, x1, height))
         else:
             s.append(FURNITURE[kind](height))
-        s.append('<text x="%g" y="%g" font-size="4" text-anchor="middle">%s</text>' %
-                 ((x0 + x1) / 2, height - y0 + 8, kind))
+        if not clean:
+            s.append('<text x="%g" y="%g" font-size="4" text-anchor="middle">%s</text>' %
+                     ((x0 + x1) / 2, height - y0 + 8, kind))
 
     # the shelves, up above the worktop
     for y, x0, x1 in shelves:
@@ -295,27 +300,29 @@ def build_svg(room):
     # a pipe along the wall, above the window
     s.append('<rect x="0" y="%d" width="%d" height="3" fill="#6a6258" stroke="#241c18" stroke-width="1"/>' % (height - 108, width))
 
-    # the soldier, on the floor by the door
+    # the soldier, on the floor by the door: the model's guide to the scale
     s.append(soldier_svg(12, height - 15, soldier))
 
-    # the scale, spelled out
-    s.append('<line x1="212" y1="%d" x2="212" y2="%d" stroke="#f0c14b" stroke-width="1"/>' %
-             (height - 15 - SOLDIER, height - 15))
-    s.append('<text x="215" y="%g" fill="#f0c14b">the soldier: %d px</text>' %
-             (height - 15 - SOLDIER + 4, SOLDIER))
+    if not clean:
+        # the scale, spelled out
+        s.append('<line x1="212" y1="%d" x2="212" y2="%d" stroke="#f0c14b" stroke-width="1"/>' %
+                 (height - 15 - SOLDIER, height - 15))
+        s.append('<text x="215" y="%g" fill="#f0c14b">the soldier: %d px</text>' %
+                 (height - 15 - SOLDIER + 4, SOLDIER))
 
     # the one screen the room is seen in: what the player sees at a time. A room
     # wider or taller than a screen scrolls, and this shows the first screen.
     # It's drawn last, over the room, so it can be seen.
-    screen_w = min(width, 320)
-    screen_h = min(height, 180)
-    top = height - screen_h
-    s.append('<rect x="1" y="%g" width="%g" height="%g" fill="none" stroke="#5aa0e0" stroke-width="1.5" '
-             'stroke-dasharray="5 4"/>' % (top + 1, screen_w - 2, screen_h - 2))
-    s.append('<rect x="2" y="%g" width="86" height="12" fill="#0d1a26"/>' % (top + 2))
-    s.append('<text x="4" y="%g" fill="#7cc0f0" font-size="5">one screen: %d x %d</text>' %
-             (top + 11, screen_w, screen_h))
-    if width > screen_w:
+    if not clean:
+        screen_w = min(width, 320)
+        screen_h = min(height, 180)
+        top = height - screen_h
+        s.append('<rect x="1" y="%g" width="%g" height="%g" fill="none" stroke="#5aa0e0" stroke-width="1.5" '
+                 'stroke-dasharray="5 4"/>' % (top + 1, screen_w - 2, screen_h - 2))
+        s.append('<rect x="2" y="%g" width="86" height="12" fill="#0d1a26"/>' % (top + 2))
+        s.append('<text x="4" y="%g" fill="#7cc0f0" font-size="5">one screen: %d x %d</text>' %
+                 (top + 11, screen_w, screen_h))
+    if width > min(width, 320) and not clean:
         s.append('<text x="%g" y="%g" fill="#7cc0f0" font-size="5">the room is %d wide: the player scrolls through it</text>' %
                  (screen_w + 8, top + 11, width))
 
@@ -344,12 +351,17 @@ def build_strip_svg():
 def main():
     out = sys.argv[1]
     room = sys.argv[2] if len(sys.argv) > 2 else "kitchen"
-    open(out, "w").write(build_svg(room))
-    strip = os.path.splitext(out)[0] + "-scale.svg"
-    open(strip, "w").write(build_strip_svg())
+    clean = "--clean" in sys.argv
+    open(out, "w").write(build_svg(room, clean))
     width, height, items, shelves = ROOMS[room]
-    print("wrote %s and %s (the room is %d x %d art pixels; the soldier is %d px tall)" %
-          (out, strip, width, height, SOLDIER))
+    if not clean:
+        strip = os.path.splitext(out)[0] + "-scale.svg"
+        open(strip, "w").write(build_strip_svg())
+        print("wrote %s and %s (the room is %d x %d art pixels; the soldier is %d px tall)" %
+              (out, strip, width, height, SOLDIER))
+    else:
+        print("wrote %s (the room is %d x %d art pixels; the soldier is %d px tall; no annotation)" %
+              (out, width, height, SOLDIER))
 
 
 if __name__ == "__main__":

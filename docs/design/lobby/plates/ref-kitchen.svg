@@ -78,25 +78,25 @@
 <text x="198" y="173" font-size="4" text-anchor="middle">fridge</text>
 
 <!-- the chairs, behind the table -->
-<rect x="224" y="147" width="11" height="3" fill="#8a7458" stroke="#241c18"/>
-<rect x="224" y="138" width="11" height="3" fill="#8a7458" stroke="#241c18"/>
-<rect x="233" y="138" width="2" height="8" fill="#6a5a44" stroke="#241c18"/>
-<rect x="246" y="147" width="11" height="3" fill="#8a7458" stroke="#241c18"/>
-<rect x="246" y="138" width="11" height="3" fill="#8a7458" stroke="#241c18"/>
-<rect x="255" y="138" width="2" height="8" fill="#6a5a44" stroke="#241c18"/>
-<rect x="268" y="147" width="11" height="3" fill="#8a7458" stroke="#241c18"/>
-<rect x="268" y="138" width="11" height="3" fill="#8a7458" stroke="#241c18"/>
-<rect x="277" y="138" width="2" height="8" fill="#6a5a44" stroke="#241c18"/>
+<rect x="234" y="147" width="11" height="3" fill="#8a7458" stroke="#241c18"/>
+<rect x="234" y="138" width="11" height="3" fill="#8a7458" stroke="#241c18"/>
+<rect x="243" y="138" width="2" height="8" fill="#6a5a44" stroke="#241c18"/>
+<rect x="256" y="147" width="11" height="3" fill="#8a7458" stroke="#241c18"/>
+<rect x="256" y="138" width="11" height="3" fill="#8a7458" stroke="#241c18"/>
+<rect x="265" y="138" width="2" height="8" fill="#6a5a44" stroke="#241c18"/>
+<rect x="278" y="147" width="11" height="3" fill="#8a7458" stroke="#241c18"/>
+<rect x="278" y="138" width="11" height="3" fill="#8a7458" stroke="#241c18"/>
+<rect x="287" y="138" width="2" height="8" fill="#6a5a44" stroke="#241c18"/>
 
 <!-- the table, with the cloth hanging over the front -->
-<rect x="222" y="147" width="72" height="4" fill="#b8a888" stroke="#241c18"/>
-<rect x="222" y="147" width="72" height="7" fill="#b04a3a" stroke="#241c18"/>
-<rect x="222" y="147" width="72" height="2" fill="#c86a52" stroke="#241c18"/>
-<rect x="227" y="147" width="3" height="18" fill="#8a7458" stroke="#241c18"/>
-<rect x="286" y="147" width="3" height="18" fill="#8a7458" stroke="#241c18"/>
+<rect x="232" y="147" width="72" height="4" fill="#b8a888" stroke="#241c18"/>
+<rect x="232" y="147" width="72" height="7" fill="#b04a3a" stroke="#241c18"/>
+<rect x="232" y="147" width="72" height="2" fill="#c86a52" stroke="#241c18"/>
+<rect x="237" y="147" width="3" height="18" fill="#8a7458" stroke="#241c18"/>
+<rect x="296" y="147" width="3" height="18" fill="#8a7458" stroke="#241c18"/>
 <!-- the coffee cups, on the table -->
-<rect x="226" y="143" width="4" height="4" fill="#e8e4d8" stroke="#241c18"/><rect x="238" y="143" width="4" height="4" fill="#e8e4d8" stroke="#241c18"/><rect x="250" y="143" width="4" height="4" fill="#e8e4d8" stroke="#241c18"/><rect x="262" y="143" width="4" height="4" fill="#e8e4d8" stroke="#241c18"/><rect x="274" y="143" width="4" height="4" fill="#e8e4d8" stroke="#241c18"/><rect x="286" y="143" width="4" height="4" fill="#e8e4d8" stroke="#241c18"/>
-<text x="260" y="173" font-size="4" text-anchor="middle">eating table</text>
+<rect x="236" y="143" width="4" height="4" fill="#e8e4d8" stroke="#241c18"/><rect x="248" y="143" width="4" height="4" fill="#e8e4d8" stroke="#241c18"/><rect x="260" y="143" width="4" height="4" fill="#e8e4d8" stroke="#241c18"/><rect x="272" y="143" width="4" height="4" fill="#e8e4d8" stroke="#241c18"/><rect x="284" y="143" width="4" height="4" fill="#e8e4d8" stroke="#241c18"/><rect x="296" y="143" width="4" height="4" fill="#e8e4d8" stroke="#241c18"/>
+<text x="268" y="173" font-size="4" text-anchor="middle">eating table</text>
 
 <rect x="180" y="82" width="36" height="24" fill="#2a4a78" stroke="#241c18"/>
 <rect x="196" y="82" width="3" height="24" fill="#241c18"/>
