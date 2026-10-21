@@ -1,9 +1,10 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="-14 0 1368 1284" width="1710" font-family="Verdana, DejaVu Sans, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-14 0 1368 1324" width="1710" font-family="Verdana, DejaVu Sans, sans-serif">
 <style>
 .den{fill:#f6d7a8;stroke:#3a2c26} .loft{fill:#efe4d2;stroke:#3a2c26} .bay{fill:#dbe6dd;stroke:#3a2c26}
 .key{fill:#ffe9a8;stroke:#3a2c26} .st{fill:#fff6e6;stroke:#3a2c26} .st2{fill:#f7f1e8;stroke:#8a7a70}
 .tarp{fill:#c9ccc4;stroke:#3a2c26;stroke-dasharray:3 2} .nyet{fill:#f3d2c8;stroke:#a05040;stroke-dasharray:2 2}
 .door{fill:#a9b8d0;stroke:#2b3a58} .lift{fill:#e8c84a;stroke:#3a2c26} .space{fill:#eef4ef;stroke:#7a9080;stroke-dasharray:3 2}
+.wall{fill:#5a4a42;stroke:#3a2c26}
 .bunks{fill:#e3cfae;stroke:#3a2c26} .roof{fill:none;stroke:#3a2c26;stroke-width:1.5}
 .fl{stroke:#3a2c26;stroke-width:2} .lad{stroke:#6a4424;stroke-width:1} .drone{fill:#586078;stroke:#1c1420}
 .kitchen{fill:#f2e0c4;stroke:#3a2c26} .yard{fill:#dfe6c8;stroke:#3a2c26} .base{fill:#d8cfc4;stroke:#3a2c26}
@@ -17,7 +18,7 @@
 .badge{fill:#8a3a5a;stroke:#fbf8f3} .bn{font-size:7px;font-weight:bold;fill:#ffffff}
 text{fill:#231a17} .t{font-size:7px;font-weight:bold} .s{font-size:5.5px;fill:#5a4c44} .h{font-size:8px;font-weight:bold;fill:#8a3a5a} .k{font-size:7px}
 </style>
-<rect x="-14" y="0" width="1368" height="1284" fill="#fbf8f3"/>
+<rect x="-14" y="0" width="1368" height="1324" fill="#fbf8f3"/>
 <text x="0" y="18" style="font-size:12px;font-weight:bold;fill:#231a17">The crew's house: the den, the loft, the tabk bay and the outer rooms, as the game builds them</text>
 <rect x="0" y="198" width="320" height="180" class="den"/>
 <text x="4" y="206" class="h" text-anchor="start">THE DEN · one screen, 320 × 180</text>
@@ -299,6 +300,7 @@ text{fill:#231a17} .t{font-size:7px;font-weight:bold} .s{font-size:5.5px;fill:#5
 <rect x="1020" y="596" width="52" height="45" class="st2"/>
 <text x="1046" y="608" class="t" text-anchor="middle">PARAPET</text>
 <text x="1046" y="616" class="s" text-anchor="middle">the street</text>
+<rect x="1020" y="476" width="52" height="120" class="wall"/>
 <text x="14" y="912" class="h">THE LOFT'S OWN ROOMS · the loft is the way in</text>
 <rect x="0" y="924" width="320" height="180" class="shower"/>
 <text x="4" y="932" class="h" text-anchor="start">THE SHOWER BLOCK · one screen, 320 × 180</text>
@@ -319,8 +321,9 @@ text{fill:#231a17} .t{font-size:7px;font-weight:bold} .s{font-size:5.5px;fill:#5
 <rect x="214" y="1034" width="52" height="55" class="st2"/>
 <text x="240" y="1052" class="t" text-anchor="middle">TOILET</text>
 <text x="240" y="1060" class="s" text-anchor="middle">the cubicle</text>
-<rect x="272" y="1058" width="48" height="31" class="st2"/>
-<text x="296" y="1068" class="t" text-anchor="middle">LOCKERS</text>
+<rect x="272" y="1058" width="36" height="31" class="st2"/>
+<text x="290" y="1068" class="t" text-anchor="middle">LOCKERS</text>
+<rect x="308" y="924" width="12" height="180" class="wall"/>
 <path d="M98 1040 L98 1074 M150 1040 L150 1074" class="saloon"/>
 <circle cx="98" cy="1040" r="1.6" class="saloondot"/>
 <circle cx="150" cy="1040" r="1.6" class="saloondot"/>
@@ -333,52 +336,58 @@ text{fill:#231a17} .t{font-size:7px;font-weight:bold} .s{font-size:5.5px;fill:#5
 <circle cx="214" cy="1040" r="1.6" class="saloondot"/>
 <circle cx="266" cy="1040" r="1.6" class="saloondot"/>
 <path d="M214 1040 L266 1040" class="saloon"/>
-<rect x="340" y="924" width="320" height="320" class="winter"/>
-<text x="344" y="938" class="h" text-anchor="start">THE WINTERGARDEN · one tall room, 320 × 320</text>
+<rect x="340" y="924" width="320" height="360" class="winter"/>
+<text x="344" y="938" class="h" text-anchor="start">THE WINTERGARDEN · one tall room, 320 × 360</text>
 <text x="344" y="948" class="s" text-anchor="start">out the loft's wintergarden door</text>
-<line x1="340" y1="1229" x2="660" y2="1229" class="fl"/>
-<rect x="340" y="1192" width="24" height="37" class="door"/>
-<text x="352" y="1204" class="t" text-anchor="middle">←</text>
-<text x="352" y="1212" class="s" text-anchor="middle">loft</text>
-<rect x="370" y="1184" width="76" height="45" class="st"/>
-<text x="408" y="1196" class="t" text-anchor="middle">ROSES</text>
-<text x="408" y="1204" class="s" text-anchor="middle">the beds</text>
-<rect x="452" y="1186" width="56" height="43" class="st2"/>
-<text x="480" y="1198" class="t" text-anchor="middle">PLANTERS</text>
-<rect x="582" y="1180" width="78" height="49" class="st2"/>
-<text x="621" y="1194" class="t" text-anchor="middle">GREENHOUSE</text>
-<text x="621" y="1202" class="s" text-anchor="middle">the cold</text>
-<ellipse cx="545" cy="1218" rx="26" ry="8.32" class="spiral"/>
-<line x1="519" y1="1218" x2="571" y2="1218" class="spiral"/>
-<ellipse cx="545" cy="1192" rx="25.1111" ry="8.03556" class="spiral"/>
-<line x1="519.889" y1="1192" x2="570.111" y2="1192" class="spiral"/>
-<ellipse cx="545" cy="1166" rx="24.2222" ry="7.75111" class="spiral"/>
-<line x1="520.778" y1="1166" x2="569.222" y2="1166" class="spiral"/>
-<ellipse cx="545" cy="1140" rx="23.3333" ry="7.46667" class="spiral"/>
-<line x1="521.667" y1="1140" x2="568.333" y2="1140" class="spiral"/>
-<ellipse cx="545" cy="1114" rx="22.4444" ry="7.18222" class="spiral"/>
-<line x1="522.556" y1="1114" x2="567.444" y2="1114" class="spiral"/>
-<ellipse cx="545" cy="1088" rx="21.5556" ry="6.89778" class="spiral"/>
-<line x1="523.444" y1="1088" x2="566.556" y2="1088" class="spiral"/>
-<ellipse cx="545" cy="1062" rx="20.6667" ry="6.61333" class="spiral"/>
-<line x1="524.333" y1="1062" x2="565.667" y2="1062" class="spiral"/>
-<ellipse cx="545" cy="1036" rx="19.7778" ry="6.32889" class="spiral"/>
-<line x1="525.222" y1="1036" x2="564.778" y2="1036" class="spiral"/>
-<ellipse cx="545" cy="1010" rx="18.8889" ry="6.04444" class="spiral"/>
-<line x1="526.111" y1="1010" x2="563.889" y2="1010" class="spiral"/>
-<ellipse cx="545" cy="984" rx="18" ry="5.76" class="spiral"/>
-<line x1="527" y1="984" x2="563" y2="984" class="spiral"/>
-<line x1="545" y1="1229" x2="545" y2="958" class="spiralpost"/>
-<circle cx="386" cy="1214" r="2.4" class="rose"/>
-<circle cx="404" cy="1218" r="2.4" class="rose"/>
-<circle cx="424" cy="1213" r="2.4" class="rose"/>
-<circle cx="470" cy="1216" r="2.4" class="rose"/>
-<circle cx="490" cy="1212" r="2.4" class="rose"/>
+<line x1="340" y1="1269" x2="660" y2="1269" class="fl"/>
+<rect x="340" y="1232" width="24" height="37" class="door"/>
+<text x="352" y="1244" class="t" text-anchor="middle">←</text>
+<text x="352" y="1252" class="s" text-anchor="middle">loft</text>
+<rect x="370" y="1224" width="76" height="45" class="st"/>
+<text x="408" y="1236" class="t" text-anchor="middle">ROSES</text>
+<text x="408" y="1244" class="s" text-anchor="middle">the beds</text>
+<rect x="452" y="1226" width="56" height="43" class="st2"/>
+<text x="480" y="1238" class="t" text-anchor="middle">PLANTERS</text>
+<rect x="582" y="1220" width="78" height="49" class="st2"/>
+<text x="621" y="1234" class="t" text-anchor="middle">GREENHOUSE</text>
+<text x="621" y="1242" class="s" text-anchor="middle">the cold</text>
+<ellipse cx="545" cy="1258" rx="26" ry="8.32" class="spiral"/>
+<line x1="519" y1="1258" x2="571" y2="1258" class="spiral"/>
+<ellipse cx="545" cy="1232" rx="25.3333" ry="8.10667" class="spiral"/>
+<line x1="519.667" y1="1232" x2="570.333" y2="1232" class="spiral"/>
+<ellipse cx="545" cy="1206" rx="24.6667" ry="7.89333" class="spiral"/>
+<line x1="520.333" y1="1206" x2="569.667" y2="1206" class="spiral"/>
+<ellipse cx="545" cy="1180" rx="24" ry="7.68" class="spiral"/>
+<line x1="521" y1="1180" x2="569" y2="1180" class="spiral"/>
+<ellipse cx="545" cy="1154" rx="23.3333" ry="7.46667" class="spiral"/>
+<line x1="521.667" y1="1154" x2="568.333" y2="1154" class="spiral"/>
+<ellipse cx="545" cy="1128" rx="22.6667" ry="7.25333" class="spiral"/>
+<line x1="522.333" y1="1128" x2="567.667" y2="1128" class="spiral"/>
+<ellipse cx="545" cy="1102" rx="22" ry="7.04" class="spiral"/>
+<line x1="523" y1="1102" x2="567" y2="1102" class="spiral"/>
+<ellipse cx="545" cy="1076" rx="21.3333" ry="6.82667" class="spiral"/>
+<line x1="523.667" y1="1076" x2="566.333" y2="1076" class="spiral"/>
+<ellipse cx="545" cy="1050" rx="20.6667" ry="6.61333" class="spiral"/>
+<line x1="524.333" y1="1050" x2="565.667" y2="1050" class="spiral"/>
+<ellipse cx="545" cy="1024" rx="20" ry="6.4" class="spiral"/>
+<line x1="525" y1="1024" x2="565" y2="1024" class="spiral"/>
+<ellipse cx="545" cy="998" rx="19.3333" ry="6.18667" class="spiral"/>
+<line x1="525.667" y1="998" x2="564.333" y2="998" class="spiral"/>
+<ellipse cx="545" cy="972" rx="18.6667" ry="5.97333" class="spiral"/>
+<line x1="526.333" y1="972" x2="563.667" y2="972" class="spiral"/>
+<ellipse cx="545" cy="946" rx="18" ry="5.76" class="spiral"/>
+<line x1="527" y1="946" x2="563" y2="946" class="spiral"/>
+<line x1="545" y1="1269" x2="545" y2="958" class="spiralpost"/>
+<circle cx="386" cy="1254" r="2.4" class="rose"/>
+<circle cx="404" cy="1258" r="2.4" class="rose"/>
+<circle cx="424" cy="1253" r="2.4" class="rose"/>
+<circle cx="470" cy="1256" r="2.4" class="rose"/>
+<circle cx="490" cy="1252" r="2.4" class="rose"/>
 <circle cx="545" cy="962" r="7" class="rose"/>
 <circle cx="545" cy="962" r="11" class="dome"/>
 <text x="572" y="960" class="t" text-anchor="start">THE ROSE</text>
 <text x="572" y="968" class="s" text-anchor="start">under glass, at the top</text>
-<line x1="514" y1="1229" x2="576" y2="1229" class="fl"/>
+<line x1="514" y1="984" x2="576" y2="984" class="fl"/>
 <text x="680" y="688" class="h">B2 · below the basement</text>
 <circle cx="24" cy="288" r="5" class="badge"/>
 <text x="24" y="290" class="bn">1</text>
@@ -406,8 +415,8 @@ text{fill:#231a17} .t{font-size:7px;font-weight:bold} .s{font-size:5.5px;fill:#5
 <text x="1328" y="594" class="bn">4</text>
 <circle cx="12" cy="1040" r="5" class="badge"/>
 <text x="12" y="1042" class="bn">5</text>
-<circle cx="352" cy="1180" r="5" class="badge"/>
-<text x="352" y="1182" class="bn">6</text>
+<circle cx="352" cy="1220" r="5" class="badge"/>
+<text x="352" y="1222" class="bn">6</text>
 <rect x="14" y="400" width="16" height="10" class="den"/>
 <text x="34" y="409" class="k">the den</text>
 <rect x="73.4" y="400" width="16" height="10" class="key"/>

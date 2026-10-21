@@ -26,7 +26,7 @@ BB2_X = BASE_X
 LBAND = BBAND + OH + 44
 SHOWER_X = 0      # the shower block: out the loft's shower door
 WINTER_X = 340    # the wintergarden: out the loft's wintergarden door
-WH = 320          # the wintergarden is a tall room: a spiral stair up to the rose
+WH = 360          # the wintergarden is a tall room: two screens up, a spiral stair to the rose
 
 W = max(BAYX + 993, ROOF_X + OW, WINTER_X + OW) + M
 VH = LBAND + WH + 40
@@ -211,6 +211,8 @@ orect(190, 15, 258, 56, "key", R); olabel(190, 258, 44, "TELESCOPE", "replays", 
 orect(120, 15, 178, 62, "st2", R); olabel(120, 178, 50, "WATER TANK", None, R)
 orect(60, 15, 110, 58, "st2", R); olabel(60, 110, 46, "AERIAL", None, R)
 orect(0, 15, 52, 60, "st2", R); olabel(0, 52, 48, "PARAPET", "the street", R)
+# the far end: the roof ends at a parapet, so there is nothing more to walk on
+orect(0, 60, 52, OH, "wall", R)
 
 # ---- the loft's own rooms, entered from the loft: its shower block and its wintergarden ----
 out.append(f'<text x="{M}" y="{LBAND - 12:g}" class="h">THE LOFT\'S OWN ROOMS · the loft is the way in</text>')
@@ -225,7 +227,9 @@ orect(30, 15, 92, 56, "st2", S, SY); olabel(30, 92, 44, "SINKS", "the mirror", S
 orect(98, 15, 150, 74, "st", S, SY); olabel(98, 150, 56, "SHOWER", "the cubicle", S, SY)
 orect(156, 15, 208, 74, "st", S, SY); olabel(156, 208, 56, "SHOWER", "the cubicle", S, SY)
 orect(214, 15, 266, 70, "st2", S, SY); olabel(214, 266, 52, "TOILET", "the cubicle", S, SY)
-orect(272, 15, 320, 46, "st2", S, SY); olabel(272, 320, 36, "LOCKERS", None, S, SY)
+orect(272, 15, 308, 46, "st2", S, SY); olabel(272, 308, 36, "LOCKERS", None, S, SY)
+# the end wall: the room stops here, so the lockers don't look cut off
+orect(308, 0, 320, OH, "wall", S, SY)
 # the swinging saloon doors: a stall across the front of each cubicle, with a pivot at each end
 for cx in (124, 182, 240):
     out.append(f'<path d="M{cx - 26:g} {SY(64):g} L{cx - 26:g} {SY(30):g} M{cx + 26:g} {SY(64):g} L{cx + 26:g} {SY(30):g}" class="saloon"/>')
@@ -233,10 +237,11 @@ for cx in (124, 182, 240):
     out.append(f'<circle cx="{cx + 26:g}" cy="{SY(64):g}" r="1.6" class="saloondot"/>')
     out.append(f'<path d="M{cx - 26:g} {SY(64):g} L{cx + 26:g} {SY(64):g}" class="saloon"/>')
 
-# the wintergarden: out the loft's wintergarden door. A tall room: a spiral stair up to the rose
+# the wintergarden: out the loft's wintergarden door. A tall room, two screens up:
+# a spiral stair turns up the wall to the rose at the top, and you have to climb to see it
 Wn = WINTER_X
 orect(0, 0, OW, WH, "winter", Wn, LY)
-otitle(Wn, "THE WINTERGARDEN · one tall room, 320 × 320", "out the loft's wintergarden door", LY, 306)
+otitle(Wn, "THE WINTERGARDEN · one tall room, 320 × 360", "out the loft's wintergarden door", LY, 346)
 ofloor(0, OW, 15, Wn, LY)
 orect(0, 15, 24, 52, "door", Wn, LY); olabel(0, 24, 40, "←", "loft", Wn, LY)
 orect(30, 15, 106, 60, "st", Wn, LY); olabel(30, 106, 48, "ROSES", "the beds", Wn, LY)
@@ -244,20 +249,21 @@ orect(112, 15, 168, 58, "st2", Wn, LY); olabel(112, 168, 46, "PLANTERS", None, W
 orect(242, 15, 320, 64, "st2", Wn, LY); olabel(242, 320, 50, "GREENHOUSE", "the cold", Wn, LY)
 # the spiral stair, turning up the wall to the rose at the top: a post, and treads winding round it
 sx = 205
-for i in range(10):
-    t = i / 9.0
+for i in range(13):
+    t = i / 12.0
     rx = 26 - 8 * t                       # the stair tightens as it rises
     out.append(f'<ellipse cx="{Wn + sx:g}" cy="{LY(26 + i * 26):g}" rx="{rx:g}" ry="{rx * 0.32:g}" class="spiral"/>')
     out.append(f'<line x1="{Wn + sx - rx:g}" y1="{LY(26 + i * 26):g}" x2="{Wn + sx + rx:g}" y2="{LY(26 + i * 26):g}" class="spiral"/>')
-out.append(f'<line x1="{Wn + sx:g}" y1="{LY(15):g}" x2="{Wn + sx:g}" y2="{LY(286):g}" class="spiralpost"/>')
+out.append(f'<line x1="{Wn + sx:g}" y1="{LY(15):g}" x2="{Wn + sx:g}" y2="{LY(326):g}" class="spiralpost"/>')
 for rx, ry in ((46, 30), (64, 26), (84, 31), (130, 28), (150, 32)):
     out.append(f'<circle cx="{Wn + rx:g}" cy="{LY(ry):g}" r="2.4" class="rose"/>')
-# the rose at the top, under its glass dome
-out.append(f'<circle cx="{Wn + 205:g}" cy="{LY(282):g}" r="7" class="rose"/>')
-out.append(f'<circle cx="{Wn + 205:g}" cy="{LY(282):g}" r="11" class="dome"/>')
-out.append(f'<text x="{Wn + 232:g}" y="{LY(284):g}" class="t" text-anchor="start">THE ROSE</text>')
-out.append(f'<text x="{Wn + 232:g}" y="{LY(276):g}" class="s" text-anchor="start">under glass, at the top</text>')
-out.append(f'<line x1="{Wn + 174:g}" y1="{LY(15):g}" x2="{Wn + 236:g}" y2="{LY(15):g}" class="fl"/>')
+# the rose at the top, under its glass dome, up where only the stair reaches
+out.append(f'<circle cx="{Wn + 205:g}" cy="{LY(322):g}" r="7" class="rose"/>')
+out.append(f'<circle cx="{Wn + 205:g}" cy="{LY(322):g}" r="11" class="dome"/>')
+out.append(f'<text x="{Wn + 232:g}" y="{LY(324):g}" class="t" text-anchor="start">THE ROSE</text>')
+out.append(f'<text x="{Wn + 232:g}" y="{LY(316):g}" class="s" text-anchor="start">under glass, at the top</text>')
+# the landing the stair arrives at
+out.append(f'<line x1="{Wn + 174:g}" y1="{LY(300):g}" x2="{Wn + 236:g}" y2="{LY(300):g}" class="fl"/>')
 
 # ---- the ways in, matched by number: the badge on the door in the house, and the badge on the door in the room
 out.append(f'<text x="{BB2_X}" y="{BBAND - 12:g}" class="h">B2 · below the basement</text>')
@@ -298,6 +304,7 @@ svg = f'''<svg xmlns="http://www.w3.org/2000/svg" viewBox="{-M} 0 {W + M} {VH}" 
 .key{{fill:#ffe9a8;stroke:#3a2c26}} .st{{fill:#fff6e6;stroke:#3a2c26}} .st2{{fill:#f7f1e8;stroke:#8a7a70}}
 .tarp{{fill:#c9ccc4;stroke:#3a2c26;stroke-dasharray:3 2}} .nyet{{fill:#f3d2c8;stroke:#a05040;stroke-dasharray:2 2}}
 .door{{fill:#a9b8d0;stroke:#2b3a58}} .lift{{fill:#e8c84a;stroke:#3a2c26}} .space{{fill:#eef4ef;stroke:#7a9080;stroke-dasharray:3 2}}
+.wall{{fill:#5a4a42;stroke:#3a2c26}}
 .bunks{{fill:#e3cfae;stroke:#3a2c26}} .roof{{fill:none;stroke:#3a2c26;stroke-width:1.5}}
 .fl{{stroke:#3a2c26;stroke-width:2}} .lad{{stroke:#6a4424;stroke-width:1}} .drone{{fill:#586078;stroke:#1c1420}}
 .kitchen{{fill:#f2e0c4;stroke:#3a2c26}} .yard{{fill:#dfe6c8;stroke:#3a2c26}} .base{{fill:#d8cfc4;stroke:#3a2c26}}
