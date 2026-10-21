@@ -20,7 +20,7 @@ Up: [Design](README.md)
 The house's outer rooms are their own screens, each one behind a door
 ([the lobby](lobby.md#the-outer-rooms)). Each is a room plate, made like a
 background plate but standing in for a whole screen, and the work in progress
-is in [plates](lobby/plates/).
+is in [plates](lobby/plates/). To add one, follow [the workflow](lobby/rooms.md).
 
 - **Model:** Qwen Image 2.1 Turbo on OpenRouter (`qwen/qwen-image-2.1-turbo`, the Alibaba endpoint), about $0.02 an image. It is not in OpenRouter's public model list: find it with `GET /api/v1/models/qwen/qwen-image-2.1-turbo/endpoints`.
 - **The endpoint** is `POST /api/v1/images/generations`, not `/chat/completions`: an image model on the chat endpoint is a 404 saying so.
