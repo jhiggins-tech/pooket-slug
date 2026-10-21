@@ -79,7 +79,6 @@ namespace PooketSlug
             SoloOnly = true,
             BeforeDen = true,
             OpensCoop = true,
-            CoopName = "TEST MISSION",
         }, pilot: Content.Pilot);
 
         /// <summary>

@@ -147,5 +147,14 @@ namespace PooketSlug.Tests
                 foreach (Spawn s in m.Load().Spawns)
                     Assert.AreNotEqual(PickupEffect.Gun, Content.PickupFor(s.Kind)?.Effect, m.Id + " at " + s.Pos);
         }
+
+        [Test]
+        public void ACoopRoomNeverPlaysASoloMission()
+        {
+            // so a solo mission never needs a name of its own for a co-op room's den
+            foreach (MissionDef m in Missions.All)
+                Assert.IsFalse(Missions.ForCoop(m).Story.SoloOnly, m.Id);
+            Assert.IsFalse(Missions.ForCoop(null).Story.SoloOnly);
+        }
     }
 }

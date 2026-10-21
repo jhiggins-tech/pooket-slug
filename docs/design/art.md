@@ -7,7 +7,7 @@ How generated art is made for Pooket Slug, so every new background matches the o
 Up: [Design](README.md)
 
 ## Background plates
-- **Model:** Seedream 5 Flash on OpenRouter (`bytedance-seed/seedream-5-0-flash`), about $0.02 an image. Design uses it for all background work from now on.
+- **Model: Qwen Image 2.1 Turbo** on OpenRouter (`qwen/qwen-image-2.1-turbo`), about $0.02 an image, for every image from now on, new plates and edits alike (owner, 2026-10-21, spike-qwen-edit: "Turbo with annotations is going to be our go-to model from now on, goodbye seedream"). Changes to a picked painting are marked on it, as below. Seedream 5 Flash (`bytedance-seed/seedream-5-0-flash`), the model from 2026-10-17 to 2026-10-21, made every plate before then.
 - **Prompt only.** A new plate is made from its prompt alone, with no reference picture. A hand-drawn reference is made only when a plate's prompt doesn't quite do it.
 - **The style line**, put in front of every plate's own prompt:
   > Pixel art in the style of 1990s Neo Geo arcade run-and-gun games like Metal Slug: hand-placed pixels, bold dark outlines, rich three- or four-tone shading, chunky readable shapes. Crisp hard pixel edges, no anti-aliasing, no blur, no text.
@@ -22,11 +22,20 @@ The house's outer rooms are their own screens, each one behind a door
 background plate but standing in for a whole screen, and the work in progress
 is in [plates](lobby/plates/). To add one, follow [the workflow](lobby/rooms.md).
 
-- **Model:** Qwen Image 2.1 Turbo on OpenRouter (`qwen/qwen-image-2.1-turbo`, the Alibaba endpoint), about $0.02 an image. It is not in OpenRouter's public model list: find it with `GET /api/v1/models/qwen/qwen-image-2.1-turbo/endpoints`.
+- **Model:** Qwen Image 2.1 Turbo, as for every image now. It is not in OpenRouter's public model list: find it with `GET /api/v1/models/qwen/qwen-image-2.1-turbo/endpoints`.
 - **The endpoint** is `POST /api/v1/images/generations`, not `/chat/completions`: an image model on the chat endpoint is a 404 saying so.
 - **Two references.** The first is the room's layout, cut out of the house map ([lobby/house-layout.svg](lobby/house-layout.svg)) and rendered as a picture: the model then puts the things where the map says. The second is a **swatch** — a small crop of the game's own pixels, upscaled so the pixel technique is legible, with nothing recognisable in it: that is what makes the plate pixel art rather than a photograph. A whole plate as the second reference makes the model copy that room instead of drawing the one asked for.
 - **The size floor.** The provider wants at least 512 × 512, so a plate is generated at 1280 × 720 and cut down to the game's size and 64 colours afterwards.
 - **Moderation.** The provider's moderation blocks some *combinations*, not any single part: the style line above passes on its own, but adding "16-bit" to it is blocked, and a layout hint that says "paint it in the style of the second picture" is blocked too. Keep the style line exactly as it is, and keep the hint plain: "The first picture is a layout diagram for the room: where each thing goes."
+- **The palette.** Cut the plate down with a **median cut**, not by keeping the most common colours: the paintings have ramps of light, and the commonest-colours cut crushes a ramp into one muddy band.
+
+## Editing a picked painting
+To change one part of a painting that's already picked (a room, a prop), edit it rather than make a new take: mark the part with a red circle or box and say what goes there. Tried on the loft's wintergarden (spike-qwen-edit, 2026-10-21; page https://claude.ai/artifact/RLupVt9zB3RAQU1tdHfYHw): eight takes, then six more on Turbo, about $0.50 in all.
+- **Model: Qwen Image 2.1 Turbo** on OpenRouter (`qwen/qwen-image-2.1-turbo`), about $0.02 an image and 30 to 50 seconds a call. It takes the whole painting as a reference, at full size, and changes what it's told to. Pro (`qwen/qwen-image-2.1-pro`, about $0.05) did no better here and missed a detail Turbo got (the lemons), so Turbo is the default. Both are only on `POST /api/v1/images`: each `input_references` entry is an object (`{"type": "image_url", "image_url": {"url": "data:…"}}`), not a string; 21:9 isn't an `aspect_ratio` they take, but `"size": "3024x1296"` came back at exactly that size. The vendor repository's `art/qwen_edit.py` (branch `claude/qwen-edit`) makes the calls.
+- **Mark the part, or name it.** A red circle or box round the part, with "change only what's inside the red circle" in the prompt, worked, and the mark was gone from the answer. Naming the place in words ("the glass room between the server cupboard and the red vending machine") worked about as well. With a mark, the room's frame stayed put more often.
+- **Paste the answer back through a mask.** Qwen repaints the whole picture: a fifth of the pixels outside the mark shift a little, invisible at a glance but not identical. Keep only the marked part, pasted back through a mask of it, so the rest of the plate stays exactly as picked.
+- **It holds the look better than a fill edit.** Seedream's fill edit (a 16:9 crop, the part painted out) leaves the rest exact but paints softer, scales the contents up and wandered from the brief (pink roses, sliding doors). Qwen kept the hard pixel look and the scale. Pro missed one detail in all six of its takes (no lemons on the lemon tree), so check the brief item by item.
+- **Check it at game size in the plate's own colours:** cut it down and map it to the picked plate's palette, not a fresh 64 colours. A fresh palette fitted to the new warm room let the vending machine's red go orange.
 
 
 ## Sprites
