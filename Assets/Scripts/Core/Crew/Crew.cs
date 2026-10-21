@@ -19,15 +19,15 @@ namespace PooketSlug
         /// <summary>Their colour on the team card.</summary>
         public readonly Color Card;
         /// <summary>
-        /// Their paint, a palette swap over the base soldier's (<c>ArtData</c>'s letters to colours), for player one and
-        /// player two. Two partners playing the same crewmate wear one each.
+        /// Their paint, a palette swap over the base soldier's (<c>ArtData</c>'s letters to colours). It's the same from
+        /// either seat: there's no second paint for player two (owner, 2026-10-21); the P1 and P2 tags say who's who.
         /// </summary>
-        public readonly IReadOnlyList<IReadOnlyDictionary<char, uint>> Paint;
+        public readonly IReadOnlyDictionary<char, uint> Paint;
         /// <summary>Their moves, in the order of their buttons.</summary>
         public readonly IReadOnlyList<MoveGuide> Moves;
 
         public CrewMember(SoldierDef soldier, MissionDef freedBy, Color card, IReadOnlyList<MoveGuide> moves,
-            params IReadOnlyDictionary<char, uint>[] paint)
+            IReadOnlyDictionary<char, uint> paint)
         {
             Soldier = soldier;
             FreedBy = freedBy;
@@ -45,24 +45,21 @@ namespace PooketSlug
     /// Mission one is beaten solo; then the crew opens, with kie (freed from his tank), and each later mission frees
     /// another: Mission two frees kcaj (from the cold store). Nothing about it is saved: a crewmate is freed once their mission has been beaten (the owner's call,
     /// 16 Oct), so it comes from the mission records (<see cref="Profile"/>). Who you play is kept with the settings
-    /// (<see cref="Options.Crew"/>) and picked in the den. Two partners may play the same soldier.
+    /// (<see cref="Options.Crew"/>) and picked in the den. Two partners can't play the same soldier (the den keeps them one each).
     /// </summary>
     public static class Crew
     {
-        /// <summary>tones2, in his Pooket Tabks colours: a pink bandana for player one, blue for player two.</summary>
+        /// <summary>tones2, in his Pooket Tabks colours, with a pink bandana.</summary>
         public static readonly CrewMember Tones2 = new CrewMember(Content.Tones2, null, new Color(1f, 0.72f, 0.1f, 0.95f), KitGuide.Tones2,
-            new Dictionary<char, uint> { { 'r', 0xff7eb6 }, { 'R', 0xc0508a }, { 'g', 0xff8c42 }, { 'G', 0xc06428 }, { 'c', 0xff5a5f }, { 'C', 0xb83c40 } },
-            new Dictionary<char, uint> { { 'r', 0x3a9ae8 }, { 'R', 0x22609c }, { 'g', 0xff8c42 }, { 'G', 0xc06428 }, { 'c', 0xff5a5f }, { 'C', 0xb83c40 } });
+            new Dictionary<char, uint> { { 'r', 0xff7eb6 }, { 'R', 0xc0508a }, { 'g', 0xff8c42 }, { 'G', 0xc06428 }, { 'c', 0xff5a5f }, { 'C', 0xb83c40 } });
 
-        /// <summary>kie, in his Pooket Tabks colours (blue, green and teal), a paler blue for player two.</summary>
+        /// <summary>kie, in his Pooket Tabks colours (blue, green and teal).</summary>
         public static readonly CrewMember Kie = new CrewMember(Content.Kie, Missions.One, new Color(0.25f, 0.85f, 0.8f, 0.95f), KitGuide.Kie,
-            new Dictionary<char, uint> { { 'r', 0x4ea8ff }, { 'R', 0x2a70c0 }, { 'g', 0x46d27a }, { 'G', 0x2a9050 }, { 'c', 0x2dd4bf }, { 'C', 0x1a9488 } },
-            new Dictionary<char, uint> { { 'r', 0xa8d8ff }, { 'R', 0x6898c8 }, { 'g', 0x46d27a }, { 'G', 0x2a9050 }, { 'c', 0x2dd4bf }, { 'C', 0x1a9488 } });
+            new Dictionary<char, uint> { { 'r', 0x4ea8ff }, { 'R', 0x2a70c0 }, { 'g', 0x46d27a }, { 'G', 0x2a9050 }, { 'c', 0x2dd4bf }, { 'C', 0x1a9488 } });
 
-        /// <summary>kcaj, freed by clearing Mission two, in his Pooket Tabks colours (purple, gold and silver), a pink bandana for player two.</summary>
+        /// <summary>kcaj, freed by clearing Mission two, in his Pooket Tabks colours (purple, gold and silver).</summary>
         public static readonly CrewMember Kcaj = new CrewMember(Content.Kcaj, Missions.Two, new Color(1f, 0.24f, 0.95f, 0.95f), KitGuide.Kcaj,
-            new Dictionary<char, uint> { { 'r', 0xc77dff }, { 'R', 0x8a4cc0 }, { 'g', 0xffc53d }, { 'G', 0xc08a1c }, { 'c', 0xe2e8f0 }, { 'C', 0x98a2b4 } },
-            new Dictionary<char, uint> { { 'r', 0xff3df2 }, { 'R', 0xb02aa8 }, { 'g', 0xffc53d }, { 'G', 0xc08a1c }, { 'c', 0xe2e8f0 }, { 'C', 0x98a2b4 } });
+            new Dictionary<char, uint> { { 'r', 0xc77dff }, { 'R', 0x8a4cc0 }, { 'g', 0xffc53d }, { 'G', 0xc08a1c }, { 'c', 0xe2e8f0 }, { 'C', 0x98a2b4 } });
 
         /// <summary>The whole crew, in the order they're freed (and stand in the den).</summary>
         public static readonly IReadOnlyList<CrewMember> All = new[] { Tones2, Kie, Kcaj };

@@ -46,7 +46,6 @@ namespace PooketSlug
                 foreach (RemotePlayer r in remotes) known |= ReferenceEquals(r.Link, links[j]);
                 if (!known) remotes.Add(new RemotePlayer(w, links[j]));
             }
-            w.Player.Skin = Net.LocalSkin;
             foreach (RemotePlayer r in remotes)
                 if (r.Link.Score > 0 && m_PartnerScored.Add(r.Link.PlayerId)) Log.Net.Info($"Player {r.Link.PlayerId}'s own score: {r.Link.Score}"); // the drop-in round looks for it
 

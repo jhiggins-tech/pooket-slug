@@ -50,7 +50,7 @@ namespace PooketSlug.Tests
             {
                 Assert.IsTrue(soldiers.Add(m.Soldier), m.Name);
                 Assert.AreSame(m, Crew.Of(m.Soldier));
-                Assert.AreEqual(2, m.Paint.Count, m.Name + ": a paint for each player");
+                Assert.IsTrue(m.Paint.ContainsKey('r'), m.Name + ": their paint, the same from either seat");
                 Assert.Greater(m.Moves.Count, 0, m.Name);
                 Assert.AreSame(m.Moves, KitGuide.For(m.Soldier));
                 Assert.Greater(m.Card.a, 0f, m.Name);

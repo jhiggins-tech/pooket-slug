@@ -13,7 +13,7 @@ namespace PooketSlug
         {
             m_Body = new GameObject("Body").transform;
             m_Body.SetParent(Go.transform, false);
-            m_Visual = new PlayerVisual(m_Body, Art.SkinFor(Content.Kie, 0), SortOrder.Scenery + 2);
+            m_Visual = new PlayerVisual(m_Body, Art.SkinFor(Content.Kie), SortOrder.Scenery + 2);
             m_Body.localScale = new Vector3(-1f, 1f, 1f); // facing back the way tones2 came
         }
 

@@ -2,7 +2,8 @@
 // There is one co-op room (CoopRoom.cs): CO-OP (H) in the den (START on the title opens it) joins it. Each round names a room of its own with
 // ?room=, on every phone, so rounds running at once (and real players in the MATES room) never meet.
 //   code mode (default): A joins (H), copies the invite link in the den (H again, as tapping the TV), which must carry
-//                        the round's room, and B joins (H).
+//                        the round's room, and B joins (H). Both have every tabk (?unlock=tank) and tones2's loaded:
+//                        A's in the mission with it, so B's den must give it up and load kie's (one of each tabk).
 //   boss mode:           as code mode, but both start at the boss (?test=boss) and fight it: B must see the boss
 //                        tank's turret and shots from A's world. Nobody leaves.
 //   dropin mode:         A starts alone and fights its way in, then B joins the mission under way. B
@@ -36,7 +37,7 @@ const { chromium } = require(process.env.PW_PATH || 'playwright');
 const [base, out, mode = 'code'] = process.argv.slice(2);
 const BOSS = mode === 'boss', SCENE = mode === 'scene', DEBRIEF = mode === 'debrief', DROPIN = mode === 'dropin', HANDOVER = mode === 'handover', WATCH = mode === 'watch';
 const ROOM = 'CI' + Math.random().toString(36).slice(2, 8).toUpperCase(); // this round's room
-const url = base + (base.includes('?') ? '&' : '?') + 'room=' + ROOM + '&unlock=coop&test=' + (BOSS ? 'boss' : SCENE ? 'crate,scene' : DEBRIEF ? 'debrief' : 'crate');
+const url = base + (base.includes('?') ? '&' : '?') + 'room=' + ROOM + '&unlock=coop' + (mode === 'code' ? ',tank' : '') + '&test=' + (BOSS ? 'boss' : SCENE ? 'crate,scene' : DEBRIEF ? 'debrief' : 'crate');
 const TOGETHER = SCENE || DEBRIEF; // both sit down in the den and start together
 fs.mkdirSync(out, { recursive: true });
 const T0 = Date.now();
@@ -57,7 +58,7 @@ const checks = WATCH
   ? { hostOnline: false, guestOnline: false, joined: false, bothDebriefs: false, bothInDen: false, nextRound: false, played: false }
   : SCENE
     ? { hostOnline: false, guestOnline: false, joined: false, bothInScene: false, waited: false, tappedThrough: false, together: false, played: false }
-    : { hostOnline: false, guestOnline: false, joined: false, invite: false, played: false, pickup: false, takeover: false };
+    : { hostOnline: false, guestOnline: false, joined: false, invite: false, tabk: false, played: false, pickup: false, takeover: false };
 const GRANT = new RegExp(TAG + String.raw` Pickup \d+ .* goes to player`); // the master handing out a pickup
 let failure = null;
 
@@ -222,6 +223,12 @@ try {
   } else await denStart(B);
   if (!(await waitLog(A, new RegExp(TAG + ' .* joined'), 30000))) throw new Error('A never saw B join');
   checks.joined = true;
+  if (mode === 'code') {
+    // one of each tabk: A took tones2's into the mission, so B's den loads the next one in bay order
+    const gave = await waitLog(B, /Tabk given way: the partner has TONES2'S TABK in the mission; loaded KIE'S TABK/, 15000);
+    checks.tabk = !!gave && !A.logs.some(l => /Tabk given way/.test(l));
+    console.log(`${t()} tabks: ${gave ? 'B gave way' : 'B never gave way'}`);
+  }
   await B.page.waitForTimeout(4000);
   await Promise.all([shot(A, '2-together'), shot(B, '2-together')]);
 

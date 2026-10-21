@@ -7,7 +7,8 @@ namespace PooketSlug
     /// soldier round it, a tabk's card as you walk up to it, TAKE IT sending the cargo drone to swap it onto the repair
     /// stands (a tap again skips to the end; you can walk off meanwhile), the drone's idle shuffles, and the door back to
     /// the den. The pick is kept with the settings (<see cref="Options.Tabk"/>). In co-op each player picks in their own
-    /// bay: nothing here crosses the network. The first visit with kie's tabk won, it comes home first
+    /// bay, but the tabk the partner has loaded is taken (<see cref="CoopTabks"/>): the den's flow says which
+    /// (<see cref="Taken"/>), and swaps ours out when it clashes (<see cref="GaveWay"/>). The first visit with kie's tabk won, it comes home first
     /// (<see cref="KieHomecoming"/>): it's on the stands for that, and the drone swaps the loaded one back after.
     /// </summary>
     public sealed class BayFlow
@@ -33,8 +34,12 @@ namespace PooketSlug
 
         public bool Open { get; private set; }
 
-        /// <summary>Opens the bay, <paramref name="soldier"/> (in <paramref name="skin"/>) walking in from the den's roller door.</summary>
-        public void Show(SoldierDef soldier, int skin)
+        /// <summary>In co-op, the tabk the partner has loaded (null for none, or solo) and their seat: it's taken here.</summary>
+        public TabkCard Taken;
+        public int TakenSeat;
+
+        /// <summary>Opens the bay, <paramref name="soldier"/> walking in from the den's roller door.</summary>
+        public void Show(SoldierDef soldier)
         {
             var won = m_Game.TabksWon;
             TabkCard loaded = m_Game.LoadedTabk;
@@ -50,7 +55,7 @@ namespace PooketSlug
             m_LastCarried = null;
             m_HeldDir = 0;
             m_Walker = new BayWalker(BayDeck.Floor, BayMap.XOf(BayPlace.Door) + 14f);
-            m_View.Begin(m_Garage, soldier, skin);
+            m_View.Begin(m_Garage, soldier);
             Open = true;
             Sfx.Play(Sfx.Thump, 0.4f);
             Log.Game.Info("Tabk bay open: " + m_Garage.Won.Count + " tabks, loaded: " + loaded.Name);
@@ -160,6 +165,12 @@ namespace PooketSlug
                 return;
             }
             if (m_Garage.Loaded == card) return;
+            if (card == Taken)
+            {
+                Sfx.Play(Sfx.Thump, 0.3f);
+                m_View.Note("P" + (TakenSeat + 1) + " HAS IT LOADED");
+                return;
+            }
             m_Show?.Skip(); // an idle shuffle finishes first
             m_Show = m_Garage.Swap(card, DroneShow.Home);
             if (m_Show == null) return;
@@ -171,6 +182,23 @@ namespace PooketSlug
             m_Game.ChangeOptions(o);
             Sfx.Play(Sfx.Pickup, 0.6f);
             Log.Game.Info("Tabk loaded: " + card.Name + " (the drone swaps it in: " + m_Show.Length.ToString("0.0") + " s)");
+        }
+
+        /// <summary>
+        /// Our tabk went to the partner in a clash (<see cref="CoopTabks.GivesWay"/>) and the settings now load the next:
+        /// the drone swaps it onto the stands (after kie's homecoming, if it's playing: that puts the loaded one back), and
+        /// the top of the screen says who has ours.
+        /// </summary>
+        public void GaveWay(string note)
+        {
+            if (!Open) return;
+            m_View.Note(note, 5f);
+            if (m_Home != null) return;
+            m_Show?.Skip();
+            m_Show = m_Garage.Swap(m_Game.LoadedTabk, DroneShow.Home);
+            m_Swapping = m_Show != null;
+            m_LastHose = 1f;
+            m_LastCarried = null;
         }
 
         /// <summary>Moves the bay on each frame: you, the drone and its sounds, the idle shuffles, and the screen.</summary>
@@ -218,7 +246,7 @@ namespace PooketSlug
                 m_Tick = 0.3f;
                 Sfx.Play(Sfx.EngineTick, 0.25f); // the loaded tabk ticking over
             }
-            m_View.Refresh(dt, m_Walker, m_Show, m_Card, m_Swapping && m_Show != null && !m_Show.Landed, GameInput.TouchActive);
+            m_View.Refresh(dt, m_Walker, m_Show, m_Card, m_Swapping && m_Show != null && !m_Show.Landed, GameInput.TouchActive, Taken, TakenSeat);
         }
 
         /// <summary>The drone's rotors while it flies, its cable's clunk as it takes or sets down a tabk, the hose's hiss.</summary>

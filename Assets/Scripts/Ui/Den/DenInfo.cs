@@ -13,8 +13,6 @@ namespace PooketSlug
         public int Watchers;
         /// <summary>Tapping the empty second controller hosts a room (solo, once co-op's open).</summary>
         public bool CanHost;
-        /// <summary>Our colours (<see cref="Art.SkinFor"/>): 0 player one's, 1 player two's.</summary>
-        public int Skin;
         /// <summary>The roller door to the tabk bay: how far it's rolled up, and how far through it you are (<see cref="RollerDoor"/>).</summary>
         public float DoorLift, DoorThrough;
     }

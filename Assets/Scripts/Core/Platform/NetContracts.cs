@@ -169,7 +169,8 @@ namespace PooketSlug
     public interface ISessionView
     {
         bool IsAuthority { get; }
-        int LocalSkin { get; }
+        /// <summary>Our seat: 0 player one (the host, who runs the shared world), 1 player two. The tags, not the paint, say which.</summary>
+        int LocalSeat { get; }
         /// <summary>Our player's id in the session (-1 before we're in).</summary>
         int LocalPlayerId { get; }
         /// <summary>The shared world's round; a restart moves everyone to the next.</summary>
@@ -186,6 +187,8 @@ namespace PooketSlug
         void SendAvatar(SoldierDef soldier, Vector2 pos, Vector2 vel, int poseFlags, int hp, int tankFlags, Vector2 tankPos);
         /// <summary>Where we are in the den: who's on our seat of the couch (null for nobody) and <see cref="Den.Flags"/>.</summary>
         void SendDen(SoldierDef soldier, int flags);
+        /// <summary>The tabk we have loaded (<see cref="TabkCard.Id"/>), so a partner's bay shows it taken (<see cref="CoopTabks"/>).</summary>
+        void SendTabk(int id);
         /// <summary>Our taps in a co-op cutscene (<see cref="CutsceneSync.Pack"/>); 0 when we're in none.</summary>
         void SendScene(int taps);
         /// <summary>Which copies of the scenes we play (<see cref="SceneLibrary.Versions"/>), so both phones play the same.</summary>
@@ -249,7 +252,10 @@ namespace PooketSlug
         int Hp { get; }
         /// <summary>Their own points (<see cref="ISoldierChannel.SendScore"/>).</summary>
         int Score { get; }
-        int Skin { get; }
+        /// <summary>Their seat: 0 player one (the host), 1 player two.</summary>
+        int Seat { get; }
+        /// <summary>The tabk they have loaded (<see cref="TabkCard.Id"/>), 0 before they've said.</summary>
+        int Tabk { get; }
         /// <summary>Their tank (<see cref="TankPose"/>, packed; 0 for none) and where it is.</summary>
         int TankFlags { get; }
         Vector2 TankPos { get; }

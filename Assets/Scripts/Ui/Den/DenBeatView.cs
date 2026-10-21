@@ -97,7 +97,7 @@ namespace PooketSlug
         /// <summary>kie by the couch's arm, heaving it back up: leaning in, straining, then standing back.</summary>
         void Heave(StageFigure f, DenBeat beat, float clock)
         {
-            PlayerSkin skin = Art.SkinFor(Content.Kie, 0);
+            PlayerSkin skin = Art.SkinFor(Content.Kie);
             Ui.Show(f.Rt, true);
             bool heaving = beat.Heave > 0f && beat.Heave < 1f;
             f.Pose(skin, new StagePose(StageLegs.Idle, heaving ? StageTorso.Lounge : StageTorso.Unarmed, 0f, heaving ? -1f : 0f));
@@ -110,7 +110,7 @@ namespace PooketSlug
         /// <summary>tones2 down at the TV's plug, then up again once it's in.</summary>
         void Plug(StageFigure f, DenBeat beat)
         {
-            PlayerSkin skin = Art.SkinFor(Content.Tones2, 0);
+            PlayerSkin skin = Art.SkinFor(Content.Tones2);
             Ui.Show(f.Rt, true);
             bool down = beat.Plug > 0f && beat.Plug < 1f;
             f.Pose(skin, new StagePose(down ? StageLegs.Jump : StageLegs.Idle, down ? StageTorso.Lounge : StageTorso.Unarmed, 0f, down ? -3f : 0f));
@@ -122,7 +122,7 @@ namespace PooketSlug
         /// <summary>The newcomer: out of the dark under the door, then walking in, looking round.</summary>
         void MoveIn(StageFigure f, DenBeat beat, float clock)
         {
-            PlayerSkin skin = Art.SkinFor(beat.Newcomer, 0);
+            PlayerSkin skin = Art.SkinFor(beat.Newcomer);
             Ui.Show(f.Rt, true);
             Vector2 sill = DenRollerDoor.Sill;
             float through = beat.Through, x = NewcomerX(beat);

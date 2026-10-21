@@ -68,13 +68,6 @@ namespace PooketSlug
 
             // Our beat, so the others can tell our game is still running (MasterWatch).
             if (m_Local != null) m_Local.NetBeat = (byte)PartnerBeacon.BeatAt(Time.unscaledTime);
-
-            // Two soldiers in the same colours (both picked "red" while joining together): the higher id switches.
-            if (m_Local != null)
-            {
-                foreach (PlayerNet p in m_Players)
-                    if (p != m_Local && p.Skin == m_Local.NetSkin && m_Local.PlayerId > p.PlayerId) m_Local.NetSkin = 1 - p.Skin;
-            }
         }
 
         // ------------------------------------------------------------------ the replicated objects check in
@@ -82,12 +75,15 @@ namespace PooketSlug
         internal void OnPlayerSpawned(PlayerNet p)
         {
             if (!m_Players.Contains(p)) m_Players.Add(p);
-            if (!p.HasStateAuthority) return;
-            m_Local = p;
-            bool redTaken = false;
-            foreach (PlayerNet other in m_Players) redTaken |= other != p && other.Skin == 0;
-            p.NetSkin = redTaken ? 1 : 0;
+            if (p.HasStateAuthority) m_Local = p;
         }
+
+        /// <summary>
+        /// A player's seat: player one is whoever runs the shared world (the host), everyone else player two. Nothing
+        /// about it crosses the network, and it's the den's seat too (<see cref="Den.Seat"/>).
+        /// </summary>
+        internal int SeatOf(PlayerNet p) =>
+            SharedValid && p.Object != null && p.Object.IsValid && p.Object.StateAuthority == m_Shared.Object.StateAuthority ? 0 : 1;
 
         internal void OnPlayerDespawned(PlayerNet p)
         {
@@ -148,7 +144,7 @@ namespace PooketSlug
         // ------------------------------------------------------------------ INetLink
 
         public bool IsAuthority => SharedValid && m_Shared.HasStateAuthority;
-        public int LocalSkin => m_Local != null ? m_Local.Skin : 0;
+        public int LocalSeat => IsAuthority ? 0 : 1;
         public int LocalPlayerId => m_Local != null ? m_Local.PlayerId : -1;
         public int Round => SharedValid ? m_Shared.Round : 0;
 
@@ -324,6 +320,12 @@ namespace PooketSlug
             if (soldier != null) m_Local.NetSoldier = soldier.Id;
             m_Local.NetDen = (byte)flags;
             m_Local.NetRound = 0; // not playing: partners in a mission don't draw us
+        }
+
+        public void SendTabk(int id)
+        {
+            if (m_Local == null || !m_Local.Object.IsValid) return;
+            m_Local.NetTabk = (byte)id;
         }
 
         public void SendScene(int taps)

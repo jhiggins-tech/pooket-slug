@@ -136,7 +136,7 @@ namespace PooketSlug
             Vector2 kieAt = new Vector2(KieX, ground);
             if (standing)
             {
-                PlayerSkin skin = Art.SkinFor(Content.Kie, 0);
+                PlayerSkin skin = Art.SkinFor(Content.Kie);
                 float climb = Mathf.Clamp01(k1 - 1f);
                 kieAt = Vector2.Lerp(new Vector2(KieX, ground), new Vector2(feet.x + 8f, ground + 30f), climb);
                 m_Kie.Pose(skin, climb > 0f ? new StagePose(StageLegs.Jump, StageTorso.Lounge) : new StagePose(StageLegs.Idle, StageTorso.Unarmed));

@@ -538,6 +538,7 @@ jobs:
                   ("guestOnline", "B joins the same room"),
                   ("joined", "A sees B join"),
                   ("invite", "A's den copies an invite link to the room (the TV, or H)"),
+                  ("tabk", "One of each tabk: B's den gives up tones2's, which A has in the mission, and loads kie's"),
                   ("played", "Both play with no errors or disconnects"),
                   ("pickup", "A's world hands out the test crate (?test=crate)"),
                   ("takeover", "B takes over the world when A leaves"),

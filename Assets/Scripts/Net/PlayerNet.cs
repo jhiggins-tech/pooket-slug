@@ -14,9 +14,9 @@ namespace PooketSlug
         [Networked] public Vector2 NetVel { get; set; }
         [Networked] public int NetPose { get; set; }  // AvatarPose.Pack()
         [Networked] public int NetHp { get; set; }
-        [Networked] public int NetSkin { get; set; }
         [Networked] public int NetRound { get; set; } // World.Round + 1 once the soldier is in play; 0 = still in the lobby
         [Networked] public byte NetSoldier { get; set; } // SoldierDef id
+        [Networked] public byte NetTabk { get; set; } // the tabk they have loaded (TabkCard.Id), 0 before they've said
         [Networked] public int NetTank { get; set; }  // TankPose.Pack(): their tank, 0 for none
         [Networked] public Vector2 NetTankPos { get; set; }
         [Networked] public byte NetDen { get; set; }  // Den.Flags while in the den (the lobby), 0 once playing
@@ -33,7 +33,8 @@ namespace PooketSlug
         public int PoseFlags => Live ? NetPose : 0;
         public int Hp => Live ? NetHp : 0;
         public int Score => Live ? NetScore : 0;
-        public int Skin => Live ? NetSkin : 0;
+        public int Seat => Live && NetSession.Instance != null ? NetSession.Instance.Replication.SeatOf(this) : 1;
+        public int Tabk => Live ? NetTabk : 0;
         public int TankFlags => Live ? NetTank : 0;
         public Vector2 TankPos => Live ? NetTankPos : default;
         public int PlayingRound => Live ? NetRound - 1 : -1;

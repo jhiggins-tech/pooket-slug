@@ -77,11 +77,8 @@ namespace PooketSlug
                         Sfx.Play(Sfx.TrollDrop, PartnerVolume);
                         break;
                     }
-                    RemotePlayer owner = null;
-                    foreach (RemotePlayer r in w.Remotes)
-                        if (r.Link.Soldier.Special.Behaviour == WeaponBehaviour.Trollogram) owner = r;
                     var pose = new AvatarPose { Facing = facing, Crouching = crouching, Grounded = true };
-                    var copy = new TrollDecoy(w, move.At, pose, Content.Kie, owner != null ? owner.Link.Skin : 1, id, mine: false);
+                    var copy = new TrollDecoy(w, move.At, pose, Content.Kie, id, mine: false);
                     w.Decoys.Add(copy);
                     w.Props.Add(copy);
                     Sfx.Play(Sfx.TrollDrop, PartnerVolume);
@@ -251,7 +248,7 @@ namespace PooketSlug
             {
                 case TrollAction.Drop:
                     if (!p.Kit.UseSpecial()) return;
-                    var decoy = new TrollDecoy(w, p.Pos, p.Pose, p.Def, w.Coop ? w.Net.LocalSkin : 0, m_NextId++ & 255, mine: true);
+                    var decoy = new TrollDecoy(w, p.Pos, p.Pose, p.Def, m_NextId++ & 255, mine: true);
                     w.Decoys.Add(decoy);
                     w.Props.Add(decoy);
                     KieKit.Send(w, TrollEvent.Drop, decoy);
@@ -303,7 +300,7 @@ namespace PooketSlug
         /// <summary>A Trollogram of kie's tabk, not of him.</summary>
         public readonly bool Tabk;
 
-        public TrollDecoy(World world, Vector2 feet, AvatarPose pose, SoldierDef def, int skin, int id, bool mine) : base(world, "Trollogram", feet, def.HalfWidth, def.StandHeight, 1)
+        public TrollDecoy(World world, Vector2 feet, AvatarPose pose, SoldierDef def, int id, bool mine) : base(world, "Trollogram", feet, def.HalfWidth, def.StandHeight, 1)
         {
             m_Def = def;
             m_Spec = KieTuning.Trollogram;
@@ -312,7 +309,7 @@ namespace PooketSlug
             m_Pose = pose.Still();
             Facing = pose.Facing;
             Height = pose.Crouching ? def.CrouchHeight : def.StandHeight;
-            m_Visual = new PlayerVisual(Visual, Art.SkinFor(def, skin), SortOrder.Player - 2);
+            m_Visual = new PlayerVisual(Visual, Art.SkinFor(def), SortOrder.Player - 2);
             m_Parts = Visual.GetComponentsInChildren<SpriteRenderer>(true);
         }
 

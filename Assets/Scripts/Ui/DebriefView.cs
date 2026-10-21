@@ -107,7 +107,7 @@ namespace PooketSlug
             m_RankSounded = false;
             m_Blips = 0;
             Ui.Show(m_Root, true);
-            PlayerSkin tones2 = Art.SkinFor(Content.Tones2, 0), kie = Art.SkinFor(Content.Kie, 0);
+            PlayerSkin tones2 = Art.SkinFor(Content.Tones2), kie = Art.SkinFor(Content.Kie);
             m_Tones2.Stand(tones2);
             m_Kie.Stand(kie);
             Refresh();
