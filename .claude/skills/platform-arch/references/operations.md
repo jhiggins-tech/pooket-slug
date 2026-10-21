@@ -66,9 +66,9 @@ is corrected. This check is the one that decays, so it is the one the architect 
 ### 6. The plot still agrees with itself
 The `story` domain's own check, and the architect's too, because it is the one thing in the game that is written
 once and expressed in many places: the mission order, the roster, which scene plays when, what has been revealed.
-The plot's consistency test — the one the story domain should build first — reads the plot out of the code and
-checks it against `docs/design/story.md`. Until that test exists, the plot is checked by reading it, which is how
-plots rot.
+`MissionStoryTests` already holds a mission's own story behaviour; what is missing is the *agreement* between the
+plot in `docs/design/story.md` and the plot in the code. The story domain's first card is that test, and until it
+exists the plot is checked by reading it, which is how plots rot.
 
 ### 7. The nesting is still within its depth
 

@@ -240,13 +240,18 @@ the plot out of the code and checks it against `story.md`. What it checks:
 - the mission order in `Missions.All` is the order the plot says, and each mission's id and net id follow the rule;
 - every scene a mission's story names exists in `SceneLibrary.Names`, and every scene in the library that the plot
   mentions is reachable;
-- every crewmate the plot says is freed is freed by the mission the plot says frees them, and no crewmate is freed
-  twice;
-- every reveal the plot lists is a reveal the game actually has, and every reveal the game has is in the plot;
+- every crewmate the plot says is freed is freed by the mission the plot says frees them (`CrewMember.FreedBy`), and
+  no crewmate is freed twice;
+- every reveal the plot lists is a reveal the game actually has (`Profile.Reveals`), and every reveal the game has is
+  in the plot;
 - the "once only" beats are marked once-only in both, and the scenes the plot retires are not played.
 
-**Right now none of that is tested.** The plot is checked by reading it, which is how plots rot. This domain's first
-card should be that test, because it is what makes the domain worth having.
+**Some of this is already tested, and some is not.** `MissionStoryTests` already holds a mission's scenes, its coda,
+its once-only beats and when the boss reveal plays — the *behaviour* of one mission's story. What is not tested is
+the *agreement*: that the plot in `story.md` and the plot in the code are the same plot. Nothing checks the mission
+order against the document, nothing checks the roster against the freed list, and nothing checks the reveals against
+the plot's list of them. That gap is the domain's first card, because until it is closed the plot is checked by
+reading it, which is how plots rot.
 
 **The boundary in one line** — the cutscene domain owns *how a scene plays*; this domain owns *what the story is*.
 A line change is a cutscene change; a change to what a line means for the plot is a story change, and it goes
