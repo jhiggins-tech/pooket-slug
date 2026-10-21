@@ -6,7 +6,7 @@ namespace PooketSlug
     public enum DenFloor { Ground, Upper, Loft, Bunks }
 
     /// <summary>The places in the den you walk to and use (<c>docs/design/lobby.md</c>, Den 2.0: walking to a station is the menu).</summary>
-    public enum DenPlace { None, Couch, Board, Gym, Trophies, Bunks, Showers, Laundry, Wintergarden, Vending, SideDoor, RollerDoor, Rooftop }
+    public enum DenPlace { None, Couch, Board, Gym, Trophies, Bunks, Showers, Laundry, Wintergarden, Vending, SideDoor, RollerDoor, Rooftop, Trapdoor }
 
     /// <summary>
     /// The den's map (<c>docs/design/lobby.md</c>, Den 2.0): its floors, the ladders that join them, and the places on
@@ -123,6 +123,7 @@ namespace PooketSlug
                 case DenPlace.Gym: case DenPlace.Trophies: case DenPlace.Showers: case DenPlace.Rooftop:
                 case DenPlace.Laundry: case DenPlace.Wintergarden: case DenPlace.Vending:
                     return DenFloor.Loft;
+                case DenPlace.Board: return DenFloor.Upper;   // kcaj's string board, in his nook
                 default: return DenFloor.Ground;
             }
         }
@@ -132,8 +133,9 @@ namespace PooketSlug
             switch (place)
             {
                 case DenPlace.Couch: return 124f;
-                case DenPlace.Board: return 234f;
+                case DenPlace.Board: return 60f;   // kcaj's string board, in his nook on the upper floor
                 case DenPlace.SideDoor: return 26f;
+                case DenPlace.Trapdoor: return 235f;   // in the ground floor's floor, where the board used to hang
                 case DenPlace.RollerDoor: return 282f;
                 case DenPlace.Rooftop: return 39f;
                 case DenPlace.Showers: return 117f;
@@ -152,8 +154,9 @@ namespace PooketSlug
         static readonly (DenPlace place, float x0, float y0, float x1, float y1)[] Areas =
         {
             (DenPlace.Couch, 80f, 14f, 166f, 52f),
-            (DenPlace.Board, 222f, 14f, 248f, 78f), // and the wall under it, down to where you stand
+            (DenPlace.Board, 12f, 118f, 108f, 160f), // kcaj's string board, in his nook on the upper floor
             (DenPlace.SideDoor, 12f, 14f, 36f, 78f),
+            (DenPlace.Trapdoor, 222f, 0f, 248f, 15f),   // in the floor, at the board's old spot
             (DenPlace.RollerDoor, 254f, 14f, 306f, 90f),
             (DenPlace.Bunks, 50f, 252f, 370f, 300f),
             (DenPlace.Rooftop, 28f, 192f, 50f, 240f),
@@ -183,12 +186,26 @@ namespace PooketSlug
             switch (place)
             {
                 case DenPlace.Bunks: return "THE BUNKS: THE CREW ROSTER, NOT YET";
-                case DenPlace.Showers: case DenPlace.Wintergarden: return "TARPED OFF: SOMEONE'S MOVING IN";
                 case DenPlace.Laundry: return "THE LAUNDRY: NOT YET";
                 case DenPlace.Vending: return "OUT OF ORDER";
-                case DenPlace.Rooftop: return "THE ROOFTOP: NOT YET";
-                case DenPlace.SideDoor: return "THE KITCHEN: NOT YET";
                 default: return null;
+            }
+        }
+
+        /// <summary>
+        /// The outer room a place opens, and the way in the house that opens it, or None for the places that don't open
+        /// one (the couch, the board, the gym, the trophies, the roller door to the tabk bay).
+        /// </summary>
+        public static RoomWay RoomOf(DenPlace place)
+        {
+            switch (place)
+            {
+                case DenPlace.SideDoor: return RoomWay.SideDoor;
+                case DenPlace.Trapdoor: return RoomWay.Trapdoor;
+                case DenPlace.Rooftop: return RoomWay.RooftopDoor;
+                case DenPlace.Showers: return RoomWay.ShowerDoor;
+                case DenPlace.Wintergarden: return RoomWay.WintergardenDoor;
+                default: return RoomWay.None;
             }
         }
     }
