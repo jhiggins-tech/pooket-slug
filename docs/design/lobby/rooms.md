@@ -36,22 +36,34 @@ Then say what it's for in [the lobby's design](../lobby.md#the-outer-rooms).
 
 With OpenRouter's Qwen Image 2.1 Turbo, and **two image references**:
 
-1. **The room's layout**, cut out of the house map and rendered as a picture.
-   The model then puts the things where the map says.
+1. **The room's vector reference**, from `tools/room_ref.py`: the room drawn to
+   scale as flat vector art, with the game's soldier standing in it. This is
+   what fixes the scale — without it the model draws a room for a person twice
+   the soldier's height, with doors you could walk through sideways. The
+   reference comes in two versions: the **annotated** one, with the labels, the
+   screen outline and the scale note, for the owner to read; and the **clean**
+   one (`--clean`), with the annotation taken out, which is what the painter
+   works from. The soldier stays in the clean one, so the model still has the
+   proportions.
 2. **A swatch** of the game's own pixels, upscaled so the pixel technique is
    legible, with nothing recognisable in it. That is what makes the plate pixel
    art rather than a photograph. A whole plate as the second reference makes the
    model copy that room instead of drawing the one asked for.
 
-The style line goes in front of every prompt, and the layout hint between it and
-the plate's own prompt. **The exact wording matters**: the provider's moderation
-blocks some combinations, and it isn't deterministic. [The notes](../art.md#the-houses-room-plates)
+The style line goes in front of every prompt, and the reference's caption between
+it and the plate's own prompt. **The exact wording matters**: the provider's
+moderation blocks some combinations, and it isn't deterministic. [The notes](../art.md#the-houses-room-plates)
 have the recipe, and the plates are in [plates/](plates/).
 
-The provider wants at least 512 × 512, so a plate is generated big (1280 × 720)
-and cut down to the game's size and 64 colours afterwards. Cut the palette with
-a **median cut**, not by keeping the most common colours: the paintings have
-ramps of light, and the commonest-colours cut crushes a ramp into a muddy band.
+The provider wants at least 512 × 512, and **the generated size should be the
+room's own aspect**: a room 420 wide and 180 tall is generated at 1260 × 540. A
+plate generated at the wrong aspect comes back with the wrong proportions, and
+cutting it to the room's size squeezes it.
+
+The result is cut down to the game's size and 64 colours afterwards. Cut the
+palette with a **median cut**, not by keeping the most common colours: the
+paintings have ramps of light, and the commonest-colours cut crushes a ramp into
+a muddy band.
 
 ### 3. Put it in the game
 
