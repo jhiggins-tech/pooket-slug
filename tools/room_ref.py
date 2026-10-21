@@ -31,15 +31,19 @@ DEN_PIECES = [
 ]
 
 ROOMS = {
-    # the kitchen, in art pixels, from the house map: (kind, x0, y0, x1, y1, label)
-    "kitchen": (320, 180, [
+    # the kitchen, in art pixels, from the house map: (kind, x0, y0, x1, y1, label).
+    # It is wider than a screen: the player scrolls through it as they walk.
+    "kitchen": (420, 180, [
         ("den door", 0, 15, 24, 52),
         ("stove", 30, 15, 86, 52),
-        ("table", 92, 15, 146, 50),
-        ("fridge", 152, 15, 196, 58),
-        ("window", 152, 74, 196, 98),
-        ("back door", 294, 15, 320, 52),
-    ], [(78, 30, 290), (104, 30, 290), (130, 30, 290)]),
+        ("bench", 100, 15, 148, 44),
+        ("coffee machine", 152, 15, 176, 50),
+        ("fridge", 180, 15, 216, 58),
+        ("eating table", 222, 15, 268, 44),
+        ("window", 180, 74, 216, 98),
+        ("dresser", 280, 15, 330, 46),
+        ("back door", 394, 15, 420, 52),
+    ], [(70, 30, 176), (96, 30, 176), (122, 30, 176)]),
 }
 
 
@@ -128,21 +132,81 @@ def table(h):
         "top": h - 44, "mid": h - 26}
 
 
+def bench(h):
+    """The cooking bench: a smaller top, a shelf under it, and utensils hanging."""
+    return """
+<rect x="100" y="%(top)s" width="48" height="5" fill="#a07a4e" stroke="#241c18"/>
+<rect x="104" y="%(top)s" width="4" height="29" fill="#7a5a38" stroke="#241c18"/>
+<rect x="140" y="%(top)s" width="4" height="29" fill="#7a5a38" stroke="#241c18"/>
+<rect x="104" y="%(shelf)s" width="40" height="3" fill="#7a5a38" stroke="#241c18"/>
+<rect x="107" y="%(shelf)s" width="7" height="6" fill="#9a8a70" stroke="#241c18"/>
+<rect x="116" y="%(shelf)s" width="5" height="5" fill="#8a7a60" stroke="#241c18"/>
+<rect x="124" y="%(shelf)s" width="6" height="4" fill="#b0a080" stroke="#241c18"/>
+<!-- the utensils, hung on a rail over the bench -->
+<rect x="102" y="%(rail)s" width="44" height="2" fill="#5a5a60" stroke="#241c18"/>
+<rect x="106" y="%(rail)s" width="2" height="9" fill="#b8bcc4" stroke="#241c18"/>
+<rect x="111" y="%(rail)s" width="3" height="7" fill="#b8bcc4" stroke="#241c18"/>
+<rect x="117" y="%(rail)s" width="2" height="11" fill="#b8bcc4" stroke="#241c18"/>
+<rect x="123" y="%(rail)s" width="4" height="6" fill="#8a8e96" stroke="#241c18"/>
+<rect x="131" y="%(rail)s" width="2" height="8" fill="#b8bcc4" stroke="#241c18"/>""" % {
+        "top": h - 39, "shelf": h - 22, "rail": h - 52}
+
+
+def coffee_machine(h):
+    """A fancy barista coffee machine: a tall body, a group head, a jug on top."""
+    return """
+<rect x="152" y="%(top)s" width="24" height="35" fill="#c8ccd0" stroke="#241c18"/>
+<rect x="152" y="%(top)s" width="24" height="6" fill="#a8adb4" stroke="#241c18"/>
+<circle cx="164" cy="%(dial)s" r="3" fill="#f0c14b" stroke="#241c18"/>
+<rect x="156" y="%(head)s" width="16" height="5" fill="#8a8e96" stroke="#241c18"/>
+<rect x="162" y="%(spout)s" width="3" height="6" fill="#4a4a50" stroke="#241c18"/>
+<rect x="158" y="%(cup)s" width="10" height="5" fill="#e8e4d8" stroke="#241c18"/>
+<rect x="154" y="%(jug)s" width="8" height="6" fill="#d8d4c8" stroke="#241c18"/>
+<rect x="166" y="%(jug)s" width="7" height="6" fill="#d8d4c8" stroke="#241c18"/>
+<rect x="152" y="%(gauge)s" width="24" height="2" fill="#6a6e76" stroke="#241c18"/>""" % {
+        "top": h - 50, "dial": h - 40, "head": h - 30, "spout": h - 25,
+        "cup": h - 20, "jug": h - 56, "gauge": h - 46}
+
+
+def eating_table(h):
+    """A small eating table with a cloth on it, two chairs, and coffee cups.
+    Its top is below the soldier's waist: about 17 px off the floor."""
+    return """
+<!-- the chairs, behind the table -->
+<rect x="228" y="%(chair)s" width="12" height="3" fill="#8a7458" stroke="#241c18"/>
+<rect x="228" y="%(back)s" width="12" height="3" fill="#8a7458" stroke="#241c18"/>
+<rect x="252" y="%(chair)s" width="12" height="3" fill="#8a7458" stroke="#241c18"/>
+<rect x="252" y="%(back)s" width="12" height="3" fill="#8a7458" stroke="#241c18"/>
+<rect x="228" y="%(back)s" width="2" height="9" fill="#6a5a44" stroke="#241c18"/>
+<rect x="262" y="%(back)s" width="2" height="9" fill="#6a5a44" stroke="#241c18"/>
+<!-- the table, with the cloth hanging over the front -->
+<rect x="222" y="%(top)s" width="46" height="4" fill="#b8a888" stroke="#241c18"/>
+<rect x="222" y="%(top)s" width="46" height="7" fill="#b04a3a" stroke="#241c18"/>
+<rect x="222" y="%(top)s" width="46" height="2" fill="#c86a52" stroke="#241c18"/>
+<rect x="227" y="%(top)s" width="3" height="14" fill="#8a7458" stroke="#241c18"/>
+<rect x="260" y="%(top)s" width="3" height="14" fill="#8a7458" stroke="#241c18"/>
+<!-- the coffee cups, on the table -->
+<rect x="231" y="%(cup)s" width="4" height="4" fill="#e8e4d8" stroke="#241c18"/>
+<rect x="243" y="%(cup)s" width="4" height="4" fill="#e8e4d8" stroke="#241c18"/>
+<rect x="255" y="%(cup)s" width="4" height="4" fill="#e8e4d8" stroke="#241c18"/>""" % {
+        "top": h - 32, "cup": h - 36, "chair": h - 27, "back": h - 38}
+
+
 def fridge(h):
     return """
-<rect x="152" y="%(top)s" width="44" height="43" fill="#c8ccd0" stroke="#241c18"/>
-<rect x="152" y="%(split)s" width="44" height="1" fill="#241c18"/>
-<rect x="188" y="%(h1)s" width="3" height="9" fill="#707880"/>
-<rect x="188" y="%(h2)s" width="3" height="9" fill="#707880"/>""" % {
+<rect x="180" y="%(top)s" width="36" height="43" fill="#c8ccd0" stroke="#241c18"/>
+<rect x="180" y="%(split)s" width="36" height="1" fill="#241c18"/>
+<rect x="210" y="%(h1)s" width="3" height="9" fill="#707880"/>
+<rect x="210" y="%(h2)s" width="3" height="9" fill="#707880"/>""" % {
         "top": h - 58, "split": h - 30, "h1": h - 50, "h2": h - 27}
 
 
 def window_(h):
     return """
-<rect x="152" y="%(top)s" width="44" height="24" fill="#2a4a78" stroke="#241c18"/>
-<rect x="172" y="%(top)s" width="3" height="24" fill="#241c18"/>
-<rect x="152" y="%(mid)s" width="44" height="3" fill="#241c18"/>
-<circle cx="186" cy="%(moon)s" r="4" fill="#e8e4d0"/>""" % {
+<rect x="180" y="%(top)s" width="36" height="24" fill="#2a4a78" stroke="#241c18"/>
+<rect x="196" y="%(top)s" width="3" height="24" fill="#241c18"/>
+<rect x="180" y="%(mid)s" width="36" height="3" fill="#241c18"/>
+<circle cx="206" cy="%(moon)s" r="4" fill="#e8e4d0"/>""" % {
         "top": h - 98, "mid": h - 88, "moon": h - 90}
 
 
@@ -154,18 +218,37 @@ def door(x0, x1, h):
         x0, h - 52, x1 - x0, x0 + 2, h - 52, x1 - x0 - 4)
 
 
+def dresser(h):
+    """A chest of drawers, with a couple of things on top."""
+    return """
+<rect x="280" y="%(top)s" width="50" height="31" fill="#6a4e38" stroke="#241c18"/>
+<rect x="282" y="%(d1)s" width="46" height="8" fill="#7a5a40" stroke="#241c18"/>
+<rect x="282" y="%(d2)s" width="46" height="8" fill="#7a5a40" stroke="#241c18"/>
+<rect x="282" y="%(d3)s" width="46" height="8" fill="#7a5a40" stroke="#241c18"/>
+<rect x="300" y="%(h1)s" width="10" height="2" fill="#c0a060" stroke="#241c18"/>
+<rect x="300" y="%(h2)s" width="10" height="2" fill="#c0a060" stroke="#241c18"/>
+<rect x="300" y="%(h3)s" width="10" height="2" fill="#c0a060" stroke="#241c18"/>
+<!-- a bowl and a jug on top -->
+<rect x="288" y="%(bowl)s" width="12" height="6" fill="#a89070" stroke="#241c18"/>
+<rect x="308" y="%(jug)s" width="8" height="9" fill="#8a9a8a" stroke="#241c18"/>""" % {
+        "top": h - 46, "d1": h - 44, "d2": h - 35, "d3": h - 26,
+        "h1": h - 42, "h2": h - 33, "h3": h - 24, "bowl": h - 52, "jug": h - 55}
+
+
 FURNITURE = {
     "stove": stove, "table": table, "fridge": fridge, "window": window_,
+    "bench": bench, "coffee machine": coffee_machine, "eating table": eating_table,
+    "dresser": dresser,
 }
 
 
 def build_svg(room):
     width, height, items, shelves = ROOMS[room]
     soldier = soldier_canvas()
-    STRIP = 50   # the scale strip along the bottom
+    STRIP = 0    # the scale strip is its own picture now
     s = []
-    s.append('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" width="%d" height="%d" '
-             'shape-rendering="crispEdges">' % (width, height + STRIP, width * 3, (height + STRIP) * 3))
+    s.append('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 %d %d" '
+             'preserveAspectRatio="xMidYMid meet" shape-rendering="crispEdges">' % (width, height))
     s.append('<style>text{font:5px sans-serif;fill:#e8e0d4}</style>')
     # the back wall, with a brick course, and the floor
     s.append('<rect width="%d" height="%d" fill="#4a3a30"/>' % (width, height))
@@ -179,7 +262,8 @@ def build_svg(room):
             s.append(door(x0, x1, height))
         else:
             s.append(FURNITURE[kind](height))
-        s.append('<text x="%g" y="%g" font-size="4">%s</text>' % ((x0 + x1) / 2, height - y0 + 9, kind))
+        s.append('<text x="%g" y="%g" font-size="4" text-anchor="middle">%s</text>' %
+                 ((x0 + x1) / 2, height - y0 + 8, kind))
 
     # the shelves, up above the worktop
     for y, x0, x1 in shelves:
@@ -210,16 +294,39 @@ def build_svg(room):
     s.append('<text x="215" y="%g" fill="#f0c14b">the soldier: %d px</text>' %
              (height - 15 - SOLDIER + 4, SOLDIER))
 
+    # the one screen the room is seen in: what the player sees at a time. A room
+    # wider or taller than a screen scrolls, and this shows the first screen.
+    # It's drawn last, over the room, so it can be seen.
+    screen_w = min(width, 320)
+    screen_h = min(height, 180)
+    top = height - screen_h
+    s.append('<rect x="1" y="%g" width="%g" height="%g" fill="none" stroke="#5aa0e0" stroke-width="1.5" '
+             'stroke-dasharray="5 4"/>' % (top + 1, screen_w - 2, screen_h - 2))
+    s.append('<rect x="2" y="%g" width="86" height="12" fill="#0d1a26"/>' % (top + 2))
+    s.append('<text x="4" y="%g" fill="#7cc0f0" font-size="5">one screen: %d x %d</text>' %
+             (top + 11, screen_w, screen_h))
+    if width > screen_w:
+        s.append('<text x="%g" y="%g" fill="#7cc0f0" font-size="5">the room is %d wide: the player scrolls through it</text>' %
+                 (screen_w + 8, top + 11, width))
+
     # the den's own furniture, along the bottom, to judge the scale against
-    strip = height
-    s.append('<rect x="0" y="%d" width="%d" height="50" fill="#241e1a"/>' % (strip, width))
-    x = 4
+    s.append('</svg>')
+    return "\n".join(s)
+
+
+def build_strip_svg():
+    """The den's own furniture, on its own, to judge the scale against."""
+    s = []
+    s.append('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 56" width="320" height="56" '
+             'shape-rendering="crispEdges">')
+    s.append('<rect width="320" height="56" fill="#241e1a"/>')
+    x = 6
     for what, dx0, dy0, dx1, dy1 in DEN_PIECES:
         w, h = dx1 - dx0, dy1 - dy0
         s.append('<rect x="%g" y="%g" width="%g" height="%g" fill="#7a6a58" stroke="#241c18" stroke-width="1"/>' %
-                 (x, strip + 38 - h, w, h))
-        s.append('<text x="%g" y="%g" font-size="4" text-anchor="middle">%s</text>' % (x + w / 2, strip + 47, what))
-        x += w + 22
+                 (x, 44 - h, w, h))
+        s.append('<text x="%g" y="53" font-size="4" fill="#e8e0d4" text-anchor="middle">%s</text>' % (x + w / 2, what))
+        x += w + 26
     s.append('</svg>')
     return "\n".join(s)
 
@@ -228,9 +335,11 @@ def main():
     out = sys.argv[1]
     room = sys.argv[2] if len(sys.argv) > 2 else "kitchen"
     open(out, "w").write(build_svg(room))
+    strip = os.path.splitext(out)[0] + "-scale.svg"
+    open(strip, "w").write(build_strip_svg())
     width, height, items, shelves = ROOMS[room]
-    print("wrote %s (the room is %d x %d art pixels; the soldier is %d px tall)" %
-          (out, width, height, SOLDIER))
+    print("wrote %s and %s (the room is %d x %d art pixels; the soldier is %d px tall)" %
+          (out, strip, width, height, SOLDIER))
 
 
 if __name__ == "__main__":
