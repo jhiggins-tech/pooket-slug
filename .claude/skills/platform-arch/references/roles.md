@@ -108,6 +108,14 @@ Read the whole diff before you call a card done, and check it against the briefi
 the briefing in the same commit as anything that changes what the next agent needs to know.
 ```
 
+**For the story domain, one line is added**, because its authority is a rule rather than a file:
+
+```
+You are the story domain manager. You own the plot, not the files that express it: the mission order, the roster,
+which scene plays when and what has been revealed stay with their own domains. Your job is to keep them agreeing,
+and to keep docs/design/story.md true. A change to the story goes through you, whoever asked for it.
+```
+
 ## The three coders
 
 One set of three definitions, shared by every domain manager. A change to how a coder is briefed is one edit, not

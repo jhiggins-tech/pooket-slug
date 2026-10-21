@@ -60,11 +60,17 @@ sonnet/low for the workhorse, haiku/low for the scout, opus/high for the deep co
 sonnet/medium for the PM.
 
 ### 5. The map still matches the code
-
 A file that has grown past its subject, a folder that has become a second subject, a workflow that has moved: the map
 is corrected. This check is the one that decays, so it is the one the architect does most often.
 
-### 6. The nesting is still within its depth
+### 6. The plot still agrees with itself
+The `story` domain's own check, and the architect's too, because it is the one thing in the game that is written
+once and expressed in many places: the mission order, the roster, which scene plays when, what has been revealed.
+The plot's consistency test — the one the story domain should build first — reads the plot out of the code and
+checks it against `docs/design/story.md`. Until that test exists, the plot is checked by reading it, which is how
+plots rot.
+
+### 7. The nesting is still within its depth
 
 Three layers below the main conversation: architect → domain manager → coder. If a domain manager has needed a fourth
 layer, either the domain is too big or the coder is too weak — and both are fixed by a change of the hierarchy, not
@@ -94,6 +100,11 @@ hierarchy exists to provide is the first thing to go.
 
 **The architect's queue is the answer to a bottleneck.** If four domains are busy and a fifth card is ready, the card
 waits. It does not jump the queue because it is small.
+
+**With seven domains, the queue matters more, not less.** Four of seven working means three are always waiting, so
+the architect's job includes saying which four. The natural order, when the owner has not said otherwise, is by what
+blocks the most: `gameplay` first (everything borrows from it), then `story` and `cutscene` (the plot and its
+scenes), then `sprites`, then `den`, then `shell` and `net`.
 
 ## The costs, honestly
 

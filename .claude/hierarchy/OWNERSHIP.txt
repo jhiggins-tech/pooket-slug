@@ -4,7 +4,7 @@
 # A file may appear once and only once. tools/check_ownership.py checks that, and that every
 # source file in the repository is claimed.
 #
-# Domains: gameplay, den, cutscene, sprites, shell, net
+# Domains: gameplay, den, cutscene, sprites, shell, net, story
 #
 # The rule for a file: it belongs to the domain whose workflow would change it. See
 # .claude/skills/platform-arch/references/domains.md for the reasoning behind each entry.
@@ -15,14 +15,33 @@ gameplay Assets/Scripts/Core/Content.cs
 gameplay Assets/Scripts/Core/Definitions.cs
 gameplay Assets/Scripts/Core/Tuning.cs
 gameplay Assets/Scripts/Core/Palette.cs
-gameplay Assets/Scripts/Core/Crew/
+gameplay Assets/Scripts/Core/Crew/Crew.cs
+gameplay Assets/Scripts/Core/Crew/AvatarPose.cs
+gameplay Assets/Scripts/Core/Crew/Controls.cs
+gameplay Assets/Scripts/Core/Crew/DownLine.cs
+gameplay Assets/Scripts/Core/Crew/Drip.cs
+gameplay Assets/Scripts/Core/Crew/Lives.cs
+gameplay Assets/Scripts/Core/Crew/SoldierJump.cs
+gameplay Assets/Scripts/Core/Crew/TeamSuper.cs
+gameplay Assets/Scripts/Core/Crew/KitGuide.cs
+gameplay Assets/Scripts/Core/Crew/KcajTabkSpec.cs
+gameplay Assets/Scripts/Core/Crew/KcajTuning.cs
+gameplay Assets/Scripts/Core/Crew/KieTabkSpec.cs
+gameplay Assets/Scripts/Core/Crew/KieTuning.cs
+gameplay Assets/Scripts/Core/Crew/Tones2TabkSpec.cs
+gameplay Assets/Scripts/Core/Crew/Tones2Tuning.cs
 gameplay Assets/Scripts/Core/Bosses/BossTankSpec.cs
 gameplay Assets/Scripts/Core/Bosses/CraterGround.cs
 gameplay Assets/Scripts/Core/Bosses/KcajTankSpec.cs
 gameplay Assets/Scripts/Core/Bosses/KieTankSpec.cs
 gameplay Assets/Scripts/Core/Bosses/PilotBrain.cs
 gameplay Assets/Scripts/Core/Tabks/
-gameplay Assets/Scripts/Core/Missions/
+gameplay Assets/Scripts/Core/Missions/Missions.cs
+gameplay Assets/Scripts/Core/Missions/Level.cs
+gameplay Assets/Scripts/Core/Missions/MissionBoard.cs
+gameplay Assets/Scripts/Core/Missions/StartFlow.cs
+gameplay Assets/Scripts/Core/Missions/CodaCoach.cs
+gameplay Assets/Scripts/Core/Missions/Creamery.cs
 gameplay Assets/Scripts/Core/Enemies/
 gameplay Assets/Scripts/Core/World/
 gameplay Assets/Scripts/Core/Input/
@@ -72,7 +91,12 @@ gameplay Assets/Tests/EditMode/Bosses/PilotBrainTests.cs
 gameplay Assets/Tests/EditMode/Crew/
 gameplay Assets/Tests/EditMode/Enemies/
 gameplay Assets/Tests/EditMode/Input/
-gameplay Assets/Tests/EditMode/Missions/
+gameplay Assets/Tests/EditMode/Missions/CodaTests.cs
+gameplay Assets/Tests/EditMode/Missions/CreameryTests.cs
+gameplay Assets/Tests/EditMode/Missions/LevelTests.cs
+gameplay Assets/Tests/EditMode/Missions/MissionBoardTests.cs
+gameplay Assets/Tests/EditMode/Missions/MissionsTests.cs
+gameplay Assets/Tests/EditMode/Missions/StartFlowTests.cs
 gameplay Assets/Tests/EditMode/Tabks/
 gameplay Assets/Tests/EditMode/World/
 gameplay Assets/Tests/EditMode/ContentTests.cs
@@ -165,6 +189,20 @@ shell Assets/Tests/EditMode/Lobby/CoopRoomTests.cs
 shell Assets/Tests/EditMode/Lobby/DebriefTests.cs
 shell Assets/Tests/EditMode/Lobby/OptionsTests.cs
 shell Assets/Tests/EditMode/Lobby/ProfileTests.cs
+
+# ---------------------------------------------------------------- story
+# The plot: what happens, in what order, and what each reveal is. A change to the
+# story goes through this domain, because the plot's facts are spread across the
+# missions, the crew roster and the scene list, and they have to agree.
+#
+# The plot of record is docs/design/story.md, and the plot in code is MissionStory.cs
+# (which scenes a mission plays, in what order, and what is once-only). The other
+# places the plot is expressed — the mission order in Missions.cs, the roster in
+# Crew.cs, the scene names in SceneLibrary.cs — stay with their owners, and this
+# domain's job is to keep them agreeing, which its consistency check does.
+story Assets/Scripts/Core/Missions/MissionStory.cs
+story Assets/Tests/EditMode/Missions/MissionStoryTests.cs
+story docs/design/story.md
 
 # ---------------------------------------------------------------- net
 # The co-op: the netcode, the contracts, the room, the handover, the saves, the account.

@@ -83,13 +83,14 @@ The three coder definitions are shared by every domain manager. They are roles, 
 
 **A domain is a workflow, not a folder.** The owner set this: the unit of ownership is the job that gets done, and the
 job usually cuts across the code's folders. The map, with the exact file lists, is in
-[the domain map](references/domains.md). Six domains to start, plus the architect's own:
+[the domain map](references/domains.md). Seven domains to start, plus the architect's own:
 
 | Domain | Subject | The owner's words |
 |---|---|---|
 | `den` | the den: its design and art, the room layout, the unlock and the progression, and moving around it | "design and art selection for den, room layout, room unlock and progression, movement around den" |
 | `cutscene` | the cutscenes: the workflow, the accuracy to the scripts, and the preview links | "all things cutscene, cutscene workflow, maintaining accuracy to scripts, creating preview links for the cutscenes" |
 | `sprites` | the art: hand-drawn or generated, the sprite workflow, the frames every entity needs, and their animation | "creating the art for sprites, hand drawn or generated, sprite workflow, NOT game object programming or slot programming — just making sure all required frames are filled for entities. Animation of frames/sprites" |
+| `story` | the plot: what happens, in what order, and each reveal | "maintaining consistency in plot and changes to the story go through this domain" |
 | `gameplay` | the rules of play: the crew's kits, the missions and their maps, the goons, the bosses, the world | |
 | `shell` | the shell around the game: the state machine and its flows, the screens, the title, the HUD, the input | |
 | `net` | the co-op: the netcode, the contracts, the room, the handover, the saves and the account | |
@@ -114,9 +115,9 @@ Three rules decide every boundary question:
 A domain manager owns its boundary and defends it. It does not apply a change that belongs to another domain; it
 hands it over ([the protocols](references/protocols.md)).
 
-### The two awkward seams
+### The three awkward seams
 
-Two boundaries in the map are not clean, and pretending otherwise would be the mistake:
+Three boundaries in the map are not clean, and pretending otherwise would be the mistake:
 
 - **The sprites domain and the code.** The sprites' work is mostly *not code*: a hand-drawn frame is ASCII art in
   `ArtData`, a generated plate is a PNG in `Resources/`, and a cut-down frame is made by a script in the vendor
@@ -127,6 +128,11 @@ Two boundaries in the map are not clean, and pretending otherwise would be the m
   figures and the same `StagePose`. A change to the stage is a `cutscene` change; the den adapts. This is the one
   place where the den's own "design and art" needs a standing agreement, and it goes in the den's briefing as a
   standing rule, not as a card.
+- **The story domain owns the plot, not the files that express it.** The plot is written down once and spread across
+  many: the mission order, the roster, which scene plays when, what has been revealed. The `story` domain owns
+  `MissionStory.cs` and `story.md`, and it owns *the agreement* of the rest — but the mission order stays
+  `gameplay`'s and the scene names stay the `cutscene` domain's. It is the one domain whose authority is a rule
+  rather than a file, which is why its consistency check is the thing it should build first.
 
 ## The card lifecycle
 

@@ -11,7 +11,7 @@ This page is the reasoning; the file is the map.
 
 Up: [the platform architecture](../SKILL.md) · [the roles](roles.md) · [the protocols](protocols.md)
 
-## The six domains
+## The seven domains
 
 | Domain | Subject | Owner of |
 |---|---|---|
@@ -19,14 +19,15 @@ Up: [the platform architecture](../SKILL.md) · [the roles](roles.md) · [the pr
 | `den` | the den | the den's design and art, its room layout, the unlock and progression, moving around it |
 | `cutscene` | the cutscenes | the scene files, the scene engine, the stage, the script's accuracy, the preview links |
 | `sprites` | the art | the frames every entity needs, hand-drawn or generated, and their animation |
+| `story` | the plot | what happens, in what order, and each reveal |
 | `shell` | the shell | the state machine and its flows, the screens, the title, the HUD, the input |
 | `net` | the co-op | the netcode, the contracts, the room, the handover, the saves, the account |
 
-The three the owner named are marked **owner's** below.
+The four the owner named are marked **owner's** below.
 
-A seventh, `architect`, owns the five assembly definitions (the `.asmdef` files). They are the boundaries between
-Core, Net, the game and the tests, and a change to one is a change to the shape of the system — so it is the
-architect's, not a domain's.
+A further one, `architect`, owns the five assembly definitions (the `.asmdef` files) and the build script. They are
+the boundaries between Core, Net, the game and the tests, and a change to one is a change to the shape of the
+system — so it is the architect's, not a domain's.
 
 ## The rule for a file
 
@@ -48,8 +49,8 @@ together. Rules live in `Core` with tests; the entities and views that draw them
 - `Bosses/` — `BossTankSpec.cs`, `KieTankSpec.cs`, `KcajTankSpec.cs`, `PilotBrain.cs`, `CraterGround.cs`.
   (`BossIntroShow.cs` is the cutscene domain's: the boss intro is a show.)
 - `Tabks/` — `PlayerTankSpec.cs`, `CallInCoach.cs`, `Garage.cs`, `CoopTabks.cs`, `KieHomecoming.cs`
-- `Missions/` — `Missions.cs`, `Level.cs`, `MissionBoard.cs`, `MissionStory.cs`, `StartFlow.cs`, `CodaCoach.cs`,
-  `Creamery.cs`
+- `Missions/` — `Missions.cs`, `Level.cs`, `MissionBoard.cs`, `StartFlow.cs`, `CodaCoach.cs`, `Creamery.cs`
+  (`MissionStory.cs` is the story domain's: it is the plot in code)
 - `Enemies/` — `Goons.cs`, `BigScoopBrain.cs`
 - `World/` — `TilePhysics.cs`, `Frost.cs`, `HazardBeat.cs`, `Backdrop.cs` (the parallax layers and which plates cover
   the screen)
@@ -208,6 +209,49 @@ right now nothing in the repository tests it.
 **The boundary in one line** — the sprites domain makes the art and the frames; the `gameplay` domain writes the code
 that uses them. A new goon is two cards: the frames, then the brain.
 
+## `story` — the owner's
+
+**Maintaining consistency in plot. Changes to the story go through this domain.**
+
+The plot is the one thing in the game that is written down in one place and spread across many others. The premise
+sits in `docs/design/story.md`; the order the missions play in sits in `Missions.cs`; who each mission frees sits in
+`Crew.cs`; which scene plays when sits in `MissionStory.cs`; what the game has revealed sits in `Profile.cs`; and
+the scene names sit in `SceneLibrary.cs`. A change to any one of them can quietly contradict another. This domain
+exists so that does not happen: **a change to the story goes through here, whoever asked for it.**
+
+**The code**
+
+- `Assets/Scripts/Core/Missions/MissionStory.cs` — a mission's story in code: which scenes it plays, in what order,
+  which are once-only, whether it is solo only, and what it opens. This is the plot's own file, and it is this
+  domain's.
+- `docs/design/story.md` — the plot of record: the premise, the tone, the plot, what START plays, the coda, and
+  the reveals.
+
+**The tests** — `Assets/Tests/EditMode/Missions/MissionStoryTests.cs`.
+
+**The other places the plot is expressed stay with their owners** — `Missions.cs` (the order and the maps) is
+`gameplay`'s, `Crew.cs` (the roster) is `gameplay`'s, `SceneLibrary.cs` (the scene names) is the cutscene domain's,
+and `Profile.cs` (the reveals) is the shell's. **The story domain does not own them; it owns their agreement.** That
+is the whole job, and it is why the domain can exist without taking a fourth of the game's files.
+
+**The consistency check** — this domain's reason for existing, and the card it should open early: a test that reads
+the plot out of the code and checks it against `story.md`. What it checks:
+
+- the mission order in `Missions.All` is the order the plot says, and each mission's id and net id follow the rule;
+- every scene a mission's story names exists in `SceneLibrary.Names`, and every scene in the library that the plot
+  mentions is reachable;
+- every crewmate the plot says is freed is freed by the mission the plot says frees them, and no crewmate is freed
+  twice;
+- every reveal the plot lists is a reveal the game actually has, and every reveal the game has is in the plot;
+- the "once only" beats are marked once-only in both, and the scenes the plot retires are not played.
+
+**Right now none of that is tested.** The plot is checked by reading it, which is how plots rot. This domain's first
+card should be that test, because it is what makes the domain worth having.
+
+**The boundary in one line** — the cutscene domain owns *how a scene plays*; this domain owns *what the story is*.
+A line change is a cutscene change; a change to what a line means for the plot is a story change, and it goes
+through here.
+
 ## `shell`
 
 The shell around the game: the state machine that runs it, the screens the player sees outside a mission, and the
@@ -254,13 +298,14 @@ build. A changed id is a changed world.
 
 ## The seams
 
-Three places where two domains meet and the map has to say who moves first:
+Four places where two domains meet and the map has to say who moves first:
 
 | Seam | The rule |
 |---|---|
 | **The stage** (`Stage/`) | The `cutscene` domain owns it. The `den` asks. |
 | **A new entity's art and brain** | The `sprites` domain makes the frames first; the `gameplay` domain writes the brain second, reading the sprites' briefing for the frame names. |
 | **A new mission's map and goons** | The `gameplay` domain owns both — they are one subject: what the mission is. The `sprites` domain fills in any new figures they need. |
+| **A change to the story** | The `story` domain owns the plot and the agreement of the places it is expressed. It does not own the files: it asks `gameplay` for a change to a mission, and `cutscene` for a change to a scene. |
 
 And one seam that is not a file but a rule, worth saying twice because it is the one that bites: **a rule that lives
 outside Core drifts.** When the `den` domain finds a rule in `DenView.cs` that belongs in `Core/Lobby/Den.cs`, it
