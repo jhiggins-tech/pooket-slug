@@ -2,8 +2,8 @@
 
 Part of [the cutscenes](README.md), the one script for every scene: the rules, the format and every scene at a glance are there.
 
-The den has no narrator: it's a menu with the crew in it, so it only has speech bubbles, and its music is the title
-theme ([the lobby](../lobby.md)).
+The den has no narrator: it's a menu with the crew in it, so it only has speech bubbles, and its music is the den's
+own theme ([the den's theme](../music.md#the-dens-theme)).
 
 ## The first visit
 
