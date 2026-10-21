@@ -27,7 +27,7 @@ Up: [Design](README.md)
 1. **The opening:** a short scene ([the opening](cutscenes/mission-one.md#the-opening)). tones2 comes back from a snack run to find the crew's hangout raided and empty, their tabks' bay empty too, and heads in alone. It names tabks but never shows one (owner, 2026-10-19).
 2. **Mission one, the military base:** tones2 fights through the base to the motor pool. There comes the reveal ([the motor pool reveal](cutscenes/mission-one.md#the-motor-pool-reveal)): the crew's stolen tabks are parked inside, and kie's tabk rolls out to fight, with a Trollogram kie at the controls. Beat the tabk, then Trollogram kie on foot, and the real kie is freed ([freeing kie](cutscenes/mission-one.md#freeing-kie)).
 3. **The coda** (owner, 2026-10-16): with the last of his strength, kie frees tones2's own tabk and bows out, exhausted. tones2 calls it in for the first time and blasts his way out of the base in a short, explosive mini-level after the boss, still part of Mission one. It ends the mission and teaches the tabk.
-4. **With kie back, the den opens, and co-op with it,** straight after Mission one's debrief ([what START plays](#what-start-plays)). So does the tabk bay, where kie has rebuilt his wrecked tabk round the projector that made his Trollogram: a second tabk for the players who go looking ([kie's tabk comes home](cutscenes/den.md#kies-tabk-comes-home); owner, 2026-10-20). ([Two of the crew](cutscenes/retired.md#retired-two-of-the-crew), the title scene that announced it, is retired.)
+4. **With kie back, the den opens, and co-op with it,** straight after Mission one's debrief ([what START plays](#what-start-plays)). So does the tabk bay, where kie has rebuilt his wrecked tabk round the projector that made his Trollogram: a second tabk for the players who go looking ([kie's tabk comes home](cutscenes/den.md#kies-tabk-comes-home); owner, 2026-10-20).
 5. **Mission two frees kcaj,** at the Brain Freeze creamery ([Mission two](#mission-two-the-creamery)). The night Mission one ended, the Trollograms moved every tabk left in the motor pool, so each is held somewhere new (owner, 2026-10-16). Each mission after that frees one more crewmate from their own tabk.
 6. **The coming-soon crew** (shotdownboyz, lankcity, odsey and doctorfox) arrive later, each with a mission of their own.
 7. **There's no finale for now.** The story stays open-ended and grows one crewmate at a time, like Coming soon in Tabks.
@@ -86,7 +86,7 @@ kcaj's tabk comes out of the cold store ([kcaj's tabk arrives](cutscenes/mission
 
 ## Reveals are story beats
 
-The game hides what's coming ([progressive disclosure](README.md#progressive-disclosure-the-thread-through-all-four)), so each reveal gets a scene of its own:
+The game hides what's coming ([progressive disclosure](README.md#progressive-disclosure-the-thread-through-the-design)), so each reveal gets a scene of its own:
 
 | Reveal | When | How |
 |---|---|---|

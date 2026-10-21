@@ -22,7 +22,7 @@ They share a crewmate's look and paint, and nothing else needs to carry over.
 
 ## Discovering tabks
 
-Tabks stay hidden until they matter ([progressive disclosure](README.md#progressive-disclosure-the-thread-through-all-four)):
+Tabks stay hidden until they matter ([progressive disclosure](README.md#progressive-disclosure-the-thread-through-the-design)):
 1. **Before the first tabk,** nothing mentions tabks: not the menus, the HUD, the loading screens, the controls or the web page around the game. No enemy tabks appear before then either. The one exception is [the opening](cutscenes/mission-one.md#the-opening), as foreshadowing: tones2 cries out for the crew's tabks and finds their bay empty, but none is shown (owner, 2026-10-19).
 2. **The first tabk** is kie's, at the end of Mission one, with a full [boss intro](cutscenes/mission-one.md#the-boss-intro).
 3. **The first call-in and the first drive** come straight after kie is freed (owner, 2026-10-16): kie frees tones2's own tabk and bows out, and in Mission one's coda, a short mini-level after the boss, a prompt has you call it in, then drive it out of the base ([the coda](story.md#the-coda)).
@@ -48,5 +48,4 @@ Tabks stay hidden until they matter ([progressive disclosure](README.md#progress
 ## Open questions
 
 - **Each tabk's boss attacks** after kcaj's, worked out from each crewmate's kit.
-- **The charge-up time:** how long you hold SP before the tabk drops, to be tuned in play.
-- **Whether your tabk jumps,** as Metal Slug's does.
+- **Driving and calling in:** in [driving a tabk](tabks/driving.md#open-questions).

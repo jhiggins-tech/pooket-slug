@@ -108,8 +108,4 @@ The game shows only what the player has already met. Nothing on the title screen
 - **Mission order after kcaj,** and each later mission's setting (Mission two's is the creamery).
 - **How hard is hard:** how far the late missions and the hard setting go beyond what one player can do.
 - **Solo players and co-op-only content:** how a solo player finds a partner when a late mission needs two. Quick match is one way.
-- **The Roguelite's return:** when it comes back, plus its own open points:
-  - shop prices
-  - how two players agree at the shop
-  - whether runs free crew
-  - how often you can call in a tabk
+- **The Roguelite's return:** when it comes back; its own open points are in [history](history.md).

@@ -2,7 +2,7 @@
 
 Every soldier's moves: the primary, its fork at level II, the special, the super, and the ability or movement quirk for those who have one.
 
-**Status:** moved here from the brainstorm (DESIGN.md, since retired) on 2026-10-15, with the owner's answers from that day's consistency check. This is the one place the kits are designed; the four other documents link here.
+**Status:** moved here from the first brainstorm on 2026-10-15, with the owner's answers from that day's consistency check. This is the one place the kits are designed; the four other documents link here.
 
 **Read this when** you're building or tuning a soldier's weapons, or a boss tabk or pilot round that fights with a crewmate's kit.
 

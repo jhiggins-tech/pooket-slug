@@ -1,6 +1,6 @@
 # Pooket Slug design: history
 
-What the owner decided in the first brainstorm (14 Oct 2026) that isn't in the other design documents: the Roguelite, which is on ice, and the ideas that were considered and not picked. It was kept in the root `DESIGN.md` until 16 Oct 2026, when the rest of that file had long since moved into this folder.
+What the owner decided in the first brainstorm (14 Oct 2026) that isn't in the other design documents: the Roguelite, which is on ice, and the ideas that were considered and not picked. It was kept in a brainstorm file at the repository's root until 16 Oct 2026 (since deleted), when the rest of that file had long since moved into this folder.
 
 **Read this when** the Roguelite comes back, or you want to know whether an idea was already turned down.
 
