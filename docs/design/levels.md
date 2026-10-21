@@ -93,7 +93,7 @@ The game shows only what the player has already met. Nothing on the title screen
 
 ## Online, once it's open
 
-- **One room:** everyone's phone joins the same always-there co-op room (owner, 2026-10-18: we play with mates, so there's nothing to host, browse or type). CO-OP on the title, or the den's spare controller, joins it: a free seat plays, and a full room is watched.
+- **One room:** everyone's phone joins the same always-there co-op room (owner, 2026-10-18: we play with mates, so there's nothing to host, browse or type). The den's spare controller joins it (the title is only START and SETTINGS): a free seat plays, and a full room is watched.
 - **A lobby,** where both players pick their soldiers and ready up: the crew's gaming den ([the lobby](lobby.md)).
 - **Spectators** can watch a game, but only of missions they've already cleared, so nothing is spoiled.
 - **Invites:** tapping the den's TV shares the game's link, which brings a mate into the room.

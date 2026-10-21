@@ -10,8 +10,8 @@ Up: [Design](README.md)
 
 ## The crew
 
-- **There are eight soldiers,** all from Pooket Tabks. You start with tones2 alone and free one more at the end of each mission: kie first, then kcaj.
-- **Each one plays differently,** in how they move as well as how they fight:
+- **The roster has no fixed size:** eight soldiers are designed so far, all from Pooket Tabks, and more join as the game grows. You start with tones2 alone and free one more at the end of each mission: kie first, then kcaj.
+- **Each one plays differently,** in how they move as well as how they fight. The crew designed so far:
 
 | Soldier | Plays like |
 |---|---|
@@ -59,7 +59,7 @@ Each soldier's kit comes from their Pooket Tabks tiers:
 ## Crates and power-ups
 
 Pickups last for the mission, so every mission starts level.
-- **Upgrade crates** raise your primary, special or super a level (I → II → III). At level II you choose one of two forks.
+- **Upgrade crates** (on hold for now: designed, not in the game or scheduled) would raise your primary, special or super a level (I → II → III), with a choice of two forks at level II. The forks are named in [the crew's kits](kits.md).
 - **Gun crates** give you a crewmate's gun. It replaces your primary until it runs dry.
 - **Medkits** heal hearts. **Bomb crates** add charges to the special, with no cap. How many depends on the soldier, to keep the strong specials in check: about +3 for a strong special, up to +10 for a weak one.
 - **Drops:** goons and containers can drop crates.
@@ -105,7 +105,7 @@ The game shows only what the player has already met:
 - **The super button lights up the first time it's charged,** with a one-off prompt.
 - **The ability button only appears for soldiers who have one.**
 - **The crew screen appears once there's a second soldier to pick.** It's the gaming den, where each freed crewmate has a station ([the lobby](lobby.md)).
-- **Weapon forks appear at level II.**
+- **Weapon forks appear at level II,** once upgrade crates are back (on hold for now).
 - **XP, rank and looks appear at the first debrief.**
 
 ## Not planned
@@ -123,3 +123,4 @@ These are all Won't:
 - **Rank:** where each mission splits into stages, and how many stages make a rung.
 - **Kits still to design:** the coming-soon crew's, and garyoldmancorp's real moves.
 - **Timings** for the weapons that charge or build up, to be tuned in play.
+- **Upgrade crates,** when they come off hold: whether the level II fork you pick sticks for the mission, or a second crate can offer the other one.

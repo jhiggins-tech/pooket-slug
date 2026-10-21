@@ -82,11 +82,11 @@ Mission two's reveal, like [the motor pool reveal](mission-one.md#the-motor-pool
 m2-finish: the intro should play as a scene that pushes in on the tabk, as kie's does). It plays the first time the
 players reach the loading yard before the cold store, on both phones in co-op; the [boss intro](mission-one.md#the-boss-intro)
 after it skips the roll-out and goes straight to the banner, the name card ("KCAJ'S TABK") and the music. Every later
-fight, a replay included, gets only the boss intro. About 11.5 seconds, three shots; tap moves on, and it can't be
+fight, a replay included, gets only the boss intro. About 12 seconds, three shots; tap moves on, and it can't be
 skipped the first time. Intro: Trollogram kcaj, shot 2. Set: the cold store (`coldstore`, its doors in the middle).
 
 ```text
-1. EXT. THE CREAMERY, THE LOADING YARD - DAY            3.5 s
+1. EXT. THE CREAMERY, THE LOADING YARD - DAY            4 s
 
 The players step in from the left. Ahead, the cold
 store's big freezer doors. Frost creeps out along their
@@ -142,7 +142,7 @@ shot. On a later fight the tabk rolls out of the fog in play first, as it used t
 ## Freeing kcaj
 
 After Trollogram kcaj is beaten on foot ([the pilot round](../tabks/bosses.md#the-pilot-round)), like
-[freeing kie](mission-one.md#freeing-kie). About 15 seconds, five shots; it can be skipped once seen. Intro: kcaj, shot 2.
+[freeing kie](mission-one.md#freeing-kie). Five shots: shot 1 is the glitch-out, played in the game itself (`Pilot`), not in the scene file; shots 2 to 5 are the scene file, four shots and 23.5 seconds. The scene can be skipped once seen. Intro: kcaj, shot 2.
 **Afterwards:** the next time the den loads, kcaj [moves in](den.md#a-crewmate-moves-in) to his nook on the upper floor and his corner lights
 up.
 
@@ -159,7 +159,7 @@ MUSIC: the boss music cuts out.
 
                                                    CUT TO:
 
-2. INT. THE CREAMERY, THE COLD STORE                    4.5 s
+2. INT. THE CREAMERY, THE COLD STORE                    8.5 s
 
 The cold store's door creaks open, frost rolls out, and
 the real KCAJ stumbles out in his own colours, rimed with
@@ -177,7 +177,7 @@ frost, holding an empty tub.
 
                                                    CUT TO:
 
-3. INT. THE COLD STORE - CONTINUOUS                     2.5 s
+3. INT. THE COLD STORE - CONTINUOUS                     3.5 s
 
 He looks at the tub, then at the crew.
 
@@ -186,7 +186,7 @@ He looks at the tub, then at the crew.
 
                                                    CUT TO:
 
-4. INT. THE COLD STORE - CONTINUOUS                     2.5 s
+4. INT. THE COLD STORE - CONTINUOUS                     4.5 s
 
 TONES2 holds out a slushie. kcaj walks past it, opens a
 freezer, and eats two cones at once.

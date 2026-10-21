@@ -29,12 +29,18 @@ Up: [Repository README](../../README.md)
 
 Use these words in everything players or readers see: in-game text, voice lines, and these documents (owner, 2026-10-16). Code identifiers keep their old names (`PlayerTank`, `HoloLook` and so on), and so does the file name of [tanks.md](tanks.md).
 - **Tabk**, never tank. The typo is on purpose, after Pooket Tabks: a tabk, tabks, TABK WRECKED!. The one exception is Pocket Tanks, the real game.
-- **Mission one is single player only** (owner, 2026-10-16): the prelude. Before it's beaten the title screen is just START and SETTINGS, and START goes straight into it; beating it opens the den and co-op. It's never played with two, replays included: picking it on the den's mission board closes player two's seat and spectating. Until Mission two is built, co-op plays it as a stand-in (TEST MISSION) for testing ([levels](levels.md#mission-one-the-military-base)).
+- **Mission one is single player only** (owner, 2026-10-16): the prelude. Before it's beaten the title screen is just START and SETTINGS, and START goes straight into it; beating it opens the den and co-op. It's never played with two, replays included: picking it on the den's mission board closes player two's seat and spectating. Co-op plays Mission two, the first mission open to it ([levels](levels.md#mission-one-the-military-base)).
 - **Trollogram**, never hologram. kie's projections are Trollograms, from the raiders to Trollogram kie; in a character intro the title is TROLLO-KIE.
 
 ## Safe flashing
 
 - **No strobing, anywhere** (owner, 2026-10-16, after a cutscene's static strobed on for its whole second half). Anything that flashes a large part of the screen (a white or red screen flash, the static's cyan, the boss intro's WARNING!) does it at most 2.5 times a second, under the 3 a second that can set off photosensitive seizures, and a glitch over the whole screen is one soft pulse that fades. Small things (a sprite blinking, a marker) can flash faster.
+
+## House rules for writing the design
+
+From the design audit of 2026-10-21:
+- **Tuned numbers aren't design rules.** Where a number exists to make something last or feel a certain way (a pilot's health, a special's charges, a weapon's timings), say the intent and a range, and point at the code for the current value. Never write a multiplier of another number, like "three times a soldier's health": it reads as a rule and breaks when the base changes.
+- **Counts of things that grow aren't totals.** The roster has no fixed size, so write "eight so far" and "grows with the roster", never a final number of soldiers, pairs or missions.
 
 ## Progressive disclosure, the thread through the design
 
