@@ -14,6 +14,10 @@ Concept: `concepts/lobby/den-lobby.png` in the project's files (second pass; the
 
 ## Den 2.0: the den and the long loft
 
+![The crew's house: the den, the loft and the tabk bay, to scale](lobby/house-layout.svg)
+
+**The house map** ([lobby/house-layout.svg](lobby/house-layout.svg), drawn by [lobby/house.py](lobby/house.py) from what the game builds: `DenMap`, `BayMap` and the den's stations; owner, 2026-10-21) is the canonical layout: when a room moves in the game, redraw it.
+
 **Layout picked by the owner on 2026-10-18** (den2-layout, layout C: https://claude.ai/artifact/98a63GBzVDfhSL9SQN71tY). One screen can't hold eight crew, so the den grows past it. Where this section and the rest of the page differ, this section wins; the rest still holds for the den screen itself.
 
 **Not in the game yet:** the den in the game is still the one-screen room below ([the room](#the-room)). Den 2.0's art is picked (den2-art), and building it is its own card.
