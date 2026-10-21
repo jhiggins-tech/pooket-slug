@@ -60,7 +60,9 @@ Concept: `concepts/lobby/den-lobby.png` in the project's files (second pass; the
 - **The loft's own rooms are the loft's way in:** the **shower block** is out the loft's shower door, with sinks and a mirror along one wall and shower and toilet cubicles behind **swinging saloon doors**; the room **ends at a wall** past the lockers, so they look against a wall rather than cut off. The **wintergarden** is out the loft's wintergarden door, and it's a **tall room** (320 × 360: one screen across, two up) with a **spiral staircase** turning up the wall to a **landing** at the top, where **the rose** waits under its glass dome. The stair's treads are a step apart, for the 22 px soldier to climb. The rose is out of reach from the floor: **you have to climb the stair to see it**, and the camera rises with you. The landing is **wide enough for two crew to stand on it**, so a cutscene can happen up there.
 - **The mission board moves up to kcaj** (owner, 2026-10-21): **the board *is* the string board**, so it hangs in his nook on the den's upper floor, and the ground floor keeps only a nail where it used to be.
 
-**Not in the game yet:** all of this is the design. The art comes next (painted with OpenRouter's Qwen Image Turbo, with the existing paintings as image references to keep the style in), and then the build, one card per room.
+**The art is picked** (owner, 2026-10-21): all seven room plates are painted and signed off. They were made with OpenRouter's Qwen Image 2.1 Turbo, with the room's layout cut out of [the house map](lobby/house-layout.svg) as a reference and a swatch of the game's own pixels as the style, and cut to the game's size: [the plates](lobby/plates/). In the game they are `Assets/Resources/Den/room-*.bytes`, one per room, and each is its own screen.
+
+**Not in the game yet:** the art is in, but the rooms aren't built: the build is one card per room.
 
 ## The room
 
