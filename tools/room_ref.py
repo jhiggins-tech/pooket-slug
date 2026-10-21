@@ -39,9 +39,8 @@ ROOMS = {
         ("bench", 100, 15, 148, 44),
         ("coffee machine", 152, 15, 176, 50),
         ("fridge", 180, 15, 216, 58),
-        ("eating table", 222, 15, 268, 44),
+        ("eating table", 222, 15, 298, 44),
         ("window", 180, 74, 216, 98),
-        ("dresser", 280, 15, 330, 46),
         ("back door", 394, 15, 420, 52),
     ], [(70, 30, 176), (96, 30, 176), (122, 30, 176)]),
 }
@@ -111,33 +110,37 @@ def soldier_svg(x, feet_y, canvas):
 
 
 # ---- the room's furniture, drawn as vector art ----
-# each is a function that takes the room's height and returns SVG
+# Every piece stands on the floor: its base is at FLOOR, the room's floor line.
+# The height is the room's, and the room's y is from its floor, so the floor line
+# is at h - 15 in the picture's own y.
+FLOOR_OFF = 15   # the floor's thickness: the room's floor line is this far up
+
+
+def base(h):
+    """The y of the floor line, in the picture's own y (from the top)."""
+    return h - FLOOR_OFF
+
+
 def stove(h):
+    """The stove and the worktop: the cooker on the left, the worktop beside it."""
+    f = base(h)
     return """
-<rect x="30" y="%(top)s" width="56" height="37" fill="#8a9298" stroke="#241c18"/>
-<rect x="30" y="%(cook)s" width="24" height="30" fill="#6a7278" stroke="#241c18"/>
+<rect x="30" y="%(top)s" width="56" height="%(bh)s" fill="#8a9298" stroke="#241c18"/>
+<rect x="30" y="%(cook)s" width="24" height="%(ch)s" fill="#6a7278" stroke="#241c18"/>
 <rect x="54" y="%(cook)s" width="32" height="12" fill="#6a7278" stroke="#241c18"/>
 <rect x="34" y="%(cook)s" width="16" height="7" fill="#2a2622"/>
-<rect x="32" y="%(top)s" width="14" height="9" fill="#2a2622"/>
-<path d="M38 %(top2)s h12 v-9 h14 v9" fill="none" stroke="#241c18" stroke-width="1"/>""" % {
-        "top": h - 52, "cook": h - 45, "top2": h - 43}
-
-
-def table(h):
-    return """
-<rect x="92" y="%(top)s" width="54" height="6" fill="#a07a4e" stroke="#241c18"/>
-<rect x="96" y="%(top)s" width="5" height="35" fill="#7a5a38" stroke="#241c18"/>
-<rect x="137" y="%(top)s" width="5" height="35" fill="#7a5a38" stroke="#241c18"/>
-<rect x="96" y="%(mid)s" width="46" height="4" fill="#7a5a38" stroke="#241c18"/>""" % {
-        "top": h - 44, "mid": h - 26}
+<rect x="32" y="%(hood)s" width="14" height="9" fill="#2a2622"/>
+<path d="M38 %(hood2)s h12 v-9 h14 v9" fill="none" stroke="#241c18" stroke-width="1"/>""" % {
+        "top": f - 37, "bh": 37, "cook": f - 30, "ch": 30, "hood": f - 37, "hood2": f - 28}
 
 
 def bench(h):
     """The cooking bench: a smaller top, a shelf under it, and utensils hanging."""
+    f = base(h)
     return """
 <rect x="100" y="%(top)s" width="48" height="5" fill="#a07a4e" stroke="#241c18"/>
-<rect x="104" y="%(top)s" width="4" height="29" fill="#7a5a38" stroke="#241c18"/>
-<rect x="140" y="%(top)s" width="4" height="29" fill="#7a5a38" stroke="#241c18"/>
+<rect x="104" y="%(top)s" width="4" height="%(lh)s" fill="#7a5a38" stroke="#241c18"/>
+<rect x="140" y="%(top)s" width="4" height="%(lh)s" fill="#7a5a38" stroke="#241c18"/>
 <rect x="104" y="%(shelf)s" width="40" height="3" fill="#7a5a38" stroke="#241c18"/>
 <rect x="107" y="%(shelf)s" width="7" height="6" fill="#9a8a70" stroke="#241c18"/>
 <rect x="116" y="%(shelf)s" width="5" height="5" fill="#8a7a60" stroke="#241c18"/>
@@ -149,13 +152,14 @@ def bench(h):
 <rect x="117" y="%(rail)s" width="2" height="11" fill="#b8bcc4" stroke="#241c18"/>
 <rect x="123" y="%(rail)s" width="4" height="6" fill="#8a8e96" stroke="#241c18"/>
 <rect x="131" y="%(rail)s" width="2" height="8" fill="#b8bcc4" stroke="#241c18"/>""" % {
-        "top": h - 39, "shelf": h - 22, "rail": h - 52}
+        "top": f - 24, "lh": 24, "shelf": f - 10, "rail": f - 37}
 
 
 def coffee_machine(h):
     """A fancy barista coffee machine: a tall body, a group head, a jug on top."""
+    f = base(h)
     return """
-<rect x="152" y="%(top)s" width="24" height="35" fill="#c8ccd0" stroke="#241c18"/>
+<rect x="152" y="%(top)s" width="24" height="%(bh)s" fill="#c8ccd0" stroke="#241c18"/>
 <rect x="152" y="%(top)s" width="24" height="6" fill="#a8adb4" stroke="#241c18"/>
 <circle cx="164" cy="%(dial)s" r="3" fill="#f0c14b" stroke="#241c18"/>
 <rect x="156" y="%(head)s" width="16" height="5" fill="#8a8e96" stroke="#241c18"/>
@@ -164,62 +168,69 @@ def coffee_machine(h):
 <rect x="154" y="%(jug)s" width="8" height="6" fill="#d8d4c8" stroke="#241c18"/>
 <rect x="166" y="%(jug)s" width="7" height="6" fill="#d8d4c8" stroke="#241c18"/>
 <rect x="152" y="%(gauge)s" width="24" height="2" fill="#6a6e76" stroke="#241c18"/>""" % {
-        "top": h - 50, "dial": h - 40, "head": h - 30, "spout": h - 25,
-        "cup": h - 20, "jug": h - 56, "gauge": h - 46}
+        "top": f - 35, "bh": 35, "dial": f - 25, "head": f - 15, "spout": f - 10,
+        "cup": f - 5, "jug": f - 41, "gauge": f - 31}
 
 
 def eating_table(h):
-    """A small eating table with a cloth on it, two chairs, and coffee cups.
-    Its top is below the soldier's waist: about 17 px off the floor."""
+    """A long dining table with a cloth on it, six chairs, and coffee cups.
+    Its top is below the soldier's waist: about 18 px off the floor."""
+    f = base(h)
+    chairs = ""
+    # three chairs behind the table, three in front of it
+    for cx in (224, 246, 268):
+        chairs += ('<rect x="%d" y="%g" width="11" height="3" fill="#8a7458" stroke="#241c18"/>\n'
+                   '<rect x="%d" y="%g" width="11" height="3" fill="#8a7458" stroke="#241c18"/>\n'
+                   '<rect x="%d" y="%g" width="2" height="8" fill="#6a5a44" stroke="#241c18"/>\n' % (
+                       cx, f - 18, cx, f - 27, cx + 9, f - 27))
+    cups = ""
+    for cx in (226, 238, 250, 262, 274, 286):
+        cups += '<rect x="%d" y="%g" width="4" height="4" fill="#e8e4d8" stroke="#241c18"/>' % (cx, f - 22)
     return """
 <!-- the chairs, behind the table -->
-<rect x="228" y="%(chair)s" width="12" height="3" fill="#8a7458" stroke="#241c18"/>
-<rect x="228" y="%(back)s" width="12" height="3" fill="#8a7458" stroke="#241c18"/>
-<rect x="252" y="%(chair)s" width="12" height="3" fill="#8a7458" stroke="#241c18"/>
-<rect x="252" y="%(back)s" width="12" height="3" fill="#8a7458" stroke="#241c18"/>
-<rect x="228" y="%(back)s" width="2" height="9" fill="#6a5a44" stroke="#241c18"/>
-<rect x="262" y="%(back)s" width="2" height="9" fill="#6a5a44" stroke="#241c18"/>
+%(chairs)s
 <!-- the table, with the cloth hanging over the front -->
-<rect x="222" y="%(top)s" width="46" height="4" fill="#b8a888" stroke="#241c18"/>
-<rect x="222" y="%(top)s" width="46" height="7" fill="#b04a3a" stroke="#241c18"/>
-<rect x="222" y="%(top)s" width="46" height="2" fill="#c86a52" stroke="#241c18"/>
-<rect x="227" y="%(top)s" width="3" height="14" fill="#8a7458" stroke="#241c18"/>
-<rect x="260" y="%(top)s" width="3" height="14" fill="#8a7458" stroke="#241c18"/>
+<rect x="222" y="%(top)s" width="72" height="4" fill="#b8a888" stroke="#241c18"/>
+<rect x="222" y="%(top)s" width="72" height="7" fill="#b04a3a" stroke="#241c18"/>
+<rect x="222" y="%(top)s" width="72" height="2" fill="#c86a52" stroke="#241c18"/>
+<rect x="227" y="%(top)s" width="3" height="%(lh)s" fill="#8a7458" stroke="#241c18"/>
+<rect x="286" y="%(top)s" width="3" height="%(lh)s" fill="#8a7458" stroke="#241c18"/>
 <!-- the coffee cups, on the table -->
-<rect x="231" y="%(cup)s" width="4" height="4" fill="#e8e4d8" stroke="#241c18"/>
-<rect x="243" y="%(cup)s" width="4" height="4" fill="#e8e4d8" stroke="#241c18"/>
-<rect x="255" y="%(cup)s" width="4" height="4" fill="#e8e4d8" stroke="#241c18"/>""" % {
-        "top": h - 32, "cup": h - 36, "chair": h - 27, "back": h - 38}
+%(cups)s""" % {"chairs": chairs, "cups": cups, "top": f - 18, "lh": 18}
 
 
 def fridge(h):
+    f = base(h)
     return """
 <rect x="180" y="%(top)s" width="36" height="43" fill="#c8ccd0" stroke="#241c18"/>
 <rect x="180" y="%(split)s" width="36" height="1" fill="#241c18"/>
 <rect x="210" y="%(h1)s" width="3" height="9" fill="#707880"/>
 <rect x="210" y="%(h2)s" width="3" height="9" fill="#707880"/>""" % {
-        "top": h - 58, "split": h - 30, "h1": h - 50, "h2": h - 27}
+        "top": f - 43, "split": f - 15, "h1": f - 35, "h2": f - 12}
 
 
 def window_(h):
+    f = base(h)
     return """
 <rect x="180" y="%(top)s" width="36" height="24" fill="#2a4a78" stroke="#241c18"/>
 <rect x="196" y="%(top)s" width="3" height="24" fill="#241c18"/>
 <rect x="180" y="%(mid)s" width="36" height="3" fill="#241c18"/>
 <circle cx="206" cy="%(moon)s" r="4" fill="#e8e4d0"/>""" % {
-        "top": h - 98, "mid": h - 88, "moon": h - 90}
+        "top": f - 83, "mid": f - 73, "moon": f - 75}
 
 
 def door(x0, x1, h):
     # the door's opening, in the room's own y (from the floor)
+    f = base(h)
     return """
 <rect x="%g" y="%d" width="%g" height="37" fill="#5a3f2a" stroke="#241c18"/>
 <rect x="%g" y="%d" width="%g" height="37" fill="#1a1512"/>""" % (
-        x0, h - 52, x1 - x0, x0 + 2, h - 52, x1 - x0 - 4)
+        x0, f - 37, x1 - x0, x0 + 2, f - 37, x1 - x0 - 4)
 
 
 def dresser(h):
     """A chest of drawers, with a couple of things on top."""
+    f = base(h)
     return """
 <rect x="280" y="%(top)s" width="50" height="31" fill="#6a4e38" stroke="#241c18"/>
 <rect x="282" y="%(d1)s" width="46" height="8" fill="#7a5a40" stroke="#241c18"/>
@@ -231,14 +242,13 @@ def dresser(h):
 <!-- a bowl and a jug on top -->
 <rect x="288" y="%(bowl)s" width="12" height="6" fill="#a89070" stroke="#241c18"/>
 <rect x="308" y="%(jug)s" width="8" height="9" fill="#8a9a8a" stroke="#241c18"/>""" % {
-        "top": h - 46, "d1": h - 44, "d2": h - 35, "d3": h - 26,
-        "h1": h - 42, "h2": h - 33, "h3": h - 24, "bowl": h - 52, "jug": h - 55}
+        "top": f - 31, "d1": f - 29, "d2": f - 20, "d3": f - 11,
+        "h1": f - 27, "h2": f - 18, "h3": f - 9, "bowl": f - 37, "jug": f - 40}
 
 
 FURNITURE = {
-    "stove": stove, "table": table, "fridge": fridge, "window": window_,
+    "stove": stove, "fridge": fridge, "window": window_,
     "bench": bench, "coffee machine": coffee_machine, "eating table": eating_table,
-    "dresser": dresser,
 }
 
 
