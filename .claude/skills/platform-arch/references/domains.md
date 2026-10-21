@@ -159,6 +159,17 @@ build.
 **The script leads.** A change to a scene is decided in `docs/design/cutscenes/` first, and the scene file is
 changed to match. A scene file changed without the script is an error the domain manager catches in review.
 
+**Where the story domain comes in.** The cutscene domain owns *how* a scene plays and the *words* in it; the story
+domain owns *what the story is* — the premise, the order of events, who is freed and when, and the reveals. So:
+
+- a line of dialogue, a shot, a timing, a sound: the `cutscene` domain;
+- what that line means for the plot, or which scene the plot needs next: the `story` domain, which then asks the
+  cutscene domain for the scene itself.
+
+The two overlap when a change to a scene changes the story. **The rule is which document it lands in:** a change
+decided in `docs/design/cutscenes/` is the cutscene domain's; a change decided in `docs/design/story.md` is the
+story domain's, and it needs a handover to the cutscene domain to carry it into the scene files.
+
 ## `sprites` — the owner's
 
 **Creating the art for sprites, hand drawn or generated, the sprite workflow, NOT game object programming or slot
@@ -256,6 +267,10 @@ reading it, which is how plots rot.
 **The boundary in one line** — the cutscene domain owns *how a scene plays*; this domain owns *what the story is*.
 A line change is a cutscene change; a change to what a line means for the plot is a story change, and it goes
 through here.
+
+**Which document decides.** The rule that settles it: **a change decided in `docs/design/story.md` is this
+domain's, and a change decided in `docs/design/cutscenes/` is the cutscene domain's.** A story change that needs a
+new or altered scene is a handover: the story domain decides, the cutscene domain carries it into the scene files.
 
 ## `shell`
 
