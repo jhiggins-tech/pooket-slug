@@ -16,6 +16,19 @@ Up: [Design](README.md)
 - Images are made by the vendor repository's CI (the Plates and Showcase workflows), and their spend goes in its usage ledger.
 - **In the game** (`Backdrop`, m1-plates-build): a mission's plates are PNGs in `Assets/Resources/Plates/<mission id>/` (`mission-1`), renamed `.bytes`, one strip per layer: `sky-0`, `sky-1`, … then `far-…` and `mid-…`, numbered along the map. A strip's plates are laid end to end and repeat, and any width works; the height is the layer's. The layers, back to front: **sky** (moves 0.95 of the camera, from the screen's bottom, a full screen tall: 180 pixels), **far** (0.85, its bottom 1.2 units up) and **mid** (0.6, 1 unit up), with the sky gradient behind them all. A layer with no plates is drawn in code, as before.
 
+## The house's room plates
+The house's outer rooms are their own screens, each one behind a door
+([the lobby](lobby.md#the-outer-rooms)). Each is a room plate, made like a
+background plate but standing in for a whole screen, and the work in progress
+is in [plates](lobby/plates/).
+
+- **Model:** Qwen Image 2.1 Turbo on OpenRouter (`qwen/qwen-image-2.1-turbo`, the Alibaba endpoint), about $0.02 an image. It is not in OpenRouter's public model list: find it with `GET /api/v1/models/qwen/qwen-image-2.1-turbo/endpoints`.
+- **The endpoint** is `POST /api/v1/images/generations`, not `/chat/completions`: an image model on the chat endpoint is a 404 saying so.
+- **Two references.** The first is the room's layout, cut out of the house map ([lobby/house-layout.svg](lobby/house-layout.svg)) and rendered as a picture: the model then puts the things where the map says. The second is a **swatch** — a small crop of the game's own pixels, upscaled so the pixel technique is legible, with nothing recognisable in it: that is what makes the plate pixel art rather than a photograph. A whole plate as the second reference makes the model copy that room instead of drawing the one asked for.
+- **The size floor.** The provider wants at least 512 × 512, so a plate is generated at 1280 × 720 and cut down to the game's size and 64 colours afterwards.
+- **Moderation.** The provider's moderation blocks some *combinations*, not any single part: the style line above passes on its own, but adding "16-bit" to it is blocked, and a layout hint that says "paint it in the style of the second picture" is blocked too. Keep the style line exactly as it is, and keep the hint plain: "The first picture is a layout diagram for the room: where each thing goes."
+
+
 ## Sprites
 Sprites and their animations are hand-made in `ArtData`, and stay that way. Image models can't draw a usable sprite or sprite sheet at the game's size (gen-sprites, 2026-10-18). A video model can animate a sprite we drew, though: the workflow below was locked in on 2026-10-18 (sprite-model-research: https://claude.ai/artifact/LrvdRFdJF6R4qnVvWewhyw) and audited on the sprite-anim-pipeline card.
 
