@@ -1,6 +1,6 @@
 # The crew's kits
 
-Every soldier's moves: the primary, its fork at level II, the special, the super, and the ability or movement quirk for those who have one.
+Every soldier's moves: the primary, its fork at level II (designed, on hold with the upgrade crate), the special, the super, and the ability or movement quirk for those who have one.
 
 **Status:** moved here from the brainstorm (DESIGN.md, since retired) on 2026-10-15, with the owner's answers from that day's consistency check. This is the one place the kits are designed; the four other documents link here.
 
@@ -15,38 +15,38 @@ From [player mechanics](player.md#the-kit): the primary has unlimited ammo, the 
 
 ## tones2
 - **ten-1** (primary): hold FIRE for a jet that builds from spray to a clean arc in about a second. The droplets trickle damage and push goons back, and letting go resets the pressure. Splashback stays in, without damage: point-blank on a wall or something big, it slows tones2 down for a moment.
-- **Fork at II**: Hydrant (more range and pressure) or Sprinkler (a wide fan).
+- **Fork at II** (on hold): Hydrant (more range and pressure) or Sprinkler (a wide fan).
 - **ten-2** (special): half a second of shaking, then a rocket jump straight up, steered in the air like a normal jump. The launch carpets the floor in toxic mud that poisons goons walking through it.
 - **ten-3** (super): a second and a half of spew that melts anything close, and he can walk while it pours out. It leaves sludge that lasts a long time (about 15 seconds) and burns goons who walk through it.
 
 ## kie
 - **Weasel Pop** (primary): each press tumbles out three weasels. Where they land, they scurry under the nearest goon and pop, to Pop Goes the Weasel. It's lobbed, so it reaches behind cover, but it's weak against flyers.
-- **Fork at II**: Ferret Frenzy (more, smaller weasels) or Badger (one big one that won't stop chasing).
+- **Fork at II** (on hold): Ferret Frenzy (more, smaller weasels) or Badger (one big one that won't stop chasing).
 - **Trollogram** (special): tap to drop a Trollogram of yourself (up to three at once); while one is on screen, goons always shoot a Trollogram instead of you. Hold to swap places with the one furthest away (owner, 2026-10-15: several at once, always the goons' target). A shot Trollogram blows up on everything nearby. The running joke: these are the ones that went rogue.
 - **Steal** (super): the roulette spins and kie lifts a random power-up off the toughest enemy on screen. The tougher it is, the bigger the prize: a burst of the goon's own weapon, say, or a whole crew gun off a boss tabk.
 
 ## kcaj
 - **Double Park** (primary): twin cones, lobbed in an arc like a grenade launcher, one either side of your aim (Jack, 18 Oct); they splat on whatever they land on.
-- **Fork at II**: Triple Scoop (a third cone) or Brain Freeze (cones slow what they hit).
+- **Fork at II** (on hold): Triple Scoop (a third cone) or Brain Freeze (cones slow what they hit).
 - **Hyperfixate** (special): the beam sticks to the first thing it touches and follows it while you hold the special. It does damage over time: the longer the fixate, the bigger each damage tick (Jack, approving the spike, 16 Oct). Meanwhile the screen edges dim, and anything else is free to shoot you.
 - **Unmedicated** (super): 120 pills rain across the whole screen, bounce twice and pop. They never hurt kcaj or a co-op partner.
 
 ## torikloud (150 health)
 - **Debate** (primary): hold FIRE and a random legal word comes out, one letter per bullet. Longer words are longer bursts: SUBPOENA is 8 rounds, CERTIORARI 10.
-- **Fork at II**: Filibuster (only long words) or Objection! (every word ends in a "!" that explodes).
+- **Fork at II** (on hold): Filibuster (only long words) or Objection! (every word ends in a "!" that explodes).
 - **Sonic Boom** (special): waves of sound through walls, strongest up close. They also wipe out enemy bullets in their path, and the kookaburra laughs from the clouds.
 - **Twins** (super): a twin appears, and his health is split between them (75 / 75 from full). Like the Ice Climbers, it follows a step behind and copies everything he does a beat later: running, jumping and firing (it argues in social-work words). If it falls behind, it scrambles to catch up. While it stands, the super button is Yolk Sucker, which evens out their health. He's only down when both are. He starts on 150 health (7½ hearts).
 
 ## ciarra
 - **Frog leaps**: the best jumper in the game; hold JUMP to leap further.
 - **Tattoo Gun** (primary): a needle SMG. Anything it hits is tattooed and takes 25% more damage from everything for a few seconds, a partner's shots included.
-- **Fork at II**: Full Sleeve (tattoos last twice as long) or Flash Sheet (three needle streams in a fan).
+- **Fork at II** (on hold): Full Sleeve (tattoos last twice as long) or Flash Sheet (three needle streams in a fan).
 - **Sew** (special): a needle and thread stitch along her aim, through walls. Anything stitched takes a hit and is pinned for two seconds.
 - **Marathon** (super): she pins on a race bib and becomes the runner, sprinting a leg along the ground over any hill, invulnerable and flattening everything in her path. A leg is about a screen wide, and she still finishes with a 50-damage blast.
 
 ## larinovsky
 - **Pill Pusher** (primary): lobs a mixed handful of pills whose blasts walk across the ground, so it reaches over cover.
-- **Fork at II**: Extra Strength (bigger blasts) or Bulk Buy (twice the pills, but smaller).
+- **Fork at II** (on hold): Extra Strength (bigger blasts) or Bulk Buy (twice the pills, but smaller).
 - **the Rizzler** (special): a spinning heart in shades that homes in on anything close. Whatever's in its blast is cooked and deals half damage for a few seconds.
 - **Women in Scam** (ability): for three seconds, any attack that hits you is scammed. You still take the damage, but you get rounds of that weapon to fire back: scam a boss tabk and you're holding its own weapon.
 - **Take a Nap** (super): two seconds asleep, waking at full health with the special recharged. The two cats stand guard and swat away whatever comes, but each dies comically on the first hit it takes: a yowl, a puff of fur, a little halo floating off. They're back for the next nap (nine lives).
@@ -58,7 +58,7 @@ From [player mechanics](player.md#the-kit): the primary has unlimited ammo, the 
 
 ## kiwicore
 - **béretta M2** (primary): he throws the flat cap off his head through walls, out along his aim and back, and it hits on both passes. He can't throw again until he catches it, so up close he throws faster.
-- **Fork at II**: Spare Cap (a second cap to throw while the first is out) or Wide Brim (longer, wider loops).
+- **Fork at II** (on hold): Spare Cap (a second cap to throw while the first is out) or Wide Brim (longer, wider loops).
 - **Band Aid** (special): the drum solo. He's stuck at the kit for four bars of the thrasher, tapping FIRE on the beat, and every hit sends a healing pulse to everyone nearby, a co-op partner included. Perfect hits heal double, up to 40% in all, and the drumstick swats goons who get too close.
 - **Shower Beers** (ability): a shower curtain goes up round him, steam rises, a can of XXXX Gold appears in the sky, and he gets half his health back.
 - **Stage Dive** (super): he leaps into the goons and crowd-surfs across them to the thrasher, hurting everything he rides over.

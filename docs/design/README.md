@@ -36,6 +36,12 @@ Use these words in everything players or readers see: in-game text, voice lines,
 
 - **No strobing, anywhere** (owner, 2026-10-16, after a cutscene's static strobed on for its whole second half). Anything that flashes a large part of the screen (a white or red screen flash, the static's cyan, the boss intro's WARNING!) does it at most 2.5 times a second, under the 3 a second that can set off photosensitive seizures, and a glitch over the whole screen is one soft pulse that fades. Small things (a sprite blinking, a marker) can flash faster.
 
+## House rules for writing the design
+
+From the design audit of 2026-10-21:
+- **Tuned numbers aren't design rules.** Where a number exists to make something last or feel a certain way (a pilot's health, a special's charges, a weapon's timings), say the intent and a range, and point at the code for the current value. Never write a multiplier of another number, like "three times a soldier's health": it reads as a rule and breaks when the base changes.
+- **Counts of things that grow aren't totals.** The roster has no fixed size, so write "eight so far" and "grows with the roster", never a final number of soldiers, pairs or missions.
+
 ## Progressive disclosure, the thread through all four
 
 The game shows only what the player has already met. Nothing on screen, in the menus or on the web page hints at what's still to come, and each new thing gets a moment of its own:
