@@ -83,7 +83,8 @@ Statuses come only from the soldiers' kits: each one belongs to a particular sol
 - **Some kits help a partner:** kiwicore's drum solo heals them, ciarra's marks make their shots hit harder, and kcaj's pills never hurt them.
 - **The team super:** when both players' supers are charged, they can fire them together for a team super: a short animation, and then every enemy on screen dies (owner, 2026-10-15). Each pair of soldiers gets its own combo ([team supers](team-supers.md)).
 - **Friendly fire is off.**
-- **Two different soldiers:** both players can't pick the same soldier (owner, 2026-10-15).
+- **Two different soldiers, and two different tabks:** both players can't pick the same soldier (owner, 2026-10-15), or load the same tabk (owner, 2026-10-21, unique-crew-pick). How the den and the bay keep it so: [picking in co-op](lobby.md#co-op) and [the tabk bay](lobby.md#the-tabk-bay).
+- **Everyone wears their own colours:** a crewmate and their tabk look the same from either seat, and there's no second paint for player two. The P1 and P2 tags say who's who (owner, 2026-10-21).
 - **Your partner is always easy to find:** an arrow when they're off-screen, and a warning when their health is low or they've switched away from the game.
 
 ## What the player keeps
