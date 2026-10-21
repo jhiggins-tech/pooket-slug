@@ -35,11 +35,15 @@ STYLE = """  :root { color-scheme: dark; }
   .note { color: #a89c8c; font-size: 13px; max-width: 70ch; }
   .pair { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
   figure { margin: 0; min-width: 0; max-width: 100%; }
-  figure img { display: block; image-rendering: pixelated; border: 1px solid #2c2622; }
-  figure.full img { max-width: 100%; max-height: 72vh; width: auto; height: auto; }
-  figure.game img { width: 420px; max-width: 100%; }
+  figure img { display: block; box-sizing: border-box; image-rendering: pixelated;
+               border: 1px solid #2c2622; }
+  figure.full { flex: 1 1 560px; }
+  figure.full img { width: 100%; height: auto; }
+  figure.game { flex: 0 0 auto; }
+  figure.game img { width: 420px; max-width: 100%; height: auto; }
   figcaption { color: #a89c8c; font-size: 12px; margin-top: 4px; }
-  .ref img { max-width: 100%; max-height: 40vh; border: 1px solid #2c2622; }
+  figcaption span { display: block; }
+  .ref img { width: 640px; max-width: 100%; height: auto; border: 1px solid #2c2622; }
 """
 
 
@@ -75,8 +79,12 @@ def is_game_cut(name):
     return name.endswith("-game" + os.path.splitext(name)[1])
 
 
+def mtime(name):
+    return os.path.getmtime(os.path.join(WIP, name))
+
+
 def scan():
-    """The pictures in the wip folder, and the vector reference, newest first."""
+    """The pictures in the wip folder, and the vector reference."""
     pictures = []
     vectors = []
     for name in sorted(os.listdir(WIP)):
@@ -91,8 +99,33 @@ def scan():
     return pictures, vectors
 
 
-def group(pictures):
-    """The generations: each group is one generation's pictures, newest group
+def pair_up(names):
+    """The rows of one generation: each row is a full-size picture and the
+    game-size cut made from it, side by side. A cut was made from the picture
+    saved just before it, so that's the one it pairs with; any picture left
+    over is a row on its own."""
+    fulls = sorted([n for n in names if not is_game_cut(n)], key=mtime)
+    cuts = sorted([n for n in names if is_game_cut(n)], key=mtime)
+    rows = []
+    used = set()
+    for cut in cuts:
+        before = [f for f in fulls if f not in used and mtime(f) <= mtime(cut)]
+        if before:
+            full = max(before, key=mtime)
+            used.add(full)
+            rows.append((full, cut))
+        else:
+            rows.append((None, cut))
+    for full in fulls:
+        if full not in used:
+            rows.append((full, None))
+    # the newest row first
+    rows.sort(key=lambda r: -max(mtime(n) for n in r if n))
+    return rows
+
+
+def generations(pictures):
+    """The generations: one per take (or the latest wip picture), newest
     first. A wip- picture is the latest, then the takes by number, then
     anything else by when it was made."""
     groups = {}
@@ -101,38 +134,37 @@ def group(pictures):
 
     out = []
     for key, names in groups.items():
-        # in a group, the full-size picture comes before its game-size cut
-        names.sort(key=lambda n: (is_game_cut(n), n))
-        mtime = max(os.path.getmtime(os.path.join(WIP, n)) for n in names)
         take = next((t for t in (take_number(n) for n in names) if t is not None), None)
         if any(n.startswith("wip") for n in names):
-            order = (0, 0, -mtime)
+            order = (0, 0)
         elif take is not None:
-            order = (1, -take, -mtime)
+            order = (1, -take)
         else:
-            order = (2, 0, -mtime)
-        out.append((order, key, names))
+            order = (2, -max(mtime(n) for n in names))
+        out.append((order, take, key, names))
     out.sort()
-    return [(key, names) for _, key, names in out]
+    return [(title(take, names), pair_up(names)) for _, take, key, names in out]
 
 
-def group_title(key, names):
+def title(take, names):
     """The heading for a generation: what a reader calls it."""
     if any(n.startswith("wip") for n in names):
         return "The latest"
-    take = next((t for t in (take_number(n) for n in names) if t is not None), None)
     if take is not None:
         return "Take %d" % take
-    return key
+    return "Another"
 
 
 def picture_html(name, kind, alt):
-    """One picture with its caption, naming the file."""
+    """One picture with its caption, naming the file and its size."""
+    width, height = picture_size(os.path.join(WIP, name))
+    size = "%d &times; %d" % (width, height) if width else ""
+    caption = name + ("<span>%s</span>" % size if size else "")
     return (
         '<figure class="%s">\n'
         '  <img src="wip/%s" alt="%s">\n'
         '  <figcaption>%s</figcaption>\n'
-        '</figure>' % (kind, name, alt, name)
+        '</figure>' % (kind, name, alt, caption)
     )
 
 
@@ -164,15 +196,15 @@ def build_page(pictures, vectors):
                  'the room drawn to scale, with the soldier in it. Every picture '
                  'below is made from it.</p>')
 
-    for key, names in group(pictures):
-        s.append("<h2>%s</h2>" % group_title(key, names))
-        s.append('<div class="pair">')
-        for name in names:
-            kind = "game" if is_game_cut(name) else "full"
-            alt = "%s: the plate, %s" % (name, "at the game's size" if kind == "game"
-                                          else "full size")
-            s.append(picture_html(name, kind, alt))
-        s.append("</div>")
+    for heading, rows in generations(pictures):
+        s.append("<h2>%s</h2>" % heading)
+        for full, cut in rows:
+            s.append('<div class="pair">')
+            if full:
+                s.append(picture_html(full, "full", "%s: the plate, full size" % full))
+            if cut:
+                s.append(picture_html(cut, "game", "%s: the plate, at the game's size" % cut))
+            s.append("</div>")
 
     s.append("</body>")
     s.append("</html>")
@@ -184,7 +216,7 @@ def main():
     with open(OUT, "w", encoding="utf-8", newline="\n") as f:
         f.write(build_page(pictures, vectors))
     print("wrote %s (%d generations, %d reference)" %
-          (os.path.relpath(OUT, ROOT), len(group(pictures)), len(vectors)))
+          (os.path.relpath(OUT, ROOT), len(generations(pictures)), len(vectors)))
 
 
 if __name__ == "__main__":

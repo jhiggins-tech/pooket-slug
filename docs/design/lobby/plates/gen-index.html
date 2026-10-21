@@ -16,11 +16,15 @@
   .note { color: #a89c8c; font-size: 13px; max-width: 70ch; }
   .pair { display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap; }
   figure { margin: 0; min-width: 0; max-width: 100%; }
-  figure img { display: block; image-rendering: pixelated; border: 1px solid #2c2622; }
-  figure.full img { max-width: 100%; max-height: 72vh; width: auto; height: auto; }
-  figure.game img { width: 420px; max-width: 100%; }
+  figure img { display: block; box-sizing: border-box; image-rendering: pixelated;
+               border: 1px solid #2c2622; }
+  figure.full { flex: 1 1 560px; }
+  figure.full img { width: 100%; height: auto; }
+  figure.game { flex: 0 0 auto; }
+  figure.game img { width: 420px; max-width: 100%; height: auto; }
   figcaption { color: #a89c8c; font-size: 12px; margin-top: 4px; }
-  .ref img { max-width: 100%; max-height: 40vh; border: 1px solid #2c2622; }
+  figcaption span { display: block; }
+  .ref img { width: 640px; max-width: 100%; height: auto; border: 1px solid #2c2622; }
 
 </style>
 </head>
@@ -34,48 +38,63 @@
 <div class="pair">
 <figure class="full">
   <img src="wip/wip-kitchen.png" alt="wip-kitchen.png: the plate, full size">
-  <figcaption>wip-kitchen.png</figcaption>
+  <figcaption>wip-kitchen.png<span>1260 &times; 540</span></figcaption>
 </figure>
 </div>
 <h2>Take 3</h2>
 <div class="pair">
 <figure class="full">
   <img src="wip/take3-kitchen.png" alt="take3-kitchen.png: the plate, full size">
-  <figcaption>take3-kitchen.png</figcaption>
+  <figcaption>take3-kitchen.png<span>1260 &times; 540</span></figcaption>
 </figure>
 <figure class="game">
   <img src="wip/take3-kitchen-game.png" alt="take3-kitchen-game.png: the plate, at the game's size">
-  <figcaption>take3-kitchen-game.png</figcaption>
+  <figcaption>take3-kitchen-game.png<span>420 &times; 180</span></figcaption>
 </figure>
 </div>
 <h2>Take 2</h2>
 <div class="pair">
 <figure class="full">
-  <img src="wip/take2-kitchen-1260x540.png" alt="take2-kitchen-1260x540.png: the plate, full size">
-  <figcaption>take2-kitchen-1260x540.png</figcaption>
-</figure>
-<figure class="full">
   <img src="wip/take2-kitchen.png" alt="take2-kitchen.png: the plate, full size">
-  <figcaption>take2-kitchen.png</figcaption>
+  <figcaption>take2-kitchen.png<span>1260 &times; 540</span></figcaption>
 </figure>
 <figure class="game">
   <img src="wip/take2-kitchen-game.png" alt="take2-kitchen-game.png: the plate, at the game's size">
-  <figcaption>take2-kitchen-game.png</figcaption>
+  <figcaption>take2-kitchen-game.png<span>420 &times; 180</span></figcaption>
+</figure>
+</div>
+<div class="pair">
+<figure class="full">
+  <img src="wip/take2-kitchen-1260x540.png" alt="take2-kitchen-1260x540.png: the plate, full size">
+  <figcaption>take2-kitchen-1260x540.png<span>1260 &times; 540</span></figcaption>
 </figure>
 </div>
 <h2>Take 1</h2>
 <div class="pair">
 <figure class="full">
-  <img src="wip/take1-kitchen-1536x768.png" alt="take1-kitchen-1536x768.png: the plate, full size">
-  <figcaption>take1-kitchen-1536x768.png</figcaption>
-</figure>
-<figure class="full">
   <img src="wip/take1-kitchen.png" alt="take1-kitchen.png: the plate, full size">
-  <figcaption>take1-kitchen.png</figcaption>
+  <figcaption>take1-kitchen.png<span>1260 &times; 540</span></figcaption>
 </figure>
 <figure class="game">
   <img src="wip/take1-kitchen-game.png" alt="take1-kitchen-game.png: the plate, at the game's size">
-  <figcaption>take1-kitchen-game.png</figcaption>
+  <figcaption>take1-kitchen-game.png<span>420 &times; 180</span></figcaption>
+</figure>
+</div>
+<div class="pair">
+<figure class="full">
+  <img src="wip/take1-kitchen-1536x768.png" alt="take1-kitchen-1536x768.png: the plate, full size">
+  <figcaption>take1-kitchen-1536x768.png<span>1536 &times; 768</span></figcaption>
+</figure>
+</div>
+<h2>Another</h2>
+<div class="pair">
+<figure class="full">
+  <img src="wip/takepro1-kitchen.png" alt="takepro1-kitchen.png: the plate, full size">
+  <figcaption>takepro1-kitchen.png<span>1260 &times; 540</span></figcaption>
+</figure>
+<figure class="game">
+  <img src="wip/takepro1-kitchen-game.png" alt="takepro1-kitchen-game.png: the plate, at the game's size">
+  <figcaption>takepro1-kitchen-game.png<span>420 &times; 180</span></figcaption>
 </figure>
 </div>
 </body>
