@@ -26,12 +26,14 @@ namespace PooketSlug
         public RoomView(Transform parent) : base(parent, "Room", 9) // over the den (8), under the menus (10)
         {
             m_Letterbox.raycastTarget = true; // taps stop here, not on the den under it
-            m_Soldier = new StageFigure(m_World, "You");
 
-            // the whole room takes taps: a way to use, anywhere else to walk to
+            // the whole room takes taps: a way to use, anywhere else to walk to. It's made under the soldier and the
+            // painting, and brought on top of them, so a tap lands on it and not on them
             m_Tap = Ui.Rect(m_World, "Tap room", Vector2.zero, Vector2.zero, Vector2.zero, new Vector2(RoomMap.Width, RoomMap.Height) * Px);
             Ui.Catcher(m_Tap);
             OnPointer(m_Tap, EventTriggerType.PointerClick, Tapped);
+
+            m_Soldier = new StageFigure(m_World, "You");
 
             Vector2 half = new Vector2(StageW, StageH) * Px / 2f;
             Ui.Button(m_Stage, "BACK", new Vector2(-half.x + 40f, half.y - 18f), new Vector2(64f, 22f), m_Back.Set, out Text backKey);
@@ -44,13 +46,13 @@ namespace PooketSlug
         /// <summary>A tap on the room, in its art pixels: a way to use, or the floor to walk to.</summary>
         void Tapped(PointerEventData e)
         {
-            if (!ToArt(e, out Vector2 p)) return;
-            // the tap is in the screen's pixels: the room's own x, and its y
-            float x = p.x + m_CamX;
-            float y = p.y + m_CamY;
-            RoomWay way = RoomMap.WayAt(m_Room, x, y);
+            // the tap's in the room's own art pixels: the tap rect's pivot is its bottom left, which is the room's
+            // bottom left, and the world moves with the camera, so this is where the tap landed in the room
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(m_Tap, e.position, e.pressEventCamera, out Vector2 local)) return;
+            Vector2 p = local / Px;
+            RoomWay way = RoomMap.WayAt(m_Room, p.x, p.y);
             if (way != RoomWay.None) m_TapWay.Set(way);
-            else m_TapWalk.Set(x);
+            else m_TapWalk.Set(p.x);
         }
 
         /// <summary>Opens a room: its painting, and you standing at the way in.</summary>
@@ -69,6 +71,10 @@ namespace PooketSlug
                 var img = Ui.Picture(m_World, "Room", plate, Vector2.zero, Vector2.zero, Vector2.zero, plate.rect.size * Px, Color.white);
                 m_Plate = img.gameObject;
             }
+            // the order back to front: the painting, then you, then the taps over them
+            if (m_Plate != null) m_Plate.transform.SetAsFirstSibling();
+            m_Soldier.Rt.SetAsLastSibling();
+            m_Tap.SetAsLastSibling();
             // the taps cover the whole room, which is taller than the screen for the wintergarden
             m_Tap.sizeDelta = new Vector2(RoomMap.Width, RoomMap.HeightOf(room)) * Px;
             m_Tap.anchoredPosition = Vector2.zero;
