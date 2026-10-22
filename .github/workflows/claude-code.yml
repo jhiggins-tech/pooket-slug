@@ -88,6 +88,18 @@ jobs:
           # in the task would otherwise break the command that runs it).
           printf '%s\n' "$TASK_INPUT" > "$RUNNER_TEMP/task.txt"
 
+      # The agent's own files (its instructions, the browser's settings) live in the repository, but the
+      # agent's branch is cut from the base, where they may not be. So they are copied aside first, and
+      # the run uses the copies.
+      - name: Keep the agent's own files
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/agent"
+          cp .github/claude-code/system-prompt.md "$RUNNER_TEMP/agent/"
+          cp .github/claude-code/mcp.json "$RUNNER_TEMP/agent/"
+          cp .github/claude-code/playwright-mcp.json "$RUNNER_TEMP/agent/"
+          ls -l "$RUNNER_TEMP/agent"
+
       # The branch the agent works on: the one that was asked for, or one made from the task's words.
       - name: Make the agent's branch
         id: branch
@@ -162,7 +174,7 @@ jobs:
           ANTHROPIC_MODEL: ${{ inputs.model }}
           DISABLE_UPDATES: '1'
           CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1'
-          PLAYWRIGHT_MCP_CONFIG: ${{ github.workspace }}/.github/claude-code/playwright-mcp.json
+          PLAYWRIGHT_MCP_CONFIG: ${{ runner.temp }}/agent/playwright-mcp.json
         run: |
           set -o pipefail
           # The task on stdin, from the file, so its text never passes through the shell: a quote or a
@@ -185,8 +197,9 @@ jobs:
               mcp__playwright_playwright__browser_find \
               mcp__playwright_playwright__browser_run_code_unsafe \
             --max-turns '${{ inputs.max-turns }}' \
-            --append-system-prompt-file .github/claude-code/system-prompt.md \
-            ${{ inputs.playtest == 'true' && '--mcp-config .github/claude-code/mcp.json' || '' }} \
+            --append-system-prompt-file "$RUNNER_TEMP/agent/system-prompt.md" \
+            ${{ inputs.playtest == 'true' && '--mcp-config' || '' }} \
+            ${{ inputs.playtest == 'true' && format('{0}/agent/mcp.json', runner.temp) || '' }} \
             < "$RUNNER_TEMP/task.txt" \
           | tee "$RUNNER_TEMP/stream.jsonl" \
           | python3 -I tools/claude_log.py

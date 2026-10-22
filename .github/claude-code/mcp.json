@@ -6,7 +6,7 @@
         "--yes",
         "@playwright/mcp@0.0.83",
         "--config",
-        ".github/claude-code/playwright-mcp.json",
+        "${PLAYWRIGHT_MCP_CONFIG}",
         "--output-dir",
         "playtest"
       ]
