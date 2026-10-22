@@ -102,8 +102,12 @@ namespace PooketSlug
         /// <summary>A figure in a stage's world.</summary>
         public StageFigure(RectTransform world, string name) : this(world, name, Vector2.zero) { }
 
-        /// <summary>Stands it with its feet at <paramref name="x"/>, <paramref name="y"/> (art pixels).</summary>
-        public void At(float x, float y) => Rt.anchoredPosition = new Vector2(x, y) * m_Scale;
+        /// <summary>
+        /// Stands it with its feet at <paramref name="x"/>, <paramref name="y"/> (art pixels). The place is the world's
+        /// own scale (<see cref="Px"/>), not the figure's: a bigger soldier stands in the same spot as a smaller one,
+        /// with his feet on the same floor.
+        /// </summary>
+        public void At(float x, float y) => Rt.anchoredPosition = new Vector2(x, y) * StageKit.Px;
 
         /// <summary>Standing still, facing the camera.</summary>
         public void Stand(PlayerSkin skin) => Pose(skin, StagePose.Stand);
