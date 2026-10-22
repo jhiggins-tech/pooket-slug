@@ -102,3 +102,10 @@ tests, checks the scenes and the docs links. Then push and read the CI run.
   the spiral stair, so the rose at the top is out of reach until you've climbed.
 - **A room's x is the room's own**, from its bottom left. The map's badges and
   the code's `RoomMap.WayX` have to agree.
+- **Where a soldier stands is the world's scale, not his own.** The staged
+  soldiers are drawn a fifth bigger than the stage's scale (`StageKit.FigureScale`),
+  but his feet go where the world says: `StageFigure.At` multiplies by `Px`. If
+  it used the figure's scale, he'd stand a fifth of his height off his spot —
+  and in a room, the way in (drawn at the world's art pixel) would be 20% along
+  from where he actually arrived. At the far end of a 320 wide room that's off
+  the plate: no soldier on screen at all.
