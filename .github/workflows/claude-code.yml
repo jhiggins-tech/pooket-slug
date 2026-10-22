@@ -39,6 +39,11 @@ on:
         type: string
         required: false
         default: '40'
+      playtest:
+        description: Build the game and let the agent play it (a browser, through Playwright)
+        type: boolean
+        required: false
+        default: false
 
 # The agent commits and pushes its branch and opens the pull request, so it needs to write.
 permissions:
@@ -111,6 +116,42 @@ jobs:
           echo "branch=$branch" >> "$GITHUB_OUTPUT"
           echo "base=$BASE" >> "$GITHUB_OUTPUT"
 
+      # The playtest: a real build of the game, served on a port, so the agent can play what it changed
+      # instead of only reading the code. It is optional (the "playtest" input), because the Unity image
+      # and the build are most of the run's time.
+      - name: Get the project ready for Unity
+        if: inputs.playtest == 'true'
+        id: project
+        uses: ./.github/actions/unity-project
+        with:
+          vendor-token: ${{ secrets.VENDOR_PAT }}
+          strict: 'false'
+
+      - name: Build WebGL for the playtest
+        if: inputs.playtest == 'true'
+        uses: game-ci/unity-builder@v4.8.2
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          customImage: ${{ steps.project.outputs.image }}
+          targetPlatform: WebGL
+          buildMethod: PooketSlug.EditorTools.WebGLBuild.Build
+          customParameters: -buildSha ${{ github.sha }} -photonAppId ${{ secrets.PHOTON_APP_ID }}
+          versioning: None
+
+      - name: Serve the build
+        if: inputs.playtest == 'true'
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8001 --bind 127.0.0.1 --directory build/WebGL/WebGL > "$RUNNER_TEMP/site.log" 2>&1 &
+          for i in $(seq 30); do
+            curl -fsS -o /dev/null http://127.0.0.1:8001/index.html && break
+            sleep 1
+          done
+          echo "The game is at http://127.0.0.1:8001/index.html"
+
       # The run's log is the agent's window: every message and every tool call is printed as it happens.
       - name: Run Claude Code
         env:
@@ -121,6 +162,7 @@ jobs:
           ANTHROPIC_MODEL: ${{ inputs.model }}
           DISABLE_UPDATES: '1'
           CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1'
+          PLAYWRIGHT_MCP_CONFIG: ${{ github.workspace }}/.github/claude-code/playwright-mcp.json
         run: |
           set -o pipefail
           # The task on stdin, from the file, so its text never passes through the shell: a quote or a
@@ -131,11 +173,33 @@ jobs:
             --permission-mode acceptEdits \
             --permission-prompts none \
             --allowedTools Read Edit Write Glob Grep Bash \
+              mcp__playwright_playwright__browser_navigate \
+              mcp__playwright_playwright__browser_click \
+              mcp__playwright_playwright__browser_press_key \
+              mcp__playwright_playwright__browser_evaluate \
+              mcp__playwright_playwright__browser_take_screenshot \
+              mcp__playwright_playwright__browser_console_messages \
+              mcp__playwright_playwright__browser_snapshot \
+              mcp__playwright_playwright__browser_resize \
+              mcp__playwright_playwright__browser_wait_for \
+              mcp__playwright_playwright__browser_find \
+              mcp__playwright_playwright__browser_run_code_unsafe \
             --max-turns '${{ inputs.max-turns }}' \
             --append-system-prompt-file .github/claude-code/system-prompt.md \
+            ${{ inputs.playtest == 'true' && '--mcp-config .github/claude-code/mcp.json' || '' }} \
             < "$RUNNER_TEMP/task.txt" \
           | tee "$RUNNER_TEMP/stream.jsonl" \
           | python3 -I tools/claude_log.py
+
+      # The playtest's screenshots, so they can be read after the run.
+      - name: Upload the playtest's screenshots
+        if: always() && inputs.playtest == 'true'
+        uses: actions/upload-artifact@v6
+        with:
+          name: playtest
+          path: playtest
+          if-no-files-found: ignore
+          retention-days: 7
 
       # The agent is asked to commit and push its own work, but a run that stopped short is still worth
       # having: whatever it left in the working tree is committed here and pushed. It runs even when the
