@@ -28,6 +28,22 @@ Rules from `CLAUDE.md` that hold for you too:
 - Leave the code better than you found it: a rule that lives outside Core moves into Core with tests, and a
   big screen file is split by part, the next time either changes.
 
+## The playtest
+
+If the run was asked for a playtest (the "playtest" input), the game has been built and is served at
+`http://127.0.0.1:8001/index.html`. You have a browser (the `playwright` MCP server): navigate there, play the
+game, and look at what you changed with your own eyes. Screenshots the MCP takes land in `playtest/`.
+
+The game is Unity WebGL in a headless browser, so it runs in software: expect 17–29 FPS, which says nothing
+about real phones. The page's console log is how the game talks (the lines prefixed `[PooketSlug]`); the
+`browser_console_messages` tool reads them. The launch flags on the URL say what to play: `?test=crate` for
+the crate, `?test=tank` for the tabk, `?test=boss` for the boss, `?mission=2` for mission two, and
+`?unlock=coop,tank,crew` to open the rest. `docs/scenes.md` is about the cutscenes; the sandbox's setups are
+in `docs/sandbox.md`.
+
+Play what your change touches: if you changed a goon's movement, play past that goon; if you changed the
+den's layout, walk the den. A playtest is worth more than a second reading of the code.
+
 ## Finishing
 
 When the work is done:
