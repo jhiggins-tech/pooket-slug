@@ -1,6 +1,0 @@
-- generic [active] [ref=f6e1]:
-  - heading "The room references" [level=1] [ref=f6e2]
-  - paragraph [ref=f6e3]: "Each room drawn to scale, as vector art, with the game's soldier standing in it. The rooms are drawn for the 22 px soldier, the way the den and the loft are: a door is about 1.7 times him, and the furniture is the size furniture is for a person his height. The blue dashed line is one screen: what the player sees at a time. The strip along the bottom is the den's own furniture, measured off the den's painting, to judge the scale against."
-  - heading "The kitchen" [level=2] [ref=f6e4]
-  - img "The kitchen, drawn to scale with the soldier in it" [ref=f6e5]
-  - paragraph [ref=f6e6]: 320 × 180 art pixels. The soldier is 22 px tall, the fridge 43 px, the doors 37 px, the table at his waist.

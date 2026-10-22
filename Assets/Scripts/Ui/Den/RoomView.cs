@@ -75,11 +75,10 @@ namespace PooketSlug
             if (m_Plate != null) m_Plate.transform.SetAsFirstSibling();
             m_Soldier.Rt.SetAsLastSibling();
             m_Tap.SetAsLastSibling();
-            // the taps cover the whole room, which is wider or taller than the screen for some rooms
+            // the taps cover the whole room, which is wider or taller than the screen for some rooms. They're anchored
+            // at the world's bottom left, as the painting is, so the room's own art pixels and theirs line up
             m_Tap.sizeDelta = new Vector2(RoomMap.WidthOf(room), RoomMap.HeightOf(room)) * Px;
             m_Tap.anchoredPosition = Vector2.zero;
-            // the world is as big as the room, so a room wider than a screen scrolls within it
-            m_World.sizeDelta = new Vector2(RoomMap.WidthOf(room), RoomMap.HeightOf(room)) * Px;
 
             m_TapWay.Clear();
             m_TapWalk.Clear();

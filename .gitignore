@@ -64,3 +64,6 @@ crashlytics-build.properties
 /Assets/Resources/Music/
 /Assets/Resources/Music.meta
 .timetracker
+
+# Browser automation scratch
+/.playwright-mcp/
