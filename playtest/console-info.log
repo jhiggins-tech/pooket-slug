@@ -1,0 +1,139 @@
+Total messages: 74 (Errors: 8, Warnings: 0)
+
+[LOG] [UnityMemory] Configuration Parameters - Can be set up in boot.config
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-allocator-temp-initial-block-size-main=262144"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-allocator-temp-initial-block-size-worker=262144"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-temp-allocator-size-audio-worker=65536"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-remapper-allocator-initial-capacity=32768"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-temp-allocator-size-background-worker=32768"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-bucket-allocator-granularity=16"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-bucket-allocator-bucket-count=8"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-bucket-allocator-block-size=4194304"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-bucket-allocator-block-count=1"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-main-allocator-block-size=16777216"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-thread-allocator-block-size=16777216"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-gfx-main-allocator-block-size=16777216"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-gfx-thread-allocator-block-size=16777216"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-cache-allocator-block-size=4194304"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-typetree-allocator-block-size=2097152"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-profiler-bucket-allocator-granularity=16"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-profiler-bucket-allocator-bucket-count=8"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-profiler-bucket-allocator-block-size=4194304"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-profiler-bucket-allocator-block-count=1"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-profiler-allocator-block-size=16777216"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-profiler-editor-allocator-block-size=1048576"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-temp-allocator-size-main=4194304"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-job-temp-allocator-block-size=2097152"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-job-temp-allocator-block-size-background=1048576"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]     "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] Input System module state changed to: Initialized.
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [Physics::Module] Initialized fallback backend.
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [Physics::Module] Id: 0xdecafbad
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] Loading player data from data.unity3d
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] Initialize engine version: 6000.3.26f1 (de8167e7440c)
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] Creating WebGL 2.0 context. @ http://127.0.0.1:8001/Build/WebGL.loader.js:0
+[LOG] Renderer: WebKit WebGL
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] Vendor:   WebKit
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] Version:  OpenGL ES 3.0 (WebGL 2.0 (OpenGL ES 3.0 Chromium))
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] GLES:     3
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG]  EXT_clip_control EXT_color_buffer_float EXT_color_buffer_half_float EXT_conservative_depth EXT_depth_clamp EXT_disjoint_timer_query_webgl2 EXT_float_blend EXT_polygon_offset_clamp EXT_texture_compression_bptc EXT_texture_compression_rgtc EXT_texture_filter_anisotropic EXT_texture_mirror_clamp_to_edge NV_shader_noperspective_interpolation OES_draw_buffers_indexed OES_sample_variables OES_shader_multisample_interpolation OES_texture_float_linear OVR_multiview2 WEBGL_clip_cull_distance WEBGL_compressed_texture_astc WEBGL_compressed_texture_etc WEBGL_compressed_texture_etc1 WEBGL_compressed_texture_s3tc WEBGL_compressed_texture_s3tc_srgb WEBGL_debug_renderer_info WEBGL_debug_shaders WEBGL_lose_context WEBGL_multi_draw WEBGL_polygon_mode WEBGL_stencil_texturing GL_EXT_clip_control GL_EXT_color_buffer_float GL_EXT_color_buffer_half_float GL_EXT_conservative_depth GL_EXT_depth_clamp GL_EXT_disjoint_timer_query_webgl2 GL_EXT_float_blend GL_EXT_polygon_offset_clamp GL_EXT_texture_compression_bptc GL_EXT_texture_comp
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] ression_rgtc GL_EXT_texture_filter_anisotropic GL_EXT_texture_mirror_clamp_to_edge GL_NV_shader_noperspective_interpolation GL_OES_draw_buffers_indexed GL_OES_sample_variables GL_OES_shader_multisample_interpolation GL_OES_texture_float_linear GL_OVR_multiview2 GL_WEBGL_clip_cull_distance GL_WEBGL_compressed_texture_astc GL_WEBGL_compressed_texture_etc GL_WEBGL_compressed_texture_etc1 GL_WEBGL_compressed_texture_s3tc GL_WEBGL_compressed_texture_s3tc_srgb GL_WEBGL_debug_renderer_info GL_WEBGL_debug_shaders GL_WEBGL_lose_context GL_WEBGL_multi_draw GL_WEBGL_polygon_mode GL_WEBGL_stencil_texturing
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] OPENGL LOG: Creating OpenGL ES 3.0 graphics device ; Context level  <OpenGL ES 3.0> ; Context handle 1
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [Physics::Module] Selected backend.
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [Physics::Module] Name: PhysX
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [Physics::Module] Id: 0xf2b8ea05
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [Physics::Module] SDK Version: 4.1.2
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [Physics::Module] Integration Version: 1.0.0
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [Physics::Module] Threading Mode: Single-Threaded
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] Input Manager initialize...
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] UnloadTime: 1.600000 ms
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [PooketSlug/Audio] Rendered Steel Night: 51.2 s in 83 ms
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [PooketSlug/Audio] Rendered Tabk Alert: 22.3 s in 37 ms
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [PooketSlug/Audio] Rendered Tabk Alert (final): 19.2 s in 34 ms
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [PooketSlug/Audio] Rendered Mission start: 1.7 s in 3 ms
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [PooketSlug/Audio] Rendered Boss victory: 1.3 s in 3 ms
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [PooketSlug/Game] Backdrop: 3 painted layer(s) for mission-1
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] Audio context resumed after 0.521 seconds. @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://127.0.0.1:8001/scenes/opening.txt?v=639282648184650000:0
+[ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://127.0.0.1:8001/scenes/motor-pool.txt?v=639282648184720000:0
+[ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://127.0.0.1:8001/scenes/coop-test.txt?v=639282648184730000:0
+[ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://127.0.0.1:8001/scenes/m2-briefing.txt?v=639282648184730000:0
+[ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://127.0.0.1:8001/scenes/freeing-kie.txt?v=639282648184720000:0
+[ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://127.0.0.1:8001/scenes/freeing-kcaj.txt?v=639282648184740000:0
+[ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://127.0.0.1:8001/scenes/kcaj-tabk.txt?v=639282648184740000:0
+[ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://127.0.0.1:8001/scenes/voice.txt?v=639282648184750000:0
+[LOG] [PooketSlug/Game] Sign-in is off in this build
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [PooketSlug/Game] Scene opening: the site's copy didn't load (not found), playing the built-in one
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [PooketSlug/Game] Scene motor-pool: the site's copy didn't load (not found), playing the built-in one
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [PooketSlug/Game] Scene coop-test: the site's copy didn't load (not found), playing the built-in one
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [PooketSlug/Game] Scene m2-briefing: the site's copy didn't load (not found), playing the built-in one
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [PooketSlug/Game] Scene freeing-kie: the site's copy didn't load (not found), playing the built-in one
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [PooketSlug/Game] Scene freeing-kcaj: the site's copy didn't load (not found), playing the built-in one
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [PooketSlug/Game] Scene kcaj-tabk: the site's copy didn't load (not found), playing the built-in one
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [PooketSlug/Game] Scene voices: no list on the site (not found)
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [UnityCache] 'http://127.0.0.1:8001/Build/WebGL.data' successfully downloaded and stored in the browser cache @ http://127.0.0.1:8001/Build/WebGL.loader.js:0
+[LOG] [PooketSlug/Audio] Music layer title: 27.7 s
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8
+[LOG] [PooketSlug/Audio] Music: the title recording, looped
+ @ http://127.0.0.1:8001/Build/WebGL.framework.js:8

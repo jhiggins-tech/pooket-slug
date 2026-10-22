@@ -1,0 +1,12 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - heading "Pooket Slug" [level=1] [ref=e3]
+    - generic [ref=e4]: Unity WebGL build by GameCI on GitHub Actions · 0.2.0+7abf47c
+  - paragraph [ref=e10]: Loading…
+  - generic [ref=e11]:
+    - generic [ref=e12]: ←→ move · Z jump · X fire · C SP · ↑ aim up · P pause · M mute
+    - button "Fullscreen" [ref=e13] [cursor=pointer]
+  - contentinfo [ref=e14]:
+    - text: Keyboard, gamepad or touch · procedural pixel art & sound ·
+    - link "game.ci" [ref=e15] [cursor=pointer]:
+      - /url: https://game.ci
