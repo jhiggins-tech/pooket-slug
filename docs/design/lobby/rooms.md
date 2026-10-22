@@ -41,10 +41,13 @@ With OpenRouter's Qwen Image 2.1 Turbo, and **two image references**:
    what fixes the scale — without it the model draws a room for a person twice
    the soldier's height, with doors you could walk through sideways. The
    reference comes in two versions: the **annotated** one, with the labels, the
-   screen outline and the scale note, for the owner to read; and the **clean**
-   one (`--clean`), with the annotation taken out, which is what the painter
-   works from. The soldier stays in the clean one, so the model still has the
-   proportions.
+   screen outline and the scale note, for the owner to read; and the **gen**
+   one (`--gen`), which is what the painter works from — the labels and the
+   scale note stay in (the model reads them: "the soldier: 22 px", "the door is
+   37 px tall"), the blue screen outline goes (the model would copy it), and
+   the soldier is stamped four times along the floor, so the scale cue repeats
+   across the frame. Without it, doors came out nearly twice the height they
+   should be.
 2. **A swatch** of the game's own pixels, upscaled so the pixel technique is
    legible, with nothing recognisable in it. That is what makes the plate pixel
    art rather than a photograph. A whole plate as the second reference makes the
