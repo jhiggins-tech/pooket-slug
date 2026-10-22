@@ -13,6 +13,8 @@ namespace PooketSlug
         RoomWalker m_Walker;
         RoomId m_Room = RoomId.None;
         int m_HeldDir;
+        readonly SwingDoor m_Door = new SwingDoor();
+        RoomId m_DoorTo = RoomId.None;
 
         public RoomFlow(Game game, Transform parent)
         {
@@ -30,6 +32,8 @@ namespace PooketSlug
         {
             m_Room = room;
             m_HeldDir = 0;
+            m_Door.Reset();
+            m_DoorTo = RoomId.None;
             m_Walker = new RoomWalker(room, RoomMap.WayX(room, wayIn));
             m_View.Show(room, m_Game.Soldier);
             Log.Game.Info("Room open: " + room);
@@ -47,6 +51,13 @@ namespace PooketSlug
         public void Tick(MenuInput keys, SoldierInput soldier)
         {
             if (m_Room == RoomId.None) return;
+            if (m_Door.Busy)
+            {
+                // through the back door: nothing else till it's done (and nothing tapped meanwhile kept)
+                m_View.TakeWay();
+                m_View.TakeWalk(out _);
+                return;
+            }
             if (m_View.TakeBack() || keys.Back) m_Game.Rooms.Back(m_Room);
             RoomWay way = m_View.TakeWay();
             if (way != RoomWay.None) m_Walker.Go(way);   // walk to it, and use it on arriving
@@ -66,12 +77,29 @@ namespace PooketSlug
         public void Move(float dt)
         {
             if (m_Room == RoomId.None) return;
-            RoomWay done = m_Walker.Step(dt);
-            if (done != RoomWay.None) Use(done);
+            if (m_Door.Busy)
+            {
+                // the back door: it creaks open, you step into its dark, it swings shut behind you, and the next room
+                // takes over on the frame it lands
+                m_Door.Tick(dt);
+                m_View.DoorThrough = m_Door.Through;
+                if (m_Door.TakeSwung()) Sfx.Play(Sfx.CableClunk, 0.5f); // its creak
+                if (m_Door.TakeLanded()) Sfx.Play(Sfx.Thump, 0.5f); // it lands shut
+                if (!m_Door.Busy)
+                {
+                    Log.Game.Info("Room: through the back door, to " + m_DoorTo);
+                    m_Game.Rooms.Go(m_Room, m_DoorTo, RoomWay.Back);
+                    return;
+                }
+                m_Walker.Place(m_Room, RoomBackDoor.Sill.x); // the view draws the step through, from where you stood
+                m_View.DoorBeat(dt, m_Door.Swing, m_Door.Through, m_Walker);
+                return;
+            }
             m_View.Refresh(dt, m_Walker);
+            Use(m_View.TakeReached());
         }
 
-        /// <summary>Uses a way: the way back to the house, or the way on to the next room.</summary>
+        /// <summary>Uses a way: the way back to the house, the way on to the next room through the back door, or a note.</summary>
         void Use(RoomWay way)
         {
             if (way == RoomWay.None) return;
@@ -81,6 +109,13 @@ namespace PooketSlug
                 // it doesn't lead anywhere yet: it says so
                 string note = RoomMap.Note(way);
                 if (note != null) m_View.Note(note);
+                return;
+            }
+            if (to != RoomId.None)
+            {
+                // the way on: the door creaks open, and you step into its dark
+                m_DoorTo = to;
+                if (m_Door.GoIn()) m_View.PlayDoor();
                 return;
             }
             m_Game.Rooms.Go(m_Room, to, by);
