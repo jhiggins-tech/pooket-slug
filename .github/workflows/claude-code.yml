@@ -288,6 +288,11 @@ jobs:
           BRANCH: ${{ steps.branch.outputs.branch }}
         run: |
           set -euo pipefail
+          # The Unity build rewrites two tracked files: it adds the editor's revision to
+          # ProjectVersion.txt, and the workflow file itself is the one the run is reading. Neither is the
+          # agent's work, and a commit touching a workflow file is refused by GitHub without a permission
+          # the token has not got, so both go back to what the branch had.
+          git restore --worktree -- ProjectSettings/ProjectVersion.txt .github/workflows/ || true
           if git diff --quiet && git diff --cached --quiet && [ -z "$(git ls-files --others --exclude-standard)" ]; then
             echo "Nothing to commit: the agent committed everything itself."
             exit 0

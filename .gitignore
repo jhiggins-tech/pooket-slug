@@ -67,3 +67,13 @@ crashlytics-build.properties
 
 # Browser automation scratch
 /.playwright-mcp/
+/node_modules/
+/playtest/
+
+# What the Unity editor and the build write into the checkout: the scenes built into the game, the
+# project settings the editor generates, and the package lock. The CI agent commits what it changed,
+# and these are the build's own files, not anyone's work.
+/Assets/Resources/Scenes/
+/Assets/Resources/Scenes.meta
+/Packages/packages-lock.json
+/ProjectSettings/*.asset
