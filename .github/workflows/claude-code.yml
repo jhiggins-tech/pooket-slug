@@ -92,12 +92,15 @@ jobs:
       # agent's branch is cut from the base, where they may not be. So they are copied aside first, and
       # the run uses the copies.
       - name: Keep the agent's own files
+        env:
+          MAX_TURNS: ${{ inputs.max-turns }}
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/agent"
           install -m 644 .github/claude-code/system-prompt.md "$RUNNER_TEMP/agent/system-prompt.md"
           install -m 644 .github/claude-code/mcp.json "$RUNNER_TEMP/agent/mcp.json"
           install -m 644 .github/claude-code/playwright-mcp.json "$RUNNER_TEMP/agent/playwright-mcp.json"
+          printf '%s\n' "$MAX_TURNS" > "$RUNNER_TEMP/agent/turns"
           ls -l "$RUNNER_TEMP/agent"
 
       # The branch the agent works on: the one that was asked for, or one made from the task's words.
@@ -252,7 +255,7 @@ jobs:
                 mcp__playwright__browser_wait_for \
                 mcp__playwright__browser_find \
                 mcp__playwright__browser_run_code_unsafe \
-              --max-turns '${{ fromJSON(inputs.max-turns) * 2 }}' \
+              --max-turns "$(( $(cat "$RUNNER_TEMP/agent/turns") * 2 ))" \
               --append-system-prompt-file "$RUNNER_TEMP/agent/system-prompt.md" \
               --mcp-config "$RUNNER_TEMP/agent/mcp.json" \
             | tee "$RUNNER_TEMP/playtest.jsonl" \
