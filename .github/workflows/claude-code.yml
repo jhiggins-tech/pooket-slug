@@ -79,6 +79,9 @@ jobs:
           echo "task<<TASK_EOF" >> "$GITHUB_OUTPUT"
           printf '%s\n' "$TASK_INPUT" >> "$GITHUB_OUTPUT"
           echo "TASK_EOF" >> "$GITHUB_OUTPUT"
+          # Also in a file, so the task reaches the agent without the shell ever seeing its text (a quote
+          # in the task would otherwise break the command that runs it).
+          printf '%s\n' "$TASK_INPUT" > "$RUNNER_TEMP/task.txt"
 
       # The branch the agent works on: the one that was asked for, or one made from the task's words.
       - name: Make the agent's branch
@@ -86,7 +89,6 @@ jobs:
         env:
           BASE: ${{ inputs.base }}
           ASKED: ${{ inputs.branch }}
-          TASK: ${{ steps.request.outputs.task }}
         run: |
           set -euo pipefail
           # The base branch first: the agent's branch starts from it.
@@ -96,7 +98,7 @@ jobs:
           if [ -z "$branch" ]; then
             # A name from the task's first words, the way the rest of the repository names its branches
             # (claude/<what-it-is>), so the branch says what the work is.
-            slug=$(printf '%s\n' "$TASK" | tr '[:upper:]' '[:lower:]' | tr -cs 'a-z0-9' '\n' |
+            slug=$(tr '[:upper:]' '[:lower:]' < "$RUNNER_TEMP/task.txt" | tr -cs 'a-z0-9' '\n' |
               grep -vE '^(the|a|an|to|of|and|for|in|on|please|add|make|fix|update|write)$' | head -4 | tr '\n' '-' | sed 's/-$//')
             [ -n "$slug" ] || slug=task
             branch="claude/ci-$slug"
@@ -121,18 +123,19 @@ jobs:
           CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1'
         run: |
           set -o pipefail
-          # The task on stdin, so a long one needs no quoting and the shell never sees it.
-          printf '%s\n' '${{ steps.request.outputs.task }}' | \
-            claude -p \
-              --model '${{ inputs.model }}' \
-              --output-format stream-json --verbose \
-              --permission-mode acceptEdits \
-              --permission-prompts none \
-              --allowedTools Read Edit Write Glob Grep Bash \
-              --max-turns '${{ inputs.max-turns }}' \
-              --append-system-prompt-file .github/claude-code/system-prompt.md \
-            | tee "$RUNNER_TEMP/stream.jsonl" \
-            | python3 -I tools/claude_log.py
+          # The task on stdin, from the file, so its text never passes through the shell: a quote or a
+          # backtick in the task would otherwise change the command that runs it.
+          claude -p \
+            --model '${{ inputs.model }}' \
+            --output-format stream-json --verbose \
+            --permission-mode acceptEdits \
+            --permission-prompts none \
+            --allowedTools Read Edit Write Glob Grep Bash \
+            --max-turns '${{ inputs.max-turns }}' \
+            --append-system-prompt-file .github/claude-code/system-prompt.md \
+            < "$RUNNER_TEMP/task.txt" \
+          | tee "$RUNNER_TEMP/stream.jsonl" \
+          | python3 -I tools/claude_log.py
 
       # The agent is asked to commit and push its own work, but a run that stopped short is still worth
       # having: whatever it left in the working tree is committed here and pushed.
@@ -151,7 +154,9 @@ jobs:
           git commit -m "what the agent did not commit itself
 
           Co-Authored-By: Claude Code <noreply@anthropic.com>"
-          git push --force-with-lease origin "HEAD:$BRANCH"
+          # A plain push first; the branch is the agent's own, so forcing it is fine when the plain
+          # push is refused (the agent pushed, and this commit is on top of what it pushed).
+          git push origin "HEAD:$BRANCH" || git push --force origin "HEAD:$BRANCH"
 
       - name: Open the pull request
         env:
@@ -159,7 +164,6 @@ jobs:
           BRANCH: ${{ steps.branch.outputs.branch }}
           BASE: ${{ steps.branch.outputs.base }}
           TITLE: ${{ inputs.title }}
-          TASK: ${{ steps.request.outputs.task }}
         run: |
           set -euo pipefail
           # The agent was asked to push its own branch; if it committed but did not push, push it here.
@@ -177,14 +181,14 @@ jobs:
             title=$(git log -1 --pretty=%s | head -1)
           fi
           if [ -z "$title" ] || [ "$title" = "what the agent did not commit itself" ]; then
-            title=$(printf '%s\n' "$TASK" | head -1 | cut -c1-72)
+            title=$(head -1 "$RUNNER_TEMP/task.txt" | cut -c1-72)
           fi
           {
             echo "Claude Code did this work, on request, through OpenRouter."
             echo
             echo "### The request"
             echo
-            printf '%s\n' "$TASK" | sed 's/^/> /'
+            sed 's/^/> /' "$RUNNER_TEMP/task.txt"
             echo
             echo "### What it did"
             echo
