@@ -254,9 +254,12 @@ FURNITURE = {
 }
 
 
-def build_svg(room, clean=False):
+def build_svg(room, clean=False, gen=False):
     """The room's reference. With clean, the annotation is left out: no labels, no
-    screen outline, no scale note. That's the version the painter works from."""
+    screen outline, no scale note. That's the version the painter works from.
+    With gen (and not clean), the labels and the scale note stay in — the model
+    reads them — but the blue screen outline goes, and the soldier is stamped
+    at several spots along the floor, so the scale cue repeats across the frame."""
     width, height, items, shelves = ROOMS[room]
     soldier = soldier_canvas()
     STRIP = 0    # the scale strip is its own picture now
@@ -300,8 +303,13 @@ def build_svg(room, clean=False):
     # a pipe along the wall, above the window
     s.append('<rect x="0" y="%d" width="%d" height="3" fill="#6a6258" stroke="#241c18" stroke-width="1"/>' % (height - 108, width))
 
-    # the soldier, on the floor by the door: the model's guide to the scale
-    s.append(soldier_svg(12, height - 15, soldier))
+    # the soldier, on the floor by the door: the model's guide to the scale. The
+    # gen version stamps him at several spots, so the scale cue repeats
+    if gen:
+        for sx in (12, 120, 228, 336):
+            s.append(soldier_svg(sx, height - 15, soldier))
+    else:
+        s.append(soldier_svg(12, height - 15, soldier))
 
     if not clean:
         # the scale, spelled out
@@ -309,11 +317,15 @@ def build_svg(room, clean=False):
                  (height - 15 - SOLDIER, height - 15))
         s.append('<text x="215" y="%g" fill="#f0c14b">the soldier: %d px</text>' %
                  (height - 15 - SOLDIER + 4, SOLDIER))
+        if gen:
+            s.append('<text x="260" y="%g" fill="#f0c14b">the door is 37 px tall: under twice him. '
+                     'keep every thing this size</text>' % (height - 15 - SOLDIER + 10,))
 
     # the one screen the room is seen in: what the player sees at a time. A room
     # wider or taller than a screen scrolls, and this shows the first screen.
-    # It's drawn last, over the room, so it can be seen.
-    if not clean:
+    # It's drawn last, over the room, so it can be seen. The gen version leaves
+    # it out: the model would copy the blue line
+    if not clean and not gen:
         screen_w = min(width, 320)
         screen_h = min(height, 180)
         top = height - screen_h
@@ -322,7 +334,7 @@ def build_svg(room, clean=False):
         s.append('<rect x="2" y="%g" width="86" height="12" fill="#0d1a26"/>' % (top + 2))
         s.append('<text x="4" y="%g" fill="#7cc0f0" font-size="5">one screen: %d x %d</text>' %
                  (top + 11, screen_w, screen_h))
-    if width > min(width, 320) and not clean:
+    if width > min(width, 320) and not clean and not gen:
         s.append('<text x="%g" y="%g" fill="#7cc0f0" font-size="5">the room is %d wide: the player scrolls through it</text>' %
                  (screen_w + 8, top + 11, width))
 
@@ -352,7 +364,8 @@ def main():
     out = sys.argv[1]
     room = sys.argv[2] if len(sys.argv) > 2 else "kitchen"
     clean = "--clean" in sys.argv
-    open(out, "w").write(build_svg(room, clean))
+    gen = "--gen" in sys.argv
+    open(out, "w").write(build_svg(room, clean, gen))
     width, height, items, shelves = ROOMS[room]
     if not clean:
         strip = os.path.splitext(out)[0] + "-scale.svg"
