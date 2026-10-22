@@ -22,7 +22,9 @@ namespace PooketSlug.Tests
             foreach (RoomId r in System.Enum.GetValues(typeof(RoomId)))
             {
                 if (r == RoomId.None) continue;
-                Assert.AreEqual(RoomMap.Width, RoomMap.WidthOf(r), 0.01f, r.ToString());
+                // the kitchen is wider than a screen: the player scrolls through it
+                if (r == RoomId.Kitchen) Assert.AreEqual(RoomMap.KitchenWidth, RoomMap.WidthOf(r), 0.01f, r.ToString());
+                else Assert.AreEqual(RoomMap.Width, RoomMap.WidthOf(r), 0.01f, r.ToString());
                 if (r == RoomId.Wintergarden) Assert.AreEqual(RoomMap.WinterHeight, RoomMap.HeightOf(r), 0.01f);
                 else Assert.AreEqual(RoomMap.Height, RoomMap.HeightOf(r), 0.01f, r.ToString());
             }
@@ -115,6 +117,42 @@ namespace PooketSlug.Tests
             w.Go(RoomWay.Back);
             Assert.AreEqual(RoomWay.Back, Run(w, 6f));
             Assert.AreEqual(RoomWay.None, Run(w, 1f), "only once");
+        }
+
+        // a tap on a door walks you to it, and you go through on arriving: not at once
+        [Test]
+        public void GoingToAWay_WalksThereFirst_AndOnlyThenUsesIt()
+        {
+            var w = new RoomWalker(RoomId.Kitchen, 160f);
+            float door = RoomMap.WayX(RoomId.Kitchen, RoomWay.Back);
+            w.Go(RoomWay.Back);
+            Assert.AreEqual(RoomWay.None, Run(w, 0.5f), "still on the way");
+            Assert.AreEqual(RoomWay.Back, Run(w, 6f), "through it on arriving");
+            Assert.AreEqual(door, w.X, 0.01f, "and standing at the door");
+        }
+
+        [Test]
+        public void AWayYouAreAlreadyAt_IsUsedAtOnce()
+        {
+            var w = new RoomWalker(RoomId.Kitchen, RoomMap.WayX(RoomId.Kitchen, RoomWay.Back));
+            w.Go(RoomWay.Back);
+            Assert.AreEqual(RoomWay.Back, Run(w, 0.1f));
+        }
+
+        [Test]
+        public void TheKitchen_IsWiderThanAScreen_AndYouCanWalkItsWholeLength()
+        {
+            Assert.Greater(RoomMap.WidthOf(RoomId.Kitchen), 320f, "wider than a screen: the player scrolls through it");
+            foreach (RoomId r in System.Enum.GetValues(typeof(RoomId)))
+            {
+                if (r == RoomId.None) continue;
+                Assert.That(RoomMap.MaxX(r), Is.GreaterThan(RoomMap.MinX(r)), r.ToString() + ": room to walk in");
+                Assert.That(RoomMap.MaxX(r), Is.LessThanOrEqualTo(RoomMap.WidthOf(r) - 8f), r.ToString() + ": short of the far wall");
+            }
+            var w = new RoomWalker(RoomId.Kitchen, 20f);
+            w.WalkTo(RoomMap.MaxX(RoomId.Kitchen));
+            Run(w, 10f);
+            Assert.AreEqual(RoomMap.MaxX(RoomId.Kitchen), w.X, 0.01f, "the whole way to the back door");
         }
 
         [Test]

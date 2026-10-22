@@ -17,6 +17,7 @@ namespace PooketSlug
         readonly Latch<RoomWay> m_TapWay = new Latch<RoomWay>();
         readonly Latch<float> m_TapWalk = new Latch<float>();
         readonly Latch m_Back = new Latch();
+        readonly RoomBackDoor m_Door;
 
         GameObject m_Plate;
         float m_Clock, m_CamX, m_CamY, m_NoteUntil;
@@ -34,6 +35,7 @@ namespace PooketSlug
             OnPointer(m_Tap, EventTriggerType.PointerClick, Tapped);
 
             m_Soldier = new StageFigure(m_World, "You");
+            m_Door = new RoomBackDoor(m_World);
 
             Vector2 half = new Vector2(StageW, StageH) * Px / 2f;
             Ui.Button(m_Stage, "BACK", new Vector2(-half.x + 40f, half.y - 18f), new Vector2(64f, 22f), m_Back.Set, out Text backKey);
@@ -75,22 +77,41 @@ namespace PooketSlug
             if (m_Plate != null) m_Plate.transform.SetAsFirstSibling();
             m_Soldier.Rt.SetAsLastSibling();
             m_Tap.SetAsLastSibling();
-            // the taps cover the whole room, which is taller than the screen for the wintergarden
-            m_Tap.sizeDelta = new Vector2(RoomMap.Width, RoomMap.HeightOf(room)) * Px;
+            // the taps cover the whole room, which is wider or taller than the screen for some rooms. They're anchored
+            // at the world's bottom left, as the painting is, so the room's own art pixels and theirs line up
+            m_Tap.sizeDelta = new Vector2(RoomMap.WidthOf(room), RoomMap.HeightOf(room)) * Px;
             m_Tap.anchoredPosition = Vector2.zero;
 
             m_TapWay.Clear();
             m_TapWalk.Clear();
             m_Back.Clear();
             m_Note.text = "";
+            DoorThrough = 0f;
+            m_Reached = RoomWay.None;
+            m_Door.Swing = 0f;
             Ui.Show(m_Root, true);
         }
 
         public void Hide() => Ui.Show(m_Root, false);
 
+        /// <summary>How far through the back door you are (<see cref="SwingDoor.Through"/>): 0 in the room, 1 through.</summary>
+        public float DoorThrough { get; set; }
+
+        /// <summary>Arms the back door's beat (<see cref="SwingDoor"/>, in Core): the leaf over the painting and you.</summary>
+        public void PlayDoor() => m_Door.OnTop();
+
         public RoomWay TakeWay() => m_TapWay.Take(out RoomWay w) ? w : RoomWay.None;
         public bool TakeWalk(out float x) => m_TapWalk.Take(out x);
         public bool TakeBack() => m_Back.Take();
+
+        /// <summary>The walking that finished this frame, to a way (or None): the room reads it and uses the way.</summary>
+        public RoomWay TakeReached()
+        {
+            RoomWay way = m_Reached;
+            m_Reached = RoomWay.None;
+            return way;
+        }
+        RoomWay m_Reached;
 
         /// <summary>Says something across the top for a few seconds.</summary>
         public void Note(string text, float seconds = 3f)
@@ -99,30 +120,60 @@ namespace PooketSlug
             m_NoteUntil = m_Clock + seconds;
         }
 
-        /// <summary>Draws the room: you, and the camera following you up the wintergarden's stair.</summary>
+        /// <summary>
+        /// The back door's beat, a frame: the leaf at <paramref name="swing"/> (the flow's <see cref="SwingDoor"/>), and
+        /// you stepping into its dark as far as <paramref name="through"/>.
+        /// </summary>
+        public void DoorBeat(float dt, float swing, float through, RoomWalker walker)
+        {
+            m_Clock += dt;
+            m_Door.Swing = swing;
+            DoorThrough = through;
+            You(walker);
+            Camera(dt, walker);
+            m_Door.Draw();
+        }
+
+        /// <summary>Draws the room: you, the camera following you, and the back door's leaf when the beat leaves it open.</summary>
         public void Refresh(float dt, RoomWalker walker)
         {
             m_Clock += dt;
+            RoomWay done = walker.Step(dt);
+            if (done != RoomWay.None) m_Reached = done;
             You(walker);
             Camera(dt, walker);
+            if (m_Door.Swing > 0f) m_Door.Draw();
             if (m_Clock > m_NoteUntil) m_Note.text = "";
         }
 
         void You(RoomWalker w)
         {
             PlayerSkin skin = Art.SkinFor(m_SoldierDef);
-            bool walking = !w.Standing;
+            // through the back door: into its dark, a little smaller as you go (as the den's crew is in its roller door)
+            bool stepping = DoorThrough > 0f;
+            bool walking = stepping || !w.Standing;
             m_Soldier.Pose(skin, StagePose.Walking(walking, m_Clock));
-            m_Soldier.At(w.X, w.Y);
-            m_Soldier.Rt.localScale = new Vector3(w.FaceLeft ? -1f : 1f, 1f, 1f);
+            float x = w.X, y = w.Y;
+            if (stepping)
+            {
+                x = RoomBackDoor.Sill.x + Mathf.Lerp(RoomBackDoor.From, RoomBackDoor.To, DoorThrough);
+                y = RoomBackDoor.Sill.y;
+            }
+            m_Soldier.At(x, y);
+            Color shade = Color.Lerp(Color.white, new Color(0.15f, 0.15f, 0.2f), DoorThrough);
+            m_Soldier.Tint(shade);
+            float size = 1f - 0.2f * DoorThrough;
+            bool faceLeft = stepping ? DoorThrough < 0.5f : w.FaceLeft;
+            m_Soldier.Rt.localScale = new Vector3((faceLeft ? -1f : 1f) * size, size, 1f);
         }
 
         /// <summary>
-        /// The camera: on the room's floor, and up the wintergarden's stair with you, so the rose at the top is out of
-        /// reach until you've climbed.
+        /// The camera: on the room, following you. A room wider than a screen scrolls along, and the wintergarden rises
+        /// with you up its stair, so the rose at the top is out of reach until you've climbed.
         /// </summary>
         void Camera(float dt, RoomWalker w)
         {
+            float width = RoomMap.WidthOf(m_Room);
             float height = RoomMap.HeightOf(m_Room);
             float toX = 0f, toY = 0f;
             if (m_Room == RoomId.Wintergarden)
@@ -130,8 +181,9 @@ namespace PooketSlug
                 // up the stair: the camera rises with you, and pans a little to the stair's foot
                 float rise = Mathf.Clamp01((w.Y - RoomMap.FloorY) / (RoomMap.LandingY - RoomMap.FloorY));
                 toY = rise * (height - StageH);
-                toX = Mathf.Clamp(w.X - StageW / 2f, 0f, RoomMap.Width - StageW);
             }
+            // a room wider than a screen scrolls along to keep you in the middle
+            if (width > StageW) toX = Mathf.Clamp(w.X - StageW / 2f, 0f, width - StageW);
             m_CamX = Mathf.Lerp(m_CamX, toX, 1f - Mathf.Exp(-8f * dt));
             m_CamY = Mathf.Lerp(m_CamY, toY, 1f - Mathf.Exp(-8f * dt));
             if (Mathf.Abs(m_CamX - toX) < 0.05f) m_CamX = toX;

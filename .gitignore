@@ -34,6 +34,8 @@
 *.VC.db
 .DS_Store
 Thumbs.db
+__pycache__/
+*.pyc
 
 # Crash reports / builds
 sysinfo.txt
@@ -62,3 +64,6 @@ crashlytics-build.properties
 /Assets/Resources/Music/
 /Assets/Resources/Music.meta
 .timetracker
+
+# Browser automation scratch
+/.playwright-mcp/

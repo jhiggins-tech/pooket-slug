@@ -17,6 +17,9 @@ namespace PooketSlug
         /// <summary>Where the opening's bottom middle is: where you stand to step through it.</summary>
         public static Vector2 Sill => new Vector2(X + W / 2f, Y);
 
+        /// <summary>Where the step in starts, and where it ends: a soldier's width before the door, and one past its far edge (a shoulder's either side of the threshold, like stepping onto a train).</summary>
+        public const float From = W / 2f - 4f, To = -W / 2f - 4f;
+
         readonly RectTransform m_Mask;
         readonly Image m_Slats;
 
