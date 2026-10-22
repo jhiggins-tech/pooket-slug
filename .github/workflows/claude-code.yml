@@ -138,8 +138,10 @@ jobs:
           | python3 -I tools/claude_log.py
 
       # The agent is asked to commit and push its own work, but a run that stopped short is still worth
-      # having: whatever it left in the working tree is committed here and pushed.
+      # having: whatever it left in the working tree is committed here and pushed. It runs even when the
+      # agent's run failed, so a run that ran out of turns still leaves its work behind.
       - name: Commit and push anything the agent left
+        if: always()
         env:
           BRANCH: ${{ steps.branch.outputs.branch }}
         run: |
@@ -159,6 +161,7 @@ jobs:
           git push origin "HEAD:$BRANCH" || git push --force origin "HEAD:$BRANCH"
 
       - name: Open the pull request
+        if: always() # a run that failed still has work worth reviewing
         env:
           GH_TOKEN: ${{ github.token }}
           BRANCH: ${{ steps.branch.outputs.branch }}
@@ -166,6 +169,11 @@ jobs:
           TITLE: ${{ inputs.title }}
         run: |
           set -euo pipefail
+          # Nothing to ask about if the agent left no commits: no pull request, and the log says why.
+          if [ "$(git rev-list --count "origin/$BASE..HEAD")" -eq 0 ]; then
+            echo "The agent left no commits, so there is nothing to review."
+            exit 0
+          fi
           # The agent was asked to push its own branch; if it committed but did not push, push it here.
           if ! git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
             echo "Pushing the branch: the agent left it unpushed."
