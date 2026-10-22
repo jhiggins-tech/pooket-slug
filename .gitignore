@@ -76,4 +76,5 @@ crashlytics-build.properties
 /Assets/Resources/Scenes/
 /Assets/Resources/Scenes.meta
 /Packages/packages-lock.json
-/ProjectSettings/*.asset
+/ProjectSettings/*
+!/ProjectSettings/ProjectVersion.txt
