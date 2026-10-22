@@ -95,9 +95,9 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/agent"
-          cp .github/claude-code/system-prompt.md "$RUNNER_TEMP/agent/"
-          cp .github/claude-code/mcp.json "$RUNNER_TEMP/agent/"
-          cp .github/claude-code/playwright-mcp.json "$RUNNER_TEMP/agent/"
+          install -m 644 .github/claude-code/system-prompt.md "$RUNNER_TEMP/agent/system-prompt.md"
+          install -m 644 .github/claude-code/mcp.json "$RUNNER_TEMP/agent/mcp.json"
+          install -m 644 .github/claude-code/playwright-mcp.json "$RUNNER_TEMP/agent/playwright-mcp.json"
           ls -l "$RUNNER_TEMP/agent"
 
       # The branch the agent works on: the one that was asked for, or one made from the task's words.
@@ -128,43 +128,8 @@ jobs:
           echo "branch=$branch" >> "$GITHUB_OUTPUT"
           echo "base=$BASE" >> "$GITHUB_OUTPUT"
 
-      # The playtest: a real build of the game, served on a port, so the agent can play what it changed
-      # instead of only reading the code. It is optional (the "playtest" input), because the Unity image
-      # and the build are most of the run's time.
-      - name: Get the project ready for Unity
-        if: inputs.playtest == 'true'
-        id: project
-        uses: ./.github/actions/unity-project
-        with:
-          vendor-token: ${{ secrets.VENDOR_PAT }}
-          strict: 'false'
-
-      - name: Build WebGL for the playtest
-        if: inputs.playtest == 'true'
-        uses: game-ci/unity-builder@v4.8.2
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        with:
-          customImage: ${{ steps.project.outputs.image }}
-          targetPlatform: WebGL
-          buildMethod: PooketSlug.EditorTools.WebGLBuild.Build
-          customParameters: -buildSha ${{ github.sha }} -photonAppId ${{ secrets.PHOTON_APP_ID }}
-          versioning: None
-
-      - name: Serve the build
-        if: inputs.playtest == 'true'
-        run: |
-          set -euo pipefail
-          python3 -m http.server 8001 --bind 127.0.0.1 --directory build/WebGL/WebGL > "$RUNNER_TEMP/site.log" 2>&1 &
-          for i in $(seq 30); do
-            curl -fsS -o /dev/null http://127.0.0.1:8001/index.html && break
-            sleep 1
-          done
-          echo "The game is at http://127.0.0.1:8001/index.html"
-
-      # The run's log is the agent's window: every message and every tool call is printed as it happens.
+      # The agent's work: the code change the task asks for. The run's log is the agent's window: every
+      # message and every tool call is printed as it happens.
       - name: Run Claude Code
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
@@ -185,28 +150,109 @@ jobs:
             --permission-mode acceptEdits \
             --permission-prompts none \
             --allowedTools Read Edit Write Glob Grep Bash \
-              mcp__playwright_playwright__browser_navigate \
-              mcp__playwright_playwright__browser_click \
-              mcp__playwright_playwright__browser_press_key \
-              mcp__playwright_playwright__browser_evaluate \
-              mcp__playwright_playwright__browser_take_screenshot \
-              mcp__playwright_playwright__browser_console_messages \
-              mcp__playwright_playwright__browser_snapshot \
-              mcp__playwright_playwright__browser_resize \
-              mcp__playwright_playwright__browser_wait_for \
-              mcp__playwright_playwright__browser_find \
-              mcp__playwright_playwright__browser_run_code_unsafe \
+              mcp__playwright__browser_navigate \
+              mcp__playwright__browser_click \
+              mcp__playwright__browser_press_key \
+              mcp__playwright__browser_evaluate \
+              mcp__playwright__browser_take_screenshot \
+              mcp__playwright__browser_console_messages \
+              mcp__playwright__browser_snapshot \
+              mcp__playwright__browser_resize \
+              mcp__playwright__browser_wait_for \
+              mcp__playwright__browser_find \
+              mcp__playwright__browser_run_code_unsafe \
             --max-turns '${{ inputs.max-turns }}' \
             --append-system-prompt-file "$RUNNER_TEMP/agent/system-prompt.md" \
-            ${{ inputs.playtest == 'true' && '--mcp-config' || '' }} \
-            ${{ inputs.playtest == 'true' && format('{0}/agent/mcp.json', runner.temp) || '' }} \
             < "$RUNNER_TEMP/task.txt" \
           | tee "$RUNNER_TEMP/stream.jsonl" \
           | python3 -I tools/claude_log.py
 
+      # The playtest: a real build of the game as the agent left it, served on a port, so the agent can
+      # play its own change instead of only reading it. It comes after the agent's work on purpose: a
+      # build of the code before the change would show nothing new.
+      - name: Get the project ready for Unity
+        if: inputs.playtest
+        id: project
+        uses: ./.github/actions/unity-project
+        with:
+          vendor-token: ${{ secrets.VENDOR_PAT }}
+          strict: 'false'
+
+      - name: Build WebGL for the playtest
+        if: inputs.playtest
+        uses: game-ci/unity-builder@v4.8.2
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          customImage: ${{ steps.project.outputs.image }}
+          targetPlatform: WebGL
+          buildMethod: PooketSlug.EditorTools.WebGLBuild.Build
+          customParameters: -buildSha ${{ github.sha }} -photonAppId ${{ secrets.PHOTON_APP_ID }}
+          versioning: None
+
+      - name: Serve the build
+        if: inputs.playtest
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8001 --bind 127.0.0.1 --directory build/WebGL/WebGL > "$RUNNER_TEMP/site.log" 2>&1 &
+          for i in $(seq 30); do
+            curl -fsS -o /dev/null http://127.0.0.1:8001/index.html && break
+            sleep 1
+          done
+          echo "The game is at http://127.0.0.1:8001/index.html"
+
+      # A browser for the agent: Node and Playwright's Chromium, the same ones the game's own browser tests
+      # use. The MCP server finds the Chromium here.
+      - name: Set up Playwright
+        if: inputs.playtest
+        uses: ./.github/actions/playwright
+
+      # The second half of the agent's turn: the game is up, so it plays its own change and says what it
+      # saw. It is a second session with the same instructions and the game in front of it.
+      - name: Play the change
+        if: inputs.playtest
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          ANTHROPIC_BASE_URL: https://openrouter.ai/api
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.OPENROUTER_API_KEY }}
+          ANTHROPIC_API_KEY: ''
+          ANTHROPIC_MODEL: ${{ inputs.model }}
+          DISABLE_UPDATES: '1'
+          CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1'
+          PLAYWRIGHT_MCP_CONFIG: ${{ runner.temp }}/agent/playwright-mcp.json
+        run: |
+          set -o pipefail
+          printf '%s\n' 'The game is built and served at http://127.0.0.1:8001/index.html. Play it in the browser, look at the change you just made, and report what you saw: what works, what looks wrong, and what you could not reach. Take a screenshot of what you played. Do not change any files.' \
+            | claude -p \
+              --model '${{ inputs.model }}' \
+              --output-format stream-json --verbose \
+              --permission-mode acceptEdits \
+              --permission-prompts none \
+              --allowedTools Read Edit Write Glob Grep Bash \
+                mcp__playwright__browser_navigate \
+                mcp__playwright__browser_click \
+                mcp__playwright__browser_press_key \
+                mcp__playwright__browser_evaluate \
+                mcp__playwright__browser_take_screenshot \
+                mcp__playwright__browser_console_messages \
+                mcp__playwright__browser_snapshot \
+                mcp__playwright__browser_resize \
+                mcp__playwright__browser_wait_for \
+                mcp__playwright__browser_find \
+                mcp__playwright__browser_run_code_unsafe \
+              --max-turns '${{ inputs.max-turns }}' \
+              --append-system-prompt-file "$RUNNER_TEMP/agent/system-prompt.md" \
+              --mcp-config "$RUNNER_TEMP/agent/mcp.json" \
+            | tee "$RUNNER_TEMP/playtest.jsonl" \
+            | python3 -I tools/claude_log.py
+          # The agent's own words about what it played, for the pull request's body.
+          python3 -I tools/claude_log.py --result "$RUNNER_TEMP/playtest.jsonl" > "$RUNNER_TEMP/playtest-report.md" || true
+
       # The playtest's screenshots, so they can be read after the run.
       - name: Upload the playtest's screenshots
-        if: always() && inputs.playtest == 'true'
+        if: always() && inputs.playtest
         uses: actions/upload-artifact@v6
         with:
           name: playtest
@@ -278,5 +324,12 @@ jobs:
             echo "### What it did"
             echo
             git log --pretty='- %s' "origin/$BASE..HEAD" 2>/dev/null || true
+            # What the agent said when it played its own change, if the run had a playtest.
+            if [ -f "$RUNNER_TEMP/playtest-report.md" ]; then
+              echo
+              echo "### What it saw when it played it"
+              echo
+              cat "$RUNNER_TEMP/playtest-report.md"
+            fi
           } > "$RUNNER_TEMP/body.md"
           gh pr create --head "$BRANCH" --base "$BASE" --title "$title" --body-file "$RUNNER_TEMP/body.md"

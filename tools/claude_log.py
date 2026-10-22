@@ -6,8 +6,10 @@ result at the end. The tool calls are grouped, so the log can be folded away whi
 
 usage: claude -p --output-format stream-json --verbose ... | python3 -I tools/claude_log.py
 
-Prints the final result to stdout's own file (nothing special: this only writes to stderr and stdout for
-the human reading) and exits 1 if the run failed, so the workflow stops.
+With --result <file>, it reads that file instead of stdin and prints only the agent's final answer (what
+it said at the end), which is what goes in a pull request's body.
+
+Exits 1 if the run failed, so the workflow stops.
 """
 import json
 import sys
@@ -48,32 +50,34 @@ def show_user(event):
             print("   ↳", body)
 
 failed = False
-for line in sys.stdin:
+result_only = False
+source = sys.stdin
+if len(sys.argv) > 1 and sys.argv[1] == "--result":
+    # The agent's final answer only, from a stream already written to a file.
+    result_only = True
+    path = sys.argv[2] if len(sys.argv) > 2 else "-"
+    source = open(path, encoding="utf-8") if path != "-" else sys.stdin
+
+for line in source:
     line = line.strip()
     if not line:
         continue
     try:
         event = json.loads(line)
     except json.JSONDecodeError:
-        print(line)
+        if not result_only:
+            print(line)
         continue
     kind = event.get("type")
-    if kind == "system":
-        subtype = event.get("subtype")
-        if subtype == "init":
-            print(f"▶ Claude Code {event.get('claude_code_version', '')} on {event.get('model', '?')}")
-        elif subtype == "api_retry":
-            print(f"↻ retrying: {event.get('error', '?')}")
-        else:
-            print(f"· {subtype}")
-    elif kind == "assistant":
-        show_assistant(event)
-    elif kind == "user":
-        show_user(event)
-    elif kind == "result":
+    if kind == "result":
         if event.get("is_error"):
             failed = True
-            print(f"✗ the run failed: {event.get('subtype', '?')}")
+            if not result_only:
+                print(f"✗ the run failed: {event.get('subtype', '?')}")
+        elif result_only:
+            result = event.get("result")
+            if result:
+                print(result.strip())
         else:
             turns = event.get("num_turns", "?")
             cost = event.get("total_cost_usd")
@@ -82,5 +86,21 @@ for line in sys.stdin:
             result = event.get("result")
             if result:
                 print(result.strip())
+    elif result_only:
+        continue
+    elif kind == "system":
+        subtype = event.get("subtype")
+        if subtype == "init":
+            print(f"▶ Claude Code {event.get('claude_code_version', '')} on {event.get('model', '?')}")
+        elif subtype == "api_retry":
+            print(f"↻ retrying: {event.get('error', '?')}")
+        elif subtype == "thinking_tokens":
+            pass # one of these per thinking block: they say nothing the agent's own words don't
+        else:
+            print(f"· {subtype}")
+    elif kind == "assistant":
+        show_assistant(event)
+    elif kind == "user":
+        show_user(event)
 
 sys.exit(1 if failed else 0)

@@ -30,19 +30,27 @@ Rules from `CLAUDE.md` that hold for you too:
 
 ## The playtest
 
-If the run was asked for a playtest (the "playtest" input), the game has been built and is served at
-`http://127.0.0.1:8001/index.html`. You have a browser (the `playwright` MCP server): navigate there, play the
-game, and look at what you changed with your own eyes. Screenshots the MCP takes land in `playtest/`.
+A run with the "playtest" input has two halves. The first is the work: the code change the task asks for.
+The second is the playtest: the game is built from your change and served at
+`http://127.0.0.1:8001/index.html`, and you are given a browser (the `playwright` MCP server) to play it.
+So you will be asked twice: once to do the work, and once to play what you did.
+
+The game's launch flags say what to play: `?test=crate` for the crate, `?test=tank` for the tabk,
+`?test=boss` for the boss, `?mission=2` for mission two, and `?unlock=coop,tank,crew` to open the rest.
+`docs/scenes.md` is about the cutscenes; the sandbox's setups are in `docs/sandbox.md`.
 
 The game is Unity WebGL in a headless browser, so it runs in software: expect 17–29 FPS, which says nothing
 about real phones. The page's console log is how the game talks (the lines prefixed `[PooketSlug]`); the
-`browser_console_messages` tool reads them. The launch flags on the URL say what to play: `?test=crate` for
-the crate, `?test=tank` for the tabk, `?test=boss` for the boss, `?mission=2` for mission two, and
-`?unlock=coop,tank,crew` to open the rest. `docs/scenes.md` is about the cutscenes; the sandbox's setups are
-in `docs/sandbox.md`.
+`browser_console_messages` tool reads them. Screenshots land in `playtest/`.
 
 Play what your change touches: if you changed a goon's movement, play past that goon; if you changed the
 den's layout, walk the den. A playtest is worth more than a second reading of the code.
+
+**If the browser is not there:** the browser may have failed to start (`npx` downloading it can fail, and the
+machine may have no Chromium yet). Do not spend the run hunting for it. Check once with `ToolSearch` for
+`browser_navigate`; if there is no `playwright` MCP server, say so plainly in your final message — "the
+build worked, the browser did not start" — and get on with the code work. A run that says what is broken is
+worth more than one that guesses.
 
 ## Finishing
 

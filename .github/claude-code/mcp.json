@@ -9,7 +9,10 @@
         "${PLAYWRIGHT_MCP_CONFIG}",
         "--output-dir",
         "playtest"
-      ]
+      ],
+      "env": {
+        "PLAYWRIGHT_BROWSERS_PATH": "${HOME}/.cache/ms-playwright"
+      }
     }
   }
 }
