@@ -35,7 +35,7 @@ on:
         type: string
         required: false
       max-turns:
-        description: How many turns the agent may take
+        description: How many turns the agent may take (the playtest gets twice this)
         type: string
         required: false
         default: '40'
@@ -209,10 +209,20 @@ jobs:
         if: inputs.playtest
         uses: ./.github/actions/playwright
 
+      # The MCP server has its own Playwright, and so its own Chromium build: the one the action installs
+      # is a different version, and the server asks for its own by name. Without this the agent's first
+      # navigate fails and it has to install the browser itself, which costs it several turns.
+      - name: Install the browser the MCP server wants
+        if: inputs.playtest
+        run: npx --yes @playwright/mcp@0.0.83 install-browser chromium
+
       # The second half of the agent's turn: the game is up, so it plays its own change and says what it
-      # saw. It is a second session with the same instructions and the game in front of it.
+      # saw. It is a second session with the same instructions and the game in front of it. It does not stop
+      # the run when it fails: the work is already done and committed by this point, and a playtest that
+      # ran out of turns has still told us something.
       - name: Play the change
         if: inputs.playtest
+        continue-on-error: true
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           ANTHROPIC_BASE_URL: https://openrouter.ai/api
@@ -242,13 +252,19 @@ jobs:
                 mcp__playwright__browser_wait_for \
                 mcp__playwright__browser_find \
                 mcp__playwright__browser_run_code_unsafe \
-              --max-turns '${{ inputs.max-turns }}' \
+              --max-turns '${{ fromJSON(inputs.max-turns) * 2 }}' \
               --append-system-prompt-file "$RUNNER_TEMP/agent/system-prompt.md" \
               --mcp-config "$RUNNER_TEMP/agent/mcp.json" \
             | tee "$RUNNER_TEMP/playtest.jsonl" \
             | python3 -I tools/claude_log.py
-          # The agent's own words about what it played, for the pull request's body.
+
+      # The agent's own words about what it played, for the pull request's body. Its own step, so it
+      # happens even when the playtest ran out of turns.
+      - name: Keep the playtest's report
+        if: always() && inputs.playtest
+        run: |
           python3 -I tools/claude_log.py --result "$RUNNER_TEMP/playtest.jsonl" > "$RUNNER_TEMP/playtest-report.md" || true
+          head -40 "$RUNNER_TEMP/playtest-report.md" || true
 
       # The playtest's screenshots, so they can be read after the run.
       - name: Upload the playtest's screenshots
