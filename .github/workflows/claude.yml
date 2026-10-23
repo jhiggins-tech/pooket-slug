@@ -64,8 +64,15 @@ jobs:
           set -euo pipefail
           mkdir -p "$RUNNER_TEMP/agent"
           install -m 644 .github/claude-code/action-system-prompt.md "$RUNNER_TEMP/agent/system-prompt.md"
-          install -m 644 .github/claude-code/mcp.json "$RUNNER_TEMP/agent/mcp.json"
           install -m 644 .github/claude-code/playwright-mcp.json "$RUNNER_TEMP/agent/playwright-mcp.json"
+
+      # The instructions as a step output, for claude_args to carry inline. They go inside single quotes there,
+      # so an apostrophe becomes a typographic one.
+      - name: Read the agent's instructions
+        id: prompt
+        run: |
+          set -euo pipefail
+          { echo "text<<PROMPT_EOF"; sed "s/'/’/g" "$RUNNER_TEMP/agent/system-prompt.md"; echo "PROMPT_EOF"; } >> "$GITHUB_OUTPUT"
 
       - name: Get the project ready for Unity
         id: project
@@ -130,12 +137,13 @@ jobs:
           additional_permissions: |
             actions: read
 
-          # The browser (Playwright's MCP server), the instructions that say the build is up, and the
-          # tools to play it with.
+          # The action's SDK ignores --append-system-prompt-file and --allowedTools never adds Bash by itself, so:
+          # the instructions go inline (--append-system-prompt, read from the step above), the browser is
+          # inline JSON rather than a file, and the shell is allowed command by command.
           claude_args: |
-            --mcp-config ${{ runner.temp }}/agent/mcp.json
-            --append-system-prompt-file ${{ runner.temp }}/agent/system-prompt.md
-            --allowedTools mcp__playwright__browser_navigate,mcp__playwright__browser_click,mcp__playwright__browser_press_key,mcp__playwright__browser_evaluate,mcp__playwright__browser_take_screenshot,mcp__playwright__browser_console_messages,mcp__playwright__browser_snapshot,mcp__playwright__browser_resize,mcp__playwright__browser_wait_for,mcp__playwright__browser_find,mcp__playwright__browser_run_code_unsafe
+            --mcp-config '{"mcpServers":{"playwright":{"command":"npx","args":["--yes","@playwright/mcp@0.0.83","--config","${{ runner.temp }}/agent/playwright-mcp.json","--output-dir","playtest"],"env":{"PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/ms-playwright"}}}}'
+            --append-system-prompt '${{ steps.prompt.outputs.text }}'
+            --allowedTools "mcp__playwright__browser_navigate,mcp__playwright__browser_click,mcp__playwright__browser_press_key,mcp__playwright__browser_evaluate,mcp__playwright__browser_take_screenshot,mcp__playwright__browser_console_messages,mcp__playwright__browser_snapshot,mcp__playwright__browser_resize,mcp__playwright__browser_wait_for,mcp__playwright__browser_find,mcp__playwright__browser_run_code_unsafe,Bash(tools/check.sh:*),Bash(tools/new_meta.py:*),Bash(python3 -I tools/*:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(ls:*),Bash(cat:*),Bash(grep:*),Bash(curl -fsS http://127.0.0.1:8001/*)"
 
       # What Claude saw, so it can be read after the run.
       - name: Upload the screenshots
