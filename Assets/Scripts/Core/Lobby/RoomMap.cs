@@ -173,7 +173,7 @@ namespace PooketSlug
 
         /// <summary>
         /// Where a way is in a room: its x, in the room's own art pixels. The way back is at the room's left, and the way
-        /// on at its right.
+        /// on at its right; the bunker's way back is its rope, under the hole in its roof.
         /// </summary>
         public static float WayX(RoomId room, RoomWay way)
         {
@@ -184,7 +184,7 @@ namespace PooketSlug
                 case RoomId.Backyard: return MinX(room);
                 case RoomId.Basement:
                     return way == RoomWay.ToBunker ? 289f : MinX(room);
-                case RoomId.Bunker: return 300f;
+                case RoomId.Bunker: return RopeX;
                 case RoomId.Rooftop: return MaxX(room);
                 case RoomId.ShowerBlock: return MinX(room);
                 case RoomId.Wintergarden: return MinX(room);
@@ -209,8 +209,25 @@ namespace PooketSlug
         public const float ClimbSpeed = 90f;
 
         /// <summary>
+        /// The bunker's rope (<see cref="RopeClimb"/>): where it hangs in the bunker, how high the hole in its roof is,
+        /// and how fast you climb it. The plate paints the rope where <see cref="RopeX"/> is, under the hole.
+        /// </summary>
+        public const float RopeX = 272f;
+        /// <summary>The top of the rope: the hole in the bunker's roof, so you climb out of sight.</summary>
+        public const float RopeTopY = Height;
+        /// <summary>How fast you climb the rope: the wintergarden stair's pace.</summary>
+        public const float RopeSpeed = ClimbSpeed;
+
+        /// <summary>
+        /// Whether a way is climbed rather than walked through: the bunker's way out is its rope, up through the hole in
+        /// B1's floor, and its way in is the same rope, climbed down.
+        /// </summary>
+        public static bool ByRope(RoomId room, RoomWay way) => room == RoomId.Bunker && way == RoomWay.Back;
+
+        /// <summary>
         /// Where a tap at (<paramref name="x"/>, <paramref name="y"/>) in a room is: a way to use, or None (the floor:
-        /// walk there).
+        /// walk there). A rope is used anywhere up it, from the floor to the hole; the other ways at the floor, where
+        /// you stand to use them.
         /// </summary>
         public static RoomWay WayAt(RoomId room, float x, float y)
         {
@@ -218,19 +235,10 @@ namespace PooketSlug
             {
                 if (!InRoom(room, way)) continue;
                 float wx = WayX(room, way);
-                if (x >= wx - 12f && x <= wx + 12f && y >= FloorY && y <= FloorY + 45f) return way;
+                float top = ByRope(room, way) ? RopeTopY : FloorY + 45f;
+                if (x >= wx - 12f && x <= wx + 12f && y >= FloorY && y <= top) return way;
             }
             return RoomWay.None;
-        }
-
-        /// <summary>What a way says when you use it, for the ones that don't go anywhere yet (null for the ways that do).</summary>
-        public static string Note(RoomWay way)
-        {
-            switch (way)
-            {
-                case RoomWay.ToBunker: return "THE HOLE: IT IS NOT DUG THROUGH YET";
-                default: return null;
-            }
         }
     }
 

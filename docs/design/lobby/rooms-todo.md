@@ -54,19 +54,13 @@ two ([den2-story](https://claude.ai/code/artifact/f6915f40-b462-4063-8250-a8c245
 says what each is for), and the tabk bay opens with the den, after Mission one.
 So the rules are known, they just aren't written down or built.
 
-### 4. The bunker isn't reachable
-
-Its hole says "not dug through yet" — the hole is dug later in the game, when
-the game creates it. The room is signed off as art, but it can't be seen in
-game yet, and the hole needs something to dig it.
-
-### 5. The trapdoor is drawn in code
+### 4. The trapdoor is drawn in code
 
 `Ui/Den/DenTrapdoor` draws the hatch over the den's floor, because the painting
 has no hatch in it. It's a flat grey rectangle in a painted room, and it should
 match the boards. Folded into the annotated edit above.
 
-### 6. The shower block's saloon doors
+### 5. The shower block's saloon doors
 
 At game size they read more like privacy stalls than **swinging saloon doors**,
 which is what the design calls for. The doors are painted flat, so making them
