@@ -19,7 +19,7 @@ Up: [The lobby](../lobby.md) · [The house map](house-layout.svg) · [The outer 
   across it), or 320 × 360 for the tall room.
 - **Its own ways in and out**: a door back the way you came, and maybe a way on
   to another room (the kitchen's back door to the yard; the basement's hole down
-  to the bunker, once it's dug).
+  to the bunker, down the rope that hangs from it).
 - **Drawn for the 22 px soldier**: a door is about 37 px tall (1.7 times him),
   and a stair's treads are a step apart, or he can't climb it.
 
@@ -107,3 +107,10 @@ tests, checks the scenes and the docs links. Then push and read the CI run.
   the spiral stair, so the rose at the top is out of reach until you've climbed.
 - **A room's x is the room's own**, from its bottom left. The map's badges and
   the code's `RoomMap.WayX` have to agree.
+- **A way that's climbed is not a door.** The bunker is entered and left by its
+  rope (`RoomMap.ByRope`, `RopeClimb` in Core), so the room takes no walking
+  while you climb, and the plate has to paint the rope where `RoomMap.RopeX`
+  says it hangs. A figure on a plate is placed with `StageFigure.AtPlate`, in the
+  plate's own pixels: `At` scales the position by `FigureScale`, so anything past
+  about x 350 of a 420-wide room is drawn off the plate's far edge — the
+  bunker's rope (x 351) and the basement's hole (x 372) included.

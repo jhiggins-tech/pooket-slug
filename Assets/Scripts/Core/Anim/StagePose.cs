@@ -44,6 +44,12 @@ namespace PooketSlug
         public static StagePose Repairing(float t) =>
             new StagePose(StageLegs.Crouch, StageTorso.Repair, 0f, CrewFigure.Repair.Lift(t)) { WalkT = t };
 
+        /// <summary>
+        /// On a rope or a ladder: the legs bent round it and the top reaching up, as the den's crew climbs its ladder.
+        /// <paramref name="t"/> seconds in, for the hand-over-hand shiver.
+        /// </summary>
+        public static StagePose Climbing(float t) => new StagePose(StageLegs.Jump, StageTorso.Lounge) { WalkT = t };
+
         /// <summary>The crew figure's body frame the top shows (repairing steps through its clip, <see cref="WalkT"/> seconds in).</summary>
         public CrewBody Body
         {

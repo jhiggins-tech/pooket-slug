@@ -38,5 +38,15 @@ namespace PooketSlug.Tests
             Assert.AreEqual(StageLegs.Idle, StagePose.Stand.Legs);
             Assert.AreEqual(StageTorso.Forward, StagePose.Stand.Torso);
         }
+
+        // the bunker's rope climbs in the den's ladder pose: legs bent round it, the top reaching up
+        [Test]
+        public void Climbing_IsTheDensLadderPose()
+        {
+            StagePose climb = StagePose.Climbing(1.5f);
+            Assert.AreEqual(StageLegs.Jump, climb.Legs);
+            Assert.AreEqual(StageTorso.Lounge, climb.Torso);
+            Assert.AreEqual(1.5f, climb.WalkT, 0.001f, "the hand-over-hand's clock");
+        }
     }
 }
