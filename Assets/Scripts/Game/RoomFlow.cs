@@ -113,7 +113,9 @@ namespace PooketSlug
             }
             if (to != RoomId.None)
             {
-                // the way on: the door creaks open, and you step into its dark
+                // the way on: the kitchen's back door creaks open, and you step into its dark. The basement's hole has
+                // no door painted on it (the leaf is the kitchen's), so it takes you straight down
+                if (m_Room != RoomId.Kitchen) { m_Game.Rooms.Go(m_Room, to, by); return; }
                 m_DoorTo = to;
                 if (m_Door.GoIn()) m_View.PlayDoor();
                 return;

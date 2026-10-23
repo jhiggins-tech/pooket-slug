@@ -77,7 +77,7 @@ namespace PooketSlug
             if (m_Plate != null) m_Plate.transform.SetAsFirstSibling();
             m_Soldier.Rt.SetAsLastSibling();
             m_Tap.SetAsLastSibling();
-            // the taps cover the whole room, which is wider or taller than the screen for some rooms. They're anchored
+            // the taps cover the whole room, which is wider than the screen (or taller, in the wintergarden). They're anchored
             // at the world's bottom left, as the painting is, so the room's own art pixels and theirs line up
             m_Tap.sizeDelta = new Vector2(RoomMap.WidthOf(room), RoomMap.HeightOf(room)) * Px;
             m_Tap.anchoredPosition = Vector2.zero;

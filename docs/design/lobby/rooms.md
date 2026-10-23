@@ -12,9 +12,11 @@ Up: [The lobby](../lobby.md) · [The house map](house-layout.svg) · [The outer 
 ## What a room is
 
 - **Its own screen**, like the tabk bay. You go through a door and you're in
-  another screen; the way back takes you to where you came from.
+  another screen; the way back takes you to where you came from. A room is a
+  screen and a bit wide, so the camera scrolls across it.
 - **One plate**: a painting in `Assets/Resources/Den/room-*.bytes`, cut to the
-  game's size — 320 × 180 in art pixels, or 320 × 360 for a tall room.
+  room's size — 420 × 180 in art pixels (a screen and a bit, so you scroll
+  across it), or 320 × 360 for the tall room.
 - **Its own ways in and out**: a door back the way you came, and maybe a way on
   to another room (the kitchen's back door to the yard; the basement's hole down
   to the bunker, once it's dug).
@@ -59,9 +61,11 @@ moderation blocks some combinations, and it isn't deterministic. [The notes](../
 have the recipe, and the plates are in [plates/](plates/).
 
 The provider wants at least 512 × 512, and **the generated size should be the
-room's own aspect**: a room 420 wide and 180 tall is generated at 1260 × 540. A
-plate generated at the wrong aspect comes back with the wrong proportions, and
-cutting it to the room's size squeezes it.
+room's own aspect**: a room 420 wide and 180 tall is generated at 1260 × 540,
+and the wintergarden at 512 × 576. A plate generated at the wrong aspect comes
+back with the wrong proportions, and cutting it to the room's size squeezes it:
+the rooms' first plates were painted at 1260 × 540 and cut to 320 × 180, and
+everything in them stood a third taller than it was painted.
 
 The result is cut down to the game's size and 64 colours afterwards. Cut the
 palette with a **median cut**, not by keeping the most common colours: the
@@ -92,9 +96,10 @@ tests, checks the scenes and the docs links. Then push and read the CI run.
   `raycastTarget` off, so a painting over the tap catcher doesn't just hide the
   player — it stops taps reaching the catcher under it, and the only way out of
   the room is ESC.
-- **A room taller than the screen** (the wintergarden) has a tap rect taller
-  than the world. Read the tap's position in the *tap rect's* own space, not the
-  world's, or a tap up the room misses.
+- **A room bigger than the screen** (the wintergarden is taller than the world;
+  every other room is wider than it) has a tap rect bigger than the world. Read
+  the tap's position in the *tap rect's* own space, not the world's, or a tap up
+  the room misses.
 - **The world is 320 × 180** with its pivot in the middle; a room's plate is
   anchored at the world's bottom left, so a room's art pixels and the world's
   line up from the bottom.
