@@ -17,7 +17,9 @@ Up: [The lobby](../lobby.md) · [The house map](house-layout.svg) · [The outer 
   game's size — 320 × 180 in art pixels, or 320 × 360 for a tall room.
 - **Its own ways in and out**: a door back the way you came, and maybe a way on
   to another room (the kitchen's back door to the yard; the basement's hole down
-  to the bunker, once it's dug).
+  to the bunker, once it's dug). A vertical way is a climb: the bunker's rope
+  (`RopeClimb`, in Core) lowers you in on arriving and takes you up and out
+  when you leave, rather than a door's step through.
 - **Drawn for the 22 px soldier**: a door is about 37 px tall (1.7 times him),
   and a stair's treads are a step apart, or he can't climb it.
 

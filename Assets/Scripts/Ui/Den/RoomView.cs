@@ -7,7 +7,8 @@ namespace PooketSlug
 {
     /// <summary>
     /// One of the house's outer rooms on screen (<c>docs/design/lobby.md</c>, The outer rooms): the room's painting, you
-    /// walking round it, and the way out. Each room is its own screen behind a door, like the tabk bay.
+    /// walking round it, and the way out. Each room is its own screen behind a door, like the tabk bay; the bunker's way
+    /// in and out is the rope (<see cref="RopeBeat"/>).
     /// </summary>
     public sealed class RoomView : StageScreen
     {
@@ -146,14 +147,29 @@ namespace PooketSlug
             if (m_Clock > m_NoteUntil) m_Note.text = "";
         }
 
-        void You(RoomWalker w)
+        /// <summary>
+        /// The bunker rope's beat, a frame (<see cref="RopeClimb"/>, in Core): you on the rope at its height, climbing
+        /// down into the room or up out of its hole. The walker stays on the floor: the rope gives your height.
+        /// </summary>
+        public void RopeBeat(float dt, RopeClimb rope, RoomWalker walker)
+        {
+            m_Clock += dt;
+            You(walker, rope);
+            Camera(dt, walker);
+            if (m_Clock > m_NoteUntil) m_Note.text = "";
+        }
+
+        void You(RoomWalker w, RopeClimb rope = null)
         {
             PlayerSkin skin = Art.SkinFor(m_SoldierDef);
+            // on the bunker's rope: hand over hand, off duty (as the den's crew is up its ladder)
+            bool onRope = rope != null && rope.Busy;
             // through the back door: into its dark, a little smaller as you go (as the den's crew is in its roller door)
             bool stepping = DoorThrough > 0f;
-            bool walking = stepping || !w.Standing;
-            m_Soldier.Pose(skin, StagePose.Walking(walking, m_Clock));
-            float x = w.X, y = w.Y;
+            bool walking = stepping || onRope || !w.Standing;
+            m_Soldier.Pose(skin, onRope ? StagePose.Climbing : StagePose.Walking(walking, m_Clock));
+            float x = onRope ? RoomMap.RopeX + Fx.Shiver(m_Clock, 6f, 0.5f) : w.X;
+            float y = onRope ? rope.Y : w.Y;
             if (stepping)
             {
                 x = RoomBackDoor.Sill.x + Mathf.Lerp(RoomBackDoor.From, RoomBackDoor.To, DoorThrough);
@@ -163,7 +179,7 @@ namespace PooketSlug
             Color shade = Color.Lerp(Color.white, new Color(0.15f, 0.15f, 0.2f), DoorThrough);
             m_Soldier.Tint(shade);
             float size = 1f - 0.2f * DoorThrough;
-            bool faceLeft = stepping ? DoorThrough < 0.5f : w.FaceLeft;
+            bool faceLeft = onRope ? false : stepping ? DoorThrough < 0.5f : w.FaceLeft;
             m_Soldier.Rt.localScale = new Vector3((faceLeft ? -1f : 1f) * size, size, 1f);
         }
 

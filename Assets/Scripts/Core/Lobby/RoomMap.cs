@@ -69,6 +69,12 @@ namespace PooketSlug
         /// <summary>How near a way you can still use it, walking: where you come in, and a step more.</summary>
         public const float WayReach = 24f;
 
+        /// <summary>
+        /// The bunker's rope, which hangs from the hole in its roof to its floor: where it tops out (the roof, so you
+        /// climb out of sight), and how fast you climb it (the wintergarden stair's pace).
+        /// </summary>
+        public const float RopeTopY = Height, RopeSpeed = 90f;
+
         /// <summary>A room's width: one screen across, unless it is wider and the player scrolls through it.</summary>
         public static float WidthOf(RoomId room) => room == RoomId.Kitchen ? KitchenWidth : Width;
 
@@ -191,6 +197,15 @@ namespace PooketSlug
                 default: return MinX(room);
             }
         }
+
+        /// <summary>Where the bunker's rope hangs: under the hole in its roof, at its way back up.</summary>
+        public static float RopeX => WayX(RoomId.Bunker, RoomWay.Back);
+
+        /// <summary>
+        /// Whether using a way is a climb up the bunker's rope rather than walking through a door: the bunker's way
+        /// back up is the rope, and coming in by it you climb down from the hole.
+        /// </summary>
+        public static bool ByRope(RoomId room, RoomWay way) => room == RoomId.Bunker && way == RoomWay.Back;
 
         /// <summary>How far you can walk in a room: short of the walls.</summary>
         public static float MinX(RoomId room) => 16f;
@@ -347,6 +362,69 @@ namespace PooketSlug
             X = ToX;
             RoomWay done = Errand;
             Errand = RoomWay.None;
+            return done;
+        }
+    }
+
+    /// <summary>
+    /// The bunker's rope (<see cref="RoomMap"/>): coming in, you climb down it from the hole in the roof to the floor;
+    /// leaving, you climb up it and out of the hole. A sibling of <see cref="SwingDoor"/>: it runs the room's way in and
+    /// out, and the room doesn't take walking while it does.
+    /// </summary>
+    public sealed class RopeClimb
+    {
+        /// <summary>Which way you're climbing, or None at rest.</summary>
+        public enum Going { None, Down, Up }
+
+        /// <summary>Where you are on it, in the room's art pixels.</summary>
+        public float Y { get; private set; }
+
+        /// <summary>Which way you're going; None when you're not on the rope.</summary>
+        public Going Direction { get; private set; }
+
+        /// <summary>On the rope: the room doesn't take walking.</summary>
+        public bool Busy => Direction != Going.None;
+
+        public RopeClimb() => Reset();
+
+        /// <summary>Off the rope, standing on the floor.</summary>
+        public void Reset()
+        {
+            Direction = Going.None;
+            Y = RoomMap.FloorY;
+        }
+
+        /// <summary>Coming in: up at the hole, about to climb down. Only from off the rope.</summary>
+        public bool GoDown()
+        {
+            if (Busy) return false;
+            Direction = Going.Down;
+            Y = RoomMap.RopeTopY;
+            return true;
+        }
+
+        /// <summary>Leaving: on the floor, about to climb up and out of the hole. Only from off the rope.</summary>
+        public bool GoUp()
+        {
+            if (Busy) return false;
+            Direction = Going.Up;
+            Y = RoomMap.FloorY;
+            return true;
+        }
+
+        /// <summary>
+        /// Moves you on. On the frame you land on the floor (down) or climb out of the hole (up) it says which way you
+        /// went; None on every other frame, so the room switches to the next screen once.
+        /// </summary>
+        public Going Tick(float dt)
+        {
+            if (!Busy) return Going.None;
+            float to = Direction == Going.Down ? RoomMap.FloorY : RoomMap.RopeTopY;
+            float step = RoomMap.RopeSpeed * dt;
+            Y = Math.Abs(to - Y) <= step ? to : Y + Math.Sign(to - Y) * step;
+            if (Y != to) return Going.None;
+            Going done = Direction;
+            Direction = Going.None;
             return done;
         }
     }

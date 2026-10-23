@@ -32,6 +32,9 @@ namespace PooketSlug
         /// <summary>Standing still, facing the camera.</summary>
         public static StagePose Stand => new StagePose(StageLegs.Idle, StageTorso.Forward);
 
+        /// <summary>On a rope or a ladder: legs bent, a hand up for the next hold (the den's ladder, the bunker's rope).</summary>
+        public static StagePose Climbing => new StagePose(StageLegs.Jump, StageTorso.Lounge);
+
         /// <summary>Walking (or not), <paramref name="t"/> seconds in, at the den's pace unless it says otherwise.</summary>
         public static StagePose Walking(bool walking, float t, StageTorso torso = StageTorso.Unarmed, float fps = 0f)
         {

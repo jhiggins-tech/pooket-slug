@@ -73,6 +73,83 @@ namespace PooketSlug.Tests
             Assert.AreEqual(RoomWay.ToBunker, by);
         }
 
+        // the bunker's way in and out is the rope that hangs from the hole in its roof (docs/design/lobby.md, The outer rooms)
+        [Test]
+        public void TheBunker_IsEnteredAndLeftByItsRope()
+        {
+            // the same way is the way in, down the rope, and the way out, up it
+            Assert.IsTrue(RoomMap.ByRope(RoomId.Bunker, RoomWay.Back));
+            Assert.IsFalse(RoomMap.ByRope(RoomId.Basement, RoomWay.ToBunker), "the hole in B1 is no climb: the rope hangs in the bunker");
+            Assert.IsFalse(RoomMap.ByRope(RoomId.Kitchen, RoomWay.Back), "a door is stepped through");
+            Assert.AreEqual(RoomMap.WayX(RoomId.Bunker, RoomWay.Back), RoomMap.RopeX, 0.01f, "the rope is where you use the way");
+            Assert.That(RoomMap.RopeX, Is.InRange(RoomMap.MinX(RoomId.Bunker), RoomMap.MaxX(RoomId.Bunker)));
+            Assert.AreEqual(RoomMap.HeightOf(RoomId.Bunker), RoomMap.RopeTopY, 0.01f, "it climbs out of the hole at the roof");
+        }
+
+        [Test]
+        public void TheRope_LowersYouIntoTheBunker_AndSaysWhenYouLand()
+        {
+            var rope = new RopeClimb();
+            Assert.IsFalse(rope.Busy);
+            Assert.AreEqual(RoomMap.FloorY, rope.Y, 0.01f);
+
+            Assert.IsTrue(rope.GoDown());
+            Assert.IsTrue(rope.Busy);
+            Assert.AreEqual(RoomMap.RopeTopY, rope.Y, 0.01f, "you start up at the hole");
+
+            RopeClimb.Going done = RopeClimb.Going.None;
+            float seconds = 0f;
+            while (done == RopeClimb.Going.None && seconds < 10f)
+            {
+                done = rope.Tick(1f / 60f);
+                seconds += 1f / 60f;
+            }
+            Assert.AreEqual(RopeClimb.Going.Down, done, "it says so on landing");
+            Assert.AreEqual(RoomMap.FloorY, rope.Y, 0.01f, "down on the floor");
+            Assert.IsFalse(rope.Busy);
+            Assert.AreEqual(RopeClimb.Going.None, rope.Tick(1f / 60f), "it lands once");
+            Assert.That(seconds, Is.LessThan(10f), "it doesn't take all day");
+        }
+
+        [Test]
+        public void TheRope_TakesYouUpAndOutOfTheHole()
+        {
+            var rope = new RopeClimb();
+            Assert.IsTrue(rope.GoUp());
+            Assert.AreEqual(RoomMap.FloorY, rope.Y, 0.01f, "you start on the floor");
+
+            RopeClimb.Going done = RopeClimb.Going.None;
+            for (float t = 0f; t < 10f && done == RopeClimb.Going.None; t += 1f / 60f) done = rope.Tick(1f / 60f);
+            Assert.AreEqual(RopeClimb.Going.Up, done, "out of the hole, to the next screen");
+            Assert.AreEqual(RoomMap.RopeTopY, rope.Y, 0.01f);
+            Assert.IsFalse(rope.Busy);
+        }
+
+        [Test]
+        public void TheRope_GoesOneWayAtATime()
+        {
+            var rope = new RopeClimb();
+            Assert.IsTrue(rope.GoDown());
+            Assert.IsFalse(rope.GoUp(), "not while you're climbing down");
+            Assert.IsFalse(rope.GoDown(), "nor twice");
+            rope.Reset();
+            Assert.IsFalse(rope.Busy);
+            Assert.AreEqual(RoomMap.FloorY, rope.Y, 0.01f, "back on the floor");
+        }
+
+        [Test]
+        public void TheRope_ClimbsAtItsPace()
+        {
+            var rope = new RopeClimb();
+            rope.GoUp();
+            rope.Tick(0.5f);
+            Assert.AreEqual(RoomMap.FloorY + RoomMap.RopeSpeed * 0.5f, rope.Y, 0.01f);
+            rope.Reset();
+            rope.GoDown();
+            rope.Tick(0.5f);
+            Assert.AreEqual(RoomMap.RopeTopY - RoomMap.RopeSpeed * 0.5f, rope.Y, 0.01f);
+        }
+
         [Test]
         public void TheWayBack_LeadsToTheHouse()
         {
