@@ -1,4 +1,4 @@
-// How a soldier on a stage stands (a cutscene, the den, the bay, a den beat, the debrief): which legs and which top
+// How a soldier on a stage stands (a cutscene, the den, the bay, a den beat, a room, the debrief): which legs and which top
 // (a frame of the crew's figure, CrewFigure), where in their walk, and the top's nudge. Every screen poses its figures through this, and StageFigure draws it.
 namespace PooketSlug
 {
@@ -43,6 +43,12 @@ namespace PooketSlug
         /// <summary>Crouched over a tabk with a wrench, <paramref name="t"/> seconds into the crew's repair (<see cref="CrewFigure.Repair"/>).</summary>
         public static StagePose Repairing(float t) =>
             new StagePose(StageLegs.Crouch, StageTorso.Repair, 0f, CrewFigure.Repair.Lift(t)) { WalkT = t };
+
+        /// <summary>
+        /// Up a ladder or a rope, hand over hand: knees drawn up, reaching (the den's crew climb its ladder so). The
+        /// shiver of the climb is the screen's (<see cref="Fx.Shiver"/>), as the den's crew shake going up.
+        /// </summary>
+        public static StagePose Climbing => new StagePose(StageLegs.Jump, StageTorso.Lounge);
 
         /// <summary>The crew figure's body frame the top shows (repairing steps through its clip, <see cref="WalkT"/> seconds in).</summary>
         public CrewBody Body

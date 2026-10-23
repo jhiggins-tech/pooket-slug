@@ -15,6 +15,10 @@ namespace PooketSlug
         int m_HeldDir;
         readonly SwingDoor m_Door = new SwingDoor();
         RoomId m_DoorTo = RoomId.None;
+        RoomWay m_DoorBy = RoomWay.None;
+        readonly RopeClimb m_Rope = new RopeClimb();
+        RoomId m_RopeTo = RoomId.None;
+        RoomWay m_RopeBy = RoomWay.None;
 
         public RoomFlow(Game game, Transform parent)
         {
@@ -34,7 +38,13 @@ namespace PooketSlug
             m_HeldDir = 0;
             m_Door.Reset();
             m_DoorTo = RoomId.None;
+            m_DoorBy = RoomWay.None;
+            m_Rope.Reset();
+            m_RopeTo = RoomId.None;
+            m_RopeBy = RoomWay.None;
             m_Walker = new RoomWalker(room, RoomMap.WayX(room, wayIn));
+            // the bunker is entered down its rope, from the hole in its roof
+            if (RoomMap.ByRope(room, wayIn)) m_Rope.GoDown();
             m_View.Show(room, m_Game.Soldier);
             Log.Game.Info("Room open: " + room);
         }
@@ -51,14 +61,27 @@ namespace PooketSlug
         public void Tick(MenuInput keys, SoldierInput soldier)
         {
             if (m_Room == RoomId.None) return;
-            if (m_Door.Busy)
+            if (m_Door.Busy || m_Rope.Busy)
             {
-                // through the back door: nothing else till it's done (and nothing tapped meanwhile kept)
+                // through the back door or down the rope: nothing else till it's done (and nothing tapped meanwhile kept)
                 m_View.TakeWay();
                 m_View.TakeWalk(out _);
+                m_View.TakeBack();
                 return;
             }
-            if (m_View.TakeBack() || keys.Back) m_Game.Rooms.Back(m_Room);
+            if (m_View.TakeBack() || keys.Back)
+            {
+                // BACK leaves the room the way you came in: up the bunker's rope, or out of the house's door
+                if (RoomMap.ByRope(m_Room, RoomWay.Back))
+                {
+                    m_Walker.Go(RoomWay.Back);
+                }
+                else
+                {
+                    m_Game.Rooms.Back(m_Room);
+                    return;
+                }
+            }
             RoomWay way = m_View.TakeWay();
             if (way != RoomWay.None) m_Walker.Go(way);   // walk to it, and use it on arriving
             if (m_View.TakeWalk(out float x)) m_Walker.WalkTo(x);
@@ -77,6 +100,19 @@ namespace PooketSlug
         public void Move(float dt)
         {
             if (m_Room == RoomId.None) return;
+            if (m_Rope.Busy)
+            {
+                // the bunker's rope: down to the floor, or up and out of the hole, where the basement takes over
+                RopeClimb.Way done = m_Rope.Tick(dt);
+                m_View.RopeBeat(dt, m_Rope.Y, m_Walker);
+                if (done == RopeClimb.Way.Down) Sfx.Play(Sfx.Thump, 0.5f); // your boots on the bunker's floor
+                if (done == RopeClimb.Way.Up)
+                {
+                    Log.Game.Info("Room: up the rope, to " + m_RopeTo);
+                    m_Game.Rooms.Go(m_Room, m_RopeTo, m_RopeBy);
+                }
+                return;
+            }
             if (m_Door.Busy)
             {
                 // the back door: it creaks open, you step into its dark, it swings shut behind you, and the next room
@@ -88,7 +124,7 @@ namespace PooketSlug
                 if (!m_Door.Busy)
                 {
                     Log.Game.Info("Room: through the back door, to " + m_DoorTo);
-                    m_Game.Rooms.Go(m_Room, m_DoorTo, RoomWay.Back);
+                    m_Game.Rooms.Go(m_Room, m_DoorTo, m_DoorBy);
                     return;
                 }
                 m_Walker.Place(m_Room, RoomBackDoor.Sill.x); // the view draws the step through, from where you stood
@@ -99,22 +135,35 @@ namespace PooketSlug
             Use(m_View.TakeReached());
         }
 
-        /// <summary>Uses a way: the way back to the house, the way on to the next room through the back door, or a note.</summary>
+        /// <summary>
+        /// Uses a way: the bunker's rope, the way back to the house, or the way on to the next room through the back
+        /// door.
+        /// </summary>
         void Use(RoomWay way)
         {
             if (way == RoomWay.None) return;
             RoomMap.Leads(m_Room, way, out RoomId to, out RoomWay by);
-            if (to == RoomId.None && by == RoomWay.None)
+            if (to == RoomId.None && by == RoomWay.None) return; // it doesn't lead anywhere
+
+            if (RoomMap.ByRope(m_Room, way))
             {
-                // it doesn't lead anywhere yet: it says so
-                string note = RoomMap.Note(way);
-                if (note != null) m_View.Note(note);
+                // up the bunker's rope: out of the hole, and the next room takes over when you leave it
+                m_RopeTo = to;
+                m_RopeBy = by;
+                m_Rope.GoUp();
+                return;
+            }
+            if (RoomMap.ByRope(to, by))
+            {
+                // the next room is entered down its rope: there's no door to swing, the hole takes you straight in
+                m_Game.Rooms.Go(m_Room, to, by);
                 return;
             }
             if (to != RoomId.None)
             {
                 // the way on: the door creaks open, and you step into its dark
                 m_DoorTo = to;
+                m_DoorBy = by;
                 if (m_Door.GoIn()) m_View.PlayDoor();
                 return;
             }

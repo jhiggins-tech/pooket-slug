@@ -184,7 +184,7 @@ namespace PooketSlug
                 case RoomId.Backyard: return MinX(room);
                 case RoomId.Basement:
                     return way == RoomWay.ToBunker ? 289f : MinX(room);
-                case RoomId.Bunker: return 300f;
+                case RoomId.Bunker: return RopeX;
                 case RoomId.Rooftop: return MaxX(room);
                 case RoomId.ShowerBlock: return MinX(room);
                 case RoomId.Wintergarden: return MinX(room);
@@ -208,9 +208,19 @@ namespace PooketSlug
         /// <summary>How fast you climb the stair.</summary>
         public const float ClimbSpeed = 90f;
 
+        /// <summary>The bunker's rope, where the painting hangs it: under the hole in its roof, and where its way is.</summary>
+        public const float RopeX = 300f;
+        /// <summary>The rope's top: the hole in the bunker's roof, where you climb in and out of the room.</summary>
+        public const float RopeTopY = 160f;
+        /// <summary>How fast you climb the rope: the wintergarden's stair pace.</summary>
+        public const float RopeSpeed = 90f;
+
+        /// <summary>Whether a way is by the rope: the bunker is entered down it from the hole, and left up it.</summary>
+        public static bool ByRope(RoomId room, RoomWay way) => room == RoomId.Bunker && way == RoomWay.Back;
+
         /// <summary>
         /// Where a tap at (<paramref name="x"/>, <paramref name="y"/>) in a room is: a way to use, or None (the floor:
-        /// walk there).
+        /// walk there). A door is tapped where you stand to use it; a rope is tapped anywhere up it.
         /// </summary>
         public static RoomWay WayAt(RoomId room, float x, float y)
         {
@@ -218,19 +228,10 @@ namespace PooketSlug
             {
                 if (!InRoom(room, way)) continue;
                 float wx = WayX(room, way);
-                if (x >= wx - 12f && x <= wx + 12f && y >= FloorY && y <= FloorY + 45f) return way;
+                float top = ByRope(room, way) ? RopeTopY : FloorY + 45f;
+                if (x >= wx - 12f && x <= wx + 12f && y >= FloorY && y <= top) return way;
             }
             return RoomWay.None;
-        }
-
-        /// <summary>What a way says when you use it, for the ones that don't go anywhere yet (null for the ways that do).</summary>
-        public static string Note(RoomWay way)
-        {
-            switch (way)
-            {
-                case RoomWay.ToBunker: return "THE HOLE: IT IS NOT DUG THROUGH YET";
-                default: return null;
-            }
         }
     }
 

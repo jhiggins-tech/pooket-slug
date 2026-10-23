@@ -12,7 +12,6 @@ namespace PooketSlug
     public sealed class RoomView : StageScreen
     {
         readonly StageFigure m_Soldier;
-        readonly Text m_Note;
         readonly RectTransform m_Tap;
         readonly Latch<RoomWay> m_TapWay = new Latch<RoomWay>();
         readonly Latch<float> m_TapWalk = new Latch<float>();
@@ -20,9 +19,11 @@ namespace PooketSlug
         readonly RoomBackDoor m_Door;
 
         GameObject m_Plate;
-        float m_Clock, m_CamX, m_CamY, m_NoteUntil;
+        float m_Clock, m_CamX, m_CamY;
         RoomId m_Room = RoomId.None;
         SoldierDef m_SoldierDef;
+        bool m_OnRope;
+        float m_RopeY;
 
         public RoomView(Transform parent) : base(parent, "Room", 9) // over the den (8), under the menus (10)
         {
@@ -40,7 +41,6 @@ namespace PooketSlug
             Vector2 half = new Vector2(StageW, StageH) * Px / 2f;
             Ui.Button(m_Stage, "BACK", new Vector2(-half.x + 40f, half.y - 18f), new Vector2(64f, 22f), m_Back.Set, out Text backKey);
             backKey.text = "ESC";
-            m_Note = Ui.Label(m_Stage, "Note", Ui.TopCenter, new Vector2(0f, -24f), 11, TextAnchor.UpperCenter, new Color(1f, 0.55f, 0.45f));
 
             Ui.Show(m_Root, false);
         }
@@ -85,7 +85,7 @@ namespace PooketSlug
             m_TapWay.Clear();
             m_TapWalk.Clear();
             m_Back.Clear();
-            m_Note.text = "";
+            m_OnRope = false;
             DoorThrough = 0f;
             m_Reached = RoomWay.None;
             m_Door.Swing = 0f;
@@ -113,13 +113,6 @@ namespace PooketSlug
         }
         RoomWay m_Reached;
 
-        /// <summary>Says something across the top for a few seconds.</summary>
-        public void Note(string text, float seconds = 3f)
-        {
-            m_Note.text = text;
-            m_NoteUntil = m_Clock + seconds;
-        }
-
         /// <summary>
         /// The back door's beat, a frame: the leaf at <paramref name="swing"/> (the flow's <see cref="SwingDoor"/>), and
         /// you stepping into its dark as far as <paramref name="through"/>.
@@ -134,6 +127,20 @@ namespace PooketSlug
             m_Door.Draw();
         }
 
+        /// <summary>
+        /// The bunker's rope, a frame: you on the painted rope, hand over hand, your feet at <paramref name="y"/> (the
+        /// flow's <see cref="RopeClimb"/>).
+        /// </summary>
+        public void RopeBeat(float dt, float y, RoomWalker walker)
+        {
+            m_Clock += dt;
+            m_OnRope = true;
+            m_RopeY = y;
+            You(walker);
+            m_OnRope = false;
+            Camera(dt, walker);
+        }
+
         /// <summary>Draws the room: you, the camera following you, and the back door's leaf when the beat leaves it open.</summary>
         public void Refresh(float dt, RoomWalker walker)
         {
@@ -143,12 +150,21 @@ namespace PooketSlug
             You(walker);
             Camera(dt, walker);
             if (m_Door.Swing > 0f) m_Door.Draw();
-            if (m_Clock > m_NoteUntil) m_Note.text = "";
         }
 
         void You(RoomWalker w)
         {
             PlayerSkin skin = Art.SkinFor(m_SoldierDef);
+            if (m_OnRope)
+            {
+                // the bunker's rope: knees up and reaching, shaking hand over hand as the den's crew do on its ladder
+                m_Soldier.Pose(skin, StagePose.Climbing);
+                float shiver = Fx.Shiver(m_Clock, 6f, 0.5f);
+                m_Soldier.AtPlate(w.X + shiver, m_RopeY);
+                m_Soldier.Tint(Color.white);
+                m_Soldier.Rt.localScale = new Vector3(w.FaceLeft ? -1f : 1f, 1f, 1f);
+                return;
+            }
             // through the back door: into its dark, a little smaller as you go (as the den's crew is in its roller door)
             bool stepping = DoorThrough > 0f;
             bool walking = stepping || !w.Standing;
@@ -159,7 +175,7 @@ namespace PooketSlug
                 x = RoomBackDoor.Sill.x + Mathf.Lerp(RoomBackDoor.From, RoomBackDoor.To, DoorThrough);
                 y = RoomBackDoor.Sill.y;
             }
-            m_Soldier.At(x, y);
+            m_Soldier.AtPlate(x, y);
             Color shade = Color.Lerp(Color.white, new Color(0.15f, 0.15f, 0.2f), DoorThrough);
             m_Soldier.Tint(shade);
             float size = 1f - 0.2f * DoorThrough;

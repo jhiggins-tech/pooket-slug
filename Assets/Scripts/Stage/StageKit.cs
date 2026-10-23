@@ -105,6 +105,13 @@ namespace PooketSlug
         /// <summary>Stands it with its feet at <paramref name="x"/>, <paramref name="y"/> (art pixels).</summary>
         public void At(float x, float y) => Rt.anchoredPosition = new Vector2(x, y) * m_Scale;
 
+        /// <summary>
+        /// Stands it with its feet at <paramref name="x"/>, <paramref name="y"/> in the parent's own art pixels, however
+        /// big the figure itself is drawn: a room's plate is drawn at <see cref="StageKit.Px"/>, a soldier on it a fifth
+        /// larger (<see cref="StageKit.FigureScale"/>), so his feet follow the plate while his size doesn't.
+        /// </summary>
+        public void AtPlate(float x, float y) => Rt.anchoredPosition = new Vector2(x, y) * StageKit.Px;
+
         /// <summary>Standing still, facing the camera.</summary>
         public void Stand(PlayerSkin skin) => Pose(skin, StagePose.Stand);
 
