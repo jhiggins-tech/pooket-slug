@@ -37,9 +37,9 @@ jobs:
           # OpenRouter instead of Anthropic: the same settings as claude-code.yml (see its notes).
           ANTHROPIC_BASE_URL: https://openrouter.ai/api
           ANTHROPIC_AUTH_TOKEN: ${{ secrets.OPENROUTER_API_KEY }}
-          ANTHROPIC_MODEL: ${{ vars.OPENROUTER_MODEL || 'minimax/minimax-m3.1-flash:free[1m]' }}
+          ANTHROPIC_MODEL: ${{ vars.OPENROUTER_MODEL || 'deepseek/deepseek-v4.1-flash-1017' }}
           # Claude Code's background calls ask for a Haiku; OpenRouter has none under that name.
-          ANTHROPIC_DEFAULT_HAIKU_MODEL: ${{ vars.OPENROUTER_MODEL || 'minimax/minimax-m3.1-flash:free[1m]' }}
+          ANTHROPIC_DEFAULT_HAIKU_MODEL: ${{ vars.OPENROUTER_MODEL || 'deepseek/deepseek-v4.1-flash-1017' }}
           DISABLE_UPDATES: '1'
           CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1'
         with:
