@@ -18,6 +18,7 @@ namespace PooketSlug
         readonly Latch<float> m_TapWalk = new Latch<float>();
         readonly Latch m_Back = new Latch();
         readonly RoomBackDoor m_Door;
+        readonly RoomRope m_Rope;
 
         GameObject m_Plate;
         float m_Clock, m_CamX, m_CamY, m_NoteUntil;
@@ -36,6 +37,7 @@ namespace PooketSlug
 
             m_Soldier = new StageFigure(m_World, "You");
             m_Door = new RoomBackDoor(m_World);
+            m_Rope = new RoomRope(m_World, RoomId.Bunker); // the bunker's own: the only room with one
 
             Vector2 half = new Vector2(StageW, StageH) * Px / 2f;
             Ui.Button(m_Stage, "BACK", new Vector2(-half.x + 40f, half.y - 18f), new Vector2(64f, 22f), m_Back.Set, out Text backKey);
@@ -73,8 +75,10 @@ namespace PooketSlug
                 var img = Ui.Picture(m_World, "Room", plate, Vector2.zero, Vector2.zero, Vector2.zero, plate.rect.size * Px, Color.white);
                 m_Plate = img.gameObject;
             }
-            // the order back to front: the painting, then you, then the taps over them
+            // the order back to front: the painting, the rope (the bunker's), then you, then the taps over them
             if (m_Plate != null) m_Plate.transform.SetAsFirstSibling();
+            if (RoomMap.ByRope(room, RoomWay.Back)) m_Rope.Draw();
+            else m_Rope.Hide();
             m_Soldier.Rt.SetAsLastSibling();
             m_Tap.SetAsLastSibling();
             // the taps cover the whole room, which is wider or taller than the screen for some rooms. They're anchored
@@ -134,6 +138,22 @@ namespace PooketSlug
             m_Door.Draw();
         }
 
+        /// <summary>
+        /// The rope's beat, a frame (<see cref="RopeClimb"/>, in Core): you on the bunker's rope at <paramref name="y"/>,
+        /// hand over hand, coming down into the room or going up out of the hole. Above the ceiling you're out of sight,
+        /// so you come down through the hole a little at a time. The room's taps wait until you're off it.
+        /// </summary>
+        public void RopeBeat(float dt, float y, RoomWalker walker)
+        {
+            m_Clock += dt;
+            m_Soldier.Pose(Art.SkinFor(m_SoldierDef), StagePose.Climbing(m_Clock));
+            Stand(RoomMap.RopeX + Fx.Shiver(m_Clock, 6f, 0.5f), y); // hand over hand
+            m_Soldier.Tint(Color.white);
+            m_Soldier.Rt.localScale = Vector3.one; // facing the wall, not the room
+            Camera(dt, walker);
+            if (m_Door.Swing > 0f) m_Door.Draw();
+        }
+
         /// <summary>Draws the room: you, the camera following you, and the back door's leaf when the beat leaves it open.</summary>
         public void Refresh(float dt, RoomWalker walker)
         {
@@ -145,6 +165,15 @@ namespace PooketSlug
             if (m_Door.Swing > 0f) m_Door.Draw();
             if (m_Clock > m_NoteUntil) m_Note.text = "";
         }
+
+        /// <summary>
+        /// Stands you with your feet at <paramref name="x"/>, <paramref name="y"/> in the room's own art pixels, on its
+        /// painted floor: the figure is drawn a fifth bigger than the painting (<see cref="StageKit.FigureScale"/>, which
+        /// is what the plates are drawn small for), but where it stands is the painting's own pixel, so you're on the
+        /// floor you walk on and at the hole you come out of (<see cref="StageFigure.At"/> would move you with the scale,
+        /// and off the room's right edge).
+        /// </summary>
+        void Stand(float x, float y) => m_Soldier.Rt.anchoredPosition = new Vector2(x, y) * Px;
 
         void You(RoomWalker w)
         {
@@ -159,7 +188,7 @@ namespace PooketSlug
                 x = RoomBackDoor.Sill.x + Mathf.Lerp(RoomBackDoor.From, RoomBackDoor.To, DoorThrough);
                 y = RoomBackDoor.Sill.y;
             }
-            m_Soldier.At(x, y);
+            Stand(x, y);
             Color shade = Color.Lerp(Color.white, new Color(0.15f, 0.15f, 0.2f), DoorThrough);
             m_Soldier.Tint(shade);
             float size = 1f - 0.2f * DoorThrough;

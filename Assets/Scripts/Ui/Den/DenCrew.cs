@@ -267,7 +267,7 @@ namespace PooketSlug
             float bob = 0f, shiver = 0f;
             if (a.Doing == DenDoing.Station) Idle(a, out bob, out shiver);
             else if (climbing) shiver = Fx.Shiver(m_Clock, 6f, 0.5f); // hand over hand
-            StageLegs legs = seated ? StageLegs.Sit : climbing ? StageLegs.Jump : walking ? StageLegs.Walk : StageLegs.Idle;
+            StageLegs legs = seated ? StageLegs.Sit : walking ? StageLegs.Walk : StageLegs.Idle;
             StageTorso top = seated ? StageTorso.Pad : lounging ? StageTorso.Lounge : StageTorso.Unarmed;
             float x = seated ? SeatX[a.Seat] : a.X, y = seated ? SitY : a.Y;
             Vector2 sill = DenRollerDoor.Sill; // the step through the roller door walks the soldier through the door
@@ -281,7 +281,7 @@ namespace PooketSlug
                 walking = true;
                 legs = StageLegs.Walk;
             }
-            f.Body.Pose(skin, new StagePose(legs, top, 0f, seated ? -6f : bob) { WalkT = m_Clock });
+            f.Body.Pose(skin, climbing ? StagePose.Climbing(m_Clock) : new StagePose(legs, top, 0f, seated ? -6f : bob) { WalkT = m_Clock });
             Ui.Show(f.Rt, through < 1f);
             Color shade = Color.Lerp(Color.white, new Color(0.15f, 0.15f, 0.2f), through);
             f.Body.Tint(shade);

@@ -184,7 +184,7 @@ namespace PooketSlug
                 case RoomId.Backyard: return MinX(room);
                 case RoomId.Basement:
                     return way == RoomWay.ToBunker ? 289f : MinX(room);
-                case RoomId.Bunker: return 300f;
+                case RoomId.Bunker: return way == RoomWay.Back ? RopeX : MinX(room);
                 case RoomId.Rooftop: return MaxX(room);
                 case RoomId.ShowerBlock: return MinX(room);
                 case RoomId.Wintergarden: return MinX(room);
@@ -197,6 +197,23 @@ namespace PooketSlug
         public static float MaxX(RoomId room) => WidthOf(room) - 16f;
 
         public static float Clamp(RoomId room, float x) => Math.Max(MinX(room), Math.Min(MaxX(room), x));
+
+        /// <summary>
+        /// The bunker's rope: where it hangs in the room, under the hatch in its ceiling, where the plate has its ladder.
+        /// The plate has no rope there, so the view draws it, as the den's trapdoor is drawn.
+        /// </summary>
+        public const float RopeX = 28f;
+        /// <summary>How fast you climb the rope: the wintergarden stair's pace.</summary>
+        public const float RopeSpeed = 90f;
+
+        /// <summary>The rope's top: the room's ceiling, the hole you climb out through.</summary>
+        public static float RopeTop(RoomId room) => HeightOf(room);
+
+        /// <summary>
+        /// Whether a way is a rope you climb hand over hand, rather than a door you walk through: the bunker's way back
+        /// up to the basement, which you come down as the bunker opens (<see cref="RopeClimb"/>).
+        /// </summary>
+        public static bool ByRope(RoomId room, RoomWay way) => room == RoomId.Bunker && way == RoomWay.Back;
 
         /// <summary>
         /// The wintergarden's stair: where it is (its foot, in the room's x), and how high it climbs. The rose is on the
@@ -224,14 +241,7 @@ namespace PooketSlug
         }
 
         /// <summary>What a way says when you use it, for the ones that don't go anywhere yet (null for the ways that do).</summary>
-        public static string Note(RoomWay way)
-        {
-            switch (way)
-            {
-                case RoomWay.ToBunker: return "THE HOLE: IT IS NOT DUG THROUGH YET";
-                default: return null;
-            }
-        }
+        public static string Note(RoomWay way) => null; // every way in the house goes somewhere now (the hole in B1's floor is dug through)
     }
 
     /// <summary>

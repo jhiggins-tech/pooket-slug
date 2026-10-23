@@ -54,11 +54,14 @@ two ([den2-story](https://claude.ai/code/artifact/f6915f40-b462-4063-8250-a8c245
 says what each is for), and the tabk bay opens with the den, after Mission one.
 So the rules are known, they just aren't written down or built.
 
-### 4. The bunker isn't reachable
+### 4. The bunker's rope is drawn in code
 
-Its hole says "not dug through yet" — the hole is dug later in the game, when
-the game creates it. The room is signed off as art, but it can't be seen in
-game yet, and the hole needs something to dig it.
+The room is reachable now: down the hole in B1's floor, and you come down its
+rope and climb back up it (`Core/Lobby/RopeClimb`). The plate has the hatch and
+its ladder in the ceiling but **no rope**, so `Ui/Den/RoomRope` draws it over
+the painting, as the trapdoor is drawn over the den's floor — matched to the
+hatch, so the climb reads. When the plate is redrawn it should paint the rope
+in, and `RoomRope` can go.
 
 ### 5. The trapdoor is drawn in code
 

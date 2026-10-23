@@ -40,6 +40,12 @@ namespace PooketSlug
             return p;
         }
 
+        /// <summary>
+        /// Hand over hand up a ladder or a rope (the den's ladders, the bunker's rope): bent legs, off duty, <paramref name="t"/>
+        /// seconds in. The site adds the shiver that goes with it (<see cref="Fx.Shiver"/>).
+        /// </summary>
+        public static StagePose Climbing(float t) => new StagePose(StageLegs.Jump, StageTorso.Lounge) { WalkT = t };
+
         /// <summary>Crouched over a tabk with a wrench, <paramref name="t"/> seconds into the crew's repair (<see cref="CrewFigure.Repair"/>).</summary>
         public static StagePose Repairing(float t) =>
             new StagePose(StageLegs.Crouch, StageTorso.Repair, 0f, CrewFigure.Repair.Lift(t)) { WalkT = t };

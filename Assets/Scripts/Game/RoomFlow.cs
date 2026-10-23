@@ -15,6 +15,9 @@ namespace PooketSlug
         int m_HeldDir;
         readonly SwingDoor m_Door = new SwingDoor();
         RoomId m_DoorTo = RoomId.None;
+        readonly RopeClimb m_Rope = new RopeClimb(RoomId.Bunker);
+        RoomId m_RopeTo = RoomId.None;
+        RoomWay m_RopeBy = RoomWay.None;
 
         public RoomFlow(Game game, Transform parent)
         {
@@ -34,7 +37,12 @@ namespace PooketSlug
             m_HeldDir = 0;
             m_Door.Reset();
             m_DoorTo = RoomId.None;
+            m_RopeTo = RoomId.None;
+            m_RopeBy = RoomWay.None;
+            m_Rope.Reset();
             m_Walker = new RoomWalker(room, RoomMap.WayX(room, wayIn));
+            // in at the hole: you're at the top of the rope, and climb down it (the room's yours once you're on the floor)
+            if (RoomMap.ByRope(room, wayIn)) m_Rope.GoDown();
             m_View.Show(room, m_Game.Soldier);
             Log.Game.Info("Room open: " + room);
         }
@@ -56,6 +64,14 @@ namespace PooketSlug
                 // through the back door: nothing else till it's done (and nothing tapped meanwhile kept)
                 m_View.TakeWay();
                 m_View.TakeWalk(out _);
+                return;
+            }
+            if (m_Rope.Busy)
+            {
+                // on the rope: nothing else till you're off it (and nothing tapped meanwhile kept)
+                m_View.TakeWay();
+                m_View.TakeWalk(out _);
+                m_View.TakeBack();
                 return;
             }
             if (m_View.TakeBack() || keys.Back) m_Game.Rooms.Back(m_Room);
@@ -95,6 +111,25 @@ namespace PooketSlug
                 m_View.DoorBeat(dt, m_Door.Swing, m_Door.Through, m_Walker);
                 return;
             }
+            if (m_Rope.Busy)
+            {
+                // the rope: down it as the bunker opens, up it to leave, hand over hand. Off it, the room's yours; out of
+                // the hole, the basement takes over on the frame you leave it
+                m_Rope.Tick(dt);
+                m_View.RopeBeat(dt, m_Rope.Y, m_Walker);
+                if (m_Rope.TakeLanded()) Sfx.Play(Sfx.Thump, 0.4f); // feet on the floor
+                if (m_Rope.TakeLeft())
+                {
+                    RoomId to = m_RopeTo;
+                    RoomWay by = m_RopeBy;
+                    m_RopeTo = RoomId.None;
+                    m_RopeBy = RoomWay.None;
+                    Sfx.Play(Sfx.CableClunk, 0.4f); // out of the hole
+                    Log.Game.Info("Room: up the rope, to " + to);
+                    m_Game.Rooms.Go(m_Room, to, by);
+                }
+                return;
+            }
             m_View.Refresh(dt, m_Walker);
             Use(m_View.TakeReached());
         }
@@ -111,8 +146,25 @@ namespace PooketSlug
                 if (note != null) m_View.Note(note);
                 return;
             }
+            if (RoomMap.ByRope(m_Room, way))
+            {
+                // the bunker's rope: you climb up it, and the basement takes over as you leave the hole
+                if (m_Rope.GoUp())
+                {
+                    m_RopeTo = to;
+                    m_RopeBy = by;
+                    Log.Game.Info("Room: up the rope from " + m_Room);
+                }
+                return;
+            }
             if (to != RoomId.None)
             {
+                // the room ahead is entered down its rope: there's no door to swing, the rope is the beat
+                if (RoomMap.ByRope(to, by))
+                {
+                    m_Game.Rooms.Go(m_Room, to, by);
+                    return;
+                }
                 // the way on: the door creaks open, and you step into its dark
                 m_DoorTo = to;
                 if (m_Door.GoIn()) m_View.PlayDoor();
