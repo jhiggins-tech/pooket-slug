@@ -27,3 +27,11 @@ starts from, default the main line `claude/gallant-keller-3qzp97`), `branch`, `t
 The log is the agent's window: [`tools/claude_log.py`](../../tools/claude_log.py) prints Claude Code's stream as
 it arrives — 💭 its thinking, 💬 its words, 🔧 the tools it calls, ↳ what came back, and at the end ✓ the turns
 and the cost. Open the run in the Actions tab, and read the "Run Claude Code" step.
+
+## The @claude action
+
+[`.github/workflows/claude.yml`](../../.github/workflows/claude.yml) is the official `claude-code-action`, answering
+`@claude` on issues and pull requests. Before the action runs it builds the game (the pull request's head, for a
+comment on one), serves it at `http://127.0.0.1:8001/index.html` and sets up Playwright, so the agent finds the build
+in its container and has a browser (the `playwright` MCP server) to play it. Its instructions are
+[`.github/claude-code/action-system-prompt.md`](../../.github/claude-code/action-system-prompt.md).
