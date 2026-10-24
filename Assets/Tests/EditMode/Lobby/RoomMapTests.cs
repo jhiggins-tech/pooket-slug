@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using NUnit.Framework;
 
@@ -338,17 +339,46 @@ namespace PooketSlug.Tests
             }
         }
 
-        // The door that swings is the one that leads to another room. The way back to the house is the house's own door.
+        // Every door swings, whichever way it leads: the door to another room, and the door back to the house, which
+        // is the house's own door seen from the room. A hole is gone into, a ladder and a rope are climbed: nothing
+        // swings but a door.
         [Test]
-        public void TheDoorThatSwings_IsTheOneThatLeadsToAnotherRoom()
+        public void EveryDoor_Swings_WhicheverWayItLeads()
         {
-            Assert.AreEqual(RoomWay.ToBackyard, RoomMap.DoorWayOf(RoomId.Kitchen));
-            Assert.AreEqual(RoomWay.Back, RoomMap.DoorWayOf(RoomId.Backyard));
-            Assert.AreEqual(RoomWay.None, RoomMap.DoorWayOf(RoomId.Basement));
-            Assert.AreEqual(RoomWay.None, RoomMap.DoorWayOf(RoomId.Bunker));
-            Assert.AreEqual(RoomWay.None, RoomMap.DoorWayOf(RoomId.Rooftop));
-            Assert.AreEqual(RoomWay.None, RoomMap.DoorWayOf(RoomId.ShowerBlock));
-            Assert.AreEqual(RoomWay.None, RoomMap.DoorWayOf(RoomId.Wintergarden));
+            Assert.IsTrue(RoomMap.IsDoor(RoomId.Kitchen, RoomWay.Back), "the kitchen's side door, back to the den");
+            Assert.IsTrue(RoomMap.IsDoor(RoomId.Kitchen, RoomWay.ToBackyard), "the kitchen's back door, to the yard");
+            Assert.IsTrue(RoomMap.IsDoor(RoomId.Backyard, RoomWay.Back), "the yard's house door, to the kitchen");
+            Assert.IsTrue(RoomMap.IsDoor(RoomId.Rooftop, RoomWay.Back), "the stair hut's door, back to the loft");
+            Assert.IsTrue(RoomMap.IsDoor(RoomId.ShowerBlock, RoomWay.Back), "the shower block's door, back to the loft");
+            Assert.IsTrue(RoomMap.IsDoor(RoomId.Wintergarden, RoomWay.Back), "the wintergarden's door, back to the loft");
+            Assert.IsFalse(RoomMap.IsDoor(RoomId.Basement, RoomWay.Back), "the ladder is climbed");
+            Assert.IsFalse(RoomMap.IsDoor(RoomId.Basement, RoomWay.ToBunker), "the hole is gone into");
+            Assert.IsFalse(RoomMap.IsDoor(RoomId.Bunker, RoomWay.Back), "the rope is climbed");
+        }
+
+        // The doors in a room: each way in it that is a door. The kitchen has two (its side door back to the den and
+        // its back door to the yard); the yard one; the basement and the bunker none.
+        [Test]
+        public void TheDoorsInARoom_AreItsDoorWays()
+        {
+            Assert.AreEqual(new List<RoomWay> { RoomWay.Back, RoomWay.ToBackyard }, RoomMap.DoorsOf(RoomId.Kitchen));
+            Assert.AreEqual(new List<RoomWay> { RoomWay.Back }, RoomMap.DoorsOf(RoomId.Backyard));
+            Assert.AreEqual(new List<RoomWay>(), RoomMap.DoorsOf(RoomId.Basement));
+            Assert.AreEqual(new List<RoomWay>(), RoomMap.DoorsOf(RoomId.Bunker));
+            Assert.AreEqual(new List<RoomWay> { RoomWay.Back }, RoomMap.DoorsOf(RoomId.Rooftop));
+            Assert.AreEqual(new List<RoomWay> { RoomWay.Back }, RoomMap.DoorsOf(RoomId.ShowerBlock));
+            Assert.AreEqual(new List<RoomWay> { RoomWay.Back }, RoomMap.DoorsOf(RoomId.Wintergarden));
+        }
+
+        // A door you can walk through has a box to walk into, wherever it leads: the one back to the house too, so the
+        // room can draw it and you can step into its dark.
+        [Test]
+        public void EveryDoorHasABox_ToWalkInto_WhicheverWayItLeads()
+        {
+            foreach (RoomWay way in RoomMap.DoorsOf(RoomId.Kitchen))
+                Assert.IsFalse(RoomMap.OpeningOf(RoomId.Kitchen, way).None, way + ": a door to walk into");
+            foreach (RoomId room in new[] { RoomId.Backyard, RoomId.Rooftop, RoomId.ShowerBlock, RoomId.Wintergarden })
+                Assert.IsFalse(RoomMap.OpeningOf(room, RoomWay.Back).None, room + ": the door back to the house");
         }
 
         // The hole in the basement's wall: a tap on it, high up the wall, is the way down to the bunker.

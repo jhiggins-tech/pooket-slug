@@ -66,13 +66,21 @@ At game size they read more like privacy stalls than **swinging saloon doors**,
 which is what the design calls for. The doors are painted flat, so making them
 swing means the art, or drawing them in code over the plate.
 
-### 6. The wintergarden paints no door
+### 7. The basement's ladder isn't climbed
+
+The basement's way back up to the den is its **ladder** (up its left wall,
+through the trapdoor in the den's floor), but the game doesn't climb it: the
+way cuts straight back to the den, with no climb and no ladder drawn over the
+plate. The **rope** is climbed both ways (down into the bunker, up and out of
+it), so the ladder is the last of the ways that isn't.
+
+### 8. The wintergarden paints no door
 
 The room's way back to the loft is a door in its left wall, but the plate has
-**glass** there: no door is painted, so the door in the game sits at the wall
-with nothing behind it (`RoomMap.WinterDoor*`). It needs the same annotated
-edit as the den's board: a door painted in the glass, where the loft's
-wintergarden door is.
+**glass** there: no door is painted, so the game draws its own door over the
+glass (`RoomMap.WinterDoor*`), and the door swings like any other. The plate
+still wants the same annotated edit as the den's board: a door painted in the
+glass, where the loft's wintergarden door is.
 
 **Measured off the plates** (2026-10-24): the openings were measured off their
 plates and pinned by the tests — the hole in B1's right wall, the house door in

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace PooketSlug
 {
@@ -312,18 +313,19 @@ namespace PooketSlug
         }
 
         /// <summary>
-        /// The door in a room that leads to another room (the one that swings and swallows you), or None when the room
-        /// has none: the way back to the house is the house's own door, not this room's.
+        /// Whether a way in a room is a door: you walk through it, and it swings when you use it. Every door swings,
+        /// whichever way it leads: the door to another room, and the door back to the house (which is the house's own
+        /// door, seen from the room). A hole is gone into, a ladder and a rope are climbed: nothing swings.
         /// </summary>
-        public static RoomWay DoorWayOf(RoomId room)
+        public static bool IsDoor(RoomId room, RoomWay way) => KindOf(room, way) == WayKind.Door;
+
+        /// <summary>The doors in a room: each way in it that is a door, in the order they are in the room.</summary>
+        public static List<RoomWay> DoorsOf(RoomId room)
         {
+            var doors = new List<RoomWay>();
             foreach (RoomWay way in Ways)
-            {
-                if (KindOf(room, way) != WayKind.Door) continue;
-                Leads(room, way, out RoomId to, out RoomWay _);
-                if (to != RoomId.None) return way;
-            }
-            return RoomWay.None;
+                if (InRoom(room, way) && IsDoor(room, way)) doors.Add(way);
+            return doors;
         }
 
         /// <summary>How far you can walk in a room: short of the walls.</summary>
