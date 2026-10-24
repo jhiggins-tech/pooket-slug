@@ -43,6 +43,7 @@ jobs:
           PR_HEAD: ${{ github.event.pull_request.head.sha }}
         run: |
           set -euo pipefail
+          # The build's version shows this commit, so the agent can tell what it is playing.
           ref=''
           if [ -n "$PR_HEAD" ]; then
             ref=$PR_HEAD
@@ -74,6 +75,16 @@ jobs:
           set -euo pipefail
           { echo "text<<PROMPT_EOF"; sed "s/'/’/g" "$RUNNER_TEMP/agent/system-prompt.md"; echo "PROMPT_EOF"; } >> "$GITHUB_OUTPUT"
 
+      # tools/check.sh needs the Unity kit and Photon's SDK from the private vendor repository, which the
+      # action's own token cannot see (GitHub answers 404, and check.sh reports "No Unity kit"). So they are
+      # fetched here with the vendor token, into the cache check.sh reads, and the agent never holds the
+      # token. It runs the check too: a red main line is worth knowing, but does not stop the agent.
+      - name: Fetch the kit for tools/check.sh
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.VENDOR_PAT }}
+        run: tools/check.sh compile
+
       - name: Get the project ready for Unity
         id: project
         uses: ./.github/actions/unity-project
@@ -91,7 +102,7 @@ jobs:
           customImage: ${{ steps.project.outputs.image }}
           targetPlatform: WebGL
           buildMethod: PooketSlug.EditorTools.WebGLBuild.Build
-          customParameters: -buildSha ${{ github.sha }} -photonAppId ${{ secrets.PHOTON_APP_ID }}
+          customParameters: -buildSha ${{ steps.ref.outputs.ref || github.sha }} -photonAppId ${{ secrets.PHOTON_APP_ID }}
           versioning: None
 
       # The build rewrites tracked files and leaves its own; neither is Claude's work.
