@@ -224,7 +224,7 @@ namespace PooketSlug
                     return way == RoomWay.ToBunker ? HoleX + HoleW / 2f : MinX(room); // the hole in its wall, the ladder up
                 case RoomId.Bunker: return RopeX;                                // the rope, under its hatch
                 case RoomId.Rooftop: return RoofHutX + RoofHutW / 2f;              // the stair hut's door, at its right end
-                case RoomId.ShowerBlock: return MinX(room);                      // the door back to the loft
+                case RoomId.ShowerBlock: return ShowerDoorX + ShowerDoorW / 2f;     // the door back to the loft, in the painted door
                 case RoomId.Wintergarden: return MinX(room);                     // the door back to the loft
                 default: return MinX(room);
             }
@@ -232,16 +232,27 @@ namespace PooketSlug
 
         /// <summary>The kitchen's back door, in its right wall (the frame the painting has, showing the night beyond).</summary>
         public const float KitchenDoorX = 389.5f, KitchenDoorY = 16f, KitchenDoorW = 25f, KitchenDoorH = 50f;
-        /// <summary>The house door in the yard's left wall (the plate's own door, by the fence).</summary>
-        public const float YardDoorX = 33f, YardDoorY = 15f, YardDoorW = 37f, YardDoorH = 70f;
-        /// <summary>The hole in the basement's right wall, down to the bunker.</summary>
-        public const float HoleX = 345f, HoleY = 15f, HoleW = 45f, HoleH = 100f;
+        /// <summary>
+        /// The house door in the yard's left wall (the plate's own door, by the fence): measured off the plate, and
+        /// down to the floor, so you can stand in it and go in.
+        /// </summary>
+        public const float YardDoorX = 45f, YardDoorY = 15f, YardDoorW = 32f, YardDoorH = 100f;
+        /// <summary>
+        /// The hole in the basement's right wall, down to the bunker: where the plate paints it (measured off the
+        /// plate), and down to the floor, so you can stand in it and go down.
+        /// </summary>
+        public const float HoleX = 367f, HoleY = 15f, HoleW = 28f, HoleH = 100f;
         /// <summary>The basement's ladder, up its left wall to the den: how wide the ladder is, and how tall.</summary>
         public const float LadderW = 32f, LadderH = 60f;
         /// <summary>The kitchen's side door, in its left wall: the den's side door, at the room's own left end.</summary>
         public const float KitchenSideX = 0f, KitchenSideY = 15f, KitchenSideW = 31f, KitchenSideH = 37f;
-        /// <summary>The loft's doors, in a room's left wall: the shower block's and the wintergarden's.</summary>
-        public const float LoftDoorX = 0f, LoftDoorY = 15f, LoftDoorW = 31f, LoftDoorH = 37f;
+        /// <summary>The shower block's door back to the loft, in its left wall: measured off the plate.</summary>
+        public const float ShowerDoorX = 13f, ShowerDoorY = 15f, ShowerDoorW = 41f, ShowerDoorH = 105f;
+        /// <summary>
+        /// The wintergarden's door back to the loft, in its left wall. The plate paints no door there yet (that wall is
+        /// glass), so the door is at the wall until the plate is edited.
+        /// </summary>
+        public const float WinterDoorX = 0f, WinterDoorY = 15f, WinterDoorW = 31f, WinterDoorH = 37f;
         /// <summary>The rooftop's stair hut's door, at the roof's right end: the way down to the loft.</summary>
         public const float RoofHutX = 348f, RoofHutY = 15f, RoofHutW = 32f, RoofHutH = 48f;
 
@@ -292,8 +303,9 @@ namespace PooketSlug
                 case RoomId.Rooftop:
                     return new Opening(RoofHutX, RoofHutY, RoofHutW, RoofHutH, true);    // the stair hut's door, at the right end
                 case RoomId.ShowerBlock:
+                    return new Opening(ShowerDoorX, ShowerDoorY, ShowerDoorW, ShowerDoorH, false); // the loft's door, in the left wall
                 case RoomId.Wintergarden:
-                    return new Opening(LoftDoorX, LoftDoorY, LoftDoorW, LoftDoorH, false); // the loft's door, in the left wall
+                    return new Opening(WinterDoorX, WinterDoorY, WinterDoorW, WinterDoorH, false); // the loft's door, in the left wall
                 default:
                     return new Opening(0f, 0f, 0f, 0f, false);
             }

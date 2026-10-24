@@ -365,6 +365,39 @@ namespace PooketSlug.Tests
             Assert.AreEqual(RoomWay.None, RoomMap.WayAt(RoomId.Basement, ladder, RoomMap.FloorY + RoomMap.LadderH + 10f), "the wall above the ladder");
         }
 
+        // The openings are where the plates paint the doors: each box was measured off its plate, so a tap on the
+        // painted door counts and you stand in the painted doorway.
+        [Test]
+        public void TheOpenings_AreWhereThePlatesPaintTheDoors()
+        {
+            Assert.AreEqual(367f, RoomMap.HoleX, "the hole in the basement's right wall");
+            Assert.AreEqual(395f, RoomMap.HoleX + RoomMap.HoleW, "the hole's other edge");
+            Assert.AreEqual(45f, RoomMap.YardDoorX, "the house door in the yard's left wall");
+            Assert.AreEqual(77f, RoomMap.YardDoorX + RoomMap.YardDoorW, "the house door's other edge");
+            Assert.AreEqual(13f, RoomMap.ShowerDoorX, "the shower block's door, in its left wall");
+            Assert.AreEqual(54f, RoomMap.ShowerDoorX + RoomMap.ShowerDoorW, "the shower block's door's other edge");
+            Assert.AreEqual(351f, RoomMap.RopeX, "the rope in the bunker, under the hole in its roof");
+            Assert.AreEqual(364f, RoomMap.WayX(RoomId.Rooftop, RoomWay.Back), "the stair hut's door, at the roof's right end");
+        }
+
+        // An opening is in the room it is in, and it reaches the floor, so you can walk into it and stand in it.
+        [Test]
+        public void AnOpening_IsInItsRoom_AndReachesTheFloor()
+        {
+            foreach (RoomWay way in RoomMap.Ways)
+            {
+                foreach (RoomId room in System.Enum.GetValues(typeof(RoomId)))
+                {
+                    if (!RoomMap.InRoom(room, way)) continue;
+                    Opening opening = RoomMap.OpeningOf(room, way);
+                    if (opening.None) continue;
+                    Assert.That(opening.X, Is.GreaterThanOrEqualTo(0f), room + "/" + way + ": the opening is in the room");
+                    Assert.That(opening.Right, Is.LessThanOrEqualTo(RoomMap.WidthOf(room)), room + "/" + way + ": the opening is in the room");
+                    Assert.That(opening.Y, Is.LessThanOrEqualTo(RoomMap.FloorY + 2f), room + "/" + way + ": the opening reaches the floor");
+                }
+            }
+        }
+
         // A step through a door starts before it and ends past its far edge, so you go *into* the opening.
         [Test]
         public void AStepThroughADoor_StartsBeforeIt_AndEndsPastIt()

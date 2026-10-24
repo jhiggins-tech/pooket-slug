@@ -66,6 +66,8 @@ Concept: `concepts/lobby/den-lobby.png` in the project's files (second pass; the
 
 **The ways in a room know what they are** (2026-10-24): each way is a **door, a hole, a ladder or a rope**, and a door and a hole have an **opening** — the box in the room's own art pixels where the plate paints it, which is where a tap has to land and where you stand to go through it. A door you walk through swallows you: the frame's edge cuts you off as you step into it, so you go *into* the opening instead of off the side of the screen. The door that swings is the one that leads to **another room**; the way back to the house is the house's own door. The rules are in Core (`RoomMap`, tested); the drawing is `Ui/Den/RoomDoor`.
 
+**The openings are measured off the plates** (2026-10-24): each box is where its plate paints the door — the hole in B1's right wall, the house door in the yard's wall, the shower block's door, the rope in the bunker under the hole in its roof, the stair hut's door on the rooftop. They are the numbers the tests pin, so they can't drift back to a guess. The **wintergarden paints no door** (that wall is glass), so its way back to the loft sits at the wall until the plate is edited ([the todos](lobby/rooms-todo.md)).
+
 ## The room
 
 This is the den as it's built today. Den 2.0 ([above](#den-20-the-den-and-the-long-loft)) is where it's going: the den keeps this screen's ground floor, and the loft's stations move up to the scrolling loft. Until Den 2.0 is built, this section is the game.

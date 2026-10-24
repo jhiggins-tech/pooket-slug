@@ -66,6 +66,21 @@ At game size they read more like privacy stalls than **swinging saloon doors**,
 which is what the design calls for. The doors are painted flat, so making them
 swing means the art, or drawing them in code over the plate.
 
+### 6. The wintergarden paints no door
+
+The room's way back to the loft is a door in its left wall, but the plate has
+**glass** there: no door is painted, so the door in the game sits at the wall
+with nothing behind it (`RoomMap.WinterDoor*`). It needs the same annotated
+edit as the den's board: a door painted in the glass, where the loft's
+wintergarden door is.
+
+**Measured off the plates** (2026-10-24): the openings were measured off their
+plates and pinned by the tests — the hole in B1's right wall, the house door in
+the yard's wall, the shower block's door, the rope under the bunker's roof hole
+and the stair hut's door on the rooftop. The kitchen's own doors were left as
+they were: their plates agree with the boxes.
+
+
 ## Looked at, and fine
 
 - The **wintergarden's stair** climbs to a landing wide enough for two crew,
