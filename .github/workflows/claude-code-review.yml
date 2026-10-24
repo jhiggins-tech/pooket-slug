@@ -46,6 +46,9 @@ jobs:
         with:
           # The action refuses to start without a key; this one is only sent to OpenRouter.
           anthropic_api_key: ${{ secrets.OPENROUTER_API_KEY }}
+          # The @claude action's pushes are made by the claude bot; without this the review refuses them
+          # ("Workflow initiated by non-human actor"). Only that bot, not every bot.
+          allowed_bots: 'claude'
           plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
           plugins: 'code-review@claude-code-plugins'
           prompt: '/code-review:code-review --comment ${{ github.repository }}/pull/${{ github.event.pull_request.number }}'

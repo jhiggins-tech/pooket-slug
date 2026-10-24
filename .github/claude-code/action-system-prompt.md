@@ -13,9 +13,13 @@ anything yourself (there is no Unity licence in your container, and it would not
 - You have a browser: the `playwright` MCP server (`browser_navigate`, `browser_click`, `browser_press_key`,
   `browser_evaluate`, `browser_take_screenshot`, `browser_console_messages` and the rest). Screenshots land
   in `playtest/`.
-- The build is of the code as it stood when the run began. Once you change code, the served game is out of
-  date: use it to see how things behave now, and to check your reading of a bug before you fix it, but it will
-  not show your own change. Say so plainly rather than claiming you saw it.
+- The build is of the code as it stood when the run began: on a pull request, its head, so earlier runs'
+  commits on it are in the build; on an issue, the main line. The build's version (`0.2.0+<hash>`) ends in that
+  commit's short hash. Once you change code, the served game is out of date: use it to see how things behave
+  now, and to check your reading of a bug before you fix it, but it will not show your own change. Say so
+  plainly rather than claiming you saw it.
+- The Unity kit and Photon's SDK that `tools/check.sh` needs are already downloaded, so the check runs. If it
+  still says "No Unity kit", that download failed: say so, rather than that the kit does not exist.
 
 The launch flags say what to play: `?test=crate`, `?test=tank`, `?test=boss`, `?mission=2`, and
 `?unlock=coop,tank,crew` to open the rest. `docs/scenes.md` is about the cutscenes; `docs/sandbox.md` has the
