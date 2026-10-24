@@ -47,6 +47,38 @@ namespace PooketSlug
         ToBunker,
     }
 
+    /// <summary>What a way in a room is: a door to walk through, a hole to go into, a ladder, a rope.</summary>
+    public enum WayKind { None, Door, Hole, Ladder, Rope }
+
+    /// <summary>
+    /// A way's opening in a room: the box it is in (in the room's art pixels), and which way you go through it. The box
+    /// is what cuts a soldier off as they walk into it: the frame's edge swallows them, so they go *into* the opening
+    /// instead of off the side of the screen.
+    /// </summary>
+    public readonly struct Opening
+    {
+        public readonly float X, Y, W, H;
+        /// <summary>Which way you go through it: to the right (a door in the right wall) or to the left.</summary>
+        public readonly bool ToRight;
+
+        public Opening(float x, float y, float w, float h, bool toRight)
+        {
+            X = x; Y = y; W = w; H = h; ToRight = toRight;
+        }
+
+        /// <summary>No opening: the way has none (a ladder, a rope).</summary>
+        public bool None => W <= 0f || H <= 0f;
+        public float Right => X + W;
+        /// <summary>Where the soldier stands to step into it: the middle of the opening.</summary>
+        public float Sill => X + W / 2f;
+        /// <summary>Where the step starts: a soldier's width before the opening's near edge.</summary>
+        public float From => ToRight ? X - 8f : Right + 8f;
+        /// <summary>Where the step ends: past the far edge, out of sight.</summary>
+        public float To => ToRight ? Right + 8f : X - 8f;
+        /// <summary>Whether a point in the room is in the opening (the box the soldier is cut off by).</summary>
+        public bool Covers(float x, float y) => x >= X && x <= Right && y >= Y && y <= Y + H;
+    }
+
     /// <summary>
     /// The outer rooms' map (<c>docs/design/lobby.md</c>, The outer rooms): each room's own screen, its size, where the
     /// ways in and out are, and what is in it. In the game's art pixels: every room is 420 wide and 180 tall (a screen
@@ -187,14 +219,57 @@ namespace PooketSlug
             {
                 case RoomId.Kitchen:
                     return way == RoomWay.ToBackyard ? MaxX(room) : MinX(room); // the den's side door, the back door
-                case RoomId.Backyard: return MinX(room);                         // the house door, in the yard's left wall
+                case RoomId.Backyard: return YardDoorX + YardDoorW / 2f;       // the house door, in the yard's left wall
                 case RoomId.Basement:
-                    return way == RoomWay.ToBunker ? 372f : MinX(room);         // the hole in its floor, the ladder up
+                    return way == RoomWay.ToBunker ? HoleX + HoleW / 2f : MinX(room); // the hole in its wall, the ladder up
                 case RoomId.Bunker: return RopeX;                                // the rope, under its hatch
                 case RoomId.Rooftop: return MaxX(room);                          // the stair hut's door, at its right end
                 case RoomId.ShowerBlock: return MinX(room);                      // the door back to the loft
                 case RoomId.Wintergarden: return MinX(room);                     // the door back to the loft
                 default: return MinX(room);
+            }
+        }
+
+        /// <summary>The kitchen's back door, in its right wall (the frame the painting has, showing the night beyond).</summary>
+        public const float KitchenDoorX = 389.5f, KitchenDoorY = 16f, KitchenDoorW = 25f, KitchenDoorH = 50f;
+        /// <summary>The house door in the yard's left wall (the plate's own door, by the fence).</summary>
+        public const float YardDoorX = 33f, YardDoorY = 15f, YardDoorW = 37f, YardDoorH = 70f;
+        /// <summary>The hole in the basement's right wall, down to the bunker.</summary>
+        public const float HoleX = 345f, HoleY = 15f, HoleW = 45f, HoleH = 100f;
+        /// <summary>The basement's ladder, up its left wall to the den: how wide the ladder is, and how tall.</summary>
+        public const float LadderW = 32f, LadderH = 60f;
+
+        /// <summary>
+        /// What a way in a room is: a door you walk through, a hole you go into, a ladder you climb, or the rope.
+        /// </summary>
+        public static WayKind KindOf(RoomId room, RoomWay way)
+        {
+            switch (room)
+            {
+                case RoomId.Kitchen: return way == RoomWay.ToBackyard ? WayKind.Door : WayKind.None;
+                case RoomId.Backyard: return way == RoomWay.Back ? WayKind.Door : WayKind.None;
+                case RoomId.Basement: return way == RoomWay.ToBunker ? WayKind.Hole : way == RoomWay.Back ? WayKind.Ladder : WayKind.None;
+                case RoomId.Bunker: return way == RoomWay.Back ? WayKind.Rope : WayKind.None;
+                default: return WayKind.None;
+            }
+        }
+
+        /// <summary>
+        /// A way's opening in its room: the box it is in, which is what a tap has to land in and what cuts a soldier off as
+        /// they walk into it. A ladder and a rope have no opening (the ladder is a ladder, the rope is the whole wall).
+        /// </summary>
+        public static Opening OpeningOf(RoomId room, RoomWay way)
+        {
+            switch (KindOf(room, way))
+            {
+                case WayKind.Door:
+                    return room == RoomId.Kitchen
+                        ? new Opening(KitchenDoorX, KitchenDoorY, KitchenDoorW, KitchenDoorH, true)
+                        : new Opening(YardDoorX, YardDoorY, YardDoorW, YardDoorH, false);
+                case WayKind.Hole:
+                    return new Opening(HoleX, HoleY, HoleW, HoleH, true);
+                default:
+                    return new Opening(0f, 0f, 0f, 0f, false);
             }
         }
 
@@ -232,15 +307,28 @@ namespace PooketSlug
 
         /// <summary>
         /// Where a tap at (<paramref name="x"/>, <paramref name="y"/>) in a room is: a way to use, or None (the floor:
-        /// walk there). A rope is used anywhere up it, from the floor to the hole; the other ways at the floor, where
-        /// you stand to use them.
+        /// walk there). A door and a hole are used anywhere on them (the hole is up the wall, the door in its frame); a
+        /// rope is used anywhere up it, from the floor to the hole; a ladder is used at its foot, where you stand to
+        /// climb it.
         /// </summary>
         public static RoomWay WayAt(RoomId room, float x, float y)
         {
             foreach (RoomWay way in Ways)
             {
                 if (!InRoom(room, way)) continue;
+                Opening opening = OpeningOf(room, way);
+                if (!opening.None)
+                {
+                    if (opening.Covers(x, y)) return way;
+                    continue;
+                }
                 float wx = WayX(room, way);
+                if (KindOf(room, way) == WayKind.Ladder)
+                {
+                    // the ladder: its foot, where you stand to climb it
+                    if (x >= wx - LadderW / 2f && x <= wx + LadderW / 2f && y >= FloorY && y <= FloorY + LadderH) return way;
+                    continue;
+                }
                 float top = ByRope(room, way) ? RopeTopY : FloorY + 45f;
                 if (x >= wx - 12f && x <= wx + 12f && y >= FloorY && y <= top) return way;
             }

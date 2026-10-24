@@ -271,5 +271,62 @@ namespace PooketSlug.Tests
                 Assert.That(RoomMap.HeightOf(r), Is.GreaterThan(RoomMap.SoldierHeight * 2f), r + ": a room with headroom");
             }
         }
+
+        // The ways in the outer rooms: what each is, and the box a tap has to land in. A hole is up the wall, so a tap
+        // on it has to count; a ladder is used at its foot.
+        [Test]
+        public void EachWay_KnowsWhatItIs()
+        {
+            Assert.AreEqual(WayKind.Door, RoomMap.KindOf(RoomId.Kitchen, RoomWay.ToBackyard));
+            Assert.AreEqual(WayKind.Door, RoomMap.KindOf(RoomId.Backyard, RoomWay.Back));
+            Assert.AreEqual(WayKind.Hole, RoomMap.KindOf(RoomId.Basement, RoomWay.ToBunker));
+            Assert.AreEqual(WayKind.Ladder, RoomMap.KindOf(RoomId.Basement, RoomWay.Back));
+            Assert.AreEqual(WayKind.Rope, RoomMap.KindOf(RoomId.Bunker, RoomWay.Back));
+            Assert.AreEqual(WayKind.None, RoomMap.KindOf(RoomId.Kitchen, RoomWay.None));
+        }
+
+        [Test]
+        public void ADoorAndAHole_HaveAnOpening_AndALadderHasNone()
+        {
+            foreach (RoomWay way in RoomMap.Ways)
+            {
+                foreach (RoomId room in System.Enum.GetValues(typeof(RoomId)))
+                {
+                    if (!RoomMap.InRoom(room, way)) continue;
+                    Opening opening = RoomMap.OpeningOf(room, way);
+                    if (RoomMap.KindOf(room, way) == WayKind.Ladder) Assert.IsTrue(opening.None, room + "/" + way + ": a ladder has no opening");
+                    else Assert.IsFalse(opening.None, room + "/" + way + ": an opening");
+                }
+            }
+        }
+
+        // The hole in the basement's wall: a tap on it, high up the wall, is the way down to the bunker.
+        [Test]
+        public void TheBasementsHole_IsTappedOnTheWall_AndTheLadderAtItsFoot()
+        {
+            Opening hole = RoomMap.OpeningOf(RoomId.Basement, RoomWay.ToBunker);
+            Assert.AreEqual(RoomWay.ToBunker, RoomMap.WayAt(RoomId.Basement, hole.X + 4f, hole.Y + hole.H - 4f), "the hole, up the wall");
+            Assert.AreEqual(RoomWay.None, RoomMap.WayAt(RoomId.Basement, hole.X - 8f, hole.Y + 4f), "the wall, beside the hole");
+
+            // the ladder up to the den: its foot, where you stand to climb it
+            float ladder = RoomMap.WayX(RoomId.Basement, RoomWay.Back);
+            Assert.AreEqual(RoomWay.Back, RoomMap.WayAt(RoomId.Basement, ladder, RoomMap.FloorY + 4f), "the ladder's foot");
+            Assert.AreEqual(RoomWay.None, RoomMap.WayAt(RoomId.Basement, ladder, RoomMap.FloorY + RoomMap.LadderH + 10f), "the wall above the ladder");
+        }
+
+        // A step through a door starts before it and ends past its far edge, so you go *into* the opening.
+        [Test]
+        public void AStepThroughADoor_StartsBeforeIt_AndEndsPastIt()
+        {
+            Opening kitchen = RoomMap.OpeningOf(RoomId.Kitchen, RoomWay.ToBackyard);
+            Assert.IsTrue(kitchen.ToRight, "the kitchen's back door is in its right wall");
+            Assert.That(kitchen.From, Is.LessThan(kitchen.X), "the step starts before the door");
+            Assert.That(kitchen.To, Is.GreaterThan(kitchen.Right), "the step ends past the door");
+
+            Opening yard = RoomMap.OpeningOf(RoomId.Backyard, RoomWay.Back);
+            Assert.IsFalse(yard.ToRight, "the yard's house door is in its left wall");
+            Assert.That(yard.From, Is.GreaterThan(yard.Right), "the step starts before the door");
+            Assert.That(yard.To, Is.LessThan(yard.X), "the step ends past the door");
+        }
     }
 }
