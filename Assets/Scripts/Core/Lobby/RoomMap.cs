@@ -71,10 +71,10 @@ namespace PooketSlug
         public float Right => X + W;
         /// <summary>Where the soldier stands to step into it: the middle of the opening.</summary>
         public float Sill => X + W / 2f;
-        /// <summary>Where the step starts: a soldier's width before the opening's near edge.</summary>
-        public float From => ToRight ? X - 8f : Right + 8f;
-        /// <summary>Where the step ends: past the far edge, out of sight.</summary>
-        public float To => ToRight ? Right + 8f : X - 8f;
+        /// <summary>Where the step starts: a shoulder's width before the opening's near edge.</summary>
+        public float From => ToRight ? X - 4f : Right + 4f;
+        /// <summary>Where the step ends: a shoulder's width past the far edge, out of sight.</summary>
+        public float To => ToRight ? Right + 4f : X - 4f;
         /// <summary>Whether a point in the room is in the opening (the box the soldier is cut off by).</summary>
         public bool Covers(float x, float y) => x >= X && x <= Right && y >= Y && y <= Y + H;
     }
@@ -271,6 +271,14 @@ namespace PooketSlug
                 default:
                     return new Opening(0f, 0f, 0f, 0f, false);
             }
+        }
+
+        /// <summary>The way in a room that is a door, or None when it has none.</summary>
+        public static RoomWay DoorWayOf(RoomId room)
+        {
+            foreach (RoomWay way in Ways)
+                if (KindOf(room, way) == WayKind.Door) return way;
+            return RoomWay.None;
         }
 
         /// <summary>How far you can walk in a room: short of the walls.</summary>

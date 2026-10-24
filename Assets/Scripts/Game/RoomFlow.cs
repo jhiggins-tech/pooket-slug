@@ -120,7 +120,7 @@ namespace PooketSlug
                     m_Game.Rooms.Go(m_Room, m_DoorTo, m_DoorBy);
                     return;
                 }
-                m_Walker.Place(m_Room, RoomBackDoor.Sill.x); // the view draws the step through, from where you stood
+                m_Walker.Place(m_Room, m_View.DoorSill); // the view draws the step through, from where you stood
                 m_View.DoorBeat(dt, m_Door.Swing, m_Door.Through, m_Walker);
                 return;
             }
@@ -149,9 +149,9 @@ namespace PooketSlug
             {
                 // the next room entered down its rope (the bunker): the climb is the way in, so no door here
                 if (RoomMap.ByRope(to, by)) { m_Game.Rooms.Go(m_Room, to, by); return; }
-                // the way on: the kitchen's back door creaks open, and you step into its dark. The code-drawn leaf is
-                // the kitchen's; no other room paints one, so a way on that isn't the kitchen's goes straight through
-                if (m_Room != RoomId.Kitchen) { m_Game.Rooms.Go(m_Room, to, by); return; }
+                // the way on through a door: it creaks open, and you step into its dark. Only a room with a door has
+                // one to step through; the rest go straight through.
+                if (RoomMap.KindOf(m_Room, way) != WayKind.Door || m_View.DoorSill <= 0f) { m_Game.Rooms.Go(m_Room, to, by); return; }
                 m_DoorTo = to;
                 m_DoorBy = by;
                 if (m_Door.GoIn()) m_View.PlayDoor();

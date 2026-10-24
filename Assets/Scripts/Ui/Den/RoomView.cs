@@ -17,7 +17,6 @@ namespace PooketSlug
         readonly Latch<RoomWay> m_TapWay = new Latch<RoomWay>();
         readonly Latch<float> m_TapWalk = new Latch<float>();
         readonly Latch m_Back = new Latch();
-        readonly RoomBackDoor m_Door;
 
         GameObject m_Plate;
         float m_Clock, m_CamX, m_CamY, m_NoteUntil;
@@ -25,6 +24,12 @@ namespace PooketSlug
         SoldierDef m_SoldierDef;
         bool m_OnRope;
         float m_RopeY;
+        /// <summary>The room's door, if it has one: the way you walk out of it.</summary>
+        RoomDoor m_Door;
+        /// <summary>Going through the door: you are in the doorway, and the frame is cutting you off.</summary>
+        bool m_Stepping;
+        /// <summary>How far through the door you are: it only ever goes one way in a beat.</summary>
+        float m_Through;
 
         public RoomView(Transform parent) : base(parent, "Room", 9) // over the den (8), under the menus (10)
         {
@@ -37,7 +42,6 @@ namespace PooketSlug
             OnPointer(m_Tap, EventTriggerType.PointerClick, Tapped);
 
             m_Soldier = new StageFigure(m_World, "You");
-            m_Door = new RoomBackDoor(m_World);
 
             Vector2 half = new Vector2(StageW, StageH) * Px / 2f;
             Ui.Button(m_Stage, "BACK", new Vector2(-half.x + 40f, half.y - 18f), new Vector2(64f, 22f), m_Back.Set, out Text backKey);
@@ -66,6 +70,17 @@ namespace PooketSlug
             m_SoldierDef = soldier;
             m_Clock = 0f;
             m_CamX = m_CamY = 0f;
+            m_Stepping = false;
+            m_Through = 0f;
+
+            // you are in the room again, not in the last room's doorway
+            if (m_Soldier.Rt.parent != m_World) m_Soldier.Rt.SetParent(m_World, false);
+
+            // the room's door, if it has one: the painted frame with the leaf over it
+            if (m_Door != null) Object.Destroy(m_Door.Frame.gameObject);
+            m_Door = null;
+            Opening opening = RoomMap.OpeningOf(room, RoomMap.DoorWayOf(room));
+            if (!opening.None) m_Door = new RoomDoor(m_World, opening);
 
             // the painting, its own screen: it sits at the room's bottom left
             if (m_Plate != null) Object.Destroy(m_Plate);
@@ -75,8 +90,9 @@ namespace PooketSlug
                 var img = Ui.Picture(m_World, "Room", plate, Vector2.zero, Vector2.zero, Vector2.zero, plate.rect.size * Px, Color.white);
                 m_Plate = img.gameObject;
             }
-            // the order back to front: the painting, then you, then the taps over them
+            // the order back to front: the painting, then the door over it, then you, then the taps over them
             if (m_Plate != null) m_Plate.transform.SetAsFirstSibling();
+            if (m_Door != null) m_Door.OnTop();
             m_Soldier.Rt.SetAsLastSibling();
             m_Tap.SetAsLastSibling();
             // the taps cover the whole room, which is wider than the screen (or taller, in the wintergarden). They're anchored
@@ -90,7 +106,7 @@ namespace PooketSlug
             m_Note.text = "";
             DoorThrough = 0f;
             m_Reached = RoomWay.None;
-            m_Door.Swing = 0f;
+            if (m_Door != null) m_Door.Swing = 0f;
             m_OnRope = false;
             Ui.Show(m_Root, true);
         }
@@ -100,8 +116,14 @@ namespace PooketSlug
         /// <summary>How far through the back door you are (<see cref="SwingDoor.Through"/>): 0 in the room, 1 through.</summary>
         public float DoorThrough { get; set; }
 
+        /// <summary>Where you stand to step through the door: the middle of its opening, or 0 when the room has no door.</summary>
+        public float DoorSill => m_Door == null ? 0f : m_Door.Opening.Sill;
+
         /// <summary>Arms the back door's beat (<see cref="SwingDoor"/>, in Core): the leaf over the painting and you.</summary>
-        public void PlayDoor() => m_Door.OnTop();
+        public void PlayDoor()
+        {
+            if (m_Door != null) m_Door.OnTop();
+        }
 
         public RoomWay TakeWay() => m_TapWay.Take(out RoomWay w) ? w : RoomWay.None;
         public bool TakeWalk(out float x) => m_TapWalk.Take(out x);
@@ -130,11 +152,13 @@ namespace PooketSlug
         public void DoorBeat(float dt, float swing, float through, RoomWalker walker)
         {
             m_Clock += dt;
-            m_Door.Swing = swing;
+            if (m_Door != null) m_Door.Swing = swing;
             DoorThrough = through;
+            m_Stepping = true;
+            if (through > m_Through) m_Through = through; // it only ever goes one way in a beat
             You(walker);
             Camera(dt, walker);
-            m_Door.Draw();
+            if (m_Door != null) m_Door.Draw();
         }
 
         /// <summary>Draws the room: you, the camera following you, and the back door's leaf when the beat leaves it open.</summary>
@@ -142,11 +166,12 @@ namespace PooketSlug
         {
             m_Clock += dt;
             m_OnRope = false;
+            m_Stepping = false;
             RoomWay done = walker.Step(dt);
             if (done != RoomWay.None) m_Reached = done;
             You(walker);
             Camera(dt, walker);
-            if (m_Door.Swing > 0f) m_Door.Draw();
+            if (m_Door != null && m_Door.Swing > 0f) m_Door.Draw();
             if (m_Clock > m_NoteUntil) m_Note.text = "";
         }
 
@@ -161,7 +186,7 @@ namespace PooketSlug
             m_RopeY = y;
             You(walker);
             Camera(dt, walker);
-            if (m_Door.Swing > 0f) m_Door.Draw();
+            if (m_Door != null && m_Door.Swing > 0f) m_Door.Draw();
         }
 
         void You(RoomWalker w)
@@ -170,28 +195,32 @@ namespace PooketSlug
             if (m_OnRope)
             {
                 // on the rope, facing us: the den's ladder climb's pose, shivering hand over hand
+                if (m_Soldier.Rt.parent != m_World) m_Soldier.Rt.SetParent(m_World, false);
                 m_Soldier.Pose(skin, StagePose.Climbing(m_Clock));
                 m_Soldier.AtPlate(RoomMap.RopeX + Fx.Shiver(m_Clock, 6f, 0.5f), m_RopeY);
                 m_Soldier.Tint(Color.white);
                 m_Soldier.Rt.localScale = Vector3.one;
                 return;
             }
-            // through the back door: into its dark, a little smaller as you go (as the den's crew is in its roller door)
-            bool stepping = DoorThrough > 0f;
+            // through the door: into its dark, a little smaller as you go (as the den's crew is in its roller door), and
+            // cut off by the frame as they go through it
+            bool stepping = m_Stepping && m_Door != null;
             bool walking = stepping || !w.Standing;
             m_Soldier.Pose(skin, StagePose.Walking(walking, m_Clock));
             float x = w.X, y = w.Y;
             if (stepping)
             {
-                x = RoomBackDoor.Sill.x + Mathf.Lerp(RoomBackDoor.From, RoomBackDoor.To, DoorThrough);
-                y = RoomBackDoor.Sill.y;
+                x = Mathf.Lerp(m_Door.Opening.From, m_Door.Opening.To, m_Through);
+                y = RoomMap.FloorY;
             }
+            else if (m_Soldier.Rt.parent != m_World) m_Soldier.Rt.SetParent(m_World, false); // back in the room, not in a doorway
             m_Soldier.AtPlate(x, y);
-            Color shade = Color.Lerp(Color.white, new Color(0.15f, 0.15f, 0.2f), DoorThrough);
+            Color shade = Color.Lerp(Color.white, new Color(0.15f, 0.15f, 0.2f), m_Through);
             m_Soldier.Tint(shade);
-            float size = 1f - 0.2f * DoorThrough;
-            bool faceLeft = stepping ? DoorThrough < 0.5f : w.FaceLeft;
+            float size = 1f - 0.2f * m_Through;
+            bool faceLeft = stepping ? !m_Door.Opening.ToRight : w.FaceLeft;
             m_Soldier.Rt.localScale = new Vector3((faceLeft ? -1f : 1f) * size, size, 1f);
+            if (stepping) m_Door.Step(m_Soldier.Rt, x, y);
         }
 
         /// <summary>
