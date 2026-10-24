@@ -223,7 +223,7 @@ namespace PooketSlug
                 case RoomId.Basement:
                     return way == RoomWay.ToBunker ? HoleX + HoleW / 2f : MinX(room); // the hole in its wall, the ladder up
                 case RoomId.Bunker: return RopeX;                                // the rope, under its hatch
-                case RoomId.Rooftop: return MaxX(room);                          // the stair hut's door, at its right end
+                case RoomId.Rooftop: return RoofHutX + RoofHutW / 2f;              // the stair hut's door, at its right end
                 case RoomId.ShowerBlock: return MinX(room);                      // the door back to the loft
                 case RoomId.Wintergarden: return MinX(room);                     // the door back to the loft
                 default: return MinX(room);
@@ -238,18 +238,27 @@ namespace PooketSlug
         public const float HoleX = 345f, HoleY = 15f, HoleW = 45f, HoleH = 100f;
         /// <summary>The basement's ladder, up its left wall to the den: how wide the ladder is, and how tall.</summary>
         public const float LadderW = 32f, LadderH = 60f;
+        /// <summary>The kitchen's side door, in its left wall: the den's side door, at the room's own left end.</summary>
+        public const float KitchenSideX = 0f, KitchenSideY = 15f, KitchenSideW = 31f, KitchenSideH = 37f;
+        /// <summary>The loft's doors, in a room's left wall: the shower block's and the wintergarden's.</summary>
+        public const float LoftDoorX = 0f, LoftDoorY = 15f, LoftDoorW = 31f, LoftDoorH = 37f;
+        /// <summary>The rooftop's stair hut's door, at the roof's right end: the way down to the loft.</summary>
+        public const float RoofHutX = 348f, RoofHutY = 15f, RoofHutW = 32f, RoofHutH = 48f;
 
         /// <summary>
-        /// What a way in a room is: a door you walk through, a hole you go into, a ladder you climb, or the rope.
+        /// What a way in a room is: a door you walk through, a hole you go into, a ladder you climb, or the rope. Every
+        /// way in a room is one of them: the way back to the house is the house's own door, but the room paints its end
+        /// of it, so the room knows it as a door too.
         /// </summary>
         public static WayKind KindOf(RoomId room, RoomWay way)
         {
             switch (room)
             {
-                case RoomId.Kitchen: return way == RoomWay.ToBackyard ? WayKind.Door : WayKind.None;
+                case RoomId.Kitchen: return way == RoomWay.ToBackyard || way == RoomWay.Back ? WayKind.Door : WayKind.None;
                 case RoomId.Backyard: return way == RoomWay.Back ? WayKind.Door : WayKind.None;
                 case RoomId.Basement: return way == RoomWay.ToBunker ? WayKind.Hole : way == RoomWay.Back ? WayKind.Ladder : WayKind.None;
                 case RoomId.Bunker: return way == RoomWay.Back ? WayKind.Rope : WayKind.None;
+                case RoomId.Rooftop: case RoomId.ShowerBlock: case RoomId.Wintergarden: return way == RoomWay.Back ? WayKind.Door : WayKind.None;
                 default: return WayKind.None;
             }
         }
@@ -262,22 +271,46 @@ namespace PooketSlug
         {
             switch (KindOf(room, way))
             {
-                case WayKind.Door:
-                    return room == RoomId.Kitchen
+                case WayKind.Door: return DoorOf(room, way);
+                case WayKind.Hole: return new Opening(HoleX, HoleY, HoleW, HoleH, true);
+                default: return new Opening(0f, 0f, 0f, 0f, false);
+            }
+        }
+
+        /// <summary>A room's door: the box it is in, and which way you go through it.</summary>
+        static Opening DoorOf(RoomId room, RoomWay way)
+        {
+            switch (room)
+            {
+                case RoomId.Kitchen:
+                    // the back door, in the right wall, to the yard; the side door, in the left wall, to the den
+                    return way == RoomWay.ToBackyard
                         ? new Opening(KitchenDoorX, KitchenDoorY, KitchenDoorW, KitchenDoorH, true)
-                        : new Opening(YardDoorX, YardDoorY, YardDoorW, YardDoorH, false);
-                case WayKind.Hole:
-                    return new Opening(HoleX, HoleY, HoleW, HoleH, true);
+                        : new Opening(KitchenSideX, KitchenSideY, KitchenSideW, KitchenSideH, false);
+                case RoomId.Backyard:
+                    return new Opening(YardDoorX, YardDoorY, YardDoorW, YardDoorH, false); // the house door, in the left wall
+                case RoomId.Rooftop:
+                    return new Opening(RoofHutX, RoofHutY, RoofHutW, RoofHutH, true);    // the stair hut's door, at the right end
+                case RoomId.ShowerBlock:
+                case RoomId.Wintergarden:
+                    return new Opening(LoftDoorX, LoftDoorY, LoftDoorW, LoftDoorH, false); // the loft's door, in the left wall
                 default:
                     return new Opening(0f, 0f, 0f, 0f, false);
             }
         }
 
-        /// <summary>The way in a room that is a door, or None when it has none.</summary>
+        /// <summary>
+        /// The door in a room that leads to another room (the one that swings and swallows you), or None when the room
+        /// has none: the way back to the house is the house's own door, not this room's.
+        /// </summary>
         public static RoomWay DoorWayOf(RoomId room)
         {
             foreach (RoomWay way in Ways)
-                if (KindOf(room, way) == WayKind.Door) return way;
+            {
+                if (KindOf(room, way) != WayKind.Door) continue;
+                Leads(room, way, out RoomId to, out RoomWay _);
+                if (to != RoomId.None) return way;
+            }
             return RoomWay.None;
         }
 

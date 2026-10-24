@@ -277,16 +277,36 @@ namespace PooketSlug.Tests
         [Test]
         public void EachWay_KnowsWhatItIs()
         {
+            Assert.AreEqual(WayKind.Door, RoomMap.KindOf(RoomId.Kitchen, RoomWay.Back));
             Assert.AreEqual(WayKind.Door, RoomMap.KindOf(RoomId.Kitchen, RoomWay.ToBackyard));
             Assert.AreEqual(WayKind.Door, RoomMap.KindOf(RoomId.Backyard, RoomWay.Back));
-            Assert.AreEqual(WayKind.Hole, RoomMap.KindOf(RoomId.Basement, RoomWay.ToBunker));
             Assert.AreEqual(WayKind.Ladder, RoomMap.KindOf(RoomId.Basement, RoomWay.Back));
+            Assert.AreEqual(WayKind.Hole, RoomMap.KindOf(RoomId.Basement, RoomWay.ToBunker));
             Assert.AreEqual(WayKind.Rope, RoomMap.KindOf(RoomId.Bunker, RoomWay.Back));
+            Assert.AreEqual(WayKind.Door, RoomMap.KindOf(RoomId.Rooftop, RoomWay.Back));
+            Assert.AreEqual(WayKind.Door, RoomMap.KindOf(RoomId.ShowerBlock, RoomWay.Back));
+            Assert.AreEqual(WayKind.Door, RoomMap.KindOf(RoomId.Wintergarden, RoomWay.Back));
             Assert.AreEqual(WayKind.None, RoomMap.KindOf(RoomId.Kitchen, RoomWay.None));
         }
 
+        // Every way in a room is a thing you can use: a door, a hole, a ladder or a rope. Nothing is left unnamed.
         [Test]
-        public void ADoorAndAHole_HaveAnOpening_AndALadderHasNone()
+        public void EveryWayInARoom_KnowsWhatItIs()
+        {
+            foreach (RoomWay way in RoomMap.Ways)
+            {
+                foreach (RoomId room in System.Enum.GetValues(typeof(RoomId)))
+                {
+                    if (!RoomMap.InRoom(room, way)) continue;
+                    Assert.AreNotEqual(WayKind.None, RoomMap.KindOf(room, way), room + "/" + way);
+                }
+            }
+        }
+
+        // A door and a hole have an opening: the box a tap lands in, and what cuts a soldier off as they walk into it.
+        // A ladder and a rope are climbed, so there is nothing to walk into.
+        [Test]
+        public void ADoorAndAHole_HaveAnOpening_AndALadderAndARopeHaveNone()
         {
             foreach (RoomWay way in RoomMap.Ways)
             {
@@ -294,10 +314,41 @@ namespace PooketSlug.Tests
                 {
                     if (!RoomMap.InRoom(room, way)) continue;
                     Opening opening = RoomMap.OpeningOf(room, way);
-                    if (RoomMap.KindOf(room, way) == WayKind.Ladder) Assert.IsTrue(opening.None, room + "/" + way + ": a ladder has no opening");
-                    else Assert.IsFalse(opening.None, room + "/" + way + ": an opening");
+                    WayKind kind = RoomMap.KindOf(room, way);
+                    if (kind == WayKind.Door || kind == WayKind.Hole) Assert.IsFalse(opening.None, room + "/" + way + ": an opening");
+                    else Assert.IsTrue(opening.None, room + "/" + way + ": you climb it, so there is no opening");
                 }
             }
+        }
+
+        // An opening is where you stand to use its way: the doorway is where the plate paints it.
+        [Test]
+        public void AnOpening_IsWhereYouStandToUseItsWay()
+        {
+            foreach (RoomWay way in RoomMap.Ways)
+            {
+                foreach (RoomId room in System.Enum.GetValues(typeof(RoomId)))
+                {
+                    if (!RoomMap.InRoom(room, way)) continue;
+                    Opening opening = RoomMap.OpeningOf(room, way);
+                    if (opening.None) continue;
+                    Assert.IsTrue(opening.Covers(RoomMap.WayX(room, way), RoomMap.FloorY + 10f),
+                        room + "/" + way + ": you stand in the opening to use it");
+                }
+            }
+        }
+
+        // The door that swings is the one that leads to another room. The way back to the house is the house's own door.
+        [Test]
+        public void TheDoorThatSwings_IsTheOneThatLeadsToAnotherRoom()
+        {
+            Assert.AreEqual(RoomWay.ToBackyard, RoomMap.DoorWayOf(RoomId.Kitchen));
+            Assert.AreEqual(RoomWay.Back, RoomMap.DoorWayOf(RoomId.Backyard));
+            Assert.AreEqual(RoomWay.None, RoomMap.DoorWayOf(RoomId.Basement));
+            Assert.AreEqual(RoomWay.None, RoomMap.DoorWayOf(RoomId.Bunker));
+            Assert.AreEqual(RoomWay.None, RoomMap.DoorWayOf(RoomId.Rooftop));
+            Assert.AreEqual(RoomWay.None, RoomMap.DoorWayOf(RoomId.ShowerBlock));
+            Assert.AreEqual(RoomWay.None, RoomMap.DoorWayOf(RoomId.Wintergarden));
         }
 
         // The hole in the basement's wall: a tap on it, high up the wall, is the way down to the bunker.
