@@ -66,6 +66,37 @@ At game size they read more like privacy stalls than **swinging saloon doors**,
 which is what the design calls for. The doors are painted flat, so making them
 swing means the art, or drawing them in code over the plate.
 
+### 6. The basement's ladder isn't climbed
+
+The basement's way back up to the den is its **ladder** (up its left wall,
+through the trapdoor in the den's floor), but the game doesn't climb it: the
+way cuts straight back to the den, with no climb and no ladder drawn over the
+plate. The **rope** is climbed both ways (down into the bunker, up and out of
+it), so the ladder is the last of the ways that isn't.
+
+### 7. The wintergarden paints no door
+
+The room's way back to the loft is a door in its left wall, but the plate has
+**glass** there: no door is painted, so the game draws its own door over the
+glass (`RoomMap.WinterDoor*`), and the door swings like any other. The plate
+still wants the same annotated edit as the den's board: a door painted in the
+glass, where the loft's wintergarden door is.
+
+### 8. Coming back into the house, you stand where you were
+
+Going out of a room and back through a door of the house works, but **you
+don't stand in the door you came through**: the den's own figure takes over
+where it was, and nobody walks it in. The den's roller door does this already
+(`DenRollerDoor`, and the crew that goes through it), so the rooms' doors want
+the same: walk your soldier in through the door you came out of.
+
+**Measured off the plates** (2026-10-24): the openings were measured off their
+plates and pinned by the tests — the hole in B1's right wall, the house door in
+the yard's wall, the shower block's door, the rope under the bunker's roof hole
+and the stair hut's door on the rooftop. The kitchen's own doors were left as
+they were: their plates agree with the boxes.
+
+
 ## Looked at, and fine
 
 - The **wintergarden's stair** climbs to a landing wide enough for two crew,
