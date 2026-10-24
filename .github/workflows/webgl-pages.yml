@@ -432,7 +432,7 @@ jobs:
           name: PooketSlug-WebGL
           path: site
           if-no-files-found: error
-          retention-days: 7 # GitHub's default is 90; a run's files are only read for a few days
+          retention-days: 1 # the shortest GitHub allows: only this run's co-op tests and deploy read it, within the hour
 
       # A preview goes into previews/<slug>/ now, leaving the rest of the site be. The main line's build waits for the
       # co-op tests (the deploy-live job).
