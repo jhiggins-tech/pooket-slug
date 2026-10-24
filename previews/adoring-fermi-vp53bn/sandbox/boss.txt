@@ -1,0 +1,4 @@
+// Mission one's boss tabk, starting a screen short of its arena.
+// Play it: ?sandbox=boss
+mission 1
+at boss
