@@ -112,7 +112,6 @@ namespace PooketSlug
             m_TapWalk.Clear();
             m_Back.Clear();
             m_Note.text = "";
-            DoorThrough = 0f;
             m_Reached = RoomWay.None;
             foreach (RoomDoor door in m_Doors.Values) door.Swing = 0f;
             m_OnRope = false;
@@ -120,9 +119,6 @@ namespace PooketSlug
         }
 
         public void Hide() => Ui.Show(m_Root, false);
-
-        /// <summary>How far through the back door you are (<see cref="SwingDoor.Through"/>): 0 in the room, 1 through.</summary>
-        public float DoorThrough { get; set; }
 
         /// <summary>Whether the room has a door for a way: a door to walk through, and a box for it.</summary>
         public bool HasDoor(RoomWay way) => m_Doors.ContainsKey(way);
@@ -168,7 +164,6 @@ namespace PooketSlug
         {
             m_Clock += dt;
             if (m_Active != null) m_Active.Swing = swing;
-            DoorThrough = through;
             m_Stepping = true;
             if (through > m_Through) m_Through = through; // it only ever goes one way in a beat
             You(walker);
@@ -218,14 +213,15 @@ namespace PooketSlug
                 return;
             }
             // through the door: into its dark, a little smaller as you go (as the den's crew is in its roller door), and
-            // cut off by the frame as they go through it
-            bool stepping = m_Stepping && m_Active != null;
+            // cut off by the frame as they go through it. The step starts in the doorway, where you stand, so you are
+            // whole in the opening while the door creaks open, and the frame's far edge swallows you as you go through.
+            bool stepping = m_Stepping && m_Active != null && m_Through > 0f;
             bool walking = stepping || !w.Standing;
             m_Soldier.Pose(skin, StagePose.Walking(walking, m_Clock));
             float x = w.X, y = w.Y;
             if (stepping)
             {
-                x = Mathf.Lerp(m_Active.Opening.From, m_Active.Opening.To, m_Through);
+                x = Mathf.Lerp(m_Active.Opening.Sill, m_Active.Opening.To, m_Through);
                 y = RoomMap.FloorY;
             }
             else if (m_Soldier.Rt.parent != m_World) m_Soldier.Rt.SetParent(m_World, false); // back in the room, not in a doorway

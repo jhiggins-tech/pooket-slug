@@ -68,12 +68,5 @@ namespace PooketSlug
             figure.anchoredPosition = new Vector2(x - Opening.X, y - Opening.Y) * Px;
             figure.SetSiblingIndex(1); // over the dark beyond, under the leaf
         }
-
-        /// <summary>Takes the soldier back out of the doorway, into the room.</summary>
-        public void Release(RectTransform figure, RectTransform room, float x, float y)
-        {
-            figure.SetParent(room, false);
-            figure.anchoredPosition = new Vector2(x, y) * Px;
-        }
     }
 }

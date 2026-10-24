@@ -111,7 +111,6 @@ namespace PooketSlug
                 // the back door: it creaks open, you step into its dark, it swings shut behind you, and the next room
                 // takes over on the frame it lands
                 m_Door.Tick(dt);
-                m_View.DoorThrough = m_Door.Through;
                 if (m_Door.TakeSwung()) Sfx.Play(Sfx.CableClunk, 0.5f); // its creak
                 if (m_Door.TakeLanded()) Sfx.Play(Sfx.Thump, 0.5f); // it lands shut
                 if (!m_Door.Busy)

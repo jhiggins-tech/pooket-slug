@@ -72,9 +72,11 @@ namespace PooketSlug
         public float Right => X + W;
         /// <summary>Where the soldier stands to step into it: the middle of the opening.</summary>
         public float Sill => X + W / 2f;
-        /// <summary>Where the step starts: a shoulder's width before the opening's near edge.</summary>
-        public float From => ToRight ? X - 4f : Right + 4f;
-        /// <summary>Where the step ends: a shoulder's width past the far edge, out of sight.</summary>
+        /// <summary>
+        /// Where the step ends: a shoulder's width past the far edge, out of sight. The step starts at the
+        /// <see cref="Sill"/> — in the doorway, where you stand — so you are whole in the opening until the frame's far
+        /// edge cuts you off as you go through.
+        /// </summary>
         public float To => ToRight ? Right + 4f : X - 4f;
         /// <summary>Whether a point in the room is in the opening (the box the soldier is cut off by).</summary>
         public bool Covers(float x, float y) => x >= X && x <= Right && y >= Y && y <= Y + H;

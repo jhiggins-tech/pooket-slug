@@ -428,19 +428,40 @@ namespace PooketSlug.Tests
             }
         }
 
-        // A step through a door starts before it and ends past its far edge, so you go *into* the opening.
+        // A step through a door starts in the doorway, where you stand, and ends past its far edge: you are whole in
+        // the opening while the door creaks open, and the frame's far edge cuts you off as you go through.
         [Test]
-        public void AStepThroughADoor_StartsBeforeIt_AndEndsPastIt()
+        public void AStepThroughADoor_StartsInTheDoorway_AndEndsPastItsFarEdge()
         {
             Opening kitchen = RoomMap.OpeningOf(RoomId.Kitchen, RoomWay.ToBackyard);
             Assert.IsTrue(kitchen.ToRight, "the kitchen's back door is in its right wall");
-            Assert.That(kitchen.From, Is.LessThan(kitchen.X), "the step starts before the door");
+            Assert.That(kitchen.Sill, Is.InRange(kitchen.X, kitchen.Right), "the step starts in the doorway, where you stand");
             Assert.That(kitchen.To, Is.GreaterThan(kitchen.Right), "the step ends past the door");
 
             Opening yard = RoomMap.OpeningOf(RoomId.Backyard, RoomWay.Back);
             Assert.IsFalse(yard.ToRight, "the yard's house door is in its left wall");
-            Assert.That(yard.From, Is.GreaterThan(yard.Right), "the step starts before the door");
+            Assert.That(yard.Sill, Is.InRange(yard.X, yard.Right), "the step starts in the doorway");
             Assert.That(yard.To, Is.LessThan(yard.X), "the step ends past the door");
+        }
+
+        // Every door's step is like that: it starts in the doorway and ends past the far edge, whichever way the door
+        // leads. A step that started outside the opening would draw the soldier beside the door, and cut in half.
+        [Test]
+        public void EveryDoorsStep_StartsInItsDoorway_AndEndsPastItsFarEdge()
+        {
+            foreach (RoomId room in System.Enum.GetValues(typeof(RoomId)))
+            {
+                if (room == RoomId.None) continue;
+                foreach (RoomWay way in RoomMap.DoorsOf(room))
+                {
+                    Opening opening = RoomMap.OpeningOf(room, way);
+                    Assert.That(opening.Sill, Is.InRange(opening.X, opening.Right), room + "/" + way + ": the step starts in the doorway");
+                    if (opening.ToRight)
+                        Assert.That(opening.To, Is.GreaterThan(opening.Right), room + "/" + way + ": the step ends past the far edge");
+                    else
+                        Assert.That(opening.To, Is.LessThan(opening.X), room + "/" + way + ": the step ends past the far edge");
+                }
+            }
         }
     }
 }
