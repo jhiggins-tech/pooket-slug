@@ -1,3 +1,4 @@
+using System.IO;
 using NUnit.Framework;
 
 namespace PooketSlug.Tests
@@ -17,16 +18,38 @@ namespace PooketSlug.Tests
         }
 
         [Test]
-        public void EveryRoom_IsOneScreenAcross_AndOnlyTheWintergardenIsTaller()
+        public void EveryRoom_IsAScreenAndABitWide_AndOnlyTheWintergardenIsTaller()
         {
             foreach (RoomId r in System.Enum.GetValues(typeof(RoomId)))
             {
                 if (r == RoomId.None) continue;
-                // the kitchen is wider than a screen: the player scrolls through it
-                if (r == RoomId.Kitchen) Assert.AreEqual(RoomMap.KitchenWidth, RoomMap.WidthOf(r), 0.01f, r.ToString());
+                // a room is a screen and a bit, so the player scrolls across it; the wintergarden is one screen across
+                if (r == RoomId.Wintergarden) Assert.AreEqual(RoomMap.WinterWidth, RoomMap.WidthOf(r), 0.01f, r.ToString());
                 else Assert.AreEqual(RoomMap.Width, RoomMap.WidthOf(r), 0.01f, r.ToString());
                 if (r == RoomId.Wintergarden) Assert.AreEqual(RoomMap.WinterHeight, RoomMap.HeightOf(r), 0.01f);
                 else Assert.AreEqual(RoomMap.Height, RoomMap.HeightOf(r), 0.01f, r.ToString());
+            }
+        }
+
+        // docs/design/lobby/rooms.md, Paint it: a plate cut to the wrong shape squeezes the room. The paintings come
+        // back at the 420 × 180 rooms' aspect (1260 × 540), so a plate cut to 320 × 180 stood everything in it up a
+        // third taller — the moon a circle in the painting came out an upright oval in the room.
+        [Test]
+        public void EveryRoomsPainting_IsCutToTheRoomsOwnSize()
+        {
+            foreach (RoomId r in System.Enum.GetValues(typeof(RoomId)))
+            {
+                if (r == RoomId.None) continue;
+                string path = Path.Combine(Directory.GetCurrentDirectory(), "Assets/Resources/Den", RoomMap.PaintingOf(r) + ".bytes");
+                Assert.IsTrue(File.Exists(path), "missing painting: " + path);
+                byte[] png = File.ReadAllBytes(path);
+                // a PNG's header: the 8-byte signature, then the IHDR chunk's width and height, big-endian
+                Assert.That(png.Length, Is.GreaterThan(24), path + ": not a PNG");
+                Assert.AreEqual(0x89, png[0], path + ": not a PNG");
+                int w = (png[16] << 24) | (png[17] << 16) | (png[18] << 8) | png[19];
+                int h = (png[20] << 24) | (png[21] << 16) | (png[22] << 8) | png[23];
+                Assert.AreEqual(RoomMap.WidthOf(r), w, 0.01f, r + ": the plate is the room's own width");
+                Assert.AreEqual(RoomMap.HeightOf(r), h, 0.01f, r + ": the plate is the room's own height");
             }
         }
 
@@ -140,19 +163,19 @@ namespace PooketSlug.Tests
         }
 
         [Test]
-        public void TheKitchen_IsWiderThanAScreen_AndYouCanWalkItsWholeLength()
+        public void TheRooms_AreWiderThanAScreen_AndYouCanWalkTheWholeLength()
         {
-            Assert.Greater(RoomMap.WidthOf(RoomId.Kitchen), 320f, "wider than a screen: the player scrolls through it");
+            Assert.Greater(RoomMap.WidthOf(RoomId.Kitchen), 320f, "a screen and a bit: the player scrolls across it");
             foreach (RoomId r in System.Enum.GetValues(typeof(RoomId)))
             {
                 if (r == RoomId.None) continue;
                 Assert.That(RoomMap.MaxX(r), Is.GreaterThan(RoomMap.MinX(r)), r.ToString() + ": room to walk in");
                 Assert.That(RoomMap.MaxX(r), Is.LessThanOrEqualTo(RoomMap.WidthOf(r) - 8f), r.ToString() + ": short of the far wall");
+                var w = new RoomWalker(r, RoomMap.MinX(r));
+                w.WalkTo(RoomMap.MaxX(r));
+                Run(w, 10f);
+                Assert.AreEqual(RoomMap.MaxX(r), w.X, 0.01f, r + ": the whole way across");
             }
-            var w = new RoomWalker(RoomId.Kitchen, 20f);
-            w.WalkTo(RoomMap.MaxX(RoomId.Kitchen));
-            Run(w, 10f);
-            Assert.AreEqual(RoomMap.MaxX(RoomId.Kitchen), w.X, 0.01f, "the whole way to the back door");
         }
 
         [Test]

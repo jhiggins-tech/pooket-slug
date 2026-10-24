@@ -23,6 +23,8 @@ namespace PooketSlug
         float m_Clock, m_CamX, m_CamY, m_NoteUntil;
         RoomId m_Room = RoomId.None;
         SoldierDef m_SoldierDef;
+        bool m_OnRope;
+        float m_RopeY;
 
         public RoomView(Transform parent) : base(parent, "Room", 9) // over the den (8), under the menus (10)
         {
@@ -77,7 +79,7 @@ namespace PooketSlug
             if (m_Plate != null) m_Plate.transform.SetAsFirstSibling();
             m_Soldier.Rt.SetAsLastSibling();
             m_Tap.SetAsLastSibling();
-            // the taps cover the whole room, which is wider or taller than the screen for some rooms. They're anchored
+            // the taps cover the whole room, which is wider than the screen (or taller, in the wintergarden). They're anchored
             // at the world's bottom left, as the painting is, so the room's own art pixels and theirs line up
             m_Tap.sizeDelta = new Vector2(RoomMap.WidthOf(room), RoomMap.HeightOf(room)) * Px;
             m_Tap.anchoredPosition = Vector2.zero;
@@ -89,6 +91,7 @@ namespace PooketSlug
             DoorThrough = 0f;
             m_Reached = RoomWay.None;
             m_Door.Swing = 0f;
+            m_OnRope = false;
             Ui.Show(m_Root, true);
         }
 
@@ -138,6 +141,7 @@ namespace PooketSlug
         public void Refresh(float dt, RoomWalker walker)
         {
             m_Clock += dt;
+            m_OnRope = false;
             RoomWay done = walker.Step(dt);
             if (done != RoomWay.None) m_Reached = done;
             You(walker);
@@ -146,9 +150,32 @@ namespace PooketSlug
             if (m_Clock > m_NoteUntil) m_Note.text = "";
         }
 
+        /// <summary>
+        /// The bunker's rope, a frame (<see cref="RopeClimb"/>, in Core): you on the rope with your feet at
+        /// <paramref name="y"/>, hand over hand, on the way down into the bunker or up and out of it.
+        /// </summary>
+        public void RopeBeat(float dt, float y, RoomWalker walker)
+        {
+            m_Clock += dt;
+            m_OnRope = true;
+            m_RopeY = y;
+            You(walker);
+            Camera(dt, walker);
+            if (m_Door.Swing > 0f) m_Door.Draw();
+        }
+
         void You(RoomWalker w)
         {
             PlayerSkin skin = Art.SkinFor(m_SoldierDef);
+            if (m_OnRope)
+            {
+                // on the rope, facing us: the den's ladder climb's pose, shivering hand over hand
+                m_Soldier.Pose(skin, StagePose.Climbing(m_Clock));
+                m_Soldier.AtPlate(RoomMap.RopeX + Fx.Shiver(m_Clock, 6f, 0.5f), m_RopeY);
+                m_Soldier.Tint(Color.white);
+                m_Soldier.Rt.localScale = Vector3.one;
+                return;
+            }
             // through the back door: into its dark, a little smaller as you go (as the den's crew is in its roller door)
             bool stepping = DoorThrough > 0f;
             bool walking = stepping || !w.Standing;
@@ -159,7 +186,7 @@ namespace PooketSlug
                 x = RoomBackDoor.Sill.x + Mathf.Lerp(RoomBackDoor.From, RoomBackDoor.To, DoorThrough);
                 y = RoomBackDoor.Sill.y;
             }
-            m_Soldier.At(x, y);
+            m_Soldier.AtPlate(x, y);
             Color shade = Color.Lerp(Color.white, new Color(0.15f, 0.15f, 0.2f), DoorThrough);
             m_Soldier.Tint(shade);
             float size = 1f - 0.2f * DoorThrough;

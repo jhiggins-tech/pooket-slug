@@ -7,8 +7,11 @@ Painted plates for the house's outer rooms, each its own screen behind a door
 in the game yet: the game loads its paintings from `Assets/Resources/Den/` as
 `.bytes`, and nothing here has been put there.
 
-Each room is one screen, 320 × 180 in the game's art pixels, except the
-wintergarden, which is a tall room at 320 × 360: one screen across, two up.
+Each room is 420 × 180 in the game's art pixels — a screen and a bit, so the
+player scrolls across it — except the wintergarden, which is one screen across
+and two up, at 320 × 360. **A plate is cut at the room's own aspect**: the
+paintings come back at 1260 × 540, a third of the room's size, and one cut to
+another shape squeezes the room.
 
 | Room | Reached from | Plate | At game size |
 |---|---|---|---|

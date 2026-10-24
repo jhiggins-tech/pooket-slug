@@ -49,15 +49,19 @@ namespace PooketSlug
 
     /// <summary>
     /// The outer rooms' map (<c>docs/design/lobby.md</c>, The outer rooms): each room's own screen, its size, where the
-    /// ways in and out are, and what is in it. In the game's art pixels: every room is 320 wide, and 180 tall except the
-    /// wintergarden, which is 360 (one screen across, two up).
+    /// ways in and out are, and what is in it. In the game's art pixels: every room is 420 wide and 180 tall (a screen
+    /// and a bit, so the player scrolls across it), except the wintergarden, which is one screen across and two up
+    /// (320 × 360).
     /// </summary>
     public static class RoomMap
     {
-        /// <summary>A room's width: one screen across, unless a room is wider and the player scrolls through it.</summary>
-        public const float Width = 320f;
-        /// <summary>The kitchen's width: wider than a screen, so the player scrolls through it.</summary>
-        public const float KitchenWidth = 420f;
+        /// <summary>
+        /// A room's width: a screen and a bit, so the player scrolls across it. It is the shape the paintings come back
+        /// in (1260 × 540), cut to a third (<c>docs/design/lobby/rooms.md</c>, Paint it).
+        /// </summary>
+        public const float Width = 420f;
+        /// <summary>The wintergarden's width: one screen across, under its own tall plate.</summary>
+        public const float WinterWidth = 320f;
         /// <summary>A room's height, except the wintergarden's.</summary>
         public const float Height = 180f;
         /// <summary>The wintergarden's height: two screens up, for the stair to the rose.</summary>
@@ -69,8 +73,8 @@ namespace PooketSlug
         /// <summary>How near a way you can still use it, walking: where you come in, and a step more.</summary>
         public const float WayReach = 24f;
 
-        /// <summary>A room's width: one screen across, unless it is wider and the player scrolls through it.</summary>
-        public static float WidthOf(RoomId room) => room == RoomId.Kitchen ? KitchenWidth : Width;
+        /// <summary>A room's width: a screen and a bit, except the wintergarden's one screen.</summary>
+        public static float WidthOf(RoomId room) => room == RoomId.Wintergarden ? WinterWidth : Width;
 
         /// <summary>A room's height.</summary>
         public static float HeightOf(RoomId room) => room == RoomId.Wintergarden ? WinterHeight : Height;
@@ -172,22 +176,24 @@ namespace PooketSlug
         public static readonly RoomWay[] Ways = { RoomWay.Back, RoomWay.ToBackyard, RoomWay.ToBunker };
 
         /// <summary>
-        /// Where a way is in a room: its x, in the room's own art pixels. The way back is at the room's left, and the way
-        /// on at its right.
+        /// Where a way is in a room: its x, in the room's own art pixels. It is on the door, ladder, hole or rope the
+        /// painting has for it: the ways at a room's ends sit at its walls, and the ways that are painted inside it
+        /// (the basement's hole, the bunker's rope) are where the painting puts them. The bunker's way back is its
+        /// rope, under the hole in its roof.
         /// </summary>
         public static float WayX(RoomId room, RoomWay way)
         {
             switch (room)
             {
                 case RoomId.Kitchen:
-                    return way == RoomWay.ToBackyard ? MaxX(room) : MinX(room);
-                case RoomId.Backyard: return MinX(room);
+                    return way == RoomWay.ToBackyard ? MaxX(room) : MinX(room); // the den's side door, the back door
+                case RoomId.Backyard: return MinX(room);                         // the house door, in the yard's left wall
                 case RoomId.Basement:
-                    return way == RoomWay.ToBunker ? 289f : MinX(room);
-                case RoomId.Bunker: return 300f;
-                case RoomId.Rooftop: return MaxX(room);
-                case RoomId.ShowerBlock: return MinX(room);
-                case RoomId.Wintergarden: return MinX(room);
+                    return way == RoomWay.ToBunker ? 372f : MinX(room);         // the hole in its floor, the ladder up
+                case RoomId.Bunker: return RopeX;                                // the rope, under its hatch
+                case RoomId.Rooftop: return MaxX(room);                          // the stair hut's door, at its right end
+                case RoomId.ShowerBlock: return MinX(room);                      // the door back to the loft
+                case RoomId.Wintergarden: return MinX(room);                     // the door back to the loft
                 default: return MinX(room);
             }
         }
@@ -209,8 +215,25 @@ namespace PooketSlug
         public const float ClimbSpeed = 90f;
 
         /// <summary>
+        /// The bunker's rope (<see cref="RopeClimb"/>): where it hangs in the bunker, how high the hole in its roof is,
+        /// and how fast you climb it. The plate paints the rope where <see cref="RopeX"/> is, under the hole.
+        /// </summary>
+        public const float RopeX = 351f;
+        /// <summary>The top of the rope: the hole in the bunker's roof, so you climb out of sight.</summary>
+        public const float RopeTopY = Height;
+        /// <summary>How fast you climb the rope: the wintergarden stair's pace.</summary>
+        public const float RopeSpeed = ClimbSpeed;
+
+        /// <summary>
+        /// Whether a way is climbed rather than walked through: the bunker's way out is its rope, up through the hole in
+        /// B1's floor, and its way in is the same rope, climbed down.
+        /// </summary>
+        public static bool ByRope(RoomId room, RoomWay way) => room == RoomId.Bunker && way == RoomWay.Back;
+
+        /// <summary>
         /// Where a tap at (<paramref name="x"/>, <paramref name="y"/>) in a room is: a way to use, or None (the floor:
-        /// walk there).
+        /// walk there). A rope is used anywhere up it, from the floor to the hole; the other ways at the floor, where
+        /// you stand to use them.
         /// </summary>
         public static RoomWay WayAt(RoomId room, float x, float y)
         {
@@ -218,19 +241,10 @@ namespace PooketSlug
             {
                 if (!InRoom(room, way)) continue;
                 float wx = WayX(room, way);
-                if (x >= wx - 12f && x <= wx + 12f && y >= FloorY && y <= FloorY + 45f) return way;
+                float top = ByRope(room, way) ? RopeTopY : FloorY + 45f;
+                if (x >= wx - 12f && x <= wx + 12f && y >= FloorY && y <= top) return way;
             }
             return RoomWay.None;
-        }
-
-        /// <summary>What a way says when you use it, for the ones that don't go anywhere yet (null for the ways that do).</summary>
-        public static string Note(RoomWay way)
-        {
-            switch (way)
-            {
-                case RoomWay.ToBunker: return "THE HOLE: IT IS NOT DUG THROUGH YET";
-                default: return null;
-            }
         }
     }
 
