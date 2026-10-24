@@ -116,8 +116,12 @@ jobs:
       - name: Install the browser the MCP server wants
         run: npx --yes @playwright/mcp@0.0.83 install-browser chromium
 
+      # The action's GitHub token is minted when it starts and dies after an hour: past that, its pushes and
+      # its final comment fail with 401 (the Door traversal run went 3h42m and lost its comment). So the
+      # step is stopped well inside the hour, and the turns are capped so it stops itself first.
       - name: Run Claude Code
         id: claude
+        timeout-minutes: 50
         uses: anthropics/claude-code-action@v1
         env:
           # OpenRouter instead of Anthropic: the same settings as claude-code.yml (see its notes).
@@ -141,6 +145,7 @@ jobs:
           # the instructions go inline (--append-system-prompt, read from the step above), the browser is
           # inline JSON rather than a file, and the shell is allowed command by command.
           claude_args: |
+            --max-turns 80
             --mcp-config '{"mcpServers":{"playwright":{"command":"npx","args":["--yes","@playwright/mcp@0.0.83","--config","${{ runner.temp }}/agent/playwright-mcp.json","--output-dir","playtest"],"env":{"PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/ms-playwright"}}}}'
             --append-system-prompt '${{ steps.prompt.outputs.text }}'
             --allowedTools "mcp__playwright__browser_navigate,mcp__playwright__browser_click,mcp__playwright__browser_press_key,mcp__playwright__browser_evaluate,mcp__playwright__browser_take_screenshot,mcp__playwright__browser_console_messages,mcp__playwright__browser_snapshot,mcp__playwright__browser_resize,mcp__playwright__browser_wait_for,mcp__playwright__browser_find,mcp__playwright__browser_run_code_unsafe,Bash(tools/check.sh:*),Bash(tools/new_meta.py:*),Bash(python3 -I tools/*:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(ls:*),Bash(cat:*),Bash(grep:*),Bash(curl -fsS http://127.0.0.1:8001/*)"
