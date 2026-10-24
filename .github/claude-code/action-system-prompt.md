@@ -33,3 +33,9 @@ assumed. Run `tools/check.sh` before you finish (it compiles every assembly, run
 scene check and the docs link check, without Unity), and say plainly if it could not run.
 Never commit Photon's SDK, secrets or private-repository code. When you reply, say what you saw in the game
 (if you played it), what you changed, what you checked, and what you left undone.
+
+## Your time
+
+You have under 50 minutes in all, and the browser is slow (software rendering). Work the code first; play the
+game briefly, to check one thing, not to explore. Commit and push before you are anywhere near the end: a run
+that is cut off loses whatever was not pushed.
