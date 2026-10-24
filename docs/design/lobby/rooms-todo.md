@@ -96,6 +96,19 @@ the yard's wall, the shower block's door, the rope under the bunker's roof hole
 and the stair hut's door on the rooftop. The kitchen's own doors were left as
 they were: their plates agree with the boxes.
 
+### 9. The soldier is behind the door while it opens
+
+Played it (2026-10-24): the step through a door reads right now — the soldier
+stands **whole in the painted doorway** while the door creaks open, and the
+frame's far edge cuts him off as he goes through. But for the ~0.4 s the door
+takes to open he is **not drawn at all**: `RoomView.PlayDoor` raises the door's
+frame above him (`RoomDoor.OnTop`), and the frame's `Beyond` panel (the dark
+beyond) fills the opening, so he is hidden behind it while the leaf swings and
+only appears when the step starts.
+
+He could stand in front of the door while it opens: keep him in the world (not
+in the frame) and put him just above it — `m_Soldier.Rt.SetSiblingIndex(m_Active.Frame.GetSiblingIndex() + 1)` — instead of behind it. The tap catcher has to stay above him, or a tap on the soldier stops walking him.
+
 
 ## Looked at, and fine
 
