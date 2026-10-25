@@ -39,5 +39,8 @@ namespace PooketSlug.Tests
         public static CutsceneDef MotorPool => Script(SceneLibrary.MotorPool).Def;
         public static CutsceneDef FreeingKie => Script(SceneLibrary.FreeingKie).Def;
         public static CutsceneDef CoopTest => Script(SceneLibrary.CoopTest).Def;
+        public static CutsceneDef MissionTwoBriefing => Script(SceneLibrary.MissionTwoBriefing).Def;
+        public static CutsceneDef FreeingKcaj => Script(SceneLibrary.FreeingKcaj).Def;
+        public static CutsceneDef KcajTabk => Script(SceneLibrary.KcajTabk).Def;
     }
 }
