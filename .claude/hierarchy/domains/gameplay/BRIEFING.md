@@ -164,6 +164,9 @@ Not this domain's, though they sit beside its files: `Core/Missions/MissionStory
   pins the tabk cards' ids (their owners' soldier ids, sent as the loaded tabk); `MissionsTests` the missions' net ids;
   `TeamSuperTests` the combos; `CrewKitTests` the `KitMove`s. A retired definition stays in the table (the old tabk
   shell and mortar are projectile ids 9 and 10). Add the next unused id.
+- The cargo drone (`DroneShow` in `Garage.cs`) sizes every dip and the carried feet by the tabk it carries,
+  `BayMap.TabkHOf(tabk.Id)`, so it clears kie's and kcaj's taller roofs (`GarageTests.TheDrone_ClearsATallTabksRoof`).
+  `BayMap.TabkH` alone means tones2's height or an empty spot.
 - Each table holds its definitions at their own index (`ContentTests.EachTableHoldsItsDefinitionsAtTheirIds`).
 - A level spawn's network id is its index in the map; things spawned mid-game get ids after the levels
   (`SpawnerTests.ALevelSpawnKeepsItsIndexAsItsId`, `ThingsSpawnedMidGameGetIdsAfterTheLevels`).
