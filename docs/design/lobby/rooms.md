@@ -36,34 +36,36 @@ Then say what it's for in [the lobby's design](../lobby.md#the-outer-rooms).
 
 ### 2. Paint it
 
-With OpenRouter's Qwen Image 2.1 Turbo, and **two image references**:
+With OpenRouter's Qwen Image 2.1 Turbo (`POST /api/v1/images`: [the notes](../art.md#the-houses-room-plates)
+have the endpoint), by **the blocks recipe**. The owner picked it on 2026-10-22,
+and the six rooms after the kitchen were made with it. The references are:
 
-1. **The room's vector reference**, from `tools/room_ref.py`: the room drawn to
-   scale as flat vector art, with the game's soldier standing in it. This is
-   what fixes the scale. Without it the model draws a room for a person twice
-   the soldier's height, with doors you could walk through sideways. The
-   reference comes in two versions: the **annotated** one, with the labels, the
-   screen outline and the scale note, for the owner to read; and the **gen**
-   one (`--gen`), which is what the painter works from: the labels and the
-   scale note stay in (the model reads them: "the soldier: 22 px", "the door is
-   37 px tall"), the blue screen outline goes (the model would copy it), and
-   the soldier is stamped four times along the floor, so the scale cue repeats
-   across the frame. Without it, doors came out nearly twice the height they
-   should be.
-2. **A swatch** of the game's own pixels, upscaled so the pixel technique is
-   legible, with nothing recognisable in it. That is what makes the plate pixel
-   art rather than a photograph. A whole plate as the second reference makes the
-   model copy that room instead of drawing the one asked for.
+1. **The layout diagram**, from `tools/room_ref.py` with `--blocks`:
+   `python3 -I tools/room_ref.py <out.svg> <room> --blocks`. The room is drawn
+   to scale as flat, labelled abstract blocks on a plain wall, with no furniture
+   art at all. Structure is kept only where the geometry matters: a stair's
+   treads, a dome, a hole as a gap in the floor, a door as an opening. It says
+   where each thing goes and how big it is, not what it looks like. The scale
+   is in the picture: the soldier is stamped four times along the floor, and a
+   chip spells it out ("the soldier: 22 px tall", "the door: 37 px, under twice
+   him"), because the model reads the text in a reference. Without the cue, doors
+   came out nearly twice the height they should be. A new room needs its box in
+   `ROOMS` in `room_ref.py`.
+2. **The den's and the loft's finished plates**, alongside the diagram, as the
+   style guides. They carry the look: the pixel technique, the lighting and the
+   palette. The diagram stays plain on purpose, so the look comes from the
+   plates and not from the diagram.
 
-That is the kitchen's recipe. The other six plates in the game were made with the
-**blocks** reference instead (`tools/room_ref.py --blocks`: a labelled layout of plain
-blocks), with the den's and the loft's finished plates beside it as the style guide
-([the plates](plates/README.md#how-theyre-made)).
+**The kitchen was made with the older two-reference recipe**: a layout cut out
+of the house map (`room_ref.py --gen`) and a swatch of the game's own pixels.
+That is how it was signed off, and it stays. Don't use that recipe for a new
+room.
 
-The style line goes in front of every prompt, and the reference's caption between
-it and the plate's own prompt. **The exact wording matters**: the provider's
-moderation blocks some combinations, and it isn't deterministic. [The notes](../art.md#the-houses-room-plates)
-have the recipe, and the plates are in [plates/](plates/).
+The style line goes in front of every prompt, and a plain hint about the
+diagram between it and the plate's own prompt. **The exact wording matters**: the
+provider's moderation blocks some combinations, and it isn't deterministic.
+[The notes](../art.md#the-houses-room-plates) have the rest, and the plates are
+in [plates/](plates/).
 
 The provider wants at least 512 × 512, and **the generated size should be the
 room's own aspect**: a room 420 wide and 180 tall is generated at 1260 × 540,

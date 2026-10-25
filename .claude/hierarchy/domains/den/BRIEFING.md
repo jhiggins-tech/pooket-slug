@@ -99,6 +99,11 @@ eight above). CI runs the touch play (`tools/touch.mjs`) and, when the netcode c
 title, Enter, den, H; a change to the den's flow must keep that route. The views have no tests: smoke them on the
 branch's preview, with `?unlock=crew` to fill the den. A new `.cs` needs a `.meta` (`tools/new_meta.py`).
 
+## Painting a new room
+`docs/design/lobby/rooms.md` ("Paint it") gives the blocks recipe as the way: `tools/room_ref.py <out.svg> <room> --blocks`
+plus the den's and loft's plates as style guides (owner, 22 Oct; commit c2f1ed0). The kitchen alone was made with the older
+two-reference recipe. The workflow is mirrored in `docs/design/art.md` (sprites domain); change them together.
+
 ## Known unfinished
 - The ground floor and upper floor's painting predates the scale rule: its doors are about 2.8 times the soldier, and
   `DenMapTests.TheDen_IsDrawnToTheSoldiersScale` is `[Test, Ignore]` for that (its reason now says the owner kept the
