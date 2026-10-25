@@ -158,4 +158,27 @@ namespace PooketSlug
         Profile Load();
         void Save(Profile profile);
     }
+
+    /// <summary>
+    /// Whether a visit keeps what's played on the profile: clears, XP and rank, reveals, the story's records and the den's
+    /// beats, in this browser and the cloud. A sandbox (<c>?sandbox=</c>) and a spike (<c>?spike=</c>, <see cref="Spike.Any"/>)
+    /// keep nothing: what they play is tuned or experimental. Every other visit keeps it, test starts (<c>?test=</c>) and
+    /// unlocks (<c>?unlock=</c>) too; a demo (<c>?demo=</c>) plays no run, so nothing it does would be saved anyway.
+    /// </summary>
+    public static class ProfileKeeping
+    {
+        public static bool Saves(LaunchFlags flags, bool sandbox, bool spike) => !sandbox && !spike;
+
+        /// <summary><paramref name="store"/> itself for a visit that saves, else one that loads from it and never writes.</summary>
+        public static IProfileStore For(IProfileStore store, bool saves) => saves ? store : new Unsaved(store);
+
+        /// <summary>A store that reads the saved profile and keeps nothing: the visit plays from it, and the next visit finds it as it was.</summary>
+        sealed class Unsaved : IProfileStore
+        {
+            readonly IProfileStore m_Store;
+            public Unsaved(IProfileStore store) => m_Store = store;
+            public Profile Load() => m_Store.Load();
+            public void Save(Profile profile) { }
+        }
+    }
 }

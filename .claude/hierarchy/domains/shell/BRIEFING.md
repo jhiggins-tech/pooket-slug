@@ -15,9 +15,11 @@ The map (`.claude/hierarchy/OWNERSHIP.txt`) is the authority. Today it lists:
 - `Assets/Scripts/Input/`
 - `Assets/Scripts/Core/Title/`
 - `Assets/Scripts/Core/Lobby/Profile.cs`, `Assets/Scripts/Core/Lobby/Options.cs`, `Assets/Scripts/Core/Lobby/Ranks.cs`,
-  `Assets/Scripts/Core/Lobby/Debrief.cs`, `Assets/Scripts/Core/Lobby/CoopRoom.cs`
-- `Assets/Tests/EditMode/Lobby/CoopRoomTests.cs`, `Assets/Tests/EditMode/Lobby/DebriefTests.cs`,
-  `Assets/Tests/EditMode/Lobby/OptionsTests.cs`, `Assets/Tests/EditMode/Lobby/ProfileTests.cs`
+  `Assets/Scripts/Core/Lobby/Debrief.cs`, `Assets/Scripts/Core/Lobby/CoopRoom.cs`, `Assets/Scripts/Core/Lobby/ScreenWords.cs`,
+  `Assets/Scripts/Core/Lobby/ControlsLines.cs`
+- `Assets/Tests/EditMode/Lobby/ControlsLinesTests.cs`, `Assets/Tests/EditMode/Lobby/CoopRoomTests.cs`, `Assets/Tests/EditMode/Lobby/DebriefTests.cs`,
+  `Assets/Tests/EditMode/Lobby/OptionsTests.cs`, `Assets/Tests/EditMode/Lobby/ProfileTests.cs`,
+  `Assets/Tests/EditMode/Lobby/ScreenWordsTests.cs`
 - `Assets/Plugins/WebGL/PooketInvite.jslib`, `Assets/Plugins/WebGL/PooketDemo.jslib`
 
 Not this domain's, though they sit beside its files: the cutscene flows (`SceneFlow`, `BossIntroFlow`), the den's
@@ -47,13 +49,19 @@ Not this domain's, though they sit beside its files: the cutscene flows (`SceneF
 - **Rank ids and the ladder order never change**: saves go by the order (`Ranks.cs` comment). A new rank is appended
   by the owner's say, with a row in `Ranks.All`.
 - **Saves must read forward.** `Options` is one number (`Options.Bits`): a new setting takes the next free bits and
-  reads as its default in an old save. Never move a shift (no test pins the bit positions yet: see Known unfinished).
-  `Profile` is serialised as it is (`JsonUtility`): add fields, never rename or reuse them
-  (`ProfileTests.TheSavedFieldsKeepTheirNames`). `MissionRecord.setting` is left from
+  reads as its default in an old save. Never move a shift. `Profile` is serialised as it is (`JsonUtility`): add
+  fields, never rename or reuse them. Tests pin both (dca-save-format-tests, 25 Oct): `OptionsTests` fixes every
+  setting's bits, the `Volume` steps and one known saved number (23949); `ProfileTests` fixes `Profile`'s and
+  `MissionRecord`'s field names and types by reflection (JsonUtility saves the public fields;
+  also `TheSavedFieldsKeepTheirNames`). `MissionRecord.setting` is left from
   the hard setting (removed 25 Oct): an int, 0 on every record now; `Profile.Repair` drops an old save's hard records
   (setting 1) on load, from this browser or the cloud (`ProfileTests.AnOldSaveWithHardRecords_LoadsWithOnlyTheHardPartsGone`).
-  The page's `pooket-auth.js` reads and writes a mission's cloud record under `normal` only, the key the database rules
-  ask for; a cloud `hard` is never read, and a save's `PATCH` of `missions` leaves it out. `Reveals` ids (`coop`, `tank`) are saved by name.
+  The keys are pinned by reading the source, because `Save/` (net's) is outside the Core tests' reach:
+  `pooket-slug.options`, `pooket-slug.profile`, the old `pooket-slug.hiscore`, the page's `pooket-slug.auth`, and the
+  cloud record's path and names in `pooket-auth.js` (`pooketSlug/players/<uid>`, and every field it reads and writes,
+  `rev`, `tokens` and `name` among them). It reads and writes a mission's cloud record under `normal` only, the key the
+  database rules ask for; a cloud `hard` is never read, and a save's `PATCH` of `missions` leaves it out. `Reveals` ids
+  (`coop`, `tank`) are saved by name. A new field means a new line in those tests.
   `Profile.seen` holds every once-only record by name: `Reveals.Coop`, the scenes' ids (`SceneFlow`), the story's
   beats (`StoryRecord`: the super, the coda, the debrief), the den's beats (`DenBeats`) and kie's homecoming
   (`KieHomecoming.Reveal`). `Reveals.Tank` is only the `?unlock=tank` key and is never saved.
@@ -64,6 +72,11 @@ Not this domain's, though they sit beside its files: the cutscene flows (`SceneF
 - **HUD units**: a canvas is laid out `Tuning.Hud.Height` tall and as wide as the screen; use the `Ui` helpers
   (`Cover`, `Tap`, `Stretch`, `Rect`, `Label`, `Picture`) and `Tuning.Hud.TapGuard` after a screen appears
   (`Ui.cs`, `Debrief.cs`).
+- **The settings' CONTROLS lines are `ControlsLines.For`** (Core, `ControlsLinesTests`): a kit button is named once
+  the player can use it, as the pad shows it: SU once the super's been met, AB for a soldier with an ability
+  (`ControlsLines.HasAbility`: a cooldown, as `KitMeters.HasAbility`), TEAM once co-op is open (`Game.CoopOpen`). The
+  keys are `InputSources.cs`'s (AB: B / I, left shoulder; TEAM: T / Y, left trigger); change both together. No
+  soldier has an ability yet, so AB shows nowhere today. `docs/design/player.md` names AB but no keys and no TEAM button.
 - **Words players read**: "tabk", never tank; "Trollogram", never hologram; kie is said "k-eye". Identifiers keep
   their names (`CLAUDE.md`). The kit demo clips (`demos/<id>.mp4`) are recorded by CI from the game itself.
 - **Launch flags** (`?test=`, `?unlock=`, `?demo=`, `?room=`, `?mission=`, `?log=`) are read once at start-up into
@@ -83,6 +96,12 @@ Not this domain's, though they sit beside its files: the cutscene flows (`SceneF
   button asks for. `MenuInfo` is what `Game` gathers each frame for the menus; `HudView` takes a `HudInfo`.
 - The den's way into co-op is its **+ MATE** button on the couch (`DenConsole`, key H), and its invite is the TV's
   **TAP TO INVITE**. There is no CO-OP button anywhere now; text that says "press CO-OP" is stale.
+- **`ScreenWords`** (`Core/Lobby/ScreenWords.cs`, `ScreenWordsTests`): the shell's words that name a button
+  elsewhere (the co-op HUD's waiting line, the victory screen's co-op line, the mission screen's PICK / PLAY and its
+  hint) and the kit's keyboard key, `KitKey` B. The kit opens on `AbilityPressed`, which is B or I
+  (`InputSources.cs`); B is the one shown, on the den's ⓘ (`DenConsole`), the pause menu's YOUR KIT and the kit
+  screen's ability move. A screen line that points at a button goes here, with a test (dca-old-coop-words, 25 Oct).
+  `DenConsole` still spells "+ MATE" itself: using `ScreenWords.MateButton` there is the den's to do.
 - The **victory screen** (`MenuScreen.Victory`) shows only when a win has no debrief: a sandbox run, or watching a
   room. Every other win goes straight to the debrief (`Game.EndRun`, `MenuScreenNow`).
 - The flows: `BoardFlow` (mission screen), `KitFlow` (the ⓘ screen), `DebriefFlow`, `DemoFlow` (`?demo=`),
@@ -103,18 +122,25 @@ Not this domain's, though they sit beside its files: the cutscene flows (`SceneF
 - The shell reaches co-op only through `INetSession` (the HUD reads it) and the room through `CoopRoom`; the netcode
   is net's. Co-op starts together play the mission opening on both phones (`LaunchFlags.Testing` skips it).
 - `Game` owns the profile and its store; flows save through it. A view never saves.
-- A sandbox run never writes the profile: `Game.EndRun` and `NoteSuper` return early, and a sandbox plays no opening.
-  A spike run is *not* kept off it: nothing checks `Spike.Any` (see Known unfinished).
+- **Which visits save** is one rule in Core: `ProfileKeeping.Saves` (`Profile.cs`, `ProfileTests`). A sandbox
+  (`?sandbox=`) and a spike (`Spike.Any`) keep nothing; every other visit saves, `?test=` and `?unlock=` included.
+  `Game.Awake` wraps its store with `ProfileKeeping.For`, so every save (EndRun, the super and coda records, the coop
+  reveal, the cloud merge, and the flows' scenes, den beats and homecoming through `g.Store`) goes nowhere in such a
+  visit. A new save must go through `Game.Store`, never a store of its own. A sandbox also skips `RecordRun` and the
+  debrief (`EndRun`, `NoteSuper` return early: it gets the victory screen); a spike plays the run as normal for the
+  visit (debrief, den) and only the writing is off (dca-spike-saves, 25 Oct).
 - A demo or a scripted sandbox take hides the build line, frame rate and start banner so the clip is clean
   (`HudView` info flag).
+- `m_CoopJustOpened` (`Game`) is set by the win that opened co-op and cleared by `NewTitleWorld` and `BeginCoop`, so
+  only that run's victory screen could say it (in practice that win goes to the debrief).
 - Core folders know nothing of Unity's scene or the network: `Core/Title`, `Core/Lobby/*` here stay plain C#.
 - The title's backdrop stays behind Settings. The logo's entrance plays once a visit and a tap skips it.
 - The build is the CI's: there is no Unity licence in a cloud session, so a screen is judged from the preview link.
 
 ## How it is checked
 `tools/check.sh` (type-check as WebGL, Fusion's weaver, EditMode tests, the scene check, the docs link check); use
-`tools/check.sh compile` for a type change. The shell's own tests are `CoopRoomTests`, `DebriefTests`, `OptionsTests`
-and `ProfileTests` in `Assets/Tests/EditMode/Lobby/`. Input logic is tested by gameplay's `Assets/Tests/EditMode/Input/`
+`tools/check.sh compile` for a type change. The shell's own tests are `ControlsLinesTests`, `CoopRoomTests`, `DebriefTests`, `OptionsTests`, `ScreenWordsTests`
+and `ProfileTests` in `Assets/Tests/EditMode/Lobby/` (`OptionsTests` and `ProfileTests` also pin the save formats and keys). Input logic is tested by gameplay's `Assets/Tests/EditMode/Input/`
 (`ArcadePadTests`, `LatchTests`, `SoldierInputTests`); the logo's motion by `Assets/Tests/EditMode/Title/TitleMotionTests.cs`
 (sprites). **No test covers `Game.cs`, the menus, the HUD, the title or the kit/mission screens**; they are checked by
 the CI touch run (`tools/touch.mjs`), the build, and the preview link. To smoke-test a deploy without github.io, serve
@@ -136,19 +162,9 @@ the `gh-pages` branch locally and use `?test=debrief` and Enter through to the m
 - **Hard is dead end to end** (consistency audit, 25 Oct): besides the mission screen never offering it, `Game.EndRun`
   records every co-op run as `Setting.Normal`, and nothing in the world reads `Game.Setting`, so a hard run would play
   and save as normal. One owner question with the item above.
-- **A `?spike=` run writes the profile** like any run (XP, rank, clears, reveals, and the cloud when signed in). The
-  briefing used to say it didn't. Whether it should is an owner question (audit, 25 Oct).
-- **The co-op HUD's waiting line** says "THE NEXT MATE TO PRESS CO-OP JOINS YOU" (`HudView.cs`), but the den's button
-  is + MATE. Player text, so it waits for the owner (audit, 25 Oct).
-- **The victory screen's co-op line** ("CO-OP IS OPEN: PLAY ONLINE WITH A FRIEND FROM THE MENU", `MenuView.cs`) names
-  the menu, not the den, and `m_CoopJustOpened` is never cleared, so after the win that opened co-op, a room watched
-  later in the same visit shows it on its victory screen (audit, 25 Oct).
-- **The mission screen's hint** says "TAP A MISSION, THEN PLAY" while its button says PICK whenever it's opened from the
-  den, which is always (`MenuView.RefreshMissions`; audit, 25 Oct).
-- **The settings' controls lines** leave out the ability (AB; B / I) and the team super (TEAM; T / Y), which
-  `docs/design/player.md` lists (`MenuView.cs`; audit, 25 Oct).
-- **No test pins the options' bits**: a test fixing `Options.Bits` for one known set of options would hold the "never
-  move a shift" rule (audit, 25 Oct). `Profile`'s field names are pinned since dca-hard-pick.
+- **`?test=` starts save like any run** (dca-spike-saves, 25 Oct): `?test=debrief` and the boss or pilot starts can put
+  a real clear, XP and the coda's records on the profile (and the cloud), and `?unlock=` runs save progress made with
+  crew or tabks not yet won. Kept as they were; whether a test start should save is an owner question.
 - **The mission screen has room for four cards** (`MenuView.MaxCards`, `MenuAction.Card1`..`Card4`); with four missions
   the coming-soon card is a fifth and is dropped. Not a problem until Mission four.
 

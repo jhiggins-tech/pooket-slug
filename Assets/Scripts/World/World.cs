@@ -580,7 +580,7 @@ namespace PooketSlug
             if (Victory) return;
             Victory = true;
             Player.InputEnabled = true;
-            if (Music.Muted) Sfx.Play(Sfx.Victory); // with the music on, its mission complete sting plays instead
+            if (Jingles.EffectPlays(Jingle.Victory, !Music.Muted)) Sfx.Play(Sfx.Victory); // with the music on, its mission complete sting plays instead
             Sfx.Say("mission-complete", 0.2f);
         }
 

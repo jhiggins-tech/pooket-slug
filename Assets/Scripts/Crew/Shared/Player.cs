@@ -370,7 +370,7 @@ namespace PooketSlug
                 m_Fell = true;
                 LifeBank.Fall fall = Lives.Fallen();
                 if (fall == LifeBank.Fall.Respawn) Respawn();
-                else if (fall == LifeBank.Fall.Out) Sfx.Play(Sfx.GameOver);
+                else if (fall == LifeBank.Fall.Out) Trombone();
                 return;
             }
             if (!Lives.Offering) return;
@@ -380,7 +380,13 @@ namespace PooketSlug
                 Lives.TakeContinue();
                 Respawn();
             }
-            else if (Lives.Tick(dt)) Sfx.Play(Sfx.GameOver);
+            else if (Lives.Tick(dt)) Trombone();
+        }
+
+        /// <summary>Out for good: the sad trombone, unless the run ends here and the game over sting plays instead.</summary>
+        void Trombone()
+        {
+            if (Jingles.EffectPlays(Jingle.GameOver, !Music.Muted, runEnds: World.AllOut)) Sfx.Play(Sfx.GameOver);
         }
 
         /// <summary>

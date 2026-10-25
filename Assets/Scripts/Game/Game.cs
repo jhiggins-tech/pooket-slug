@@ -52,7 +52,7 @@ namespace PooketSlug
 
         HudView m_Hud;
         MenuView m_Menu;
-        IProfileStore m_Store; // this browser, and the cloud while signed in
+        IProfileStore m_Store; // this browser, and the cloud while signed in; nowhere in a visit that keeps nothing (ProfileKeeping)
         CloudAccount m_Account;
         bool m_AccountShown = true; // the page shows the sign-in button until the game says otherwise
         Options m_Options;
@@ -133,7 +133,9 @@ namespace PooketSlug
 
             m_Account = CloudAccount.Create();
             m_Account.CloudProfile += OnCloudProfile;
-            m_Store = new CloudProfileStore(new LocalProfileStore(), m_Account);
+            // every save goes through this store, so a visit that keeps nothing (a sandbox, a spike) writes nowhere
+            bool saves = ProfileKeeping.Saves(m_Flags, sandbox: PageQuery.Get(url, "sandbox") != null, spike: Spike.Any);
+            m_Store = ProfileKeeping.For(new CloudProfileStore(new LocalProfileStore(), m_Account), saves);
             m_Profile = m_Store.Load();
 
             Intro = new BossIntroFlow();
@@ -214,6 +216,7 @@ namespace PooketSlug
         /// <summary>The solo world again, for the mission picked: the title's, the den's, a new solo game's.</summary>
         internal void NewTitleWorld()
         {
+            m_CoopJustOpened = false; // that win's line is said; a later victory screen isn't the one that opened co-op
             m_World.Dispose();
             m_World = NewWorld(Mission);
         }
@@ -274,7 +277,7 @@ namespace PooketSlug
             m_Paused = false;
             SetState(GameState.Playing);
             Log.Game.Info("Mission start: " + Mission.Name); // tools/touch.mjs waits for it
-            Sfx.Play(Sfx.Start);
+            if (Jingles.EffectPlays(Jingle.MissionStart, !Music.Muted)) Sfx.Play(Sfx.Start); // with the music on, the start sting plays instead
             if (!Scenes.TakeSaidStart()) Sfx.Say(Cues.StartLine(Mission), 0.3f); // the opening's caption card already called it
             if (m_Flags.Debrief) m_World.OnBossDestroyed();
             MissionMusic.MissionStart();
@@ -515,6 +518,7 @@ namespace PooketSlug
         /// <summary>Connected: swap the title/solo world for the shared one (also after a co-op restart).</summary>
         internal void BeginCoop()
         {
+            m_CoopJustOpened = false; // a room's win (watched or played) didn't open co-op
             m_World.Dispose();
             m_World = NewWorld(Missions.ForCoop(Missions.ByNetId(m_Net.Link.Mission) ?? Mission), m_Net.Link); // Mission one is solo only
             if (m_Net.Watching) m_World.Spectate();
@@ -532,7 +536,7 @@ namespace PooketSlug
             m_LeaveArmed = 0f;
             m_StartNote = null;
             SetState(GameState.Playing);
-            Sfx.Play(Sfx.Start);
+            if (Jingles.EffectPlays(Jingle.MissionStart, !Music.Muted)) Sfx.Play(Sfx.Start); // with the music on, the start sting plays instead
             if (!Scenes.TakeSaidStart()) Sfx.Say(Cues.StartLine(Mission), 0.3f); // the opening's caption card already called it
         }
 
@@ -829,6 +833,8 @@ namespace PooketSlug
                 Screen = MenuScreenNow(),
                 StateTime = m_StateTime,
                 SuperShown = SuperShown,
+                AbilityShown = ControlsLines.HasAbility(Soldier),
+                TeamShown = CoopOpen,
                 Touch = GameInput.TouchActive,
                 CoopJustOpened = m_CoopJustOpened,
                 InCoop = m_Coop,
@@ -891,7 +897,7 @@ namespace PooketSlug
             SetState(state);
             if (m_World.Spectating) return; // watching a room isn't a run of our own
             if (state == GameState.GameOver) MissionMusic.GameOver();
-            if (Sandbox.Active) return; // nothing a sandbox does goes on the profile
+            if (Sandbox.Active) return; // nothing a sandbox does goes on the profile, not even for this visit (a spike's run counts for the visit, and its store keeps nothing)
             bool wasOpen = m_Profile.coop, won = state == GameState.Victory;
             int best = m_Profile.Best(m_World.Mission), clears = m_Profile.Clears(m_World.Mission);
             m_Profile.RecordRun(m_World.Mission, m_World.Scoring.Points, won, solo: !m_Coop);

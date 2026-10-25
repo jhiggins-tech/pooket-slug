@@ -17,6 +17,8 @@ namespace PooketSlug
         public float StateTime;
         /// <summary>The super's been met (it's charged once), so the controls name it.</summary>
         public bool SuperShown;
+        /// <summary>The soldier played has an ability, and co-op is open, so the controls name AB and TEAM (<see cref="ControlsLines"/>).</summary>
+        public bool AbilityShown, TeamShown;
         /// <summary>Show touch hints instead of keys.</summary>
         public bool Touch;
         /// <summary>This win opened co-op.</summary>
@@ -142,7 +144,7 @@ namespace PooketSlug
             Line(m_Victory, 60f, 32, Palette.Gold).text = "MISSION COMPLETE!";
             m_Result = Line(m_Victory, 20f, 14, Color.white);
             m_Opened = Line(m_Victory, -2f, 12, Palette.CoopBlue);
-            m_Opened.text = "CO-OP IS OPEN: PLAY ONLINE WITH A FRIEND FROM THE MENU";
+            m_Opened.text = ScreenWords.CoopOpened;
             m_Again = Ui.Button(m_Victory, "PLAY AGAIN", new Vector2(-70f, -40f), Wide, () => Click(MenuAction.Restart), out m_AgainKey);
             m_SecondVictory = Ui.Button(m_Victory, "MENU", new Vector2(70f, -40f), Wide, () => Click(m_SecondIsLeave ? MenuAction.Back : MenuAction.Menu), out m_SecondKey);
             m_SecondLabel = Label(m_SecondVictory);
@@ -223,19 +225,10 @@ namespace PooketSlug
                     m_VoicesLabel.text = Options.Label("VOICES", info.Options.Voices);
                     m_LeftyLabel.text = Options.Label("LEFT-HANDED", info.Options.LeftHanded);
                     m_MusicLabel.text = Options.Label("MUSIC", info.Options.Music);
-                    if (info.Touch)
-                    {
-                        bool lefty = info.Options.LeftHanded;
-                        m_Controls1.text = (lefty ? "RIGHT" : "LEFT") + " THUMB  RUN, AIM UP, CROUCH (AIM DOWN IN THE AIR)";
-                        m_Controls2.text = (lefty ? "LEFT" : "RIGHT") + " THUMB  FIRE (HOLD IT), JUMP, SP" + (info.SuperShown ? ", SU (SUPER, FROM KILLS)" : "") + "      DROP  DOWN + JUMP";
-                        m_Controls3.text = "II  PAUSE";
-                    }
-                    else
-                    {
-                        m_Controls1.text = "MOVE  Arrows / WASD      JUMP  Z / Space      FIRE  X / J";
-                        m_Controls2.text = "SP  C / L      " + (info.SuperShown ? "SUPER  V / U      " : "") + "AIM  Up / Down (in air), + run for 45°      DROP  Down + Jump";
-                        m_Controls3.text = "PAUSE  P / Enter      RESTART  R      MUTE  M      Gamepad supported";
-                    }
+                    string[] controls = ControlsLines.For(info.Touch, info.Options.LeftHanded, info.SuperShown, info.AbilityShown, info.TeamShown);
+                    m_Controls1.text = controls[0];
+                    m_Controls2.text = controls[1];
+                    m_Controls3.text = controls[2];
                     Key(m_SoundKey, keys, "M");
                     Key(m_ShakeKey, keys, "K");
                     Key(m_EffectsKey, false, null);
@@ -255,7 +248,7 @@ namespace PooketSlug
                     Key(m_ResumeKey, keys, "P");
                     Key(m_RestartKey, keys, "R");
                     Key(m_MenuKey, keys, "ESC");
-                    Key(m_PauseKitKey, keys, "I");
+                    Key(m_PauseKitKey, keys, ScreenWords.KitKey);
                     break;
                 case MenuScreen.Kit:
                     Dim(new Color(0f, 0f, 0f, 0.8f));
@@ -358,8 +351,8 @@ namespace PooketSlug
             }
             MissionCard chosen = count > 0 ? info.Missions[pick] : null;
             Ui.Show(m_MissionPlay, chosen != null && !chosen.ComingSoon);
-            Set(m_MissionPlayLabel, info.MissionFromDen ? "PICK" : "PLAY");
-            Set(m_MissionsHint, info.Touch ? "TAP A MISSION, THEN PLAY" : "LEFT / RIGHT PICKS A MISSION");
+            Set(m_MissionPlayLabel, ScreenWords.MissionGo(info.MissionFromDen));
+            Set(m_MissionsHint, ScreenWords.MissionHint(info.Touch, info.MissionFromDen));
             Ui.Show(m_MissionTabk, info.MissionTabk != null);
             if (info.MissionTabk != null)
             {
@@ -383,7 +376,7 @@ namespace PooketSlug
                 case KitSlot.Fire: return "X";
                 case KitSlot.Special: return "C";
                 case KitSlot.Super: return "V";
-                default: return "B";
+                default: return ScreenWords.KitKey; // the ability's key, which also opens the kit
             }
         }
 

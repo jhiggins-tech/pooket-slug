@@ -18,6 +18,54 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void EveryMissionPlaysSteelNight_TillMissionTwoHasItsOwnTheme()
+        {
+            Assert.AreSame(MusicTracks.SteelNight, MusicTracks.MissionTheme(Missions.One));
+            // On purpose: the creamery has no theme of its own yet (music.md). When it's written, this line changes.
+            Assert.AreSame(MusicTracks.SteelNight, MusicTracks.MissionTheme(Missions.Two));
+            foreach (MissionDef m in Missions.All)
+                Assert.IsTrue(MusicTracks.MissionTheme(m).Loop, m.Id + "'s theme loops");
+        }
+
+        [Test]
+        public void EachMomentPlaysTheTrackItAlwaysHas()
+        {
+            Assert.AreSame(MusicTracks.MissionStart, MusicTracks.StartSting);
+            Assert.AreSame(MusicTracks.TankAlert, MusicTracks.BossTheme(null), "the boss theme from the tabk's first shot");
+            Assert.AreSame(MusicTracks.TankAlert, MusicTracks.BossTheme(MusicTracks.SteelNight));
+            Assert.IsNull(MusicTracks.BossTheme(MusicTracks.TankAlertFinal), "never back from the final section");
+            Assert.AreSame(MusicTracks.BossVictory, MusicTracks.BossBeaten);
+            Assert.AreSame(MusicTracks.TankAlertFinal, MusicTracks.FinalSection);
+            Assert.AreEqual("tank-alert-final", MusicTracks.FinalSectionRecording);
+            Assert.AreSame(MusicTracks.TankAlert, MusicTracks.CodaTheme);
+            Assert.AreSame(MusicTracks.ContinueCountdown, MusicTracks.StingFor(MusicCue.Countdown));
+            Assert.AreSame(MusicTracks.MissionComplete, MusicTracks.StingFor(MusicCue.Complete));
+            Assert.IsNull(MusicTracks.StingFor(MusicCue.Resume));
+            Assert.IsNull(MusicTracks.StingFor(MusicCue.Cut));
+            Assert.IsNull(MusicTracks.StingFor(MusicCue.None));
+            Assert.AreSame(MusicTracks.Debrief, MusicTracks.DebriefLoop);
+            Assert.AreSame(MusicTracks.GameOver, MusicTracks.GameOverSting);
+            Assert.AreSame(MusicTracks.RankUp, MusicTracks.RankUpSting);
+        }
+
+        [Test]
+        public void TheDebriefsLoopWaitsForTheMissionCompleteSting_AsItAlwaysHas()
+        {
+            for (float t = 0f; t <= 20f; t += 0.05f)
+                Assert.AreEqual(System.Math.Max(0f, MusicTracks.MissionComplete.Seconds - t), MusicTracks.DebriefDelay(t), 1e-6f, "at " + t);
+            Assert.AreEqual(MusicTracks.MissionComplete.Seconds, MusicTracks.DebriefDelay(0f), 1e-6f);
+            Assert.AreEqual(0f, MusicTracks.DebriefDelay(MusicTracks.MissionComplete.Seconds + 1f));
+        }
+
+        [Test]
+        public void LaunchRendersTheSameTracksAsBefore()
+        {
+            CollectionAssert.AreEqual(
+                new[] { MusicTracks.SteelNight, MusicTracks.TankAlert, MusicTracks.TankAlertFinal, MusicTracks.MissionStart, MusicTracks.BossVictory },
+                MusicTracks.RenderedAhead);
+        }
+
+        [Test]
         public void NotesReadAsMidi()
         {
             Assert.AreEqual(60, Notation.PitchOf("c4"));
@@ -104,6 +152,18 @@ namespace PooketSlug.Tests
             {
                 Assert.AreEqual(i * 4, ticks[i].At, "a tick on every beat, a second each at 60 bpm");
                 if (i > 0) Assert.AreEqual(ticks[i - 1].Pitches[0] + 1, ticks[i].Pitches[0], "each a semitone higher");
+            }
+        }
+
+        [Test]
+        public void ChordsAreOnlyOnTheHarmonyPart()
+        {
+            // docs/design/music.md, The style: the lead and bass play one note at a time; the harmony may hold two to four
+            foreach (MusicTrack t in MusicTracks.All)
+            {
+                foreach (Notation.Note n in Notation.Read(t.Lead)) Assert.LessOrEqual(n.Pitches.Length, 1, t.Name + " lead at step " + n.At);
+                foreach (Notation.Note n in Notation.Read(t.Bass)) Assert.LessOrEqual(n.Pitches.Length, 1, t.Name + " bass at step " + n.At);
+                foreach (Notation.Note n in Notation.Read(t.Harmony)) Assert.LessOrEqual(n.Pitches.Length, 4, t.Name + " harmony at step " + n.At);
             }
         }
 

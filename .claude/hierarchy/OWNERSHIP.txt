@@ -190,10 +190,15 @@ shell Assets/Scripts/Core/Lobby/Options.cs
 shell Assets/Scripts/Core/Lobby/Ranks.cs
 shell Assets/Scripts/Core/Lobby/Debrief.cs
 shell Assets/Scripts/Core/Lobby/CoopRoom.cs
+shell Assets/Scripts/Core/Lobby/ScreenWords.cs
+
+shell Assets/Scripts/Core/Lobby/ControlsLines.cs
 shell Assets/Tests/EditMode/Lobby/CoopRoomTests.cs
+shell Assets/Tests/EditMode/Lobby/ControlsLinesTests.cs
 shell Assets/Tests/EditMode/Lobby/DebriefTests.cs
 shell Assets/Tests/EditMode/Lobby/OptionsTests.cs
 shell Assets/Tests/EditMode/Lobby/ProfileTests.cs
+shell Assets/Tests/EditMode/Lobby/ScreenWordsTests.cs
 
 # ---------------------------------------------------------------- story
 # The plot: what happens, in what order, and what each reveal is. A change to the
@@ -206,7 +211,9 @@ shell Assets/Tests/EditMode/Lobby/ProfileTests.cs
 # Crew.cs, the scene names in SceneLibrary.cs — stay with their owners, and this
 # domain's job is to keep them agreeing, which its consistency check does.
 story Assets/Scripts/Core/Missions/MissionStory.cs
+story Assets/Scripts/Core/Missions/OnceOnly.cs
 story Assets/Tests/EditMode/Missions/MissionStoryTests.cs
+story Assets/Tests/EditMode/Missions/OnceOnlyTests.cs
 story docs/design/story.md
 
 # ---------------------------------------------------------------- net
