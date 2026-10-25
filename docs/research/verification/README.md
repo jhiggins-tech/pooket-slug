@@ -12,13 +12,14 @@ Up: [Research index](../README.md)
 tools/check.sh           # everything below
 tools/check.sh compile   # only the type-check
 tools/check.sh docs      # only the docs link check (no kit needed)
+tools/check.sh ownership # only the ownership check (no kit needed)
 ```
 
 It runs, in order:
 1. **The type-check.** Every assembly (Core, its tests, Net, the game and the editor code) is compiled as Unity compiles it for WebGL ([type-check.md](type-check.md)).
 2. **Fusion's IL weaver** over the netcode ([fusion-weaver.md](fusion-weaver.md)).
 3. **The EditMode tests** ([edit-mode-tests.md](edit-mode-tests.md)): 795 at the time of writing, 794 passing and 1 ignored.
-4. **The scene check** and **the docs link check.**
+4. **The scene check**, **the docs link check** and **the ownership check** (every file belongs to exactly one agent domain, `.claude/hierarchy/OWNERSHIP.txt`).
 
 A full run takes about 30 seconds once the kit is cached. The first run downloads the Unity kit for the project's Unity version (the vendor repository's *Unity kit* workflow makes it) and the Photon SDK, both from the private vendor repository. That takes about a minute. After a Unity upgrade, run that workflow first, giving it the new version (left empty, it makes the main line's).
 
