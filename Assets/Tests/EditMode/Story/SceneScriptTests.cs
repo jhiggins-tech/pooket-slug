@@ -176,6 +176,30 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void TheTubsRattleOnTheirBeat_OnlyWhileTheShotSays()
+        {
+            // the stack's top tub hops one beat in three, eight beats a second, on the scene's clock; at rest otherwise
+            SceneScript s = Read("net 9\nshot: A\nlength 4\nset coldstore\nshow tubs\n0-1.4 tubs rattle\n");
+            Assert.IsEmpty(s.Problems, string.Join("; ", s.Problems));
+            var stage = new ShotStage(s.Def.Shots[0]);
+            Near(new Vector2(180f, 0f), stage.Where("tubs", 0.5f, 0.5f), "beside the cold store's doors unless the shot says");
+            int hops = 0;
+            for (int i = 0; i < 140; i++)
+            {
+                float now = i * 0.01f;
+                int frame = stage.Rattle("tubs", now, now);
+                Assert.AreEqual((int)(now * 8f) % 3 == 0 ? 1 : 0, frame, "rattling, " + now);
+                hops += frame;
+            }
+            Assert.That(hops, Is.InRange(40, 60), "about a third of the time");
+            for (float t = 1.4f; t < 4f; t += 0.01f) Assert.AreEqual(0, stage.Rattle("tubs", t, t), "at rest after its window, " + t);
+            Assert.AreEqual(0, new ShotStage(Read("net 9\nshot: A\nlength 4\nset coldstore\nshow tubs\n").Def.Shots[0]).Rattle("tubs", 0f, 0f), "at rest unless told");
+            Assert.IsTrue(Staging.Has("tubs", "rattle"));
+            Assert.IsFalse(Staging.Has("tub", "rattle"), "the held tub doesn't");
+            StringAssert.Contains("takes nothing", Read("net 9\nshot: A\nlength 4\nset coldstore\ntubs rattle 2\n").Problems[0]);
+        }
+
+        [Test]
         public void TheLibraryTakesTheSitesCopyOnlyWhenItsClean()
         {
             var lib = new SceneLibrary();

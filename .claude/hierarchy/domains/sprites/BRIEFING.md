@@ -99,6 +99,10 @@ blinks and flickers; `CrewFigure` is the shared figure's moves; `StagePose` is h
   mission has no plates for.
 - Sprites are built in code at startup (`Art.Init`); there are no imported art assets, no scenes and no prefabs.
   Plates and the title logo are the only picture files, loaded as `.bytes` from `Resources`.
+- The cutscenes' own props drawn here sit under "The cutscenes' props" in `ArtData` and `Art`: today the tub stack,
+  `Art.TubStack` (two frames, 23 by 25 with the outline: at rest, and its top tub hopped with the lid jumped off; painted
+  by `Art.TubPaint`, the creamery's pastel lids). The cutscene domain places it and picks the frame (`ShotStage.Rattle`;
+  card tub-stack, 25 Oct). A sprite there that a scene draws is a handover to that domain for its thing and verb.
 - The per-crewmate, per-mission and per-tabk art files are their own static classes in other domains' folders
   (`KcajArt`, `Tones2Art`, `KieTabkArt`, `KcajTabkArt`, `CreameryArt`, `CodaArt`, `ExitGateArt`), which `Art` reads
   (`Art.Init` takes `KcajArt.Cone`, `CreameryArt.Shockwave` and `.Scoop` for projectiles). `Art` is a `partial class`,

@@ -513,6 +513,30 @@ namespace PooketSlug
             }
         }
 
+        // ---- The cutscenes' props ----
+
+        /// <summary>
+        /// The tub stack's paint: cream tubs (the held <c>tub</c>'s cream) under the creamery's pink, mint and chocolate lids
+        /// (<see cref="CreameryArt"/>'s pastels).
+        /// </summary>
+        static readonly Dictionary<char, uint> TubPaint = new Dictionary<char, uint>
+        {
+            { 'c', 0xf6eedc }, { 'C', 0xd2c4a8 }, { 'r', 0xf48cbc }, { 'R', 0xc0507e },
+            { 'g', 0x9ee8c8 }, { 'G', 0x5ab48e }, { 'h', 0x96603e }, { 'w', 0x6a3e2a },
+        };
+
+        static Sprite[] s_TubStack;
+
+        /// <summary>
+        /// The stack of ice cream tubs by the cold store's doors (the scenes' <c>tubs</c>), stood by its feet: [0] at rest,
+        /// [1] rattling (<see cref="ArtData.TubStack"/>, <see cref="ArtData.TubStackRattle"/>). Made the first time it's asked for.
+        /// </summary>
+        public static Sprite[] TubStack => s_TubStack ?? (s_TubStack = new[]
+        {
+            FromRows(ArtData.TubStack, new Vector2(0.5f, 0f), TubPaint),
+            FromRows(ArtData.TubStackRattle, new Vector2(0.5f, 0f), TubPaint),
+        });
+
         // ---- Scenery: big props that stand behind the action ----
 
         static readonly Color32 Haze = Hex(0xd0a040), Panel = Hex(0x7a808e), PanelLight = Hex(0x9aa0ac);

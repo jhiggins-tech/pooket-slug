@@ -252,6 +252,7 @@ namespace PooketSlug
                     case "stutter":
                     case "appear":
                     case "rip":
+                    case "rattle":
                     case "open":
                     case "flicker-out":
                         if (w.Length > 2) return "'" + verb + "' takes nothing after it";
