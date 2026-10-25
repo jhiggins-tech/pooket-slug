@@ -37,14 +37,49 @@ namespace PooketSlug
         public const int MaxPeople = Tuning.Coop.MaxPlayers + MaxWatchers;
 
         /// <summary>The session property keys (short: they go to everyone arriving).</summary>
-        // "o" was the public / invite-only switch's, gone with hosting (18 Oct): nothing sets or reads it now.
-        public const string MissionKey = "m", SoldiersKey = "n", WatchingKey = "w", UnderWayKey = "g", HostKey = "h", OpenKey = "o";
+        public const string MissionKey = "m", SoldiersKey = "n", WatchingKey = "w", UnderWayKey = "g", HostKey = "h";
 
         public static RoomAction ActionFor(in RoomListing room, Func<int, bool> cleared)
         {
             if (room.Soldiers < Tuning.Coop.MaxPlayers) return RoomAction.Join;
             if (room.Watching >= MaxWatchers) return RoomAction.Full;
             return cleared(room.Mission) ? RoomAction.Watch : RoomAction.Locked;
+        }
+    }
+
+    /// <summary>
+    /// What the screen says when joining the room fails: one name for the room everywhere, whoever counted. Photon's
+    /// reason arrives by its name (Core knows no Fusion type); the words are plain text for the players.
+    /// </summary>
+    public static class RoomWords
+    {
+        public const string Full = "THE ROOM IS FULL";
+        public const string Closed = "THE ROOM IS CLOSED";
+        public const string SeatsTaken = "BOTH SEATS ARE TAKEN. CLEAR THEIR MISSION TO WATCH";
+        public const string Unreachable = "COULDN'T REACH PHOTON, CHECK YOUR CONNECTION";
+
+        /// <summary>The words for a Photon shutdown reason (its enum name); <paramref name="connecting"/> is true while still joining.</summary>
+        public static string ForShutdown(string reason, bool connecting)
+        {
+            switch (reason)
+            {
+                case "GameIsFull": return Full;
+                case "GameClosed": return Closed;
+                case "MaxCcuReached": return "PHOTON IS FULL RIGHT NOW, TRY LATER";
+                case "InvalidRegion": return "UNKNOWN PHOTON REGION IN THIS BUILD";
+                case "InvalidAuthentication":
+                case "CustomAuthenticationFailed": return "PHOTON REJECTED THIS BUILD'S APP ID";
+                case "Error":
+                case "PhotonCloudTimeout":
+                case "ConnectionTimeout":
+                case "OperationTimeout":
+                case "ConnectionRefused":
+                    if (connecting) return Unreachable;
+                    return reason == "ConnectionRefused" ? "CONNECTION REFUSED"
+                        : reason == "Error" ? "DISCONNECTED (ERROR)" : "CONNECTION TIMED OUT";
+                case "DisconnectedByPluginLogic": return "DISCONNECTED BY THE SERVER";
+                default: return "DISCONNECTED (" + (reason ?? "").ToUpperInvariant() + ")";
+            }
         }
     }
 

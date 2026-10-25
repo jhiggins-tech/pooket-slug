@@ -107,6 +107,33 @@ namespace PooketSlug.Tests
             }
         }
 
+        // docs/design/lobby/rooms.md: the way back takes you to where you came from. BACK uses each room's Back, so
+        // from the yard it's the kitchen (by its back door), not straight to the den.
+        [Test]
+        public void TheWayBack_GoesWhereYouCameFrom()
+        {
+            foreach (RoomId from in System.Enum.GetValues(typeof(RoomId)))
+            {
+                if (from == RoomId.None) continue;
+                foreach (RoomWay way in RoomMap.Ways)
+                {
+                    if (!RoomMap.InRoom(from, way) || way == RoomWay.Back) continue;
+                    RoomMap.Leads(from, way, out RoomId to, out RoomWay by);
+                    Assert.AreEqual(RoomWay.Back, by, from + " " + way + ": you arrive by the next room's way back");
+                    RoomMap.Leads(to, RoomWay.Back, out RoomId back, out RoomWay at);
+                    Assert.AreEqual(from, back, to + "'s way back goes to " + from);
+                    Assert.AreEqual(way, at, "and you come out where you went in");
+                }
+            }
+            // and every way in the house is gone back through from its room
+            foreach (RoomWay door in new[] { RoomWay.SideDoor, RoomWay.Trapdoor, RoomWay.RooftopDoor, RoomWay.ShowerDoor, RoomWay.WintergardenDoor })
+            {
+                RoomMap.Leads(RoomMap.RoomOf(door), RoomWay.Back, out RoomId to, out RoomWay by);
+                Assert.AreEqual(RoomId.None, to);
+                Assert.AreEqual(door, by, RoomMap.RoomOf(door) + " goes back to the house by the door it opened from");
+            }
+        }
+
         [Test]
         public void EveryRoom_HasAWayIn_AndTheWayIsWhereYouStandToUseIt()
         {

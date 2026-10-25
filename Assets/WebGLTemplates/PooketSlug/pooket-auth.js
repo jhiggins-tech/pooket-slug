@@ -26,7 +26,9 @@
   var FRESH_MS = 30000; // a forced refresh is skipped while the token is younger than this
   var DEAD = /TOKEN_EXPIRED|INVALID_REFRESH_TOKEN|USER_DISABLED|USER_NOT_FOUND|INVALID_GRANT_TYPE|MISSING_REFRESH_TOKEN|PROJECT_NUMBER_MISMATCH/;
   var SERVER_TIME = { ".sv": "timestamp" };
-  var SETTINGS = ["normal", "hard"]; // the game's Setting enum, by number
+  // A mission's record sits under "normal" in the database, as the rules ask. There was a "hard" beside it once;
+  // that setting is gone, so a record's "hard" is never read and never written.
+  var RECORD = "normal";
   var ID_MAX = 32, NAME_MAX = 24;
 
   var config = window.POOKET_CONFIG || {};
@@ -166,16 +168,14 @@
 
   // ------------------------------------------------------------------ the record and the game's profile
 
-  /** The database record as the game's Profile (JsonUtility's shape: lists, and the setting as a number). */
+  /** The database record as the game's Profile (JsonUtility's shape: lists). */
   function toProfile(rec) {
     rec = rec && typeof rec === "object" ? rec : {};
     var missions = [];
     var m = rec.missions || {};
     Object.keys(m).forEach(function (mission) {
-      SETTINGS.forEach(function (name, setting) {
-        var r = m[mission] && m[mission][name];
-        if (r) missions.push({ mission: mission, setting: setting, best: r.best | 0, clears: r.clears | 0 });
-      });
+      var r = m[mission] && m[mission][RECORD];
+      if (r) missions.push({ mission: mission, best: r.best | 0, clears: r.clears | 0 });
     });
     return {
       version: rec.version || 1,
@@ -195,9 +195,8 @@
       xp: Math.min(1000000000, Math.max(0, p.xp | 0)), rank: Math.min(1000, Math.max(0, p.rank | 0)) };
     var missions = {};
     (p.missions || []).forEach(function (r) {
-      var setting = SETTINGS[r.setting];
-      if (!setting || !r.mission || r.mission.length > ID_MAX || /[.#$\[\]\/]/.test(r.mission)) return;
-      (missions[r.mission] = missions[r.mission] || {})[setting] = { best: Math.max(0, r.best | 0), clears: Math.max(0, r.clears | 0) };
+      if ((r.setting | 0) !== 0 || !r.mission || r.mission.length > ID_MAX || /[.#$\[\]\/]/.test(r.mission)) return;
+      (missions[r.mission] = missions[r.mission] || {})[RECORD] = { best: Math.max(0, r.best | 0), clears: Math.max(0, r.clears | 0) };
     });
     if (Object.keys(missions).length) fields.missions = missions;
     var seen = {};

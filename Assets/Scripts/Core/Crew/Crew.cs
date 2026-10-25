@@ -87,7 +87,7 @@ namespace PooketSlug
             return null;
         }
 
-        /// <summary>Has <paramref name="profile"/> freed <paramref name="member"/>: beaten their mission, at either setting?</summary>
+        /// <summary>Has <paramref name="profile"/> freed <paramref name="member"/>: beaten their mission?</summary>
         public static bool IsFree(CrewMember member, Profile profile) =>
             member.FreedBy == null || MissionBoard.Cleared(profile, member.FreedBy);
 

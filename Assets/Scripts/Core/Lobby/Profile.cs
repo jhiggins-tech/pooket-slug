@@ -3,9 +3,6 @@ using System.Collections.Generic;
 
 namespace PooketSlug
 {
-    /// <summary>How hard a mission is played. Hard opens for a mission from Mission two on once it's cleared, in co-op (<see cref="MissionBoard.HardOpen"/>).</summary>
-    public enum Setting { Normal, Hard }
-
     /// <summary>The ids of reveals: things the game shows once, when the player first meets them.</summary>
     public static class Reveals
     {
@@ -15,13 +12,18 @@ namespace PooketSlug
         public const string Tank = "tank";
     }
 
-    /// <summary>A mission's record at one setting.</summary>
+    /// <summary>A mission's record: its best score and clears.</summary>
     [Serializable]
     public struct MissionRecord
     {
         /// <summary>The mission's id (<see cref="MissionDef.Id"/>).</summary>
         public string mission;
-        public Setting setting;
+        /// <summary>
+        /// Left from the hard setting, which is gone (the owner, 25 Oct): 0 on every record now. A save from before
+        /// may hold a mission's hard record too, marked 1 here; <see cref="Profile.Repair"/> drops it on load. Kept
+        /// because it's in the saved form: never rename it.
+        /// </summary>
+        public int setting;
         /// <summary>Best score.</summary>
         public int best;
         /// <summary>Times beaten.</summary>
@@ -52,25 +54,25 @@ namespace PooketSlug
         /// <summary>First played and last saved, in Unix milliseconds; 0 until the first save.</summary>
         public long first, ts;
 
-        public int Best(MissionDef mission, Setting setting = Setting.Normal)
+        public int Best(MissionDef mission)
         {
-            int i = Find(mission.Id, setting);
+            int i = Find(mission.Id);
             return i < 0 ? 0 : missions[i].best;
         }
 
-        public int Clears(MissionDef mission, Setting setting = Setting.Normal)
+        public int Clears(MissionDef mission)
         {
-            int i = Find(mission.Id, setting);
+            int i = Find(mission.Id);
             return i < 0 ? 0 : missions[i].clears;
         }
 
         /// <summary>Records a finished run, won or lost. Beating a mission whose story opens co-op (Mission one), solo, opens it.</summary>
-        public void RecordRun(MissionDef mission, Setting setting, int score, bool won, bool solo)
+        public void RecordRun(MissionDef mission, int score, bool won, bool solo)
         {
-            int i = Find(mission.Id, setting);
+            int i = Find(mission.Id);
             if (i < 0)
             {
-                missions.Add(new MissionRecord { mission = mission.Id, setting = setting });
+                missions.Add(new MissionRecord { mission = mission.Id });
                 i = missions.Count - 1;
             }
             MissionRecord r = missions[i];
@@ -108,7 +110,7 @@ namespace PooketSlug
             rank = Math.Max(rank, other.rank);
             foreach (MissionRecord theirs in other.missions)
             {
-                int i = Find(theirs.mission, theirs.setting);
+                int i = Find(theirs.mission);
                 if (i < 0)
                 {
                     missions.Add(theirs);
@@ -131,20 +133,20 @@ namespace PooketSlug
             ts = nowMs;
         }
 
-        /// <summary>Fills in what an older or damaged save left out. Returns this profile.</summary>
+        /// <summary>Fills in what an older or damaged save left out, and drops the hard records an old save holds. Returns this profile.</summary>
         public Profile Repair()
         {
             if (missions == null) missions = new List<MissionRecord>();
             if (seen == null) seen = new List<string>();
-            missions.RemoveAll(r => string.IsNullOrEmpty(r.mission));
+            missions.RemoveAll(r => string.IsNullOrEmpty(r.mission) || r.setting != 0);
             seen.RemoveAll(string.IsNullOrEmpty);
             return this;
         }
 
-        int Find(string mission, Setting setting)
+        int Find(string mission)
         {
             for (int i = 0; i < missions.Count; i++)
-                if (missions[i].mission == mission && missions[i].setting == setting) return i;
+                if (missions[i].mission == mission && missions[i].setting == 0) return i;
             return -1;
         }
     }

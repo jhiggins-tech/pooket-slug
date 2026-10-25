@@ -78,8 +78,6 @@ namespace PooketSlug
         internal string PageUrl => m_PageUrl;
         /// <summary>The mission a solo game plays; a shared game plays the host's.</summary>
         internal MissionDef Mission { get; set; } = Missions.One;
-        /// <summary>The setting a solo game plays (hard is only ever open in co-op).</summary>
-        internal Setting Setting { get; set; } = Setting.Normal;
 
         internal SceneFlow Scenes { get; private set; }
         internal DenFlow Den { get; private set; }
@@ -164,7 +162,7 @@ namespace PooketSlug
             if (Demos.Start(m_Flags.Demo)) return; // a demo is all this visit plays
             if (Scenes.StartDraft(PageQuery.Get(url, "scene"), url)) return; // and so is a draft scene
             if (Sandbox.Start(PageQuery.Get(url, "sandbox"), url)) return; // and so is a sandbox: solo, and never recorded
-            if (NetSessions.Factory != null && NetConfig.Configured) m_Net = NetSessions.Factory(gameObject);
+            m_Net = NetSessions.Factory?.Invoke();
             // An invite link with a room in it (?room=, see CoopRoom) waits for the den's + MATE like any visit; co-op still waits
             // until Mission one is beaten, so before then the link starts that.
             if (m_Net != null && !string.IsNullOrEmpty(m_Flags.Room) && !CoopOpen)
@@ -320,7 +318,6 @@ namespace PooketSlug
         {
             if (mission == null || mission == Mission) return;
             Mission = mission;
-            Setting = Setting.Normal;
             NewTitleWorld();
         }
 
@@ -853,7 +850,6 @@ namespace PooketSlug
                 DemoFolder = m_DemoFolder,
                 Missions = Board.Open ? Board.Cards : null,
                 MissionPick = Board.Pick,
-                MissionHard = Board.Hard,
                 MissionFromDen = Board.FromDen,
                 MissionTabk = Board.Open && Board.FromDen ? LoadedTabk.Name : null,
                 MissionTabkPaint = Art.Hex(LoadedTabk.Paint),
@@ -904,7 +900,7 @@ namespace PooketSlug
             if (Sandbox.Active) return; // nothing a sandbox does goes on the profile, not even for this visit (a spike's run counts for the visit, and its store keeps nothing)
             bool wasOpen = m_Profile.coop, won = state == GameState.Victory;
             int best = m_Profile.Best(m_World.Mission), clears = m_Profile.Clears(m_World.Mission);
-            m_Profile.RecordRun(m_World.Mission, m_Coop ? Setting.Normal : Setting, m_World.Scoring.Points, won, solo: !m_Coop);
+            m_Profile.RecordRun(m_World.Mission, m_World.Scoring.Points, won, solo: !m_Coop);
             m_CoopJustOpened = !wasOpen && m_Profile.coop;
             if (won) // solo or co-op: each phone's debrief, its own player's XP and rank
             {

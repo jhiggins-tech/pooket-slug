@@ -68,9 +68,9 @@ namespace PooketSlug
             }
             if (m_View.TakeBack() || keys.Back)
             {
-                // BACK goes back to the house; in the bunker it climbs the rope up to B1, the way out
-                if (RoomMap.ByRope(m_Room, RoomWay.Back)) Use(RoomWay.Back);
-                else m_Game.Rooms.Back(m_Room);
+                // BACK goes back where you came from (docs/design/lobby/rooms.md): the room's own way back, so the
+                // yard goes to the kitchen and the bunker climbs its rope up to B1
+                Use(RoomWay.Back);
                 return;
             }
             RoomWay way = m_View.TakeWay();

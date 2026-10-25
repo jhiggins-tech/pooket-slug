@@ -8,7 +8,7 @@ Up: [Verification](README.md)
 
 ## What's in Core
 
-[`Assets/Scripts/Core`](../../../Assets/Scripts/Core) holds the code that has no `MonoBehaviour`, no scene objects and no Fusion types, and calls nothing in the engine's native side except logging and reading the build's net config. Its folders mirror the game's, and [CLAUDE.md's map](../../../CLAUDE.md#map) says what each holds. Core is also what the game and the netcode assembly (`PooketSlug.Net`) share: the contract between them (`NetContracts`, `INetEvents`, the event payloads) and `NetConfig`. Those aren't tested here.
+[`Assets/Scripts/Core`](../../../Assets/Scripts/Core) holds the code that has no `MonoBehaviour`, no scene objects and no Fusion types, and calls nothing in the engine's native side except logging. Its folders mirror the game's, and [CLAUDE.md's map](../../../CLAUDE.md#map) says what each holds. Core is also what the game and the netcode assembly (`PooketSlug.Net`) share: the contract between them (`NetContracts`, `INetEvents`, the event payloads) and `NetConfig`. The contract isn't tested here; `NetConfig`'s region rule is (`NetConfigTests`).
 
 ## In CI
 

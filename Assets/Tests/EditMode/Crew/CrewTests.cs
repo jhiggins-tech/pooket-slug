@@ -28,9 +28,9 @@ namespace PooketSlug.Tests
         public void BeatingAMissionFreesItsCrewmate()
         {
             var p = new Profile();
-            p.RecordRun(Missions.One, Setting.Normal, 900, won: false, solo: true);
+            p.RecordRun(Missions.One, 900, won: false, solo: true);
             Assert.IsFalse(Crew.IsFree(Crew.Kie, p), "losing frees nobody");
-            p.RecordRun(Missions.One, Setting.Normal, 1200, won: true, solo: true);
+            p.RecordRun(Missions.One, 1200, won: true, solo: true);
             CollectionAssert.AreEqual(new[] { Content.Tones2, Content.Kie }, Crew.Freed(p));
             Assert.AreSame(Crew.Kie, Crew.FreedBy(Missions.One));
         }
@@ -39,9 +39,9 @@ namespace PooketSlug.Tests
         public void ClearingMissionTwoFreesKcaj()
         {
             var p = new Profile();
-            p.RecordRun(Missions.One, Setting.Normal, 1200, won: true, solo: true);
+            p.RecordRun(Missions.One, 1200, won: true, solo: true);
             Assert.IsFalse(Crew.IsFree(Crew.Kcaj, p), "Mission one frees kie only");
-            p.RecordRun(Missions.Two, Setting.Normal, 1500, won: true, solo: false);
+            p.RecordRun(Missions.Two, 1500, won: true, solo: false);
             CollectionAssert.AreEqual(new[] { Content.Tones2, Content.Kie, Content.Kcaj }, Crew.Freed(p));
             Assert.AreSame(Crew.Kcaj, Crew.FreedBy(Missions.Two));
             Assert.AreSame(Content.Kcaj, Crew.Pick(Content.Kcaj.Id, Crew.Freed(p)));

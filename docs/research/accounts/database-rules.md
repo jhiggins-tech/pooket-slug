@@ -25,7 +25,7 @@ Each player has one record at `pooketSlug/players/{uid}`. Only they read and wri
 | `seen/{id}` | Reveals already shown | Each one `true` |
 | `cosmetics/owned/{item}` | Looks the player owns | Each one `true` |
 | `cosmetics/worn/{slot}` | What's worn in each slot | The id of an item the player owns |
-| `missions/{mission}/{setting}` | `best` and `clears`, per mission at `normal` or `hard` | Both required, whole numbers up to 1,000,000,000; never lower |
+| `missions/{mission}/{setting}` | `best` and `clears`, per mission, under `normal` (the rules also allow `hard`, from a hard setting the game no longer has: it never reads or writes it) | Both required, whole numbers up to 1,000,000,000; never lower |
 | `tally/{soldier}/{weapon}` | `shots`, `hits`, `dealt`, `taken` and `kills` | All five required, whole numbers up to 1,000,000,000; never lower |
 | `first` | When the record was made | Required. The server time on the first save; it never changes |
 | `ts` | When it was last saved | Required. The server time, on every save |
@@ -52,7 +52,7 @@ How the save code works, in [`CloudAccount.cs`](../../../Assets/Scripts/Save/Clo
 - **Later saves:** `PATCH` the record with what changed, plus `rev` one above the last one read or written and `ts` as the server time. A write below the record, such as to one mission, is refused: it can't carry the save number.
 - **If a save is refused** (HTTP 401), another device has probably saved since. Read the record again, merge, and retry once with the new save number.
 - **The board:** after a run that beats a mission's best, `PUT pooketSlug/leaderboard/{mission}/{uid}` with the name, the best and `ts`.
-- **The ids already exist:** missions (`mission-1`) and reveals (`coop`) come from `Missions` and `Reveals`, and the settings are `Setting`'s names in lower case.
+- **The ids already exist:** missions (`mission-1`) and reveals (`coop`) come from `Missions` and `Reveals`, and a mission's record goes under `normal`.
 
 ## The rules section
 

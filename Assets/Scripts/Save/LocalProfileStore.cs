@@ -28,7 +28,7 @@ namespace PooketSlug
             catch { /* storage may be unavailable in private browsing */ }
             if (oldHiScore > 0)
             {
-                profile.RecordRun(Missions.One, Setting.Normal, oldHiScore, won: false, solo: true);
+                profile.RecordRun(Missions.One, oldHiScore, won: false, solo: true);
                 Save(profile); // moves the old key into the profile
             }
             return profile;

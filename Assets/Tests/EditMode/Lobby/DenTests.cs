@@ -152,5 +152,42 @@ namespace PooketSlug.Tests
                 }
             }
         }
+
+        // docs/design/lobby.md, Who lives where: a loop, a breath, another loop. Two loops never run back to back.
+        [Test]
+        public void IdleLoops_AlwaysHaveABreathBetweenThem()
+        {
+            var rng = new System.Random(7);
+            bool[] seen = new bool[DenIdle.Loops];
+            foreach (int start in new[] { 0, 1, DenIdle.Breath })
+            {
+                int cycle = start;
+                for (int i = 0; i < 400; i++)
+                {
+                    int next = DenIdle.Next(cycle, rng);
+                    if (cycle != DenIdle.Breath) Assert.AreEqual(DenIdle.Breath, next, "a breath after loop " + cycle);
+                    else
+                    {
+                        Assert.That(next, Is.InRange(0, DenIdle.Loops - 1), "a loop after a breath");
+                        seen[next] = true;
+                    }
+                    cycle = next;
+                }
+            }
+            for (int l = 0; l < DenIdle.Loops; l++) Assert.IsTrue(seen[l], "loop " + l + " comes up");
+        }
+
+        [Test]
+        public void IdleLoops_RunTheirLength_AndABreathAFewSeconds()
+        {
+            var rng = new System.Random(3);
+            for (int i = 0; i < 200; i++)
+            {
+                Assert.AreEqual(DenIdle.LoopSeconds, DenIdle.SecondsOf(i % DenIdle.Loops, rng), 0.0001f);
+                Assert.That(DenIdle.SecondsOf(DenIdle.Breath, rng), Is.InRange(DenIdle.BreathMin, DenIdle.BreathMax));
+            }
+            // lobby.md: loops of 3 to 6 seconds
+            Assert.That(DenIdle.LoopSeconds, Is.InRange(3f, 6f));
+        }
     }
 }

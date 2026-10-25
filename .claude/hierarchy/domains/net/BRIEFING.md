@@ -25,6 +25,7 @@ The map (`.claude/hierarchy/OWNERSHIP.txt`) is the authority; this is its list.
 - `Assets/Scripts/Core/Platform/WireMeter.cs`
 - `Assets/Tests/EditMode/Platform/DropInTests.cs`
 - `Assets/Tests/EditMode/Platform/MasterWatchTests.cs`
+- `Assets/Tests/EditMode/Platform/NetConfigTests.cs` (new 25 Oct, not yet in OWNERSHIP.txt: handed to the architect)
 - `Assets/Tests/EditMode/Platform/NetIdsTests.cs`
 - `Assets/Tests/EditMode/Platform/PartnerBeaconTests.cs`
 - `Assets/Tests/EditMode/Platform/RoomBrowserTests.cs`
@@ -60,6 +61,11 @@ Close to this domain but not its files: `Core/Lobby/CoopRoom.cs` and `Core/Lobby
   `FixedRegion`. A build may name another with `-photonRegion`; the workflow does not.
 - The shared world follows its master. When the master's beat goes quiet for 2 s, `MasterWatch` asks Photon to make this
   client the master; Photon grants it after its own threshold, set in `NetworkProjectConfig.fusion` (`Handover.cs`, `MasterWatchTests`).
+- Core's network files name no Unity scene object or resource (dca-core-no-unity, 25 Oct). `NetConfig` in Core is the
+  baked file's shape (`NetConfig.Data`: `Configured`, `Region`) and the region rule (`NetConfig.Region`: trimmed, lower
+  case, blank is `au`; `NetConfigTests`); `NetSession.Config` in `Net/` loads `Resources/pooket-net.json` once.
+  `NetSessions.Factory` is a `Func<INetSession>`: `NetSession.Create` gives null without an AppId, else makes its own
+  host object ("Net Session", kept across loads), so `Game` only calls `NetSessions.Factory?.Invoke()`.
 - Fusion's own config (`NetworkProjectConfig.fusion`) is committed and wins over the one the SDK ships.
 - Public repository: never commit Photon SDK code (CI unpacks it from the private vendor repository), the Photon app id
   (a secret, baked into `Resources/pooket-net.json`, git-ignored) or any key. Say nothing about the SDK's internals beyond
@@ -80,7 +86,11 @@ Close to this domain but not its files: `Core/Lobby/CoopRoom.cs` and `Core/Lobby
 - Replicated objects: `PlayerNet` (one per soldier, owned by its player), `WorldNet` (owned by the master), `BossNet`.
   Snapshots are capped by `NetLimits` (24 enemies, 16 pickups).
 - Session properties, short keys in `RoomBrowser`: `m` mission, `n` soldiers, `w` watching, `g` under way, `h` host (the master's soldier).
-  `OpenKey` (`o`) is left over from the public / invite-only switch: nothing sets or reads it. Removing it is a code change, so it needs a card.
+  (`OpenKey`, `o`, was the old public / invite-only switch; removed 25 Oct, nothing in the build read it.)
+- The words for a failed join are `RoomWords` in `Rooms.cs` (`RoomWordsTests` are in `RoomBrowserTests`): THE ROOM IS FULL for a full room
+  however it was counted (our count of watchers, or Photon's `GameIsFull`), THE ROOM IS CLOSED for `GameClosed`. `NetSession` passes
+  Photon's reason by name (`ForShutdown(reason.ToString(), connecting)`), so Core names no Fusion type. There is no ROOM NOT FOUND (the
+  first phone in opens the room); `GameNotFound` falls to the general DISCONNECTED line.
 - Wire kinds for the meter: `WireKind` (Shot, EnemyShot, Burst, Hit, Claim, Grant, Hurt, Kit). The meter is in the game (every phone logs it each
   30 s), no longer a spike. Burst is never counted outside `WireMeterTests`: kcaj's pills go as `KitMove.Pills`, and `BurstEvent` is the spike's
   shape, kept for its tests. A crewmate's move that is not a
@@ -105,7 +115,7 @@ Close to this domain but not its files: `Core/Lobby/CoopRoom.cs` and `Core/Lobby
 - `tools/check.sh` compiles every assembly as Unity would, runs Fusion's weaver and the EditMode tests. Locally there is no Fusion SDK
   in some sessions, so the Net assembly may only be fully checked by CI: push the branch and read the run.
 - Rules: `Assets/Tests/EditMode/Platform/` (`DropInTests`, `MasterWatchTests`, `NetIdsTests`, `PartnerBeaconTests`,
-  `RoomBrowserTests`, `WireMeterTests`), and `Assets/Tests/EditMode/Tabks/CoopTabksTests.cs` for the tabk rule it shares with gameplay.
+  `RoomBrowserTests`, `WireMeterTests`, `NetConfigTests`), and `Assets/Tests/EditMode/Tabks/CoopTabksTests.cs` for the tabk rule it shares with gameplay.
   The `KitMove` numbers are pinned in gameplay's `Assets/Tests/EditMode/Crew/CrewKitTests.cs`, and `NetEnemyState.Disguised` fitting the
   snapshot's flag byte in `Bosses/KieTankTests.cs`.
 - The world's side: `Assets/Tests/Gameplay/NetSyncTests.cs` (a real `World` against a stand-in session, CI only).
@@ -130,9 +140,9 @@ Close to this domain but not its files: `Core/Lobby/CoopRoom.cs` and `Core/Lobby
 - docs/research/netcode/ and docs/research/accounts/ are this domain's since the consistency audit (25 Oct), and its
   handed-over stale lines there were fixed then. Still unchecked: sessions.md says a failed connect goes back to the title
   with a red notice, and the den's H gating in its Den row.
-- Core reaching Unity (the audit, 25 Oct, for an Idea card): `NetSessions.Factory` is a `Func<GameObject, INetSession>` and `NetConfig`
-  calls `Resources.Load`, both in `PooketSlug.Core`, against CLAUDE.md's "Core knows nothing of Unity's scene". The fix is a code change
-  (the loader into `Save/` or `Net/`, Core keeping `NetConfig.Data` and the region rule with tests). Open.
 - Two words for the one room in the status lines (the audit, 25 Oct, for an Idea card): `NetSession.Describe` says "THAT GAME IS FULL",
   "THAT GAME IS CLOSED" and "ROOM NOT FOUND", beside `Connect`'s "THE ROOM IS FULL". A seventh phone (past `RoomBrowser.MaxPeople`) gets
   Photon's GameIsFull, so the same full room reads two ways. Player text, so a card. Open.
+- Stale docs after dca-core-no-unity (25 Oct, unowned, handed to the architect): docs/research/verification/edit-mode-tests.md
+  says Core reads the build's net config and that `NetConfig` isn't tested; docs/research/netcode/sdk-in-ci.md says
+  `NetConfig.cs` loads the file (`NetSession.cs` does now).
