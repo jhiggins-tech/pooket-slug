@@ -235,6 +235,8 @@ net Assets/Tests/EditMode/Platform/WireMeterTests.cs
 net Assets/Tests/Gameplay/NetSyncTests.cs
 net Assets/Plugins/WebGL/PooketAuth.jslib
 net Assets/Photon/Fusion/Resources/NetworkProjectConfig.fusion
+net docs/research/netcode/
+net docs/research/accounts/
 # The shell's page-side halves: the share sheet and the kit demo recorder.
 shell Assets/Plugins/WebGL/PooketInvite.jslib
 shell Assets/Plugins/WebGL/PooketDemo.jslib
@@ -269,7 +271,12 @@ architect Assets/Tests/EditMode/PooketSlug.Core.Tests.asmdef
 architect Assets/Tests/Gameplay/PooketSlug.Game.Tests.asmdef
 architect Assets/Editor/WebGLBuild.cs
 # The project's rules, the design's index and the research: no domain's workflow, so nobody
-# else would fix them (the stale-docs card found stale lines in all three).
+# else would fix them (the stale-docs card found stale lines in all three). The netcode and accounts research is
+# net's, since its workflow changes them (the consistency audit, 25 Oct).
 architect CLAUDE.md
 architect docs/design/README.md
-architect docs/research/
+architect docs/research/README.md
+architect docs/research/ci-agent.md
+architect docs/research/build-pipeline/
+architect docs/research/history/
+architect docs/research/verification/

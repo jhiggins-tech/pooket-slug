@@ -127,14 +127,9 @@ Close to this domain but not its files: `Core/Lobby/CoopRoom.cs` and `Core/Lobby
 - Players far from Australia get more lag; no second region is planned (NET-05).
 - Max two players. Three or four, or versus, is not designed (docs/research/netcode/README.md).
 - Work needs its own Roadmap card, queued by the owner (https://claude.ai/artifact/1AWnQDGtUmiKMnjPgcbru9). None is open for this domain today.
-- docs/research/netcode and docs/research/accounts are claimed by no domain in OWNERSHIP.txt, so this domain can't fix them. The
-  21 Oct items handed to the architect earlier are fixed. Still stale on 25 Oct (the consistency audit, handed to the architect):
-  netcode/README.md and sessions.md say "red P1 and blue P2" soldiers (no second paint since 21 Oct) and "no game over: fallen soldiers
-  come back" (lives and continues now, `Tuning.Lives`); sessions.md's player's-view table and testing steps put CO-OP and **H** on the
-  title (the title is START and SETTINGS; co-op is in the den); architecture.md says `Tuning.Coop.RespawnDelay` (it is
-  `Tuning.Lives.RespawnDelay`), its `PlayerNet` table and `NetEnemy` flags leave out what was added since (the tank, den, scene, score and
-  beat fields; frozen and disguised), its prefab steps name only `PlayerNet` and `WorldNet` (`BossNet` too), and its sync sketch still says
-  "local skin"; accounts/README.md's list of what `Profile` holds leaves out XP and rank.
+- docs/research/netcode/ and docs/research/accounts/ are this domain's since the consistency audit (25 Oct), and its
+  handed-over stale lines there were fixed then. Still unchecked: sessions.md says a failed connect goes back to the title
+  with a red notice, and the den's H gating in its Den row.
 - Core reaching Unity (the audit, 25 Oct, for an Idea card): `NetSessions.Factory` is a `Func<GameObject, INetSession>` and `NetConfig`
   calls `Resources.Load`, both in `PooketSlug.Core`, against CLAUDE.md's "Core knows nothing of Unity's scene". The fix is a code change
   (the loader into `Save/` or `Net/`, Core keeping `NetConfig.Data` and the region rule with tests). Open.
