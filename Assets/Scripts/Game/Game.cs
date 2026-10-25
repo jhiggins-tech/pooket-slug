@@ -209,7 +209,11 @@ namespace PooketSlug
             world.BossFightStarted += _ => MissionMusic.BossFightStarted();
             world.PilotFreed += OnPilotFreed;
             world.TankWrecked += MissionMusic.TankWrecked;
-            if (coda) world.CodaCleared += OnCodaCleared;
+            if (coda)
+            {
+                world.CodaCleared += OnCodaCleared;
+                world.CodaGotUnderway += OnCodaUnderway;
+            }
             Intro.Clear();
         }
 
@@ -465,6 +469,16 @@ namespace PooketSlug
                 m_World.OpenCoda(Story.CodaPrompts);
                 MissionMusic.Coda();
             });
+        }
+
+        /// <summary>The coda's under way (tones2's in his tabk, or walked on): on a replay, kie says Keep it down in his sleep.</summary>
+        void OnCodaUnderway()
+        {
+            World w = m_World;
+            if (w.SleepingKie == null || !KeepItDown.Due(m_Profile, w.Mission, Run, m_Flags.Coda)) return;
+            w.SleepingKie.Stir(engine: w.Tank != null && w.Tank.Occupied && w.Player.Riding == w.Tank);
+            Log.Game.Info("Skit: Keep it down");
+            if (KeepItDown.Spends(Run) && m_Profile.MarkSeen(KeepItDown.Key)) m_Store.Save(m_Profile);
         }
 
         /// <summary>The coda's last gate is down: its prompts have been seen.</summary>
