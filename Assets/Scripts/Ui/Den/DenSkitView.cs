@@ -10,7 +10,8 @@ namespace PooketSlug
     /// the couch, Special delivery with the cargo drone flying kie in under the roller door, and A Trollogram of anything
     /// across the den's two floors. Its cast is drawn here and stands aside in <see cref="DenCrew"/> while it plays, from
     /// where they were, so when it's done they're back where they were. The den's own pieces do the rest: the roller door,
-    /// the couch's loose controller and the co-op button (<see cref="DenInfo"/>), and the TV.
+    /// the couch's loose controller and the co-op button (<see cref="DenInfo"/>), and the TV. And Five-second rule on the
+    /// couch, with the bag turned round and its label close up over the dimmed den.
     /// </summary>
     sealed class DenSkitView
     {
@@ -26,11 +27,17 @@ namespace PooketSlug
         const float HangDrop = 17f, HangBack = 14f;
         /// <summary>A Trollogram of anything: kcaj at his nook's rail (his station, the string board up to his right), kie at his bench, tones2 at his slushie machine.</summary>
         const float KcajRail = 60f, KieBench = 64f, Tones2Machine = 192f;
+        /// <summary>Five-second rule: the label close up is drawn this many times its art's pixels, in the middle of the den screen.</summary>
+        const float LabelScale = 2f;
+        /// <summary>A seated figure's hands and mouth sit this much lower than a standing one's (the top drops onto the seat).</summary>
+        static Vector2 Seated => new Vector2(0f, -CrewFigure.CrouchDrop * Staging.FigureGrow);
+        /// <summary>Where a figure's mouth is, from its middle (as tones2's cup at his mouth).</summary>
+        static readonly Vector2 Mouth = new Vector2(4f, 8f);
 
         readonly RectTransform m_World;
         readonly SkitStage m_Stage;
         readonly StageFigure m_Kcaj, m_Tones2, m_Kie;
-        readonly Image m_Drone, m_Cable, m_Pad, m_Remote, m_Bag, m_Cup, m_Note;
+        readonly Image m_Drone, m_Cable, m_Pad, m_Remote, m_Bag, m_Cup, m_Note, m_Crisp, m_Dim, m_Label;
         readonly Text m_Zz;
 
         /// <summary>Made in drawing order (<see cref="DenView"/>): over the room and the den's beats, under the taps.</summary>
@@ -49,6 +56,11 @@ namespace PooketSlug
             m_Bag = m_Stage.Prop("Skit bag", CutsceneSnacks.Packet, 6f, 7f, Color.white);
             m_Cup = m_Stage.Prop("Skit slushie", CutsceneSnacks.Tiny, 3f, 5f, Color.white);
             m_Note = m_Stage.Prop("Skit note", null, 3f, 3f, new Color(1f, 0.92f, 0.35f)); // kcaj's sticky note, as in his idle
+            m_Crisp = m_Stage.Prop("Skit crisp", CutsceneSnacks.Crisp, 4f, 2f, Color.white);
+            // the label close up over the den screen, dimmed (made last, so it's over everything of the skit's)
+            m_Dim = m_Stage.Prop("Skit label dim", null, StageW, StageH, new Color(0.03f, 0.02f, 0.05f, 0.7f));
+            Sprite label = CutsceneSnacks.Label;
+            m_Label = m_Stage.Prop("Skit label", label, label.rect.width * LabelScale, label.rect.height * LabelScale, Color.white);
             m_Zz = Label(world, "Skit zz", 0f, 0f, 14, TextAnchor.MiddleCenter, Paper);
             m_Zz.text = "z Z";
             Hide();
@@ -69,8 +81,18 @@ namespace PooketSlug
                 case TwoOfUsSkit s: TwoOfUs(s, clock); break;
                 case SpecialDeliverySkit s: SpecialDelivery(s, clock); break;
                 case TrollogramSkit s: Trollogram(s, clock); break;
+                case FiveSecondRuleSkit s: FiveSecondRule(s, clock); break;
             }
+            if (!(skit is FiveSecondRuleSkit)) HideSnacks();
             m_Stage.Speak(skit);
+        }
+
+        /// <summary>Five-second rule's pieces, hidden for the other skits.</summary>
+        void HideSnacks()
+        {
+            Ui.Show(m_Crisp, false);
+            Ui.Show(m_Dim, false);
+            Ui.Show(m_Label, false);
         }
 
         // ------------------------------------------------------------------ Two of us now
@@ -189,6 +211,7 @@ namespace PooketSlug
             kie.Rt.localRotation = Quaternion.Euler(0f, 0f, -90f);
             kie.Tint(s.Hanging ? tint : Color.white);
             SkitStage.Hold(m_Bag, kie, SkitStage.HandOut);
+            m_Bag.sprite = CutsceneSnacks.Packet; // its front (Five-second rule turns it round)
             m_Bag.color = s.Hanging ? tint : Color.white;
             float length = 30f * Staging.FigureGrow; // feet to the top of his head, lying
             m_Stage.HeadAt(Content.Kie, feetX + length - 6f, lieY + 4f);
@@ -260,6 +283,59 @@ namespace PooketSlug
                 m_Stage.Place(m_Note, at.x, at.y);
                 m_Note.rectTransform.sizeDelta = new Vector2(3f, note == 3 ? 1.5f : 3f) * Px;
             }
+        }
+
+        // ------------------------------------------------------------------ Five-second rule
+
+        /// <summary>
+        /// kie sprawled on the couch's right seat with the bag in his lap, a crisp going up and down from it, then stopped
+        /// halfway; tones2 at his slushie machine, facing him and the side door past him, the tiny cup in his hand, his head
+        /// dipping once at the floor for his line. Then kie turns the bag round (it narrows to its edge and comes round
+        /// striped) and its label comes up close over the dimmed den; then he looks at tones2, the grin gone, the bag down in
+        /// his lap; tones2 slurps, the cup at his mouth; and the crisp goes in.
+        /// </summary>
+        void FiveSecondRule(FiveSecondRuleSkit s, float clock)
+        {
+            Ui.Show(m_Kcaj.Rt, false);
+            Ui.Show(m_Pad, false);
+            Ui.Show(m_Remote, false);
+            Ui.Show(m_Drone, false);
+            Ui.Show(m_Cable, false);
+            Ui.Show(m_Note, false);
+            Ui.Show(m_Zz, false);
+
+            // tones2: at his machine, facing left (kie, and the side door beyond), the dip of the nod, the cup at his mouth to slurp
+            StageFigure t2 = m_Stage.Figure(Content.Tones2);
+            SkitStage.Stand(t2, Content.Tones2, new StagePose(StageLegs.Idle, StageTorso.Unarmed, 0f, s.Nodding ? -1f : 0f), Tones2Machine, Ground, true);
+            SkitStage.Hold(m_Cup, t2, s.Slurping ? new Vector2(5f, 8f) : SkitStage.HandDown);
+
+            // kie: sat on the right seat facing tones2, the bag held out in his lap; once he doubts it, the grin gone and the bag down
+            StageFigure kie = m_Stage.Figure(Content.Kie);
+            bool doubting = s.Doubting;
+            StageTorso top = doubting ? StageTorso.Blank : StageTorso.Carry;
+            SkitStage.Stand(kie, Content.Kie, new StagePose(StageLegs.Sit, top, 0f, -CrewFigure.CrouchDrop), SeatX[1], SitY, false);
+            Vector2 hand = (doubting ? SkitStage.HandDown : SkitStage.HandOut) + Seated;
+            SkitStage.Hold(m_Bag, kie, hand);
+            m_Bag.color = Color.white;
+            float turn = s.Turn;
+            m_Bag.sprite = turn >= 0f && SnackShow.LabelOut(turn) ? CutsceneSnacks.PacketBack : CutsceneSnacks.Packet;
+            if (turn > 0f && turn < 1f) m_Bag.rectTransform.localScale = new Vector3(SnackShow.BagWidth(turn), 1f, 1f);
+
+            // the crisp, between the bag and his mouth, till it's eaten (drawn over the bag: it comes up out of it)
+            float crisp = s.Crisp;
+            Ui.Show(m_Crisp, crisp >= 0f);
+            if (crisp >= 0f) SkitStage.Hold(m_Crisp, kie, Vector2.Lerp(hand + new Vector2(0f, 3f), Mouth + Seated, crisp));
+
+            // the label close up: the den dimmed, the label coming up from below and settling, a little turned until it does
+            bool label = s.LabelShown;
+            Ui.Show(m_Dim, label);
+            Ui.Show(m_Label, label);
+            if (!label) return;
+            m_Stage.Place(m_Dim, StageW / 2f, 0f);
+            float up = SnackShow.LabelUp(s.LabelSince);
+            float h = m_Label.rectTransform.sizeDelta.y / Px;
+            m_Stage.Place(m_Label, StageW / 2f, Mathf.Lerp(-h, (StageH - h) / 2f, up));
+            m_Label.rectTransform.localRotation = Quaternion.Euler(0f, 0f, (1f - up) * 8f);
         }
     }
 }

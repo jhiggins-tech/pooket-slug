@@ -178,6 +178,11 @@ namespace PooketSlug
                     if (s.Passed(TrollogramSkit.NoteFrom, dt)) Sfx.Play(Sfx.Pickup, 0.4f); // the note peeled off
                     if (s.Passed(TrollogramSkit.SlurpDoneAt, dt)) Sfx.Play(Sfx.HoseHiss, 0.3f); // tones2 finishes the slurp
                     break;
+                case FiveSecondRuleSkit s:
+                    if (s.Passed(FiveSecondRuleSkit.TurnFrom, dt)) Sfx.Play(Sfx.Pickup, 0.25f); // the packet crinkling round
+                    if (s.Passed(FiveSecondRuleSkit.SlurpFrom, dt)) Sfx.Play(Sfx.HoseHiss, 0.6f); // tones2 slurps, loudly
+                    if (s.Passed(FiveSecondRuleSkit.EatTo, dt)) Sfx.Play(Sfx.Thump, 0.2f); // the crunch
+                    break;
             }
         }
 

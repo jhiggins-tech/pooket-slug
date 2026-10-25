@@ -53,6 +53,7 @@ namespace PooketSlug.Tests
             Assert.AreEqual(CrewBody.Forward, StagePose.Cutscene("spray", 0f, 10f, "out").Body, "the spray is the gun's");
             Assert.AreEqual(StageTorso.Repair, StagePose.Cutscene("repair", 0f, 10f, "down").Torso, "a repair keeps its wrench");
             Assert.AreEqual(CrewHead.Front, CrewFigure.HeadOn(CrewBody.Carry).Head);
+            Assert.AreEqual(CrewBody.Blank, new StagePose(StageLegs.Sit, StageTorso.Blank).Body, "the grin gone, unconvinced (Five-second rule)");
         }
 
         [Test]

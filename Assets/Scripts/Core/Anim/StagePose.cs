@@ -8,9 +8,10 @@ namespace PooketSlug
     /// <summary>
     /// A stage soldier's top half: facing the camera (with their gun), off duty (arms by their sides, no gun), lounging,
     /// holding a pad, or repairing; or off duty and grinning, their face falling (<see cref="CrewFigure.FaceFall"/>), or
-    /// glum, slumped at its end; or carrying something out in front of them (no gun). New ones go on the end.
+    /// glum, slumped at its end; or carrying something out in front of them (no gun); or off duty with the grin gone,
+    /// unconvinced (Five-second rule). New ones go on the end.
     /// </summary>
-    public enum StageTorso { Forward, Unarmed, Lounge, Pad, Repair, Grin, FaceFall, Glum, Carry }
+    public enum StageTorso { Forward, Unarmed, Lounge, Pad, Repair, Grin, FaceFall, Glum, Carry, Blank }
 
     /// <summary>A stage soldier's pose: legs, top, where in the walk, and how far the top's nudged (art pixels).</summary>
     public struct StagePose
@@ -94,6 +95,7 @@ namespace PooketSlug
                     case StageTorso.Grin: return CrewBody.Grin;
                     case StageTorso.FaceFall: return CrewFigure.FaceFall.Body(WalkT, CrewBody.Grin);
                     case StageTorso.Glum: return CrewBody.Slump;
+                    case StageTorso.Blank: return CrewBody.Blank;
                     default: return CrewBody.Forward;
                 }
             }
