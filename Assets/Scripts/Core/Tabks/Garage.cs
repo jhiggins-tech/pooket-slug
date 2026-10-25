@@ -241,17 +241,17 @@ namespace PooketSlug
             foreach (Move m in moves)
             {
                 // to the tabk, flying light, then a dip to take it on the cable
-                Point over = Over(m.From, true);
+                Point over = Over(m.From, true, m.Tabk);
                 at = FlyTo(at, over, ref t, null);
-                Leg(at, Over(m.From, false), ref t, DipSeconds, null);
+                Leg(at, Over(m.From, false, m.Tabk), ref t, DipSeconds, null);
                 float up = t;
-                Leg(Over(m.From, false), over, ref t, DipSeconds, m.Tabk);
+                Leg(Over(m.From, false, m.Tabk), over, ref t, DipSeconds, m.Tabk);
                 // carried over, and a dip to set it down
-                Point drop = Over(m.To, true);
+                Point drop = Over(m.To, true, m.Tabk);
                 at = FlyTo(over, drop, ref t, m.Tabk);
-                Leg(drop, Over(m.To, false), ref t, DipSeconds, m.Tabk);
+                Leg(drop, Over(m.To, false, m.Tabk), ref t, DipSeconds, m.Tabk);
                 m_Moves.Add((m.Tabk, m.From, m.To, up, t));
-                Leg(Over(m.To, false), drop, ref t, DipSeconds, null);
+                Leg(Over(m.To, false, m.Tabk), drop, ref t, DipSeconds, null);
                 at = drop;
             }
             m_HoseIn = t;
@@ -329,7 +329,7 @@ namespace PooketSlug
                 if (m_T < m.down)
                 {
                     Point d = Drone;
-                    feet = new Point(d.X, d.Y - Hang - BayMap.TabkH);
+                    feet = new Point(d.X, d.Y - Hang - BayMap.TabkHOf(tabk.Id));
                     return true;
                 }
                 feet = SpotFeet(m.to);
@@ -339,9 +339,9 @@ namespace PooketSlug
 
         static Point SpotFeet(int spot) => new Point(BayMap.SpotX(spot), BayMap.SpotY(spot));
 
-        /// <summary>The drone over a tabk in <paramref name="spot"/>: lifted clear to carry it, or dipped to its roof.</summary>
-        static Point Over(int spot, bool lifted) =>
-            new Point(BayMap.SpotX(spot), BayMap.SpotY(spot) + (lifted ? Lift : 0f) + BayMap.TabkH + Hang);
+        /// <summary>The drone over a tabk in <paramref name="spot"/>: lifted clear to carry it, or dipped to its roof (<paramref name="tabk"/>'s own height: kie's and kcaj's stand taller).</summary>
+        static Point Over(int spot, bool lifted, TabkCard tabk) =>
+            new Point(BayMap.SpotX(spot), BayMap.SpotY(spot) + (lifted ? Lift : 0f) + BayMap.TabkHOf(tabk.Id) + Hang);
 
         void Leg(Point from, Point to, ref float t, float seconds, TabkCard load)
         {
