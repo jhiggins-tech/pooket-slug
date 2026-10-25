@@ -23,6 +23,7 @@ namespace PooketSlug.Tests
             "scene-freeing-kcaj", "scene-kcaj-tabk",
             "den-first-visit", "moved-in-kcaj",
             "kie-tabk-home",
+            "skit-two-of-us", "skit-special-delivery", "skit-trollogram-of-anything",
         };
 
         static List<string> Keys => OnceOnly.All.Select(b => b.Key).ToList();
@@ -64,6 +65,7 @@ namespace PooketSlug.Tests
             foreach (CrewMember m in Crew.All)
                 Assert.AreEqual(!DenBeats.Starter(m.Soldier), OnceOnly.Has(DenBeats.MovedIn(m.Soldier)), m.Name + " moves in unless home for the first visit");
             Assert.IsTrue(OnceOnly.Has(KieHomecoming.Reveal));
+            foreach (var skit in Skits.All) Assert.IsTrue(OnceOnly.Has(skit.key), skit.key);
             Assert.IsFalse(OnceOnly.Has(Reveals.Tank), "tank is only ?unlock=tank's key: nothing saves it");
         }
 
@@ -104,6 +106,7 @@ namespace PooketSlug.Tests
             ["BayFlow.cs: KieHomecoming.Reveal"] = () => new[] { KieHomecoming.Reveal },
             ["DenBeats.cs: beat.Kind == DenBeatKind.FirstVisit ? FirstVisit : MovedIn(beat.Newcomer)"] = () =>
                 new[] { DenBeats.FirstVisit }.Concat(Crew.All.Where(m => !DenBeats.Starter(m.Soldier)).Select(m => DenBeats.MovedIn(m.Soldier))),
+            ["Skits.cs: skit.Key"] = () => Skits.All.Select(s => s.key),
             ["Profile.cs: s"] = () => new string[0],
             ["MissionStory.cs: key"] = () => new string[0],
         };

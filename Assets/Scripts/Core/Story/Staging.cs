@@ -154,8 +154,10 @@ namespace PooketSlug
         /// <summary>The verbs every thing has.</summary>
         public static readonly string[] Common = { "show", "hide", "at", "move", "turn", "size", "colour", "fade", "flicker", "blink", "shake", "on" };
         /// <summary>The verbs the soldiers have besides.</summary>
-        public static readonly string[] FigureVerbs = { "walk", "face", "pose", "look", "holds", "sway" };
+        public static readonly string[] FigureVerbs = { "walk", "face", "pose", "arms", "look", "holds", "sway" };
         public static readonly string[] Poses = { "idle", "run", "crouch", "spray", "hatch", "repair", "down", "grin", "fall", "glum" };
+        /// <summary>What a soldier's hands are doing, whatever their pose (<see cref="StagePose.Arms"/>): the gun, by their sides, or out holding something.</summary>
+        public static readonly string[] Arms = { "gun", "down", "out" };
         public static readonly string[] Looks = { "plain", "holo", "trollo" };
 
         /// <summary>Colours by name; anything else is written #rrggbb or #rrggbbaa.</summary>
@@ -394,6 +396,17 @@ namespace PooketSlug
             if (Walking(figure, t)) return "run";
             StageStep s = Latest(figure, t, "pose");
             if (s == null || s.Window && t >= s.To) return "idle";
+            return s.Word;
+        }
+
+        /// <summary>
+        /// What a soldier's hands are doing (<see cref="Staging.Arms"/>): what the shot last said, over a window only for
+        /// that window, else the gun. Each shot starts with it, as in play.
+        /// </summary>
+        public string Arms(string figure, float t)
+        {
+            StageStep s = Latest(figure, t, "arms");
+            if (s == null || s.Window && t >= s.To) return "gun";
             return s.Word;
         }
 

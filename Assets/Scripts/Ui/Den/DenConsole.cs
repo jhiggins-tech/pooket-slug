@@ -8,7 +8,7 @@ namespace PooketSlug
     /// <summary>
     /// The den's TV and buttons: in the room, the console's start screen on the TV (the mission, the room code and its
     /// invite, both controllers' lights, the countdown), the mission board's card, the loose controllers, the seats'
-    /// P1 / P2 tags and the empty seat's + MATE; over it, BACK, READY, the name card with its ⓘ, the hint along the top
+    /// P1 / P2 tags and the empty seat's MULTI-PLAYER; over it, BACK, READY, the name card with its ⓘ, the hint along the top
     /// and its notes.
     /// </summary>
     sealed class DenConsole
@@ -18,6 +18,9 @@ namespace PooketSlug
         readonly DenCrew m_Crew;
         readonly Image[] m_Lights = new Image[2], m_LoosePads = new Image[2];
         readonly Text[] m_Tags = new Text[2];
+        Image m_TvOff;
+        Outline m_HostEdge;
+        Color m_HostEdgeColour;
         Text m_TvTitle, m_TvRoom, m_TvLights, m_TvCount, m_Board, m_Hint, m_Note;
         Button m_Ready, m_Back, m_HostPad, m_KitButton;
         Text m_ReadyLabel, m_CardName;
@@ -41,6 +44,10 @@ namespace PooketSlug
         /// <summary>In the room: the TV's words, the board's, the sign, the console's lights, the loose controllers and the tags.</summary>
         public void MakeTv()
         {
+            // the screen dark, for a skit that has the TV off (its words hide with it)
+            m_TvOff = Picture("TV off", TvCentre.x, TvCentre.y - 14.5f, 52f, 29f, new Color(0.03f, 0.04f, 0.06f));
+            m_TvOff.raycastTarget = false;
+            Ui.Show(m_TvOff, false);
             m_TvTitle = WorldLabel("TV title", TvCentre.x - 24f, TvCentre.y + 13f, 10, TextAnchor.UpperLeft, Gold);
             m_TvRoom = WorldLabel("TV room", TvCentre.x - 24f, TvCentre.y + 5f, 7, TextAnchor.UpperLeft, new Color(0.67f, 0.86f, 1f));
             m_TvLights = WorldLabel("TV lights", TvCentre.x - 24f, TvCentre.y - 9f, 8, TextAnchor.LowerLeft, Color.white);
@@ -75,9 +82,14 @@ namespace PooketSlug
             m_KitButton.GetComponentInChildren<Text>().fontStyle = FontStyle.BoldAndItalic;
             kitKey.text = ScreenWords.KitKey; // the same key the pause menu shows
             Vector2 p2 = new Vector2(SeatX[1] - StageW / 2f, SeatY + 9f - StageH / 2f) * Px;
-            m_HostPad = Ui.Button(m_World, "+ MATE", p2, new Vector2(52f, 16f), host, out Text hostKey); // on the couch, so it moves with the camera
-            m_HostPad.GetComponentInChildren<Text>().fontSize = 9;
+            // on the couch, so it moves with the camera; MULTI over PLAYER, so it's 24 high to hold both lines
+            m_HostPad = Ui.Button(m_World, ScreenWords.CoopButtonFace, p2, new Vector2(52f, 24f), host, out Text hostKey);
+            Text face = m_HostPad.GetComponentInChildren<Text>();
+            face.fontSize = 9;
+            face.lineSpacing = 0.9f;
             hostKey.text = "H";
+            m_HostEdge = m_HostPad.GetComponent<Outline>();
+            m_HostEdgeColour = m_HostEdge.effectColor;
             m_Hint = Ui.Label(m_Stage, "Hint", Ui.TopCenter, new Vector2(0f, -8f), 10, TextAnchor.UpperCenter, new Color(1f, 1f, 1f, 0.75f));
             m_Note = Ui.Label(m_Stage, "Note", Ui.TopCenter, new Vector2(0f, -24f), 11, TextAnchor.UpperCenter, new Color(1f, 0.55f, 0.45f));
         }
@@ -103,6 +115,10 @@ namespace PooketSlug
         {
             m_Clock = clock;
             Tv(den, info);
+            Ui.Show(m_TvOff, info.TvOff);
+            if (info.TvOff)
+                foreach (Text t in new[] { m_TvTitle, m_TvRoom, m_TvLights, m_TvCount }) Ui.Show(t, false);
+            else Ui.Show(m_TvTitle, true);
             Buttons(den, info);
         }
 
@@ -110,6 +126,8 @@ namespace PooketSlug
         {
             bool counting = den.Countdown > 0f;
             m_TvTitle.text = info.Mission ?? "CREW";
+            Ui.Show(m_TvRoom, true);
+            Ui.Show(m_TvLights, true);
             string invite = m_Clock < m_TvSaidUntil ? m_TvSaid : "TAP TO INVITE";
             m_TvRoom.text = info.Room != null ? info.Room + (info.InviteLink != null ? "  " + invite : "")
                 : den.Mode == DenMode.Crew ? "PICK WHO YOU'LL PLAY" : "SOLO";
@@ -122,7 +140,7 @@ namespace PooketSlug
                 bool mine = seat == den.Seat, filled = mine ? den.Pick != null : partnerSeat || m_Crew.VisitorOn(seat);
                 bool ready = mine ? den.Ready : partnerSeat && den.Partner.Ready;
                 m_Lights[seat].color = ready ? new Color(0.3f, 1f, 0.45f) : filled ? Palette.Gold : new Color(0.2f, 0.18f, 0.25f);
-                m_LoosePads[seat].enabled = !filled;
+                m_LoosePads[seat].enabled = !filled && (info.PadsTaken & (1 << seat)) == 0; // or picked up in a skit
                 Ui.Show(m_Tags[seat], filled && (den.Mode == DenMode.Coop || seat == 0));
                 m_Tags[seat].color = Palette.Players[seat]; // the tags say who's who: everyone wears their own colours
             }
@@ -150,6 +168,10 @@ namespace PooketSlug
             Ui.Show(m_Card, den.Pick != null && !zooming);
             if (den.Pick != null) m_CardName.text = den.Pick.Name.ToUpperInvariant();
             Ui.Show(m_HostPad, info.CanHost && den.Mode != DenMode.Coop && !zooming);
+            // popping up in Two of us now: its size, and one soft swell of the co-op blue round its edge
+            m_HostPad.transform.localScale = new Vector3(info.HostScale, info.HostScale, 1f);
+            m_HostEdge.effectColor = Color.Lerp(m_HostEdgeColour, Palette.CoopBlue, info.HostGlow);
+            m_HostEdge.effectDistance = new Vector2(1f, -1f) * (1f + info.HostGlow);
             Ui.Show(m_Hint, !zooming);
             m_Hint.text = den.Pick == null ? "TAP SOMEONE TO PLAY THEM"
                 : den.Ready ? ""

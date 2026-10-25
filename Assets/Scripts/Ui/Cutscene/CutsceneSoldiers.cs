@@ -14,7 +14,7 @@ namespace PooketSlug
     {
         /// <summary>
         /// A soldier, drawn from their legs and torso as in the game: walking, standing, crouched, spraying, or just their
-        /// top half in a tabk's hatch; plain, or as a Trollogram crewmate (Trollogram kie or kcaj: cyan and flickering).
+        /// top half in a tabk's hatch; holding their gun, or not (<c>arms</c>); plain, or as a Trollogram crewmate (Trollogram kie or kcaj: cyan and flickering).
         /// A hidden one is still stood in place, for their bubble.
         /// </summary>
         public static void Soldier(StageFigure f, string name, PlayerSkin skin, float runRate, ShotStage stage, float t, float now, float ground)
@@ -26,7 +26,7 @@ namespace PooketSlug
             // keycard's and the string board's close-ups), not to wherever the shot before left them
             f.AtPlate(at.x, ground + at.y);
             if (!on) return;
-            StagePose pose = StagePose.Cutscene(stage.Pose(name, t), t, runRate, Mathf.Max(0f, stage.Since(name, "pose", t)));
+            StagePose pose = StagePose.Cutscene(stage.Pose(name, t), t, runRate, stage.Arms(name, t), Mathf.Max(0f, stage.Since(name, "pose", t)));
             f.Pose(skin, pose);
             Color tint = stage.Colour(name, t, now);
             if (stage.Look(name, t) == "trollo")

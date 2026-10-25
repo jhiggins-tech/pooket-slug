@@ -321,6 +321,10 @@ namespace PooketSlug
                         if (w.Length != 3 || Array.IndexOf(Staging.Poses, w[2]) < 0) return "'pose' takes one of " + string.Join(", ", Staging.Poses);
                         s.Word = w[2];
                         break;
+                    case "arms":
+                        if (w.Length != 3 || Array.IndexOf(Staging.Arms, w[2]) < 0) return "'arms' takes one of " + string.Join(", ", Staging.Arms);
+                        s.Word = w[2];
+                        break;
                     case "look":
                         if (w.Length != 3 || Array.IndexOf(Staging.Looks, w[2]) < 0) return "'look' takes one of " + string.Join(", ", Staging.Looks);
                         s.Word = w[2];

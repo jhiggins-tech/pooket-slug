@@ -15,10 +15,11 @@ namespace PooketSlug
     public enum CrewLegs { Idle, Run1, Run2, Run3, Run4, Jump, Crouch, Sit }
 
     /// <summary>
-    /// The shared body's frames: aiming (forward, up, down, at 45°), off duty in the den, and the shared moves' (repairing;
-    /// a face falling: grinning, the grin gone, glum, then slumped).
+    /// The shared body's frames: aiming (forward, up, down, at 45°), off duty in the den, the shared moves' (repairing;
+    /// a face falling: grinning, the grin gone, glum, then slumped), and carrying something with no gun (a cutscene's
+    /// <c>arms out</c>). New frames go on the end: a skin's sprites are indexed by the value.
     /// </summary>
-    public enum CrewBody { Forward, Up, Down, UpDiag, DownDiag, Unarmed, Pad, Lounge, Repair1, Repair2, Repair3, Repair4, Grin, Blank, Glum, Slump }
+    public enum CrewBody { Forward, Up, Down, UpDiag, DownDiag, Unarmed, Pad, Lounge, Repair1, Repair2, Repair3, Repair4, Grin, Blank, Glum, Slump, Carry }
 
     /// <summary>
     /// A crewmate's own head frames: facing forward, looking down at their work, and a face falling (grinning, the grin
@@ -132,6 +133,7 @@ namespace PooketSlug
             new HeadPlace(CrewHead.Down, 1, 1), new HeadPlace(CrewHead.Down, 1, 1),
             new HeadPlace(CrewHead.Down, 1, 2), new HeadPlace(CrewHead.Down, 1, 1),
             new HeadPlace(CrewHead.Grin), new HeadPlace(CrewHead.Blank), new HeadPlace(CrewHead.Glum), new HeadPlace(CrewHead.Glum, 0, 1),
+            new HeadPlace(CrewHead.Front),
         };
 
         /// <summary>Where <paramref name="body"/> wants the head.</summary>
