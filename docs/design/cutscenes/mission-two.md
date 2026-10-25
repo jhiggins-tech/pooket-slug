@@ -57,9 +57,11 @@ THEY NEED IT COLD.
 
                                                    CUT TO:
 
-4. EXT. THE DEN, THE ROLLER DOOR - DAY                  7 s
+4. INT. THE TABK BAY - DAY                              7 s
 
-Back out of the den's roller door into daylight.
+Down through the den's roller door and along the tabk
+bay to its bent street shutter. They duck under it, out
+into the daylight.
 
                     NARRATOR (V.O.)
                     [m2-briefing-4]
@@ -80,10 +82,12 @@ THE CREAMERY / FIND KCAJ
 
 Mission two's reveal, like [the motor pool reveal](mission-one.md#the-motor-pool-reveal) in Mission one (owner, 2026-10-19,
 m2-finish: the intro should play as a scene that pushes in on the tabk, as kie's does). It plays the first time the
-players reach the loading yard before the cold store, on both phones in co-op; the [boss intro](mission-one.md#the-boss-intro)
+players reach the loading yard before the cold store; in co-op it plays on both phones at every run's first boss
+wake, since the two phones' saves can differ. The [boss intro](mission-one.md#the-boss-intro)
 after it skips the roll-out and goes straight to the banner, the name card ("KCAJ'S TABK") and the music. Every later
 fight, a replay included, gets only the boss intro. About 12 seconds, three shots; tap moves on, and it can't be
-skipped the first time. Intro: Trollogram kcaj, shot 2. Set: the cold store (`coldstore`, its doors in the middle).
+skipped the first time. Intro: Trollogram kcaj, shot 2. Set: the loading yard before the cold store (`coldstore`, the
+cold store's doors on the right).
 
 ```text
 1. EXT. THE CREAMERY, THE LOADING YARD - DAY            4 s
@@ -137,7 +141,10 @@ SFX: the slam; the turret.
 
 **The boss intro after it** (in play, about 3 s): the screen locks, the siren, WARNING!, the announcer's "Warning!",
 KCAJ'S TABK drops in under the banner with "Here comes the tabk!", and the boss theme kicks in on the tabk's first
-shot. On a later fight the tabk rolls out of the fog in play first, as it used to, with no hatch and no intro.
+shot. On a later solo fight, until Mission two is cleared, the tabk rolls out of the fog in play first, and the boss
+intro ends with Trollogram kcaj looking out of the hatch: his TROLLO-KCAJ band and his line (as a test start gets
+it). Once Mission two is cleared, or after a lost fight at the boss, it's the quick intro, with the tabk already in
+place.
 
 ## Freeing kcaj
 
@@ -147,7 +154,7 @@ After Trollogram kcaj is beaten on foot ([the pilot round](../tabks/bosses.md#th
 up.
 
 ```text
-1. INT. THE CREAMERY, THE COLD STORE (IN PLAY)          3 s
+1. EXT. THE CREAMERY, THE LOADING YARD (IN PLAY)        3 s
 
 TROLLOGRAM KCAJ freezes mid-taunt and tears apart, the
 big version of the goons' death.
@@ -159,7 +166,7 @@ MUSIC: the boss music cuts out.
 
                                                    CUT TO:
 
-2. INT. THE CREAMERY, THE COLD STORE                    8.5 s
+2. EXT. THE LOADING YARD, AT THE COLD STORE             8.5 s
 
 The cold store's door creaks open, frost rolls out, and
 the real KCAJ stumbles out in his own colours, rimed with
@@ -177,7 +184,7 @@ frost, holding an empty tub.
 
                                                    CUT TO:
 
-3. INT. THE COLD STORE - CONTINUOUS                     3.5 s
+3. EXT. THE LOADING YARD - CONTINUOUS                   3.5 s
 
 He looks at the tub, then at the crew.
 
@@ -186,10 +193,10 @@ He looks at the tub, then at the crew.
 
                                                    CUT TO:
 
-4. INT. THE COLD STORE - CONTINUOUS                     4.5 s
+4. EXT. THE LOADING YARD - CONTINUOUS                   4.5 s
 
-TONES2 holds out a slushie. kcaj walks past it, opens a
-freezer, and eats two cones at once.
+TONES2 holds out a slushie. kcaj walks past it, opens the
+chest freezer in the yard, and eats two cones at once.
 
                     NARRATOR (V.O.)
                     [m2-freeing-4]
@@ -197,7 +204,7 @@ freezer, and eats two cones at once.
 
                                                    CUT TO:
 
-5. INT. THE COLD STORE - CONTINUOUS                     7 s
+5. EXT. THE LOADING YARD - CONTINUOUS                   7 s
 
 kcaj points at the factory around them, then at the
 crew. Nobody answers.

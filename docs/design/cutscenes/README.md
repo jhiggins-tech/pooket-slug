@@ -50,13 +50,13 @@ rewrite in the crew's own voice.
 | [The motor pool reveal](mission-one.md#the-motor-pool-reveal) | The first time tones2 reaches the motor pool | 24 s | `motor-pool.txt` | Built |
 | [The boss intro](mission-one.md#the-boss-intro) | Every boss tabk's arrival | 3 s | none: in the game itself (`BossIntroShow`) | Built |
 | [Freeing kie](mission-one.md#freeing-kie) | Trollogram kie beaten on foot | 28 s | `freeing-kie.txt` (shots 2 to 5) | Built |
-| [The first debrief](mission-one.md#the-first-debrief) | After every solo win | 12 s | none: a screen (`DebriefView`) | Built |
+| [The first debrief](mission-one.md#the-first-debrief) | After every win, solo or co-op | 12 s | none: a screen (`DebriefView`) | Built |
 | [The first visit](den.md#the-first-visit) | The den's first opening, once ever | 4 s | none: in the den itself (`DenBeats`) | Built (2026-10-19) |
 | [A crewmate moves in](den.md#a-crewmate-moves-in) | The den, after each freeing | 3 s | none: in the den itself (`DenBeats`) | Built (2026-10-19) |
 | [kie's tabk comes home](den.md#kies-tabk-comes-home) | The tabk bay, the first visit after Mission one | 10.5 s | none: in the bay itself (`KieHomecoming`) | Built (kie-tabk-home-m1, 2026-10-20) |
 | [The Mission two briefing](mission-two.md#the-mission-two-briefing) | Mission two starts | 24 s | `m2-briefing.txt` | Built, narrator voiced |
-| [kcaj's tabk arrives](mission-two.md#kcajs-tabk-arrives) | The first time the players reach the cold store | 12 s | `scenes/kcaj-tabk.txt`, then the boss intro | Built (m2-finish): solo the first time; in co-op, together at each run's first boss wake (the phones' saves can differ); a test start keeps the in-play TROLLO-KCAJ band |
-| [Freeing kcaj](mission-two.md#freeing-kcaj) | Trollogram kcaj beaten on foot | 23.5 s, after the glitch-out in play | `scenes/freeing-kcaj.txt` (shots 2 to 5) | Built (m2-finish), on both phones in co-op; the cold store is drawn in code until it's painted |
+| [kcaj's tabk arrives](mission-two.md#kcajs-tabk-arrives) | The first time the players reach the cold store | 12 s | `scenes/kcaj-tabk.txt`, then the boss intro | Built (m2-finish): solo the first time; in co-op, together at each run's first boss wake (the phones' saves can differ); where it doesn't play (a test start, or a solo fight once it's been seen, until Mission two is cleared) the boss intro ends with Trollogram kcaj's TROLLO-KCAJ band at the hatch |
+| [Freeing kcaj](mission-two.md#freeing-kcaj) | Trollogram kcaj beaten on foot | 23.5 s, after the glitch-out in play | `scenes/freeing-kcaj.txt` (shots 2 to 5) | Built (m2-finish), on both phones in co-op, on Design's loading-yard plate |
 | [Two of the crew](retired.md#retired-two-of-the-crew) | Retired | 8 s | none | Retired, 2026-10-18 |
 | [The co-op check](coop-check.md#the-co-op-check) | `?test=scene` and CI only | 36 s | `coop-test.txt` | A test, not the story |
 
@@ -94,7 +94,9 @@ Cutscenes are **in-engine scenes**: the game's own art, drawn in code, with spee
 
 **Every character gets an intro the first time they're on screen** (canonical, the owner, 2026-10-16): the camera
 crash-zooms onto them, their name slams up big ("TONES2"), time goes slow-mo, and a big musical hit plays. It's part
-of that scene, so it plays whenever the scene does, and never anywhere else.
+of that scene, so it plays whenever the scene does, and never anywhere else. One exception is built today:
+when [kcaj's tabk arrives](mission-two.md#kcajs-tabk-arrives) doesn't play, the boss intro ends with Trollogram kcaj's
+band at the hatch instead.
 
 **How it plays:** it builds up, then it lands, like the run-up to a drop. The owner asked for the build-up after the
 first cut came "out of nowhere, like a car crash", 2026-10-16.

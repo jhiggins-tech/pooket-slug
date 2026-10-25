@@ -1,9 +1,9 @@
 namespace PooketSlug
 {
     /// <summary>
-    /// The boss intro under way (<c>docs/design/tanks.md</c>), over the mission: seconds since it began, whether it's the
+    /// The boss intro under way (<c>docs/design/cutscenes/mission-one.md</c>, The boss intro), over the mission: seconds since it began, whether it's the
     /// full one, the name card, and the siren and the announcer's lines as they come due (<see cref="BossIntroShow"/>);
-    /// and, where the mission's story has one, its pilot's part: the Trollogram up in the boss tabk's hatch, their intro
+    /// and, where the mission's story has one and its reveal hasn't just played, its pilot's part: the Trollogram up in the boss tabk's hatch, their intro
     /// band and their line.
     /// </summary>
     public sealed class BossIntroFlow

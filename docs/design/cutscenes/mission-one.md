@@ -559,7 +559,8 @@ Skipping is fine, and it asks again on the next debrief.
 **Where it goes next** (owner, 2026-10-19): straight to the den, which opens for the first time with
 [the first visit](den.md#the-first-visit). Every later debrief goes back to the den too ([what START plays](../story.md#what-start-plays)).
 
-**Built** (2026-10-16, `Core/Lobby/Debrief.cs`, `Ui/DebriefView.cs`): after every solo win, `?test=debrief` to try
-it. XP is placeholder: 200 for the clear, 300 for kie freed, 1 a kill. Rank is the record's stages beaten: a first
+**Built** (2026-10-16, `Core/Lobby/Debrief.cs`, `Ui/DebriefView.cs`): after every win, `?test=debrief` to try it. In
+co-op each phone shows its own player's (their kills, lives and XP; the score is the shared one), and CONTINUE goes
+back to the room's den. XP is placeholder: 200 for the clear, 300 for kie freed, 1 a kill. Rank is the record's stages beaten: a first
 clear climbs one rung (4 stages), a replay one stage, using the ladder ported from Pooket Tabks
-(`Core/Lobby/Ranks.cs`). Looks tokens aren't in yet.
+(`Core/Lobby/Ranks.cs`). Looks tokens aren't in yet: the XP bar fills towards the next one, every 600 XP.
