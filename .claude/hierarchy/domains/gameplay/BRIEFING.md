@@ -158,9 +158,12 @@ Not this domain's, though they sit beside its files: `Core/Missions/MissionStory
   `Knobs` for tuning from a link and the files in `sandbox/`.
 
 ## The invariants
-- **Content ids ride the network and are never changed or reused.** `ContentTests` pins weapons (0-9, 11-14, 17, 21-27
-  as built), projectiles, enemies (0-6, 11-17), pickups and soldiers; `MissionsTests` pins the missions' ids. A retired
-  definition stays in the table (the old tabk shell and mortar are projectile ids 9 and 10). Add the next unused id.
+- **Content ids ride the network and are never changed or reused.** `ContentTests` pins every weapon (0-27, retired
+  18 and 19 too), projectile (0-15), enemy (0-17), pickup (0-3) and soldier (0-3) by number to its named definition,
+  and each table's size, so a new definition fails until it gets its pin (pin-net-ids card, 25 Oct). `GarageTests`
+  pins the tabk cards' ids (their owners' soldier ids, sent as the loaded tabk); `MissionsTests` the missions' net ids;
+  `TeamSuperTests` the combos; `CrewKitTests` the `KitMove`s. A retired definition stays in the table (the old tabk
+  shell and mortar are projectile ids 9 and 10). Add the next unused id.
 - Each table holds its definitions at their own index (`ContentTests.EachTableHoldsItsDefinitionsAtTheirIds`).
 - A level spawn's network id is its index in the map; things spawned mid-game get ids after the levels
   (`SpawnerTests.ALevelSpawnKeepsItsIndexAsItsId`, `ThingsSpawnedMidGameGetIdsAfterTheLevels`).

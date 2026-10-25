@@ -5,10 +5,13 @@ namespace PooketSlug.Tests
 {
     public class ContentTests
     {
+        // Every id below rides the network, so each is pinned by number to its named definition: renumbering one
+        // breaks co-op between builds. Each test also pins its table's size, so a new definition gets its pin here.
+
         [Test]
         public void WeaponIdsNeverChange()
         {
-            // Shots are replicated by weapon id, so changing one breaks co-op between builds.
+            // Shots are replicated by weapon id.
             Assert.AreEqual(0, Content.Pistol.Id);
             Assert.AreEqual(1, Content.HeavyMachineGun.Id);
             Assert.AreEqual(2, Content.Rifle.Id);
@@ -19,19 +22,48 @@ namespace PooketSlug.Tests
             Assert.AreEqual(7, Content.WaterJet.Id);
             Assert.AreEqual(8, Content.RocketJump.Id);
             Assert.AreEqual(9, Content.Spew.Id);
+            Assert.AreEqual(10, Content.BossCannon.Id);
             Assert.AreEqual(11, Content.WeaselPop.Id);
             Assert.AreEqual(12, Content.Trollogram.Id);
             Assert.AreEqual(13, Content.Steal.Id);
+            Assert.AreEqual(14, Content.StolenRifle.Id);
+            Assert.AreEqual(15, Content.StolenKnives.Id);
+            Assert.AreEqual(16, Content.StolenBombs.Id);
             Assert.AreEqual(17, Content.StolenCannon.Id);
+            Assert.AreEqual(18, Content.PlayerTankCannon.Id, "retired, never reused");
+            Assert.AreEqual(19, Content.PlayerTankMortar.Id, "retired, never reused");
+            Assert.AreEqual(20, Content.TeamSuper.Id);
             Assert.AreEqual(21, Content.GoonGrenadeThrow.Id);
             Assert.AreEqual(22, Content.ScoopSlam.Id);
             Assert.AreEqual(23, Content.ScoopHurl.Id);
             Assert.AreEqual(24, Content.DoublePark.Id);
             Assert.AreEqual(25, Content.Hyperfixate.Id);
             Assert.AreEqual(26, Content.Unmedicated.Id);
-            Assert.AreEqual(14, Content.Cone.Id, "Double Park's cone rides the network by its id too");
             Assert.AreEqual(27, Content.TrolloCones.Id);
+            Assert.AreEqual(28, Content.Weapons.Count, "a new weapon takes the next id and gets its pin above");
+        }
+
+        [Test]
+        public void ProjectileIdsNeverChange()
+        {
+            // A weapon's projectile and its sprite are keyed by the projectile's id.
+            Assert.AreEqual(0, Content.Bullet.Id);
+            Assert.AreEqual(1, Content.HeavyBullet.Id);
+            Assert.AreEqual(2, Content.EnemyBullet.Id);
+            Assert.AreEqual(3, Content.Shell.Id);
+            Assert.AreEqual(4, Content.Grenade.Id);
+            Assert.AreEqual(5, Content.Bomb.Id);
+            Assert.AreEqual(6, Content.BigShell.Id);
+            Assert.AreEqual(7, Content.Knife.Id);
+            Assert.AreEqual(8, Content.StolenShell.Id);
+            Assert.AreEqual(9, Content.PlayerTankShellShot.Id, "retired, never reused");
+            Assert.AreEqual(10, Content.PlayerTankMortarShot.Id, "retired, never reused");
+            Assert.AreEqual(11, Content.GoonGrenade.Id);
+            Assert.AreEqual(12, Content.ScoopWave.Id);
+            Assert.AreEqual(13, Content.HurledScoop.Id);
+            Assert.AreEqual(14, Content.Cone.Id, "Double Park's cone rides the network by its id too");
             Assert.AreEqual(15, Content.TrolloCone.Id);
+            Assert.AreEqual(16, Content.Projectiles.Count, "a new projectile takes the next id and gets its pin above");
         }
 
         [Test]
@@ -45,6 +77,10 @@ namespace PooketSlug.Tests
             Assert.AreEqual(4, Content.Barrel.Id);
             Assert.AreEqual(5, Content.Weasel.Id);
             Assert.AreEqual(6, Content.TankCopy.Id);
+            Assert.AreEqual(7, Content.Pilot.Id);
+            Assert.AreEqual(8, Content.PilotDecoy.Id);
+            Assert.AreEqual(9, Content.ToppleTower.Id);
+            Assert.AreEqual(10, Content.ExitGate.Id);
             Assert.AreEqual(11, Content.ConeBox.Id);
             Assert.AreEqual(12, Content.NitrogenTank.Id);
             Assert.AreEqual(13, Content.ShieldSoldier.Id);
@@ -52,6 +88,21 @@ namespace PooketSlug.Tests
             Assert.AreEqual(15, Content.BigScoop.Id);
             Assert.AreEqual(16, Content.Projector.Id);
             Assert.AreEqual(17, Content.KcajPilot.Id);
+            Assert.AreEqual(18, Content.Enemies.Count, "a new enemy takes the next id and gets its pin above");
+        }
+
+        [Test]
+        public void PickupIdsNeverChange()
+        {
+            // The co-op snapshot carries each pickup's id.
+            Assert.AreEqual(0, Content.HeavyMachineGunCrate.Id);
+            Assert.AreEqual(1, Content.BombCrate.Id);
+            Assert.AreEqual(2, Content.Medkit.Id);
+            Assert.AreEqual(3, Content.OneUp.Id);
+            Assert.AreSame(Content.OneUp, Content.Pickup(3));
+            Assert.IsNull(Content.Pickup(-1));
+            Assert.IsNull(Content.Pickup(Content.Pickups.Count));
+            Assert.AreEqual(4, Content.Pickups.Count, "a new pickup takes the next id and gets its pin above");
         }
 
         [Test]
@@ -205,6 +256,7 @@ namespace PooketSlug.Tests
             Assert.AreSame(Content.Kcaj, Content.Soldier(3));
             Assert.IsNull(Content.Soldier(-1));
             Assert.IsNull(Content.Soldier(Content.Soldiers.Count));
+            Assert.AreEqual(4, Content.Soldiers.Count, "a new soldier takes the next id and gets its pin above");
         }
 
         [TestCase(-1)]

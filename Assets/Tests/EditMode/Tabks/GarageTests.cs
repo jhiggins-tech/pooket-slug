@@ -35,6 +35,16 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void TabkIdsNeverChange()
+        {
+            // A partner's loaded tabk rides the network by this id (its owner's soldier id), so a partner's bay shows it taken.
+            Assert.AreEqual(1, TabkCards.Tones2.Id);
+            Assert.AreEqual(2, TabkCards.Kie.Id);
+            Assert.AreEqual(3, TabkCards.Kcaj.Id);
+            Assert.AreEqual(3, TabkCards.All.Count, "a new tabk gets its pin above");
+        }
+
+        [Test]
         public void TheHud_NamesTheTabkOverItsRounds()
         {
             Assert.AreEqual("KIE'S TABK  WEASEL 5   TROLLOGRAM 3   STEAL 1", TabkCards.Kie.HudLine(5, 3, 1));
