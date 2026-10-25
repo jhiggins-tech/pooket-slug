@@ -53,5 +53,33 @@ namespace PooketSlug.Tests
             for (int i = 0; i < 25; i++) count.Tick(0.1f, 0);
             Assert.AreEqual(0, count.Shown, "and uncounted once they've gone");
         }
+    
+        [TestCase("GameIsFull", true), TestCase("GameIsFull", false)]
+        public void AFullRoomReadsTheSameWhoeverCounted(string reason, bool connecting)
+        {
+            Assert.AreEqual("THE ROOM IS FULL", RoomWords.ForShutdown(reason, connecting));
+            Assert.AreEqual(RoomWords.Full, RoomWords.ForShutdown(reason, connecting));
+        }
+
+        [Test]
+        public void AClosedRoomIsCalledTheRoomAndNoGameIsNamed()
+        {
+            Assert.AreEqual("THE ROOM IS CLOSED", RoomWords.ForShutdown("GameClosed", true));
+            foreach (string r in new[] { "GameIsFull", "GameClosed", "GameNotFound", "MaxCcuReached", "Error", "ConnectionRefused", "Nope" })
+                foreach (bool c in new[] { true, false })
+                    StringAssert.DoesNotContain("GAME IS", RoomWords.ForShutdown(r, c));
+        }
+
+        [Test]
+        public void ConnectionTroubleIsTheSameWordsAsBefore()
+        {
+            Assert.AreEqual(RoomWords.Unreachable, RoomWords.ForShutdown("ConnectionTimeout", true));
+            Assert.AreEqual("CONNECTION TIMED OUT", RoomWords.ForShutdown("OperationTimeout", false));
+            Assert.AreEqual("CONNECTION REFUSED", RoomWords.ForShutdown("ConnectionRefused", false));
+            Assert.AreEqual("DISCONNECTED (ERROR)", RoomWords.ForShutdown("Error", false));
+            Assert.AreEqual("DISCONNECTED BY THE SERVER", RoomWords.ForShutdown("DisconnectedByPluginLogic", false));
+            Assert.AreEqual("PHOTON REJECTED THIS BUILD'S APP ID", RoomWords.ForShutdown("InvalidAuthentication", true));
+            Assert.AreEqual("DISCONNECTED (GAMENOTFOUND)", RoomWords.ForShutdown("GameNotFound", false));
+        }
     }
 }
