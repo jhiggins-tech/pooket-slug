@@ -70,6 +70,28 @@ color: blue
 No `Agent`: the PM routes, it does not delegate. It knows the card format and the states, and it never touches the
 game's code.
 
+## The release manager
+
+`.claude/agents/release-manager.md` — the L0 role that moves the main line. It replaces the QA and release thread.
+
+```yaml
+---
+name: release-manager
+description: Merges approved work into the main line in the order the owner approved it, after checking the merge
+  is clean and green. Use when a card is approved on the Roadmap, or to check a preview before review. Never merges
+  anything the owner has not approved, and never writes game code.
+model: sonnet
+effort: medium
+tools: Read, Grep, Glob, Bash, Edit, Write, SendMessage
+color: yellow
+---
+```
+
+Its working rules are the QA and release role's: merge the main line into the branch first and run
+`tools/check.sh`, fast-forward when the branch already holds the main line, never rewrite history, and tell the
+domain that owns the card once it lands. A merge the session's permission check refuses is reported to the owner,
+not worked around.
+
 ## The domain manager
 
 `.claude/agents/domain-manager.md` — the L1 role, used once per domain. The domain is named in the prompt.

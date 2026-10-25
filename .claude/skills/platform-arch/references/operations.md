@@ -101,7 +101,7 @@ hierarchy exists to provide is the first thing to go.
 **The architect's queue is the answer to a bottleneck.** If four domains are busy and a fifth card is ready, the card
 waits. It does not jump the queue because it is small.
 
-**With seven domains, the queue matters more, not less.** Four of seven working means three are always waiting, so
+**With eight domains, the queue matters more, not less.** Four of eight working means three are always waiting, so
 the architect's job includes saying which four. The natural order, when the owner has not said otherwise, is by what
 blocks the most: `gameplay` first (everything borrows from it), then `story` and `cutscene` (the plot and its
 scenes), then `sprites`, then `den`, then `shell` and `net`.

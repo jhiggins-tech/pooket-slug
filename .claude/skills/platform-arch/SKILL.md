@@ -20,6 +20,7 @@ Three layers, plus the owner above them.
 
 ```
 the owner ── the Roadmap ──▶ platform architect (L0) ─┬─▶ roadmap PM (L0)   cards, the queue
+                                                        ├─▶ release manager (L0)   merges what the owner approves
                                                         │
                                                         └─▶ domain manager (L1) ─┬─▶ coder workhorse (L2, sonnet)
                                                              (one per domain)   ├─▶ coder scout     (L2, haiku)
@@ -30,6 +31,7 @@ the owner ── the Roadmap ──▶ platform architect (L0) ─┬─▶ road
 |---|---|---|---|---|---|
 | L0 | platform architect | 1 | opus | high | the whole system: the definitions, the domain map, the health checks |
 | L0 | roadmap PM | 1 | sonnet | medium | the cards: what is queued, what is claimed, what is done |
+| L0 | release manager | 1 | sonnet | medium | the main line: merging what the owner approved, in approval order, and checking it |
 | L1 | domain manager | one per domain | opus | medium | one card, or a few at a time, inside its domain |
 | L2 | coder workhorse | 3 per domain manager | sonnet | low | one scoped change |
 | L2 | coder scout | 3 per domain manager | haiku | low | one scoped question |
@@ -83,7 +85,7 @@ The three coder definitions are shared by every domain manager. They are roles, 
 
 **A domain is a workflow, not a folder.** The owner set this: the unit of ownership is the job that gets done, and the
 job usually cuts across the code's folders. The map, with the exact file lists, is in
-[the domain map](references/domains.md). Seven domains to start, plus the architect's own:
+[the domain map](references/domains.md). Eight domains, plus the architect's own:
 
 | Domain | Subject | The owner's words |
 |---|---|---|
@@ -94,6 +96,7 @@ job usually cuts across the code's folders. The map, with the exact file lists, 
 | `gameplay` | the rules of play: the crew's kits, the missions and their maps, the goons, the bosses, the world | |
 | `shell` | the shell around the game: the state machine and its flows, the screens, the title, the HUD, the input | |
 | `net` | the co-op: the netcode, the contracts, the room, the handover, the saves and the account | |
+| `audio` | the sound: the chip music, the sound effects, when each track plays, and the pinned takes | |
 
 Three rules decide every boundary question:
 
@@ -234,9 +237,9 @@ job of its role note, and the two are not kept side by side. As of 25 Oct the ro
 | Story and lore | `story` (the scripts in `docs/design/cutscenes/` stay the `cutscene` domain's) |
 | Design | `sprites` for the art; the den's and the missions' design go with `den` and `gameplay` |
 | Media generation | `sprites`: the generated half of the art, and the spend and ledger in the vendor repository |
-| Audio and music | no domain yet: its files are `gameplay`'s in the map |
-| QA and release | no domain: it merges what the owner approves, which sits above the domain managers |
-| Design consistency check | no domain: closest to the architect's health checks and the `story` check |
+| Audio and music | `audio` |
+| QA and release | the release manager, an L0 role beside the roadmap PM: it merges what the owner approves |
+| Design consistency check | the architect's health checks, with the `story` domain's consistency check |
 
 The Roadmap's statuses today are `idea`, `queued`, `building`, `review`, `feedback` and `done`. Only the owner's
 approval sets `done`, and only the owner moves an `idea` to `queued`. The card states above map onto them: `open` is
@@ -258,9 +261,9 @@ These are the open questions, and they are the owner's to answer:
 4. **Whether the sprites domain has a tool of its own.** Its work is partly made outside the repository, in the
    vendor repository's image and video pipelines, and partly in the owner's own art files. The domain manager needs to
    say plainly what it owns and what the owner keeps.
-5. **Where audio, release and the consistency check go.** Three of today's roles have no domain (the table above):
-   audio could be its own domain or stay `gameplay`'s, and QA and release and the consistency check could be L0
-   roles beside the roadmap PM.
+5. **Where audio, release and the consistency check go.** Settled on 25 Oct at the spec's defaults: audio is the
+   eighth domain, QA and release is the release manager (L0, beside the roadmap PM), and the consistency check is
+   the architect's health checks with the `story` check.
 
 ## What to do next
 

@@ -4,7 +4,7 @@
 # A file may appear once and only once. tools/check_ownership.py checks that, and that every
 # source file in the repository is claimed.
 #
-# Domains: gameplay, den, cutscene, sprites, shell, net, story
+# Domains: gameplay, den, cutscene, sprites, shell, net, story, audio
 #
 # The rule for a file: it belongs to the domain whose workflow would change it. See
 # .claude/skills/platform-arch/references/domains.md for the reasoning behind each entry.
@@ -45,7 +45,6 @@ gameplay Assets/Scripts/Core/Missions/Creamery.cs
 gameplay Assets/Scripts/Core/Enemies/
 gameplay Assets/Scripts/Core/World/
 gameplay Assets/Scripts/Core/Input/
-gameplay Assets/Scripts/Core/Audio/
 gameplay Assets/Scripts/Core/Platform/LaunchFlags.cs
 gameplay Assets/Scripts/Core/Platform/Spike.cs
 gameplay Assets/Scripts/Core/Platform/PageQuery.cs
@@ -81,8 +80,6 @@ gameplay Assets/Scripts/Enemies/
 gameplay Assets/Scripts/Bosses/
 gameplay Assets/Scripts/Tabks/
 gameplay Assets/Scripts/Missions/
-gameplay Assets/Scripts/Audio/
-gameplay Assets/Tests/EditMode/Audio/
 gameplay Assets/Tests/EditMode/Bosses/BossTankTests.cs
 gameplay Assets/Tests/EditMode/Bosses/CraterGroundTests.cs
 gameplay Assets/Tests/EditMode/Bosses/KcajTankTests.cs
@@ -175,7 +172,6 @@ shell Assets/Scripts/Game/Game.cs
 shell Assets/Scripts/Game/BoardFlow.cs
 shell Assets/Scripts/Game/KitFlow.cs
 shell Assets/Scripts/Game/DebriefFlow.cs
-shell Assets/Scripts/Game/MusicFlow.cs
 shell Assets/Scripts/Game/DemoFlow.cs
 shell Assets/Scripts/Game/SandboxFlow.cs
 shell Assets/Scripts/Ui/Ui.cs
@@ -244,6 +240,15 @@ shell Assets/Plugins/WebGL/PooketInvite.jslib
 shell Assets/Plugins/WebGL/PooketDemo.jslib
 # The sandbox's setups, read by Core/Platform/Sandbox.cs.
 gameplay sandbox/
+
+# ---------------------------------------------------------------- audio
+# The sound: the chip synth and its music, the sound effects, when each track plays, and the
+# design that decides them. The vendor takes they play are pinned in vendor.lock.
+audio Assets/Scripts/Core/Audio/
+audio Assets/Scripts/Audio/
+audio Assets/Tests/EditMode/Audio/
+audio Assets/Scripts/Game/MusicFlow.cs
+audio docs/design/music.md
 
 # ---------------------------------------------------------------- architect
 # The assembly definitions: the boundaries between Core, the game and the tests. They
