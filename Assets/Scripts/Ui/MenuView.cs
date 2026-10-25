@@ -176,7 +176,7 @@ namespace PooketSlug
             blocker.raycastTarget = true; // taps on the screen stop here, not on the den under it
             Line(m_Missions, 140f, 22, Orange).text = "MISSIONS";
             m_MissionsHint = Line(m_Missions, 116f, 9, Keys);
-            m_MissionTabk = Line(m_Missions, -77f, 9, Color.white); // the tabk loaded in the bay (docs/design/tanks.md)
+            m_MissionTabk = Line(m_Missions, -77f, 9, Color.white); // the tabk loaded in the bay (docs/design/lobby.md, The tabk bay)
             for (int i = 0; i < MaxCards; i++)
             {
                 MenuAction pick = MenuAction.Card1 + i;
