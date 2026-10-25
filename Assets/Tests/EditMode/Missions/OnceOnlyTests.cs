@@ -24,6 +24,7 @@ namespace PooketSlug.Tests
             "den-first-visit", "moved-in-kcaj",
             "kie-tabk-home",
             "skit-two-of-us", "skit-special-delivery", "skit-trollogram-of-anything",
+            "skit-keep-it-down", "skit-tracking-us",
         };
 
         static List<string> Keys => OnceOnly.All.Select(b => b.Key).ToList();
@@ -66,6 +67,7 @@ namespace PooketSlug.Tests
                 Assert.AreEqual(!DenBeats.Starter(m.Soldier), OnceOnly.Has(DenBeats.MovedIn(m.Soldier)), m.Name + " moves in unless home for the first visit");
             Assert.IsTrue(OnceOnly.Has(KieHomecoming.Reveal));
             foreach (var skit in Skits.All) Assert.IsTrue(OnceOnly.Has(skit.key), skit.key);
+            Assert.IsTrue(OnceOnly.Has(KeepItDown.Key) && OnceOnly.Has(TrackingUs.Key));
             Assert.IsFalse(OnceOnly.Has(Reveals.Tank), "tank is only ?unlock=tank's key: nothing saves it");
         }
 
@@ -104,6 +106,8 @@ namespace PooketSlug.Tests
             ["DebriefFlow.cs: StoryRecord.Debrief"] = () => new[] { StoryRecord.Debrief },
             ["SceneFlow.cs: m_Scene.Scene.Id"] = () => SceneLibrary.Names.Select(SceneScript.IdOf),
             ["BayFlow.cs: KieHomecoming.Reveal"] = () => new[] { KieHomecoming.Reveal },
+            ["Game.cs: KeepItDown.Key"] = () => new[] { KeepItDown.Key },
+            ["DebriefFlow.cs: TrackingUs.Key"] = () => new[] { TrackingUs.Key },
             ["DenBeats.cs: beat.Kind == DenBeatKind.FirstVisit ? FirstVisit : MovedIn(beat.Newcomer)"] = () =>
                 new[] { DenBeats.FirstVisit }.Concat(Crew.All.Where(m => !DenBeats.Starter(m.Soldier)).Select(m => DenBeats.MovedIn(m.Soldier))),
             ["Skits.cs: skit.Key"] = () => Skits.All.Select(s => s.key),

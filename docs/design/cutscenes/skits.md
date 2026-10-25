@@ -144,6 +144,10 @@ kie stirs, without opening his eyes.
 He settles back. Zs. The coda carries on.
 ```
 
+**Built** (2026-10-25): under the key `skit-keep-it-down` (`KeepItDown`, `Core/Missions/MissionSkits.cs`); kie stirs and
+says it 0.6 s after the coda gets under way, and his Zs stop until the popup's gone. The engine's sound plays when tones2
+has climbed into his tabk (walking on without it, kie still says it). `?test=coda` shows it every time without spending it.
+
 **Staging notes:** today kie's line shows as a score popup over him (`Scoring.Popup`, the way the pilots' last words
 show), in kie's colours; a proper speech bubble in play would be new. `SleepingKie` is built and stays as he is. If the
 owner wants it on every replay rather than once, it can drop the key.
@@ -388,6 +392,11 @@ counting carries on underneath it.
 
                             INTO: THE DEBRIEF (the XP bar)
 ```
+
+**Built** (2026-10-25): under the key `skit-tracking-us` (`TrackingUs`, `Core/Missions/MissionSkits.cs`, played by
+`DebriefCrew`). kcaj now stands on every debrief once he's freed, frosty on this one. The accuracy counts slowly while he
+stares and is still counting under the note. A tap skips to the skit's end, with the note on. `?test=debrief&mission=2`
+shows it every time without spending it.
 
 **What's new work:** kcaj on the debrief. `DebriefView` draws only tones2 and kie today, so a third figure (kcaj's,
 which the stage already has) and room for him are new; which crew stand on the debrief at all is undecided, and this
