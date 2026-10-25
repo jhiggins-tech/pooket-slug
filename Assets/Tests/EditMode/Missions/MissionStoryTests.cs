@@ -2,7 +2,10 @@ using NUnit.Framework;
 
 namespace PooketSlug.Tests
 {
-    /// <summary>Missions' stories (Core/MissionStory.cs): what Mission one's script says, and the once-only beats.</summary>
+    /// <summary>
+    /// Missions' stories (Core/Missions/MissionStory.cs): what Mission one's script says, a mission with none, the once-only
+    /// beats, the quick boss intro, the super, and when the boss reveal and the pilot's freeing play.
+    /// </summary>
     public class MissionStoryTests
     {
         [Test]
