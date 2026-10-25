@@ -83,7 +83,7 @@ their "Draft" marks until the owner signs them off; the page's status line says 
 
 ## How it is checked
 `tools/check.sh` (type-check, EditMode tests, scene check, docs link check; `tools/check.sh docs` for the links alone). Tests:
-`MissionStoryTests` (Mission one's scenes and coda, a mission with no story, the once-only beats, the quick boss intro, the
+`MissionStoryTests` (Mission one's scenes and coda, every mission's scenes against `SceneLibrary.Names` (`PilotIntro` is a title card, not a scene), all three save keys, a mission with no story, the once-only beats, the quick boss intro, the
 super, the boss reveal and the pilot freed rules). Nearby: `StartFlowTests` and the other Missions tests; `CodaTests` covers the coda
 (its summary cites `story.md`, but nothing reads the document). Ownership of these files is held by `tools/check_ownership.py`.
 
