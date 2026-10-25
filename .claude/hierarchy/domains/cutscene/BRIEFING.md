@@ -106,6 +106,10 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
   `Assets/Tests/EditMode/Bosses/BossIntroShowTests.cs`. `MissionStoryTests` is the story domain's.
 - A scene's look is checked by playing it: push the branch and open `previews/<item-id>/?scene=<name>`, or play it
   from a start (`?test=scene`, `?test=reveal`, `?test=coda`). CI plays `coop-test` with two browsers.
+- `docs/scenes.md`'s lists of sets, speakers, cues, things, verbs, poses, looks and colours are held to the code both ways by
+  `ScenesDocTests` (`Assets/Tests/EditMode/Story/`). Adding a thing, verb, cue, speaker, set or colour in `Staging`,
+  `SceneScript` or `Cues` means adding it to the page in the same change, or that test fails. It reads the page's
+  backticked words, so keep each list in its current paragraph or table.
 
 ## Known unfinished
 - The narrator's lines are placeholders for the owner to rewrite in the crew's voice (README, narrator note).
