@@ -114,8 +114,13 @@ Not this domain's, though they sit beside its files: the cutscene flows (`SceneF
 - The shell reaches co-op only through `INetSession` (the HUD reads it) and the room through `CoopRoom`; the netcode
   is net's. Co-op starts together play the mission opening on both phones (`LaunchFlags.Testing` skips it).
 - `Game` owns the profile and its store; flows save through it. A view never saves.
-- A sandbox run never writes the profile: `Game.EndRun` and `NoteSuper` return early, and a sandbox plays no opening.
-  A spike run is *not* kept off it: nothing checks `Spike.Any` (see Known unfinished).
+- **Which visits save** is one rule in Core: `ProfileKeeping.Saves` (`Profile.cs`, `ProfileTests`). A sandbox
+  (`?sandbox=`) and a spike (`Spike.Any`) keep nothing; every other visit saves, `?test=` and `?unlock=` included.
+  `Game.Awake` wraps its store with `ProfileKeeping.For`, so every save (EndRun, the super and coda records, the coop
+  reveal, the cloud merge, and the flows' scenes, den beats and homecoming through `g.Store`) goes nowhere in such a
+  visit. A new save must go through `Game.Store`, never a store of its own. A sandbox also skips `RecordRun` and the
+  debrief (`EndRun`, `NoteSuper` return early: it gets the victory screen); a spike plays the run as normal for the
+  visit (debrief, den) and only the writing is off (dca-spike-saves, 25 Oct).
 - A demo or a scripted sandbox take hides the build line, frame rate and start banner so the clip is clean
   (`HudView` info flag).
 - `m_CoopJustOpened` (`Game`) is set by the win that opened co-op and cleared by `NewTitleWorld` and `BeginCoop`, so
@@ -152,8 +157,9 @@ the `gh-pages` branch locally and use `?test=debrief` and Enter through to the m
 - **Hard is dead end to end** (consistency audit, 25 Oct): besides the mission screen never offering it, `Game.EndRun`
   records every co-op run as `Setting.Normal`, and nothing in the world reads `Game.Setting`, so a hard run would play
   and save as normal. One owner question with the item above.
-- **A `?spike=` run writes the profile** like any run (XP, rank, clears, reveals, and the cloud when signed in). The
-  briefing used to say it didn't. Whether it should is an owner question (audit, 25 Oct).
+- **`?test=` starts save like any run** (dca-spike-saves, 25 Oct): `?test=debrief` and the boss or pilot starts can put
+  a real clear, XP and the coda's records on the profile (and the cloud), and `?unlock=` runs save progress made with
+  crew or tabks not yet won. Kept as they were; whether a test start should save is an owner question.
 - **The mission screen has room for four cards** (`MenuView.MaxCards`, `MenuAction.Card1`..`Card4`); with four missions
   the coming-soon card is a fifth and is dropped. Not a problem until Mission four.
 
