@@ -29,7 +29,7 @@ gameplay domain's: `BayFlow` and `BayView` call them.
   (`docs/design/lobby.md`, Den 2.0; `DenFlow.Use`)
 - The soldier you play is the one you move, and the couch is the soldier pick: two seats, left for player one, right
   for player two. Picking, readying and starting a mission never needs a scroll. (`Den.cs`, `DenTests`)
-- READY sits bottom right and BACK top left; no station's tap area reaches into the bottom corners. (`lobby.md`)
+- READY sits bottom right and BACK top left. There is no bottom-corners rule in the den: the owner dropped it on 25 Oct (dca-den-corners). (`lobby.md`)
 - The den is the crew's: a crewmate's corner stays wrecked and dark, with no name, until their move-in beat has played
   and they are freed. The exception is kcaj's string board, which stays up in his dark corner. (`lobby.md`,
   `DenRoom.Paint` draws a crewmate's moved-in layer only when freed)
