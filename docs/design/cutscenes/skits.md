@@ -2,9 +2,10 @@
 
 Part of [the cutscenes](README.md), the one script for every scene: the rules, the format and every scene at a glance are there.
 
-Short comic crew moments, written for the skit-scripts card (2026-10-25). The owner's picks (25 Oct) are [Two of us now](#two-of-us-now),
-[Keep it down](#keep-it-down), [A Trollogram of anything](#a-trollogram-of-anything) (his rework) and
-[They're tracking us](#theyre-tracking-us), with [Does it do cones?](#does-it-do-cones) workshopped by him; the other three are drafts from the pitch's short list, for him to pick from. Staging, art, sound and the build each get their own card once a skit is picked.
+Short comic crew moments, written for the skit-scripts card (2026-10-25). The owner's picks (25 Oct) are [Two of us now](#two-of-us-now), [Keep it down](#keep-it-down),
+[Five-second rule](#five-second-rule), [Special delivery](#special-delivery) and [They're tracking us](#theyre-tracking-us), with
+[A Trollogram of anything](#a-trollogram-of-anything) and [Does it do cones?](#does-it-do-cones) workshopped by him. [Wanna race?](#wanna-race)
+is still a draft from the pitch's short list, for him to pick or drop. Staging, art, sound and the build each get their own card once a skit is picked.
 
 **How a skit plays:**
 - **Once ever,** like the den's beats ([the den](den.md)), each under its own once-only key, kept with the player's
@@ -147,6 +148,8 @@ owner wants it on every replay rather than once, it can drop the key.
 
 ## Five-second rule
 
+**Picked by the owner** (2026-10-25).
+
 **Plays** in the den, the second time it opens: the first visit after [the first visit](den.md#the-first-visit), after
 Mission one. About 11 seconds, three shots; tap to skip. **Who's in it:** tones2 and kie.
 
@@ -267,6 +270,8 @@ as a Trollogram's does. The bay scrolls, so the camera runs from the roller door
 other beats do.
 
 ## Special delivery
+
+**Picked by the owner** (2026-10-25).
 
 **Plays** between missions: the first time the den opens after a replay of Mission one, from its debrief. About 14
 seconds, three shots; tap to skip. **Who's in it:** tones2, kie and the cargo drone.
