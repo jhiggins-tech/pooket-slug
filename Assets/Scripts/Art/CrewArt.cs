@@ -95,6 +95,7 @@ namespace PooketSlug
             ArtData.TorsoForward, ArtData.TorsoUp, ArtData.TorsoDown, ArtData.TorsoUpDiag, ArtData.TorsoDownDiag,
             ArtData.TorsoUnarmed, ArtData.TorsoPad, ArtData.TorsoLounge,
             ArtData.Repair1, ArtData.Repair2, ArtData.Repair3, ArtData.Repair4,
+            ArtData.TorsoCarry,
         };
 
         static readonly int[] s_BodyTops =
@@ -102,6 +103,7 @@ namespace PooketSlug
             ArtData.TorsoForwardTop, ArtData.TorsoUpTop, ArtData.TorsoDownTop, ArtData.TorsoUpDiagTop, ArtData.TorsoDownDiagTop,
             ArtData.TorsoForwardTop, ArtData.TorsoForwardTop, ArtData.TorsoForwardTop,
             ArtData.TorsoForwardTop, ArtData.TorsoForwardTop, ArtData.TorsoForwardTop, ArtData.TorsoForwardTop,
+            ArtData.TorsoForwardTop,
         };
 
         static readonly string[][] s_Legs =

@@ -17,12 +17,14 @@ kie-tabk colour wreck
 turret turn 14
 clamp at 186 12
 tones2 at 40
-tones2 holds bag
+tones2 arms out
+tones2 holds bag 8 10
 // held in the cage of light, which flickers out, and he drops in a heap
 cage at 100
 0-1.5 cage flicker-out
 kie at 100 10
 kie face left
+kie arms down
 1.5-1.8 kie move 100 10 100 7 in
 1.5 kie pose crouch
 1.8 kie pose down
@@ -45,16 +47,20 @@ turret turn 14
 clamp at 186 12
 // tones2 comes over with the snacks; kie gets up off the floor (from his back, to a crouch, to his feet), swaying, and takes them
 0-0.7 tones2 walk 40 74
+tones2 arms out
 tones2 holds bag 8 10
 kie at 100 7
 kie face left
 kie pose down
+kie arms down
 0.6-0.8 kie move 100 7 100 0
 0.6 kie pose crouch
 1.4 kie pose idle
 1.4 kie sway
 1.4 stars on kie 0 30
 2.2 kie holds bag -7 9
+2.2 kie arms out
+2.2 tones2 arms gun
 2.2 cue snacks
 0.8 tones2: BROUGHT SNACKS.
 2.4 kie: LEGEND.
@@ -74,6 +80,10 @@ tones2 at 74
 kie at 100
 kie face right
 kie sway
+kie arms down
+3.4 kie arms out
+4.3 kie arms down
+4.3 tones2 arms out
 0-1 kie walk 100 166
 2.6 kie face left
 2.6-3.4 kie walk 166 96
@@ -112,6 +122,7 @@ kie face right
 0-0.6 kie walk 96 106
 0.6 kie pose crouch
 0.6 kie holds bag 6 5
+kie arms down
 2.4 zz on kie 6 26
 0.1 cue alarm
 2.6 cue alarm
