@@ -322,7 +322,7 @@ namespace PooketSlug
             Drums = "k:1 r:3 k:1 r:3 k:1 r:3 k:1 r:3 k:1 r:3 k:1 r:3 k:1 r:3 k:1 r:3 k:1 r:3",
         };
 
-        /// <summary>A crewmate's freed: a bright run up in G. Written; a crew reveal will play it.</summary>
+        /// <summary>A crewmate's freed: a bright run up in G. Written, but nothing plays it yet: the crew reveal it was for has gone, and it waits for the den's.</summary>
         public static readonly MusicTrack NewCrewmate = new MusicTrack
         {
             Name = "New crewmate",
