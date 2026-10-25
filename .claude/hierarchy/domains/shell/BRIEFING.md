@@ -48,8 +48,13 @@ Not this domain's, though they sit beside its files: the cutscene flows (`SceneF
   by the owner's say, with a row in `Ranks.All`.
 - **Saves must read forward.** `Options` is one number (`Options.Bits`): a new setting takes the next free bits and
   reads as its default in an old save. Never move a shift. `Profile` is serialised as it is (`JsonUtility`): add
-  fields, never rename or reuse them. No test pins either yet: `OptionsTests` checks a round trip and the shake bit of an
-  old save, and `ProfileTests` the merge and repair, not the bit positions or the field names (see Known unfinished).
+  fields, never rename or reuse them. Tests pin both (dca-save-format-tests, 25 Oct): `OptionsTests` fixes every
+  setting's bits, the `Volume` steps and one known saved number (23949); `ProfileTests` fixes `Profile`'s and
+  `MissionRecord`'s field names and types by reflection (JsonUtility saves the public fields) and `Setting`'s numbers.
+  The keys are pinned by reading the source, because `Save/` (net's) is outside the Core tests' reach:
+  `pooket-slug.options`, `pooket-slug.profile`, the old `pooket-slug.hiscore`, the page's `pooket-slug.auth`, and the
+  cloud record's path and names in `pooket-auth.js` (`pooketSlug/players/<uid>`, `normal`/`hard`, and every field it
+  reads and writes, `rev`, `tokens` and `name` among them). A new field or setting means a new line in those tests.
   `Profile.seen` holds every once-only record by name: `Reveals.Coop`, the scenes' ids (`SceneFlow`), the story's
   beats (`StoryRecord`: the super, the coda, the debrief), the den's beats (`DenBeats`) and kie's homecoming
   (`KieHomecoming.Reveal`). `Reveals.Tank` is only the `?unlock=tank` key and is never saved.
@@ -107,7 +112,7 @@ Not this domain's, though they sit beside its files: the cutscene flows (`SceneF
 ## How it is checked
 `tools/check.sh` (type-check as WebGL, Fusion's weaver, EditMode tests, the scene check, the docs link check); use
 `tools/check.sh compile` for a type change. The shell's own tests are `CoopRoomTests`, `DebriefTests`, `OptionsTests`
-and `ProfileTests` in `Assets/Tests/EditMode/Lobby/`. Input logic is tested by gameplay's `Assets/Tests/EditMode/Input/`
+and `ProfileTests` in `Assets/Tests/EditMode/Lobby/` (the last two also pin the save formats and keys). Input logic is tested by gameplay's `Assets/Tests/EditMode/Input/`
 (`ArcadePadTests`, `LatchTests`, `SoldierInputTests`); the logo's motion by `Assets/Tests/EditMode/Title/TitleMotionTests.cs`
 (sprites). **No test covers `Game.cs`, the menus, the HUD, the title or the kit/mission screens**; they are checked by
 the CI touch run (`tools/touch.mjs`), the build, and the preview link. To smoke-test a deploy without github.io, serve
@@ -143,8 +148,6 @@ the `gh-pages` branch locally and use `?test=debrief` and Enter through to the m
   den, which is always (`MenuView.RefreshMissions`; audit, 25 Oct).
 - **The settings' controls lines** leave out the ability (AB; B / I) and the team super (TEAM; T / Y), which
   `docs/design/player.md` lists (`MenuView.cs`; audit, 25 Oct).
-- **No test pins the save formats**: a test fixing `Options.Bits` for one known set of options, and `Profile`'s JSON
-  field names, would hold the "never move a shift / never rename a field" rules (audit, 25 Oct).
 - **The mission screen has room for four cards** (`MenuView.MaxCards`, `MenuAction.Card1`..`Card4`); with four missions
   the coming-soon card is a fifth and is dropped. Not a problem until Mission four.
 

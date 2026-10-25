@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using NUnit.Framework;
 
 namespace PooketSlug.Tests
@@ -92,6 +93,56 @@ namespace PooketSlug.Tests
             Assert.AreEqual(1f, Options.Gain(Volume.High));
             Assert.AreEqual(0f, Options.Gain(Volume.Off));
             Assert.Greater(Options.Gain(Volume.Mid), Options.Gain(Volume.Low));
+        }
+
+        // The save format. Options are kept as one number, so each setting's bits are pinned where they are today:
+        // a moved shift would read every player's saved settings wrong. A new setting takes the next free bits (15 on).
+
+        [Test]
+        public void EachSettingsBits_NeverMove()
+        {
+            Assert.AreEqual(1, new Options { Shake = true }.Bits, "sound off: bit 0");
+            Assert.AreEqual(2, new Options { Sound = true }.Bits, "shake off: bit 1");
+            Assert.AreEqual(Options.Default.Bits | 1 << 2, new Options { Sound = true, Shake = true, Crew = 1 }.Bits, "the crew pick: bits 2 to 5");
+            Assert.AreEqual(15 << 2, new Options { Sound = true, Shake = true, Crew = 15 }.Bits);
+            Assert.AreEqual(1 << 6, new Options { Sound = true, Shake = true, Effects = Volume.Mid }.Bits, "effects: bits 6 and 7");
+            Assert.AreEqual(3 << 6, new Options { Sound = true, Shake = true, Effects = Volume.Off }.Bits);
+            Assert.AreEqual(1 << 8, new Options { Sound = true, Shake = true, Voices = Volume.Mid }.Bits, "voices: bits 8 and 9");
+            Assert.AreEqual(3 << 8, new Options { Sound = true, Shake = true, Voices = Volume.Off }.Bits);
+            Assert.AreEqual(1 << 10, new Options { Sound = true, Shake = true, LeftHanded = true }.Bits, "the left-handed pad: bit 10");
+            Assert.AreEqual(1 << 11, new Options { Sound = true, Shake = true, Music = Volume.Mid }.Bits, "music: bits 11 and 12");
+            Assert.AreEqual(3 << 11, new Options { Sound = true, Shake = true, Music = Volume.Off }.Bits);
+            Assert.AreEqual(1 << 13, new Options { Sound = true, Shake = true, Tabk = 1 }.Bits, "the loaded tabk: bits 13 to 16");
+            Assert.AreEqual(15 << 13, new Options { Sound = true, Shake = true, Tabk = 15 }.Bits);
+        }
+
+        [Test]
+        public void AKnownSave_ReadsTheSameForever()
+        {
+            // Sound off, shake on, kcaj picked (soldier id 3), effects low, voices mid, left-handed, music off, kie's tabk (2).
+            const int saved = 1 | 3 << 2 | 2 << 6 | 1 << 8 | 1 << 10 | 3 << 11 | 2 << 13;
+            var o = new Options { Sound = false, Shake = true, Crew = 3, Effects = Volume.Low, Voices = Volume.Mid, LeftHanded = true, Music = Volume.Off, Tabk = 2 };
+            Assert.AreEqual(23949, saved, "the number itself");
+            Assert.AreEqual(saved, o.Bits);
+            Assert.AreEqual(o, Options.FromBits(saved));
+        }
+
+        [Test]
+        public void AVolumeIsSavedAsItsStep_SoTheStepsNeverChange()
+        {
+            Assert.AreEqual(0, (int)Volume.High, "0: a setting never touched is full volume");
+            Assert.AreEqual(1, (int)Volume.Mid);
+            Assert.AreEqual(2, (int)Volume.Low);
+            Assert.AreEqual(3, (int)Volume.Off);
+        }
+
+        [Test]
+        public void TheOptionsSaveKey_NeverChanges()
+        {
+            // OptionsStore (Save/) is out of the tests' reach, so its key is read from the source.
+            string store = File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), "Assets/Scripts/Save/OptionsStore.cs"));
+            StringAssert.Contains("const string Key = \"pooket-slug.options\";", store);
+            StringAssert.Contains("PlayerPrefs.SetInt(Key, options.Bits);", store, "saved as the bits");
         }
     }
 }
