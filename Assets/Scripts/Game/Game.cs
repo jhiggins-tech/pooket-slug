@@ -163,7 +163,7 @@ namespace PooketSlug
             if (Scenes.StartDraft(PageQuery.Get(url, "scene"), url)) return; // and so is a draft scene
             if (Sandbox.Start(PageQuery.Get(url, "sandbox"), url)) return; // and so is a sandbox: solo, and never recorded
             m_Net = NetSessions.Factory?.Invoke();
-            // An invite link with a room in it (?room=, see CoopRoom) waits for the den's + MATE like any visit; co-op still waits
+            // An invite link with a room in it (?room=, see CoopRoom) waits for the den's MULTI-PLAYER like any visit; co-op still waits
             // until Mission one is beaten, so before then the link starts that.
             if (m_Net != null && !string.IsNullOrEmpty(m_Flags.Room) && !CoopOpen)
             {
@@ -494,7 +494,7 @@ namespace PooketSlug
 
         // ------------------------------------------------------------------ online co-op
 
-        /// <summary>The den's + MATE: into the one room (<see cref="CoopRoom"/>), or the link's room.</summary>
+        /// <summary>The den's MULTI-PLAYER button: into the one room (<see cref="CoopRoom"/>), or the link's room.</summary>
         internal void JoinCoop()
         {
             if (m_Profile.MarkSeen(Reveals.Coop)) m_Store.Save(m_Profile);
