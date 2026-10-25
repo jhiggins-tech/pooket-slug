@@ -109,6 +109,20 @@ super, the boss reveal and the pilot freed rules). `OnceOnlyTests` (the once-onl
 4. Keep `docs/design/` links relative and run `tools/check.sh docs`. Update this briefing in the same commit.
 
 ## Known unfinished
+- Skits (skit-scripts, 25 Oct): eight in `docs/design/cutscenes/skits.md`. The owner picked Two of us now (the den's
+  co-op button first appears at its end, renamed MULTI-PLAYER: a build card), Keep it down (Mission one's coda,
+  replays), A Trollogram of anything (his rework of Probably a Trollogram, after kcaj moves in), They're tracking us
+  (Mission two's first debrief; kcaj on the debrief is new work) and Does it do cones? (the bay; it waits on kcaj's tabk
+  homecoming, which isn't written). Three are drafts to pick from (Five-second rule, Wanna race?, Special delivery), and
+  the pitch's other two are on the card's page. Two of us now changes when the co-op
+  button first shows (after the skit, not from the first visit's start); the `coop` reveal keeps its meaning (the button
+  first pressed). They are not plot beats, but once built each is a once-only key (proposed `skit-<name>`), so
+  `OnceOnly.All` and the reveals table's rule for keys that are not plot beats will need them. The snacks are settled:
+  canon from the owner (25 Oct), in `story.md`'s Lore, that the motor pool bag came from Family Mart (noted in
+  `cutscenes/mission-one.md`; Five-second rule jokes about it). One draft settles another gap until the owner picks: the
+  cargo drone brings kie home after Mission one (Special delivery).
+- What kcaj's sticky note on tones2's back says (the end of freeing kcaj) is still open: the skit that answered it was
+  reworked by the owner (25 Oct) and no longer does.
 - From domain-consistency-audit (25 Oct), left for the owner:
   - Mission two's run in `story.md` names two beats that aren't built: a goon frozen on a conveyor, and the scoop dropper's
     one-time gag (the droppers are a repeating hazard, `Creamery.ScoopCycle`). The page says so under Built so far. Build
