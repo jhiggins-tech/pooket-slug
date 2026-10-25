@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace PooketSlug
 {
-    /// <summary>How hard a mission is played. Hard opens once a mission is beaten (SCR-04).</summary>
+    /// <summary>How hard a mission is played. Hard opens for a mission from Mission two on once it's cleared, in co-op (<see cref="MissionBoard.HardOpen"/>).</summary>
     public enum Setting { Normal, Hard }
 
     /// <summary>The ids of reveals: things the game shows once, when the player first meets them.</summary>
@@ -29,8 +29,8 @@ namespace PooketSlug
     }
 
     /// <summary>
-    /// What the game keeps about a player between visits. It's the local half of the record that sign-in will
-    /// keep in the cloud (<c>Save/CloudAccount.cs</c>), so nothing in it
+    /// What the game keeps about a player between visits. It's the local half of the record that sign-in
+    /// keeps in the cloud (<c>Save/CloudAccount.cs</c>), so nothing in it
     /// goes back down, and two copies merge by taking the better of each. Fields are lower case because they're
     /// the saved form.
     /// </summary>
@@ -149,7 +149,7 @@ namespace PooketSlug
         }
     }
 
-    /// <summary>Where the profile is kept: this browser for now, and the cloud once sign-in arrives.</summary>
+    /// <summary>Where the profile is kept: this browser, and the cloud too while signed in (<c>Save/CloudAccount.cs</c>).</summary>
     public interface IProfileStore
     {
         /// <summary>The saved profile, or a new one.</summary>

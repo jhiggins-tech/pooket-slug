@@ -46,7 +46,10 @@ namespace PooketSlug
             else if (want != null && !Music.Fading) Music.Loop(want, MusicTracks.FadeIn(want)); // over the debrief's loop too, back in the den
         }
 
-        /// <summary>A mission starting (or restarting, or joined in co-op): the start sting, then the mission's theme.</summary>
+        /// <summary>
+        /// A mission starting (or restarting, or joined in co-op): the start sting, then the mission's theme. Only Mission
+        /// one has a theme yet, so every mission plays it.
+        /// </summary>
         public void MissionStart()
         {
             m_Soundtrack = new Soundtrack();
@@ -56,7 +59,7 @@ namespace PooketSlug
             Music.Play(MusicTracks.SteelNight, MusicTracks.MissionStart.Seconds);
         }
 
-        /// <summary>The screen locks for the boss and the mission's music cuts out (<c>docs/design/tanks.md</c>).</summary>
+        /// <summary>The screen locks for the boss and the mission's music cuts out (<c>docs/design/tabks/bosses.md</c>).</summary>
         public void BossIntro() => Music.Stop();
 
         /// <summary>The tank's first shot: the boss music kicks in.</summary>

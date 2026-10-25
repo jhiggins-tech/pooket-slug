@@ -6,7 +6,7 @@ namespace PooketSlug
     public enum KcajAttack { Shell, Sweep, Rain }
 
     /// <summary>
-    /// kcaj's boss tabk, Mission two's (<c>docs/design/tanks.md</c>, Tabk bosses: "It sweeps a beam, then rains pills
+    /// kcaj's boss tabk, Mission two's (<c>docs/design/tabks/bosses.md</c>, Tabk bosses: "It sweeps a beam, then rains pills
     /// across the screen"): the artillery tabk with kcaj's kit in place of some of its shells. Its charged shots go
     /// shell, sweep, shell, rain, round again. The sweep is Hyperfixate turned on the floor: the turret locks a beam
     /// onto the ground in front of it and drags it out across the arena, and anyone it crosses takes a heart, so you

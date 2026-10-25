@@ -217,7 +217,7 @@ namespace PooketSlug
     /// </summary>
     public sealed class DenWalker
     {
-        public const float WalkSpeed = 80f, ClimbSpeed = 90f; // the loft is three screens wide: slower drags
+        public const float WalkSpeed = 80f, ClimbSpeed = 90f; // art pixels a second (the loft is 382 wide, about 1.2 screens)
 
         public DenFloor Floor { get; private set; }
         public float X { get; private set; }

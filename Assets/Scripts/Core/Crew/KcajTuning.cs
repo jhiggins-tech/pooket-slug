@@ -18,7 +18,7 @@ namespace PooketSlug
     }
 
     /// <summary>
-    /// Trollogram kcaj, who jumps out of his wrecked tabk in Mission two to fight on foot (<c>docs/design/tanks.md</c>,
+    /// Trollogram kcaj, who jumps out of his wrecked tabk in Mission two to fight on foot (<c>docs/design/tabks/bosses.md</c>,
     /// The pilot round): kcaj's kit on the Trollograms' side, played by the pilot brain with kcaj's playbook. Double
     /// Park lobs cones at the soldiers; Hyperfixate sticks to one of them from range and burns while he stands still,
     /// so hurting him hard enough breaks it; Unmedicated rains pills on the soldiers, charged by his hits on them.

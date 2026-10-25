@@ -1,7 +1,7 @@
 # Adding a room to the house
 
 How a new room joins the house: its own screen behind a door, like the tabk bay.
-This is the workflow for the **outer rooms** — the kitchen, the back yard, the
+This is the workflow for the **outer rooms**: the kitchen, the back yard, the
 basement and the bunker, the rooftop, the shower block and the wintergarden.
 
 **Read this when** you're adding a room to the house, or changing one that
@@ -15,7 +15,7 @@ Up: [The lobby](../lobby.md) · [The house map](house-layout.svg) · [The outer 
   another screen; the way back takes you to where you came from. A room is a
   screen and a bit wide, so the camera scrolls across it.
 - **One plate**: a painting in `Assets/Resources/Den/room-*.bytes`, cut to the
-  room's size — 420 × 180 in art pixels (a screen and a bit, so you scroll
+  room's size: 420 × 180 in art pixels (a screen and a bit, so you scroll
   across it), or 320 × 360 for the tall room.
 - **Its own ways in and out**: a door back the way you came, and maybe a way on
   to another room (the kitchen's back door to the yard; the basement's hole down
@@ -40,11 +40,11 @@ With OpenRouter's Qwen Image 2.1 Turbo, and **two image references**:
 
 1. **The room's vector reference**, from `tools/room_ref.py`: the room drawn to
    scale as flat vector art, with the game's soldier standing in it. This is
-   what fixes the scale — without it the model draws a room for a person twice
+   what fixes the scale. Without it the model draws a room for a person twice
    the soldier's height, with doors you could walk through sideways. The
    reference comes in two versions: the **annotated** one, with the labels, the
    screen outline and the scale note, for the owner to read; and the **gen**
-   one (`--gen`), which is what the painter works from — the labels and the
+   one (`--gen`), which is what the painter works from: the labels and the
    scale note stay in (the model reads them: "the soldier: 22 px", "the door is
    37 px tall"), the blue screen outline goes (the model would copy it), and
    the soldier is stamped four times along the floor, so the scale cue repeats
@@ -80,8 +80,10 @@ a muddy band.
   out, and where a tap is) and `RoomWalker` (walking, and any stair).
 - **The view**: `Ui/Den/RoomView`, and the flow: `Game/RoomFlow`.
 - **The door in the house**: a `DenPlace` in `Core/Lobby/DenMap.cs` (its tap
-  area, where you stand to use it, and which way it opens), and the room's way
-  back names that place, in `RoomMap.Leads`.
+  area and where you stand to use it) and a `RoomWay` for it in
+  `Core/Lobby/RoomMap.cs`: `DenMap.RoomOf` turns the place into the way,
+  `RoomMap.RoomOf` says which room the way opens, and the room's way back leads
+  to that way, in `RoomMap.Leads`.
 
 ### 4. Check it
 
@@ -94,7 +96,7 @@ tests, checks the scenes and the docs links. Then push and read the CI run.
   but the soldier and the tap catcher are made when the screen is built: the
   painting lands *over* them unless you put it behind. And a picture has
   `raycastTarget` off, so a painting over the tap catcher doesn't just hide the
-  player — it stops taps reaching the catcher under it, and the only way out of
+  player, it stops taps reaching the catcher under it, and the only way out of
   the room is ESC.
 - **A room bigger than the screen** (the wintergarden is taller than the world;
   every other room is wider than it) has a tap rect bigger than the world. Read
@@ -112,5 +114,5 @@ tests, checks the scenes and the docs links. Then push and read the CI run.
   while you climb, and the plate has to paint the rope where `RoomMap.RopeX`
   says it hangs. A figure on a plate is placed with `StageFigure.AtPlate`, in the
   plate's own pixels: `At` scales the position by `FigureScale`, so anything past
-  about x 350 of a 420-wide room is drawn off the plate's far edge — the
+  about x 350 of a 420-wide room is drawn off the plate's far edge, the
   bunker's rope (x 351) and the basement's hole (x 372) included.

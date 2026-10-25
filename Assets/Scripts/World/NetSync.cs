@@ -127,7 +127,7 @@ namespace PooketSlug
             Net.SendAvatar(w.Player.Def, w.Player.Pos, w.Player.Vel, pose.Pack(), w.Player.Hp, tankPose.Pack(),
                 tank != null ? tank.Pos : w.LastTankPos);
             Net.SendScore(w.OwnPoints);
-            string wire = WireMeter.Out.Tick(Time.unscaledDeltaTime); // spike coop-weapons: what we send, every half minute
+            string wire = WireMeter.Out.Tick(Time.unscaledDeltaTime); // the wire meter (WireMeter): what we send, every half minute
             if (wire != null) Log.Net.Info(wire);
             if (!w.IsAuthority) return;
             Net.Mission = w.Mission.NetId;

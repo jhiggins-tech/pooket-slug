@@ -3,7 +3,7 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// A boss tabk's Trollogram pilot, who jumps out of the wreck to fight on foot (<c>docs/design/tanks.md</c>, The
+    /// A boss tabk's Trollogram pilot, who jumps out of the wreck to fight on foot (<c>docs/design/tabks/bosses.md</c>, The
     /// pilot round). He is a soldier on the Trollograms' side: <see cref="PilotBrain"/>, with his kit's playbook, presses
     /// his buttons every frame as a player would, and he moves like a soldier on his crewmate's numbers. What his
     /// buttons do is his kit's: kie's (<see cref="KiePilot"/>, Mission one) and kcaj's (<see cref="KcajPilot"/>, Mission

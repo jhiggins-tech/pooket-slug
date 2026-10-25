@@ -4,7 +4,7 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// kie's tabk, THE PROJECTIONIST (<c>docs/design/tanks.md</c>, kie's tabk), 52 × 28: the tabk's hull and tracks in his
+    /// kie's tabk, THE PROJECTIONIST (<c>docs/design/tabks/kie.md</c>), 52 × 28: the tabk's hull and tracks in his
     /// blue with a green stripe, rebuilt round the Trollogram projector that made Trollogram kie (owner, 2026-10-20). The projector is
     /// the turret, frosted, with a copper coil and pipe; its short fat lens, glowing gold, is the gun, drawn on its own
     /// so it turns (<see cref="Lens"/>); two film reels on top spin while a shot charges (<see cref="Spun"/>). The rows

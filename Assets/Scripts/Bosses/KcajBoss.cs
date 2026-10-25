@@ -5,7 +5,7 @@ namespace PooketSlug
 {
     /// <summary>
     /// kcaj's tabk, riding on the artillery tabk (<see cref="TankBoss"/>), for Mission two (<c>?test=kcajtank</c> puts
-    /// it in Mission one's arena until Mission two is built). Its charged shots go shell, sweep, shell, rain
+    /// it in the arena of whichever mission is playing, Mission one's included). Its charged shots go shell, sweep, shell, rain
     /// (<see cref="KcajTankSpec.AttackFor"/>, tuned in <see cref="Content.KcajTank"/>):
     /// <list type="bullet">
     /// <item>Sweep: Hyperfixate turned on the floor. A beam flickers onto the ground in front of it (the tell), then the

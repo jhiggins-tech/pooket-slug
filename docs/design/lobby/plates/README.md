@@ -1,14 +1,14 @@
-# The room plates (work in progress)
+# The room plates
 
 Painted plates for the house's outer rooms, each its own screen behind a door
 ([the design](../../lobby.md#the-outer-rooms), [the map](../house-layout.svg)).
 
-**These are work in progress, for looking at and choosing between.** They're not
-in the game yet: the game loads its paintings from `Assets/Resources/Den/` as
-`.bytes`, and nothing here has been put there.
+**These are the paintings and the takes made on the way to them.** The owner
+signed the plates off (2026-10-21), and they're in the game: it loads them from
+`Assets/Resources/Den/room-*.bytes`, cut at each room's own size.
 
-Each room is 420 × 180 in the game's art pixels — a screen and a bit, so the
-player scrolls across it — except the wintergarden, which is one screen across
+Each room is 420 × 180 in the game's art pixels (a screen and a bit, so the
+player scrolls across it), except the wintergarden, which is one screen across
 and two up, at 320 × 360. **A plate is cut at the room's own aspect**: the
 paintings come back at 1260 × 540, a third of the room's size, and one cut to
 another shape squeezes the room.
@@ -17,7 +17,7 @@ another shape squeezes the room.
 |---|---|---|---|
 | The kitchen | the den's side door | `wip-kitchen.png` | `game-kitchen.png` |
 | The back yard | the kitchen's back door | `wip-yard.png` | `game-yard.png` |
-| B1, the basement | down the trapdoor in front of the couch | `wip-basement.png` | `game-basement.png` |
+| B1, the basement | down the trapdoor where the board used to hang | `wip-basement.png` | `game-basement.png` |
 | B2, the bunker | down through the hole in B1's floor | `wip-bunker.png` | `game-bunker.png` |
 | The rooftop | the loft's far-left door | `wip-rooftop.png` | `game-rooftop.png` |
 | The shower block | the loft's shower door | `wip-shower.png` | `game-shower.png` |
@@ -26,8 +26,10 @@ another shape squeezes the room.
 [Open the page that shows them all](index.html).
 
 `wip-*.png` is the painting as the model made it, at 1280 × 720 (the wintergarden
-at 1024 × 1024). `game-*.png` is the same painting cut down to the game's size
-and 64 colours: that's the one the game would load. The palette is cut with a
+at 1024 × 1024). `game-*.png` is the same painting cut down to 64 colours at
+the first cut's size: 320 × 180 (the wintergarden 320 × 360). That squeezed the
+420-wide rooms: the game's own plates are cut at 420 × 180 (re-cut on
+2026-10-23), so for those rooms `game-*.png` is older than what the game loads. The palette is cut with a
 **median cut**, not by keeping the most common colours: the model's paintings
 have ramps of light, and keeping the commonest colours crushes a ramp into one
 muddy band.

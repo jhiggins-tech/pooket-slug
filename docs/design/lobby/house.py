@@ -10,13 +10,20 @@ H = 344           # the loft's roof, the tallest thing
 
 # the outer rooms: their own screens, each one behind a door, drawn in a band under the house
 OH = 180          # a room's height, the den screen's
-OW = 320          # a room's width, the den screen's
+OW = 420          # a room's width: a screen and a bit, so it scrolls (RoomMap.Width)
+WW = 320          # the wintergarden's width: one screen across (RoomMap.WinterWidth)
 OGAP = 20         # between two outer rooms
 OBAND = 476       # the outer band's top (SVG y), below the key
 KITCHEN_X = 0     # the kitchen: out the den's side door
-YARD_X = 340      # the back yard: out the kitchen's back door
-BASE_X = 680      # the basement: down the trapdoor in front of the couch
-ROOF_X = 1020     # the rooftop: out the loft's far-left door
+YARD_X = 440      # the back yard: out the kitchen's back door
+BASE_X = 880      # the basement: down the trapdoor where the board used to hang
+ROOF_X = 1320     # the rooftop: out the loft's far-left door
+
+# The 420-wide rooms' contents are laid out on a 320-wide grid and stretched to the room's width (XS), as their
+# paintings were: each came back 1260 wide and was cut to a uniform third. The ways painted inside a room (the
+# basement's hole, the bunker's rope) are placed at RoomMap's x, in the room's own pixels.
+GRID = 320
+XS = OW / GRID
 
 # the bunker's band, right under the basement
 BBAND = OBAND + OH + 44
@@ -25,10 +32,10 @@ BB2_X = BASE_X
 # the loft's own rooms, entered from the loft: its shower block and its wintergarden
 LBAND = BBAND + OH + 44
 SHOWER_X = 0      # the shower block: out the loft's shower door
-WINTER_X = 340    # the wintergarden: out the loft's wintergarden door
+WINTER_X = 440    # the wintergarden: out the loft's wintergarden door
 WH = 360          # the wintergarden is a tall room: two screens up, a spiral stair to the rose
 
-W = max(BAYX + 993, ROOF_X + OW, WINTER_X + OW) + M
+W = max(BAYX + 993, ROOF_X + OW, WINTER_X + WW) + M
 VH = LBAND + WH + 40
 
 def OY(y): return OBAND + OH - y      # an outer room's game y (up) to SVG y (down)
@@ -117,19 +124,20 @@ out.append(f'<circle cx="{B + 92}" cy="{Y(150)}" r="6" class="drone"/>'); text(B
 out.append(f'<text x="{M}" y="{OBAND - 12:g}" class="h">THE OUTER ROOMS · each its own screen, behind a door</text>')
 def orect(x0, y0, x1, y1, cls, ox=0, ymap=None):
     ym = ymap or OY
-    out.append(f'<rect x="{ox + x0:g}" y="{ym(y1):g}" width="{x1 - x0:g}" height="{y1 - y0:g}" class="{cls}"/>')
+    out.append(f'<rect x="{ox + x0 * XS:g}" y="{ym(y1):g}" width="{(x1 - x0) * XS:g}" height="{y1 - y0:g}" class="{cls}"/>')
 def otext(x, y, s, cls="t", anchor="middle", ox=0, ymap=None):
     ym = ymap or OY
     s = s.replace("&", "&amp;")
-    out.append(f'<text x="{ox + x:g}" y="{ym(y):g}" class="{cls}" text-anchor="{anchor}">{s}</text>')
+    out.append(f'<text x="{ox + x * XS:g}" y="{ym(y):g}" class="{cls}" text-anchor="{anchor}">{s}</text>')
 def olabel(x0, x1, y, name, note=None, ox=0, ymap=None):
     otext((x0 + x1) / 2, y, name, ox=ox, ymap=ymap)
     if note: otext((x0 + x1) / 2, y - 8, note, "s", ox=ox, ymap=ymap)
 def ofloor(x0, x1, y, ox=0, ymap=None):
     ym = ymap or OY
-    out.append(f'<line x1="{ox + x0:g}" y1="{ym(y):g}" x2="{ox + x1:g}" y2="{ym(y):g}" class="fl"/>')
+    out.append(f'<line x1="{ox + x0 * XS:g}" y1="{ym(y):g}" x2="{ox + x1 * XS:g}" y2="{ym(y):g}" class="fl"/>')
 def oladder(x, y0, y1, ox=0, ymap=None):
     ym = ymap or OY
+    x *= XS
     out.append(f'<line x1="{ox + x - 3:g}" y1="{ym(y0):g}" x2="{ox + x - 3:g}" y2="{ym(y1):g}" class="lad"/>')
     out.append(f'<line x1="{ox + x + 3:g}" y1="{ym(y0):g}" x2="{ox + x + 3:g}" y2="{ym(y1):g}" class="lad"/>')
     y = y0 + 4
@@ -139,8 +147,12 @@ def oladder(x, y0, y1, ox=0, ymap=None):
 def obadge(x, y, n, ox=0, ymap=None):
     """A numbered badge: the same number marks the two ends of one way in."""
     ym = ymap or OY
-    out.append(f'<circle cx="{ox + x:g}" cy="{ym(y):g}" r="5" class="badge"/>')
-    out.append(f'<text x="{ox + x:g}" y="{ym(y) + 2:g}" class="bn">{n}</text>')
+    out.append(f'<circle cx="{ox + x * XS:g}" cy="{ym(y):g}" r="5" class="badge"/>')
+    out.append(f'<text x="{ox + x * XS:g}" y="{ym(y) + 2:g}" class="bn">{n}</text>')
+def orope(x, y0, y1, ox=0, ymap=None):
+    """A rope, hanging at the room's own x (RoomMap gives it in the room's pixels, so it isn't stretched)."""
+    ym = ymap or OY
+    out.append(f'<line x1="{ox + x:g}" y1="{ym(y0):g}" x2="{ox + x:g}" y2="{ym(y1):g}" class="lad"/>')
 def obadge_house(x, y, n):
     """The same badge, in the house above (its y is the game's, measured up)."""
     out.append(f'<circle cx="{x:g}" cy="{Y(y):g}" r="5" class="badge"/>')
@@ -153,9 +165,9 @@ def otitle(ox, name, where, ymap=None, top=172):
 
 # the kitchen: out the den's side door, on the ground floor
 K = KITCHEN_X
-orect(0, 0, OW, OH, "kitchen", K)
-otitle(K, "THE KITCHEN · one screen, 320 × 180", "out the den's side door")
-ofloor(0, OW, 15, K)
+orect(0, 0, GRID, OH, "kitchen", K)
+otitle(K, "THE KITCHEN · a screen and a bit, 420 × 180", "out the den's side door")
+ofloor(0, GRID, 15, K)
 orect(0, 15, 24, 52, "door", K); olabel(0, 24, 40, "←", "den", K)
 orect(30, 15, 86, 52, "st", K); olabel(30, 86, 40, "STOVE", "worktop", K)
 orect(92, 15, 146, 50, "key", K); olabel(92, 146, 38, "TABLE", "eat here", K)
@@ -169,43 +181,44 @@ for sy in (78, 104, 130):
 
 # the back yard: out the kitchen's back door
 Yd = YARD_X
-orect(0, 0, OW, OH, "yard", Yd)
-otitle(Yd, "THE BACK YARD · one screen, 320 × 180", "out the kitchen's back door")
-ofloor(0, OW, 15, Yd)
+orect(0, 0, GRID, OH, "yard", Yd)
+otitle(Yd, "THE BACK YARD · a screen and a bit, 420 × 180", "out the kitchen's back door")
+ofloor(0, GRID, 15, Yd)
 orect(0, 15, 24, 52, "door", Yd); olabel(0, 24, 40, "←", "kitchen", Yd)
 orect(30, 15, 104, 64, "nyet", Yd); olabel(30, 104, 50, "SHED", "shut", Yd)
 orect(110, 15, 160, 48, "st2", Yd); olabel(110, 160, 38, "BINS", None, Yd)
 orect(166, 15, 236, 56, "st", Yd); olabel(166, 236, 44, "THE PILE", "the drone's", Yd)
 orect(266, 15, 320, 74, "st2", Yd); olabel(266, 320, 60, "FENCE", "no way out", Yd)
 
-# the basement: two levels, down the trapdoor in front of the couch
+# the basement: two levels, down the trapdoor where the board used to hang
 B = BASE_X
-orect(0, 0, OW, OH, "base", B)
-otitle(B, "B1 · THE BASEMENT · one screen, 320 × 180", "down the trapdoor in front of the couch")
-ofloor(0, OW, 15, B)
+orect(0, 0, GRID, OH, "base", B)
+otitle(B, "B1 · THE BASEMENT · a screen and a bit, 420 × 180", "down the trapdoor where the board used to hang")
+ofloor(0, GRID, 15, B)
 oladder(14, 15, 58, B); olabel(0, 34, 46, "↑", "den", B)
 # B1: the gaming den, a long room with the PCs and the arcade
 orect(30, 15, 120, 60, "st", B); olabel(30, 120, 48, "THE PCs", "the LAN", B)
 orect(126, 15, 186, 56, "key", B); olabel(126, 186, 44, "ARCADE", "Pooket Tabks", B)
 orect(192, 15, 250, 54, "st2", B); olabel(192, 250, 42, "SOFA", None, B)
-# the hole they'll dig through the floor to the bunker
-orect(258, 0, 320, 15, "nyet", B); olabel(258, 320, 9, "THE HOLE", "not yet", B)
+# the hole through the floor to the bunker, the rope hanging down it (RoomMap.WayX: x 372)
+HOLE = 372 / XS
+orect(HOLE - 22, 0, HOLE + 22, 15, "door", B); olabel(HOLE - 22, HOLE + 22, 9, "THE HOLE", "rope down", B)
 
-# B2: the bunker, below the basement, reached by the hole dug through its floor
+# B2: the bunker, below the basement, down the rope through the hole in B1's floor (RoomMap.RopeX: x 351)
 BB = BB2_X
-orect(0, 0, OW, OH, "bunker", BB, BY)
-otitle(BB, "B2 · THE BUNKER · one screen, 320 × 180", "down through the hole in B1's floor", BY)
-ofloor(0, OW, 15, BB, BY)
-oladder(300, 15, 60, BB, BY); olabel(300, 320, 48, "↑", "B1", BB, BY)
+orect(0, 0, GRID, OH, "bunker", BB, BY)
+otitle(BB, "B2 · THE BUNKER · a screen and a bit, 420 × 180", "down the rope through the hole in B1's floor", BY)
+ofloor(0, GRID, 15, BB, BY)
+ROPE = 351
+orope(ROPE, 15, OH, BB, BY); olabel(ROPE / XS - 30, ROPE / XS - 6, 120, "↑", "rope to B1", BB, BY)
 orect(30, 15, 120, 66, "nyet", BB, BY); olabel(30, 120, 52, "EARTH", "not dug", BB, BY)
 orect(126, 15, 220, 58, "st2", BB, BY); olabel(126, 220, 46, "SUPPLIES", "the crates", BB, BY)
 orect(226, 15, 290, 56, "st2", BB, BY); olabel(226, 290, 44, "THE DOOR", "shut", BB, BY)
 
 # the rooftop: out the loft's far-left door
 R = ROOF_X
-orect(0, 0, OW, OH, "roofroom", R)
-otitle(R, "THE ROOFTOP · one screen, 320 × 180", "out the loft's far-left door")
-ofloor(0, OW, 15, R)
+orect(0, 0, GRID, OH, "roofroom", R)
+ofloor(0, GRID, 15, R)
 orect(294, 15, 320, 52, "door", R); olabel(294, 320, 40, "→", "loft", R)
 orect(190, 15, 258, 56, "key", R); olabel(190, 258, 44, "TELESCOPE", "replays", R)
 orect(120, 15, 178, 62, "st2", R); olabel(120, 178, 50, "WATER TANK", None, R)
@@ -213,15 +226,16 @@ orect(60, 15, 110, 58, "st2", R); olabel(60, 110, 46, "AERIAL", None, R)
 orect(0, 15, 52, 60, "st2", R); olabel(0, 52, 48, "PARAPET", "the street", R)
 # the far end: the roof ends at a parapet, so there is nothing more to walk on
 orect(0, 60, 52, OH, "wall", R)
+otitle(R, "THE ROOFTOP · a screen and a bit, 420 × 180", "out the loft's far-left door")   # over the wall, so it reads
 
 # ---- the loft's own rooms, entered from the loft: its shower block and its wintergarden ----
 out.append(f'<text x="{M}" y="{LBAND - 12:g}" class="h">THE LOFT\'S OWN ROOMS · the loft is the way in</text>')
 
 # the shower block: out the loft's shower door, its cubicles behind swinging saloon doors
 S = SHOWER_X
-orect(0, 0, OW, OH, "shower", S, SY)
-otitle(S, "THE SHOWER BLOCK · one screen, 320 × 180", "out the loft's shower door", SY)
-ofloor(0, OW, 15, S, SY)
+orect(0, 0, GRID, OH, "shower", S, SY)
+otitle(S, "THE SHOWER BLOCK · a screen and a bit, 420 × 180", "out the loft's shower door", SY)
+ofloor(0, GRID, 15, S, SY)
 orect(0, 15, 24, 52, "door", S, SY); olabel(0, 24, 40, "←", "loft", S, SY)
 orect(30, 15, 92, 56, "st2", S, SY); olabel(30, 92, 44, "SINKS", "the mirror", S, SY)
 orect(98, 15, 150, 74, "st", S, SY); olabel(98, 150, 56, "SHOWER", "the cubicle", S, SY)
@@ -232,21 +246,23 @@ orect(272, 15, 308, 46, "st2", S, SY); olabel(272, 308, 36, "LOCKERS", None, S, 
 orect(308, 0, 320, OH, "wall", S, SY)
 # the swinging saloon doors: a stall across the front of each cubicle, with a pivot at each end
 for cx in (124, 182, 240):
-    out.append(f'<path d="M{cx - 26:g} {SY(64):g} L{cx - 26:g} {SY(30):g} M{cx + 26:g} {SY(64):g} L{cx + 26:g} {SY(30):g}" class="saloon"/>')
-    out.append(f'<circle cx="{cx - 26:g}" cy="{SY(64):g}" r="1.6" class="saloondot"/>')
-    out.append(f'<circle cx="{cx + 26:g}" cy="{SY(64):g}" r="1.6" class="saloondot"/>')
-    out.append(f'<path d="M{cx - 26:g} {SY(64):g} L{cx + 26:g} {SY(64):g}" class="saloon"/>')
+    c, h = S + cx * XS, 26 * XS
+    out.append(f'<path d="M{c - h:g} {SY(64):g} L{c - h:g} {SY(30):g} M{c + h:g} {SY(64):g} L{c + h:g} {SY(30):g}" class="saloon"/>')
+    out.append(f'<circle cx="{c - h:g}" cy="{SY(64):g}" r="1.6" class="saloondot"/>')
+    out.append(f'<circle cx="{c + h:g}" cy="{SY(64):g}" r="1.6" class="saloondot"/>')
+    out.append(f'<path d="M{c - h:g} {SY(64):g} L{c + h:g} {SY(64):g}" class="saloon"/>')
 
 # the wintergarden: out the loft's wintergarden door. A tall room, two screens up:
 # a spiral stair turns up the wall to the rose at the top, and you have to climb to see it
+XS = 1            # one screen across: not stretched
 Wn = WINTER_X
-orect(0, 0, OW, WH, "winter", Wn, LY)
+orect(0, 0, WW, WH, "winter", Wn, LY)
 otitle(Wn, "THE WINTERGARDEN · one tall room, 320 × 360", "out the loft's wintergarden door", LY, 346)
-ofloor(0, OW, 15, Wn, LY)
+ofloor(0, WW, 15, Wn, LY)
 orect(0, 15, 24, 52, "door", Wn, LY); olabel(0, 24, 40, "←", "loft", Wn, LY)
 orect(30, 15, 106, 60, "st", Wn, LY); olabel(30, 106, 48, "ROSES", "the beds", Wn, LY)
 orect(112, 15, 168, 58, "st2", Wn, LY); olabel(112, 168, 46, "PLANTERS", None, Wn, LY)
-orect(242, 15, 320, 64, "st2", Wn, LY); olabel(242, 320, 50, "GREENHOUSE", "the cold", Wn, LY)
+orect(242, 15, WW, 64, "st2", Wn, LY); olabel(242, 320, 50, "GREENHOUSE", "the cold", Wn, LY)
 # the spiral stair, turning up the wall to the rose at the top: a post, and treads winding round it.
 # The treads are a step apart (about 8 px, for the 22 px soldier), so the stair is climbable.
 sx = 205
@@ -279,14 +295,16 @@ obadge_house(235, 8, 3)    # the trapdoor, where the board used to hang
 obadge_house(39, 252, 4)    # the loft's far-left door
 obadge_house(117, 232, 5)   # the loft's shower door
 obadge_house(326, 232, 6)   # the loft's wintergarden door
+XS = OW / GRID    # the 420-wide rooms again
 obadge(12, 64, 1, K)        # the kitchen's door back to the den
 obadge(308, 64, 2, K)       # the kitchen's back door
 obadge(12, 64, 2, Yd)       # the yard's door back to the kitchen
 obadge(12, 70, 3, B)        # the basement's ladder up to the den
-obadge(289, 26, 7, B)       # the hole down to the bunker
-obadge(300, 70, 7, BB, BY)  # the bunker's ladder up to B1
+obadge(HOLE, 26, 7, B)      # the hole down to the bunker
+obadge(ROPE / XS, 70, 7, BB, BY)  # the bunker's rope up to B1
 obadge(308, 64, 4, R)       # the rooftop's door back to the loft
 obadge(12, 64, 5, S, SY)    # the shower block's door back to the loft
+XS = 1
 obadge(12, 64, 6, Wn, LY)   # the wintergarden's door back to the loft
 
 # ---- the key ----

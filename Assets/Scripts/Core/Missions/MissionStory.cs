@@ -11,7 +11,10 @@ namespace PooketSlug
     /// </summary>
     public sealed class MissionStory
     {
-        /// <summary>Played before a solo start (from the title, or a solo START in the den); a test start skips it.</summary>
+        /// <summary>
+        /// Played as the mission starts: before a solo start (from the title, or a solo START in the den), and on both phones
+        /// when a co-op room starts it together from the den (Mission two's briefing). A test start skips it.
+        /// </summary>
         public string Opening;
         /// <summary>
         /// The boss's entrance the first time it wakes, solo, once ever (<see cref="StoryRecord.Due"/>); the boss intro
@@ -24,8 +27,9 @@ namespace PooketSlug
         /// </summary>
         public bool BossRevealCoop;
         /// <summary>
-        /// The pilot's intro at the end of the first boss intro when <see cref="BossReveal"/> doesn't play (a test start):
-        /// TROLLO-KCAJ as he looks out of the hatch, and what he says. Null where the pilot's only met in a scene.
+        /// The pilot's intro at the end of a full boss intro (not the quick one) where <see cref="BossReveal"/> doesn't play
+        /// first, so the pilot hasn't just been met in it: solo once the reveal's been seen, until the mission's cleared, and
+        /// a test start. TROLLO-KCAJ as he looks out of the hatch, and what he says. Null where the pilot's only met in a scene.
         /// </summary>
         public string PilotIntro, PilotIntroLine;
         /// <summary>Played once the boss's pilot is freed, every time (it can be skipped once seen): solo, and in co-op too with <see cref="PilotFreedCoop"/>.</summary>
@@ -48,7 +52,7 @@ namespace PooketSlug
         public bool BeforeDen;
 
         /// <summary>
-        /// Tabk call-ins it starts with (<c>docs/design/tanks.md</c>, Calling in a tabk): one, for the tabk loaded in the
+        /// Tabk call-ins it starts with (<c>docs/design/tabks/driving.md</c>, Calling in a tabk): one, for the tabk loaded in the
         /// bay, in every mission after Mission one's coda; none in a mission with a coda, which gives the first call-in
         /// there, once its tabk's been freed. Each player has their own, so co-op phones start alike.
         /// </summary>
@@ -134,7 +138,7 @@ namespace PooketSlug
 
         /// <summary>
         /// The boss intro is the quick one (banner and siren, the tabk already in place): a replay of a mission that's
-        /// been cleared, or a retry after losing at the boss door (docs/design/tanks.md, the boss intro).
+        /// been cleared, or a retry after losing at the boss door (docs/design/cutscenes/mission-one.md, The boss intro).
         /// </summary>
         public bool QuickBossIntro(MissionDef mission, bool lostAtBoss) => lostAtBoss || Cleared(mission);
 

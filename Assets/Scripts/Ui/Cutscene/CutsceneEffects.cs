@@ -9,7 +9,7 @@ namespace PooketSlug
     /// The cutscenes' named effects (<see cref="Staging.Things"/>), whose looks and little animations live here: snow,
     /// the searchlights, spilt chips, tones2's water jet, the keycard's close-up, kcaj's string board close up, the motor pool's shutter with its cold
     /// light and work lights, the row of parked tabks and the Trollograms' junk, steam, the cage of light, dazed stars,
-    /// z Z, and the alarm's red wash. Each is shown and animated as the shot's script has it (<see cref="ShotStage"/>).
+    /// z Z, the alarm's red wash, the cold store's frost rolling out, and icicles on a cap. Each is shown and animated as the shot's script has it (<see cref="ShotStage"/>).
     /// <para>
     /// Most sit in the world, among the cast; the close-up and the alarm sit on the stage, over it. Their pieces are made
     /// by <see cref="CutsceneView"/>, in drawing order among the cast's; see there.

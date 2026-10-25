@@ -11,7 +11,7 @@ mergeInto(LibraryManager.library, {
     if (window.PooketAuth) window.PooketAuth.save(UTF8ToString(json));
   },
 
-  // The sign-in button over the game: shown on the title screen and settings, hidden while playing.
+  // The sign-in button over the game: shown on the title screen and settings, and on a debrief that offers sign-in; hidden while playing.
   PS_ShowAccount: function (show) {
     if (window.PooketAuth) window.PooketAuth.show(!!show);
   },

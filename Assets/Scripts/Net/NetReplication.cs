@@ -104,7 +104,7 @@ namespace PooketSlug
             return false;
         }
 
-        /// <summary>The room as the browser lists it (the master's view): its mission, players, whether it's under way, and the host's soldier.</summary>
+        /// <summary>The room's listing as the master sees it, for a phone arriving to read: its mission, players, whether it's under way, and the host's soldier.</summary>
         internal RoomListing Listing(NetworkRunner runner)
         {
             var r = new RoomListing { Mission = Mission, Host = -1 };

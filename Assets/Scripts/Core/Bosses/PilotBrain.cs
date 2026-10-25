@@ -3,7 +3,7 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// What a boss tank's pilot can see this frame (<c>docs/design/tanks.md</c>, The pilot round): itself, its target,
+    /// What a boss tank's pilot can see this frame (<c>docs/design/tabks/bosses.md</c>, The pilot round): itself, its target,
     /// the shots coming at it and its meters. Only what's on screen: the pilot never sees off it, and never reads a
     /// player's input.
     /// </summary>
@@ -33,7 +33,7 @@ namespace PooketSlug
     }
 
     /// <summary>
-    /// A kit's playbook: how the one pilot brain plays that kit (<c>docs/design/tanks.md</c>, A playbook per kit). A
+    /// A kit's playbook: how the one pilot brain plays that kit (<c>docs/design/tabks/bosses.md</c>, The pilot round: a playbook per kit). A
     /// handful of settings, plus the odd rule for a move the buttons alone don't explain (kie's swap).
     /// </summary>
     public sealed class PilotPlaybook

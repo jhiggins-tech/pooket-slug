@@ -3,7 +3,7 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// kcaj's tabk's guns as numbers (<c>docs/design/tanks.md</c>, kcaj's tabk): his kit, tabk-sized, 5, 3 and 1 rounds
+    /// kcaj's tabk's guns as numbers (<c>docs/design/tabks/kcaj.md</c>): his kit, tabk-sized, 5, 3 and 1 rounds
     /// as every tabk has (<see cref="PlayerTankSpec"/>), all from the soft-serve machine's nozzle. The swirl on top
     /// wobbles while a shot charges.
     /// </summary>

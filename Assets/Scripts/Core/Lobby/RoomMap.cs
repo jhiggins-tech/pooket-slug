@@ -10,7 +10,7 @@ namespace PooketSlug
         Kitchen,
         /// <summary>The back yard, out the kitchen's back door.</summary>
         Backyard,
-        /// <summary>B1, the basement, down the trapdoor in front of the couch.</summary>
+        /// <summary>B1, the basement, down the trapdoor in the ground floor where the board used to hang.</summary>
         Basement,
         /// <summary>B2, the bunker, down through the hole in B1's floor.</summary>
         Bunker,

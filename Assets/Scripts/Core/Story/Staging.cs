@@ -394,7 +394,7 @@ namespace PooketSlug
             return s != null && s.Word == "left" ? -1 : 1;
         }
 
-        /// <summary>A soldier's look: <c>plain</c>, <c>holo</c> (a Trollogram goon) or <c>trollo</c> (Trollogram kie).</summary>
+        /// <summary>A soldier's look: <c>plain</c>, <c>holo</c> (a Trollogram goon) or <c>trollo</c> (a Trollogram crewmate: kie or kcaj).</summary>
         public string Look(string figure, float t)
         {
             StageStep s = Latest(figure, t, "look");
