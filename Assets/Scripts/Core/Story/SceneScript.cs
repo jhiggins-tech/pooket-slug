@@ -53,7 +53,7 @@ namespace PooketSlug
         }
 
         /// <summary>The verbs that run over a window, and so need one (<c>2.7-3.9</c>).</summary>
-        static readonly string[] NeedWindow = { "move", "walk", "appear", "rip", "spray", "open", "flicker-out" };
+        static readonly string[] NeedWindow = { "move", "walk", "appear", "rip", "spray", "open", "flicker-out", "turn-round" };
 
         public static SceneScript Read(string name, string text)
         {
@@ -254,6 +254,8 @@ namespace PooketSlug
                     case "rip":
                     case "open":
                     case "flicker-out":
+                    case "turn-round":
+                    case "squash":
                         if (w.Length > 2) return "'" + verb + "' takes nothing after it";
                         break;
                     case "at":

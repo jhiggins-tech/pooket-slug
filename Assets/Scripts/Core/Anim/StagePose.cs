@@ -5,8 +5,11 @@ namespace PooketSlug
     /// <summary>A stage soldier's legs.</summary>
     public enum StageLegs { Idle, Walk, Crouch, Sit, Jump, Hidden }
 
-    /// <summary>A stage soldier's top half: facing the camera (with their gun), off duty, lounging, holding a pad, or repairing.</summary>
-    public enum StageTorso { Forward, Unarmed, Lounge, Pad, Repair }
+    /// <summary>
+    /// A stage soldier's top half: facing the camera (with their gun), off duty, lounging, holding a pad, or repairing; or off
+    /// duty and grinning, their face falling (<see cref="CrewFigure.FaceFall"/>), or glum, slumped at its end.
+    /// </summary>
+    public enum StageTorso { Forward, Unarmed, Lounge, Pad, Repair, Grin, FaceFall, Glum }
 
     /// <summary>A stage soldier's pose: legs, top, where in the walk, and how far the top's nudged (art pixels).</summary>
     public struct StagePose
@@ -57,6 +60,18 @@ namespace PooketSlug
         /// </summary>
         public static StagePose Climbing(float t) => new StagePose(StageLegs.Jump, StageTorso.Lounge) { WalkT = t };
 
+        /// <summary>Grinning ear to ear, off duty: standing, or walking <paramref name="t"/> seconds in (kie at a sprint, Does it do cones?).</summary>
+        public static StagePose Grinning(bool walking, float t, float fps = 0f) => Walking(walking, t, StageTorso.Grin, fps);
+
+        /// <summary>
+        /// The face falling, <paramref name="since"/> seconds since it started (<see cref="CrewFigure.FaceFall"/>): the grin, gone,
+        /// glum, then slumped, and held there.
+        /// </summary>
+        public static StagePose FaceFalling(float since) => new StagePose(StageLegs.Idle, StageTorso.FaceFall) { WalkT = since };
+
+        /// <summary>Glum and slumped, the hands in the pockets (the face fallen): standing, or walking slowly away.</summary>
+        public static StagePose Glum(bool walking, float t, float fps = 0f) => Walking(walking, t, StageTorso.Glum, fps);
+
         /// <summary>
         /// Down in a heap: the crew's down frame (<see cref="CrewFigure.Down"/>: legs kicked up, the body as it was), toppled
         /// flat onto their back. No art of its own.
@@ -74,6 +89,9 @@ namespace PooketSlug
                     case StageTorso.Lounge: return CrewBody.Lounge;
                     case StageTorso.Pad: return CrewBody.Pad;
                     case StageTorso.Repair: return CrewFigure.Repair.Body(WalkT, CrewBody.Forward);
+                    case StageTorso.Grin: return CrewBody.Grin;
+                    case StageTorso.FaceFall: return CrewFigure.FaceFall.Body(WalkT, CrewBody.Grin);
+                    case StageTorso.Glum: return CrewBody.Slump;
                     default: return CrewBody.Forward;
                 }
             }
@@ -85,9 +103,11 @@ namespace PooketSlug
         /// <summary>
         /// A cutscene's pose by its name in the scene files: <c>run</c>, <c>crouch</c>, <c>spray</c> (the top leans into
         /// the spray), <c>hatch</c> (just their top half, in a tabk's hatch), <c>repair</c> (crouched, working a wrench),
-        /// <c>down</c> (in a heap on their back, <see cref="Down"/>); anything else stands.
+        /// <c>down</c> (in a heap on their back, <see cref="Down"/>), <c>grin</c> (grinning ear to ear), <c>fall</c> (the face
+        /// falling, from the grin, <paramref name="since"/> seconds since the pose was struck: <see cref="FaceFalling"/>),
+        /// <c>glum</c> (slumped, where the fall ends); anything else stands.
         /// </summary>
-        public static StagePose Cutscene(string pose, float t, float runFps)
+        public static StagePose Cutscene(string pose, float t, float runFps, float since = 0f)
         {
             var p = new StagePose(StageLegs.Idle, StageTorso.Forward) { WalkT = t, WalkFps = runFps };
             switch (pose)
@@ -98,6 +118,9 @@ namespace PooketSlug
                 case "hatch": p.Legs = StageLegs.Hidden; break;
                 case "repair": return Repairing(t);
                 case "down": return Down;
+                case "grin": return Grinning(false, t);
+                case "fall": return FaceFalling(since);
+                case "glum": return Glum(false, t);
             }
             return p;
         }

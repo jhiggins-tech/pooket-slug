@@ -183,7 +183,7 @@ burst on raid night. Dead straight face.
 
 3. INT. THE DEN - CONTINUOUS                            3.5 s
 
-kie turns the bag round. The label: FAMILY MART, crisp
+kie turns the bag round. The label: FAMBLY MART, crisp
 and new. He looks at it, then at tones2, unconvinced.
 
 tones2 slurps his slushie, loudly.
@@ -196,9 +196,10 @@ kie eats the chip.
                                             INTO: THE DEN
 ```
 
-**Staging notes:** the den, kie sitting on the couch, the `bag` in his lap, tones2 at his station. New: the bag's
-FAMILY MART label, big enough to read as kie turns it, which the stage's `bag` doesn't have today. Family Mart is a real
-shop, so whether its name goes on screen as it is, or a look-alike label, is the owner's call on the art card.
+**Staging notes:** the den, kie sitting on the couch, the `bag` in his lap, tones2 at his station. The label is a
+look-alike (the owner's pick on the art card): the shop's green, white and blue stripes, with FAMBLY MART on it, and a
+NEW! sticker. kie turns it round with `bag turn-round` (the packet's back is the stripes), and the `label` close-up
+puts it up big enough to read ([docs/scenes.md](../../scenes.md)).
 
 ## Special delivery
 
@@ -465,6 +466,7 @@ tones2, still dripping, licks one of the cones.
 ```
 
 **Staging notes:** the bay and SOFT SERVE as they are (its swirl wobble and nozzle pivot are the tabk's own, from
-driving it); the `cones` prop in tones2's hands; kie's run is a walk along the bay with the camera following, as the
-Mission two briefing's is. New: the cones splatting on a soldier (a small effect), and kie's face falling, which his
-figure has no frames for today, so it's his whole pose that sells it (a slump, head down) unless a new face is drawn.
+driving it); the two soft-serve cones are `softserve` and `softserve2`, flying from the nozzle and then in tones2's
+hands, `squash`ed once they've hit, with the `splat` on him (its burst, then dripping); kie's run is a walk along the bay
+with the camera following, as the Mission two briefing's is, grinning (`grin`). His face falling is his own frames
+(`fall`: the grin, gone, glum, then slumped with his hands in his pockets), and he walks off `glum`.

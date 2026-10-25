@@ -87,6 +87,45 @@ namespace PooketSlug
             ".........SSss...........",
         };
 
+        // kie's face falling (Does it do cones?, docs/design/cutscenes/skits.md): grinning ear to ear, the grin gone,
+        // then glum, the fedora tipped down (CrewFigure.FaceFall plays them in order)
+
+        /// <summary>kie grinning ear to ear: all teeth.</summary>
+        public static readonly string[] KieHeadGrin =
+        {
+            "..........uuu...........",
+            ".........uDuuu..........",
+            ".........RRRRR..........",
+            "......uuuuuuuuuu........",
+            "........hsssses.........",
+            "........hsWWWWe.........",
+            ".........SeeeS..........",
+        };
+
+        /// <summary>kie's grin gone: a flat little mouth.</summary>
+        public static readonly string[] KieHeadBlank =
+        {
+            "..........uuu...........",
+            ".........uDuuu..........",
+            ".........RRRRR..........",
+            "......uuuuuuuuuu........",
+            "........hsssses.........",
+            "........hsseess.........",
+            ".........SsssS..........",
+        };
+
+        /// <summary>kie glum: the fedora tipped down, the eye lowered, the mouth small and low.</summary>
+        public static readonly string[] KieHeadGlum =
+        {
+            "...........uuu..........",
+            "..........uDuuu.........",
+            "..........RRRRR.........",
+            ".......uuuuuuuuuu.......",
+            "........hssssSss........",
+            "........hsssses.........",
+            ".........SseeS..........",
+        };
+
         /// <summary>kcaj's head: short brown hair and a beard, facing forward.</summary>
         public static readonly string[] KcajHead =
         {
@@ -150,6 +189,25 @@ namespace PooketSlug
             ".......cCgGgggCc........",
             ".......cgGggggCc........",
             ".......sgGgggg.s........",
+            "........bbbybb..........",
+        };
+
+        /// <summary>Slumped (the end of a face falling): the shoulders a row lower, the hands in the pockets.</summary>
+        public static readonly string[] TorsoSlump =
+        {
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........cgggggc.........",
+            ".......ccgggggcc........",
+            ".......cCgGgggCc........",
+            ".......CgGggggCC........",
             "........bbbybb..........",
         };
 
