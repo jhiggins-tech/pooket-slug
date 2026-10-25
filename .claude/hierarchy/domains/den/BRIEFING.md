@@ -60,6 +60,10 @@ gameplay domain's: `BayFlow` and `BayView` call them.
   `BayMapTests.KiesReelsBlinkOnTheirOldBeats_ThroughFx`); the `% 1f` in it and `DenCrew` are sawtooth drips, not blinks.
 - Words players read: "tabk", never tank; "Trollogram", never hologram. Never name or describe the 25 hidden ranks in
   anything players read; the trophy shelf shows only the rank the player holds.
+- One source for the den's shared numbers (dca-one-source): the trapdoor's hatch is drawn from its `DenMap` tap area
+  (`AreaOf`, inset `HatchInset`); the bay's 1.5 scale is `BayMap.Scale`, which `TabkW`, `TabkH` and both bay views
+  read; the soldier's height is `DenMap.SoldierHeight` only (`RoomMap` has none); the seated torso drop is
+  `CrewFigure.CrouchDrop`. (`BayMapTests`, `DenMapTests`)
 - A rule found in a view or flow (`DenView`, `DenFlow`, `BayView`) moves into Core with tests in the same commit as
   the change that touches it. A big view file is split by part when next changed. (`CLAUDE.md`, Audit 2)
 

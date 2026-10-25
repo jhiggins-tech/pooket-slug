@@ -171,5 +171,13 @@ namespace PooketSlug.Tests
                     Assert.AreEqual((int)(t * rate) % 2 == 0, Fx.Blink(t, rate), "reels " + reels + " at " + t);
             }
         }
+
+        [Test]
+        public void TheTabkSizes_AreTheSameNumbersAsBefore()
+        {
+            Assert.AreEqual(1.5f, BayMap.Scale);
+            Assert.AreEqual(78f, BayMap.TabkW);
+            Assert.AreEqual(33f, BayMap.TabkH);
+        }
     }
 }

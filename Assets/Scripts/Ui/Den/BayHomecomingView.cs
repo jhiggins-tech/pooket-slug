@@ -14,7 +14,7 @@ namespace PooketSlug
     sealed class BayHomecomingView
     {
         /// <summary>Tabks in the bay are 1.5 times the game's sprite (<see cref="BayView"/>).</summary>
-        const float Scale = 1.5f;
+        const float Scale = BayMap.Scale;
         /// <summary>kie beside his tabk (behind it: it faces left, toward the door), and where the weasel sits.</summary>
         const float KieX = BayMap.StandX + 52f, WeaselX = BayMap.StandX + 64f;
         /// <summary>How high the crane holds the projector before it lowers it.</summary>

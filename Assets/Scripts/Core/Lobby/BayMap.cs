@@ -30,7 +30,11 @@ namespace PooketSlug
         /// <summary>A tabk's spot: on the stands, or a space.</summary>
         public const int Stands = -1;
         /// <summary>A tabk in the bay, drawn 1.5 times the game's (52 x 22): its size in the bay's pixels.</summary>
-        public const float TabkW = 78f, TabkH = 33f;
+        public const float TabkW = TabkArtW * Scale, TabkH = 22f * Scale;
+        /// <summary>The bay draws a tabk's art at this many times its size; the views read it too.</summary>
+        public const float Scale = 1.5f;
+        /// <summary>Every tabk's art is this many pixels wide.</summary>
+        public const float TabkArtW = 52f;
 
         /// <summary>Where a soldier's feet are on each deck.</summary>
         public static float FloorY(BayDeck deck) => deck == BayDeck.Top ? 76f : 13f;
