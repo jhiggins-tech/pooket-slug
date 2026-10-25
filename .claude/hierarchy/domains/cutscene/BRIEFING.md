@@ -97,6 +97,12 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
     A push to `scenes/` is live in a couple of minutes.
 - Docs-only pushes do not build, and a push of only `scenes/` does not build either: it deploys scenes only.
 
+- A walk from the den into the bay is two sets, so it is either two shots (the opening: a den shot ending under the
+  roller door at x 286 with a crouch and the `shutter` cue, then a bay shot coming in at x -12) or a bay shot alone
+  that starts at the roller door (the Mission two briefing's shot 4, 9 s since dca-m2-briefing-walk: in at -12, the
+  camera from 0 to 673 as they run to the street shutter at 960). The stage has no verb for the roller door itself:
+  on both sets it is painted, and the `shutter` cue is its sound.
+
 ## How it is checked
 - `tools/check.sh` runs the EditMode tests, the scene check and the docs link check; `tools/check.sh docs` alone for
   the links. The scene check is `tools/scenecheck` (the game's own reader), `tools/check_scenes.sh` with the narrator's

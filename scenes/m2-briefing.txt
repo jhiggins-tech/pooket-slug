@@ -53,20 +53,23 @@ kie hide
 3.6 tones2: HE'S NEVER BEEN RIGHT.
 
 shot: Out of the roller door
-length 7
+length 9
 set bay
-// out through the bay to its bent street shutter, into the day: the camera's at the street end
-0 camera 1 673 0
-tones2 at 860
-kie at 836
-0.6-3.2 tones2 walk 860 960
-0.9-3.6 kie walk 836 948
-3.2 tones2 pose crouch
-3.6 kie pose crouch
-3.5 tones2 hide
-3.9 kie hide
-3.3 cue shutter
+// in under the den's roller door at the bay's far left, then along the floor past the empty decks to its bent street
+// shutter and out into the day; the camera runs with them to the street end
+0 camera 1 0 0
+0.6-4.8 camera 1 673 0 smooth
+tones2 at -12
+kie at -36
+0.2-5.2 tones2 walk -12 960
+0.5-5.6 kie walk -36 948
+5.2 tones2 pose crouch
+5.6 kie pose crouch
+5.5 tones2 hide
+5.9 kie hide
+0.1 cue shutter
+5.3 cue shutter
 0.3 narrator m2-briefing-4: The Trollograms like it cold. | So, as it turns out, does kcaj.
-4.6 cue card
-4.8 say mission-two-start
-4.6 caption: MISSION 2 · THE CREAMERY | FIND KCAJ
+6.6 cue card
+6.8 say mission-two-start
+6.6 caption: MISSION 2 · THE CREAMERY | FIND KCAJ

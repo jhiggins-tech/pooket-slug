@@ -9,7 +9,7 @@ approved by the owner on 17 Oct, and the narrator lines are voiced (`voice/narra
 ## The Mission two briefing
 
 Played when Mission two starts from the den, solo or in co-op, so a partner sees it too (owner, 2026-10-19). Until
-then kcaj's string board glows in his dark corner to point the way ([the lobby](../lobby.md)). About 24 seconds, four shots; it can be skipped once seen. kcaj's string
+then kcaj's string board glows in his dark corner to point the way ([the lobby](../lobby.md)). About 26 seconds, four shots; it can be skipped once seen. kcaj's string
 board briefs it (owner, 2026-10-16): it stays up in his dark corner of the den before he's freed. **Who's in it:**
 always tones2 and kie, whoever the players picked, since they're the only crew free at this point in the story; a
 replay is the same. No intro.
@@ -57,11 +57,12 @@ THEY NEED IT COLD.
 
                                                    CUT TO:
 
-4. INT. THE TABK BAY - DAY                              7 s
+4. INT. THE TABK BAY - DAY                              9 s
 
-Down through the den's roller door and along the tabk
-bay to its bent street shutter. They duck under it, out
-into the daylight.
+Down through the den's roller door, in at the bay's far
+end, and along the whole tabk bay past the empty decks to
+its bent street shutter. They duck under it, out into
+the daylight.
 
                     NARRATOR (V.O.)
                     [m2-briefing-4]
