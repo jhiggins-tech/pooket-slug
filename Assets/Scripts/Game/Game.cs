@@ -77,8 +77,6 @@ namespace PooketSlug
         internal string PageUrl => m_PageUrl;
         /// <summary>The mission a solo game plays; a shared game plays the host's.</summary>
         internal MissionDef Mission { get; set; } = Missions.One;
-        /// <summary>The setting a solo game plays (hard is only ever open in co-op).</summary>
-        internal Setting Setting { get; set; } = Setting.Normal;
 
         internal SceneFlow Scenes { get; private set; }
         internal DenFlow Den { get; private set; }
@@ -316,7 +314,6 @@ namespace PooketSlug
         {
             if (mission == null || mission == Mission) return;
             Mission = mission;
-            Setting = Setting.Normal;
             NewTitleWorld();
         }
 
@@ -846,7 +843,6 @@ namespace PooketSlug
                 DemoFolder = m_DemoFolder,
                 Missions = Board.Open ? Board.Cards : null,
                 MissionPick = Board.Pick,
-                MissionHard = Board.Hard,
                 MissionFromDen = Board.FromDen,
                 MissionTabk = Board.Open && Board.FromDen ? LoadedTabk.Name : null,
                 MissionTabkPaint = Art.Hex(LoadedTabk.Paint),
@@ -897,7 +893,7 @@ namespace PooketSlug
             if (Sandbox.Active) return; // nothing a sandbox does goes on the profile
             bool wasOpen = m_Profile.coop, won = state == GameState.Victory;
             int best = m_Profile.Best(m_World.Mission), clears = m_Profile.Clears(m_World.Mission);
-            m_Profile.RecordRun(m_World.Mission, m_Coop ? Setting.Normal : Setting, m_World.Scoring.Points, won, solo: !m_Coop);
+            m_Profile.RecordRun(m_World.Mission, m_World.Scoring.Points, won, solo: !m_Coop);
             m_CoopJustOpened = !wasOpen && m_Profile.coop;
             if (won) // solo or co-op: each phone's debrief, its own player's XP and rank
             {

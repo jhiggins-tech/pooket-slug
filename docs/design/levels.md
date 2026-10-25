@@ -2,7 +2,7 @@
 
 What a mission is, how its map is built and what's in it, and the order in which the game opens up: missions, crew, co-op and menus.
 
-**Status:** signed off by the owner, 2026-10-14. Revised 2026-10-15: craters can be dropped if they're very hard.
+**Status:** signed off by the owner, 2026-10-14. Revised 2026-10-15: craters can be dropped if they're very hard. Revised 2026-10-25: no hard setting; the missions getting harder one by one serve as hard mode.
 
 **Read this when** you're designing a mission or a map, or changing what unlocks when.
 
@@ -14,7 +14,7 @@ Up: [Design](README.md)
 - **Every mission has the same shape:** a run through the map, then the boss arena. The crewmate's tabk comes first, then its Trollogram pilot ([tabks](tabks/bosses.md#tabk-bosses)). Freeing the crewmate ends the fight. Mission one then has a short coda, a tabk run out of the base ([the coda](story.md#the-coda)), and the debrief follows.
 - **A checkpoint at the boss door.** Lose the boss fight and you restart at the arena, not at the start of the run.
 - **Replays:** you can play any mission you've cleared again, for score, XP, rank and stats. Your best score and your clears are kept for each mission.
-- **The mission screen** opens from the den's mission board (the title has only START and settings): a card for each mission reached (its number, where it's set, best score and clears, and SOLO ONLY on Mission one), then the next mission's card, COMING SOON until it's built. A mission is reached once the one before it is cleared, so nothing further on shows. From the board, PICK puts the mission on it. A card's hard setting shows once it's open (a cleared mission from Mission two on, in co-op). **Built** 2026-10-16 (`Core/Missions/MissionBoard.cs`, `MenuView.RefreshMissions`); not yet: the host's pick in a co-op room, so hard can't be reached until then.
+- **The mission screen** opens from the den's mission board (the title has only START and settings): a card for each mission reached (its number, where it's set, best score and clears, and SOLO ONLY on Mission one), then the next mission's card, COMING SOON until it's built. A mission is reached once the one before it is cleared, so nothing further on shows. From the board, PICK puts the mission on it. **Built** 2026-10-16 (`Core/Missions/MissionBoard.cs`, `MenuView.RefreshMissions`); not yet: the host's pick in a co-op room.
 
 ## Mission one: the military base
 
@@ -46,7 +46,7 @@ kcaj's mission (picked by the owner, 2026-10-16, from three concepts; the sheets
 
 - **Missions don't change with two players.** The same mission is simply easier with two.
 - **The late missions get too hard for one player,** so beating them needs co-op.
-- **Every cleared mission from Mission two on gets a hard setting,** tuned for two players, which also needs co-op. Mission one, solo only, has none (owner, 2026-10-16).
+- **Each mission is harder than the one before it,** and that climb is the game's hard mode: there's no hard setting to pick (owner, 2026-10-25).
 
 ## Building a map
 
@@ -73,7 +73,7 @@ kcaj's mission (picked by the owner, 2026-10-16, from three concepts; the sheets
    - **The mission screen** appears, with replays and kcaj's mission.
    - **The crew screen** appears, with tones2 and kie: it's the gaming den ([the lobby](lobby.md)).
    - **The debrief** shows XP and rank for the first time, and offers sign-in to players who haven't.
-4. **Each later mission** frees another crewmate, adds their tabk to call in, and opens its map for replays and its hard setting.
+4. **Each later mission** frees another crewmate, adds their tabk to call in, and opens its map for replays.
 5. **The Roguelite mode** is on ice. It's kept in [history](history.md#the-roguelite-on-ice) for when it returns.
 
 ## What the player sees, and when
@@ -86,7 +86,7 @@ The game shows only what the player has already met. Nothing on the title screen
 | Online | Hidden | The one co-op room: play, or watch | |
 | Crew | tones2, with no crew screen | The crew screen: tones2 and kie | One more per mission |
 | Tabks | Never mentioned | tones2's tabk, and the call-in | One more per mission |
-| Missions | Mission one | Replays, the next mission | One more per crewmate, and hard settings from Mission two on |
+| Missions | Mission one | Replays, the next mission | One more per crewmate |
 | Progress | High score | XP, rank, looks, leaderboard | Hidden ranks appear as you reach them |
 
 **Invite links respect the order.** Suppose a friend who hasn't beaten Mission one opens your invite link. The game tells them co-op opens after Mission one, and starts it for them, so nothing ahead of them is spoiled.
@@ -106,7 +106,7 @@ The game shows only what the player has already met. Nothing on the title screen
 ## Open questions
 
 - **Mission order after kcaj,** and each later mission's setting (Mission two's is the creamery).
-- **How hard is hard:** how far the late missions and the hard setting go beyond what one player can do.
+- **How hard the late missions get:** how far they go beyond what one player can do.
 - **Solo players and co-op-only content:** how a solo player finds a partner when a late mission needs two. Quick match is one way.
 - **The Roguelite's return:** when it comes back, plus its own open points:
   - shop prices

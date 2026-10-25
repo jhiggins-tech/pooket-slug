@@ -29,9 +29,9 @@ namespace PooketSlug.Tests
             Assert.IsFalse(plain.Story.SoloOnly || plain.Story.OpensCoop || plain.Story.Coda || plain.Story.BeforeDen);
             Assert.IsFalse(MissionBoard.SoloOnly(plain));
             var p = new Profile();
-            p.RecordRun(plain, Setting.Normal, 100, won: true, solo: true);
+            p.RecordRun(plain, 100, won: true, solo: true);
             Assert.IsFalse(p.coop, "only a mission whose story says so opens co-op");
-            p.RecordRun(Missions.One, Setting.Normal, 100, won: true, solo: true);
+            p.RecordRun(Missions.One, 100, won: true, solo: true);
             Assert.IsTrue(p.coop);
         }
 
@@ -64,10 +64,10 @@ namespace PooketSlug.Tests
             var story = new StoryRecord(p);
             Assert.IsFalse(story.QuickBossIntro(Missions.One, lostAtBoss: false), "the first run meets the tabk properly");
             Assert.IsTrue(story.QuickBossIntro(Missions.One, lostAtBoss: true), "a retry at the boss door");
-            p.RecordRun(Missions.One, Setting.Normal, 100, won: false, solo: true);
+            p.RecordRun(Missions.One, 100, won: false, solo: true);
             Assert.IsFalse(story.QuickBossIntro(Missions.One, lostAtBoss: false), "a lost run isn't a replay");
-            p.RecordRun(Missions.One, Setting.Hard, 100, won: true, solo: true);
-            Assert.IsTrue(story.QuickBossIntro(Missions.One, lostAtBoss: false), "cleared on any setting: a replay");
+            p.RecordRun(Missions.One, 100, won: true, solo: true);
+            Assert.IsTrue(story.QuickBossIntro(Missions.One, lostAtBoss: false), "cleared: a replay");
         }
 
         [Test]
@@ -81,7 +81,7 @@ namespace PooketSlug.Tests
             Assert.IsFalse(story.Mark(StoryRecord.Super), "once");
 
             var veteran = new Profile();
-            veteran.RecordRun(Missions.One, Setting.Normal, 100, won: true, solo: true);
+            veteran.RecordRun(Missions.One, 100, won: true, solo: true);
             Assert.IsTrue(StoryRecord.ShowsSuper(veteran), "a save past Mission one has seen it");
         }
 

@@ -8,7 +8,7 @@ namespace PooketSlug.Tests
         static Profile AfterOne()
         {
             var p = new Profile();
-            p.RecordRun(Missions.One, Setting.Normal, 100, won: true, solo: true);
+            p.RecordRun(Missions.One, 100, won: true, solo: true);
             return p;
         }
 

@@ -122,6 +122,10 @@ Not this domain's, though they sit beside its files: `Core/Missions/MissionStory
   hazards run off `World.Elapsed` so every phone agrees without the network (`HazardBeat`, `Creamery`, `BaseHazards`).
 - Never scale enemies, bosses or pilots for co-op: the missions do not change with two players. (`docs/design/levels.md`,
   Difficulty)
+- There is no hard setting: each mission is harder than the one before it, and that climb is the hard mode (owner,
+  25 Oct, card dca-hard-pick). `MissionBoard` has no `HardOpen` or `SettingFor`, a `MissionCard` holds one `Best` and
+  `Clears`, and `Profile.RecordRun`, `Best` and `Clears` take no setting. Do not bring back a difficulty pick without the
+  owner. (`levels.md`, Difficulty; `MissionBoardTests`)
 - Hit and goon-only logic runs on the authority (the room's master client); a hazard hurts only this phone's soldier and
   plays its sounds only on screen. (`CLAUDE.md`, Add a hazard)
 - A goon is a Trollogram unless its `EnemyDef` says `real: true`; only set pieces, the barrel, the weasel and the boss
@@ -208,7 +212,7 @@ change to the netcode also needs the co-op tests (`CI: co-op` in a commit messag
 - Team combos: three are built; the rest wait for their pair to exist. The team-supers page is still marked draft and
   names and gags are first ideas. (`docs/design/team-supers.md`)
 - To tune in play: the call-in's charge-up time, whether your tabk jumps, kit timings (ten-1's build-up, ten-3's spew,
-  Sew's pin, the scam window), career XP amounts, how hard "hard" is, melee for which soldiers.
+  Sew's pin, the scam window), career XP amounts, how far the late missions go past one player, melee for which soldiers.
 - Earning call-ins and garage upgrades was asked of the Roadmap manager as an idea card, after Mission two. Unknown
   whether it was queued; check the Roadmap (https://claude.ai/artifact/1AWnQDGtUmiKMnjPgcbru9) before building it.
 - The craters spike (`Core/Bosses/CraterGround.cs`, `Bosses/CraterView.cs`) is still behind `?spike=craters`. The design says craters can be dropped

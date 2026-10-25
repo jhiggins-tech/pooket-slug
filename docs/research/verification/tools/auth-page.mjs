@@ -64,7 +64,7 @@ function keep() { localStorage.setItem('test.profile', JSON.stringify(profile));
 function merge(o) {
   profile.coop = profile.coop || o.coop;
   for (const r of o.missions) {
-    const m = profile.missions.find(x => x.mission === r.mission && x.setting === r.setting);
+    const m = profile.missions.find(x => x.mission === r.mission && !x.setting);
     if (!m) profile.missions.push(r);
     else { m.best = Math.max(m.best, r.best); m.clears = Math.max(m.clears, r.clears); }
   }
@@ -81,7 +81,7 @@ const game = {
 // CloudProfileStore.Save: this browser, then the cloud if signed in (PS_Save).
 window.saveGame = () => { keep(); if (account.signedIn) PooketAuth.save(JSON.stringify(profile)); };
 window.run = (best, won) => {
-  let m = profile.missions.find(x => x.mission === 'mission-1' && x.setting === 0);
+  let m = profile.missions.find(x => x.mission === 'mission-1' && !x.setting);
   if (!m) profile.missions.push(m = { mission: 'mission-1', setting: 0, best: 0, clears: 0 });
   m.best = Math.max(m.best, best); if (won) { m.clears++; profile.coop = true; }
   saveGame();
@@ -135,7 +135,7 @@ async function device(name) {
 }
 const settle = p => p.waitForFunction(() => PooketAuth._state().queued === 0 && !document.querySelector('.account-status')?.textContent, null, { timeout: 10000 }).then(() => p.waitForTimeout(400));
 const record = () => admin('pooketSlug/players/fake-ann');
-const best = (rec, setting = 'normal') => rec?.missions?.['mission-1']?.[setting];
+const best = (rec, key = 'normal') => rec?.missions?.['mission-1']?.[key];
 
 try {
   // Signed out, no sign-in settings: the area stays hidden and the game hears sign-in is off.
@@ -168,19 +168,20 @@ try {
   // Device B: other progress, signs in, and the two merge.
   const b = await device('B');
   await b.goto(`http://127.0.0.1:${PORT}/?fakegoogle=Ann`);
+  // B's save is from when there was a hard setting: its hard record (setting 1) never goes up.
   await b.evaluate(() => { profile.missions.push({ mission: 'mission-1', setting: 0, best: 300, clears: 3 }, { mission: 'mission-1', setting: 1, best: 100, clears: 0 }); keep(); });
   await b.click('button.fake-google');
   await settle(b);
   rec = await record();
-  check('a second device merges: the better of each field, saved as save number 2', rec?.rev === 2 && best(rec).best === 500 && best(rec).clears === 3 && best(rec, 'hard')?.best === 100, `rev ${rec?.rev}, ${JSON.stringify(rec?.missions)}`);
-  check('the second device got the cloud progress', (await b.evaluate(() => profile.missions.find(m => m.setting === 0).best)) === 500);
+  check('a second device merges: the better of each field, saved as save number 2', rec?.rev === 2 && best(rec).best === 500 && best(rec).clears === 3 && best(rec, 'hard') === undefined, `rev ${rec?.rev}, ${JSON.stringify(rec?.missions)}`);
+  check('the second device got the cloud progress', (await b.evaluate(() => profile.missions.find(m => !m.setting).best)) === 500);
 
   // Device A is now behind (it last wrote save 1). Its next save is refused, re-read, merged, and saved.
   await a.evaluate(() => run(600, true));
   await settle(a);
   rec = await record();
-  check('a device that was behind merges and saves after a refusal', rec?.rev === 3 && best(rec).best === 600 && best(rec).clears === 3 && best(rec, 'hard')?.best === 100, `rev ${rec?.rev}, ${JSON.stringify(rec?.missions)}`);
-  check('and it picked up the other device\'s hard-mode record', (await a.evaluate(() => profile.missions.some(m => m.setting === 1))));
+  check('a device that was behind merges and saves after a refusal', rec?.rev === 3 && best(rec).best === 600 && best(rec).clears === 3 && best(rec, 'hard') === undefined, `rev ${rec?.rev}, ${JSON.stringify(rec?.missions)}`);
+  check('and it got no hard record from the other device', (await a.evaluate(() => profile.missions.every(m => !m.setting))));
 
   // Reloading keeps the session (localStorage), and the game hears it at once.
   await a.reload();

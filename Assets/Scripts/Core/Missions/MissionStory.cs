@@ -142,13 +142,8 @@ namespace PooketSlug
         /// </summary>
         public bool QuickBossIntro(MissionDef mission, bool lostAtBoss) => lostAtBoss || Cleared(mission);
 
-        /// <summary><paramref name="mission"/> has been beaten, on any setting.</summary>
-        public bool Cleared(MissionDef mission)
-        {
-            foreach (Setting setting in System.Enum.GetValues(typeof(Setting)))
-                if (m_Profile.Clears(mission, setting) > 0) return true;
-            return false;
-        }
+        /// <summary><paramref name="mission"/> has been beaten.</summary>
+        public bool Cleared(MissionDef mission) => m_Profile.Clears(mission) > 0;
 
         /// <summary>The next debrief is the first.</summary>
         public bool FirstDebrief => !m_Profile.HasSeen(Debrief);

@@ -130,7 +130,7 @@ much of it):
   (`Level.Markers` says what each character places; new ones per *Add a goon* and *Add a hazard*), its boss (`boss:` a
   `BossTabk`, attacks from its row in `BossKits`) and pilot (`pilot:` an `EnemyDef`, see *Add a crew member*), its
   pickups from the shared table; rules of its own in `Core/Missions/<Place>.cs` (as `Creamery`) with tests.
-- What it opens: `MissionBoard` (the mission screen, hard), who it frees (`Crew`), the tabk it wins (`Garage`).
+- What it opens: `MissionBoard` (the mission screen), who it frees (`Crew`), the tabk it wins (`Garage`).
 - Story (*Add a cutscene*): briefing and freeing scenes in `MissionStory` and `SceneLibrary`, the boss intro
   (`BossIntroShow`), its start line in `Cues` (and the announcer's take in the vendor repo); `levels.md` and
   `story.md` say whether it's solo.
