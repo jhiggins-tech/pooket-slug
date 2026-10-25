@@ -47,6 +47,20 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void KeepItDownPlaysOnlyWithKieOnScreen()
+        {
+            const float left = 100f, right = 124f;
+            Assert.IsTrue(KeepItDown.InView(110f, left, right), "he's well inside the screen: the line plays");
+            Assert.IsFalse(KeepItDown.InView(96.5f, left, right), "walked on past him: he's off the left, so it doesn't play");
+            Assert.IsFalse(KeepItDown.InView(left + 1f, left, right), "at the very edge, his line would scroll off before it's said");
+            Assert.IsFalse(KeepItDown.InView(right, left, right), "nor half off the right");
+            float kept = left + KeepItDown.InViewMargin;
+            Assert.IsTrue(KeepItDown.InView(kept, left, right));
+            float scrolled = KeepItDown.LineAt * Tuning.Soldier.RunSpeed; // running on flat out until he says it
+            Assert.GreaterOrEqual(kept - KeepItDown.LineHalfWidth, left + scrolled, "the whole line is still on screen when it's said");
+        }
+
+        [Test]
         public void KeepItDownIsKiesLineWhileYouKeepPlaying()
         {
             Assert.AreEqual("...KEEP IT DOWN.", KeepItDown.Line);

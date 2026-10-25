@@ -162,7 +162,7 @@ namespace PooketSlug
                 }
                 rest = rest.Trim();
                 if (rest.Length == 0) return "nothing after the time";
-                string said = Said(rest, from, timed, line.Number);
+                string said = Said(rest, from, timed, window ? to : CutsceneLine.ShotEnd, line.Number);
                 if (said != null) return said.Length == 0 ? null : said;
                 return Staged(rest, from, to, window, line.Number);
             }
@@ -182,12 +182,17 @@ namespace PooketSlug
                 return null;
             }
 
-            /// <summary>A spoken line (<c>6.4 tones2: SNACKS</c>, <c>4.3 narrator opening-1: Friday...</c>), a cue or an announcer's line; null if it's none of them.</summary>
-            string Said(string rest, float at, bool timed, int number)
+            /// <summary>
+            /// A spoken line (<c>6.4 tones2: SNACKS</c>, <c>4.3 narrator opening-1: Friday...</c>; a bubble over a window,
+            /// <c>2.4-3.6 kie: ...</c>, goes down at its end), a cue or an announcer's line; null if it's none of them.
+            /// </summary>
+            string Said(string rest, float at, bool timed, float until, int number)
             {
                 string[] words = rest.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+                bool window = until != CutsceneLine.ShotEnd;
                 if (words[0] == "cue" || words[0] == "say")
                 {
+                    if (window) return "'" + words[0] + "' plays at a moment, not over a window: '2.2 " + words[0] + " ...'";
                     if (words.Length != 2) return "'" + words[0] + "' takes one name: '2.2 " + words[0] + " drop'";
                     string id = words[0] == "say" ? Cues.Say(words[1]) : words[1];
                     if (!Cues.Handled(id)) return "no cue called '" + words[1] + "'";
@@ -203,9 +208,11 @@ namespace PooketSlug
                 string voice = head.Length > 1 ? head[1] : null;
                 if (voice != null && who != Speaker.Narrator) return "only the narrator's lines are recorded, so only theirs name a voice";
                 if (voice != null && !SetupText.IsName(voice)) return "'" + voice + "' isn't a voice line's name";
+                if (window && (who == Speaker.Narrator || who == Speaker.Caption))
+                    return "only a bubble goes down at a window's end: the narrator's line runs to their next, and the card to the shot's end";
                 string said = rest.Substring(colon + 1).Trim().Replace(" | ", "\n").Replace("|", "\n");
                 if (said.Length == 0) return "the line has no words";
-                m_Lines.Add(new CutsceneLine(at, who, said, voice));
+                m_Lines.Add(new CutsceneLine(at, who, said, voice, until));
                 m_LineNumbers.Add(number);
                 return "";
             }
@@ -402,7 +409,11 @@ namespace PooketSlug
                 }
                 if (m_Set == null) problems.Add(Problem(m_Line, "shot '" + m_Name + "' needs its set ('set street')"));
                 for (int i = 0; i < m_Lines.Count; i++)
+                {
                     if (m_Lines[i].At >= m_Seconds) problems.Add(Problem(m_LineNumbers[i], "the line comes after the shot's ended (it's " + m_Seconds + " s long)"));
+                    else if (m_Lines[i].Until != CutsceneLine.ShotEnd && m_Lines[i].Until > m_Seconds)
+                        problems.Add(Problem(m_LineNumbers[i], "its bubble's window runs past the shot's end (it's " + m_Seconds + " s long): leave the end off to keep it up till then"));
+                }
                 for (int i = 0; i < m_Cues.Count; i++)
                     if (m_Cues[i].At >= m_Seconds) problems.Add(Problem(m_CueNumbers[i], "the cue comes after the shot's ended (it's " + m_Seconds + " s long)"));
                 foreach (StageStep s in m_Steps)

@@ -77,7 +77,8 @@ length 7
 set coldstore
 show freezer store-opening
 // he points at the factory around them, then at the crew; nobody answers but tones2. kie, where he stood, turns
-// from kcaj to tones2 and has an idea. Then kcaj sticks a note on tones2's back.
+// from kcaj to tones2 and has an idea. Then kcaj sticks a note on tones2's back. One bubble at a time: each is down
+// before the next goes up.
 kie at 92
 kie face left
 tones2 at 120
@@ -85,10 +86,10 @@ kcaj at 62
 kcaj arms out
 0.2 kcaj face left
 1 kcaj face right
-0.4 kcaj: I TOLD YOU. | I TOLD ALL OF YOU.
-2.4 tones2: OMFG.
-3.2 kie face right
-3.4 kie: LET'S PUT HIM BACK IN.
+0.4-3.1 kcaj: I TOLD YOU. | I TOLD ALL OF YOU.
+3.2-3.9 tones2: OMFG.
+3.8 kie face right
+4 kie: LET'S PUT HIM BACK IN.
 4.8-5.5 kcaj walk 62 104
 5.7 note on tones2 -6 16
 5.7 cue note

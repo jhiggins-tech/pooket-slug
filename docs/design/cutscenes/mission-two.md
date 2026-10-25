@@ -91,7 +91,8 @@ THE CREAMERY / FIND KCAJ
 
 **Built** (2026-10-25, closeup-bubbles): the owner asked for the lines to be read after a close-up, not during it.
 Shot 3's board holds alone for 3.2 s, then it cuts back to kcaj's corner, the camera where shot 2 left it, and kie
-(3.5 s) and tones2 (5.0 s) say their lines there. The shot runs 7.2 s, up from 6.
+(3.5 s) and tones2 (5.0 s) say their lines there, one bubble at a time: kie's is down at 4.9 s, before tones2's goes
+up. The shot runs 7.2 s, up from 6.
 
 ## kcaj's tabk arrives
 
@@ -246,3 +247,7 @@ SFX: the note.
 
                                           INTO: THE DEBRIEF
 ```
+
+**Timing** (skits-rollup review): shot 5's three lines play one bubble at a time, so none sits on another: kcaj's from
+0.4 s to 3.1 s, tones2's from 3.2 s to 3.9 s, then kie turns to tones2 (3.8 s) and says his from 4.0 s to the shot's
+end.

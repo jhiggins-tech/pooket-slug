@@ -24,6 +24,21 @@ namespace PooketSlug
         public const float ZsBack = LineAt + Tuning.Hud.PopupLife;
         /// <summary>About how long it takes, start to end (the script's 3 s).</summary>
         public const float Length = 3f;
+        /// <summary>About half the line's width over his head, in world units.</summary>
+        public const float LineHalfWidth = 2.5f;
+        /// <summary>
+        /// How far inside the screen's left edge kie must be as the coda gets under way for his line to be seen whole: its
+        /// half width, and the scroll in the time before he says it if you run on flat out (the screen only scrolls forward).
+        /// </summary>
+        public const float InViewMargin = LineHalfWidth + LineAt * Tuning.Soldier.RunSpeed;
+
+        /// <summary>
+        /// Whether kie, at <paramref name="kieX"/>, is on the screen from <paramref name="viewLeft"/> to
+        /// <paramref name="viewRight"/> well enough to say his line where it's seen. If he isn't as the coda gets under way
+        /// (you walked on past him), it doesn't play, and isn't marked seen: it waits for a replay where he's in view.
+        /// </summary>
+        public static bool InView(float kieX, float viewLeft, float viewRight) =>
+            kieX - InViewMargin >= viewLeft && kieX + LineHalfWidth <= viewRight;
 
         /// <summary>
         /// Whether it plays as <paramref name="mission"/>'s coda gets under way: Mission one's, on a replay (the coda's been

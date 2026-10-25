@@ -474,11 +474,15 @@ namespace PooketSlug
             });
         }
 
-        /// <summary>The coda's under way (tones2's in his tabk, or walked on): on a replay, kie says Keep it down in his sleep.</summary>
+        /// <summary>
+        /// The coda's under way (tones2's in his tabk, or walked on): on a replay, kie says Keep it down in his sleep, if he's
+        /// on screen to say it (walked on past him, it waits for another replay).
+        /// </summary>
         void OnCodaUnderway()
         {
             World w = m_World;
             if (w.SleepingKie == null || !KeepItDown.Due(m_Profile, w.Mission, Run, m_Flags.Coda)) return;
+            if (!KeepItDown.InView(w.SleepingKie.Pos.x, w.View.Left, w.View.Right)) return;
             w.SleepingKie.Stir(engine: w.Tank != null && w.Tank.Occupied && w.Player.Riding == w.Tank);
             Log.Game.Info("Skit: Keep it down");
             if (KeepItDown.Spends(Run) && m_Profile.MarkSeen(KeepItDown.Key)) m_Store.Save(m_Profile);

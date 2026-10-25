@@ -159,25 +159,30 @@ namespace PooketSlug
             return "PRESS START";
         }
 
+        /// <summary>
+        /// BACK, READY, the name card, the hint and notes, and the empty seat's MULTI-PLAYER: all put away in the zoom, and
+        /// while a skit plays, so nothing covers its cast (they come back after); Two of us now pops MULTI-PLAYER up itself.
+        /// </summary>
         void Buttons(Den den, DenInfo info)
         {
-            bool zooming = den.Zoom >= 0f;
-            Ui.Show(m_Ready, den.Mode != DenMode.Crew && !zooming);
+            bool zooming = den.Zoom >= 0f, skit = m_Crew.Skit != null;
+            bool shown = !zooming && !skit;
+            Ui.Show(m_Ready, den.Mode != DenMode.Crew && shown);
             m_ReadyLabel.text = den.Ready ? "UNREADY" : "READY";
-            Ui.Show(m_Back, !zooming);
-            Ui.Show(m_Card, den.Pick != null && !zooming);
+            Ui.Show(m_Back, shown);
+            Ui.Show(m_Card, den.Pick != null && shown);
             if (den.Pick != null) m_CardName.text = den.Pick.Name.ToUpperInvariant();
-            Ui.Show(m_HostPad, info.CanHost && den.Mode != DenMode.Coop && !zooming);
+            Ui.Show(m_HostPad, info.CanHost && den.Mode != DenMode.Coop && !zooming && (!skit || m_Crew.Skit is TwoOfUsSkit));
             // popping up in Two of us now: its size, and one soft swell of the co-op blue round its edge
             m_HostPad.transform.localScale = new Vector3(info.HostScale, info.HostScale, 1f);
             m_HostEdge.effectColor = Color.Lerp(m_HostEdgeColour, Palette.CoopBlue, info.HostGlow);
             m_HostEdge.effectDistance = new Vector2(1f, -1f) * (1f + info.HostGlow);
-            Ui.Show(m_Hint, !zooming);
+            Ui.Show(m_Hint, shown);
             m_Hint.text = den.Pick == null ? "TAP SOMEONE TO PLAY THEM"
                 : den.Ready ? ""
                 : den.Mode == DenMode.Crew ? "TAP TO WALK · TAP SOMEONE TO SWAP · THE LADDER GOES UP"
                 : "TAP TO WALK · THE COUCH IS READY · THE LADDER GOES UP";
-            Ui.Show(m_Note, m_Clock < m_NoteUntil);
+            Ui.Show(m_Note, m_Clock < m_NoteUntil && shown);
         }
     }
 }

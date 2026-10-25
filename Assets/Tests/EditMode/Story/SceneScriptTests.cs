@@ -212,6 +212,58 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void ABubbleCanGoDownBeforeTheShotEnds()
+        {
+            SceneScript s = Read("net 9\nshot: Hello\nlength 4\nset den\ntones2 at 56\nkie at 90\n0.5-1.8 tones2: HI THERE\n2 kie: HI\n");
+            Assert.IsEmpty(s.Problems, string.Join("; ", s.Problems));
+            CutsceneLine[] lines = s.Def.Shots[0].Lines;
+            Assert.AreEqual(1.8f, lines[0].Until, 1e-4f, "a window's end is when its bubble goes down");
+            Assert.AreEqual(CutsceneLine.ShotEnd, lines[1].Until, "without one, it's up till the shot ends");
+            Assert.IsTrue(lines[0].Up(1f) && !lines[0].Up(1.8f) && !lines[0].Up(0.4f));
+            Assert.IsTrue(lines[1].Up(3.9f));
+
+            var player = new CutscenePlayer(s.Def, seenBefore: false);
+            var showing = new List<CutsceneLine>();
+            player.Tick(1f);
+            Assert.AreEqual(1, player.Showing(showing));
+            player.Tick(1.2f);
+            Assert.AreEqual(1, player.Showing(showing), "tones2's is down; kie's is up");
+            Assert.AreEqual(Speaker.Kie, showing[0].Who);
+
+            Assert.IsNotEmpty(Read("net 9\nshot: A\nlength 4\nset den\n1-4.5 tones2: HI\n").Problems, "a window that runs past the shot");
+            Assert.IsNotEmpty(Read("net 9\nshot: A\nlength 4\nset den\n1-2 narrator opening-1: Hi.\n").Problems, "the narrator runs to their next line");
+            Assert.IsNotEmpty(Read("net 9\nshot: A\nlength 4\nset den\n1-2 cue door\n").Problems, "a cue is a moment");
+            SceneScript quick = Read("net 9\nshot: A\nlength 4\nset den\ntones2 at 56\n1-1.5 tones2: ONE TWO THREE FOUR\n");
+            Assert.IsEmpty(quick.Problems);
+            Assert.IsNotEmpty(SceneCheck.Timing(quick.Def), "a bubble taken down too soon to read");
+        }
+
+        [Test]
+        public void BubblesNeverPileUp()
+        {
+            // the skits-rollup review: never more than two bubbles up at once, and where they were piling up and
+            // overlapping, one at a time
+            string[] oneAtATime = { "m2-briefing/The string board", "freeing-kie/The bit", "freeing-kcaj/Told you" };
+            int checkedShots = 0;
+            foreach (SceneScript script in TestScenes.All.Values)
+                foreach (CutsceneShot shot in script.Def.Shots)
+                {
+                    bool alone = Array.IndexOf(oneAtATime, script.Name + "/" + shot.Name) >= 0;
+                    if (alone) checkedShots++;
+                    foreach (CutsceneLine line in shot.Lines)
+                    {
+                        if (line.Who == Speaker.Narrator || line.Who == Speaker.Caption) continue;
+                        int up = 0;
+                        foreach (CutsceneLine other in shot.Lines)
+                            if (other.Who != Speaker.Narrator && other.Who != Speaker.Caption && other.Up(line.At)) up++;
+                        string where = script.Name + ", '" + shot.Name + "', the line at " + line.At + " s";
+                        Assert.LessOrEqual(up, alone ? 1 : 2, where + ": " + up + " bubbles up at once");
+                    }
+                }
+            Assert.AreEqual(oneAtATime.Length, checkedShots, "the shots it names are still there");
+        }
+
+        [Test]
         public void FlickersAndBlinksKeepTheirBeatsOnFx()
         {
             // The beats as they were written inline before they moved onto Fx: a flicker shows its first colour one beat in

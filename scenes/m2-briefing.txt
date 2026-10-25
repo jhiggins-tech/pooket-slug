@@ -44,7 +44,7 @@ kcaj-corner colour #8c8098
 chips spill 66
 // the board, close up, on its own: one red string runs off it to a photo of a factory with a giant soft-serve sign,
 // and under it, THEY NEED IT COLD. Then it cuts back to the two of them in kcaj's corner, where they climbed to, and
-// they say their lines there.
+// they say their lines there, one at a time: kie's bubble is down before tones2 answers.
 board show
 3.2 board hide
 0 camera 1.6 -60 30
@@ -58,7 +58,7 @@ kie hide
 3.2 kie show
 4.9 tones2 face right
 0.1 cue card-up
-3.5 kie: HE WAS RIGHT?
+3.5-4.9 kie: HE WAS RIGHT?
 5.0 tones2: HE'S NEVER BEEN RIGHT.
 
 shot: Out of the roller door

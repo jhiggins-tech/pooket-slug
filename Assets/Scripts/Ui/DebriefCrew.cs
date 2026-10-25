@@ -5,7 +5,7 @@ namespace PooketSlug
 {
     /// <summary>
     /// The debrief's crew, to one side of its numbers (<see cref="DebriefView"/>): tones2 and kie, and kcaj once he's been
-    /// freed, with their bubble; and They're tracking us played on them (<see cref="TrackingUs"/>, its timing), with kcaj's
+    /// freed, hands down, with their bubble; and They're tracking us played on them (<see cref="TrackingUs"/>, its timing), with kcaj's
     /// sticky note slapped over the accuracy number, where it stays for the rest of the debrief.
     /// </summary>
     public sealed class DebriefCrew
@@ -52,9 +52,10 @@ namespace PooketSlug
             m_Kie.Rt.anchoredPosition = new Vector2(r.Kcaj ? KieX3 : KieX, Feet);
             m_Kcaj.Rt.anchoredPosition = new Vector2(KcajX3, Feet);
             Ui.Show(m_Kcaj.Rt, r.Kcaj);
-            m_Tones2.Stand(m_Tones2Skin);
-            m_Kie.Stand(Art.SkinFor(Content.Kie));
-            m_Kcaj.Stand(m_KcajSkin);
+            var handsDown = new StagePose(StageLegs.Idle, StageTorso.Unarmed); // no guns out at the debrief
+            m_Tones2.Pose(m_Tones2Skin, handsDown);
+            m_Kie.Pose(Art.SkinFor(Content.Kie), handsDown);
+            m_Kcaj.Pose(m_KcajSkin, handsDown);
             m_Kcaj.Tint(r.TrackingUs ? Frosty : Color.white);
             Ui.Show(m_Note, false);
             m_Note.SetAsLastSibling(); // over the number
@@ -88,9 +89,9 @@ namespace PooketSlug
 
             // kcaj leans in towards the accuracy, slowly, and stares; tones2 looks at the note, then back out at us
             float lean = TrackingUs.Lean(t);
-            m_Kcaj.Pose(m_KcajSkin, new StagePose(StageLegs.Idle, StageTorso.Forward, lean * LeanTop, -lean));
+            m_Kcaj.Pose(m_KcajSkin, new StagePose(StageLegs.Idle, StageTorso.Unarmed, lean * LeanTop, -lean));
             m_Kcaj.Rt.anchoredPosition = new Vector2(KcajX3 + lean * LeanStep, Feet);
-            m_Tones2.Pose(m_Tones2Skin, new StagePose(StageLegs.Idle, StageTorso.Forward, TrackingUs.TonesLooks(t) ? 1f : 0f));
+            m_Tones2.Pose(m_Tones2Skin, new StagePose(StageLegs.Idle, StageTorso.Unarmed, TrackingUs.TonesLooks(t) ? 1f : 0f));
 
             bool on = TrackingUs.NoteOn(t);
             Ui.Show(m_Note, on);

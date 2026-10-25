@@ -28,8 +28,8 @@ A scene goes live only if:
 
 - every line reads (the problems name the line number and what's wrong);
 - each scene's `net` number is its own;
-- every spoken line is up long enough to read (3 words a second, until the shot ends; a narrator line until their
-  next line);
+- every spoken line is up long enough to read (3 words a second, until the shot ends, or its window's end; a narrator
+  line until their next line);
 - every narrator line has its recording, and time to play it plus 0.4 s. The lengths come from the clips themselves.
 
 ## How a file reads
@@ -51,6 +51,7 @@ intro 4 tones2: TONES2     a character intro at 4 s, with the name it slams up
 tones2 holds bag cup
 4.3 narrator opening-1: Friday night...    spoken: time, who (and the recording), then the words
 6.4 tones2: SNACKS | AND GAMES             | breaks the line
+2.4-3.6 kie: HE WAS RIGHT?    a bubble over a window goes down at its end (without one, it's up till the shot ends)
 2.2 cue door               a sound cue
 ```
 

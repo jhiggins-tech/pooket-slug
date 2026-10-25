@@ -15,7 +15,9 @@ He dropped Wanna race? from the pitch. Staging, art, sound and the build each ge
   den's `DenSkitView` on the shared `SkitStage`; `?skit=<key without skit->` plays one as the den first opens, seen or not.
 - **In the room itself,** not as a scene file (Keep it down plays in a mission, in play: see its note): the den's skits play in the den, as its beats do (`DenBeats`,
   `DenBeatView`), and the bay's in the bay, as kie's homecoming does (`KieHomecoming`, `BayHomecomingView`). The player's
-  walking waits while it plays, and a tap skips it. Afterwards everyone's back where they were.
+  walking waits while it plays, and a tap skips it. The den's buttons and panels (BACK, READY, the name card and its ⓘ, the
+  hint) are put away while it plays, so nothing covers the cast; Two of us now still pops MULTI-PLAYER up as staged.
+  Afterwards everyone's back where they were, and the buttons with them.
 - **Speech bubbles only.** The den and the bay have no narrator, and the music is the den's theme throughout.
 - **Solo only,** but for They're tracking us, at the debrief, which each phone has its own of. Otherwise a skit never
   plays in a co-op room: it waits for the next visit on your own.
@@ -146,7 +148,10 @@ He settles back. Zs. The coda carries on.
 
 **Built** (2026-10-25): under the key `skit-keep-it-down` (`KeepItDown`, `Core/Missions/MissionSkits.cs`); kie stirs and
 says it 0.6 s after the coda gets under way, and his Zs stop until the popup's gone. The engine's sound plays when tones2
-has climbed into his tabk (walking on without it, kie still says it). `?test=coda` shows it every time without spending it.
+has climbed into his tabk (walking on without it, kie still says it). It plays only if kie's on screen then, far enough in
+from the left edge that his whole line is seen even if you run on (`KeepItDown.InView`); walked on past him, it doesn't
+play and isn't spent, and waits for a replay where he's in view. He sleeps with his hands down, no gun.
+`?test=coda` shows it every time without spending it.
 
 **Staging notes:** today kie's line shows as a score popup over him (`Scoring.Popup`, the way the pilots' last words
 show), in kie's colours; a proper speech bubble in play would be new. `SleepingKie` is built and stays as he is. If the

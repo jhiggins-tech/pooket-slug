@@ -84,7 +84,9 @@ Cutscenes are **in-engine scenes**: the game's own art, drawn in code, with spee
   take in (3 seconds at least), then cuts back to the wider shot, and the lines come there, with whoever says them in
   it. A narrator line can play over it. `SceneScriptTests.NoBubbleSitsOverACloseUp` holds every scene to it.
 - **Bubbles never sit on top of each other:** comic-book style, a later one stacks above the ones already up, or
-  below them when there's no room left above.
+  below them when there's no room left above. Never more than two are up at once; where they'd crowd, a bubble goes
+  down before the next goes up (a line over a window, `2.4-3.6 kie: ...`). `SceneScriptTests.BubblesNeverPileUp`
+  holds every scene to it.
 - **Sound:** each scene uses the music around it ([music](../music.md)); the crew talk in bubbles, and the announcer
   calls the big moments in a generated voice. The music ducks under any recorded line.
 - **In co-op,** scenes play for both players, on both phones, and a shot moves on early only once both have tapped

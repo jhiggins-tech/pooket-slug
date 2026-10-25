@@ -496,6 +496,9 @@ He nods off. Zs.
 `?test=pilot,weak` gets there fastest: it starts at the tabk, and the pilot goes down on his own a few seconds after
 he jumps out.
 
+**Timing** (skits-rollup review): shot 3's two lines play one bubble at a time, so they never overlap: tones2's from
+0.8 s to 2.2 s, down as kie takes the bag, then kie's from 2.4 s to the shot's end.
+
 ## The first debrief
 
 Mission one's debrief, the first time: the tally, then XP and rank are revealed

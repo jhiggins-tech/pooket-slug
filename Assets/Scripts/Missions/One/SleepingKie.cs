@@ -56,7 +56,7 @@ namespace PooketSlug
         public override void Render()
         {
             base.Render();
-            m_Visual.Apply(new AvatarPose { Facing = 1, Grounded = true, Crouching = true });
+            m_Visual.Apply(new AvatarPose { Facing = 1, Grounded = true, Crouching = true }, unarmed: true); // no gun: he's asleep
             bool stirring = m_Stirred >= 0f && m_Stirred < KeepItDown.StirFor;
             m_Body.localPosition = new Vector3(stirring ? Fx.Shiver(m_Stirred, StirHz, 1f / Art.PPU) : 0f, 0f, 0f);
         }
