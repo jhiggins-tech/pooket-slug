@@ -24,7 +24,31 @@ namespace PooketSlug
         public static NetSession Instance { get; private set; }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-        static void Register() => NetSessions.Factory = host => host.AddComponent<NetSession>();
+        static void Register() => NetSessions.Factory = Create;
+
+        /// <summary>The session, on a host object of its own that lives as long as the game; null without an AppId.</summary>
+        static INetSession Create()
+        {
+            if (!Config.Configured) return null;
+            var host = new GameObject("Net Session");
+            DontDestroyOnLoad(host);
+            return host.AddComponent<NetSession>();
+        }
+
+        static NetConfig.Data s_Config;
+
+        /// <summary>The build's Photon settings (<see cref="NetConfig"/>), read once; empty when the file is missing or bad.</summary>
+        static NetConfig.Data Config
+        {
+            get
+            {
+                if (s_Config != null) return s_Config;
+                var text = Resources.Load<TextAsset>(NetConfig.ResourceName);
+                try { s_Config = text != null ? JsonUtility.FromJson<NetConfig.Data>(text.text) : null; }
+                catch (ArgumentException) { s_Config = null; }
+                return s_Config ??= new NetConfig.Data();
+            }
+        }
 
         NetworkRunner m_Runner;
         readonly NetReplication m_Replication = new NetReplication();
@@ -95,9 +119,9 @@ namespace PooketSlug
             FusionAppSettings settings = PhotonAppSettings.TryGetGlobal(out PhotonAppSettings global) && global.AppSettings != null
                 ? global.AppSettings.GetCopy()
                 : new FusionAppSettings();
-            settings.AppIdFusion = NetConfig.AppId;
+            settings.AppIdFusion = Config.appId;
             settings.AppVersion = Application.version; // only identical builds meet
-            settings.FixedRegion = NetConfig.Region;   // every game is in one region, so a room is just a name
+            settings.FixedRegion = Config.Region;   // every game is in one region, so a room is just a name
             settings.UseNameServer = true;
 #if UNITY_WEBGL && !UNITY_EDITOR
             settings.Protocol = Photon.Client.ConnectionProtocol.WebSocketSecure; // browsers only have secure WebSockets
@@ -131,7 +155,7 @@ namespace PooketSlug
         async void Connect(string sessionName, Func<int, bool> cleared)
         {
             if (State == NetState.Online || State == NetState.Connecting) return;
-            if (!NetConfig.Configured)
+            if (!Config.Configured)
             {
                 Fail("ONLINE PLAY IS NOT SET UP IN THIS BUILD");
                 return;

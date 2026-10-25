@@ -162,7 +162,7 @@ namespace PooketSlug
             if (Demos.Start(m_Flags.Demo)) return; // a demo is all this visit plays
             if (Scenes.StartDraft(PageQuery.Get(url, "scene"), url)) return; // and so is a draft scene
             if (Sandbox.Start(PageQuery.Get(url, "sandbox"), url)) return; // and so is a sandbox: solo, and never recorded
-            if (NetSessions.Factory != null && NetConfig.Configured) m_Net = NetSessions.Factory(gameObject);
+            m_Net = NetSessions.Factory?.Invoke();
             // An invite link with a room in it (?room=, see CoopRoom) waits for the den's + MATE like any visit; co-op still waits
             // until Mission one is beaten, so before then the link starts that.
             if (m_Net != null && !string.IsNullOrEmpty(m_Flags.Room) && !CoopOpen)

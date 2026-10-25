@@ -230,6 +230,7 @@ net Assets/Scripts/Core/Platform/WireMeter.cs
 net Assets/Tests/EditMode/Platform/DropInTests.cs
 net Assets/Tests/EditMode/Platform/MasterWatchTests.cs
 net Assets/Tests/EditMode/Platform/NetIdsTests.cs
+net Assets/Tests/EditMode/Platform/NetConfigTests.cs
 net Assets/Tests/EditMode/Platform/PartnerBeaconTests.cs
 net Assets/Tests/EditMode/Platform/RoomBrowserTests.cs
 net Assets/Tests/EditMode/Platform/WireMeterTests.cs

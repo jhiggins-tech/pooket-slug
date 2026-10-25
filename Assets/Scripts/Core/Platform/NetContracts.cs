@@ -52,8 +52,11 @@ namespace PooketSlug
 
     public static class NetSessions
     {
-        /// <summary>Set by the Fusion implementation when it is compiled in; null means no online play.</summary>
-        public static Func<GameObject, INetSession> Factory;
+        /// <summary>
+        /// Set by the Fusion implementation when it is compiled in; null means no online play. It makes the session on
+        /// a host object of its own, or gives null when the build has no AppId.
+        /// </summary>
+        public static Func<INetSession> Factory;
     }
 
     // ---------------------------------------------------------------------- what the session sends to the world
