@@ -11,7 +11,7 @@ namespace PooketSlug
     /// A sandbox (<c>?sandbox=</c>, <c>docs/sandbox.md</c>): a map, who plays, goons and a boss, tuning, and maybe a scripted
     /// take, set up from a link or a file beside the game with no build. It's read from setup lines (<see cref="SetupText"/>):
     /// <code>
-    /// soldier kie                  who plays: tones2 (the default) or kie
+    /// soldier kie                  who plays, by name: tones2 (the default), kie or kcaj
     /// ground P....s...s..r....T    one row of markers on flat ground (as Level reads them), sky above
     /// air ..........d.......       a row higher up, for drones
     /// map ..........               or the whole map, a row a line, top first (in a file: '#' can't go in a link)
