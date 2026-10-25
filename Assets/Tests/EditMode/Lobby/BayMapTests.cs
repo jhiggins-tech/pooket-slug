@@ -185,5 +185,14 @@ namespace PooketSlug.Tests
                     Assert.That(boxTop, Is.LessThan(BayMap.FloorY(BayDeck.Top) - 4f), c.Name + " in spot " + s);
                 }
         }
+
+        [Test]
+        public void TheTabkSizes_AreTheSameNumbersAsBefore()
+        {
+            Assert.AreEqual(1.5f, BayMap.Scale);
+            Assert.AreEqual(78f, BayMap.TabkW);
+            Assert.AreEqual(33f, BayMap.TabkH);
+            Assert.AreEqual(42f, BayMap.TallTabkH);
+        }
     }
 }

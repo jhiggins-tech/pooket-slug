@@ -23,7 +23,7 @@ namespace PooketSlug
     public sealed class BayView : StageScreen
     {
         /// <summary>Tabks here are drawn 1.5 times the game's sprite (Design's scale rule for the bay).</summary>
-        const float Scale = 1.5f;
+        const float Scale = BayMap.Scale;
         /// <summary>The partner's tabk, taken: dimmed in its space.</summary>
         static readonly Color TakenDim = new Color(0.42f, 0.42f, 0.48f, 0.8f);
         /// <summary>The fuel hose: where it comes from (the gas bottles by the bench), where it hangs when it's out, and its filler on the tabk on the stands.</summary>

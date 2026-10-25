@@ -33,9 +33,13 @@ namespace PooketSlug
         /// A tabk in the bay, drawn 1.5 times the game's: its width (52 art pixels, every tabk's) and tones2's height
         /// (22 rows) in the bay's pixels. kie's and kcaj's stand taller: <see cref="TabkHOf"/>.
         /// </summary>
-        public const float TabkW = 78f, TabkH = 33f;
+        public const float TabkW = TabkArtW * Scale, TabkH = 22f * Scale;
+        /// <summary>The bay draws a tabk's art at this many times its size; the views read it too.</summary>
+        public const float Scale = 1.5f;
+        /// <summary>Every tabk's art is this many pixels wide.</summary>
+        public const float TabkArtW = 52f;
         /// <summary>kie's and kcaj's tabks in the bay: 28 rows (the projector, the soft-serve machine), 1.5 times.</summary>
-        public const float TallTabkH = 42f;
+        public const float TallTabkH = 28f * Scale;
 
         /// <summary>
         /// How tall a tabk stands in the bay, by its card's id (its owner's soldier id): kie's and kcaj's are taller than

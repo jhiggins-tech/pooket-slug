@@ -169,6 +169,17 @@ namespace PooketSlug
             (DenPlace.Vending, 366f, 192f, 395f, 245f),
         };
 
+        /// <summary>A place's tap area (its first, for a place with two) as x0, y0, x1, y1 in art pixels; all zero for none.</summary>
+        public static (float x0, float y0, float x1, float y1) AreaOf(DenPlace place)
+        {
+            foreach (var a in Areas)
+                if (a.place == place) return (a.x0, a.y0, a.x1, a.y1);
+            return (0f, 0f, 0f, 0f);
+        }
+
+        /// <summary>How far the trapdoor's drawn hatch sits in from each side of its tap area (art pixels).</summary>
+        public const float HatchInset = 2f;
+
         /// <summary>The place a tap at (<paramref name="x"/>, <paramref name="y"/>) is on, or None (the floor: walk there).</summary>
         public static DenPlace PlaceAt(float x, float y)
         {
