@@ -4,7 +4,7 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// kcaj's tabk, SOFT SERVE (<c>docs/design/tanks.md</c>, kcaj's tabk), 52 × 28: an ice cream van gone to war, the
+    /// kcaj's tabk, SOFT SERVE (<c>docs/design/tabks/kcaj.md</c>), 52 × 28: an ice cream van gone to war, the
     /// tabk's hull and tracks in his purple with a gold stripe, a soft-serve machine for a turret (a serving hatch under a
     /// striped awning, a menu sign, a loudspeaker) and a twist of vanilla and strawberry on top. The gun is its chrome
     /// nozzle, drawn on its own so it turns (<see cref="Nozzle"/>); while a shot charges the swirl wobbles

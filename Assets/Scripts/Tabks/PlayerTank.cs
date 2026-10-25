@@ -3,7 +3,7 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// Your tank, the one you drive or call in (<c>docs/design/tanks.md</c>, Driving a tank). It's its own entity, apart
+    /// Your tank, the one you drive or call in (<c>docs/design/tabks/driving.md</c>, Driving a tabk). It's its own entity, apart
     /// from the boss tank (<see cref="TankBoss"/>), and shares only its shape (<see cref="TankLook"/>). Its paint and
     /// guns are a crewmate's (<see cref="TabkKit"/>: tones2's or kie's, the one loaded in the bay). Numbers are in
     /// <see cref="PlayerTankSpec"/>.

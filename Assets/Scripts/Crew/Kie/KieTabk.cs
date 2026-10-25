@@ -3,7 +3,7 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// kie's tabk's guns, THE PROJECTIONIST's (<c>docs/design/tanks.md</c>, kie's tabk), numbers in <see cref="KieTabkSpec"/>.
+    /// kie's tabk's guns, THE PROJECTIONIST's (<c>docs/design/tabks/kie.md</c>), numbers in <see cref="KieTabkSpec"/>.
     /// FIRE is Weasel Pop: the reels spin up, then the lens tumbles out a volley of his weasels, bigger. SP is
     /// Trollogram: the lens beams a Trollogram of the whole tabk just ahead, which the goons shoot instead and which
     /// blows up on them (<see cref="TrollDecoy"/>). SU is Steal: the roulette over the toughest enemy on screen, as on

@@ -69,7 +69,7 @@ namespace PooketSlug
         static Sprite[] s_TabkDrone;
 
         /// <summary>
-        /// His tabk's hull (<c>docs/design/tanks.md</c>, tones2's tabk): the tabk's shape in orange and black, with a black
+        /// His tabk's hull (<c>docs/design/tabks/tones2.md</c>): the tabk's shape in orange and black, with a black
         /// jack-o'-lantern face stencilled on its flank, so the hull is the pumpkin. Its gun is drawn on its own, as the boss tabk's is (<see cref="Art.TankHull"/>).
         /// </summary>
         public static Sprite TabkHull => s_TabkHull ?? (s_TabkHull = Art.FromRows(TabkRows(false), new Vector2(0.5f, 0f)));

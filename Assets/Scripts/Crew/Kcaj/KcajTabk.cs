@@ -3,7 +3,7 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// kcaj's tabk's guns, SOFT SERVE's (<c>docs/design/tanks.md</c>, kcaj's tabk), numbers in <see cref="KcajTabkSpec"/>,
+    /// kcaj's tabk's guns, SOFT SERVE's (<c>docs/design/tabks/kcaj.md</c>), numbers in <see cref="KcajTabkSpec"/>,
     /// all from the soft-serve machine's nozzle. FIRE is Double Park: the swirl wobbles, then the nozzle pipes out three
     /// pairs of his cones. SP is Hyperfixate: his beam from the nozzle (<see cref="KcajBeam"/>), and the tabk stands still
     /// while it holds. SU is Unmedicated: his pills rain across the screen (<see cref="PillShower"/>). The cones go to a

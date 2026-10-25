@@ -42,7 +42,7 @@ namespace PooketSlug
     }
 
     /// <summary>
-    /// Hologram kie, the pilot who jumps out of his wrecked tank (<c>docs/design/tanks.md</c>, The pilot round): his kit
+    /// Hologram kie, the pilot who jumps out of his wrecked tank (<c>docs/design/tabks/bosses.md</c>, The pilot round): his kit
     /// in the holograms' hands, a little softer than a player's so a duel stays readable. The brain is
     /// <see cref="PilotBrain"/> with <see cref="PilotPlaybook.Kie"/>.
     /// </summary>

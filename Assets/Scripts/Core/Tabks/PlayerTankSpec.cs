@@ -3,7 +3,7 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// Your tank as numbers (<c>docs/design/tanks.md</c>, Driving a tank): the one you climb into or call in, not the
+    /// Your tank as numbers (<c>docs/design/tabks/driving.md</c>, Driving a tabk): the one you climb into or call in, not the
     /// boss tank (<see cref="BossTankSpec"/>). It drives and aims Metal Slug style: the stick drives it and points
     /// the gun the eight ways, FIRE shoots at once, and its rounds never refill. Placeholders, to tune in play.
     /// </summary>
