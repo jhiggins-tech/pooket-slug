@@ -75,7 +75,7 @@ namespace PooketSlug.Tests
         [Test]
         public void TheTracksAreAsDesigned()
         {
-            // docs/design/music.md: Mission one's theme about 50 s, the boss theme faster and about 25 s
+            // docs/design/music.md: Mission one's theme about 50 s, the boss theme faster and about 22 s
             Assert.AreEqual(32 * MusicTracks.Bar, MusicTracks.SteelNight.Steps);
             Assert.AreEqual(16 * MusicTracks.Bar, MusicTracks.TankAlert.Steps);
             Assert.Greater(MusicTracks.TankAlert.Bpm, MusicTracks.SteelNight.Bpm);
