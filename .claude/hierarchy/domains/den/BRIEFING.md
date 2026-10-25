@@ -13,8 +13,7 @@ Exactly the `den` lines of `.claude/hierarchy/OWNERSHIP.txt`:
 - `Assets/Scripts/Ui/Den/` (every file: `DenView`, `DenRoom`, `DenCrew`, `DenConsole`, `DenInfo`, `DenBeatView`,
   `DenBitPlayer`, `DenRollerDoor`, `DenTrapdoor`, `BayView`, `BayHomecomingView`, `RoomView`, `RoomBackDoor`)
 - `Assets/Scripts/Game/DenFlow.cs`, `BayFlow.cs`, `RoomFlow.cs`, `RoomsFlow.cs`
-- `Assets/Resources/Den/` (the paintings, as `.bytes`; `street`, `street-door` and `street-glow` are the cutscenes'
-  street on raid night, read only by `Ui/Cutscene/`, and `raid-den` and `raid-bay` are shared with them)
+- `Assets/Resources/Den/` (the paintings, as `.bytes`)
 - `Assets/Tests/EditMode/Lobby/`: `BayMapTests.cs`, `DenBeatsTests.cs`, `DenMapTests.cs`, `DenTests.cs`,
   `RollerDoorTests.cs`, `RoomMapTests.cs`, `RopeClimbTests.cs`, `SwingDoorTests.cs`
 - `docs/design/lobby.md`, `docs/design/lobby/` (the house map `house-layout.svg` drawn by `house.py`, `rooms.md`,
@@ -30,8 +29,7 @@ gameplay domain's: `BayFlow` and `BayView` call them.
   (`docs/design/lobby.md`, Den 2.0; `DenFlow.Use`)
 - The soldier you play is the one you move, and the couch is the soldier pick: two seats, left for player one, right
   for player two. Picking, readying and starting a mission never needs a scroll. (`Den.cs`, `DenTests`)
-- READY sits bottom right and BACK top left; no station's tap area reaches into the bottom corners. (`lobby.md`; not
-  held yet, and nothing checks it: see Known unfinished)
+- READY sits bottom right and BACK top left. There is no bottom-corners rule in the den: the owner dropped it on 25 Oct (dca-den-corners). (`lobby.md`)
 - The den is the crew's: a crewmate's corner stays wrecked and dark, with no name, until their move-in beat has played
   and they are freed. The exception is kcaj's string board, which stays up in his dark corner. (`lobby.md`,
   `DenRoom.Paint` draws a crewmate's moved-in layer only when freed)
@@ -66,8 +64,8 @@ gameplay domain's: `BayFlow` and `BayView` call them.
 - A painting is `Resources/Den/<name>.bytes`, loaded by `DenRoom.Painting(name)`, in art pixels (the den screen is
   320 x 180; the loft is 382 x 164 over it from x 19; the bay is 993 x 180). A crewmate's moved-in layer is
   `DenRoom.Layers`; `raid-den` and `raid-bay` are the opening's plates, also used by the cutscenes.
-- `DenMode.Crew` (the old CREW button's: no mission) is still in `Den`, `DenFlow`, `DenConsole`, `DenInfo` and
-  `DenTests`, but nothing opens the den in it now; START and co-op open it as Solo and Coop.
+- `DenMode.Crew` (the old CREW button's: no mission) is still in `Den`, `DenConsole` and `DenTests`, but nothing
+  opens the den in it now; START and co-op open it as Solo and Coop.
 - Flags a soldier carries in the den: `Den.InDen`, `Seated`, `ReadyFlag`. They ride the network, so do not renumber.
 - The beat ids `den-first-visit` and `moved-in-<name>` are saved in the profile: do not rename them.
 
@@ -85,14 +83,6 @@ gameplay domain's: `BayFlow` and `BayView` call them.
   tested without a view.
 - Crewmates in the den are cosmetic figures: nothing in the den changes a mission's rules. What a mission opens is the
   shell's (`Profile` reveals) and gameplay's (`Crew`, `Garage`).
-
-## Where the paintings came from
-- The seven room plates in the game are not the `plates/wip-*.png` and `game-*.png` pictures (those are the first
-  round, 21 Oct). They are later takes in `plates/wip/`, listed in `plates/README.md` (matched by comparing each
-  `room-*.bytes` with the takes, 25 Oct). The kitchen's came from `tools/room_ref.py --gen` and a swatch; the other
-  six from `--blocks` with the den's and loft's plates as the style guide (commit c2f1ed0, the owner's).
-- `house.py` redraws `house-layout.svg` byte for byte: run it after any change and diff, and a comment-only change
-  must leave the SVG unchanged.
 
 ## How it is checked
 `tools/check.sh` (the type-check, the EditMode tests, the scene check, the docs link check), and
@@ -129,28 +119,3 @@ branch's preview, with `?unlock=crew` to fill the den. A new `.cs` needs a `.met
   painted from, not measured off the plates.
 - The painting of each unfreed crewmate's corner and the second room for the coming-soon crew are not built.
 - The bits and lines are placeholders awaiting the owner's rewrite in the crew's voice (`DenBits`, `lobby.md`).
-- From the consistency audit (domain-consistency-audit, 25 Oct), each sent to the owner as its own finding:
-  - The bottom corners aren't clear: READY (art x 268 to 316, y 8 to 24, `DenConsole.MakeButtons`) is over the roller
-    door's tap area (`DenMap` Areas, 254 to 306 by 14 to 90), and the name card (x 4 to 66, y 8 to 22) over the side
-    door's and kie's station. Nothing in Core says where the corners are, so no test holds the rule.
-  - BACK in the back yard goes straight to the den (`RoomFlow.Tick` calls `RoomsFlow.Back`), past the kitchen, while
-    in the bunker it climbs to B1; `rooms.md` says the way back takes you where you came from. `RoomMap.BackOf` is
-    used by nothing.
-  - `BayMap.TabkH` (33) is tones2's tabk; kie's and kcaj's are 42 tall in the bay (52 x 28 at 1.5 times), so
-    `BayMap.SpotAt` misses their top 9 px and the TAKEN tag (`BayView`) sits on the hull.
-  - kcaj has no idle cycles in the den (`DenCrew.Idle` does tones2 and kie) and no bits (`DenBits.All` is tones2's and
-    kie's three), though `lobby.md` lists his cycles and two kcaj bits; a pair with no bit doesn't wave
-    (`lobby.md`, Crew interactions), as nothing draws one.
-  - Idle loops: `lobby.md` says one loop of 3 to 6 s, then a breathing idle, then another; `DenCrew.Idle` picks a
-    4.5 s loop or a breath at random, so loops can run back to back.
-  - Keys at doors: `lobby.md` (Den 2.0) says up and down take ladders and doors; `DenFlow.Walking` climbs ladders
-    with them, and doors are used with jump.
-  - Once kcaj's freed he stands at x 60 (`DenRoom.Stations`), the board's middle (`DenMap.XOf(Board)`), and
-    `DenView.Tapped` tries the crew first, so a tap on the middle of the board picks him instead of opening the
-    mission screen.
-  - `BayHomecomingView` blinks its reels inline (`(int)(clock * ...) % 2`), not through `Fx`.
-  - Numbers kept twice: `DenTrapdoor.X`/`W` against the trapdoor's `DenMap` area and `XOf`; `BayView.Scale` and
-    `BayHomecomingView.Scale` against `BayMap.TabkW`; `RoomMap.SoldierHeight` against `DenMap.SoldierHeight`.
-  - The room plates' recipe: `rooms.md` (Paint it) and `art.md` give the kitchen's (the `--gen` reference and a
-    swatch, and say a whole plate as a reference makes the model copy it), but six of the seven plates used
-    `--blocks` with the den's and loft's plates as the style guide. Which is the workflow is the owner's call.
