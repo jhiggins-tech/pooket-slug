@@ -32,7 +32,14 @@ namespace PooketSlug.Tests
             Assert.AreEqual(1, TestScenes.Opening.NetId);
             Assert.AreEqual(2, TestScenes.MotorPool.NetId);
             Assert.AreEqual(3, TestScenes.FreeingKie.NetId);
+            Assert.AreEqual(4, TestScenes.MissionTwoBriefing.NetId);
+            Assert.AreEqual(5, TestScenes.FreeingKcaj.NetId);
+            Assert.AreEqual(6, TestScenes.KcajTabk.NetId);
             Assert.AreEqual(63, TestScenes.CoopTest.NetId);
+            // a scene the game plays gets its number pinned above when it's added
+            Assert.AreEqual(new[] { SceneLibrary.Opening, SceneLibrary.MotorPool, SceneLibrary.FreeingKie, SceneLibrary.CoopTest,
+                SceneLibrary.MissionTwoBriefing, SceneLibrary.FreeingKcaj, SceneLibrary.KcajTabk }, SceneLibrary.Names,
+                "every scene the game plays has its number pinned here");
             Assert.AreEqual(new[] { "Outside the hangout", "The door", "The den, trashed", "The roller door", "The tabk bay", "A straggler", "The keycard", "Heading out" },
                 System.Array.ConvertAll(TestScenes.Opening.Shots, s => s.Name));
             Assert.AreEqual("MISSION 1 · THE MILITARY BASE\nFIND THE CREW", TestScenes.Opening.Shots[7].Lines[2].Text, "'|' is a new line");
