@@ -52,7 +52,7 @@ Up: [Research index](../README.md)
 
 Source files:
 - [`Assets/Scripts/Core/Platform/NetContracts.cs`](../../../Assets/Scripts/Core/Platform/NetContracts.cs): the interfaces and event payloads between game and netcode
-- [`Assets/Scripts/Net/`](../../../Assets/Scripts/Net/), the `PooketSlug.Net` assembly: `NetSession.cs` (connecting and the session's life), `NetReplication.cs` (the replicated objects and the game's link onto them), `NetPrefabs.cs`, `PlayerNet.cs`, `WorldNet.cs`
+- [`Assets/Scripts/Net/`](../../../Assets/Scripts/Net/), the `PooketSlug.Net` assembly: `NetSession.cs` (connecting and the session's life), `NetReplication.cs` (the replicated objects and the game's link onto them), `NetPrefabs.cs`, `PlayerNet.cs`, `WorldNet.cs`, `BossNet.cs`
 - [`Assets/Scripts/Core/Platform/NetConfig.cs`](../../../Assets/Scripts/Core/Platform/NetConfig.cs): the AppId and region the build bakes in
 - [`Assets/Scripts/World/NetSync.cs`](../../../Assets/Scripts/World/NetSync.cs), the world's side of the session: the per-frame pull and push, and the session's events
 - [`Assets/Scripts/Crew/Shared/RemotePlayer.cs`](../../../Assets/Scripts/Crew/Shared/RemotePlayer.cs)
