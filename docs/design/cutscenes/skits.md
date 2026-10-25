@@ -2,14 +2,14 @@
 
 Part of [the cutscenes](README.md), the one script for every scene: the rules, the format and every scene at a glance are there.
 
-Short comic crew moments, written for the skit-scripts card (2026-10-25): **drafts, for the owner to pick from.** These
-four are the pitch's short list. Staging, art, sound and the build each get their own card once a skit is picked.
+Short comic crew moments, written for the skit-scripts card (2026-10-25). Four are the pitch's short list, drafts for
+the owner to pick from; [Two of us now](#two-of-us-now) and [Keep it down](#keep-it-down) are the owner's picks (25 Oct). Staging, art, sound and the build each get their own card once a skit is picked.
 
 **How a skit plays:**
 - **Once ever,** like the den's beats ([the den](den.md)), each under its own once-only key, kept with the player's
   progress so it follows a sign-in. The keys below are proposals: a key goes in `OnceOnly.All` when its skit is built,
   and never changes after.
-- **In the room itself,** not as a scene file: the den's skits play in the den, as its beats do (`DenBeats`,
+- **In the room itself,** not as a scene file (Keep it down plays in a mission, in play: see its note): the den's skits play in the den, as its beats do (`DenBeats`,
   `DenBeatView`), and the bay's in the bay, as kie's homecoming does (`KieHomecoming`, `BayHomecomingView`). The player's
   walking waits while it plays, and a tap skips it. Afterwards everyone's back where they were.
 - **Speech bubbles only.** The den and the bay have no narrator, and the music is the den's theme throughout.
@@ -17,14 +17,129 @@ four are the pitch's short list. Staging, art, sound and the build each get thei
 - **Always tones2 and kie (and kcaj, once he's home), whoever's picked,** as in the freeing scenes: they're the crew in
   the story. If the soldier you're playing is one of them, that's who you see.
 - **One skit a visit,** never on the same visit as a beat (the first visit, a move-in or a homecoming), except where
-  a skit says it follows one.
+  a skit says it follows one (Two of us now, Probably a Trollogram).
 
 | Skit | Where | Trigger | Once-only key (proposed) | About |
 |---|---|---|---|---|
+| [Two of us now](#two-of-us-now) | The den | Straight after the first visit, the den's first opening | `skit-two-of-us` | 14 s |
+| [Keep it down](#keep-it-down) | Mission one's coda, in play | The coda getting under way, on a replay | `skit-keep-it-down` | 3 s |
 | [Five-second rule](#five-second-rule) | The den | The den's second opening, the visit after the first visit | `skit-five-second-rule` | 12.5 s |
 | [Wanna race?](#wanna-race) | The tabk bay | The first visit to the bay after kie's tabk comes home | `skit-wanna-race` | 18.5 s |
 | [Special delivery](#special-delivery) | The den, between missions | The first time the den opens after a Mission one replay | `skit-special-delivery` | 14 s |
 | [Probably a Trollogram](#probably-a-trollogram) | The den | Straight after kcaj's move-in beat | `skit-probably-a-trollogram` | 19 s |
+
+## Two of us now
+
+**Picked by the owner** (2026-10-25), with the den's co-op button renamed: "And after this - the 'MATE' button appears
+(lets change it to MULTI-PLAYER, with two rows multi and player to save space on the button)". It gives kie's parked
+line from [the retired title scene](retired.md#retired-two-of-the-crew) its home.
+
+**Plays** in the den straight after [the first visit](den.md#the-first-visit), on the same visit: the den's first
+opening, after Mission one's first debrief. It's the moment the den's co-op button first appears. About 14 seconds,
+three shots; tap to skip, and a skip still puts the button up. **Who's in it:** tones2 and kie.
+
+**How it fits the co-op reveal** (as built today, and what changes):
+- **Today** the den's co-op button (`+ MATE` on the couch's empty seat, `DenConsole`) shows whenever co-op is open:
+  the profile's `coop`, set when Mission one is won solo (`Profile`, `Story.OpensCoop`). So it's there from the very
+  first visit, with no moment of its own. The win that opened co-op says so on its victory screen
+  (`ScreenWords.CoopOpened`: CO-OP IS OPEN: PRESS + MATE IN THE DEN TO PLAY WITH A FRIEND). The `coop` reveal
+  (`Reveals.Coop`) is marked seen the first time the button is pressed (`Game.JoinCoop`), not when it shows.
+- **With this skit** the button stays hidden on the first visit until the skit puts it up at its end; from then on
+  it shows whenever co-op is open, as now. The skit's own key (`skit-two-of-us`) remembers it, and `coop` keeps its
+  meaning: the button first pressed.
+- **A phone that's past it:** where co-op is open and the skit hasn't played (a profile from before it was built, or
+  from the cloud), it plays on the next solo visit to the den, unless `coop` is already seen: a player who has pressed
+  the button has found co-op, so the button just shows. `?unlock=coop` and the `?test=` starts show the button at once,
+  with no skit.
+- **The rename** is the owner's (25 Oct) and its own build card: the button reads MULTI-PLAYER, on two lines (MULTI,
+  then PLAYER) to fit the button. The words that name it change with it: the victory screen's line and the den's hint
+  (`ScreenWords.MateButton`, `CoopOpened`, `CoopWaiting`). This script names it MULTI-PLAYER.
+
+```text
+1. INT. THE DEN - NIGHT                                 4 s
+
+The den, just warmed up from the first visit: lamp
+light, string lights, the TV glowing. TONES2 flops into
+the left seat of the couch, a controller in his hands.
+
+KIE picks the second controller up off the empty right
+seat and looks at it.
+
+                    KIE
+          TWO OF US NOW.
+
+                                                   CUT TO:
+
+2. INT. THE DEN - CONTINUOUS                            5 s
+
+kie turns to the camera and holds the controller out to
+us, at arm's length.
+
+                    KIE
+          BRING A MATE.
+
+tones2 puts his hand up.
+
+                    TONES2
+          I'M RIGHT HERE.
+
+                                                   CUT TO:
+
+3. INT. THE DEN - CONTINUOUS                            5 s
+
+kie doesn't look round.
+
+                    KIE
+          ANOTHER MATE, MATE.
+
+He tosses the controller at the camera. It leaves his
+hand, and where it lay on the empty seat the co-op
+button pops up, in the co-op blue, and pulses once.
+
+SUPER (THE BUTTON, ON TWO LINES): MULTI- / PLAYER
+
+SFX: a chip clunk.
+
+kie drops onto the couch arm, pleased with himself.
+
+                         INTO: THE DEN (the button stays up)
+```
+
+**Staging notes:** the den and both figures as they are. The controllers are painted into the couch today, so a
+controller in kie's hand (and one in tones2's) is a small new prop, and kie's toss is that prop leaving the screen.
+The button appearing is the den's own button, shown at that moment. The pulse is one soft pulse, never a flash.
+
+## Keep it down
+
+**Picked by the owner** (2026-10-25).
+
+**Plays** in Mission one's [coda](../story.md#the-coda), in play, on replays only: once the coda has been cleared
+before, the same rule that drops its prompts, so the first play stays clean. It plays as the coda gets under way, which
+is when tones2 climbs into his tabk or walks on without it (`World.CodaUnderway`), right beside kie asleep against the
+wall (`SleepingKie`). Once ever. About 3 seconds; you keep control throughout, and nothing stops or waits. Mission one
+is always solo, so it's never in co-op. **Who's in it:** tones2 and kie, asleep.
+
+```text
+1. EXT. THE MOTOR POOL'S BACK GATE (IN PLAY)            3 s
+
+The coda's start: alarms going, the back gate up, goons
+pouring in. KIE sleeps against the wall with the snacks
+in his lap. TONES2's tabk engine turns over right beside
+his head.
+
+SFX: the tabk's engine.
+
+kie stirs, without opening his eyes.
+
+                    KIE (ASLEEP)
+          ...KEEP IT DOWN.
+
+He settles back. Zs. The coda carries on.
+```
+
+**Staging notes:** today kie's line shows as a score popup over him (`Scoring.Popup`, the way the pilots' last words
+show), in kie's colours; a proper speech bubble in play would be new. `SleepingKie` is built and stays as he is. If the
+owner wants it on every replay rather than once, it can drop the key.
 
 ## Five-second rule
 
