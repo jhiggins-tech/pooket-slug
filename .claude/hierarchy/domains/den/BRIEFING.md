@@ -49,7 +49,8 @@ gameplay domain's: `BayFlow` and `BayView` call them.
 - The house map (`docs/design/lobby/house-layout.svg`, drawn by `house.py` from `DenMap`, `BayMap` and the stations)
   is the canonical layout: when a room moves in the game, redraw it.
 - Cosmetic idle cycles and bits use the cosmetic randomness, never the game's `Rng`. Blinks and walk cycles go
-  through `Fx` or a `Clip`. (`CLAUDE.md`, Invariants)
+  through `Fx` or a `Clip`. (`CLAUDE.md`, Invariants) `BayHomecomingView`'s reels use `Fx.Blink` (pinned by
+  `BayMapTests.KiesReelsBlinkOnTheirOldBeats_ThroughFx`); the `% 1f` in it and `DenCrew` are sawtooth drips, not blinks.
 - Words players read: "tabk", never tank; "Trollogram", never hologram. Never name or describe the 25 hidden ranks in
   anything players read; the trophy shelf shows only the rank the player holds.
 - A rule found in a view or flow (`DenView`, `DenFlow`, `BayView`) moves into Core with tests in the same commit as

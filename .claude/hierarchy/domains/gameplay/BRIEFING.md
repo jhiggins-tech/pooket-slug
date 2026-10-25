@@ -173,7 +173,13 @@ Not this domain's, though they sit beside its files: `Core/Missions/MissionStory
 - The play numbers in `Tuning` are fields, not constants, so the sandbox can tune them (`Knobs`); the camera, co-op and
   HUD ones are built in.
 - A blink, flicker or walk cycle goes through `Fx` or a `Clip`, not an inline modulo of time; a figure on a stage is
-  posed with `StageFigure.Pose`. (`CLAUDE.md`)
+  posed with `StageFigure.Pose`. (`CLAUDE.md`) Since the fx-blinks card (25 Oct) none is left in this domain's files:
+  the cage (`PilotFreeingSpec.CageLitFor`), the roulette frame (`RouletteSpin.Lit`), the boss tabk's landing marker
+  (`BossTankSpec.MarkerLit`) and the belt tread (`Creamery.Tread`) call `Fx`, each pinned to its old formula by a test
+  (`KieKitTests`, `BossTankTests`, `CreameryTests`). All four are looks only; none feeds the simulation (the
+  roulette's prize is picked apart from its faces). `Fx` is the sprites domain's: call it, don't change it.
+  `World/Effect.cs` still picks a held frame by `(int)(time * fps)`, which is a held clip, not a cycle: a `Clip`
+  candidate, not an inline blink.
 - Spikes only answer "is it feasible", ride a `?spike=` flag and are never merged as they are. Only `craters` is left
   in `Spike.cs`; the others became real features (`SpikeTests`).
 - Do not commit Photon SDK code, secrets or private-repo code. World talks to the network only through `INetLink`; a

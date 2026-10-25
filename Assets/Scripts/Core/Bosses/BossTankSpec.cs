@@ -40,6 +40,12 @@ namespace PooketSlug
         /// </summary>
         public float EntranceSpeed = 2.4f, EntranceTime = 3.5f;
 
+        /// <summary>
+        /// Whether the landing marker shows, <paramref name="anim"/> seconds into its clock with the shot
+        /// <paramref name="charge"/> (0 to 1) charged: it blinks faster as the shot gets close, 6 to 20 steps a second.
+        /// </summary>
+        public static bool MarkerLit(float anim, float charge) => Fx.Blink(anim, Mathf.Lerp(6f, 20f, charge));
+
         /// <summary>How much quicker it is at <paramref name="health"/> (0 to 1) left.</summary>
         public float Rage(float health) => Mathf.Lerp(MaxRage, 1f, Mathf.Clamp01(health));
 

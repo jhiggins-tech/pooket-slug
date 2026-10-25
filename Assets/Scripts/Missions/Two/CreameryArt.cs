@@ -38,7 +38,7 @@ namespace PooketSlug
             get
             {
                 if (s_Tread != null) return s_Tread;
-                s_Tread = new Sprite[4];
+                s_Tread = new Sprite[Creamery.TreadFrames];
                 for (int f = 0; f < 4; f++)
                 {
                     var c = new PixelCanvas(16, 6);

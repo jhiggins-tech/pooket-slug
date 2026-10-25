@@ -82,7 +82,7 @@ namespace PooketSlug
             Vector2 feet = new Vector2(BayMap.StandX, ground);
 
             // the tabk: the bare hull till the projector's on, then whole, its reels turning as they spin up
-            bool spinning = beat.Reels > 0f && (int)(clock * (6f + 18f * beat.Reels)) % 2 == 0;
+            bool spinning = beat.Reels > 0f && Fx.Blink(clock, 6f + 18f * beat.Reels);
             bool lowering = beat.Projector && beat.Lowered < 1f;
             body.sprite = !beat.Projector || lowering ? KieTabkArt.Bare : spinning ? KieTabkArt.ParkedSpun : KieTabkArt.Parked;
             Ui.Show(m_Turret, lowering);
