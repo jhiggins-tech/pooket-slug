@@ -1,6 +1,6 @@
 # Generated art: the look
 
-How generated art is made for Pooket Slug, so every new background matches the ones before it. The owner picked this from the art showcase on 2026-10-17 (the gen-art-look item: https://claude.ai/artifact/7KaagiXRYxbuhq5rodNx18).
+How generated art is made for Pooket Slug, so every new background matches the ones before it. The owner picked the look from the art showcase on 2026-10-17 (the gen-art-look item: https://claude.ai/artifact/7KaagiXRYxbuhq5rodNx18); the model it was made with has since changed (2026-10-21: Qwen Image 2.1 Turbo for every image, below).
 
 **Read this when** you're making a background plate, animating a sprite, or making any art with an image or video model.
 
@@ -14,7 +14,8 @@ Up: [Design](README.md)
 - **The plate's prompt** says what the layer shows and nothing else: no ground, vehicles or characters unless they're the point. A layer that sits over others asks for everything around it to be flat magenta `#FF00FF` (a chroma key), with no gradient.
 - **Pixels:** the image is cut down to the game's size (the plate's size at 16 pixels a unit, for example 320 × 88 for a far skyline) and to 16 colours, with no dithering, by the vendor repository's `art/plates.py`. Then it's checked in the game, not only on its own.
 - Images are made by the vendor repository's CI (the Plates and Showcase workflows), and their spend goes in its usage ledger.
-- **In the game** (`Backdrop`, m1-plates-build): a mission's plates are PNGs in `Assets/Resources/Plates/<mission id>/` (`mission-1`), renamed `.bytes`, one strip per layer: `sky-0`, `sky-1`, … then `far-…` and `mid-…`, numbered along the map. A strip's plates are laid end to end and repeat, and any width works; the height is the layer's. The layers, back to front: **sky** (moves 0.95 of the camera, from the screen's bottom, a full screen tall: 180 pixels), **far** (0.85, its bottom 1.2 units up) and **mid** (0.6, 1 unit up), with the sky gradient behind them all. A layer with no plates is drawn in code, as before.
+- **In the game** (`Backdrop`, m1-plates-build): a mission's plates are PNGs in `Assets/Resources/Plates/<mission id>/` (`mission-1`, `mission-2`), renamed `.bytes`, one strip per layer: `sky-0`, `sky-1`, … then `far-…` and `mid-…`, numbered along the map. A strip's plates are laid end to end and repeat, and any width works; the height is the layer's. The layers, back to front: **sky** (moves 0.95 of the camera, from the screen's bottom, a full screen tall: 180 pixels), **far** (0.85, its bottom 1.2 units up) and **mid** (0.6, 1 unit up), with the sky gradient behind them all. A mission can stand its far and mid plates higher (`MissionDef.PlatesStand`, units up: Mission two's are 2). A layer with no plates is drawn in code, as before.
+- **The cutscenes use them too:** the motor pool's set is built from Mission one's `sky-0`, `far-2` and `mid-6` (`CutsceneBackdrops.PaintedMotorPool`), so renumbering those plates changes the set; without them it falls back to a drawn one.
 
 ## The house's room plates
 The house's outer rooms are their own screens, each one behind a door
@@ -47,7 +48,7 @@ The kitchen's room plate leant on these more (2026-10-22, [the plates](lobby/pla
 
 
 ## Sprites
-Sprites and their animations are hand-made in `ArtData`, and stay that way. Image models can't draw a usable sprite or sprite sheet at the game's size (gen-sprites, 2026-10-18). A video model can animate a sprite we drew, though: the workflow below was locked in on 2026-10-18 (sprite-model-research: https://claude.ai/artifact/LrvdRFdJF6R4qnVvWewhyw) and audited on the sprite-anim-pipeline card.
+Sprites and their animations are hand-made, in `ArtData` and the per-crewmate, per-mission and per-tabk art files beside it (`KcajArt`, `CreameryArt` and the rest), and stay that way. Image models can't draw a usable sprite or sprite sheet at the game's size (gen-sprites, 2026-10-18). A video model can animate a sprite we drew, though: the workflow below was locked in on 2026-10-18 (sprite-model-research: https://claude.ai/artifact/LrvdRFdJF6R4qnVvWewhyw) and audited on the sprite-anim-pipeline card.
 
 **When to use it:** only for a sprite or an animation the hand-made art is failing at, such as a movement in a cutscene that's hard to animate by hand. The owner picks each one and promotes it to this workflow on the Roadmap; nothing moves over on its own (owner, 2026-10-18).
 

@@ -1,4 +1,4 @@
-// How a soldier on a stage stands (a cutscene, the den, the bay, a den beat, the debrief): which legs and which top
+// How a soldier on a stage stands (a cutscene, the den, its rooms, the bay, a den beat, the debrief): which legs and which top
 // (a frame of the crew's figure, CrewFigure), where in their walk, and the top's nudge. Every screen poses its figures through this, and StageFigure draws it.
 namespace PooketSlug
 {

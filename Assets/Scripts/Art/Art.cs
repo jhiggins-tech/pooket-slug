@@ -423,7 +423,7 @@ namespace PooketSlug
             }
         }
 
-        // ---- Mission one's look: the steel night base (concept C, picked 2026-10-15) ----
+        // ---- The drawn backdrop: the steel night base (concept C, picked 2026-10-15), for any layer a mission has no plates for ----
 
         static readonly Color32 Night = Hex(0x16203c), Glow = Hex(0xffe08a), Beacon = Hex(0xd83838);
         static readonly Color32 SnowTop = Hex(0xf4f8ff), Snow = Hex(0xc8d4e8), SnowShade = Hex(0x8c9cbc);
