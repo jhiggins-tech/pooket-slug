@@ -7,9 +7,9 @@ domain asks this one for a sound. The design it decides is `docs/design/music.md
 
 ## The files
 The map (`.claude/hierarchy/OWNERSHIP.txt`) is the authority:
-- `Assets/Scripts/Core/Audio/` (`Chip`, `Notation`, `MusicTracks` + `MusicWhen` (its other half: which track plays when), `MusicRender`, `MusicMidi`, `Wav`, `Soundtrack`)
+- `Assets/Scripts/Core/Audio/` (`Chip`, `Notation`, `MusicTracks` + `MusicWhen` (its other half: which track plays when), `MusicRender`, `MusicMidi`, `Wav`, `Soundtrack`, `Jingles`)
 - `Assets/Scripts/Audio/` (`Sfx`, `ChipSounds`, `Music`)
-- `Assets/Tests/EditMode/Audio/` (`MusicTests`, `SoundtrackTests`, `WavTests`)
+- `Assets/Tests/EditMode/Audio/` (`MusicTests`, `SoundtrackTests`, `WavTests`, `JinglesTests`)
 - `Assets/Scripts/Game/MusicFlow.cs`
 - `docs/design/music.md`
 
@@ -44,6 +44,12 @@ the cutscene domain (`Core/Story/Cues.cs`, `Ui/Cutscene/CueSounds.cs`); the clip
   `EveryMissionPlaysSteelNight_TillMissionTwoHasItsOwnTheme`: writing its theme changes that line.
 - **When a mission's music changes mid-play is `Soundtrack`'s rule** (the countdown and back, the glitch-out's cut,
   the win), with tests. Keep a new mid-mission change there, not in a view. (CLAUDE.md: rules live in Core.)
+- **A jingle or its sting, never both: `Jingles.EffectPlays`** (`Core/Audio/Jingles.cs`, `JinglesTests`). With the
+  music on, `Sfx.Start`, `Sfx.Victory` and `Sfx.GameOver` are skipped where the start, mission complete and game over
+  stings play; with it off they play. A co-op soldier going out while a partner plays on (`World.AllOut` false) still
+  gets the trombone. Used at `Game.StartSolo`, `Game.BeginCoop`, `World.OnBossDestroyed` and `Player.Down`
+  (dca-double-stings, 25 Oct). The debrief's own victory jingle (`DebriefView`) still checks `Music.Muted` itself, and
+  the den's START click (`DenFlow`, `Sfx.Start` at 0.6) is a press sound before the mission, not covered.
 - **Menu music is one rule, `MusicTracks.MenuRecording`**: the title recording on the splash and the settings over it,
   the den's recording in the den (quieter, `Level`; fading in over 3 s, `FadeIn`; dipping to 60% under the kit or
   mission screen, `MenuDip`), none while a den beat plays, and one fades out before the other starts (music.md, the
@@ -100,7 +106,7 @@ the cutscene domain (`Core/Story/Cues.cs`, `Ui/Cutscene/CueSounds.cs`); the clip
 ## How it is checked
 `tools/check.sh` (compile, the EditMode tests, the scene check, the docs link check); `tools/check.sh compile` for a
 type change. The tests are in `Assets/Tests/EditMode/Audio/`: the notation, the tracks as designed, the loop lengths,
-the countdown, the MIDI file, `Soundtrack`'s moments, and `Wav`. Nothing checks what a sound or track sounds like:
+the countdown, the MIDI file, `Soundtrack`'s moments, `Jingles`, and `Wav`. Nothing checks what a sound or track sounds like:
 listening is by the preview build's Try it link (not a CI-rendered WAV: see Known unfinished). The scene check and `CueTests` hold the cue
 side (each cue has an effect). `tools/check_scenes.sh` fetches the narration to check reading time.
 
@@ -124,11 +130,6 @@ side (each cue has an effect). `tools/check_scenes.sh` fetches the narration to 
   instead (dca-music-tests), which moves that stall to the settings screen; it doesn't remove it. Skipping renders while
   muted (and rendering on unmute what's playing) is part of the rendering item above. No card.
 - **Open findings from the consistency audit (25 Oct), each for the owner:**
-  - Game over plays twice with the music on: `Player.Down` plays `Sfx.GameOver` (Tabks' sad trombone) as the soldier
-    goes out, and `MusicFlow.GameOver` plays the game over sting as the run ends. The victory jingle is skipped when the
-    music is on (`World.cs`, `DebriefView.cs`); game over isn't. Behaviour, gameplay's file.
-  - The mission start does the same: `Game.cs` plays `Sfx.Start` and then `MusicFlow.MissionStart` plays the start
-    sting. Design call (keep both, or gate `Sfx.Start` on `Music.Muted` like the victory jingle).
   - The style says four voices, with fast arpeggios standing in for chords, but seven tracks hold chords of two to four
     notes in the harmony part (`TankAlert`'s stabs, `Debrief`'s comps, the stings' last chords), and the kick is a
     triangle thump on top of the bass's triangle (`MusicRender.Drums`). Design call: loosen music.md, or rewrite.

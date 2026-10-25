@@ -35,6 +35,8 @@ There are two kinds of music: **loops**, which play under a whole stretch of the
 | **Continue countdown** | Under the CONTINUE? count: a ticking bass note that rises a semitone every second | As long as the offer (9 s, `Tuning.Lives.ContinueSeconds`) |
 | **New crewmate** | When a freed crewmate first joins the crew. Written, but nothing plays it yet: the crew screen it was for has gone, and it waits for the den's | About 2 s |
 
+**One sound at a time.** The mission start, the win and game over each have a sound effect's jingle too (Tabks' start arpeggio, victory jingle and sad trombone). With the music on, the sting plays and the jingle is skipped; with it off, the jingle plays. In co-op, a soldier going out while a partner plays on still gets the trombone, since no game over sting follows (`Core/Audio/Jingles.cs`, with tests).
+
 ### What has no music of its own
 
 - **Cutscenes** use what's playing around them: the opening is street ambience until the caption card, where the mission start sting and the mission theme kick in ([the opening](cutscenes/mission-one.md#the-opening)). The motor pool reveal cuts the mission theme and leads into the boss theme ([the motor pool reveal](cutscenes/mission-one.md#the-motor-pool-reveal)). The boss music (its final section by then) cuts out when the pilot glitches out ([freeing kie](cutscenes/mission-one.md#freeing-kie)).
