@@ -20,7 +20,7 @@ He dropped Wanna race? from the pitch. Staging, art, sound and the build each ge
 - **Always tones2 and kie (and kcaj, once he's home), whoever's picked,** as in the freeing scenes: they're the crew in
   the story. If the soldier you're playing is one of them, that's who you see.
 - **One skit a visit,** never on the same visit as a beat (the first visit, a move-in or a homecoming), except where
-  a skit says it follows one (Two of us now, A Trollogram of anything).
+  a skit says it follows one (Two of us now, A Trollogram of anything, Does it do cones?).
 
 | Skit | Where | Trigger | Once-only key (proposed) | About |
 |---|---|---|---|---|
@@ -29,7 +29,7 @@ He dropped Wanna race? from the pitch. Staging, art, sound and the build each ge
 | [Five-second rule](#five-second-rule) | The den | The den's second opening, the visit after the first visit | `skit-five-second-rule` | 11 s |
 | [Special delivery](#special-delivery) | The den, between missions | The first time the den opens after a Mission one replay | `skit-special-delivery` | 14 s |
 | [A Trollogram of anything](#a-trollogram-of-anything) | The den | Straight after kcaj's move-in beat | `skit-trollogram-of-anything` | 15 s |
-| [Does it do cones?](#does-it-do-cones) | The tabk bay | The first visit to the bay after kcaj's tabk comes home | `skit-cones` | 18 s |
+| [Does it do cones?](#does-it-do-cones) | The tabk bay | Straight after kcaj's tabk comes home, on the same visit | `skit-cones` | 18 s |
 | [They're tracking us](#theyre-tracking-us) | The debrief | Mission two's first clear, solo or co-op | `skit-tracking-us` | 12 s |
 
 ## Two of us now
@@ -397,16 +397,16 @@ saved as before. No narrator, as the debrief has none.
 **Workshopped by the owner** (2026-10-25), in his words: "at the mention of 'cones' Kie comes running in - but it's not
 that type ok cone....". What kie hoped for is a wink: nobody names it, and the joke is his face.
 
-**Plays** in [the tabk bay](../lobby.md#the-tabk-bay), the first visit after kcaj's tabk, SOFT SERVE, comes home, after
-Mission two. About 18 seconds, four shots; tap to skip. **It needs kcaj's tabk homecoming first:** that beat isn't
-written yet ([kcaj's tabk](../tabks/kcaj.md) says how the tabk gets home, and nothing plays it), so this skit waits on
-its card. **Who's in it:** tones2, kcaj and kie.
+**Plays** in [the tabk bay](../lobby.md#the-tabk-bay) straight after [kcaj's tabk comes home](den.md#kcajs-tabk-comes-home),
+on the same visit: the beat ends with SOFT SERVE on the repair stands and kcaj polishing its nozzle, and this picks up
+there, the first solo visit to the bay after Mission two. About 18 seconds, four shots; tap to skip. A skip of the beat
+still plays the skit. **Who's in it:** tones2, kcaj and kie.
 
 ```text
 1. INT. THE TABK BAY - DAY                              4 s
 
-SOFT SERVE in its space downstairs: kcaj's purple and
-gold, the soft-serve machine on top under its striped
+SOFT SERVE on the repair stands, just home: kcaj's purple
+and gold, the soft-serve machine on top under its striped
 awning, the cone on its antenna. KCAJ leans on it,
 polishing the chrome nozzle.
 
@@ -466,5 +466,7 @@ tones2, still dripping, licks one of the cones.
 
 **Staging notes:** the bay and SOFT SERVE as they are (its swirl wobble and nozzle pivot are the tabk's own, from
 driving it); the `cones` prop in tones2's hands; kie's run is a walk along the bay with the camera following, as the
-Mission two briefing's is. New: the cones splatting on a soldier (a small effect), and kie's face falling, which his
+Mission two briefing's is. With SOFT SERVE on the stands, which are just inside the den's roller door, his run in is
+short: a burst in under the door and a skid rather than a length of the bay, unless the build card has him come the
+long way, from the far end. New: the cones splatting on a soldier (a small effect), and kie's face falling, which his
 figure has no frames for today, so it's his whole pose that sells it (a slump, head down) unless a new face is drawn.

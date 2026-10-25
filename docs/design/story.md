@@ -84,7 +84,7 @@ No scenes, just the place telling it: goons on the production line, Trollogram p
 
 ### The end
 
-kcaj's tabk comes out of the cold store ([kcaj's tabk arrives](cutscenes/mission-two.md#kcajs-tabk-arrives)). Once it's wrecked and its pilot is beaten on foot, the real kcaj stumbles out of the frost ([freeing kcaj](cutscenes/mission-two.md#freeing-kcaj)). The next time the den loads, he moves into his nook on the den's upper floor ([the lobby](lobby.md)) and his corner lights up.
+kcaj's tabk comes out of the cold store ([kcaj's tabk arrives](cutscenes/mission-two.md#kcajs-tabk-arrives)). Once it's wrecked and its pilot is beaten on foot, the real kcaj stumbles out of the frost ([freeing kcaj](cutscenes/mission-two.md#freeing-kcaj)). The next time the den loads, he moves into his nook on the den's upper floor ([the lobby](lobby.md)) and his corner lights up. The cargo drone hauls his wrecked tabk home, and the first time the player goes into the tabk bay on their own after that, kcaj rebuilds it round a soft-serve machine from the creamery as SOFT SERVE ([kcaj's tabk comes home](cutscenes/den.md#kcajs-tabk-comes-home), scripted for the owner to read, 25 Oct).
 
 ## Reveals are story beats
 
@@ -98,6 +98,7 @@ The game hides what's coming ([progressive disclosure](README.md#progressive-dis
 | Each new crewmate | The end of their mission | The freeing scene ([freeing kie](cutscenes/mission-one.md#freeing-kie), [freeing kcaj](cutscenes/mission-two.md#freeing-kcaj)) |
 | The den | Straight after Mission one's first debrief, once ever | [The first visit](cutscenes/den.md#the-first-visit): kie and tones2 put the den back together |
 | A second tabk | The first visit to the tabk bay after Mission one | [kie's tabk comes home](cutscenes/den.md#kies-tabk-comes-home), rebuilt as The Projectionist |
+| A third tabk | The first solo visit to the tabk bay after Mission two | [kcaj's tabk comes home](cutscenes/den.md#kcajs-tabk-comes-home), rebuilt as SOFT SERVE (scripted, not built) |
 | Each freed crewmate at home | The first den visit after their freeing | [A crewmate moves in](cutscenes/den.md#a-crewmate-moves-in), and their station lights up |
 | XP and rank | The first debrief | [The first debrief](cutscenes/mission-one.md#the-first-debrief): the first XP, and the first step up the ladder |
 

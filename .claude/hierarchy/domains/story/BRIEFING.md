@@ -137,7 +137,17 @@ super, the boss reveal and the pilot freed rules). `OnceOnlyTests` (the once-onl
   Nothing checks the mission order, roster or reveals against the document. This is the domain's first card.
 - Mission order after kcaj is open (`story.md`, Open questions; with Design).
 - Each mission's story after Mission two (its briefing, how its crewmate's freeing plays out) is undecided.
-- kcaj's tabk coming home needs its own den beat and card; kie's is built (`cutscenes/den.md`, `Core/Lobby/DenBeats`).
+- kcaj's tabk coming home is scripted (kcaj-tabk-homecoming, 25 Oct), waiting on the owner to read it:
+  `cutscenes/den.md`, kcaj's tabk comes home, three shots, about 13 s, in the bay like kie's (`KieHomecoming`,
+  `BayHomecomingView`). It plays on the first solo bay visit with kcaj's tabk won and `moved-in-kcaj` seen, and hands
+  straight into Does it do cones? on the stands (the skit's trigger now says so). Proposed key `kcaj-tabk-home`, for
+  `OnceOnly.All` when it's built; `story.md`'s reveals table has its row (A third tabk, not built). New for staging:
+  SOFT SERVE cut into hull and machine, the olive wreck as a paint swap, a drone carry from off screen, the BRAIN FREEZE
+  sticker and note, the paint running down, and the player's soldier stepping out of the shot (kie's beat has the
+  player speak; this one and the skit play tones2, kcaj and kie whoever's picked).
+  - Left for its owners: `tabks/kcaj.md` and the old skit text said SOFT SERVE parks downstairs, but `lobby.md` and
+    `Garage` put it on the top deck; the script follows the code. kie's beat doesn't say what happens when the player
+    walks in as kie (the stage's kie and your kie both show).
 - `wintergarden-chats` is a Roadmap idea (owned by Design); this domain would write its conversations if it is queued.
 - Narrator audio is spelled phonetically in the vendor repository (kie, kcaj and tabks are respelled so the voice says them
   right); that is the audio domain's, but a story change that adds a name must tell it.

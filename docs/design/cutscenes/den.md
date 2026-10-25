@@ -131,3 +131,113 @@ runs 6 seconds, not 3, so its three lines can be read at about three words a sec
 2026-10-25, dca-homecoming-pace), which makes it about 12 seconds in all; in the third, kie's line comes in with the
 name card so it gets its reading time too. `BeatReadingTests` holds this beat's lines, and the den's, to the rule. The crane lowers
 the projector (the sprite's top 14 rows) onto the bare hull. A tap skips it, and a `?test=` jump never plays it.
+
+## kcaj's tabk comes home
+
+kcaj's tabk was wrecked in Mission two's boss fight, and it comes back rebuilt as SOFT SERVE
+([kcaj's tabk](../tabks/kcaj.md)): the cargo drone hauls the wreck home from the creamery, and kcaj rebuilds it round
+the soft-serve machine he brought out with him, as kie did with his projector. The joke is the creamery's own look
+turned on the Trollograms: it's his now, in his colours, not Brain Freeze's. Drafted 2026-10-25
+(kcaj-tabk-homecoming), for the owner to read before it's staged.
+
+**Plays** in [the tabk bay](../lobby.md#the-tabk-bay) the first time the player walks in on their own once kcaj's
+tabk is won (Mission two cleared, `TabkCards.Won`) and kcaj has moved in (`moved-in-kcaj`). The bay is through the
+den, so the move-in always comes first; the check only makes sure of it. Never in a co-op room: like the skits, it waits for the next visit on your own,
+since [Does it do cones?](skits.md#does-it-do-cones) plays straight on from it. About 13 seconds, three shots; tap to
+skip. Once ever, under the key `kcaj-tabk-home` (proposed, as `kie-tabk-home` is kie's), kept with the player's
+progress so it follows a sign-in. A `?test=` jump never plays it.
+
+**Who's in it:** kcaj and tones2, whoever's picked, as in the skits, because Does it do cones? carries on with the same
+two and brings kie in. This differs from kie's homecoming, where the second voice is the player's own soldier: here the
+stage plays the crew, the soldier you walked in as steps out of the shot for the beat and the skit, and is back where
+they were after. **The paint** ([kcaj's tabk](../tabks/kcaj.md)): kcaj's purple with his gold stripe, the machine's
+pale grey, and the plain olive under it until the paint goes on in shot 3.
+
+```text
+1. INT. THE TABK BAY - DAY                              3 s
+
+The repair stands are empty. The CARGO DRONE comes down
+the bay from the far end, slow and low, a wreck hanging
+off its cable: the plain olive tabk from the creamery,
+scorched, frosted, cyan scuffs down its side, the cone
+still on its antenna. It sets it down on the stands.
+
+KCAJ wanders in after it, eating two cones at once.
+
+SFX: the drone's whine, straining; a heavy thump as the
+wreck sets down.
+
+                                                   CUT TO:
+
+2. INT. THE TABK BAY - CONTINUOUS                       6 s
+
+The crane lowers a soft-serve machine onto the turret
+ring: pale grey, a striped awning, a menu sign, and a
+BRAIN FREEZE sticker on its side. kcaj steps back and
+looks at it. Then at TONES2.
+
+                    KCAJ
+          THE CREAMERY. THE TROLLOGRAMS. THE MOON.
+
+                    TONES2
+          THE MOON?
+
+                    KCAJ
+          IT'S ALL CONNECTED.
+
+                                                   CUT TO:
+
+3. INT. THE TABK BAY - CONTINUOUS                       4 s
+
+kcaj peels a sticky note off his pad and slaps it over
+the BRAIN FREEZE sticker. It says KCAJ, in his scrawl.
+
+He pulls the machine's lever. It hums, the swirl on top
+wobbles, and his purple and gold run down the hull from
+the machine like a drip, all the way to the tracks,
+until no olive is left.
+
+SFX: the note; the machine's whirr; a chip clunk.
+
+SUPER (THE NAME CARD DROPS IN): KCAJ'S TABK ·
+SOFT SERVE
+
+                    KCAJ
+          MINE NOW.
+
+He takes a rag out of his pocket, leans on the tabk and
+starts polishing the chrome nozzle.
+
+                       INTO: DOES IT DO CONES? (the skit,
+                       straight on, with SOFT SERVE still on
+                       the stands)
+```
+
+**Reading time:** the lines are 6, 2 and 3 words in shot 2, which leaves the crane about 1.3 seconds before the first
+one (as kie's does) and each line its three words a second; MINE NOW. comes in with the name card, as kie's last line
+does. `BeatReadingTests` would hold it to that, as it holds kie's.
+
+**Afterwards:** Does it do cones? plays at once, on the stands. When it ends, the drone lifts SOFT SERVE up to its
+space on the top deck (`Garage`: kcaj's home is the top deck's first space) and swaps the player's loaded tabk back onto
+the stands, as it does after kie's beat. During the beat and the skit the loaded tabk waits in its own space. A skip
+ends the beat at its last frame and the skit still plays: it has its own key and its own tap.
+
+**Staging notes** (for the build card), from what kie's beat already has (`KieHomecoming`, `BayHomecomingView`):
+- **Reused:** the bay, the repair stands, the crane and its cable lowering a part onto the turret ring, the name card,
+  speech bubbles, the `note` stage prop, the `cones` prop for kcaj's two cones, the drone and its cable, and SOFT
+  SERVE's two frames as `KcajTabkArt` draws them (the second, while a shot charges, is the swirl's wobble in shot 3).
+  kcaj and tones2 are the stage's own figures.
+- **New, small:** SOFT SERVE cut in two, as `KieTabkArt.Bare` and `Turret` are: the hull and tracks, and the machine
+  above them. The wreck is that hull in the plain tabk's olive (a paint swap, the way each `TabkCard` paints the
+  tabk's two body colours), with frost and scorch over it; the cone on the antenna is on it already.
+- **New, small:** the drone carrying a tabk in from off the screen. `DroneShow` only moves a tabk from one spot to
+  another today; this is one move whose start is past the screen's right edge.
+- **New, small:** the BRAIN FREEZE sticker on the machine's side (a few pixels of Brain Freeze's colours from the
+  creamery's signs), and the note over it, which then stays. Whether the note stays on SOFT SERVE for good, in the bay
+  and in missions, is the owner's call; the script only needs it till the skit ends.
+- **New:** the paint running down. A wipe from the olive hull to the purple one, top to bottom, with a ragged edge so it
+  reads as a drip. If that's too much for its card, a fade (as kie's frost fades) will do.
+- **New:** the soldier you walked in as stepping out for the beat and the skit (see Who's in it). kie's beat has the
+  player's own soldier speak, and this one can't, because the skit needs tones2, kcaj and kie whoever's picked.
+- **Nothing pipes a cone.** The beat never shows the nozzle working, so the skit's question is still a question: the
+  first cones out of it are the two it splats on tones2.
