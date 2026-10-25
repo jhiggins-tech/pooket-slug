@@ -10,7 +10,7 @@ one script on 2026-10-19 (cutscenes-script).
 **Read this when** you're writing or changing a cutscene, a line, a narrator recording, or anything a scene shows.
 
 The scenes are on a page per part: [Mission one](mission-one.md), [the den](den.md), [Mission two](mission-two.md),
-[the retired scene](retired.md) and [the co-op check](coop-check.md). This page has the rules every scene follows.
+[the skits](skits.md), [the retired scene](retired.md) and [the co-op check](coop-check.md). This page has the rules every scene follows.
 
 Up: [Design](../README.md) · The story around the scenes: [story](../story.md) · How the game plays a scene:
 [writing the cutscenes](../../scenes.md)
@@ -57,6 +57,7 @@ rewrite in the crew's own voice.
 | [The Mission two briefing](mission-two.md#the-mission-two-briefing) | Mission two starts | 26 s | `m2-briefing.txt` | Built, narrator voiced |
 | [kcaj's tabk arrives](mission-two.md#kcajs-tabk-arrives) | The first time the players reach the cold store | 12 s | `scenes/kcaj-tabk.txt`, then the boss intro | Built (m2-finish): solo the first time; in co-op, together at each run's first boss wake (the phones' saves can differ); where it doesn't play (a test start, or a solo fight once it's been seen, until Mission two is cleared) the boss intro ends with Trollogram kcaj's TROLLO-KCAJ band at the hatch |
 | [Freeing kcaj](mission-two.md#freeing-kcaj) | Trollogram kcaj beaten on foot | 23.5 s, after the glitch-out in play | `scenes/freeing-kcaj.txt` (shots 2 to 5) | Built (m2-finish), on both phones in co-op, on Design's loading-yard plate |
+| [Skits](skits.md) | Once each, in the den and the tabk bay, after Mission one and after Mission two | 12.5 to 19 s | none: in the den or the bay itself | Draft scripts, four (skit-scripts, 2026-10-25), for the owner to pick |
 | [Two of the crew](retired.md#retired-two-of-the-crew) | Retired | 8 s | none | Retired, 2026-10-18 |
 | [The co-op check](coop-check.md#the-co-op-check) | `?test=scene` and CI only | 36 s | `coop-test.txt` | A test, not the story |
 

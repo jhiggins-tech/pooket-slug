@@ -379,6 +379,9 @@ finishes it alone, with his tabk. About 28.5 seconds: the glitch-out's 3 seconds
 It can be skipped once seen, on a replay. Intro: kie, as he drops. Scene file: `scenes/freeing-kie.txt` (shots 2 to
 5; shot 1 is the game's).
 
+**Where the snacks came from** (draft, [Five-second rule](skits.md#five-second-rule)): tones2 dropped the bag in the
+den in the opening, and picked it up off the floor on his way out.
+
 **How the release is done** (owner, 2026-10-16): the cargo drone hauls the tabk out, and kie hands over its remote.
 It's what makes every call-in drop from the sky ([calling in a tabk](../tabks/driving.md#calling-in-a-tabk)). Then straight into
 [the coda](../story.md#the-coda), every time.

@@ -109,6 +109,13 @@ super, the boss reveal and the pilot freed rules). `OnceOnlyTests` (the once-onl
 4. Keep `docs/design/` links relative and run `tools/check.sh docs`. Update this briefing in the same commit.
 
 ## Known unfinished
+- Skits (skit-scripts, 25 Oct): four drafted in `docs/design/cutscenes/skits.md` (Five-second rule, Wanna race?, Special
+  delivery, Probably a Trollogram), for the owner to pick; the pitch's other six are on the card's page. They are not
+  plot beats, but once built each is a once-only key (proposed `skit-<name>`), so `OnceOnly.All` and the reveals table's
+  rule for keys that are not plot beats will need them. Three settle small story gaps, as drafts until the owner picks:
+  tones2 picked the snacks up off the den floor (the opening drops them, freeing kie hands them over); the cargo drone
+  brings kie home after Mission one; and kcaj's note on tones2's back says PROBABLY A TROLLOGRAM. The snacks and the note are
+  noted in `cutscenes/mission-one.md` and `mission-two.md`; if a skit isn't picked, its note there comes out with it.
 - From domain-consistency-audit (25 Oct), left for the owner:
   - Mission two's run in `story.md` names two beats that aren't built: a goon frozen on a conveyor, and the scoop dropper's
     one-time gag (the droppers are a repeating hazard, `Creamery.ScoopCycle`). The page says so under Built so far. Build
