@@ -217,6 +217,32 @@ Two limits are real and shape the design:
   fan-out costs more than it saves: five domains in flight means five sets of eyes on five sets of rules, and nobody
   is checking any of them.
 
+## Today's role threads
+
+The project runs today on standing role threads, not this hierarchy: the routing table and each role's notes are in
+the project's memory (`roster.md`, `role-<name>.md`). If the hierarchy goes live, a domain's briefing takes over the
+job of its role note, and the two are not kept side by side. As of 25 Oct the roles map like this:
+
+| Role thread today | Becomes |
+|---|---|
+| Roadmap manager | the roadmap PM |
+| Platform architect | the platform architect |
+| Engineer: gameplay | `gameplay` |
+| Engineer: story and screens | `cutscene` and `den` |
+| Engineer: title screen | `shell` |
+| Engineer: co-op and online | `net` |
+| Story and lore | `story` (the scripts in `docs/design/cutscenes/` stay the `cutscene` domain's) |
+| Design | `sprites` for the art; the den's and the missions' design go with `den` and `gameplay` |
+| Media generation | `sprites`: the generated half of the art, and the spend and ledger in the vendor repository |
+| Audio and music | no domain yet: its files are `gameplay`'s in the map |
+| QA and release | no domain: it merges what the owner approves, which sits above the domain managers |
+| Design consistency check | no domain: closest to the architect's health checks and the `story` check |
+
+The Roadmap's statuses today are `idea`, `queued`, `building`, `review`, `feedback` and `done`. Only the owner's
+approval sets `done`, and only the owner moves an `idea` to `queued`. The card states above map onto them: `open` is
+`queued`, `claimed` and `in-progress` are `building`, `in-review` is `review`, and `blocked` has no status of its own
+yet.
+
 ## What is not settled
 
 These are the open questions, and they are the owner's to answer:
@@ -232,6 +258,9 @@ These are the open questions, and they are the owner's to answer:
 4. **Whether the sprites domain has a tool of its own.** Its work is partly made outside the repository, in the
    vendor repository's image and video pipelines, and partly in the owner's own art files. The domain manager needs to
    say plainly what it owns and what the owner keeps.
+5. **Where audio, release and the consistency check go.** Three of today's roles have no domain (the table above):
+   audio could be its own domain or stay `gameplay`'s, and QA and release and the consistency check could be L0
+   roles beside the roadmap PM.
 
 ## What to do next
 

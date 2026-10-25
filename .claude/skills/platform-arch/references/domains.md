@@ -97,12 +97,12 @@ different" or "the den opens differently" belongs here.
 
 **The code**
 
-- `Assets/Scripts/Core/Lobby/` — `Den.cs`, `DenMap.cs`, `DenBeats.cs`, `BayMap.cs`, `RollerDoor.cs`, `Den` beats, the
+- `Assets/Scripts/Core/Lobby/` — `Den.cs`, `DenMap.cs`, `DenBeats.cs`, `BayMap.cs`, `RollerDoor.cs`, the outer rooms (`RoomMap.cs`, `RopeClimb.cs`, `SwingDoor.cs`), `Den` beats, the
   bay's walker. **Not** `Profile.cs`, `Options.cs`, `Ranks.cs`, `Debrief.cs`, `CoopRoom.cs` — those are the `shell`'s
   or the `net`'s; the map says which.
 - `Assets/Scripts/Ui/Den/` — every file: `DenView.cs`, `DenRoom.cs`, `DenCrew.cs`, `DenConsole.cs`, `DenInfo.cs`,
   `DenBeatView.cs`, `DenBitPlayer.cs`, `DenRollerDoor.cs`, `BayView.cs`, `BayHomecomingView.cs`
-- `Assets/Scripts/Game/DenFlow.cs` and `BayFlow.cs`
+- `Assets/Scripts/Game/DenFlow.cs`, `BayFlow.cs`, and the outer rooms' `RoomsFlow.cs` and `RoomFlow.cs`
 - `Assets/Resources/Den/` — the paintings, as `.bytes`
 
 **The art** — `Assets/Resources/Den/*.bytes` (the den, the loft, the bay, the showers, the laundry, the raid den,

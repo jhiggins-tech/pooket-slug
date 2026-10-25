@@ -120,15 +120,23 @@ den Assets/Scripts/Core/Lobby/DenMap.cs
 den Assets/Scripts/Core/Lobby/DenBeats.cs
 den Assets/Scripts/Core/Lobby/BayMap.cs
 den Assets/Scripts/Core/Lobby/RollerDoor.cs
+den Assets/Scripts/Core/Lobby/RoomMap.cs
+den Assets/Scripts/Core/Lobby/RopeClimb.cs
+den Assets/Scripts/Core/Lobby/SwingDoor.cs
 den Assets/Scripts/Ui/Den/
 den Assets/Scripts/Game/DenFlow.cs
 den Assets/Scripts/Game/BayFlow.cs
+den Assets/Scripts/Game/RoomFlow.cs
+den Assets/Scripts/Game/RoomsFlow.cs
 den Assets/Resources/Den/
 den Assets/Tests/EditMode/Lobby/BayMapTests.cs
 den Assets/Tests/EditMode/Lobby/DenBeatsTests.cs
 den Assets/Tests/EditMode/Lobby/DenMapTests.cs
 den Assets/Tests/EditMode/Lobby/DenTests.cs
 den Assets/Tests/EditMode/Lobby/RollerDoorTests.cs
+den Assets/Tests/EditMode/Lobby/RoomMapTests.cs
+den Assets/Tests/EditMode/Lobby/RopeClimbTests.cs
+den Assets/Tests/EditMode/Lobby/SwingDoorTests.cs
 den docs/design/lobby.md
 den docs/design/lobby/
 
