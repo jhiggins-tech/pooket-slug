@@ -75,9 +75,13 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
   and up from 22 Oct until cutscene-polish, 25 Oct). What a soldier holds or carries (`holds`, `on`) sits
   `FigureGrow` times its offset from their feet (`ShotStage.Where`, `SceneScriptTests.MovesWalksAndHoldsPlaceThings`).
   A `holds` offset is in stage terms, not mirrored by `face`: facing left, in front is a minus across.
-- A hidden soldier is still stood where the shot puts them, so an off-screen speaker's bubble points there (the
-  keycard's and the string board's close-ups, which sit over the world, bubbles included: stage the speaker so the
-  bubble clears the card).
+- A hidden soldier is still stood where the shot puts them, so an off-screen speaker's bubble points there.
+- A close-up (`closeup`, the keycard; `board`, kcaj's string board) sits on the stage over the world, dimming it,
+  bubbles included. So no bubble plays over one: the close-up holds alone (3 s at least), hides, and the lines come
+  after in the wider shot with the speaker shown (owner, 25 Oct, closeup-bubbles; the README's rule,
+  `SceneScriptTests.NoBubbleSitsOverACloseUp`). The keycard is 0 to 3.4 s of a 6.2 s shot, the board 0 to 3.2 s of
+  7.2 s; the board's shot sets kcaj's corner's camera from its start, which the close-up doesn't move (it is on the
+  stage, not the world).
 - Boss intro: the full one (siren twice, WARNING!, name card, then a pilot's hatch and band) and the quick one (a
   replay of a cleared mission, or a retry after losing at the boss door: `StoryRecord.QuickBossIntro`),
   `BossIntroShow.Cue`. The pilot's part plays only when the mission's reveal hasn't just played: a test start, or a

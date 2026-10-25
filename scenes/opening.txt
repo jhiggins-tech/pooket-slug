@@ -113,19 +113,26 @@ goon face right
 5.4 narrator opening-4b: It glitches out, and drops its keycard.
 
 shot: The keycard
-length 5
+length 6.2
 set den
 spark at 131 52
 spark size 0.5 0.5
 spark blink 9 3
-// the keycard, close up: it slides up into view and flickers like the Trollograms do. tones2 is off screen, but
-// his bubble points down to where he stands, just under the card so it isn't hidden behind it.
+chips spill 49
+// the keycard, close up, on its own: it slides up into view and flickers like the Trollograms do, while the narrator
+// reads it. Then it cuts back to the den, tones2 standing where he picked it up, and he says his line there.
 closeup show
-tones2 at 132 -10
+3.4 closeup hide
+tones2 at 132
+tones2 holds cup -9 13
+tones2 face left
 tones2 hide
+cup hide
+3.4 tones2 show
+3.4 cup show
 0.1 cue card-up
 0.5 narrator opening-5: A pass for the military base, up on the hill.
-2.6 tones2: THAT'S WHERE THEY TOOK THEM.
+3.7 tones2: THAT'S WHERE THEY TOOK THEM.
 
 shot: Heading out
 length 6
