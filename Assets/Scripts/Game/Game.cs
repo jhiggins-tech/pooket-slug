@@ -113,7 +113,7 @@ namespace PooketSlug
             m_Flags = LaunchFlags.Read(url);
             if (m_Flags.Mission != null) Mission = m_Flags.Mission; // ?mission=2
             Log.Configure(m_Flags.LogLevels); // ?log=net:debug,game:warn for this visit
-            Spike.Configure(url); // ?spike=craters,partner for this visit (before the art and sounds, which make what spikes need)
+            Spike.Configure(url); // ?spike=craters for this visit (before the art and sounds, which make what spikes need)
             Art.Init();
             Sfx.Init(gameObject);
             Music.Init(gameObject);

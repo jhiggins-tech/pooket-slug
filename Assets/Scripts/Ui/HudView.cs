@@ -88,7 +88,7 @@ namespace PooketSlug
         readonly List<Image> m_PartnerHearts = new List<Image>();
         string m_StatusKey;
 
-        // the partner beacon (spike coop-camera): an arrow to a partner who's off screen, and their warnings
+        // the partner beacon (PartnerBeacon, in every co-op game): an arrow to a partner who's off screen, and their warnings
         static readonly Color Low = new Color(1f, 0.3f, 0.25f), AwayGrey = new Color(0.75f, 0.75f, 0.8f);
         readonly RectTransform m_Beacons;
         readonly List<Image> m_Arrows = new List<Image>();

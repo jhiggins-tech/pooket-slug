@@ -24,7 +24,7 @@ namespace PooketSlug
         public static Sprite Disc => s_Disc != null ? s_Disc : s_Disc = ToSprite(Art.DiscTex);
         public static Sprite Heart => s_Heart != null ? s_Heart : s_Heart = ToSprite(Art.HeartTex);
 
-        /// <summary>A solid arrowhead pointing right (the partner arrow, spike coop-camera).</summary>
+        /// <summary>A solid arrowhead pointing right (the partner arrow, <see cref="PartnerBeacon"/>).</summary>
         public static Sprite Arrow => s_Arrow != null ? s_Arrow : s_Arrow = ToSprite(ArrowTex());
 
         static Texture2D ArrowTex()

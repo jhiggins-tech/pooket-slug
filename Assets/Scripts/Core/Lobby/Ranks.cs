@@ -27,8 +27,8 @@ namespace PooketSlug
     /// The rank ladder, lowest first: Pooket Tabks' 33 ranks, ported from its <c>src/stats/ranks.ts</c> (the owner,
     /// 2026-10-16). Everyone starts on the lowest (<c>docs/design/player.md</c>, What the player keeps). Most are
     /// meant to be discovered: a rank's name shows in the game only once you've reached it, and only Bronze, Silver,
-    /// Gold, Platinum, Diamond, Master, Grandmaster and Champion may be named outside this file (docs, tests,
-    /// commit messages: <c>docs/design/player.md</c>, What the player keeps).
+    /// Gold, Platinum, Diamond, Master, Grandmaster and Champion may be named in text players read (the game's screens,
+    /// the site). Code, tests, docs and commit messages may name any of them (the owner, 17 Oct: it's about spoilers).
     /// </summary>
     public static class Ranks
     {
