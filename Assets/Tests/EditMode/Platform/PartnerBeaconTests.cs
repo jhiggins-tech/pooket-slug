@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace PooketSlug.Tests
 {
-    /// <summary>Spike coop-camera: the partner arrow, the low-health and away warnings, and the camera's hold.</summary>
+    /// <summary>The partner beacon (it began as spike coop-camera, in the game since 19 Oct): the partner arrow, the low-health and away warnings, and the camera's hold.</summary>
     public class PartnerBeaconTests
     {
         static readonly Rect View = new Rect(0f, 0f, 20f, 11.25f);
