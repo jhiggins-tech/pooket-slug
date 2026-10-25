@@ -18,6 +18,7 @@ The map (`.claude/hierarchy/OWNERSHIP.txt`) is the authority. The domain owns ex
 - `Assets/Resources/Title/` (`logo.bytes`, `parts*.bytes`, `layout.txt`)
 - `Assets/Tests/EditMode/Anim/ClipTests.cs`, `CrewFigureTests.cs`, `StagePoseTests.cs`
 - `Assets/Tests/EditMode/Title/` (`TitleMotionTests.cs`)
+- `Assets/Tests/Gameplay/ArtTests.cs` (the frame contract for what is drawn by id or by frame: a PlayMode test, CI only)
 - `docs/design/art.md` (the models, the look and the sprite workflow)
 
 What each is: `ArtData` is every frame as rows of characters (the main file); `Art` turns rows into sprites at startup,
@@ -39,11 +40,16 @@ blinks and flickers; `CrewFigure` is the shared figure's moves; `StagePose` is h
 - Plates are made from the style line and the plate's own prompt alone, then cut to game size and 16 colours, and
   checked in the game, not only on their own (`docs/design/art.md`, "Background plates"). To change one part of a
   picked painting, edit it with a red mark and paste the answer back through a mask, so the rest stays as picked.
-- A frame that is missing is a bug in this domain. Every `CrewMove` has its clip, every `CrewLegs` and `CrewBody`
-  value has art, every body frame places the head, and a crewmate's head frame they have not drawn falls back to their
-  forward one (`CrewLook.Head`). `CrewFigureTests.EveryMoveHasItsClipAndEveryBodyFramePlacesTheHead` holds the clips
-  and the heads only: nothing tests that `CrewArt`'s `s_Bodies`, `s_BodyTops` and `s_Legs` have a row per enum value
-  (they are in the game assembly, which EditMode tests do not reach; see Known unfinished).
+- A frame that is missing is a bug in this domain. Every `CrewMove`, `CrewLegs` and `CrewBody` value has art, every
+  body frame places the head, and a crewmate's head frame they have not drawn falls back to their forward one
+  (`CrewLook.Head`). `CrewFigureTests.EveryMoveHasItsClipAndEveryBodyFramePlacesTheHead` holds the first two;
+  `ArtTests.EveryBodyAndLegsFrameHasArtForEveryone` holds every skin (the trooper's and each crewmate's) to a sprite
+  for every `CrewBody` and `CrewLegs` value.
+- Every projectile and pickup in `Content` has a sprite of its own in `Art`'s tables (`ArtTests`, through
+  `Art.PaintedProjectile` and `Art.PaintedPickup`). A def with none still draws: a projectile borrows `Art.Shell`, a
+  pickup `Art.CrateHeavy`, so a shot never flies invisible, but the test fails until it is given one. The tabk's own
+  shell and mortar shots (ids 9 and 10, fired by the unused weapons 18 and 19) draw the shell (card
+  dca-tabk-shot-sprites).
 - A blink, flicker or walk cycle goes through `Fx` or a `Clip`, never an inline `(int)(t * hz) % n`
   (`CLAUDE.md`, `ClipTests`, `CrewFigureTests.TheLastInlineBlinksKeepTheirBeat`). A rate that more than one site
   shares is a named `Pulse` in `Fx` or a `Clip` in `Clips`, so the Trollogram flickers the same on the boss, in a
@@ -102,13 +108,16 @@ blinks and flickers; `CrewFigure` is the shared figure's moves; `StagePose` is h
 
 ## How it is checked
 `tools/check.sh` (type-check as for WebGL, EditMode tests, scene check, docs link check), or `tools/check.sh compile`
-for a type change. The domain's tests are `Assets/Tests/EditMode/Anim/` and `Assets/Tests/EditMode/Title/`. A change to
+for a type change. It skips the PlayMode assembly (`PooketSlug.Game.Tests`: `UNITY_INCLUDE_TESTS` is not defined
+there), so `ArtTests` compiles and runs only in CI; to type-check it locally, call csc on `Assets/Tests/Gameplay/*.cs`
+with `PooketSlug.Game.refs.txt`, `PooketSlug.Game.dll` and NUnit from check.sh's output folder. The domain's tests are `Assets/Tests/EditMode/Anim/` and `Assets/Tests/EditMode/Title/`. A change to
 a sprite is judged by looking at it: push the branch and use its preview build, or the card's page for art that does
-not have to run in game. Nothing tests the art itself (see below).
+not have to run in game. Tests check that frames exist, not how they look (see below).
 
 ## Known unfinished
-- The frame contract has no test. Nothing in the repository checks which entities have which frames, or that nothing
-  draws a missing one; `CrewFigureTests` covers the crew's figure only. This is the domain's first card.
+- The frame contract is only partly tested. `ArtTests` (PlayMode) covers projectiles, pickups and the crew's skins, and
+  `CrewFigureTests` the crew's moves; nothing yet checks a goon's, a boss's or a set piece's frames for every state it
+  can be in.
 - Plates: Mission one has one sky, five far and ten mid plates. `far-4` is a second coda plate beside `far-3` (the same size, not the same pixels),
   added when the repeats were re-spaced (commit 9559233, 19 Oct). Mission two has one sky, one far and five mid plates,
   stood 2 units up (`PlatesStand`); its `mid-0` (836 px) and `mid-4` (800 px) are wholly transparent, gaps in the

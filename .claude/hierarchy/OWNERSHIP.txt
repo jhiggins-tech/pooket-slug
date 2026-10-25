@@ -165,6 +165,7 @@ sprites Assets/Tests/EditMode/Anim/ClipTests.cs
 sprites Assets/Tests/EditMode/Anim/CrewFigureTests.cs
 sprites Assets/Tests/EditMode/Anim/StagePoseTests.cs
 sprites Assets/Tests/EditMode/Title/
+sprites Assets/Tests/Gameplay/ArtTests.cs
 
 # ---------------------------------------------------------------- shell
 # The shell around the game: the state machine and its flows, the screens, the title, the HUD.
