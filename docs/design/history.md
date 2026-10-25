@@ -45,3 +45,4 @@ Up: [Design](README.md)
 - **Teaching tones2's kit** as you go, or in a training yard first. Mission one goes straight in.
 - **Secret feats** for the hidden rungs, and **status-mod crates**. Both dropped (14 Oct).
 - **Your tabk as artillery**, with a turret and charged shots. Only boss tabks fight that way (15 Oct).
+- **Mission two's two gags**: a goon frozen solid riding a conveyor past you, still mid-shout, and a scoop dropper landing a scoop on a soldier's head once, the first time. Cut from the docs before they were built (25 Oct); the droppers just drop on a beat.

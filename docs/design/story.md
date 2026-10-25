@@ -78,9 +78,9 @@ kcaj's mission, at the Brain Freeze creamery ([the map](levels.md#mission-two-th
 
 ### The run
 
-No scenes, just the place telling it: goons on the production line, Trollogram projectors humming behind frosted glass (shoot one and a few goons nearby flicker out), a goon frozen solid on a conveyor rolling past still mid-shout, and the freezer corridor before the cold store, where breath fogs. A scoop dropper plops a scoop on a soldier's head once, the first time, for the gag.
+No scenes, just the place telling it: goons on the production line, Trollogram projectors humming behind frosted glass (shoot one and a few goons nearby flicker out), and the freezer corridor before the cold store, where breath fogs. Scoop droppers overhead drop a scoop every few seconds that hurts whoever it lands on.
 
-**Built so far** ([levels](levels.md#mission-two-the-brain-freeze-creamery)): the projectors, the belts and the corridor's fog. Not built yet: the goon frozen on a conveyor, and the scoop gag (the droppers drop a scoop every few seconds that hurts whoever it lands on, `Creamery.ScoopCycle`, with no first-time gag).
+**Built** ([levels](levels.md#mission-two-the-brain-freeze-creamery)): the projectors, the belts, the droppers (`Creamery.ScoopCycle`) and the corridor's fog. A goon a vent freezes still rides the belt it's standing on (`Enemy.TickFrozen`), but nothing stages one rolling past. The two staged gags were cut (dca-m2-unbuilt-beats, 25 Oct): [history](history.md#considered-not-picked) keeps them.
 
 ### The end
 
