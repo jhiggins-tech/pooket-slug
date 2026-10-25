@@ -3,7 +3,7 @@
 The story of Pooket Slug, how it unfolds across the missions, and how reveals are shown. The cutscenes themselves, every
 line and shot, are in one script: [cutscenes](cutscenes/README.md).
 
-**Status:** signed off by the owner, 2026-10-14.
+**Status:** signed off by the owner, 2026-10-14. [The coda](#the-coda) and [Mission two](#mission-two-the-creamery) were written after it (2026-10-16) and are still drafts.
 
 **Read this when** you're writing a mission's story, or anything that reveals something new to the player. For a
 cutscene, read [cutscenes](cutscenes/README.md).
