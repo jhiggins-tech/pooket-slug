@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace PooketSlug
 {
-    /// <summary>Why the den is open: to start a solo mission, to look round the crew (CREW, no mission), or a co-op room's lobby.</summary>
+    /// <summary>Why the den is open: to start a solo mission, or a co-op room's lobby. Crew (looking round the crew, no mission) was the old CREW button's; nothing opens the den in it now, but the den and its tests still handle it.</summary>
     public enum DenMode { Solo, Crew, Coop }
 
     /// <summary>What the den knows about the other player in a co-op room, from their replicated soldier.</summary>

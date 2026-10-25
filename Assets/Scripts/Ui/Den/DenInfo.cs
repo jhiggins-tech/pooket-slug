@@ -3,7 +3,7 @@ namespace PooketSlug
     /// <summary>What the den shows besides the <see cref="Den"/> itself.</summary>
     public struct DenInfo
     {
-        /// <summary>The mission on the TV and the board (null in CREW, which has none).</summary>
+        /// <summary>The mission on the TV and the board (null in DenMode.Crew, which has none).</summary>
         public string Mission;
         /// <summary>The co-op room's name for the TV (MATES, see CoopRoom), or null.</summary>
         public string Room;

@@ -4,8 +4,8 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// The lobby's flow, the crew's den (<c>docs/design/lobby.md</c>, Den 2.0): once the crew's open, START, CREW and co-op
-    /// go through it. Walking your soldier round it (the places are the menu), swapping to a crewmate, the couch and
+    /// The lobby's flow, the crew's den (<c>docs/design/lobby.md</c>, Den 2.0): once the crew's open, START and co-op go
+    /// through it. Walking your soldier round it (the places are the menu), swapping to a crewmate, the couch and
     /// READY, the invite, hosting, and in a co-op room the partner's seat and the countdown, then the mission. As it
     /// opens, any of its beats due play first (<see cref="DenBeats"/>: the first visit, a crewmate moving in).
     /// </summary>
