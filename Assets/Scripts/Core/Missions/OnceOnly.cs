@@ -21,18 +21,18 @@ namespace PooketSlug
 
     /// <summary>
     /// Every once-only key the game saves, in one list: what the story check reads for "every reveal is in the plot"
-    /// (<c>docs/design/story.md</c>, Reveals are story beats). The keys are set from five places, and this list takes
+    /// (<c>docs/design/story.md</c>, Reveals are story beats). The keys are set from six places, and this list takes
     /// each from its source rather than spelling it again: <see cref="Reveals.Coop"/>, a scene's
     /// <see cref="SceneScript.IdOf"/> for each of <see cref="SceneLibrary.Names"/>, <see cref="StoryRecord"/>'s three,
     /// <see cref="DenBeats"/> (the first visit, and a move-in for each crewmate in <see cref="Crew.All"/> who wasn't home for
-    /// it) and <see cref="KieHomecoming.Reveal"/>. <c>OnceOnlyTests</c> holds every place the game marks a key to this list,
+    /// it), <see cref="KieHomecoming.Reveal"/> and the skits' (<see cref="Skits.All"/>). <c>OnceOnlyTests</c> holds every place the game marks a key to this list,
     /// and pins the keys as they are in saves.
     /// </summary>
     public static class OnceOnly
     {
         static List<OnceOnlyBeat> s_All;
 
-        /// <summary>The beats, by source: the co-op reveal, the story's three, the scenes, the den's, the bay's.</summary>
+        /// <summary>The beats, by source: the co-op reveal, the story's three, the scenes, the den's, the bay's, the skits.</summary>
         public static IReadOnlyList<OnceOnlyBeat> All => s_All ?? (s_All = Build());
 
         /// <summary><paramref name="key"/> is one the game saves.</summary>
@@ -59,6 +59,7 @@ namespace PooketSlug
                 if (!DenBeats.Starter(m.Soldier))
                     all.Add(new OnceOnlyBeat(DenBeats.MovedIn(m.Soldier), m.Name + " has moved into the den"));
             all.Add(new OnceOnlyBeat(KieHomecoming.Reveal, "kie's tabk has come home to the bay"));
+            foreach ((string key, string what) in Skits.All) all.Add(new OnceOnlyBeat(key, what));
             return all;
         }
     }

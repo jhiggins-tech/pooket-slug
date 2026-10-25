@@ -58,6 +58,7 @@ namespace PooketSlug
         Options m_Options;
         Profile m_Profile;
         bool m_CoopJustOpened; // this run's win opened co-op
+        MissionDef m_Replayed; // this run was a replay, won solo: the mission, for the den that opens after its debrief (Skits)
         string m_PageUrl;      // the page's address without its query, for invite links
         string m_DemoFolder;   // where the demo clips are served: demos/ beside the page (null in the editor)
 
@@ -333,9 +334,11 @@ namespace PooketSlug
                 return;
             }
             MissionDef next = StartFlow.Next(m_Profile);
+            MissionDef replayed = m_Replayed;
+            m_Replayed = null;
             ToTitle();
             if (Sandbox.Active) return;
-            if (CrewOpen) Den.Show(DenMode.Solo);
+            if (CrewOpen) Den.Show(DenMode.Solo, replayed); // after a replay's debrief, a skit may be waiting (Special delivery)
             else if (next != null)
             {
                 PlayNext(next);
@@ -902,6 +905,7 @@ namespace PooketSlug
             int best = m_Profile.Best(m_World.Mission), clears = m_Profile.Clears(m_World.Mission);
             m_Profile.RecordRun(m_World.Mission, m_World.Scoring.Points, won, solo: !m_Coop);
             m_CoopJustOpened = !wasOpen && m_Profile.coop;
+            m_Replayed = won && !m_Coop && clears > 0 ? m_World.Mission : null; // won again, solo: the den's told, as it opens after the debrief
             if (won) // solo or co-op: each phone's debrief, its own player's XP and rank
             {
                 Debrief.Show(best, firstClear: clears == 0 || m_Flags.Debrief);

@@ -9,8 +9,10 @@ He dropped Wanna race? from the pitch. Staging, art, sound and the build each ge
 
 **How a skit plays:**
 - **Once ever,** like the den's beats ([the den](den.md)), each under its own once-only key, kept with the player's
-  progress so it follows a sign-in. The keys below are proposals: a key goes in `OnceOnly.All` when its skit is built,
-  and never changes after.
+  progress so it follows a sign-in. The keys below are proposals until their skit is built: a key goes in `OnceOnly.All`
+  then, and never changes after. Built (skits-stage, 25 Oct): Two of us now, Special delivery and A Trollogram of
+  anything, under the keys below, as `Skit`s in `Core/Lobby/Skits.cs` (`Skits.Due` says which plays), played by the
+  den's `DenSkitView` on the shared `SkitStage`; `?skit=<key without skit->` plays one as the den first opens, seen or not.
 - **In the room itself,** not as a scene file (Keep it down plays in a mission, in play: see its note): the den's skits play in the den, as its beats do (`DenBeats`,
   `DenBeatView`), and the bay's in the bay, as kie's homecoming does (`KieHomecoming`, `BayHomecomingView`). The player's
   walking waits while it plays, and a tap skips it. Afterwards everyone's back where they were.
@@ -22,7 +24,7 @@ He dropped Wanna race? from the pitch. Staging, art, sound and the build each ge
 - **One skit a visit,** never on the same visit as a beat (the first visit, a move-in or a homecoming), except where
   a skit says it follows one (Two of us now, A Trollogram of anything).
 
-| Skit | Where | Trigger | Once-only key (proposed) | About |
+| Skit | Where | Trigger | Once-only key | About |
 |---|---|---|---|---|
 | [Two of us now](#two-of-us-now) | The den | Straight after the first visit, the den's first opening | `skit-two-of-us` | 14 s |
 | [Keep it down](#keep-it-down) | Mission one's coda, in play | The coda getting under way, on a replay | `skit-keep-it-down` | 3 s |

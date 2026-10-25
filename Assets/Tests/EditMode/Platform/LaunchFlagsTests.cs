@@ -20,6 +20,19 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void ASkitCanBeAskedFor_ByItsName()
+        {
+            Assert.IsNull(LaunchFlags.Read(Page).Skit);
+            LaunchFlags f = LaunchFlags.Read(Page + "?skit=Two-Of-Us");
+            Assert.AreEqual("two-of-us", f.Skit);
+            Assert.IsInstanceOf<TwoOfUsSkit>(Skits.Named(f.Skit));
+            Assert.IsInstanceOf<SpecialDeliverySkit>(Skits.Named("special-delivery"));
+            Assert.IsInstanceOf<TrollogramSkit>(Skits.Named("trollogram-of-anything"));
+            Assert.IsNull(Skits.Named("wanna-race"));
+            Assert.IsFalse(f.Testing, "it's not a jump to a part: the den opens as it would");
+        }
+
+        [Test]
         public void SeveralTestsAtOnceIgnoringCase()
         {
             LaunchFlags f = LaunchFlags.Read(Page + "?test=Boss,REVEAL");

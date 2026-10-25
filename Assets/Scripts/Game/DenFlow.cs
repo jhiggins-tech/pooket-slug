@@ -7,7 +7,8 @@ namespace PooketSlug
     /// The lobby's flow, the crew's den (<c>docs/design/lobby.md</c>, Den 2.0): once the crew's open, START and co-op go
     /// through it. Walking your soldier round it (the places are the menu), swapping to a crewmate, the couch and
     /// READY, the invite, hosting, and in a co-op room the partner's seat and the countdown, then the mission. As it
-    /// opens, any of its beats due play first (<see cref="DenBeats"/>: the first visit, a crewmate moving in).
+    /// opens, any of its beats due play first (<see cref="DenBeats"/>: the first visit, a crewmate moving in), then the
+    /// skit due, if there is one (<see cref="Skits"/>, played by a <see cref="SkitRun"/>).
     /// </summary>
     public sealed class DenFlow
     {
@@ -17,22 +18,35 @@ namespace PooketSlug
         Den m_Den;
         List<DenBeat> m_Beats = new List<DenBeat>();
         DenBeat m_Beat;
+        readonly SkitRun m_Skit;
+        Skit m_SkitDue;
+        bool m_Asked;
 
         public DenFlow(Game game, Transform parent)
         {
             m_Game = game;
             m_View = new DenView(parent);
+            m_Skit = new SkitRun(game);
         }
 
         public bool Showing => m_View.Showing;
 
-        public void Hide() => m_View.Hide();
+        public void Hide()
+        {
+            m_Skit.Stop(); // a skit cut short isn't kept: it plays next time
+            m_SkitDue = null;
+            m_View.Hide();
+        }
 
         /// <summary>You came back out of one of the outer rooms: the den takes over again.</summary>
         public void RoomClosed() => m_View.Show();
 
-        /// <summary>Opens the den: to start a solo mission, or a co-op room's lobby (DenMode.Crew, looking round the crew, is still handled, but nothing opens it now).</summary>
-        public void Show(DenMode mode)
+        /// <summary>
+        /// Opens the den: to start a solo mission, or a co-op room's lobby (DenMode.Crew, looking round the crew, is still
+        /// handled, but nothing opens it now). <paramref name="replayed"/> is the mission whose replay's debrief opened it,
+        /// if one did (Special delivery plays after Mission one's).
+        /// </summary>
+        public void Show(DenMode mode, MissionDef replayed = null)
         {
             m_Den = new Den(mode, m_Game.Freed, m_Game.Soldier);
             m_ToCouch = false;
@@ -46,6 +60,22 @@ namespace PooketSlug
             m_Beats = m_Game.Flags.Testing ? new List<DenBeat>() : DenBeats.Due(m_Game.Profile, m_Game.Freed, mode);
             foreach (DenBeat b in m_Beats)
                 if (b.Newcomer != null) m_View.DarkCorner(b.Newcomer); // still wrecked and dark till they move in
+            if (m_Skit.Playing) m_View.EndSkit();
+            m_Skit.Stop();
+            string asked = m_Asked ? null : m_Game.Flags.Skit; // ?skit=: the first time the den opens
+            m_Asked |= asked != null && mode == DenMode.Solo;
+            m_SkitDue = Skits.Due(m_Game.Profile, new SkitVisit
+            {
+                Place = SkitPlace.Den,
+                Mode = mode,
+                Crew = m_Game.Freed,
+                Beats = m_Beats,
+                CoopOpen = m_Game.CoopReady,
+                CoopUnlocked = m_Game.Flags.UnlockCoop,
+                Testing = m_Game.Flags.Testing,
+                Replayed = replayed,
+                Asked = asked,
+            });
             NextBeat();
         }
 
@@ -56,7 +86,13 @@ namespace PooketSlug
         void NextBeat()
         {
             m_Beat = null;
-            if (m_Beats.Count == 0) return;
+            if (m_Beats.Count == 0)
+            {
+                // the beats are done: the skit due, if there is one, follows straight on
+                if (m_SkitDue != null) PlaySkit(m_SkitDue);
+                m_SkitDue = null;
+                return;
+            }
             m_Beat = m_Beats[0];
             m_Beats.RemoveAt(0);
             m_View.PlayBeat(m_Beat);
@@ -88,19 +124,70 @@ namespace PooketSlug
             NextBeat();
         }
 
-        /// <summary>A tap, a key or a button while a beat plays skips it (and does nothing else).</summary>
-        void SkipBeat(MenuInput keys, SoldierInput soldier)
+        /// <summary>A tap, a key or a button while a beat or a skit plays: it skips it (and does nothing else).</summary>
+        bool Pressed(MenuInput keys, SoldierInput soldier)
         {
             bool any = m_View.TakeBack() | m_View.TakeKit() | m_View.TakeHost() | m_View.TakeInvite() | m_View.TakePick() != null
                 | m_View.TakePlace() != DenPlace.None | m_View.TakeWalk(out _, out _) | m_View.TakeReady() | m_View.TakeReached() != DenPlace.None;
             any |= keys.Back || keys.Start || keys.Host || soldier.FirePressed || soldier.JumpPressed || soldier.SpecialPressed || soldier.AbilityPressed;
-            if (any && m_Game.StateTime > 0.3f) m_Beat.Skip(); // not the START that opened the den
+            return any && m_Game.StateTime > 0.3f; // not the START that opened the den
+        }
+
+        bool m_SkitPressed;
+
+        void PlaySkit(Skit skit)
+        {
+            m_Skit.Start(skit);
+            m_View.PlaySkit(skit);
+            m_SkitPressed = false;
+        }
+
+        /// <summary>The skit playing moves on, with its sounds; once it's done (or skipped) the den's as it was, with whatever the skit left up.</summary>
+        void SkitTick(float dt)
+        {
+            Skit skit = m_Skit.Skit;
+            Skit ended = m_Skit.Tick(dt, m_SkitPressed);
+            m_SkitPressed = false;
+            SkitSounds(skit, dt);
+            if (ended != null) m_View.EndSkit();
+        }
+
+        /// <summary>The skits' sounds, as their scripts have them (a skit has no narrator, and the den's theme plays on).</summary>
+        static void SkitSounds(Skit skit, float dt)
+        {
+            switch (skit)
+            {
+                case TwoOfUsSkit s:
+                    if (s.Passed(TwoOfUsSkit.FlopAt, dt)) Sfx.Play(Sfx.Thump, 0.5f); // tones2 flops onto the couch
+                    if (s.Passed(TwoOfUsSkit.PickAt, dt)) Sfx.Play(Sfx.Pickup, 0.3f);
+                    if (s.Passed(TwoOfUsSkit.TossAt, dt)) Sfx.Play(Sfx.Throw, 0.5f);
+                    if (s.Passed(TwoOfUsSkit.ButtonAt, dt)) Sfx.Play(Sfx.CableClunk, 0.7f); // a chip clunk: the button's up
+                    if (s.Passed(TwoOfUsSkit.PerchAt, dt)) Sfx.Play(Sfx.Thump, 0.3f);
+                    break;
+                case SpecialDeliverySkit s:
+                    if (s.Passed(SpecialDeliverySkit.DoorFrom, dt)) Sfx.Play(Sfx.Servo, 0.7f); // the roller door rattles up
+                    if (s.Passed(SpecialDeliverySkit.FlyFrom, dt)) Sfx.Play(Sfx.DroneWhirr, 0.6f);
+                    if (s.Passed(SpecialDeliverySkit.LowerTo, dt)) Sfx.Play(Sfx.Thump, 0.5f); // a soft flump on the cushions
+                    if (s.Passed(SpecialDeliverySkit.LeaveFrom, dt)) Sfx.Play(Sfx.DroneWhirr, 0.4f); // the drone going
+                    if (s.Passed(SpecialDeliverySkit.DoorDownFrom, dt)) Sfx.Play(Sfx.Servo, 0.5f);
+                    if (s.Passed(SpecialDeliverySkit.TvOnAt, dt)) Sfx.Play(Sfx.Charge, 0.3f); // the TV back on
+                    break;
+                case TrollogramSkit s:
+                    if (s.Silence) Music.Duck(0.2f); // the silence is the joke: the music ducks under it, as under a line
+                    if (s.Passed(TrollogramSkit.ToolDownAt, dt)) Sfx.Play(Sfx.CableClunk, 0.25f); // the screwdriver down
+                    if (s.Passed(TrollogramSkit.NoteFrom, dt)) Sfx.Play(Sfx.Pickup, 0.4f); // the note peeled off
+                    if (s.Passed(TrollogramSkit.SlurpDoneAt, dt)) Sfx.Play(Sfx.HoseHiss, 0.3f); // tones2 finishes the slurp
+                    break;
+            }
         }
 
         DenInfo InfoNow()
         {
             Game g = m_Game;
             bool coop = m_Den.Mode == DenMode.Coop;
+            Skit skit = m_Skit.Skit;
+            var two = skit as TwoOfUsSkit;
+            var delivery = skit as SpecialDeliverySkit;
             MissionDef mission = coop ? Missions.ForCoop(Missions.ByNetId(g.Net.Link.Mission) ?? g.Mission) : g.Mission;
             return new DenInfo
             {
@@ -109,10 +196,27 @@ namespace PooketSlug
                 Room = coop ? g.Net.RoomCode : null,
                 InviteLink = coop ? CoopRoom.Link(g.PageUrl, g.Net.RoomCode) : null,
                 Watchers = coop ? g.Net.Watchers : 0,
-                CanHost = g.CoopReady && m_Den.Mode == DenMode.Solo,
-                DoorLift = Mathf.Max(m_Door.Lift, m_Beat?.DoorLift ?? 0f), // the roller door's rolled up for someone moving in
+                CanHost = CanHost(),
+                DoorLift = Mathf.Max(m_Door.Lift, Mathf.Max(m_Beat?.DoorLift ?? 0f, delivery?.DoorLift ?? 0f)), // rolled up for someone moving in, or the drone
                 DoorThrough = m_Door.Through,
+                HostScale = two?.ButtonScale ?? 1f,
+                HostGlow = two?.Glow ?? 0f,
+                PadsTaken = two == null ? 0 : (two.Flop >= 1f ? 1 : 0) | (two.T >= TwoOfUsSkit.PickAt ? 2 : 0), // tones2's in his hands, kie's picked up and tossed
+                TvOff = delivery != null && delivery.TvOff,
             };
+        }
+
+        /// <summary>
+        /// The empty seat's MULTI-PLAYER button shows: solo, with co-op open, once Two of us now has put it up (or the
+        /// player's pressed it before, or a launch flag shows it at once: <see cref="Skits.CoopButtonUp"/>), and from the
+        /// moment it pops up in the skit itself.
+        /// </summary>
+        bool CanHost()
+        {
+            Game g = m_Game;
+            if (!g.CoopReady || m_Den.Mode != DenMode.Solo) return false;
+            if (m_Skit.Skit is TwoOfUsSkit two) return two.ButtonUp;
+            return Skits.CoopButtonUp(g.Profile, g.Flags.UnlockCoop || g.Flags.Testing);
         }
 
         /// <summary>
@@ -128,7 +232,12 @@ namespace PooketSlug
             if (coop && !g.CoopAlive()) return;
             if (m_Beat != null)
             {
-                SkipBeat(keys, soldier);
+                if (Pressed(keys, soldier)) m_Beat.Skip();
+                return;
+            }
+            if (m_Skit.Playing)
+            {
+                m_SkitPressed |= Pressed(keys, soldier); // skipped as it moves on
                 return;
             }
             if (m_View.TakeBack() || keys.Back)
@@ -145,7 +254,7 @@ namespace PooketSlug
                 return;
             }
             Invites(coop, keys.Host);
-            if ((m_View.TakeHost() || keys.Host) && g.CoopReady && m_Den.Mode == DenMode.Solo)
+            if ((m_View.TakeHost() || keys.Host) && CanHost())
             {
                 Log.Game.Info("Den: into the co-op room from the couch");
                 g.JoinCoop();
@@ -402,6 +511,7 @@ namespace PooketSlug
             }
             Door(dt);
             if (m_Beat != null) Beat(dt);
+            else if (m_Skit.Playing) SkitTick(dt);
             m_View.Refresh(dt, m_Den, InfoNow());
             if (!m_Den.Go || g.Kit.Open || g.Board.Open || g.Bay.Open) return;
             m_View.Hide();
