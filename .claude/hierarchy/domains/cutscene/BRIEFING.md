@@ -139,13 +139,11 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
 - `CutsceneBackdrops`, `CutsceneEffects`, `CutsceneCast` and `SceneFlow` do several jobs each; split them by part the
   next time they change. `CutsceneCast` lost its soldiers to `CutsceneSoldiers` in cutscene-polish; its props, tabks and
   drone are still one file.
-- Handed over in cutscene-polish (25 Oct), the den's: `DenBeatView`, `BayHomecomingView` and `BayView` still stand
-  their figures with `StageFigure.At`, so the den's beats, kie's homecoming and the bay's walker draw 20% off where
-  their maps put them (as the rooms did until `AtPlate`, 626a3aa).
 - From the cutscene-polish pass, for the owner to pick from (the card's page): the reveals draw kie's tabk as The
   Projectionist and kcaj's as SOFT SERVE while the boss in play is the generic artillery hull (`TankBoss`, `Art.TankHull`);
-  the Mission two briefing's morning and day shots use night plates, the trashed den and an empty bay; kie lands
-  crouched with his gun, as the stage has no heap pose (the crew's `down` frame isn't a scene pose: sprites').
+  the Mission two briefing's morning and day shots use night plates, the trashed den and an empty bay. kie's heap in
+  freeing kie is the `down` pose (sprites' `StagePose.Down`, toppled by `Tilt` in `CutsceneSoldiers`), and the den's
+  beats and the bay's walker stand on `AtPlate` too (both done on the card by the den manager).
 - Script and scene file differ in small ways the script's Built notes record (the opening's shot 8 has no
   searchlights and leaves by the side door). The scene files' own `//` comments were left alone in stale-docs: a
   change to a scene file is a deploy and a new version for co-op.
