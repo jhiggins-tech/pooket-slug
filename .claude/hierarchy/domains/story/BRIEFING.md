@@ -38,8 +38,10 @@ played: co-op, sandbox, test start) and `StoryRecord` (the once-only beats the p
   two players changing a mission.
 - Slug may deviate from Pooket Tabks; consistency is checked within Slug only.
 
-**Sign-off:** the owner signed `story.md` off on 2026-10-14. The coda and Mission two were written after (2026-10-16) and keep
-their "Draft" marks until the owner signs them off; the page's status line says so.
+**Sign-off:** the owner signed `story.md` off on 2026-10-14. The coda and Mission two were written after (2026-10-16) and
+approved on their own Roadmap cards: the coda's design card `scene-first-drive` (done and promoted to its build, 16 Oct)
+and `m2-story` (17 Oct, "Approved: canon in story.md"). The page's status line says so (fixed by domain-consistency-audit;
+the stale-docs pass had called them drafts).
 
 **The premise** (do not change without the owner):
 - The crew are missing and only tones2 is left. kie's Trollograms have gone rogue and stolen the crew's tabks, each driven
@@ -59,6 +61,10 @@ their "Draft" marks until the owner signs them off; the page's status line says 
 ## The vocabulary
 - The reveals are the ids in `Reveals`: `coop` is a real reveal; `tank` is only the key of `?unlock=tank` (a test start),
   and play grants the call-in in the coda. Keep the id strings as they are, they are in saves.
+- `Reveals` is not the whole list. Every once-only key lives in `Profile.seen`, set from five places: `Reveals.Coop`
+  (`Game`), a scene's `scene-<name>` (`SceneScript.IdOf`, marked by `SceneFlow`), `StoryRecord`'s three, `DenBeats`
+  (`den-first-visit`, `moved-in-<name>`) and `KieHomecoming.Reveal` (`kie-tabk-home`, marked by `BayFlow`). The plot's
+  reveals table in `story.md` names each of these beats (the den rows added by domain-consistency-audit).
 - The once-only beats are `StoryRecord`'s keys: `coda`, `debrief`, `super`. They are in players' saves and never change.
   A scene's own once-only mark is `SceneScript.IdOf(scene)`, tested by `StoryRecord.Due`.
 - A mission's story fields: `Opening` (played as the mission starts, solo or, from the den, co-op), `BossReveal` (the boss's entrance, once ever, solo) with
@@ -69,8 +75,9 @@ their "Draft" marks until the owner signs them off; the page's status line says 
 
 ## The invariants
 - No crewmate is freed twice, and each is freed by the mission the plot says (`CrewMember.FreedBy`).
-- A once-only beat stays once-only; the second time you meet something it is quick (a seen tabk gets only its boss intro,
-  `StoryRecord.QuickBossIntro`).
+- A once-only beat stays once-only; the second time you meet something it is quick. Two rules carry that: a tabk whose
+  reveal has been seen gets only its boss intro (`PlaysBossReveal`, with `StoryRecord.Due`), and the boss intro itself is
+  the quick one on a replay of a cleared mission or a retry at the boss door (`StoryRecord.QuickBossIntro`).
 - Mission one is solo only and beating it solo opens co-op (`OpensCoop`, `Profile` sets `coop`). Until it is beaten, START
   plays the opening and Mission one, and its debrief goes on into the den's first visit (`BeforeDen`, `StartFlow`). After
   it, START and every debrief go to the den. Mission two's briefing plays as it starts from the den, solo or co-op.
@@ -94,6 +101,14 @@ super, the boss reveal and the pilot freed rules). Nearby: `StartFlowTests` and 
 4. Keep `docs/design/` links relative and run `tools/check.sh docs`. Update this briefing in the same commit.
 
 ## Known unfinished
+- From domain-consistency-audit (25 Oct), left for the owner:
+  - Mission two's run in `story.md` names two beats that aren't built: a goon frozen on a conveyor, and the scoop dropper's
+    one-time gag (the droppers are a repeating hazard, `Creamery.ScoopCycle`). The page says so under Built so far. Build
+    them (gameplay) or cut them from the plot (owner).
+  - `MissionStoryTests` checks Mission one's scenes are in `SceneLibrary.Names` but no other mission's, and pins the
+    `coda` and `debrief` keys but not `super`. Both belong in the consistency check card, or a small test card.
+  - The consistency check's "every reveal the game has is in the plot" needs the five sources above gathered in one
+    list it can read; today there is none.
 - The consistency check does not exist. It should read the plot out of the code and check it against `story.md`: the
   mission order and the id and net id rule; every scene a story names is in `SceneLibrary.Names` and reachable; each crewmate
   freed once, by the mission the plot says; every reveal in the plot exists and the reverse; once-only beats marked in both.
