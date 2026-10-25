@@ -42,13 +42,21 @@ the one with the references came out as pixel art.
 ## How they're made
 
 With OpenRouter's Qwen Image 2.1 Turbo (`qwen/qwen-image-2.1-turbo`, the
-Alibaba endpoint). Two image references:
+Alibaba endpoint, on `POST /api/v1/images`).
 
-1. **The room's layout**, cut out of [the house map](../house-layout.svg) and
-   rendered as a picture. The model then puts the things where the map says.
-2. **A swatch** of the game's own pixels, upscaled so the pixel technique is
-   legible, with nothing recognisable in it. That is what makes the plate pixel
-   art rather than a photograph.
+**The kitchen** was made with the older two-reference recipe: its layout cut out
+of [the house map](../house-layout.svg) and rendered as a picture, and a swatch
+of the game's own pixels, upscaled so the technique is legible, with nothing
+recognisable in it. Its references are `wip/ref-kitchen-gen.svg` and
+`wip/ref-kitchen-clean.svg`.
+
+**The other six rooms** were made with the blocks recipe (the owner's pick,
+2026-10-22; commit c2f1ed0), and it is the way to make any new room. The
+reference is a labelled layout diagram from `tools/room_ref.py --blocks`:
+abstract blocks on a plain wall, the soldier stamped along the floor, and the
+scale spelled out. The den's and the loft's finished plates go in alongside as
+the style guides. The diagrams are `wip/ref-<room>-blocks.svg` and the takes are
+`wip/take<n>-blocks-<room>.png`. [The steps](../rooms.md#2-paint-it).
 
 The style line is in front of every prompt, from [the art design](../../art.md):
 

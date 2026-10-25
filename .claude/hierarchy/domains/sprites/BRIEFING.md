@@ -36,6 +36,9 @@ blinks and flickers; `CrewFigure` is the shared figure's moves; `StagePose` is h
   only on a queued card the owner has approved, and say so on the card. Which model is current comes from
   `docs/design/art.md`: since 21 Oct it is Qwen Image 2.1 Turbo for every image, new plates and edits alike (it
   replaced Seedream). Do not copy figures or API details into this file; read them there.
+  Room plates are made by the blocks recipe (`tools/room_ref.py --blocks`, the den's and loft's plates as style guides; the
+  kitchen alone used the older two-reference recipe), and the image endpoint is `POST /api/v1/images`, all in `art.md`
+  (fixed to match the vendor scripts on card dca-art-recipe).
 - Plates are made from the style line and the plate's own prompt alone, then cut to game size and 16 colours, and
   checked in the game, not only on their own (`docs/design/art.md`, "Background plates"). To change one part of a
   picked painting, edit it with a red mark and paste the answer back through a mask, so the rest stays as picked.
