@@ -46,9 +46,10 @@ There are two kinds of music: **loops**, which play under a whole stretch of the
 
 ## The style
 
-- **Four voices, like a Game Boy:** two pulse channels (lead and harmony or arpeggio), a triangle bass and a noise channel for drums. The same voices as the sound effects, so music and effects sound like one machine. A track can use fewer, never more.
-- **Lead on 25% or 12.5% pulse, harmony on 50%,** so the two pulse lines stay apart. Fast arpeggios stand in for chords, as on the real hardware.
-- **Noise drums:** a falling triangle thump over crunchy noise for the kick, a mid burst for the snare and a short high tick for the hi-hat, as in the Tabks tunes.
+- **Four parts, like a Game Boy:** two pulse parts (lead, and harmony or arpeggio), a triangle bass and noise drums. The same voices as the sound effects, so music and effects sound like one machine. A track can use fewer parts, never more.
+- **Lead on 25% or 12.5% pulse, harmony on 50%,** so the two pulse lines stay apart. The lead and the bass play one note at a time.
+- **Chords only on the harmony part** (the dca-music-style card): it can sweep a chord as fast sixteenth arpeggios, as on the real hardware, or hold two to four notes at once, which a real Game Boy can't. Each note of a chord is its own pulse tone at 1/√n of the part's volume, so a chord sits near one note's loudness (`MusicRender`). Today six tracks hold chords: the boss theme's off-beat stabs (three notes, its first eight bars, then sweeps), the debrief's comps (four-note sevenths, two a bar), and the last chord of four stings: mission complete (three notes), rank up (three), game over (two) and new crewmate (two). Mission one's theme, the boss theme's final section and the other stings sweep or play single notes. (`MusicTests.ChordsAreOnlyOnTheHarmonyPart`)
+- **Noise drums:** the kick is a short falling triangle tone (160 Hz down to 50 Hz) over crunchy noise, so it sounds over the bass's triangle rather than taking its place; a mid burst for the snare, a short high tick for the hi-hat and a longer wash for the crash, as in the Tabks tunes.
 - **Short loops that don't tire you out:** each loop has a B part, so it doesn't repeat every few bars, and ends on a turnaround that leads back to its start.
 - **The music sits under the action.** It plays at about half the volume of the sound effects, and a big blast or a recorded line (the announcer's or the narrator's) ducks it briefly, so the game's own noise always cuts through.
 - **The jokes are the crew's.** Music stays straight-faced; a boss track can quote its crewmate's in-joke (a pick, below), but missions don't parody anything.

@@ -25,8 +25,15 @@ the cutscene domain (`Core/Story/Cues.cs`, `Ui/Cutscene/CueSounds.cs`); the clip
 - **Sound effects are Pooket Tabks' 8-bit recipes on `Chip`**, each rendered once into a clip at startup
   (`ChipSounds.Make`). `Chip` matches Tabks' `src/audio/chip.ts` call for call, so a recipe ports over unchanged. Cut a
   recipe down if the game fires it far more often than Tabks would (a machine gun).
-- **Music is code, four voices like a Game Boy**: two pulse channels, a triangle bass, a noise channel for drums. A
-  track may use fewer voices, never more. Lead on 25% or 12.5% pulse, harmony on 50% (music.md, The style).
+- **Music is code, four parts like a Game Boy**: two pulse parts (lead, harmony), a triangle bass, noise drums. A
+  track may use fewer parts, never more. Lead on 25% or 12.5% pulse, harmony on 50% (music.md, The style).
+- **Chords go only on the harmony part** (dca-music-style, 25 Oct): two to four notes held at once, or swept as
+  arpeggios; the lead and bass play one note at a time (`MusicTests.ChordsAreOnlyOnTheHarmonyPart`). Six tracks hold
+  chords today: `TankAlert`'s stabs (three notes, first 8 bars), `Debrief`'s comps (four-note sevenths), and the last
+  chord of `MissionComplete` (3), `RankUp` (3), `GameOver` (2) and `NewCrewmate` (2). Each chord note renders at
+  1/sqrt(n) of the part's volume (`MusicRender.Voice`).
+- **The kick carries a triangle tone** (160 Hz falling to 50 Hz, 0.09 s, under crunchy noise: `MusicRender.Drums`),
+  sounding over the bass's triangle, not replacing it. music.md says so.
 - **A loop is a whole number of bars in every part** and repeats with no seam; notes ringing past its end fold back onto
   its start (`MusicRender`). A sting plays once. (`MusicTests.EveryLoopIsWholeBarsInEveryPart`)
 - **The music sits under the action**: about half the effects' volume (`Music.Volume`), paused quieter, ducked briefly
@@ -130,9 +137,6 @@ side (each cue has an effect). `tools/check_scenes.sh` fetches the narration to 
   instead (dca-music-tests), which moves that stall to the settings screen; it doesn't remove it. Skipping renders while
   muted (and rendering on unmute what's playing) is part of the rendering item above. No card.
 - **Open findings from the consistency audit (25 Oct), each for the owner:**
-  - The style says four voices, with fast arpeggios standing in for chords, but seven tracks hold chords of two to four
-    notes in the harmony part (`TankAlert`'s stabs, `Debrief`'s comps, the stings' last chords), and the kick is a
-    triangle thump on top of the bass's triangle (`MusicRender.Drums`). Design call: loosen music.md, or rewrite.
   - The pilot round's music is described as the boss music running on in `docs/design/cutscenes/mission-one.md` (When it
     ends) and `docs/design/tabks/bosses.md` (When it's beaten); it is the final section (`TankWrecked`). Handed over.
 - New narrator lines: ask the Media generation role for takes; the lines are the story side's to write.

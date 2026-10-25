@@ -156,6 +156,18 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void ChordsAreOnlyOnTheHarmonyPart()
+        {
+            // docs/design/music.md, The style: the lead and bass play one note at a time; the harmony may hold two to four
+            foreach (MusicTrack t in MusicTracks.All)
+            {
+                foreach (Notation.Note n in Notation.Read(t.Lead)) Assert.LessOrEqual(n.Pitches.Length, 1, t.Name + " lead at step " + n.At);
+                foreach (Notation.Note n in Notation.Read(t.Bass)) Assert.LessOrEqual(n.Pitches.Length, 1, t.Name + " bass at step " + n.At);
+                foreach (Notation.Note n in Notation.Read(t.Harmony)) Assert.LessOrEqual(n.Pitches.Length, 4, t.Name + " harmony at step " + n.At);
+            }
+        }
+
+        [Test]
         public void EveryTrackHasADifferentName()
         {
             var names = new System.Collections.Generic.HashSet<string>();
