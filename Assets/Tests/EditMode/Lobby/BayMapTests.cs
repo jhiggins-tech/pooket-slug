@@ -178,6 +178,7 @@ namespace PooketSlug.Tests
             Assert.AreEqual(1.5f, BayMap.Scale);
             Assert.AreEqual(78f, BayMap.TabkW);
             Assert.AreEqual(33f, BayMap.TabkH);
+            Assert.AreEqual(42f, BayMap.TallTabkH);
         }
 
         // kie's and kcaj's tabks are 28 rows to tones2's 22, so a tap box of tones2's height missed their top 9 px
