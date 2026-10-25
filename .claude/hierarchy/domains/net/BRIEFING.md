@@ -64,7 +64,8 @@ Close to this domain but not its files: `Core/Lobby/CoopRoom.cs` and `Core/Lobby
 - Public repository: never commit Photon SDK code (CI unpacks it from the private vendor repository), the Photon app id
   (a secret, baked into `Resources/pooket-net.json`, git-ignored) or any key. Say nothing about the SDK's internals beyond
   what docs/research/netcode already says. (docs/research/netcode/sdk-in-ci.md)
-- Mission one is solo only; beating it opens co-op (`LaunchFlags` unlock, `Profile`). Co-op never starts there.
+- Mission one is solo only; beating it opens co-op (`Profile.RecordRun` sets `coop`; `?unlock=coop` opens it for a visit). Co-op never
+  starts there: `MissionStory.SoloOnly`, and a co-op room's pick goes through `Missions.ForCoop` (`MissionBoard`).
 - Sign-in is optional and lives on the page: `pooket-auth.js` owns the button, the session and the database calls, the
   game hears it through `SendMessage` to the `PooketAuth` object (`CloudAccount`). `CloudProfileStore` saves locally and,
   while signed in, to the cloud; two copies merge by taking the better of each field, never adding clears
@@ -74,7 +75,8 @@ Close to this domain but not its files: `Core/Lobby/CoopRoom.cs` and `Core/Lobby
 - Every storage call is guarded: a failed read or write must leave the game playable (`LocalProfileStore`, `OptionsStore`).
 
 ## The vocabulary
-- Seats: P1 is the phone running the shared world, P2 is the other (`NetReplication.SeatOf`). Red and blue are the players' colours (`Palette`).
+- Seats: P1 is the phone running the shared world, P2 is the other (`NetReplication.SeatOf`). Red and blue are the seats' colours
+  (`Palette.Players`: tags, hearts, arrows, the den's seats); the soldiers wear their own, with no second paint (player.md, Co-op).
 - Replicated objects: `PlayerNet` (one per soldier, owned by its player), `WorldNet` (owned by the master), `BossNet`.
   Snapshots are capped by `NetLimits` (24 enemies, 16 pickups).
 - Session properties, short keys in `RoomBrowser`: `m` mission, `n` soldiers, `w` watching, `g` under way, `h` host (the master's soldier).
@@ -92,7 +94,8 @@ Close to this domain but not its files: `Core/Lobby/CoopRoom.cs` and `Core/Lobby
 - Adding or changing a message means the structs in `Net/` and `NetContracts.cs`, and a kit move gets a new `KitMove` number, never a reused one.
 - Followers get the authority's world through the snapshot only; the world talks to the network through `INetLink`, never a Fusion type.
 - When the authority changes, nothing may restart: the new one adopts the shared id counter (`NetIds.CatchUp`) and the replicated state.
-- Nothing in `Core/Platform` may name Unity scene objects or Fusion. It is plain C# with tests; a rule found in `Net/` or `NetSync` that does not need Fusion moves into Core with tests the next time it changes.
+- Nothing in `Core/Platform` may name Unity scene objects or Fusion. It is plain C# with tests (two exceptions today, both this domain's:
+  `NetSessions.Factory` takes a `GameObject`, and `NetConfig` loads `Resources/pooket-net.json`, untested; see Known unfinished); a rule found in `Net/` or `NetSync` that does not need Fusion moves into Core with tests the next time it changes.
 - Photon's free plan has 20 connections in all; the room's limits (`RoomBrowser.MaxWatchers`, `Tuning.Coop.MaxPlayers`) keep within it.
 - Changing the netcode runs the two-browser co-op rounds in CI; they do not run on a push that does not touch it unless a commit says "CI: co-op".
   "The netcode" is the plan job's paths: `Assets/Scripts/Net/`, `World/NetSync.cs`, `Core/Platform/NetContracts.cs` and `tools/coop.mjs`,
@@ -103,6 +106,8 @@ Close to this domain but not its files: `Core/Lobby/CoopRoom.cs` and `Core/Lobby
   in some sessions, so the Net assembly may only be fully checked by CI: push the branch and read the run.
 - Rules: `Assets/Tests/EditMode/Platform/` (`DropInTests`, `MasterWatchTests`, `NetIdsTests`, `PartnerBeaconTests`,
   `RoomBrowserTests`, `WireMeterTests`), and `Assets/Tests/EditMode/Tabks/CoopTabksTests.cs` for the tabk rule it shares with gameplay.
+  The `KitMove` numbers are pinned in gameplay's `Assets/Tests/EditMode/Crew/CrewKitTests.cs`, and `NetEnemyState.Disguised` fitting the
+  snapshot's flag byte in `Bosses/KieTankTests.cs`.
 - The world's side: `Assets/Tests/Gameplay/NetSyncTests.cs` (a real `World` against a stand-in session, CI only).
 - End to end: `tools/coop.mjs`, run by CI in modes `code`, `boss`, `scene`, `dropin` (allowed to fail the build), `handover`, `watch`
   and `debrief`. The `code` round also checks that a tabk is given way when both load the same one.
@@ -115,12 +120,19 @@ Close to this domain but not its files: `Core/Lobby/CoopRoom.cs` and `Core/Lobby
 - A watcher sees the touch pad, which does nothing for them. Open (checked 25 Oct: `HudView.Pad` shows it whatever `info.Watching` says; `HudView` is the shell's file, so the fix is a handover to it).
 - The `dropin` round is allowed to fail in CI (`optional: true` in the workflow). Drop-in itself is in the game; the round's flakiness is not understood.
 - Cloud progression beyond the profile: XP and rank already go to the cloud (`Profile.xp`, `Profile.rank`, mapped both ways by
-  `pooket-auth.js`'s `toProfile` / `fromProfile`, checked 25 Oct). `tokens` and the `tally` are in the database rules
-  (docs/research/accounts/database-rules.md) but the page doesn't map them; "xp-cloud" was parked by the owner on 16 Oct until he queues it.
+  `pooket-auth.js`'s `toProfile` / `fromProfile`, checked 25 Oct). Every `Profile` field is mapped (checked 25 Oct, the audit). `tokens`,
+  `crew`, `cosmetics` and the `tally` are in the database rules (docs/research/accounts/database-rules.md) but the page doesn't map them
+  (it writes `tokens: 0` on a record's first save only; freed crew are worked out from clears, `Crew.Freed`); "xp-cloud" was parked by the owner on 16 Oct until he queues it.
 - Photon outages have happened (16 Oct, every CI connect refused, cleared by itself). If it recurs it is Photon's side, not ours.
 - Players far from Australia get more lag; no second region is planned (NET-05).
 - Max two players. Three or four, or versus, is not designed (docs/research/netcode/README.md).
 - Work needs its own Roadmap card, queued by the owner (https://claude.ai/artifact/1AWnQDGtUmiKMnjPgcbru9). None is open for this domain today.
-- docs/research/netcode is claimed by no domain in OWNERSHIP.txt, so this domain can't fix it. Stale there on 25 Oct (handed to the architect):
-  architecture.md says `ISessionView` carries a skin (it carries the seat; `NetSkin` was retired 21 Oct), and that `NetReplication` holds
-  `PlayerNet` and `WorldNet` (and `BossNet`); README.md's list of `Net/` files leaves out `BossNet.cs`.
+- docs/research/netcode/ and docs/research/accounts/ are this domain's since the consistency audit (25 Oct), and its
+  handed-over stale lines there were fixed then. Still unchecked: sessions.md says a failed connect goes back to the title
+  with a red notice, and the den's H gating in its Den row.
+- Core reaching Unity (the audit, 25 Oct, for an Idea card): `NetSessions.Factory` is a `Func<GameObject, INetSession>` and `NetConfig`
+  calls `Resources.Load`, both in `PooketSlug.Core`, against CLAUDE.md's "Core knows nothing of Unity's scene". The fix is a code change
+  (the loader into `Save/` or `Net/`, Core keeping `NetConfig.Data` and the region rule with tests). Open.
+- Two words for the one room in the status lines (the audit, 25 Oct, for an Idea card): `NetSession.Describe` says "THAT GAME IS FULL",
+  "THAT GAME IS CLOSED" and "ROOM NOT FOUND", beside `Connect`'s "THE ROOM IS FULL". A seventh phone (past `RoomBrowser.MaxPeople`) gets
+  Photon's GameIsFull, so the same full room reads two ways. Player text, so a card. Open.

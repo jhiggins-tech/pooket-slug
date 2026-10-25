@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace PooketSlug.Tests
 {
-    /// <summary>Spike coop-weapons: what goes over Photon, and one message for a burst instead of a shot per particle.</summary>
+    /// <summary>The wire meter (it began as spike coop-weapons, in the game now): what goes over Photon, and one message for a burst instead of a shot per particle.</summary>
     public class WireMeterTests
     {
         sealed class Flat : IPillGround

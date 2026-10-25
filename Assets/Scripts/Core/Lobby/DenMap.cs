@@ -178,8 +178,9 @@ namespace PooketSlug
         }
 
         /// <summary>
-        /// What a place says when you use it, for the ones that only talk for now (null for the couch, the board, the gym,
-        /// the trophies and the roller door to the tabk bay, which do something). Tarped rooms don't say whose they are.
+        /// What a place says when you use it, for the ones that only talk for now: the bunks, the laundry and the vending
+        /// machine (null for the rest, which do something: the couch, the board, the gym, the trophies, the roller door
+        /// to the tabk bay, and the doors to the outer rooms). Tarped rooms don't say whose they are.
         /// </summary>
         public static string Note(DenPlace place)
         {
@@ -194,7 +195,8 @@ namespace PooketSlug
 
         /// <summary>
         /// The outer room a place opens, and the way in the house that opens it, or None for the places that don't open
-        /// one (the couch, the board, the gym, the trophies, the roller door to the tabk bay).
+        /// one (the couch, the board, the gym, the trophies, the bunks, the laundry, the vending machine, and the roller
+        /// door to the tabk bay, which is its own screen).
         /// </summary>
         public static RoomWay RoomOf(DenPlace place)
         {

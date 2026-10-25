@@ -10,7 +10,7 @@ signed the plates off (2026-10-21), and they're in the game: it loads them from
 Each room is 420 × 180 in the game's art pixels (a screen and a bit, so the
 player scrolls across it), except the wintergarden, which is one screen across
 and two up, at 320 × 360. **A plate is cut at the room's own aspect**: the
-paintings come back at 1260 × 540, a third of the room's size, and one cut to
+paintings come back at 1260 × 540, three times the room's size, and one cut to
 another shape squeezes the room.
 
 | Room | Reached from | Plate | At game size |
@@ -25,7 +25,22 @@ another shape squeezes the room.
 
 [Open the page that shows them all](index.html).
 
-`wip-*.png` is the painting as the model made it, at 1280 × 720 (the wintergarden
+**The table and that page are the first round** (2026-10-21). The plates the game
+loads are later takes, in `wip/` (every take is on [the generations page](gen-index.html)):
+
+| Room | The take in the game |
+|---|---|
+| The kitchen | `wip/final-kitchen-game.png` (take 5, edited: the coffee machine on its table) |
+| The back yard | `wip/take2e-blocks-backyard.png` |
+| B1, the basement | `wip/take6-blocks-basement.png` |
+| B2, the bunker | `wip/take3b-blocks-bunker.png` |
+| The rooftop | `wip/take2-blocks-rooftop.png` |
+| The shower block | `wip/take2-blocks-shower.png` |
+| The wintergarden | `wip/take2-blocks-wintergarden.png` |
+
+(Matched by comparing each `Assets/Resources/Den/room-*.bytes` with the takes, 2026-10-25.)
+
+`wip-*.png` is the first round's painting as the model made it, at 1280 × 720 (the wintergarden
 at 1024 × 1024). `game-*.png` is the same painting cut down to 64 colours at
 the first cut's size: 320 × 180 (the wintergarden 320 × 360). That squeezed the
 420-wide rooms: the game's own plates are cut at 420 × 180 (re-cut on
@@ -42,7 +57,7 @@ the one with the references came out as pixel art.
 ## How they're made
 
 With OpenRouter's Qwen Image 2.1 Turbo (`qwen/qwen-image-2.1-turbo`, the
-Alibaba endpoint). Two image references:
+Alibaba endpoint). By the end of the first round there were two image references (its earliest takes used the den's and the loft's paintings instead):
 
 1. **The room's layout**, cut out of [the house map](../house-layout.svg) and
    rendered as a picture. The model then puts the things where the map says.
@@ -55,5 +70,13 @@ The style line is in front of every prompt, from [the art design](../../art.md):
 > Pixel art in the style of 1990s Neo Geo arcade run-and-gun games like Metal Slug: hand-placed pixels, bold dark outlines, rich three- or four-tone shading, chunky readable shapes. Crisp hard pixel edges, no anti-aliasing, no blur, no text.
 
 Then the layout hint, then the plate's own prompt, saying what the room shows
-and nothing else. The provider's moderation blocks some ways of putting these
+and nothing else.
+
+The plates in the game came after. The kitchen's is from `tools/room_ref.py --gen`
+(the labelled reference with the soldier stamped along the floor) and a swatch, at
+1260 × 540. The other six are from the **blocks** recipe (`tools/room_ref.py
+--blocks`, 2026-10-22): the reference is a labelled layout of plain blocks, with
+shape kept only where it matters (the stair's treads, the rose's dome, holes as gaps
+in the floor, doors as openings), and the den's and the loft's finished plates go
+alongside it as the style guide. The provider's moderation blocks some ways of putting these
 together, so the exact wording matters: [the notes](../../art.md#the-houses-room-plates).

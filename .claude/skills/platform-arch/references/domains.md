@@ -331,9 +331,9 @@ music's notation, the sounds every new weapon and cue needs, the vendor takes an
 - `Assets/Scripts/Game/MusicFlow.cs`
 - `Assets/Tests/EditMode/Audio/`
 
-**Outside the map's coverage** — `vendor.lock` and `tools/vendor_lock.sh` (the pinned takes), and the vendor
-repository's `music/`, `voice/` and `pin/`. The narrator's lines are written by the `cutscene` domain and recorded
-here.
+**Outside the map's coverage** — `vendor.lock`, `tools/vendor_lock.sh` and `tools/vendor_fetch.sh` (the pinned takes and fetching them), and the vendor
+repository's `music/`, `voice/` and `pin/`. The narrator's lines are written in the scene files (`cutscene`, from the story `story` decides) and
+recorded here.
 
 **The design it decides** — `docs/design/music.md`.
 
@@ -365,7 +365,7 @@ the build and the pipeline rather than to a domain:
 | Path | Whose it is |
 |---|---|
 | `Assets/WebGLTemplates/PooketSlug/`, `Packages/`, `ProjectSettings/`, `.github/` | the build and the pipeline, the architect's own business |
-| `docs/research/` | the record of how the pipeline works; kept, not maintained by a domain |
+| `docs/research/` (but `netcode/` and `accounts/`, which are `net`'s) | the record of how the pipeline works; the architect's |
 | `CLAUDE.md`, `README.md`, `docs/design/` (the rest of it), `vendor.lock` | the owner's and the architect's |
 
 **Widening the check is a decision, not a chore.** The check is a tool; what it covers is a decision, and the

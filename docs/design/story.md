@@ -3,7 +3,7 @@
 The story of Pooket Slug, how it unfolds across the missions, and how reveals are shown. The cutscenes themselves, every
 line and shot, are in one script: [cutscenes](cutscenes/README.md).
 
-**Status:** signed off by the owner, 2026-10-14. [The coda](#the-coda) and [Mission two](#mission-two-the-creamery) were written after it (2026-10-16) and are still drafts.
+**Status:** signed off by the owner, 2026-10-14. [The coda](#the-coda) and [Mission two](#mission-two-the-creamery) were written after it (2026-10-16) and approved on their own Roadmap cards: the coda on 2026-10-16 (scene-first-drive), Mission two on 2026-10-17 (m2-story).
 
 **Read this when** you're writing a mission's story, or anything that reveals something new to the player. For a
 cutscene, read [cutscenes](cutscenes/README.md).
@@ -51,7 +51,7 @@ needs them.
 
 ## The coda
 
-The second reveal: your tabk, called in and driven ([reveals](#reveals-are-story-beats)). Mission one's last stretch, straight after [freeing kie](cutscenes/mission-one.md#freeing-kie): a short mini-level after the boss, still part of Mission one, played every time the mission is (owner, 2026-10-16). Draft. Short, action-packed and loud: lots of goons, lots of explosions, and a tabk to do it with.
+The second reveal: your tabk, called in and driven ([reveals](#reveals-are-story-beats)). Mission one's last stretch, straight after [freeing kie](cutscenes/mission-one.md#freeing-kie): a short mini-level after the boss, still part of Mission one, played every time the mission is (owner, 2026-10-16). Short, action-packed and loud: lots of goons, lots of explosions, and a tabk to do it with.
 
 **The setup** (a beat, no scene): the base's alarms are going, the motor pool's back gate grinds open, and goons pour in. kie stays behind, asleep against the wall. The first time, a prompt blinks: **HOLD DOWN + SP TO CALL YOUR TABK** ([calling in a tabk](tabks/driving.md#calling-in-a-tabk)), shown until you call it. The call charges, and the cargo drone drops tones2's tabk beside him, full of fuel. Climb in.
 
@@ -64,13 +64,13 @@ The second reveal: your tabk, called in and driven ([reveals](#reveals-are-story
 
 **Tuned to the tabk:** a full tank of fuel gets you through, and the run is beatable on foot if the tabk is wrecked, just harder. Lose your last life in the coda and the continue restarts you at its start, not at the boss.
 
-**Built** (2026-10-16): the map runs on 82 tiles past the boss (`Missions.One`, from the 'G' back gate). Until kie's freed the back gate is a wall and nothing past it scrolls in (`Level.ScrollLimit`); after the freeing scene it grinds up (`BackGate`), kie's left asleep by the wall, a tabk call is given, and the first time the call-in prompt shows. tones2 starts it on full health (kie's snacks), and the goons wait until tones2 is in the tabk (or has walked 8 tiles on without it). Then the road: a checkpoint, goons pouring in, a gantry of goons overhead, a watchtower standing in the road that topples onto the goons ahead once it's shot down (`ToppleTower`), drones and chains of barrels, a two-high sandbag wall with goons behind it (the mud jump clears it; a hop doesn't), and the last gate (`ExitGate`), which goes down to shots or to the tabk driven into it, and wins the mission. The prompts (`CodaCoach`) show only while you're in the tabk, each from where its part of the road comes into view, and one you drive well past without doing is dropped. They show until the coda's been cleared once. A continue after losing in the coda starts at its checkpoint, without the boss. `?test=coda` starts there, prompts and all.
+**Built** (2026-10-16): the map runs on 82 tiles past the boss (`Missions.One`, from the 'G' back gate). Until kie's freed the back gate is a wall and nothing past it scrolls in (`Level.ScrollLimit`); after the freeing scene it grinds up (`BackGate`), kie's left asleep by the wall, a tabk call is given, and the first time the call-in prompt shows. tones2 starts it on full health (kie's snacks), and the goons wait until tones2 is in the tabk (or has walked 8 tiles on without it). Then the road: a checkpoint, goons pouring in, a gantry of goons overhead, a watchtower standing in the road that topples onto the goons ahead once it's shot down (`ToppleTower`), drones and chains of barrels, a two-high sandbag wall with goons behind it (the mud jump clears it; a hop doesn't), and the last gate (`ExitGate`), which goes down to shots or to the tabk driven into it, and wins the mission. The prompts (`CodaCoach`: DRIVE!, AIM UP AT THE GANTRY!, FIRE! SHOOT THE TOWER DOWN. ROUNDS NEVER REFILL, and HOLD UP-RIGHT AND SP: MUD JUMP THE WALL!) show only while you're in the tabk, each from where its part of the road comes into view, and one you drive well past without doing is dropped. They show until the coda's been cleared once. A continue after losing in the coda starts at its checkpoint, without the boss. `?test=coda` starts there, prompts and all.
 
 **Replays:** there are no prompts. Like all of Mission one, the coda is single player only, so it only ever has tones2's one tabk in it. Eject and the super are left for later missions to teach.
 
 ## Mission two: the creamery
 
-kcaj's mission, at the Brain Freeze creamery ([the map](levels.md#mission-two-the-brain-freeze-creamery), picked by the owner 2026-10-16). Draft, 2026-10-16, from the story options on the item's page. Its scenes (the briefing, kcaj's tabk arriving, and freeing kcaj) are in [cutscenes](cutscenes/mission-two.md#mission-two).
+kcaj's mission, at the Brain Freeze creamery ([the map](levels.md#mission-two-the-brain-freeze-creamery), picked by the owner 2026-10-16). Written 2026-10-16 from the story options on the item's page, and approved by the owner 2026-10-17 (m2-story). Its scenes (the briefing, kcaj's tabk arriving, and freeing kcaj) are in [cutscenes](cutscenes/mission-two.md#mission-two).
 
 **Why the creamery:** Trollograms run hot. The creamery's industrial freezers keep the projectors that make them from melting down, so its cold store is the Trollograms' server room. They've parked kcaj's tabk in front of it as its guard, and shut kcaj in it, which, honestly, he'd have chosen anyway.
 
@@ -79,6 +79,8 @@ kcaj's mission, at the Brain Freeze creamery ([the map](levels.md#mission-two-th
 ### The run
 
 No scenes, just the place telling it: goons on the production line, Trollogram projectors humming behind frosted glass (shoot one and a few goons nearby flicker out), a goon frozen solid on a conveyor rolling past still mid-shout, and the freezer corridor before the cold store, where breath fogs. A scoop dropper plops a scoop on a soldier's head once, the first time, for the gag.
+
+**Built so far** ([levels](levels.md#mission-two-the-brain-freeze-creamery)): the projectors, the belts and the corridor's fog. Not built yet: the goon frozen on a conveyor, and the scoop gag (the droppers drop a scoop every few seconds that hurts whoever it lands on, `Creamery.ScoopCycle`, with no first-time gag).
 
 ### The end
 
@@ -94,6 +96,9 @@ The game hides what's coming ([progressive disclosure](README.md#progressive-dis
 | Your tabk: calling it in and driving it | The coda, straight after kie is freed | kie frees tones2's own tabk and bows out; you call it in and blast your way out of the base |
 | Co-op exists | Once Mission one has been beaten | In the den, which opens after Mission one's debrief: its TV joins the co-op room |
 | Each new crewmate | The end of their mission | The freeing scene ([freeing kie](cutscenes/mission-one.md#freeing-kie), [freeing kcaj](cutscenes/mission-two.md#freeing-kcaj)) |
+| The den | Straight after Mission one's first debrief, once ever | [The first visit](cutscenes/den.md#the-first-visit): kie and tones2 put the den back together |
+| A second tabk | The first visit to the tabk bay after Mission one | [kie's tabk comes home](cutscenes/den.md#kies-tabk-comes-home), rebuilt as The Projectionist |
+| Each freed crewmate at home | The first den visit after their freeing | [A crewmate moves in](cutscenes/den.md#a-crewmate-moves-in), and their station lights up |
 | XP and rank | The first debrief | [The first debrief](cutscenes/mission-one.md#the-first-debrief): the first XP, and the first step up the ladder |
 
 The second time you meet something, it's quick: a tabk you've already fought only gets its boss intro.

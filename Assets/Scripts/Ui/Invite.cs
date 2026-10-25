@@ -6,7 +6,7 @@ namespace PooketSlug
     public enum InviteResult { None, Shared, Copied, Failed }
 
     /// <summary>
-    /// Rooms: the den's invite button shares the room's link on a phone (the share sheet) or copies it elsewhere,
+    /// Rooms: the den's TV (TAP TO INVITE) shares the room's link on a phone (the share sheet) or copies it elsewhere,
     /// through <c>PooketInvite.jslib</c>. Browsers only share or copy inside a tap's own event, so it's armed as the
     /// finger goes down and the page does it as the finger comes up. Outside a WebGL player there's no page: it fails,
     /// and the den shows the link instead.

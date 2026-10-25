@@ -49,7 +49,7 @@ rewrite in the crew's own voice.
 | [The opening](mission-one.md#the-opening) | Mission one starts | 49 s | `opening.txt` | Built, eight shots (2026-10-19) |
 | [The motor pool reveal](mission-one.md#the-motor-pool-reveal) | The first time tones2 reaches the motor pool | 24 s | `motor-pool.txt` | Built |
 | [The boss intro](mission-one.md#the-boss-intro) | Every boss tabk's arrival | 3 s | none: in the game itself (`BossIntroShow`) | Built |
-| [Freeing kie](mission-one.md#freeing-kie) | Trollogram kie beaten on foot | 28 s | `freeing-kie.txt` (shots 2 to 5) | Built |
+| [Freeing kie](mission-one.md#freeing-kie) | Trollogram kie beaten on foot | 25.5 s, after the glitch-out in play | `freeing-kie.txt` (shots 2 to 5) | Built |
 | [The first debrief](mission-one.md#the-first-debrief) | After every win, solo or co-op | 12 s | none: a screen (`DebriefView`) | Built |
 | [The first visit](den.md#the-first-visit) | The den's first opening, once ever | 4 s | none: in the den itself (`DenBeats`) | Built (2026-10-19) |
 | [A crewmate moves in](den.md#a-crewmate-moves-in) | The den, after each freeing | 3 s | none: in the den itself (`DenBeats`) | Built (2026-10-19) |
@@ -127,7 +127,7 @@ in [the boss intro](mission-one.md#the-boss-intro) instead.
 | kie | [Freeing kie](mission-one.md#freeing-kie) | 2, as the real kie drops to the floor | KIE |
 | Trollogram kcaj | [kcaj's tabk arrives](mission-two.md#kcajs-tabk-arrives), shot 2 | As he rises out of the hatch | TROLLO-KCAJ |
 | kcaj | [Freeing kcaj](mission-two.md#freeing-kcaj) | 2, as he steps out of the frost | KCAJ |
-| Each later crewmate's Trollogram | Their mission's [boss intro](mission-one.md#the-boss-intro), the first time | As the pilot shows in the hatch | TROLLO-&lt;NAME&gt; |
+| Each later crewmate's Trollogram | Their mission's reveal, before its [boss intro](mission-one.md#the-boss-intro) | As the pilot shows in the hatch | TROLLO-&lt;NAME&gt; |
 | Each later crewmate | Their freeing scene | As the real one appears | &lt;NAME&gt; |
 
 The debrief and the den's beats bring in nobody new, so they have no intro.

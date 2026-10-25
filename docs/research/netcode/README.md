@@ -8,10 +8,10 @@ Up: [Research index](../README.md)
 
 ## What exists
 
-- **Joining a game:** there's one co-op room, MATES: CO-OP joins it, to play with a seat free or to watch once both are taken (missions you've cleared only). `?room=NAME` names another room (CI uses it). Every game is in Photon's Australian region.
-- **Two soldiers, red P1 and blue P2,** on one shared, forward-only scrolling screen. The camera can't leave the trailing soldier behind.
+- **Joining a game:** there's one co-op room, MATES: press H in the den to join it, to play with a seat free or to watch once both are taken (missions you've cleared only). `?room=NAME` names another room (CI uses it). Every game is in Photon's Australian region.
+- **Two soldiers, each in their own colours,** on one shared, forward-only scrolling screen. Red and blue are the seats' colours (`Palette.Players`: tags, hearts and the partner arrow). The camera can't leave the trailing soldier behind.
 - **A shared world:** the same enemies, boss, crates and score for both players. Hits, damage and crate pickups are arbitrated.
-- **Players coming and going:** a partner can drop in mid-mission, and a fallen soldier respawns after 2.5 s (there's no game over). If the host leaves, the other player inherits the world. Restarting after victory restarts both players.
+- **Players coming and going:** a partner can drop in mid-mission, and each player has their own lives and continues (`Tuning.Lives`, [`LifeBank`](../../../Assets/Scripts/Core/Crew/Lives.cs)), and a fallen soldier with a life left respawns after 2.5 s. If the host leaves, the other player inherits the world. Restarting after victory restarts both players.
 - **Solo is unchanged** and still works offline. Builds without the SDK compile solo-only.
 
 ## Shape
