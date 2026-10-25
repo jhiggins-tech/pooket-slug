@@ -65,6 +65,10 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
   (`tones2`, `kie`, `kcaj`, `goon`), props and effects, with their verbs (`show hide at move turn size colour fade
   flicker blink shake on walk face pose arms look holds sway`). The full tables are in `docs/scenes.md`; the test
   `EveryThingAndVerbInTheVocabularyReads` keeps them honest.
+- The cold store's stack of tubs is `tubs` (beside the doors, x 180, made in `CutsceneCast.MakeColdStore` before
+  kcaj's tabk, so the tabk parks in front of it), drawn from sprites' `Art.TubStack`; its verb `rattle` swaps to the
+  hopped frame on `Staging.Rattle` (a `Pulse`, 8 a second, one beat in three) through `ShotStage.Rattle`
+  (`SceneScriptTests.TheTubsRattleOnTheirBeat_OnlyWhileTheShotSays`; card tub-stack, 25 Oct). `tub` is the one kcaj holds.
 - Speakers: `tones2`, `kie`, `kcaj`, `trollo-kie`, `trollo-kcaj`, `goon`, `narrator`, `caption`.
 - Cue ids are in `Cues.cs`; a recording id (`opening-4a`, `m2-freeing-2`) is the vendor repository's, and `Sfx.Narrate`
   plays it. The announcer's lines (`mission-start`, `mission-two-start`) are `say:` cues.

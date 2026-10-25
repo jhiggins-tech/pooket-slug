@@ -124,7 +124,8 @@ SFX: a deep engine idle; ice cracking.
 2. EXT. THE LOADING YARD - CONTINUOUS                   5 s  
 
 The doors fog open. KCAJ'S TABK rolls out of the mist, a
-cone on its antenna, and stops. The camera pushes in on
+cone on its antenna, and stops in front of the tubs, which
+rattle till then. The camera pushes in on
 the hatch. It pops, and up comes TROLLOGRAM KCAJ: kcaj,
 but cyan and flickering, a cone in each hand.
 

@@ -84,6 +84,11 @@ namespace PooketSlug
         }
 
         static readonly Color White = Color.white;
+
+        /// <summary>
+        /// The tub stack's rattle, to the cold store's idling engine: eight beats a second, the top tub hopped on one in three.
+        /// </summary>
+        public static readonly Pulse Rattle = new Pulse(8f, 3);
         public static readonly Color Warm = new Color(1f, 0.78f, 0.38f), Cyan = Palette.Cyan;
 
         /// <summary>Every thing a scene can put on the stage. The cutscene view draws each of them.</summary>
@@ -117,6 +122,7 @@ namespace PooketSlug
             new Thing("store-opening", Kind.Prop, 261f, 11f, new Color(0.08f, 0.12f, 0.2f)),
             new Thing("freezer", Kind.Prop, 40f, 0f, new Color(0.82f, 0.9f, 0.97f)),
             new Thing("tub", Kind.Prop, 0f, 0f, new Color(0.96f, 0.93f, 0.86f)),
+            new Thing("tubs", Kind.Prop, 180f, 0f, White, "rattle"), // a stack of tubs by the doors, painted (Art.TubStack)
             new Thing("slushie", Kind.Prop, 0f, 0f, White), // the same slushie, painted
             new Thing("cones", Kind.Prop, 0f, 0f, new Color(0.88f, 0.66f, 0.36f)),
             new Thing("note", Kind.Prop, 0f, 0f, new Color(1f, 0.92f, 0.3f)),
@@ -382,6 +388,12 @@ namespace PooketSlug
             if (s == null || s.Window && t >= s.To) return true;
             return Fx.Step(now, s.N[0], (int)s.N[1]) == 0;
         }
+
+        /// <summary>
+        /// A rattling thing's frame (the tub stack's <c>rattle</c>): 1, its top tub hopped, one beat in <see cref="Staging.Rattle"/>'s
+        /// three while it rattles (on the scene's clock, through <see cref="Pulse"/>), else 0, at rest.
+        /// </summary>
+        public int Rattle(string thing, float t, float now) => Doing(thing, "rattle", t) && Staging.Rattle.On(now) ? 1 : 0;
 
         /// <summary>A soldier's pose: running while it walks, else what the shot says (standing, unless told).</summary>
         public string Pose(string figure, float t)

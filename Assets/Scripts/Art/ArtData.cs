@@ -657,5 +657,67 @@ namespace PooketSlug
             "M.......",
             "M.......",
         };
+
+        // ---- The cutscenes' props ----
+
+        /// <summary>
+        /// A stack of ice cream tubs by the cold store's doors (the <c>tubs</c> in kcaj's tabk scene): five tubs in three
+        /// rows, their lids in the creamery's pink, mint and chocolate (<see cref="Art.TubStack"/> paints them). Two
+        /// frames: at rest, and rattling, the top tub hopped a pixel right and up with its lid jumped off.
+        /// </summary>
+        public static readonly string[] TubStack =
+        {
+            ".....................",
+            ".....................",
+            ".....gggggggggg......",
+            ".....GGGGGGGGGG......",
+            "......cWcccccC.......",
+            "......cggggggC.......",
+            "......cGGGGGGC.......",
+            "......cccccccC.......",
+            ".......cccccC........",
+            "hhhhhhhhhh.rrrrrrrrrr",
+            "wwwwwwwwww.RRRRRRRRRR",
+            ".cWcccccC...cWcccccC.",
+            ".chhhhhhC...crrrrrrC.",
+            ".cwwwwwwC...cRRRRRRC.",
+            ".cccccccC...cccccccC.",
+            "..cccccC.....cccccC..",
+            "rrrrrrrrrr.gggggggggg",
+            "RRRRRRRRRR.GGGGGGGGGG",
+            ".cWcccccC...cWcccccC.",
+            ".crrrrrrC...cggggggC.",
+            ".cRRRRRRC...cGGGGGGC.",
+            ".cccccccC...cccccccC.",
+            "..cccccC.....cccccC..",
+        };
+
+        /// <summary>The tub stack rattling: the top tub knocked a pixel right and up, its lid lifted off it.</summary>
+        public static readonly string[] TubStackRattle =
+        {
+            "......gggggggggg.....",
+            "......GGGGGGGGGG.....",
+            ".....................",
+            ".......cWcccccC......",
+            ".......cggggggC......",
+            ".......cGGGGGGC......",
+            ".......cccccccC......",
+            "........cccccC.......",
+            ".....................",
+            "hhhhhhhhhh.rrrrrrrrrr",
+            "wwwwwwwwww.RRRRRRRRRR",
+            ".cWcccccC...cWcccccC.",
+            ".chhhhhhC...crrrrrrC.",
+            ".cwwwwwwC...cRRRRRRC.",
+            ".cccccccC...cccccccC.",
+            "..cccccC.....cccccC..",
+            "rrrrrrrrrr.gggggggggg",
+            "RRRRRRRRRR.GGGGGGGGGG",
+            ".cWcccccC...cWcccccC.",
+            ".crrrrrrC...cggggggC.",
+            ".cRRRRRRC...cGGGGGGC.",
+            ".cccccccC...cccccccC.",
+            "..cccccC.....cccccC..",
+        };
     }
 }

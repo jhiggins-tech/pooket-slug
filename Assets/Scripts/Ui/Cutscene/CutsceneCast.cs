@@ -8,7 +8,7 @@ namespace PooketSlug
     /// <summary>
     /// The cutscenes' cast and props, staged as the shot's script has them (<see cref="ShotStage"/>): the soldiers
     /// (tones2, kie, kcaj, the goon: drawn by <see cref="CutsceneSoldiers"/>), the tabks (tones2's, kie's and kcaj's), and the props (<see cref="Staging.Things"/>), each placed, turned, sized and
-    /// coloured, with the few that have looks of their own: the sign's words, the clamp kie rips off, the cargo drone (the
+    /// coloured, with the few that have looks of their own: the sign's words, the clamp kie rips off, the stack of tubs that rattles, the cargo drone (the
     /// game's own, its rotors turning) and its cable, the alarm's beacon.
     /// <para>
     /// Its pieces are made by <see cref="CutsceneView"/>, in drawing order among the effects'; see there.
@@ -79,7 +79,8 @@ namespace PooketSlug
 
         /// <summary>
         /// The creamery's cold store: the dark of its doorway (sized open over the painted shut doors, so they seem to
-        /// part) and a chest freezer in the yard.
+        /// part), a chest freezer in the yard and the stack of tubs beside the doors (<see cref="Art.TubStack"/>). Made
+        /// before kcaj's tabk, so it rolls out in front of them.
         /// </summary>
         public void MakeColdStore()
         {
@@ -92,6 +93,8 @@ namespace PooketSlug
             lid.rectTransform.pivot = new Vector2(0.5f, 1f);
             lid.rectTransform.anchoredPosition = Vector2.zero;
             lid.rectTransform.sizeDelta = new Vector2(0f, 3f * Px);
+            Sprite tubs = Art.TubStack[0];
+            PaintedProp("tubs", tubs, tubs.rect.width, tubs.rect.height);
         }
 
         /// <summary>tones2's tabk, in his orange and black, parked in the motor pool's first space.</summary>
@@ -182,6 +185,7 @@ namespace PooketSlug
             Sign(stage, t, now, ground);
             Clamp(stage, t, now);
             Crush(stage, t);
+            Rattle(stage, t, now);
             Drone(stage, t, now, ground);
             Beacon(stage, t);
 
@@ -215,6 +219,12 @@ namespace PooketSlug
             bool crushed = stage.Size("cup", t).y < 0.99f;
             cup.sprite = crushed ? CutsceneSnacks.Crushed : CutsceneSnacks.Slushie;
             if (crushed) cup.rectTransform.localScale = Vector3.one;
+        }
+
+        /// <summary>The tub stack rattling (<c>tubs rattle</c>): its top tub hops on the beat <see cref="ShotStage.Rattle"/> keeps.</summary>
+        void Rattle(ShotStage stage, float t, float now)
+        {
+            if (m_Props.TryGetValue("tubs", out Image tubs) && tubs.gameObject.activeSelf) tubs.sprite = Art.TubStack[stage.Rattle("tubs", t, now)];
         }
 
         /// <summary>The hangout's sign: words, not a picture.</summary>

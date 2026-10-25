@@ -76,7 +76,7 @@ not their way round: someone facing left holds a thing in front of them at a min
 | Kind | Things |
 |---|---|
 | Soldiers | `tones2`, `kie`, `kcaj`, `goon` |
-| Props | `bag`, `cup`, `card`, `remote`, `sign`, `window`, `door`, `doorway`, `spark`, `beacon`, `clamp`, `drone`, `cable`, `tones2-tabk`, `kie-tabk`, `kcaj-tabk` (with a cone on top), `turret` (whichever tabk's in the shot), `kcaj-corner` (his corner of the den, with the string board), the cold store's `store-opening` (the dark of its doorway: size it open) and `freezer`, `tub`, `slushie`, `cones`, `note` (a sticky note) |
+| Props | `bag`, `cup`, `card`, `remote`, `sign`, `window`, `door`, `doorway`, `spark`, `beacon`, `clamp`, `drone`, `cable`, `tones2-tabk`, `kie-tabk`, `kcaj-tabk` (with a cone on top), `turret` (whichever tabk's in the shot), `kcaj-corner` (his corner of the den, with the string board), the cold store's `store-opening` (the dark of its doorway: size it open) and `freezer`, `tub` (one, held), `tubs` (a stack of them beside the doors, at 180), `slushie`, `cones`, `note` (a sticky note) |
 | Effects | `snow`, `searchlights`, `chips`, `jet`, `closeup` (the keycard), `board` (kcaj's string board, close up), `shutter`, `lamps`, `row`, `junk`, `steam`, `cage`, `stars`, `zz`, `alarm`, `frost` (rolling out along the floor both ways from where it's put), `icicles` (on a cap: `icicles on kcaj 1 21`) |
 
 A thing is on stage once a line stages it (or `show` names it), until `hide`.
@@ -112,7 +112,7 @@ a window last only for it, so `1.2-3 tones2 arms out` is back to the gun at 3. W
 someone unarmed: the gun is for when they're fighting or heading out to fight.
 
 **Props' and effects' own verbs**: `chips burst 66` / `spill 66`; `jet spray 66 168` (over a window); `shutter open` (over a
-window) / `up`; `lamps stutter`; `clamp rip` (over a window); `cage flicker-out` (over a window).
+window) / `up`; `lamps stutter`; `clamp rip` (over a window); `tubs rattle` (the top tub hops, eight beats a second, one in three); `cage flicker-out` (over a window).
 
 ## A new scene
 
