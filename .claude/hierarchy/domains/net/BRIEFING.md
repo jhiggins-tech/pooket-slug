@@ -86,7 +86,11 @@ Close to this domain but not its files: `Core/Lobby/CoopRoom.cs` and `Core/Lobby
 - Replicated objects: `PlayerNet` (one per soldier, owned by its player), `WorldNet` (owned by the master), `BossNet`.
   Snapshots are capped by `NetLimits` (24 enemies, 16 pickups).
 - Session properties, short keys in `RoomBrowser`: `m` mission, `n` soldiers, `w` watching, `g` under way, `h` host (the master's soldier).
-  `OpenKey` (`o`) is left over from the public / invite-only switch: nothing sets or reads it. Removing it is a code change, so it needs a card.
+  (`OpenKey`, `o`, was the old public / invite-only switch; removed 25 Oct, nothing in the build read it.)
+- The words for a failed join are `RoomWords` in `Rooms.cs` (`RoomWordsTests` are in `RoomBrowserTests`): THE ROOM IS FULL for a full room
+  however it was counted (our count of watchers, or Photon's `GameIsFull`), THE ROOM IS CLOSED for `GameClosed`. `NetSession` passes
+  Photon's reason by name (`ForShutdown(reason.ToString(), connecting)`), so Core names no Fusion type. There is no ROOM NOT FOUND (the
+  first phone in opens the room); `GameNotFound` falls to the general DISCONNECTED line.
 - Wire kinds for the meter: `WireKind` (Shot, EnemyShot, Burst, Hit, Claim, Grant, Hurt, Kit). The meter is in the game (every phone logs it each
   30 s), no longer a spike. Burst is never counted outside `WireMeterTests`: kcaj's pills go as `KitMove.Pills`, and `BurstEvent` is the spike's
   shape, kept for its tests. A crewmate's move that is not a

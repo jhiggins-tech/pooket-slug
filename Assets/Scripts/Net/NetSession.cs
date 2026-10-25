@@ -204,7 +204,7 @@ namespace PooketSlug
             if (!ok)
             {
                 Log.Net.Warn($"Couldn't go online: {reason}");
-                Fail(DescribeConnectFailure(reason));
+                Fail(RoomWords.ForShutdown(reason.ToString(), true));
                 Dispose(runner);
                 return;
             }
@@ -219,12 +219,12 @@ namespace PooketSlug
                 case RoomAction.Locked:
                     Log.Net.Warn($"{sessionName} has {there.Soldiers} players, on a mission not cleared here; leaving");
                     Leave();
-                    Fail("BOTH SEATS ARE TAKEN. CLEAR THEIR MISSION TO WATCH");
+                    Fail(RoomWords.SeatsTaken);
                     return;
                 case RoomAction.Full:
                     Log.Net.Warn($"{sessionName} has {there.Soldiers} players and {there.Watching} watching; leaving");
                     Leave();
-                    Fail("THE ROOM IS FULL");
+                    Fail(RoomWords.Full);
                     return;
             }
 
@@ -323,52 +323,13 @@ namespace PooketSlug
             RoomCode = null;
         }
 
-        static string Describe(ShutdownReason reason)
-        {
-            switch (reason)
-            {
-                case ShutdownReason.GameNotFound: return "ROOM NOT FOUND";
-                case ShutdownReason.GameIsFull: return "THAT GAME IS FULL";
-                case ShutdownReason.GameClosed: return "THAT GAME IS CLOSED";
-                case ShutdownReason.MaxCcuReached: return "PHOTON IS FULL RIGHT NOW, TRY LATER";
-                case ShutdownReason.InvalidRegion: return "UNKNOWN PHOTON REGION IN THIS BUILD";
-                case ShutdownReason.InvalidAuthentication:
-                case ShutdownReason.CustomAuthenticationFailed: return "PHOTON REJECTED THIS BUILD'S APP ID";
-                case ShutdownReason.PhotonCloudTimeout:
-                case ShutdownReason.ConnectionTimeout:
-                case ShutdownReason.OperationTimeout: return "CONNECTION TIMED OUT";
-                case ShutdownReason.ConnectionRefused: return "CONNECTION REFUSED";
-                case ShutdownReason.DisconnectedByPluginLogic: return "DISCONNECTED BY THE SERVER";
-                default: return "DISCONNECTED (" + reason.ToString().ToUpperInvariant() + ")";
-            }
-        }
-
-        /// <summary>
-        /// A failure before the session started. The reasons Photon names keep their message; the vague ones (an
-        /// error, a timeout, a refusal) almost always mean Photon couldn't be reached at all.
-        /// </summary>
-        static string DescribeConnectFailure(ShutdownReason reason)
-        {
-            switch (reason)
-            {
-                case ShutdownReason.Error:
-                case ShutdownReason.PhotonCloudTimeout:
-                case ShutdownReason.ConnectionTimeout:
-                case ShutdownReason.OperationTimeout:
-                case ShutdownReason.ConnectionRefused:
-                    return "COULDN'T REACH PHOTON, CHECK YOUR CONNECTION";
-                default:
-                    return Describe(reason);
-            }
-        }
-
         // ------------------------------------------------------------------ INetworkRunnerCallbacks
 
         public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
         {
             if (runner != m_Runner) return; // we left on purpose
             Log.Net.Warn($"Session ended: {shutdownReason}");
-            Fail(State == NetState.Connecting ? DescribeConnectFailure(shutdownReason) : Describe(shutdownReason));
+            Fail(RoomWords.ForShutdown(shutdownReason.ToString(), State == NetState.Connecting));
         }
 
         public void OnDisconnectedFromServer(NetworkRunner runner, NetDisconnectReason reason)
