@@ -4,8 +4,8 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// A goon drawn as one of kie's rogue holograms (<c>docs/design/story.md</c>), and its glitch-out death. Every goon
-    /// is one; the tank and the barrels are real.
+    /// A goon drawn as one of kie's rogue Trollograms (<c>docs/design/story.md</c>), and its glitch-out death. Every goon
+    /// is one; the boss tabk and the barrels are real.
     /// <para>
     /// The look: every sprite is swapped for its hologram (<see cref="Art.Holo"/>: greys, scanlines, a bright edge)
     /// and tinted by kind in the bad guys' reds (<see cref="Palette.Hostile"/>), with a shimmer, and every so often a

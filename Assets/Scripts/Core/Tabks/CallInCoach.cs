@@ -1,9 +1,9 @@
 namespace PooketSlug
 {
     /// <summary>
-    /// The prompt that shows how to call a tank in, the first time (<c>docs/design/story.md</c>, The coda: "a prompt
+    /// The prompt that shows how to call a tabk in, the first time (<c>docs/design/story.md</c>, The coda: "a prompt
     /// blinks: HOLD DOWN + SP TO CALL YOUR TABK, shown until you call it"). It waits a moment, so it doesn't land on a
-    /// banner, then shows until the player starts a call, or until there's no tank left to call.
+    /// banner, then shows until the player starts a call, or until there's no tabk left to call.
     /// </summary>
     public sealed class CallInCoach
     {
