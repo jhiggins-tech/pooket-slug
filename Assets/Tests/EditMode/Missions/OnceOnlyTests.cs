@@ -23,7 +23,7 @@ namespace PooketSlug.Tests
             "scene-freeing-kcaj", "scene-kcaj-tabk",
             "den-first-visit", "moved-in-kcaj",
             "kie-tabk-home",
-            "skit-two-of-us", "skit-special-delivery", "skit-trollogram-of-anything",
+            "skit-two-of-us", "skit-special-delivery", "skit-trollogram-of-anything", "skit-five-second-rule",
             "skit-keep-it-down", "skit-tracking-us",
         };
 

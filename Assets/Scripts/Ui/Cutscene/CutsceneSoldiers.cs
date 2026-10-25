@@ -26,7 +26,7 @@ namespace PooketSlug
             // wherever the shot before left them
             f.AtPlate(at.x, ground + at.y);
             if (!on) return;
-            StagePose pose = StagePose.Cutscene(stage.Pose(name, t), t, runRate, stage.Arms(name, t));
+            StagePose pose = StagePose.Cutscene(stage.Pose(name, t), t, runRate, stage.Arms(name, t), Mathf.Max(0f, stage.Since(name, "pose", t)));
             f.Pose(skin, pose);
             Color tint = stage.Colour(name, t, now);
             if (stage.Look(name, t) == "trollo")

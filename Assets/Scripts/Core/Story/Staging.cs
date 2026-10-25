@@ -99,7 +99,7 @@ namespace PooketSlug
             new Thing("kcaj", Kind.Figure, 0f, 0f, White),
             new Thing("goon", Kind.Figure, 0f, 0f, White, "appear", "glitch-out"),
             // props
-            new Thing("bag", Kind.Prop, 0f, 0f, White), // the crisp packet, painted (its own colours)
+            new Thing("bag", Kind.Prop, 0f, 0f, White, "turn-round"), // the crisp packet, painted (its own colours); turned round, its label
             new Thing("cup", Kind.Prop, 0f, 0f, White), // tones2's slushie, painted (its own colours)
             new Thing("card", Kind.Prop, 0f, 0f, Cyan),
             new Thing("remote", Kind.Prop, 0f, 0f, new Color(0.9f, 0.3f, 0.3f)),
@@ -126,6 +126,9 @@ namespace PooketSlug
             new Thing("slushie", Kind.Prop, 0f, 0f, White), // the same slushie, painted
             new Thing("cones", Kind.Prop, 0f, 0f, new Color(0.88f, 0.66f, 0.36f)),
             new Thing("note", Kind.Prop, 0f, 0f, new Color(1f, 0.92f, 0.3f)),
+            // SOFT SERVE's two soft-serve cones (Does it do cones?), painted; squashed once they've splatted
+            new Thing("softserve", Kind.Prop, 0f, 0f, White, "squash"),
+            new Thing("softserve2", Kind.Prop, 0f, 0f, White, "squash"),
             // named effects: bits of staging drawn by the view, timed and placed by the scene
             new Thing("snow", Kind.Effect, 0f, 0f, White),
             new Thing("searchlights", Kind.Effect, 0f, 0f, White),
@@ -143,7 +146,9 @@ namespace PooketSlug
             new Thing("cage", Kind.Effect, 100f, 0f, Cyan, "flicker-out"),
             new Thing("stars", Kind.Effect, 0f, 0f, Palette.Gold),
             new Thing("zz", Kind.Effect, 0f, 0f, new Color(1f, 0.98f, 0.92f)),
-            new Thing("alarm", Kind.Effect, 0f, 0f, new Color(1f, 0.1f, 0.05f)));
+            new Thing("alarm", Kind.Effect, 0f, 0f, new Color(1f, 0.1f, 0.05f)),
+            new Thing("splat", Kind.Effect, 0f, 0f, White), // soft serve splatting on a soldier, then dripping (put it on them: splat on tones2 0 0)
+            new Thing("label", Kind.Effect, 0f, 0f, White)); // the crisp packet's label, close up
 
         static Dictionary<string, Thing> Index(params Thing[] things)
         {
@@ -156,7 +161,7 @@ namespace PooketSlug
         public static readonly string[] Common = { "show", "hide", "at", "move", "turn", "size", "colour", "fade", "flicker", "blink", "shake", "on" };
         /// <summary>The verbs the soldiers have besides.</summary>
         public static readonly string[] FigureVerbs = { "walk", "face", "pose", "arms", "look", "holds", "sway" };
-        public static readonly string[] Poses = { "idle", "run", "crouch", "spray", "hatch", "repair", "down" };
+        public static readonly string[] Poses = { "idle", "run", "crouch", "spray", "hatch", "repair", "down", "grin", "fall", "glum" };
         /// <summary>What a soldier's hands are doing, whatever their pose (<see cref="StagePose.Arms"/>): the gun, by their sides, or out holding something.</summary>
         public static readonly string[] Arms = { "gun", "down", "out" };
         public static readonly string[] Looks = { "plain", "holo", "trollo" };
@@ -232,6 +237,8 @@ namespace PooketSlug
                 case "tub": return new Vector2(8f, 11f);
                 case "slushie": return new Vector2(9f, 12f);
                 case "cones": return new Vector2(8f, 14f);
+                case "softserve": return new Vector2(10f, 6f);
+                case "softserve2": return new Vector2(-9f, 6f);
                 default: return new Vector2(0f, 12f);
             }
         }

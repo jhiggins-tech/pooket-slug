@@ -68,7 +68,11 @@ namespace PooketSlug
         static readonly Dictionary<SoldierDef, CrewLook> s_Looks = new Dictionary<SoldierDef, CrewLook>
         {
             { Content.Tones2, HeadOf(ArtData.Tones2Head, ArtData.Tones2HeadDown) },
-            { Content.Kie, HeadOf(ArtData.KieHead, ArtData.KieHeadDown) },
+            { Content.Kie, new CrewLook(new Dictionary<CrewHead, string[]>
+                {
+                    { CrewHead.Front, ArtData.KieHead }, { CrewHead.Down, ArtData.KieHeadDown },
+                    { CrewHead.Grin, ArtData.KieHeadGrin }, { CrewHead.Blank, ArtData.KieHeadBlank }, { CrewHead.Glum, ArtData.KieHeadGlum },
+                }) },
             { Content.Kcaj, HeadOf(ArtData.KcajHead, ArtData.KcajHeadDown) },
         };
 
@@ -95,6 +99,7 @@ namespace PooketSlug
             ArtData.TorsoForward, ArtData.TorsoUp, ArtData.TorsoDown, ArtData.TorsoUpDiag, ArtData.TorsoDownDiag,
             ArtData.TorsoUnarmed, ArtData.TorsoPad, ArtData.TorsoLounge,
             ArtData.Repair1, ArtData.Repair2, ArtData.Repair3, ArtData.Repair4,
+            ArtData.TorsoUnarmed, ArtData.TorsoUnarmed, ArtData.TorsoUnarmed, ArtData.TorsoSlump,
             ArtData.TorsoCarry,
         };
 
@@ -102,6 +107,7 @@ namespace PooketSlug
         {
             ArtData.TorsoForwardTop, ArtData.TorsoUpTop, ArtData.TorsoDownTop, ArtData.TorsoUpDiagTop, ArtData.TorsoDownDiagTop,
             ArtData.TorsoForwardTop, ArtData.TorsoForwardTop, ArtData.TorsoForwardTop,
+            ArtData.TorsoForwardTop, ArtData.TorsoForwardTop, ArtData.TorsoForwardTop, ArtData.TorsoForwardTop,
             ArtData.TorsoForwardTop, ArtData.TorsoForwardTop, ArtData.TorsoForwardTop, ArtData.TorsoForwardTop,
             ArtData.TorsoForwardTop,
         };

@@ -146,7 +146,7 @@ namespace PooketSlug
             Prop("beacon", 8f, 5f);
         }
 
-        /// <summary>The goon, kcaj, tones2, and what they carry: the bag (the crisp packet: <see cref="CutsceneSnacks"/>), the cup, the keycard, the tub, the slushie, the cones and the sticky note.</summary>
+        /// <summary>The goon, kcaj, tones2, and what they carry: the bag (the crisp packet: <see cref="CutsceneSnacks"/>), the cup, the keycard, the tub, the slushie, the cones, the sticky note, and SOFT SERVE's two soft-serve cones.</summary>
         public void MakeFrontCast()
         {
             m_Goon = new StageFigure(m_World, "goon");
@@ -162,6 +162,9 @@ namespace PooketSlug
             Sprite cone = KcajArt.Cone;
             PaintedProp("cones", cone, cone.rect.width, cone.rect.height);
             Prop("note", 4f, 4f);
+            Sprite serve = CutsceneSnacks.SoftServe;
+            PaintedProp("softserve", serve, serve.rect.width, serve.rect.height);
+            PaintedProp("softserve2", serve, serve.rect.width, serve.rect.height);
         }
 
         // ------------------------------------------------------------------ each frame
@@ -186,6 +189,9 @@ namespace PooketSlug
             Clamp(stage, t, now);
             Crush(stage, t);
             Rattle(stage, t, now);
+            TurnRound(stage, t);
+            Squash("softserve", stage, t);
+            Squash("softserve2", stage, t);
             Drone(stage, t, now, ground);
             Beacon(stage, t);
 
@@ -225,6 +231,29 @@ namespace PooketSlug
         void Rattle(ShotStage stage, float t, float now)
         {
             if (m_Props.TryGetValue("tubs", out Image tubs) && tubs.gameObject.activeSelf) tubs.sprite = Art.TubStack[stage.Rattle("tubs", t, now)];
+        }
+
+        /// <summary>
+        /// The packet turned round (<c>bag turn-round</c>, over a window): its front narrowing to its edge, then its back, the
+        /// shop's look-alike stripes, widening out, and staying round (<see cref="SnackShow"/>).
+        /// </summary>
+        void TurnRound(ShotStage stage, float t)
+        {
+            Image bag = m_Props["bag"];
+            if (!bag.gameObject.activeSelf) return;
+            float k = stage.Progress("bag", "turn-round", t);
+            bag.sprite = k >= 0f && SnackShow.LabelOut(k) ? CutsceneSnacks.PacketBack : CutsceneSnacks.Packet;
+            if (k <= 0f || k >= 1f) return;
+            Vector3 scale = bag.rectTransform.localScale;
+            scale.x *= SnackShow.BagWidth(k);
+            bag.rectTransform.localScale = scale;
+        }
+
+        /// <summary>A soft-serve cone, whole until it's splatted (<c>squash</c>), then squashed flat and dripping, the same size.</summary>
+        void Squash(string name, ShotStage stage, float t)
+        {
+            Image cone = m_Props[name];
+            if (cone.gameObject.activeSelf) cone.sprite = stage.Since(name, "squash", t) >= 0f ? CutsceneSnacks.Squashed : CutsceneSnacks.SoftServe;
         }
 
         /// <summary>The hangout's sign: words, not a picture.</summary>

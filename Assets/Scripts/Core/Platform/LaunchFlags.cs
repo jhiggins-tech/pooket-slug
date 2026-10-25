@@ -59,7 +59,7 @@ namespace PooketSlug
 
         /// <summary>
         /// ?skit=: a skit to play as the den first opens on this visit, seen or not (<see cref="Skits.Named"/>:
-        /// <c>two-of-us</c>, <c>special-delivery</c>, <c>trollogram-of-anything</c>), lower case, or null.
+        /// <c>two-of-us</c>, <c>special-delivery</c>, <c>trollogram-of-anything</c>, <c>five-second-rule</c>), lower case, or null.
         /// </summary>
         public readonly string Skit;
 

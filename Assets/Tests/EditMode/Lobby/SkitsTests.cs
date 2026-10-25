@@ -62,7 +62,7 @@ namespace PooketSlug.Tests
             Profile p = AfterTheFirstVisit();
             Assert.IsInstanceOf<TwoOfUsSkit>(Skits.Due(p, Visit(Starters, p)), "co-op open from before the skit was built");
             p.MarkSeen(Reveals.Coop);
-            Assert.IsNull(Skits.Due(p, Visit(Starters, p)), "it's found co-op: the button just shows");
+            Assert.IsNotInstanceOf<TwoOfUsSkit>(Skits.Due(p, Visit(Starters, p)), "it's found co-op: the button just shows");
         }
 
         [Test]
@@ -99,6 +99,7 @@ namespace PooketSlug.Tests
         {
             Profile p = AfterTheFirstVisit();
             p.MarkSeen(TwoOfUsSkit.Id);
+            p.MarkSeen(FiveSecondRuleSkit.Id);
             Assert.IsNull(Skits.Due(p, Visit(Starters, p)), "only from a replay's debrief");
             Assert.IsNull(Skits.Due(p, Visit(Starters, p, replayed: Missions.Two)), "Mission one's");
             Skit skit = Skits.Due(p, Visit(Starters, p, replayed: Missions.One));
@@ -125,7 +126,7 @@ namespace PooketSlug.Tests
             SkitVisit v = Visit(WithKcaj, p);
             Assert.AreEqual(1, v.Beats.Count, "kcaj moves in first");
             Assert.IsInstanceOf<TrollogramSkit>(Skits.Due(p, v));
-            Assert.IsNull(Skits.Due(p, Visit(Starters, p)), "not before he's home");
+            Assert.IsInstanceOf<FiveSecondRuleSkit>(Skits.Due(p, Visit(Starters, p)), "not before he's home: the den's second opening has its own");
         }
 
         [Test]
@@ -138,7 +139,9 @@ namespace PooketSlug.Tests
             Skit skit = Skits.Due(p, Visit(WithKcaj, p));
             Assert.IsInstanceOf<TrollogramSkit>(skit, "on the next visit, with no beat in its way");
             Skits.Played(p, skit);
-            Assert.IsNull(Skits.Due(p, Visit(WithKcaj, p)), "once ever");
+            Assert.IsInstanceOf<FiveSecondRuleSkit>(Skits.Due(p, Visit(WithKcaj, p)), "once ever: the next one's due");
+            p.MarkSeen(FiveSecondRuleSkit.Id);
+            Assert.IsNull(Skits.Due(p, Visit(WithKcaj, p)));
             Assert.IsInstanceOf<SpecialDeliverySkit>(Skits.Due(p, Visit(WithKcaj, p, replayed: Missions.One)), "the next skit's its own trigger's");
         }
 
@@ -157,7 +160,7 @@ namespace PooketSlug.Tests
         [Test]
         public void EverySkit_IsSpokenByItsCast_InOrder_AndASkipEndsIt()
         {
-            foreach (Skit skit in new Skit[] { new TwoOfUsSkit(), new SpecialDeliverySkit(), new TrollogramSkit() })
+            foreach (Skit skit in new Skit[] { new TwoOfUsSkit(), new SpecialDeliverySkit(), new TrollogramSkit(), new FiveSecondRuleSkit() })
             {
                 Assert.AreEqual(SkitPlace.Den, skit.Place);
                 float last = 0f;
@@ -254,6 +257,74 @@ namespace PooketSlug.Tests
                 if (notes.Count == 0 || notes[notes.Count - 1] != s.Note) notes.Add(s.Note);
             }
             CollectionAssert.AreEqual(new[] { 0, 1, 2, 3, 0 }, notes, "none, on the board, in his hand, folded, in his pocket");
+        }
+
+        [Test]
+        public void FiveSecondRule_PlaysOnTheDensSecondOpening_Once()
+        {
+            var p = new Profile { coop = true };
+            SkitVisit first = Visit(Starters, p);
+            Assert.IsInstanceOf<TwoOfUsSkit>(Skits.Due(p, first), "the first opening is the first visit's and Two of us now's");
+            foreach (DenBeat b in first.Beats) DenBeats.Played(p, b);
+            Skits.Played(p, new TwoOfUsSkit());
+            Skit skit = Skits.Due(p, Visit(Starters, p));
+            Assert.IsInstanceOf<FiveSecondRuleSkit>(skit, "the visit after the first visit");
+            Assert.AreEqual("skit-five-second-rule", skit.Key);
+            Assert.IsTrue(Skits.Played(p, skit));
+            Assert.IsNull(Skits.Due(p, Visit(Starters, p)), "once ever");
+        }
+
+        [Test]
+        public void FiveSecondRule_WaitsForASoloVisit_AndGoesBeforeSpecialDelivery()
+        {
+            Profile p = AfterTheFirstVisit();
+            p.MarkSeen(TwoOfUsSkit.Id);
+            Assert.IsNull(Skits.Due(p, Visit(Starters, p, mode: DenMode.Coop)), "never in a co-op room");
+            Assert.IsInstanceOf<FiveSecondRuleSkit>(Skits.Due(p, Visit(Starters, p, replayed: Missions.One)), "one a visit: Special delivery waits for the next replay");
+            Assert.IsInstanceOf<TwoOfUsSkit>(Skits.Due(AfterTheFirstVisit(), Visit(Starters, AfterTheFirstVisit())), "Two of us now first, where it's still due");
+            var noCoop = new Profile();
+            noCoop.MarkSeen(DenBeats.FirstVisit);
+            Assert.IsInstanceOf<FiveSecondRuleSkit>(Skits.Due(noCoop, Visit(Starters, noCoop, coopOpen: false)), "it doesn't wait on co-op");
+            Assert.IsNull(Skits.Due(new Profile(), Visit(Starters, new Profile(), coopOpen: false)), "never on the first visit itself");
+        }
+
+        [Test]
+        public void FiveSecondRule_TheCrispStopsHalfway_TheBagTurnsRound_AndTheCrispGoesIn()
+        {
+            var s = new FiveSecondRuleSkit();
+            bool atMouth = false, inBag = false;
+            while (s.T < FiveSecondRuleSkit.StopAt)
+            {
+                s.Tick(Dt);
+                atMouth |= s.Crisp > 0.95f;
+                inBag |= s.Crisp < 0.05f;
+            }
+            Assert.IsTrue(atMouth && inBag, "eating: up to his mouth and back");
+            Step(s, FiveSecondRuleSkit.HalfwayAt);
+            Assert.AreEqual(0.5f, s.Crisp, 1e-3f, "stopped, halfway to his mouth");
+            Step(s, 2f);
+            Assert.AreEqual(Content.Kie, s.Line?.Who, "WHERE'D THESE COME FROM?");
+            Step(s, FiveSecondRuleSkit.NodFrom + 0.1f);
+            Assert.AreEqual(2, s.Shot);
+            Assert.IsTrue(s.Nodding, "tones2 nods at the floor by the side door");
+            Step(s, FiveSecondRuleSkit.NodTo + 0.1f);
+            Assert.IsFalse(s.Nodding, "once");
+            Assert.AreEqual(Content.Tones2, s.Line?.Who);
+            Assert.AreEqual(-1f, s.Turn, "the bag's front out");
+            Step(s, (FiveSecondRuleSkit.TurnFrom + FiveSecondRuleSkit.TurnTo) / 2f + 0.05f);
+            Assert.IsTrue(SnackShow.LabelOut(s.Turn), "round past its edge");
+            Assert.IsFalse(s.LabelShown);
+            Step(s, FiveSecondRuleSkit.LabelFrom + 0.05f);
+            Assert.IsTrue(s.LabelShown, "the label close up");
+            Assert.IsNull(s.Line, "read in silence");
+            Assert.AreEqual(1f, s.Turn, "and the bag stays round");
+            Step(s, FiveSecondRuleSkit.SlurpFrom + 0.05f);
+            Assert.IsFalse(s.LabelShown);
+            Assert.IsTrue(s.Doubting && s.Slurping, "kie unconvinced; tones2 slurps");
+            Assert.AreEqual(0.5f, s.Crisp, 1e-3f, "the crisp still halfway");
+            Step(s, FiveSecondRuleSkit.EatTo + 0.05f);
+            Assert.AreEqual("...LEGEND.", s.Line?.Text);
+            Assert.AreEqual(-1f, s.Crisp, "and he eats it");
         }
 
         static void Step(Skit s, float to)

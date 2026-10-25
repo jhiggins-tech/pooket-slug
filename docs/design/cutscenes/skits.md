@@ -11,7 +11,7 @@ He dropped Wanna race? from the pitch. Staging, art, sound and the build each ge
 - **Once ever,** like the den's beats ([the den](den.md)), each under its own once-only key, kept with the player's
   progress so it follows a sign-in. The keys below are proposals until their skit is built: a key goes in `OnceOnly.All`
   then, and never changes after. Built (skits-stage, 25 Oct): Two of us now, Special delivery and A Trollogram of
-  anything, under the keys below, as `Skit`s in `Core/Lobby/Skits.cs` (`Skits.Due` says which plays), played by the
+  anything, and (skits-art) Five-second rule, under the keys below, as `Skit`s in `Core/Lobby/Skits.cs` (`Skits.Due` says which plays), played by the
   den's `DenSkitView` on the shared `SkitStage`; `?skit=<key without skit->` plays one as the den first opens, seen or not.
 - **In the room itself,** not as a scene file (Keep it down plays in a mission, in play: see its note): the den's skits play in the den, as its beats do (`DenBeats`,
   `DenBeatView`), and the bay's in the bay, as kie's homecoming does (`KieHomecoming`, `BayHomecomingView`). The player's
@@ -190,7 +190,7 @@ burst on raid night. Dead straight face.
 
 3. INT. THE DEN - CONTINUOUS                            3.5 s
 
-kie turns the bag round. The label: FAMILY MART, crisp
+kie turns the bag round. The label: FAMBLY MART, crisp
 and new. He looks at it, then at tones2, unconvinced.
 
 tones2 slurps his slushie, loudly.
@@ -203,9 +203,22 @@ kie eats the chip.
                                             INTO: THE DEN
 ```
 
-**Staging notes:** the den, kie sitting on the couch, the `bag` in his lap, tones2 at his station. New: the bag's
-FAMILY MART label, big enough to read as kie turns it, which the stage's `bag` doesn't have today. Family Mart is a real
-shop, so whether its name goes on screen as it is, or a look-alike label, is the owner's call on the art card.
+**Staging notes:** the den, kie sitting on the couch, the `bag` in his lap, tones2 at his station. The label is a
+look-alike (the owner's pick on the art card): the shop's green, white and blue stripes, with FAMBLY MART on it, and a
+NEW! sticker. kie turns it round with `bag turn-round` (the packet's back is the stripes), and the `label` close-up
+puts it up big enough to read ([docs/scenes.md](../../scenes.md)).
+
+**As staged** (skits-art, `FiveSecondRuleSkit`, `?skit=five-second-rule`): every line as written, at the script's
+timings (shots at 4 and 7.5 s, 11 s in all). It plays on the den's first solo opening with the first visit behind it
+and no beat on the visit; where Two of us now is still due, that goes first, and Five-second rule goes before Special
+delivery (whose trigger comes round again on the next replay). Where the den can't do it as written:
+- kie "sprawls": he sits on the couch's right seat, facing tones2, the bag held out in his lap. A crisp goes from the
+  bag to his mouth and back while he eats, then stops halfway for his line and stays there till he eats it at the end.
+- tones2's nod "at the floor by the side door" is one dip of his head, facing left. The side door is past the couch
+  from his machine, so the nod points past kie at it; there's no mess on the floor to point at.
+- "He looks at it" is the label's close-up (the den dimmed, the label coming up from below, 1.2 s); "then at tones2,
+  unconvinced" is kie's blank face (the grin gone, from Does it do cones?'s faces), the bag dropped to his side.
+- The slurp is the cup at tones2's mouth with a loud hiss, and kie's "...LEGEND." comes in over the end of it.
 
 ## Special delivery
 
@@ -477,6 +490,7 @@ tones2, still dripping, licks one of the cones.
 ```
 
 **Staging notes:** the bay and SOFT SERVE as they are (its swirl wobble and nozzle pivot are the tabk's own, from
-driving it); the `cones` prop in tones2's hands; kie's run is a walk along the bay with the camera following, as the
-Mission two briefing's is. New: the cones splatting on a soldier (a small effect), and kie's face falling, which his
-figure has no frames for today, so it's his whole pose that sells it (a slump, head down) unless a new face is drawn.
+driving it); the two soft-serve cones are `softserve` and `softserve2`, flying from the nozzle and then in tones2's
+hands, `squash`ed once they've hit, with the `splat` on him (its burst, then dripping); kie's run is a walk along the bay
+with the camera following, as the Mission two briefing's is, grinning (`grin`). His face falling is his own frames
+(`fall`: the grin, gone, glum, then slumped with his hands in his pockets), and he walks off `glum`.

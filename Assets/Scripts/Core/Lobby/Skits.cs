@@ -276,10 +276,82 @@ namespace PooketSlug
         public bool Slurping => T >= SlurpFrom && T < SlurpDoneAt;
 
         /// <summary>tones2 looking from one to the other in the silence: up at kcaj (true) or across at kie.</summary>
-        public bool Tones2LooksUp => Silence && (int)((T - Shot3) / 1.25f) % 2 == 1;
+        public bool Tones2LooksUp => Silence && Fx.Step(T - Shot3, 0.8f, 2) == 1;
 
         /// <summary>The sticky note: 0 none, 1 on the board, 2 in his hand, 3 folded in two, and gone into his pocket after.</summary>
         public int Note => T < NoteFrom || T >= PocketAt ? 0 : T < NoteInHand ? 1 : T < FoldAt ? 2 : 3;
+    }
+
+    /// <summary>
+    /// Five-second rule (11 s, the den): the den's second opening, the visit after the first visit. kie sprawls on the
+    /// couch with the snack bag from the motor pool, eating, and stops with a crisp halfway to his mouth to ask where they
+    /// came from; tones2, at his slushie machine, nods at the floor by the side door, where the bag burst on raid night,
+    /// dead straight; kie turns the bag round, and its label close up says FAMBLY MART, new (<see cref="SnackShow"/>); he
+    /// looks at tones2, unconvinced, tones2 slurps loudly, and kie eats the crisp anyway.
+    /// </summary>
+    public sealed class FiveSecondRuleSkit : Skit
+    {
+        public const string Id = "skit-five-second-rule";
+        public const float Shot2 = 4f, Shot3 = 7.5f, Seconds = 11f;
+        /// <summary>Shot 1: a crisp from the bag to his mouth and back, every <see cref="Munch"/> seconds, till he stops; then halfway up, and held there.</summary>
+        public const float Munch = 0.7f, StopAt = 1.4f, HalfwayAt = 1.7f;
+        /// <summary>Shot 2: tones2's nod at the floor by the side door.</summary>
+        public const float NodFrom = 4.2f, NodTo = 4.7f;
+        /// <summary>
+        /// Shot 3: the bag turned round, its label close up, then kie's look at tones2 (unconvinced), tones2's slurp, and the
+        /// crisp eaten.
+        /// </summary>
+        public const float TurnFrom = 7.6f, TurnTo = 8.2f, LabelFrom = 8.2f, LabelTo = 9.4f, DoubtAt = 9.4f,
+            SlurpFrom = 9.4f, SlurpTo = 10.1f, EatFrom = 10.4f, EatTo = 10.7f;
+
+        static readonly SkitLine[] s_Lines =
+        {
+            new SkitLine(Content.Kie, "WHERE'D THESE COME FROM?", 1.8f, Shot2),
+            new SkitLine(Content.Tones2, "FIVE-SECOND RULE.", 4.6f, Shot3),
+            new SkitLine(Content.Kie, "...LEGEND.", 9.8f, Seconds),
+        };
+        static readonly SoldierDef[] s_Cast = { Content.Tones2, Content.Kie };
+
+        public override string Key => Id;
+        public override SkitPlace Place => SkitPlace.Den;
+        public override float Length => Seconds;
+        public override float[] Shots => new[] { Shot2, Shot3 };
+        public override IReadOnlyList<SkitLine> Lines => s_Lines;
+        public override IReadOnlyList<SoldierDef> Cast => s_Cast;
+
+        /// <summary>
+        /// The crisp: 0 in the bag, 1 at his mouth; -1 once it's eaten. Up and down while he eats, then stopped halfway
+        /// (from his question till the end), then into his mouth.
+        /// </summary>
+        public float Crisp
+        {
+            get
+            {
+                if (T >= EatTo) return -1f;
+                if (T >= EatFrom) return 0.5f + 0.5f * Eased(EatFrom, EatTo);
+                if (T >= StopAt) return 0.5f * Eased(StopAt, HalfwayAt);
+                float k = (T % Munch) / Munch;
+                return (float)Math.Sin(k * Math.PI);
+            }
+        }
+
+        /// <summary>tones2's head dipped at the floor, in his nod.</summary>
+        public bool Nodding => T >= NodFrom && T < NodTo;
+
+        /// <summary>The bag turning round: -1 before, 0 to 1 as it turns (<see cref="SnackShow.BagWidth"/>), 1 after (its label out, for good).</summary>
+        public float Turn => T < TurnFrom ? -1f : Between(TurnFrom, TurnTo);
+
+        /// <summary>The label's close-up is up.</summary>
+        public bool LabelShown => T >= LabelFrom && T < LabelTo;
+
+        /// <summary>Seconds since the close-up came up (for <see cref="SnackShow.LabelUp"/>).</summary>
+        public float LabelSince => T - LabelFrom;
+
+        /// <summary>kie's looked from the label to tones2: the grin gone, unconvinced.</summary>
+        public bool Doubting => T >= DoubtAt;
+
+        /// <summary>tones2's cup at his mouth, slurping (loudly).</summary>
+        public bool Slurping => T >= SlurpFrom && T < SlurpTo;
     }
 
     /// <summary>What's known as a room opens, for which skit is due (<see cref="Skits.Due"/>).</summary>
@@ -306,7 +378,8 @@ namespace PooketSlug
     /// <summary>
     /// Which skit plays as a room opens (<c>docs/design/cutscenes/skits.md</c>, How a skit plays): once ever each, under its
     /// own key kept with the player's progress; solo only (never in a co-op room: it waits for the next visit on your
-    /// own); one a visit; never on the same visit as a beat, except Two of us now (straight after the first visit) and A
+    /// own); one a visit, in the order Two of us now, A Trollogram of anything, Five-second rule, Special delivery; never on
+    /// the same visit as a beat, except Two of us now (straight after the first visit) and A
     /// Trollogram of anything (straight after kcaj's move-in). And whether the den's co-op button shows: from the moment Two
     /// of us now puts it up.
     /// </summary>
@@ -318,6 +391,7 @@ namespace PooketSlug
             (TwoOfUsSkit.Id, "the skit Two of us now has played: the co-op button's up"),
             (SpecialDeliverySkit.Id, "the skit Special delivery has played"),
             (TrollogramSkit.Id, "the skit A Trollogram of anything has played"),
+            (FiveSecondRuleSkit.Id, "the skit Five-second rule has played"),
         };
 
         /// <summary>The skit due as a room opens on <paramref name="visit"/>, or null. At most one.</summary>
@@ -331,13 +405,16 @@ namespace PooketSlug
             // already pressed the button: then it's found co-op, and the button just shows
             if (visit.CoopOpen && !CoopButtonUp(profile, visit.CoopUnlocked)) return new TwoOfUsSkit();
             if (TrollogramDue(profile, visit.Crew, beats)) return new TrollogramSkit();
+            // the den's second opening: the first visit behind it, no beat on this one (and it waits, if it has to, for the
+            // next solo visit). It goes before Special delivery, whose trigger comes round again on the next replay
+            if (beats.Count == 0 && profile.HasSeen(DenBeats.FirstVisit) && !profile.HasSeen(FiveSecondRuleSkit.Id)) return new FiveSecondRuleSkit();
             if (beats.Count == 0 && visit.Replayed == Missions.One && !profile.HasSeen(SpecialDeliverySkit.Id)) return new SpecialDeliverySkit();
             return null;
         }
 
         /// <summary>
         /// The skit called <paramref name="name"/> (its key without <c>skit-</c>: <c>two-of-us</c>, <c>special-delivery</c>,
-        /// <c>trollogram-of-anything</c>), new, or null. For <c>?skit=</c>, to see one whenever.
+        /// <c>trollogram-of-anything</c>, <c>five-second-rule</c>), new, or null. For <c>?skit=</c>, to see one whenever.
         /// </summary>
         public static Skit Named(string name)
         {
@@ -346,6 +423,7 @@ namespace PooketSlug
                 case TwoOfUsSkit.Id: return new TwoOfUsSkit();
                 case SpecialDeliverySkit.Id: return new SpecialDeliverySkit();
                 case TrollogramSkit.Id: return new TrollogramSkit();
+                case FiveSecondRuleSkit.Id: return new FiveSecondRuleSkit();
                 default: return null;
             }
         }

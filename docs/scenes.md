@@ -76,8 +76,8 @@ not their way round: someone facing left holds a thing in front of them at a min
 | Kind | Things |
 |---|---|
 | Soldiers | `tones2`, `kie`, `kcaj`, `goon` |
-| Props | `bag`, `cup`, `card`, `remote`, `sign`, `window`, `door`, `doorway`, `spark`, `beacon`, `clamp`, `drone`, `cable`, `tones2-tabk`, `kie-tabk`, `kcaj-tabk` (with a cone on top), `turret` (whichever tabk's in the shot), `kcaj-corner` (his corner of the den, with the string board), the cold store's `store-opening` (the dark of its doorway: size it open) and `freezer`, `tub` (one, held), `tubs` (a stack of them beside the doors, at 180), `slushie`, `cones`, `note` (a sticky note) |
-| Effects | `snow`, `searchlights`, `chips`, `jet`, `closeup` (the keycard), `board` (kcaj's string board, close up), `shutter`, `lamps`, `row`, `junk`, `steam`, `cage`, `stars`, `zz`, `alarm`, `frost` (rolling out along the floor both ways from where it's put), `icicles` (on a cap: `icicles on kcaj 1 21`) |
+| Props | `bag`, `cup`, `card`, `remote`, `sign`, `window`, `door`, `doorway`, `spark`, `beacon`, `clamp`, `drone`, `cable`, `tones2-tabk`, `kie-tabk`, `kcaj-tabk` (with a cone on top), `turret` (whichever tabk's in the shot), `kcaj-corner` (his corner of the den, with the string board), the cold store's `store-opening` (the dark of its doorway: size it open) and `freezer`, `tub` (one, held), `tubs` (a stack of them beside the doors, at 180), `slushie`, `cones`, `note` (a sticky note), `softserve` and `softserve2` (SOFT SERVE's two soft-serve cones, upright: held, they sit in the right hand and the left) |
+| Effects | `snow`, `searchlights`, `chips`, `jet`, `closeup` (the keycard), `board` (kcaj's string board, close up), `shutter`, `lamps`, `row`, `junk`, `steam`, `cage`, `stars`, `zz`, `alarm`, `frost` (rolling out along the floor both ways from where it's put), `icicles` (on a cap: `icicles on kcaj 1 21`), `splat` (soft serve splatting on a soldier, then dripping: put it on them at their feet, `splat on tones2 0 0`), `label` (the crisp packet's label close up, the room dimmed: FAMBLY MART) |
 
 A thing is on stage once a line stages it (or `show` names it), until `hide`.
 
@@ -98,21 +98,26 @@ A thing is on stage once a line stages it (or `show` names it), until `hide`.
 | `on` | `stars on kie 0 22`: rides on a soldier |
 
 **Soldiers also**: `walk` (`0-1 kie walk 100 166`: they run), `face left` / `right`, `pose idle run crouch spray
-hatch repair down`, `arms gun down out` (what their hands are doing, whatever the pose: below), `look plain holo trollo` (`holo` a Trollogram goon, `trollo` a Trollogram crewmate), `holds bag cup` (or `holds bag -7 9` for where), `sway`.
+hatch repair down grin fall glum`, `arms gun down out` (what their hands are doing, whatever the pose: below), `look plain holo trollo` (`holo` a Trollogram goon, `trollo` a Trollogram crewmate), `holds bag cup` (or `holds bag -7 9` for where), `sway`.
 `down` is in a heap on their back: the crew's down frame, toppled flat about their feet the way they face, so its back
 sits about 7 under them; stand them 7 up to lie on the floor (`1.8 kie pose down` with `kie at 100 7`). The goon also `appear`s
 (over a window) and `glitch-out`s.
+`grin` is off duty and grinning ear to ear; `fall` is the face falling from that grin, slowly, from when the pose is struck:
+the grin goes, then glum, then slumped with the hands in the pockets, and it stays there; `glum` is that slump. Only kie
+has the faces drawn: anyone else keeps their own face and just slumps.
 
 A soldier holds their gun, as in play, unless the shot says otherwise, and every shot starts with it. `arms down` puts
 their hands by their sides, no gun (just out of a cage, dazed, nodding off), and `arms out` has the front hand out
 holding something and the back one by their side, no gun (a slushie, the snacks, a remote handed over, a tub, a cone).
 Put a held thing at the hand: about 8 in front and 10 up for `arms out` (`tones2 holds cup 8 10`, or `-8 10` facing
-left), and about 6 behind and 9 up for the back hand. A `spray` always has the gun, and a `repair` its wrench. Arms over
+left), and about 6 behind and 9 up for the back hand. A `spray` always has the gun, a `repair` its wrench, and a face's poses (`grin`, `fall`, `glum`) their off-duty hands. Arms over
 a window last only for it, so `1.2-3 tones2 arms out` is back to the gun at 3. Write `arms` wherever the script has
 someone unarmed: the gun is for when they're fighting or heading out to fight.
 
 **Props' and effects' own verbs**: `chips burst 66` / `spill 66`; `jet spray 66 168` (over a window); `shutter open` (over a
-window) / `up`; `lamps stutter`; `clamp rip` (over a window); `tubs rattle` (the top tub hops, eight beats a second, one in three); `cage flicker-out` (over a window).
+window) / `up`; `lamps stutter`; `clamp rip` (over a window); `tubs rattle` (the top tub hops, eight beats a second, one in three); `cage flicker-out` (over a window); `bag turn-round` (over a window: the packet narrows to
+its edge and comes back round with its label out, and stays that way); `softserve squash` (from then on it's splatted
+flat, dripping).
 
 ## A new scene
 
