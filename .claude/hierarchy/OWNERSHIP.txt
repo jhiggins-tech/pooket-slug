@@ -181,6 +181,7 @@ shell Assets/Scripts/Ui/HudView.cs
 shell Assets/Scripts/Ui/TitleView.cs
 shell Assets/Scripts/Ui/TitleLogoView.cs
 shell Assets/Scripts/Ui/DebriefView.cs
+shell Assets/Scripts/Ui/DebriefCrew.cs
 shell Assets/Scripts/Ui/DemoClip.cs
 shell Assets/Scripts/Ui/Invite.cs
 shell Assets/Scripts/Input/
@@ -212,8 +213,10 @@ shell Assets/Tests/EditMode/Lobby/ScreenWordsTests.cs
 # domain's job is to keep them agreeing, which its consistency check does.
 story Assets/Scripts/Core/Missions/MissionStory.cs
 story Assets/Scripts/Core/Missions/OnceOnly.cs
+story Assets/Scripts/Core/Missions/MissionSkits.cs
 story Assets/Tests/EditMode/Missions/MissionStoryTests.cs
 story Assets/Tests/EditMode/Missions/OnceOnlyTests.cs
+story Assets/Tests/EditMode/Missions/MissionSkitsTests.cs
 story docs/design/story.md
 
 # ---------------------------------------------------------------- net
