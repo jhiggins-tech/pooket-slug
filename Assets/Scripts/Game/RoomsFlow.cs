@@ -39,9 +39,6 @@ namespace PooketSlug
             m_Room.Show(to, by);
         }
 
-        /// <summary>You used the way back, out of a room.</summary>
-        public void Back(RoomId room) => Go(room, RoomId.None, RoomWay.None);
-
         public void Tick(MenuInput keys, SoldierInput soldier) => m_Room.Tick(keys, soldier);
         public void Move(float dt) => m_Room.Move(dt);
     }

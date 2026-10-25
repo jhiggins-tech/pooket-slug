@@ -29,8 +29,19 @@ namespace PooketSlug
         public const int PerDeck = 6, Spaces = PerDeck * 2;
         /// <summary>A tabk's spot: on the stands, or a space.</summary>
         public const int Stands = -1;
-        /// <summary>A tabk in the bay, drawn 1.5 times the game's (52 x 22): its size in the bay's pixels.</summary>
+        /// <summary>
+        /// A tabk in the bay, drawn 1.5 times the game's: its width (52 art pixels, every tabk's) and tones2's height
+        /// (22 rows) in the bay's pixels. kie's and kcaj's stand taller: <see cref="TabkHOf"/>.
+        /// </summary>
         public const float TabkW = 78f, TabkH = 33f;
+        /// <summary>kie's and kcaj's tabks in the bay: 28 rows (the projector, the soft-serve machine), 1.5 times.</summary>
+        public const float TallTabkH = 42f;
+
+        /// <summary>
+        /// How tall a tabk stands in the bay, by its card's id (its owner's soldier id): kie's and kcaj's are taller than
+        /// tones2's. Its tap box and the TAKEN tag over it go by this.
+        /// </summary>
+        public static float TabkHOf(int tabkId) => tabkId == Content.Kie.Id || tabkId == Content.Kcaj.Id ? TallTabkH : TabkH;
 
         /// <summary>Where a soldier's feet are on each deck.</summary>
         public static float FloorY(BayDeck deck) => deck == BayDeck.Top ? 76f : 13f;
@@ -54,13 +65,18 @@ namespace PooketSlug
         /// <summary>Where you stand to look a tabk over: beside it, on the den's side.</summary>
         public static float StandBy(int spot) => SpotX(spot) - TabkW / 2f - 2f;
 
-        /// <summary>The spot a tap at (<paramref name="x"/>, <paramref name="y"/>) is on (a tabk's, if one's there), or null.</summary>
-        public static int? SpotAt(float x, float y)
+        /// <summary>
+        /// The spot a tap at (<paramref name="x"/>, <paramref name="y"/>) is on (a tabk's, if one's there), or null.
+        /// <paramref name="heightAt"/> says how tall the tabk in a spot stands (<see cref="TabkHOf"/>), so a tap on a tall
+        /// one's top still finds it; left out, every spot is tones2's height.
+        /// </summary>
+        public static int? SpotAt(float x, float y, Func<int, float> heightAt = null)
         {
             for (int s = Stands; s < Spaces; s++)
             {
                 float sx = SpotX(s), sy = SpotY(s);
-                if (Math.Abs(x - sx) <= TabkW / 2f && y >= sy - 4f && y <= sy + TabkH + 4f) return s;
+                float h = heightAt != null ? heightAt(s) : TabkH;
+                if (Math.Abs(x - sx) <= TabkW / 2f && y >= sy - 4f && y <= sy + h + 4f) return s;
             }
             return null;
         }

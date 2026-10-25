@@ -263,7 +263,7 @@ namespace PooketSlug
             bool climbing = a.Walk.Climbing;
             bool walking = !seated && !a.Walk.Standing && !climbing;
             // off duty, no guns: gaming on the couch, lounging at their station between loops (and reaching up the ladder)
-            bool lounging = climbing || a.Doing == DenDoing.Station && a.Cycle == 2;
+            bool lounging = climbing || a.Doing == DenDoing.Station && a.Cycle == DenIdle.Breath;
             float bob = 0f, shiver = 0f;
             if (a.Doing == DenDoing.Station) Idle(a, out bob, out shiver);
             else if (climbing) shiver = Fx.Shiver(m_Clock, 6f, 0.5f); // hand over hand
@@ -307,8 +307,8 @@ namespace PooketSlug
             a.CycleT += Time.unscaledDeltaTime;
             if (a.CycleT >= a.CycleLen)
             {
-                a.Cycle = m_Rng.Next(3); // 2: just breathing
-                a.CycleLen = a.Cycle == 2 ? 2.5f + (float)m_Rng.NextDouble() * 2f : 4.5f;
+                a.Cycle = DenIdle.Next(a.Cycle, m_Rng); // a breath between every two loops
+                a.CycleLen = DenIdle.SecondsOf(a.Cycle, m_Rng);
                 a.CycleT = 0f;
                 if (a.Soldier == Content.Kie && a.Cycle == 0) Sfx.Play(Sfx.Glitch, 0.25f);
             }
