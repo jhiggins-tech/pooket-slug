@@ -62,7 +62,7 @@ kie's tabk was wrecked in Mission one's boss fight, and it comes back straight a
 Trollogram projector that made Trollogram kie, pulled from the wreck, and since Trollograms run hot he wraps it in
 copper freezer pipes, which frost it over. This beat plays the first time the player walks into
 [the tabk bay](../lobby.md#the-tabk-bay) after Mission one is beaten, so the players who go looking find a second tabk
-waiting (owner, 2026-10-20, docs-progression-fixes). About 10.5 seconds, three shots; tap to skip. Once ever, kept with
+waiting (owner, 2026-10-20, docs-progression-fixes). About 12 seconds, three shots; tap to skip. Once ever, kept with
 the player's progress, so it follows a sign-in. Drafted 2026-10-19 (kie-tabk-return-script); moved to after Mission
 one 2026-10-20.
 
@@ -83,7 +83,7 @@ SFX: a chip welding crackle, on and off.
 
                                                    CUT TO:
 
-2. INT. THE TABK BAY - CONTINUOUS                       4.5 s
+2. INT. THE TABK BAY - CONTINUOUS                         6 s
 
 The crane lowers the projector onto the turret ring.
 Frost on its body, steam curling off the copper pipes.
@@ -127,5 +127,7 @@ stands are kie's; the cargo drone swaps them back as the beat ends.
 **Built** (2026-10-20, kie-tabk-home-m1): kie's tabk is won once Mission one is cleared (`TabkCards.Won`), and this
 beat plays the first time the bay opens after that, in the bay itself rather than as a scene file:
 `Core/Tabks/KieHomecoming` (when it's due and its timing, tested) and `Ui/Den/BayHomecomingView`. The second shot
-runs 4.5 seconds, not 3, so its three lines can be read, which makes it about 10.5 seconds in all. The crane lowers
+runs 6 seconds, not 3, so its three lines can be read at about three words a second (the owner picked the longer shot,
+2026-10-25, dca-homecoming-pace), which makes it about 12 seconds in all; in the third, kie's line comes in with the
+name card so it gets its reading time too. `BeatReadingTests` holds this beat's lines, and the den's, to the rule. The crane lowers
 the projector (the sprite's top 14 rows) onto the bare hull. A tap skips it, and a `?test=` jump never plays it.

@@ -15,28 +15,31 @@ namespace PooketSlug
     /// <item>kie climbs in, the reels spin up, the lens glows gold, a little Trollogram of the tabk waves from the wall,
     /// the weasel hops in after him, the name card drops in, and kie's last line.</item>
     /// </list>
-    /// The script's shots are 3 s each; the second gets 4.5 s so its three lines can be read (three words a second).
+    /// The script's shots are 3 s each; the second gets 6 s so its three lines can be read, and in the third kie's line
+    /// comes in with the name card, for the same reason: every line is up for its words at
+    /// <see cref="SceneCheck.WordsPerSecond"/>, as a scene file's are (<c>BeatReadingTests</c>).
     /// </summary>
     public sealed class KieHomecoming
     {
         /// <summary>The reveal kept once it's played (or skipped).</summary>
         public const string Reveal = "kie-tabk-home";
 
-        public const float Shot2 = 3f, Shot3 = 7.5f, Length = 10.5f;
+        public const float Shot2 = 3f, Shot3 = 9f, Length = Shot3 + 3f;
         /// <summary>Shot 1: the weasel's spanner up, taken; the cone handed back.</summary>
         public const float SpannerFrom = 0.5f, SpannerTaken = 1.4f, ConeFrom = 1.9f;
         /// <summary>Shot 2: the projector lowered, kie sliding out.</summary>
         public const float LowerTo = 4.3f, SlideFrom = 4.3f, SlideTo = 4.9f;
         /// <summary>Shot 3: kie climbing in, the reels spinning up, the lens and the wall's Trollogram, the weasel hopping in, the name card.</summary>
-        public const float ClimbTo = 8.1f, ReelsFrom = 8.1f, ReelsTo = 9.6f, GlowFrom = 8.4f, HoloFrom = 8.6f, HopFrom = 8.9f, HopTo = 9.3f, CardFrom = 8.7f;
+        public const float ClimbTo = Shot3 + 0.6f, ReelsFrom = Shot3 + 0.6f, ReelsTo = Shot3 + 2.1f, GlowFrom = Shot3 + 0.9f,
+            HoloFrom = Shot3 + 1.1f, HopFrom = Shot3 + 1.4f, HopTo = Shot3 + 1.8f, CardFrom = Shot3 + 1.2f;
 
         /// <summary>The lines: who says them (true kie, false the player), and when.</summary>
         public static readonly IReadOnlyList<(bool kie, string text, float from, float to)> Lines = new[]
         {
-            (true, "IT USED TO PROJECT ME.", 4.5f, 5.8f),
-            (false, "IS IT MEANT TO STEAM?", 5.8f, 6.7f),
-            (true, "TROLLOGRAMS RUN HOT.", 6.7f, 7.5f),
-            (true, "GOOD AS NEW. BETTER, ACTUALLY.", 9.0f, Length),
+            (true, "IT USED TO PROJECT ME.", 4.5f, 6.2f),
+            (false, "IS IT MEANT TO STEAM?", 6.2f, 7.9f),
+            (true, "TROLLOGRAMS RUN HOT.", 7.9f, Shot3),
+            (true, "GOOD AS NEW. BETTER, ACTUALLY.", CardFrom, Length),
         };
 
         /// <summary>The name card's two parts.</summary>

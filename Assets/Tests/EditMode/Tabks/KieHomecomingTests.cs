@@ -51,7 +51,7 @@ namespace PooketSlug.Tests
             Step(b, 0.8f);
             Assert.AreEqual(1f, b.Kie, 1e-3f, "out and standing");
             Assert.AreEqual("IT USED TO PROJECT ME.", b.Line.Value.text);
-            Step(b, 1.1f);
+            Step(b, 1.3f);
             Assert.IsFalse(b.Line.Value.kie, "the player asks");
         }
 

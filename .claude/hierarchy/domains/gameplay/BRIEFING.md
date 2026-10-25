@@ -217,6 +217,14 @@ exact sentences, so a tuning change fails until the words are chosen on purpose.
   kcaj's is his purple, `Crew.KcajPurple` (0xc77dff), shared with his skin's main paint letter, pinned by
   `CrewTests.KcajsCardIsTheSamePurpleAsHisSkin`. Before, it was a magenta stand-in.
 
+## Beats drawn outside scene files (homecoming-pace card, 25 Oct)
+- kie's tabk coming home (`Core/Tabks/KieHomecoming`) is about 12 s: shot 2 runs 6 s (the owner's "Longer shot"), and
+  shot 3's timings are written as offsets from `Shot3`, with kie's last line coming in with the name card. The words
+  never changed. `Tabks/BeatReadingTests` plays it, and the den's `DenBeat`s, and holds every line to
+  `SceneCheck.WordsPerSecond` (3), the same rule the scene files meet. A new line in a beat like these gets a case there.
+- `Ui/Den/BayHomecomingView` (den's) reads its beats from `KieHomecoming`; its own numbers are only cosmetic (the frost
+  fading over a second after `LowerTo`, the steam, the glow), and its reels spin on `Fx`.
+
 ## Known unfinished
 - Mission order after kcaj, and each later mission's setting, is an open question (`docs/design/levels.md`). Only two
   missions exist.
