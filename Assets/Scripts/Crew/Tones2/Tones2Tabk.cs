@@ -3,7 +3,7 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// tones2's tabk's guns (<c>docs/design/tanks.md</c>, tones2's tabk), numbers in <see cref="Tones2TabkSpec"/>. FIRE
+    /// tones2's tabk's guns (<c>docs/design/tabks/tones2.md</c>), numbers in <see cref="Tones2TabkSpec"/>. FIRE
     /// is ten-1, the water cannon: a round is one spray cycle, its pressure building in spurts, holding, then easing
     /// off. SP is ten-2, the mud jump: it shakes for a second, then blasts off along the aim like a jetpack (no fuel),
     /// carpeting the launch spot in toxic mud and squashing what it lands on. SU is ten-3, three seconds of spew while

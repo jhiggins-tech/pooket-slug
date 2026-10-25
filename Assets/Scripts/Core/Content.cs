@@ -191,7 +191,7 @@ namespace PooketSlug
             super: Spew, crateSpecials: 3); // the rocket jump is a strong special: a bomb crate gives about 3
 
         /// <summary>
-        /// kie, Mission one's crewmate (<c>docs/design/kits.md</c>): Weasel Pop, Trollogram and Steal. Picked with CREW once Mission one is beaten (<see cref="Crew"/>), and played by Mission one's pilot.
+        /// kie, Mission one's crewmate (<c>docs/design/kits.md</c>): Weasel Pop, Trollogram and Steal. Picked in the den once Mission one is beaten (<see cref="Crew"/>), and played by Mission one's pilot.
         /// </summary>
         public static readonly SoldierDef Kie = new SoldierDef(2, "kie", primary: WeaselPop, special: Trollogram,
             startSpecials: Tuning.Kit.SpecialCharges, specialMax: Tuning.Kit.SpecialCharges, specialRefill: Tuning.Kit.SpecialRefill, super: Steal);

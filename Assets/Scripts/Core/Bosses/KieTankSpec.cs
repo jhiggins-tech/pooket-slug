@@ -9,7 +9,7 @@ namespace PooketSlug
     public enum KieSteal { Nothing, Special, Super }
 
     /// <summary>
-    /// kie's boss tank (<c>docs/design/tanks.md</c>, Tank bosses): Mission one's artillery tank with a three-attack cycle in
+    /// kie's boss tank (<c>docs/design/tabks/bosses.md</c>, Tabk bosses): Mission one's artillery tank with a three-attack cycle in
     /// place of its plain shells (<see cref="Content.KieTank"/>). Each charged shot is the next of: a wave of weasels lobbed at
     /// you that scurry over and pop; hologram copies of itself, where only the real one can be hurt; and a roulette
     /// that steals your special (or your super's charge) until you hit the tank hard enough to knock it loose. It

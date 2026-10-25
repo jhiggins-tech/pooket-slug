@@ -3,8 +3,8 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// Mission one's boss: a tank that fights as artillery, its own entity apart from the tank you drive (<c>docs/design/tanks.md</c>,
-    /// Two kinds of tank). It fights like a Pocket Tanks tank: it drives a short way along its arena, stops, swings
+    /// Mission one's boss: a tank that fights as artillery, its own entity apart from the tank you drive (<c>docs/design/tabks/bosses.md</c>,
+    /// Tabk bosses). It fights like a Pocket Tanks tank: it drives a short way along its arena, stops, swings
     /// its turret round to the angle it wants, then charges the shot while a meter fills over it and a marker
     /// shows where the shell will land, and lobs it. Every third shot is a spread of three. The turret can swing
     /// right over its back, so getting behind it doesn't make you safe. It gets quicker as it's hurt

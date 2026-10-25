@@ -22,7 +22,7 @@ namespace PooketSlug
     }
 
     /// <summary>
-    /// The mission screen (<c>docs/design/levels.md</c>, Missions; opened from MISSIONS on the title and the den's mission
+    /// The mission screen (<c>docs/design/levels.md</c>, Missions; opened from the den's mission
     /// board): every mission the player has reached, to play again for score, XP, rank and stats, with their best score
     /// and clears, then a card for the next mission. A mission is reached once the one before it is cleared, so the board
     /// grows one mission at a time and never shows one further on. Hard is a second setting for each cleared mission from
@@ -33,8 +33,8 @@ namespace PooketSlug
         public static bool SoloOnly(MissionDef mission) => mission.Story.SoloOnly;
 
         /// <summary>
-        /// The HUD's banner as a mission starts. Co-op plays a solo-only mission (Mission one) only as a stand-in, so there
-        /// it doesn't name the mission.
+        /// The HUD's banner as a mission starts. A co-op room never plays a solo-only mission (<see cref="Missions.ForCoop"/>),
+        /// so should one start in co-op the banner doesn't name it.
         /// </summary>
         public static string StartBanner(MissionDef mission, bool coop) => coop && SoloOnly(mission) ? "START!" : mission.Name + "  START!";
 

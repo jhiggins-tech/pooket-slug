@@ -128,7 +128,7 @@ namespace PooketSlug
     }
 
     /// <summary>
-    /// The SP button, and calling in a tank with it (<c>docs/design/tanks.md</c>, Calling in a tank). With no
+    /// The SP button, and calling in a tank with it (<c>docs/design/tabks/driving.md</c>, Calling in a tabk). With no
     /// tank to call, SP fires the special when pressed. With one, holding the stick down and holding SP charges
     /// the call-in: let go before it's charged and it's cancelled, hold on and the tank comes. A tap of SP still
     /// fires the special, even crouching; while crouching, it fires as the tap ends, since a tap can't be told

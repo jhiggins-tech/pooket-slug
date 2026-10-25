@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace PooketSlug
 {
-    /// <summary>Whose tabk a mission's boss is: kie's (Mission one's) or kcaj's (Mission two's, <c>docs/design/tanks.md</c>).</summary>
+    /// <summary>Whose tabk a mission's boss is: kie's (Mission one's) or kcaj's (Mission two's, <c>docs/design/tabks/bosses.md</c>).</summary>
     public enum BossTabk : byte { Kie, Kcaj }
 
     /// <summary>A mission: its map, its boss, and what the menus and saves call it.</summary>

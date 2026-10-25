@@ -3,7 +3,7 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// tones2's tabk's guns as numbers (<c>docs/design/tanks.md</c>, tones2's tabk): tabk-sized versions of his kit,
+    /// tones2's tabk's guns as numbers (<c>docs/design/tabks/tones2.md</c>): tabk-sized versions of his kit,
     /// 5, 3 and 1 rounds as every tabk has (<see cref="PlayerTankSpec"/>). The tabk itself, its health, fuel and drive,
     /// is <see cref="PlayerTankSpec"/>; these are only what it fires.
     /// </summary>

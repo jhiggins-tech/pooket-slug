@@ -3,7 +3,7 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// kie's tabk's guns as numbers (<c>docs/design/tanks.md</c>, kie's tabk): his kit, tabk-sized, 5, 3 and 1 rounds as
+    /// kie's tabk's guns as numbers (<c>docs/design/tabks/kie.md</c>): his kit, tabk-sized, 5, 3 and 1 rounds as
     /// every tabk has (<see cref="PlayerTankSpec"/>). The reels on the projector spin while a shot charges.
     /// </summary>
     public sealed class KieTabkSpec

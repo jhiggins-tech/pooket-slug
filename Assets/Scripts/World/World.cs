@@ -63,7 +63,7 @@ namespace PooketSlug
         public float WeaselTuneAt = -99f;
         /// <summary>For the debrief's tally: our soldier's kills, and shots fired and landed (bullets, shells and drops).</summary>
         public int Kills, ShotsFired, ShotsHit;
-        /// <summary>Points for our own soldier's kills; in co-op, the shared score is everyone's (spike drop-in).</summary>
+        /// <summary>Points for our own soldier's kills; in co-op it's kept beside the shared score, which is everyone's (<see cref="DropIn"/>).</summary>
         public int OwnPoints;
         /// <summary>Where the checkpoint our soldier has passed stands, or -1 (see <see cref="Checkpoint"/>).</summary>
         public float CheckpointX = -1f;
@@ -77,7 +77,7 @@ namespace PooketSlug
         public bool TestTeam;
         bool m_TeamFilled;
 
-        /// <param name="soldier">Who our soldier is (the title's CREW pick); tones2 when not given.</param>
+        /// <param name="soldier">Who our soldier is (the den's pick); tones2 when not given.</param>
         public World(Camera camera, MissionDef mission, INetLink net = null, SoldierDef soldier = null)
         {
             Camera = camera;
@@ -137,7 +137,7 @@ namespace PooketSlug
 
         public void Dispose() => Object.Destroy(Root.gameObject);
 
-        /// <summary>Tanks our soldier can still call in this mission (<c>docs/design/tanks.md</c>).</summary>
+        /// <summary>Tanks our soldier can still call in this mission (<c>docs/design/tabks/driving.md</c>, Calling in a tabk).</summary>
         public int TanksToCall;
         /// <summary>The tabk a call-in drops: the one loaded in the bay.</summary>
         public TabkKit Tabk = TabkKit.Tones2;
@@ -160,7 +160,7 @@ namespace PooketSlug
         public event System.Action CallInHinted;
 
         /// <summary>
-        /// The boss intro (<c>docs/design/tanks.md</c>): the boss woke as the soldiers stepped into its arena. True the
+        /// The boss intro (<c>docs/design/cutscenes/mission-one.md</c>, The boss intro): the boss woke as the soldiers stepped into its arena. True the
         /// first time; false for the quick intro, with the tank already in place. Raised on every screen in co-op (a
         /// follower raises it when the authority's tank wakes).
         /// </summary>
@@ -414,7 +414,7 @@ namespace PooketSlug
         }
 
         /// <summary>
-        /// A boss tank is wrecked: its hologram pilot jumps out to fight on foot (<c>docs/design/tanks.md</c>, The pilot
+        /// A boss tank is wrecked: its hologram pilot jumps out to fight on foot (<c>docs/design/tabks/bosses.md</c>, The pilot
         /// round). The authority (or a solo game) puts him in; a co-op follower gets him in the snapshot. A mission with
         /// no pilot (<see cref="MissionDef.Pilot"/>) is won there and then.
         /// </summary>

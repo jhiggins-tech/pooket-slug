@@ -3,7 +3,7 @@ using UnityEngine;
 namespace PooketSlug
 {
     /// <summary>
-    /// The boss tank, fighting like a Pocket Tanks tank (<c>docs/design/tanks.md</c>, Two kinds of tank), and its numbers. It drives
+    /// The boss tank, fighting like a Pocket Tanks tank (<c>docs/design/tanks.md</c>, Two kinds of tabk), and its numbers. It drives
     /// a short way, stops, swings its turret round to the angle it wants, charges the shot (a meter fills and a
     /// marker shows where it'll land) and lobs it. Every third shot is a spread of three. It gets quicker as it's
     /// hurt: at no health left, everything runs <see cref="MaxRage"/> times as fast.
@@ -35,7 +35,7 @@ namespace PooketSlug
         /// <summary>What the HUD and the intro call it.</summary>
         public string Name = "KIE'S TABK";
         /// <summary>
-        /// The entrance (<c>docs/design/tanks.md</c>, The boss intro): it rolls out of the motor pool's shutter to its
+        /// The entrance (<c>docs/design/cutscenes/mission-one.md</c>, The boss intro): it rolls out of the motor pool's shutter to its
         /// patrol at this speed, taking at most this many seconds, and can't be hurt or fire until it stops.
         /// </summary>
         public float EntranceSpeed = 2.4f, EntranceTime = 3.5f;
