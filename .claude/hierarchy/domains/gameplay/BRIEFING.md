@@ -173,7 +173,13 @@ Not this domain's, though they sit beside its files: `Core/Missions/MissionStory
 - The play numbers in `Tuning` are fields, not constants, so the sandbox can tune them (`Knobs`); the camera, co-op and
   HUD ones are built in.
 - A blink, flicker or walk cycle goes through `Fx` or a `Clip`, not an inline modulo of time; a figure on a stage is
-  posed with `StageFigure.Pose`. (`CLAUDE.md`)
+  posed with `StageFigure.Pose`. (`CLAUDE.md`) Since the fx-blinks card (25 Oct) none is left in this domain's files:
+  the cage (`PilotFreeingSpec.CageLitFor`), the roulette frame (`RouletteSpin.Lit`), the boss tabk's landing marker
+  (`BossTankSpec.MarkerLit`) and the belt tread (`Creamery.Tread`) call `Fx`, each pinned to its old formula by a test
+  (`KieKitTests`, `BossTankTests`, `CreameryTests`). All four are looks only; none feeds the simulation (the
+  roulette's prize is picked apart from its faces). `Fx` is the sprites domain's: call it, don't change it.
+  `World/Effect.cs` still picks a held frame by `(int)(time * fps)`, which is a held clip, not a cycle: a `Clip`
+  candidate, not an inline blink.
 - Spikes only answer "is it feasible", ride a `?spike=` flag and are never merged as they are. Only `craters` is left
   in `Spike.cs`; the others became real features (`SpikeTests`).
 - Do not commit Photon SDK code, secrets or private-repo code. World talks to the network only through `INetLink`; a
@@ -199,6 +205,25 @@ change to the netcode also needs the co-op tests (`CI: co-op` in a commit messag
   naming a title button (MISSIONS, CREW, CO-OP) is stale. Drop-in and its own scores are built (`DropIn`), no longer a
   spike; `Spike.cs` holds only `craters`, so any other `?spike=` in a comment is stale.
 - `Missions.ForCoop` means a co-op room never plays Mission one; `MissionBoard.StartBanner` still handles the case.
+
+## Kit screen numbers (dca-docs-tests, 25 Oct)
+`KitGuide`'s move text builds its numbers from the tuning (the spew's length and sludge life, weasels a press, Trollograms up,
+pills in the rain) through `KitGuide.Words` and `Spoken`; the words players read are unchanged. `KitGuideTests` pins the
+exact sentences, so a tuning change fails until the words are chosen on purpose.
+
+## Card colours (kcaj-colour card, 25 Oct)
+- `CrewMember.Card` is a crewmate's team card colour. It shows in two places only: the tabk bay's card name (`BayView.Card`)
+  and the two halves of the team super's split card (`HudView.CardColour`). The den and the kit screen do not use it.
+  kcaj's is his purple, `Crew.KcajPurple` (0xc77dff), shared with his skin's main paint letter, pinned by
+  `CrewTests.KcajsCardIsTheSamePurpleAsHisSkin`. Before, it was a magenta stand-in.
+
+## Beats drawn outside scene files (homecoming-pace card, 25 Oct)
+- kie's tabk coming home (`Core/Tabks/KieHomecoming`) is about 12 s: shot 2 runs 6 s (the owner's "Longer shot"), and
+  shot 3's timings are written as offsets from `Shot3`, with kie's last line coming in with the name card. The words
+  never changed. `Tabks/BeatReadingTests` plays it, and the den's `DenBeat`s, and holds every line to
+  `SceneCheck.WordsPerSecond` (3), the same rule the scene files meet. A new line in a beat like these gets a case there.
+- `Ui/Den/BayHomecomingView` (den's) reads its beats from `KieHomecoming`; its own numbers are only cosmetic (the frost
+  fading over a second after `LowerTo`, the steam, the glow), and its reels spin on `Fx`.
 
 ## Known unfinished
 - Mission order after kcaj, and each later mission's setting, is an open question (`docs/design/levels.md`). Only two

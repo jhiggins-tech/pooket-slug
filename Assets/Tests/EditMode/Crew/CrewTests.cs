@@ -7,6 +7,17 @@ namespace PooketSlug.Tests
     public class CrewTests
     {
         [Test]
+        public void KcajsCardIsTheSamePurpleAsHisSkin()
+        {
+            Assert.AreEqual(0xc77dffu, Crew.KcajPurple);
+            Assert.AreEqual(Crew.KcajPurple, Crew.Kcaj.Paint['r'], "his skin's main colour");
+            Assert.AreEqual(199 / 255f, Crew.Kcaj.Card.r, 0.001f);
+            Assert.AreEqual(125 / 255f, Crew.Kcaj.Card.g, 0.001f);
+            Assert.AreEqual(1f, Crew.Kcaj.Card.b, 0.001f);
+            Assert.AreEqual(0.95f, Crew.Kcaj.Card.a, 0.001f);
+        }
+
+        [Test]
         public void OnlyTones2IsThereFromTheStart()
         {
             CollectionAssert.AreEqual(new[] { Content.Tones2 }, Crew.Freed(new Profile()));

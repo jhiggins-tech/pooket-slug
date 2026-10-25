@@ -349,26 +349,27 @@ namespace PooketSlug
         }
 
         /// <summary>
-        /// Its colour: its own unless the shot colours it, runs one colour into another, or flickers between two (on the
-        /// scene's clock, <paramref name="now"/>); a fade sets how see-through it is.
+        /// Its colour: its own unless the shot colours it, runs one colour into another, or flickers between two (one beat
+        /// in four, on the scene's clock, <paramref name="now"/>, through <see cref="Fx"/>); a fade sets how see-through
+        /// it is.
         /// </summary>
         public Color Colour(string thing, float t, float now)
         {
             Color c = Staging.Things.TryGetValue(thing, out Staging.Thing info) ? info.Colour : Color.white;
             StageStep s = Latest(thing, t, "colour", "flicker");
             if (s != null && s.Verb == "colour") c = s.HasB ? Color.Lerp(s.A, s.B, s.Progress(t)) : s.A;
-            else if (s != null) c = (!s.Window || t < s.To) && (int)(now * (s.N.Length > 0 ? s.N[0] : 14f)) % 4 == 0 ? s.A : s.B;
+            else if (s != null) c = (!s.Window || t < s.To) && Fx.Step(now, s.N.Length > 0 ? s.N[0] : 14f, 4) == 0 ? s.A : s.B;
             StageStep fade = Latest(thing, t, "fade");
             if (fade != null) c.a *= fade.N.Length > 1 ? Mathf.LerpUnclamped(fade.N[0], fade.N[1], fade.Progress(t)) : fade.N[0];
             return c;
         }
 
-        /// <summary>A blinking thing is lit only one beat in so many (on the scene's clock); everything else always is.</summary>
+        /// <summary>A blinking thing is lit only one beat in so many (on the scene's clock, through <see cref="Fx"/>); everything else always is.</summary>
         public bool Lit(string thing, float t, float now)
         {
             StageStep s = Latest(thing, t, "blink");
             if (s == null || s.Window && t >= s.To) return true;
-            return (int)(now * s.N[0]) % Math.Max(1, (int)s.N[1]) == 0;
+            return Fx.Step(now, s.N[0], (int)s.N[1]) == 0;
         }
 
         /// <summary>A soldier's pose: running while it walks, else what the shot says (standing, unless told).</summary>

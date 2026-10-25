@@ -79,21 +79,21 @@ namespace PooketSlug
             Ui.Show(m_Root, false);
         }
 
-        /// <summary>A tap on the room, in the den's art pixels: someone to swap to, a place to use, or the floor to walk on.</summary>
+        /// <summary>A tap on the room, in the den's art pixels: someone to swap to, a place to use, or the floor to walk on (which wins: <see cref="DenMap.TapOn"/>).</summary>
         void Tapped(PointerEventData e)
         {
             if (!ToArt(e, out Vector2 p)) return;
             DenActor who = m_Crew.At(p);
-            if (who != null && who.Doing != DenDoing.Seated)
-            {
-                m_Picked.Set(who.Soldier);
-                return;
-            }
+            if (who != null && who.Doing == DenDoing.Seated) who = null;
             DenPlace place = DenMap.PlaceAt(p.x, p.y);
-            if (place != DenPlace.None)
+            switch (DenMap.TapOn(who != null, place))
             {
-                m_Place.Set(place);
-                return;
+                case DenTap.Crewmate:
+                    m_Picked.Set(who.Soldier);
+                    return;
+                case DenTap.Place:
+                    m_Place.Set(place);
+                    return;
             }
             DenFloor floor = DenMap.WalkTarget(p.x, p.y, Walker?.Floor ?? DenFloor.Ground, out float x);
             m_Walk.Set((floor, x));

@@ -13,6 +13,9 @@ namespace PooketSlug
     {
         /// <summary>How fast a belt carries whatever stands on it, tiles a second: a soldier still walks against it, slowly.</summary>
         public const float BeltSpeed = 2.4f;
+        /// <summary>The belt's tread frames: its chevrons move 2 px a step, at the belt's speed.</summary>
+        public const int TreadFrames = 4;
+        public static readonly Pulse Tread = new Pulse(BeltSpeed * Tuning.Pixels.PerUnit / 2f, TreadFrames);
 
         /// <summary>A nitrogen vent blasts for <see cref="VentFor"/> of every <see cref="VentCycle"/> seconds, over this column.</summary>
         public const float VentCycle = 3.4f, VentFor = 1.1f, VentTell = 0.6f, VentHalfWidth = 0.45f, VentHeight = 2.8f;

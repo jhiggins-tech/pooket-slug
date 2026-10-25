@@ -36,8 +36,8 @@ namespace PooketSlug
             if (t < 0f || t >= length) return false;
             float k = t / length;
             if (k < 0.3f) return true;
-            int step = (int)(t * Mathf.Lerp(8f, 30f, k));
-            return step % (k < 0.7f ? 4 : 2) != 0;
+            // off one step in four, then one in two, the steps quickening from 8 to 30 a second
+            return Fx.Step(t, Mathf.Lerp(8f, 30f, k), k < 0.7f ? 4 : 2) != 0;
         }
     }
 
@@ -103,7 +103,7 @@ namespace PooketSlug
         public static bool Ticked(float before, float now) => Step(before) != Step(now);
 
         /// <summary>The frame lit, <paramref name="seconds"/> into a spin <paramref name="t"/> through.</summary>
-        public static bool Lit(float t, float seconds) => Settled(t) && (int)(seconds * Flashes) % 2 == 0;
+        public static bool Lit(float t, float seconds) => Settled(t) && Fx.Blink(seconds, Flashes);
 
         static int Step(float t) => (int)(Mathf.Sqrt(Mathf.Max(0f, t)) * Flicks);
     }

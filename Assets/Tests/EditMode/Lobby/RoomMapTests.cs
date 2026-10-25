@@ -267,8 +267,8 @@ namespace PooketSlug.Tests
             {
                 if (r == RoomId.None) continue;
                 // a room's floor is up from its bottom, so there's room to stand in it
-                Assert.That(RoomMap.HeightOf(r) - RoomMap.FloorY, Is.GreaterThan(RoomMap.SoldierHeight), r + ": room to stand in");
-                Assert.That(RoomMap.HeightOf(r), Is.GreaterThan(RoomMap.SoldierHeight * 2f), r + ": a room with headroom");
+                Assert.That(RoomMap.HeightOf(r) - RoomMap.FloorY, Is.GreaterThan(DenMap.SoldierHeight), r + ": room to stand in");
+                Assert.That(RoomMap.HeightOf(r), Is.GreaterThan(DenMap.SoldierHeight * 2f), r + ": a room with headroom");
             }
         }
     }

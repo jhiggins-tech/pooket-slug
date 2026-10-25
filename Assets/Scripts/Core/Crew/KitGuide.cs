@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace PooketSlug
 {
@@ -117,6 +118,18 @@ namespace PooketSlug
     {
         const float Lead = 0.5f; // each demo opens on the scene for a moment
 
+        static readonly string[] SmallNumbers = { "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten" };
+
+        /// <summary>A small count as the word the text uses ("three"), else its digits.</summary>
+        public static string Words(int n) => n >= 0 && n < SmallNumbers.Length ? SmallNumbers[n] : n.ToString(CultureInfo.InvariantCulture);
+
+        /// <summary>A length of time as the text says it: 1.5 is "a second and a half", else "N seconds".</summary>
+        public static string Spoken(float seconds, bool capital)
+        {
+            string s = Math.Abs(seconds - 1.5f) < 0.0001f ? "a second and a half" : seconds.ToString("0.##", CultureInfo.InvariantCulture) + " seconds";
+            return capital ? char.ToUpperInvariant(s[0]) + s.Substring(1) : s;
+        }
+
         public static readonly IReadOnlyList<MoveGuide> Tones2 = new[]
         {
             new MoveGuide(Content.Tones2, KitSlot.Fire, "TEN-1",
@@ -128,7 +141,7 @@ namespace PooketSlug
                 new DemoScript(DemoScript.Ground("...P............r....r...r.............."), 5.5f, false,
                     (0.8f, 0.9f, DemoKeys.Special), (1.5f, 2.1f, DemoKeys.Right))),
             new MoveGuide(Content.Tones2, KitSlot.Super, "TEN-3",
-                "A second and a half of spew that melts anything close, and you can walk while it pours. It leaves sludge that burns goons for about 15 seconds. Kills charge it.",
+                Spoken(Tones2Tuning.Spew.Duration, true) + " of spew that melts anything close, and you can walk while it pours. It leaves sludge that burns goons for about " + Tones2Tuning.Spew.SludgeLife.ToString("0", CultureInfo.InvariantCulture) + " seconds. Kills charge it.",
                 new DemoScript(DemoScript.Ground("...P...........r...r.....r....r........."), 6f, true,
                     (Lead, 1.0f, DemoKeys.Right), (1.0f, 1.1f, DemoKeys.Super), (1.1f, 2.5f, DemoKeys.Right))),
         };
@@ -136,11 +149,11 @@ namespace PooketSlug
         public static readonly IReadOnlyList<MoveGuide> Kie = new[]
         {
             new MoveGuide(Content.Kie, KitSlot.Fire, "WEASEL POP",
-                "Each press tumbles out three weasels that scurry under the nearest goon and pop. They're lobbed, so they reach goons behind cover.",
+                "Each press tumbles out " + Words(KieTuning.Weasels.Count) + " weasels that scurry under the nearest goon and pop. They're lobbed, so they reach goons behind cover.",
                 new DemoScript(DemoScript.Ground("...P.........==..s...==..s.............."), 5.5f, false,
                     (Lead, 0.6f, DemoKeys.Fire), (1.6f, 1.7f, DemoKeys.Fire), (2.7f, 2.8f, DemoKeys.Fire))),
             new MoveGuide(Content.Kie, KitSlot.Special, "TROLLOGRAM",
-                "Tap to drop a Trollogram of yourself, up to three. Goons shoot a Trollogram instead of you, and a shot one blows up. Hold to swap places with the one furthest away.",
+                "Tap to drop a Trollogram of yourself, up to " + Words(KieTuning.Trollogram.MaxUp) + ". Goons shoot a Trollogram instead of you, and a shot one blows up. Hold to swap places with the one furthest away.",
                 new DemoScript(DemoScript.Ground("....P..............s.....s.............."), 6f, false,
                     (Lead, 1.2f, DemoKeys.Right), (1.2f, 1.3f, DemoKeys.Special), (1.4f, 2.2f, DemoKeys.Left), (3.4f, 3.9f, DemoKeys.Special))),
             new MoveGuide(Content.Kie, KitSlot.Super, "STEAL",
@@ -160,7 +173,7 @@ namespace PooketSlug
                 new DemoScript(DemoScript.Ground("...P...........h........................"), 5.5f, false,
                     (Lead, 4.4f, DemoKeys.Special))),
             new MoveGuide(Content.Kcaj, KitSlot.Super, "UNMEDICATED",
-                "120 pills rain across the whole screen, bounce twice and pop on goons. They never hurt you or a partner. Kills charge it.",
+                KcajTuning.Pills.Count.ToString(CultureInfo.InvariantCulture) + " pills rain across the whole screen, bounce twice and pop on goons. They never hurt you or a partner. Kills charge it.",
                 new DemoScript(DemoScript.Ground("...P.......s....r.....s.....r....s......"), 5.5f, true,
                     (0.6f, 0.7f, DemoKeys.Super))),
         };

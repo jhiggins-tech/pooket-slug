@@ -83,7 +83,10 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
 - Gameplay never depends on a scene. `Core/Story` knows nothing of Unity's scene or the network; the view and the flow
   draw and play sounds.
 - Blinks, flickers and walk cycles on the stage go through `Fx` or a `Clip`, and a figure is posed with
-  `StageFigure.Pose`; no inline `(int)(t * hz) % n`.
+  `StageFigure.Pose`; no inline `(int)(t * hz) % n`. The `flicker` and `blink` verbs (`ShotStage.Colour`,
+  `ShotStage.Lit`) call `Fx.Step` (dca-fx-blinks, 25 Oct); `SceneScriptTests.FlickersAndBlinksKeepTheirBeatsOnFx`
+  holds them to the old beats. A search of the domain found no other inline blink: the `% 2` left in
+  `CutsceneBackdrops` are stripes across x, and `CutsceneEffects`' `% 1f` are drifts, not beats. `Fx.cs` is sprites'.
 - The site's copy of a scene takes over only if it reads cleanly, has the built-in copy's `net` number and differs
   from it. Otherwise the built-in copy plays and the reason is logged. The built-in copies are `Resources/Scenes/<name>.txt`, copied from `scenes/` by the
   build (the editor reads `scenes/` itself); the tests read `scenes/` (`TestScenes`).
@@ -97,6 +100,12 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
     A push to `scenes/` is live in a couple of minutes.
 - Docs-only pushes do not build, and a push of only `scenes/` does not build either: it deploys scenes only.
 
+- A walk from the den into the bay is two sets, so it is either two shots (the opening: a den shot ending under the
+  roller door at x 286 with a crouch and the `shutter` cue, then a bay shot coming in at x -12) or a bay shot alone
+  that starts at the roller door (the Mission two briefing's shot 4, 9 s since dca-m2-briefing-walk: in at -12, the
+  camera from 0 to 673 as they run to the street shutter at 960). The stage has no verb for the roller door itself:
+  on both sets it is painted, and the `shutter` cue is its sound.
+
 ## How it is checked
 - `tools/check.sh` runs the EditMode tests, the scene check and the docs link check; `tools/check.sh docs` alone for
   the links. The scene check is `tools/scenecheck` (the game's own reader), `tools/check_scenes.sh` with the narrator's
@@ -106,6 +115,10 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
   `Assets/Tests/EditMode/Bosses/BossIntroShowTests.cs`. `MissionStoryTests` is the story domain's.
 - A scene's look is checked by playing it: push the branch and open `previews/<item-id>/?scene=<name>`, or play it
   from a start (`?test=scene`, `?test=reveal`, `?test=coda`). CI plays `coop-test` with two browsers.
+- `docs/scenes.md`'s lists of sets, speakers, cues, things, verbs, poses, looks and colours are held to the code both ways by
+  `ScenesDocTests` (`Assets/Tests/EditMode/Story/`). Adding a thing, verb, cue, speaker, set or colour in `Staging`,
+  `SceneScript` or `Cues` means adding it to the page in the same change, or that test fails. It reads the page's
+  backticked words, so keep each list in its current paragraph or table.
 
 ## Known unfinished
 - The narrator's lines are placeholders for the owner to rewrite in the crew's voice (README, narrator note).

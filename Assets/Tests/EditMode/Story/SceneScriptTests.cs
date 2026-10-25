@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEngine;
@@ -152,6 +153,25 @@ namespace PooketSlug.Tests
             Assert.AreEqual(1.2f, zoom, 0.001f);
             Assert.IsTrue(stage.Lit("spark", 1f, 0f));
             Assert.IsFalse(stage.Lit("spark", 1f, 1f / 9f));
+        }
+
+        [Test]
+        public void FlickersAndBlinksKeepTheirBeatsOnFx()
+        {
+            // The beats as they were written inline before they moved onto Fx: a flicker shows its first colour one beat in
+            // four, a blink is lit one beat in so many. Every rate the scenes use, and odd ones, over twenty seconds.
+            SceneScript s = Read("net 9\nshot: A\nlength 30\nset street\nshow window sign spark beacon\n" +
+                                 "window flicker warm cyan\nsign flicker warm cyan 6\nspark blink 9 3\nbeacon blink 2.5 0\n");
+            Assert.IsEmpty(s.Problems, string.Join("; ", s.Problems));
+            var stage = new ShotStage(s.Def.Shots[0]);
+            for (int i = 0; i < 2000; i++)
+            {
+                float now = i * 0.0103f;
+                Assert.AreEqual((int)(now * 14f) % 4 == 0 ? Staging.Warm : Staging.Cyan, stage.Colour("window", 1f, now), "flicker at 14 (its default), " + now);
+                Assert.AreEqual((int)(now * 6f) % 4 == 0 ? Staging.Warm : Staging.Cyan, stage.Colour("sign", 1f, now), "flicker at 6, " + now);
+                Assert.AreEqual((int)(now * 9f) % 3 == 0, stage.Lit("spark", 1f, now), "blink 9 3, " + now);
+                Assert.AreEqual((int)(now * 2.5f) % Math.Max(1, 0) == 0, stage.Lit("beacon", 1f, now), "blink round no beats is always lit, " + now);
+            }
         }
 
         [Test]

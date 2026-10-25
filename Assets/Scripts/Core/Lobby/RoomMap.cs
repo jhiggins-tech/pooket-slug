@@ -68,8 +68,6 @@ namespace PooketSlug
         public const float WinterHeight = 360f;
         /// <summary>Where a soldier's feet are on a room's floor.</summary>
         public const float FloorY = 15f;
-        /// <summary>The soldier's height, which the rooms are drawn to (docs/design/lobby.md, Den 2.0: Scale).</summary>
-        public const float SoldierHeight = 22f;
         /// <summary>How near a way you can still use it, walking: where you come in, and a step more.</summary>
         public const float WayReach = 24f;
 

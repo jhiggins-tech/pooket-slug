@@ -169,12 +169,61 @@ namespace PooketSlug
             (DenPlace.Vending, 366f, 192f, 395f, 245f),
         };
 
+        /// <summary>A place's tap area (its first, for a place with two) as x0, y0, x1, y1 in art pixels; all zero for none.</summary>
+        public static (float x0, float y0, float x1, float y1) AreaOf(DenPlace place)
+        {
+            foreach (var a in Areas)
+                if (a.place == place) return (a.x0, a.y0, a.x1, a.y1);
+            return (0f, 0f, 0f, 0f);
+        }
+
+        /// <summary>How far the trapdoor's drawn hatch sits in from each side of its tap area (art pixels).</summary>
+        public const float HatchInset = 2f;
+
         /// <summary>The place a tap at (<paramref name="x"/>, <paramref name="y"/>) is on, or None (the floor: walk there).</summary>
         public static DenPlace PlaceAt(float x, float y)
         {
             foreach (var a in Areas)
                 if (x >= a.x0 && x <= a.x1 && y >= a.y0 && y <= a.y1) return a.place;
             return DenPlace.None;
+        }
+
+        /// <summary>
+        /// The way a door goes when you take it by hand: up (1) for the doors you walk in through, down (-1) for the
+        /// trapdoor in the floor, 0 for a place that isn't a door (<c>docs/design/lobby.md</c>, Den 2.0: up and down take
+        /// ladders and doors).
+        /// </summary>
+        public static int DoorWay(DenPlace place)
+        {
+            switch (place)
+            {
+                case DenPlace.SideDoor: case DenPlace.RollerDoor: case DenPlace.Rooftop: case DenPlace.Showers: case DenPlace.Wintergarden:
+                    return 1;
+                case DenPlace.Trapdoor: return -1;
+                default: return 0;
+            }
+        }
+
+        /// <summary>The door that <paramref name="dir"/> (up 1, down -1) takes you through, standing on <paramref name="floor"/> at <paramref name="x"/>, or None.</summary>
+        public static DenPlace DoorAt(DenFloor floor, float x, int dir)
+        {
+            if (dir == 0) return DenPlace.None;
+            foreach (var a in Areas)
+                if (DoorWay(a.place) == Math.Sign(dir) && FloorOf(a.place) == floor && x >= a.x0 && x <= a.x1) return a.place;
+            return DenPlace.None;
+        }
+
+        /// <summary>
+        /// What a tap that lands on a crewmate and on <paramref name="place"/> at once does. A crewmate standing in front
+        /// of a place is who you swap to, except at the mission board: kcaj's station is right in front of it, so a tap
+        /// there always opens it (tapping him anywhere off the board still swaps to him). Off a crewmate, a place is used,
+        /// and anywhere else is the floor to walk on.
+        /// </summary>
+        public static DenTap TapOn(bool onCrewmate, DenPlace place)
+        {
+            if (place == DenPlace.Board) return DenTap.Place;
+            if (onCrewmate) return DenTap.Crewmate;
+            return place != DenPlace.None ? DenTap.Place : DenTap.Floor;
         }
 
         /// <summary>
@@ -211,6 +260,9 @@ namespace PooketSlug
             }
         }
     }
+
+    /// <summary>What a tap on the den does (<see cref="DenMap.TapOn"/>): swaps to a crewmate, uses a place, or walks on the floor.</summary>
+    public enum DenTap { Floor, Place, Crewmate }
 
     /// <summary>
     /// Someone walking round the den (<see cref="DenMap"/>): along a floor, and up or down a ladder to reach another.
@@ -295,6 +347,25 @@ namespace PooketSlug
             if (next < 0 || next > (int)DenFloor.Bunks) return false;
             ladder = DenMap.LadderUp((DenFloor)Math.Min((int)Floor, next));
             return Math.Abs(X - ladder) <= DenMap.LadderReach;
+        }
+
+        /// <summary>
+        /// The door up or down (<paramref name="dir"/>) takes them through from here, or None: a ladder that way comes
+        /// first, and there's no door while they're on one.
+        /// </summary>
+        public DenPlace DoorHere(int dir) => Climbing || CanClimb(dir) ? DenPlace.None : DenMap.DoorAt(Floor, X, dir);
+
+        /// <summary>
+        /// The place jump uses where they stand (None for none): the one in front of them, or the trapdoor under their
+        /// feet.
+        /// </summary>
+        public DenPlace PlaceHere
+        {
+            get
+            {
+                DenPlace here = DenMap.PlaceAt(X, Y + 10f);
+                return here != DenPlace.None || Climbing ? here : DenMap.DoorAt(Floor, X, -1);
+            }
         }
 
         // on a ladder: the floor below it (the climb is between that and the one above)

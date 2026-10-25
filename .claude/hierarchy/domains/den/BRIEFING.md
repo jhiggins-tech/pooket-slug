@@ -27,6 +27,13 @@ gameplay domain's: `BayFlow` and `BayView` call them.
 ## The rules this domain keeps
 - Walking to a station is the menu: tap the floor to walk, tap a station or a door to walk there and use it.
   (`docs/design/lobby.md`, Den 2.0; `DenFlow.Use`)
+- By hand: left and right walk, jump uses the place you stand at (the trapdoor under your feet too:
+  `DenWalker.PlaceHere`), and up and down take ladders and doors. Up goes through the doors you walk in through, down
+  through the trapdoor (`DenMap.DoorWay`); a ladder that way comes first (the bunks' ladder stands at the shower
+  door's edge), and a door needs the key pressed, not held (`DenWalker.DoorHere`, `DenFlow.Walking`, den-taps).
+- What wins a tap is `DenMap.TapOn`: a crewmate beats a place behind them, except the mission board, which always opens
+  (kcaj's station is its middle, so at his station you reach him by SPECIAL's cycle, not a tap); a place beats the floor.
+  (`DenMapTests.ATapOnTheBoard_OpensIt_EvenWithKcajInFrontOfIt`, den-taps)
 - The soldier you play is the one you move, and the couch is the soldier pick: two seats, left for player one, right
   for player two. Picking, readying and starting a mission never needs a scroll. (`Den.cs`, `DenTests`)
 - READY sits bottom right and BACK top left. There is no bottom-corners rule in the den: the owner dropped it on 25 Oct (dca-den-corners). (`lobby.md`)
@@ -49,9 +56,14 @@ gameplay domain's: `BayFlow` and `BayView` call them.
 - The house map (`docs/design/lobby/house-layout.svg`, drawn by `house.py` from `DenMap`, `BayMap` and the stations)
   is the canonical layout: when a room moves in the game, redraw it.
 - Cosmetic idle cycles and bits use the cosmetic randomness, never the game's `Rng`. Blinks and walk cycles go
-  through `Fx` or a `Clip`. (`CLAUDE.md`, Invariants)
+  through `Fx` or a `Clip`. (`CLAUDE.md`, Invariants) `BayHomecomingView`'s reels use `Fx.Blink` (pinned by
+  `BayMapTests.KiesReelsBlinkOnTheirOldBeats_ThroughFx`); the `% 1f` in it and `DenCrew` are sawtooth drips, not blinks.
 - Words players read: "tabk", never tank; "Trollogram", never hologram. Never name or describe the 25 hidden ranks in
   anything players read; the trophy shelf shows only the rank the player holds.
+- One source for the den's shared numbers (dca-one-source): the trapdoor's hatch is drawn from its `DenMap` tap area
+  (`AreaOf`, inset `HatchInset`); the bay's 1.5 scale is `BayMap.Scale`, which `TabkW`, `TabkH` and both bay views
+  read; the soldier's height is `DenMap.SoldierHeight` only (`RoomMap` has none); the seated torso drop is
+  `CrewFigure.CrouchDrop`. (`BayMapTests`, `DenMapTests`)
 - A rule found in a view or flow (`DenView`, `DenFlow`, `BayView`) moves into Core with tests in the same commit as
   the change that touches it. A big view file is split by part when next changed. (`CLAUDE.md`, Audit 2)
 
@@ -91,11 +103,15 @@ eight above). CI runs the touch play (`tools/touch.mjs`) and, when the netcode c
 title, Enter, den, H; a change to the den's flow must keep that route. The views have no tests: smoke them on the
 branch's preview, with `?unlock=crew` to fill the den. A new `.cs` needs a `.meta` (`tools/new_meta.py`).
 
+## Painting a new room
+`docs/design/lobby/rooms.md` ("Paint it") gives the blocks recipe as the way: `tools/room_ref.py <out.svg> <room> --blocks`
+plus the den's and loft's plates as style guides (owner, 22 Oct; commit c2f1ed0). The kitchen alone was made with the older
+two-reference recipe. The workflow is mirrored in `docs/design/art.md` (sprites domain); change them together.
+
 ## Known unfinished
 - The ground floor and upper floor's painting predates the scale rule: its doors are about 2.8 times the soldier, and
-  `DenMapTests.TheDen_IsDrawnToTheSoldiersScale` is `[Test, Ignore]` for that. The owner kept the painting at its size
-  (den2-den-rescale); `lobby.md` says so. Update the Ignore reason ("Design's call") when next in that file: the
-  stale-docs card left it, as it allowed no test changes.
+  `DenMapTests.TheDen_IsDrawnToTheSoldiersScale` is `[Test, Ignore]` for that (its reason now says the owner kept the
+  painting at its size, den2-den-rescale; `lobby.md` says so).
 - The den's painting (`den.bytes`) still shows the old board on the ground floor, so kcaj's nook has two. It needs an
   annotated edit that takes the ground board down and leaves the nail; `DenTrapdoor` (drawn in code) should then match
   the nail, and the TV's mission name, written on that old board (`DenRoom.Board`, `DenConsole`), has to move.

@@ -492,7 +492,7 @@ namespace PooketSlug
             if (Dying) m_Hull.color = m_Barrel.color = Color.Lerp(Color.white, new Color(0.35f, 0.3f, 0.3f), DyingTime / 1.5f);
 
             // The landing marker blinks faster as the shot gets close.
-            m_Marker.enabled = m_LandingSeen && charging && ((int)(Anim * Mathf.Lerp(6f, 20f, charge)) % 2 == 0);
+            m_Marker.enabled = m_LandingSeen && charging && BossTankSpec.MarkerLit(Anim, charge);
             if (m_Marker.enabled) m_Marker.transform.localPosition = new Vector3(Snap(m_Landing.x) - Snap(Pos.x), Snap(m_Landing.y) - Snap(Pos.y), 0f);
             m_Kie?.Render();
         }

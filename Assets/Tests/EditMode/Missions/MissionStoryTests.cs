@@ -21,6 +21,18 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void EveryMissionsScenesAreOnesTheGameHas()
+        {
+            foreach (MissionDef mission in Missions.All)
+            {
+                MissionStory s = mission.Story;
+                foreach (string scene in new[] { s.Opening, s.BossReveal, s.PilotFreed })
+                    if (scene != null)
+                        CollectionAssert.Contains(SceneLibrary.Names, scene, mission.Id + " names a scene the game doesn't have");
+            }
+        }
+
+        [Test]
         public void AMissionWithoutAStoryHasNone()
         {
             var plain = new MissionDef("mission-test", 200, "MISSION X", "A TEST MAP", new[] { "#" });
@@ -54,6 +66,7 @@ namespace PooketSlug.Tests
             // the keys are in players' saves
             Assert.AreEqual("coda", StoryRecord.Coda);
             Assert.AreEqual("debrief", StoryRecord.Debrief);
+            Assert.AreEqual("super", StoryRecord.Super);
             Assert.AreEqual("scene-motor-pool", SceneScript.IdOf(SceneLibrary.MotorPool));
         }
 

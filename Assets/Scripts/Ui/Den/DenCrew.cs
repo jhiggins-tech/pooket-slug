@@ -281,7 +281,7 @@ namespace PooketSlug
                 walking = true;
                 legs = StageLegs.Walk;
             }
-            f.Body.Pose(skin, new StagePose(legs, top, 0f, seated ? -6f : bob) { WalkT = m_Clock });
+            f.Body.Pose(skin, new StagePose(legs, top, 0f, seated ? -CrewFigure.CrouchDrop : bob) { WalkT = m_Clock });
             Ui.Show(f.Rt, through < 1f);
             Color shade = Color.Lerp(Color.white, new Color(0.15f, 0.15f, 0.2f), through);
             f.Body.Tint(shade);

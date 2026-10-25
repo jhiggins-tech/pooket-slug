@@ -14,7 +14,7 @@ namespace PooketSlug
     sealed class BayHomecomingView
     {
         /// <summary>Tabks in the bay are 1.5 times the game's sprite (<see cref="BayView"/>).</summary>
-        const float Scale = 1.5f;
+        const float Scale = BayMap.Scale;
         /// <summary>kie beside his tabk (behind it: it faces left, toward the door), and where the weasel sits.</summary>
         const float KieX = BayMap.StandX + 52f, WeaselX = BayMap.StandX + 64f;
         /// <summary>How high the crane holds the projector before it lowers it.</summary>
@@ -82,7 +82,7 @@ namespace PooketSlug
             Vector2 feet = new Vector2(BayMap.StandX, ground);
 
             // the tabk: the bare hull till the projector's on, then whole, its reels turning as they spin up
-            bool spinning = beat.Reels > 0f && (int)(clock * (6f + 18f * beat.Reels)) % 2 == 0;
+            bool spinning = beat.Reels > 0f && Fx.Blink(clock, 6f + 18f * beat.Reels);
             bool lowering = beat.Projector && beat.Lowered < 1f;
             body.sprite = !beat.Projector || lowering ? KieTabkArt.Bare : spinning ? KieTabkArt.ParkedSpun : KieTabkArt.Parked;
             Ui.Show(m_Turret, lowering);
