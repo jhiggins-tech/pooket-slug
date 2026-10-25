@@ -37,21 +37,29 @@ kie face left
 0.4 narrator m2-briefing-2: kcaj's string board. | Everyone thought it was about the moon landing.
 
 shot: The string board
-length 6
+length 7.2
 set den
 show kcaj-corner
 kcaj-corner colour #8c8098
-// the board, close up: one red string runs off it to a photo of a factory with a giant soft-serve sign, and under it,
-// THEY NEED IT COLD. They're off screen, but their bubbles point down to where they stand: apart, so both sit
-// above the board rather than one stacked down behind it.
+chips spill 66
+// the board, close up, on its own: one red string runs off it to a photo of a factory with a giant soft-serve sign,
+// and under it, THEY NEED IT COLD. Then it cuts back to the two of them in kcaj's corner, where they climbed to, and
+// they say their lines there.
 board show
-tones2 at 200 103
-kie at 104 103
+3.2 board hide
+0 camera 1.6 -60 30
+tones2 at 104 103
+kie at 128 103
+tones2 face left
+kie face left
 tones2 hide
 kie hide
+3.2 tones2 show
+3.2 kie show
+4.9 tones2 face right
 0.1 cue card-up
-1.6 kie: HE WAS RIGHT?
-3.6 tones2: HE'S NEVER BEEN RIGHT.
+3.5 kie: HE WAS RIGHT?
+5.0 tones2: HE'S NEVER BEEN RIGHT.
 
 shot: Out of the roller door
 length 9

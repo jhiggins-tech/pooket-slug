@@ -22,8 +22,8 @@ namespace PooketSlug
             bool on = stage.Shown(name, t);
             Ui.Show(f.Rt, on);
             Vector2 at = stage.Where(name, t, now);
-            // stood where the shot puts them even while hidden: an off-screen speaker's bubble points to them (the
-            // keycard's and the string board's close-ups), not to wherever the shot before left them
+            // stood where the shot puts them even while hidden: an off-screen speaker's bubble points to them, not to
+            // wherever the shot before left them
             f.AtPlate(at.x, ground + at.y);
             if (!on) return;
             StagePose pose = StagePose.Cutscene(stage.Pose(name, t), t, runRate, stage.Arms(name, t));

@@ -179,6 +179,39 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void NoBubbleSitsOverACloseUp()
+        {
+            // docs/design/cutscenes/README.md (owner, 25 Oct, closeup-bubbles): a close-up plays on its own, held long enough
+            // to take in; the lines come after it, back in the wider shot, with whoever says them in it
+            string[] closeUps = { "closeup", "board" };
+            int found = 0;
+            foreach (SceneScript script in TestScenes.All.Values)
+                foreach (CutsceneShot shot in script.Def.Shots)
+                {
+                    var stage = new ShotStage(shot);
+                    foreach (string thing in closeUps)
+                    {
+                        if (!stage.Shown(thing, 0f)) continue;
+                        found++;
+                        float gone = 0f;
+                        while (gone < shot.Seconds && stage.Shown(thing, gone)) gone += 0.05f;
+                        Assert.GreaterOrEqual(gone, 3f, script.Name + ", '" + shot.Name + "': the " + thing + " holds long enough to take in");
+                    }
+                    foreach (CutsceneLine line in shot.Lines)
+                    {
+                        if (line.Who == Speaker.Narrator || line.Who == Speaker.Caption) continue;
+                        string where = script.Name + ", '" + shot.Name + "', the line at " + line.At + " s";
+                        for (float t = line.At; t < shot.Seconds; t += 0.05f)
+                            foreach (string thing in closeUps)
+                                Assert.IsFalse(stage.Shown(thing, t), where + ": its bubble is up while the " + thing + " is");
+                        if (Array.Exists(closeUps, c => stage.Shown(c, 0f)))
+                            Assert.IsTrue(stage.Shown(SceneScript.FigureOf(line.Who), line.At), where + ": the speaker is in shot after the close-up");
+                    }
+                }
+            Assert.AreEqual(2, found, "the keycard's close-up in the opening and the string board's in the Mission two briefing");
+        }
+
+        [Test]
         public void FlickersAndBlinksKeepTheirBeatsOnFx()
         {
             // The beats as they were written inline before they moved onto Fx: a flicker shows its first colour one beat in
