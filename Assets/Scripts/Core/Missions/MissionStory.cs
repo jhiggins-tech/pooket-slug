@@ -46,8 +46,6 @@ namespace PooketSlug
         /// the debrief before it goes straight on into it.
         /// </summary>
         public bool BeforeDen;
-        /// <summary>What the den calls it when a co-op room plays it anyway (a test), or null for its own name.</summary>
-        public string CoopName;
 
         /// <summary>
         /// Tabk call-ins it starts with (<c>docs/design/tanks.md</c>, Calling in a tabk): one, for the tabk loaded in the

@@ -22,7 +22,7 @@ From [co-op](player.md#co-op): when both players' supers are charged, they can f
 
 ## The combos
 
-Each combo is a gag built from both kits, and it always ends the same way: every enemy on screen dies (bosses take a big hit). Eight soldiers make 28 pairs. The pairs open up as the crew is freed: tones2 and kie are the only pair after Mission one, then kcaj joins the next two, and so on. garyoldmancorp's super isn't designed yet, so his combos use his scooter and Diced Coffee wheel for now.
+Each combo is a gag built from both kits, and it always ends the same way: every enemy on screen dies (bosses take a big hit). The eight soldiers designed so far make 28 pairs today, and the set grows with the roster. The pairs open up as the crew is freed: tones2 and kie are the only pair after Mission one, then kcaj joins the next two, and so on. garyoldmancorp's super isn't designed yet, so his combos use his scooter and Diced Coffee wheel for now.
 
 | Pair | Combo | What happens |
 |---|---|---|

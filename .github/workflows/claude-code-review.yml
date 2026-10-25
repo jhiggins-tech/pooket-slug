@@ -1,0 +1,58 @@
+name: Claude Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review, reopened]
+    # Optional: Only run on specific file changes
+    # paths:
+    #   - "src/**/*.ts"
+    #   - "src/**/*.tsx"
+    #   - "src/**/*.js"
+    #   - "src/**/*.jsx"
+
+jobs:
+  claude-review:
+    # Optional: Filter by PR author
+    # if: |
+    #   github.event.pull_request.user.login == 'external-contributor' ||
+    #   github.event.pull_request.user.login == 'new-developer' ||
+    #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
+
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Run Claude Code Review
+        id: claude-review
+        uses: anthropics/claude-code-action@v1
+        env:
+          # OpenRouter instead of Anthropic: the same settings as claude-code.yml (see its notes).
+          ANTHROPIC_BASE_URL: https://openrouter.ai/api
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.OPENROUTER_API_KEY }}
+          ANTHROPIC_MODEL: ${{ vars.OPENROUTER_MODEL || 'deepseek/deepseek-v4.1-flash-1017' }}
+          # Claude Code's background calls ask for a Haiku; OpenRouter has none under that name.
+          ANTHROPIC_DEFAULT_HAIKU_MODEL: ${{ vars.OPENROUTER_MODEL || 'deepseek/deepseek-v4.1-flash-1017' }}
+          CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1'
+          CLAUDE_CODE_AUTO_COMPACT_WINDOW: '400000' # compact the conversation at 400k tokens
+        with:
+          # The action refuses to start without a key; this one is only sent to OpenRouter.
+          anthropic_api_key: ${{ secrets.OPENROUTER_API_KEY }}
+          # The @claude action's pushes are made by the claude bot; without this the review refuses them
+          # ("Workflow initiated by non-human actor"). Only that bot, not every bot.
+          allowed_bots: 'claude'
+          plugin_marketplaces: 'https://github.com/anthropics/claude-code.git'
+          plugins: 'code-review@claude-code-plugins'
+          prompt: '/code-review:code-review --comment ${{ github.repository }}/pull/${{ github.event.pull_request.number }}'
+          claude_args: '--allowedTools "mcp__github_inline_comment__create_inline_comment"'
+          # See https://github.com/anthropics/claude-code-action/blob/main/docs/usage.md
+          # or https://code.claude.com/docs/en/cli-reference for available options
+

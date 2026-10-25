@@ -111,6 +111,8 @@ Each file starts with a summary comment saying what it's for.
   and the main line fails rather than ship without one.
 
 ## Recipes
+**Add a room to the house**: its own screen behind a door, like the tabk bay: the workflow is [docs/design/lobby/rooms.md](docs/design/lobby/rooms.md) (design it in the map, paint it with OpenRouter, then `RoomMap`/`RoomWalker` in Core, `RoomView` and `RoomFlow`, and a `DenPlace` for its door).
+
 **Add a cutscene**: its script in `docs/design/cutscenes/README.md` (the script leads), then a file in `scenes/` ([docs/scenes.md](docs/scenes.md)) and its name in `SceneLibrary`, cues from
 `Cues` (`CueTests` holds every cue to having an effect), narrator lines in the vendor repo's `voice/narration.json`,
 then where it plays in `Game`.

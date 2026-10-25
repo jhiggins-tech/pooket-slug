@@ -1,0 +1,21 @@
+{
+  "browser": {
+    "browserName": "chromium",
+    "isolated": true,
+    "launchOptions": {
+      "headless": true,
+      "args": [
+        "--use-gl=angle",
+        "--use-angle=swiftshader",
+        "--enable-unsafe-swiftshader",
+        "--autoplay-policy=no-user-gesture-required"
+      ]
+    },
+    "contextOptions": {
+      "viewport": { "width": 1280, "height": 720 }
+    }
+  },
+  "console": {
+    "level": "info"
+  }
+}

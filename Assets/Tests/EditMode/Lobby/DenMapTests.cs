@@ -185,9 +185,13 @@ namespace PooketSlug.Tests
                 DenFloor f = DenMap.FloorOf(p);
                 float x = DenMap.XOf(p);
                 Assert.That(x, Is.InRange(DenMap.MinX(f), DenMap.MaxX(f)), p.ToString());
-                bool does = p == DenPlace.Couch || p == DenPlace.Board || p == DenPlace.Gym || p == DenPlace.Trophies || p == DenPlace.RollerDoor;
+                bool does = p == DenPlace.Couch || p == DenPlace.Board || p == DenPlace.Gym || p == DenPlace.Trophies || p == DenPlace.RollerDoor
+                    || p == DenPlace.SideDoor || p == DenPlace.Trapdoor || p == DenPlace.Rooftop || p == DenPlace.Showers || p == DenPlace.Wintergarden;
                 Assert.AreEqual(does, DenMap.Note(p) == null, p.ToString());
-                Assert.AreEqual(p, DenMap.PlaceAt(x, DenMap.FloorY(f) + 10f), p.ToString() + " is tapped where you stand to use it");
+                // the trapdoor is a hatch in the floor itself, so it's tapped down in the floor; the rest are tapped
+                // where you stand to use them
+                float tapY = p == DenPlace.Trapdoor ? DenMap.FloorY(f) - 5f : DenMap.FloorY(f) + 10f;
+                Assert.AreEqual(p, DenMap.PlaceAt(x, tapY), p.ToString() + " is tapped where you use it");
             }
         }
 

@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "--yes",
+        "@playwright/mcp@0.0.83",
+        "--config",
+        "${PLAYWRIGHT_MCP_CONFIG}",
+        "--output-dir",
+        "playtest"
+      ],
+      "env": {
+        "PLAYWRIGHT_BROWSERS_PATH": "${HOME}/.cache/ms-playwright"
+      }
+    }
+  }
+}

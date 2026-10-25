@@ -8,6 +8,7 @@ Every document opens with a summary, a **Read this when** line and an **Up** lin
 
 ## Contents
 
+- [ci-agent.md](ci-agent.md): the CI agent: Claude Code headless on OpenRouter, its task, its model and its log.
 - [build-pipeline/](build-pipeline/README.md): how a push becomes a playable page.
   - [workflow.md](build-pipeline/workflow.md): every workflow step, secrets, caching, concurrency, reading CI logs.
   - [unity-project.md](build-pipeline/unity-project.md): the Unity version and image, what's committed, packages and modules, input, `WebGLBuild.cs`.

@@ -269,22 +269,27 @@ namespace PooketSlug
             else if (climbing) shiver = Fx.Shiver(m_Clock, 6f, 0.5f); // hand over hand
             StageLegs legs = seated ? StageLegs.Sit : climbing ? StageLegs.Jump : walking ? StageLegs.Walk : StageLegs.Idle;
             StageTorso top = seated ? StageTorso.Pad : lounging ? StageTorso.Lounge : StageTorso.Unarmed;
-            f.Body.Pose(skin, new StagePose(legs, top, 0f, seated ? -6f : bob) { WalkT = m_Clock });
             float x = seated ? SeatX[a.Seat] : a.X, y = seated ? SitY : a.Y;
-            // through the roller door: in under it, into the dark of the bay, a little smaller as they go
+            Vector2 sill = DenRollerDoor.Sill; // the step through the roller door walks the soldier through the door
             float through = a == Mine ? Through : 0f;
             if (through > 0f)
             {
-                Vector2 sill = DenRollerDoor.Sill;
-                x = Mathf.Lerp(x, sill.x, through);
-                y = Mathf.Lerp(y, sill.y, through);
+                // in under it, into the dark of the bay: the step starts a soldier's width before the door and ends one
+                // past its far edge (a shoulder's either side of the threshold), and they walk their run cycle as they go
+                x = sill.x + Mathf.Lerp(DenRollerDoor.From, DenRollerDoor.To, through);
+                y = DenRollerDoor.Sill.y;
+                walking = true;
+                legs = StageLegs.Walk;
             }
+            f.Body.Pose(skin, new StagePose(legs, top, 0f, seated ? -6f : bob) { WalkT = m_Clock });
             Ui.Show(f.Rt, through < 1f);
             Color shade = Color.Lerp(Color.white, new Color(0.15f, 0.15f, 0.2f), through);
             f.Body.Tint(shade);
             float size = 1f - 0.2f * through;
             f.Rt.anchoredPosition = new Vector2(x + shiver, y) * Px;
-            f.Rt.localScale = new Vector3((a.Walk.FaceLeft && !seated && !climbing ? -1f : 1f) * size, size, 1f);
+            // through the door they face the way they're going: in is left (the bay's inside), out is right
+            bool faceLeft = through > 0f ? through < 0.5f : a.Walk.FaceLeft && !seated && !climbing;
+            f.Rt.localScale = new Vector3((faceLeft ? -1f : 1f) * size, size, 1f);
             bool cup = a.Soldier == Content.Tones2 && (a.Doing == DenDoing.Station && a.Cycle == 0 || a.Doing == DenDoing.Bit && Bits.Slushie && Bits.T < 3.4f);
             Ui.Show(f.Cup, cup);
             if (cup) f.Cup.rectTransform.anchoredPosition = new Vector2(5f, a.Doing == DenDoing.Station && a.CycleT > 0.6f && a.CycleT < 2.2f ? 8f : 1f) * Px;

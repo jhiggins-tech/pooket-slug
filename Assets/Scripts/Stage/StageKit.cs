@@ -15,6 +15,11 @@ namespace PooketSlug
     {
         /// <summary>HUD units per art pixel.</summary>
         public const float Px = 2f;
+        /// <summary>
+        /// HUD units per art pixel for a soldier on a stage: the stage's, a fifth again — the rooms' paintings are drawn
+        /// a touch small for him, and this brings the two back together until the plates are redrawn.
+        /// </summary>
+        public const float FigureScale = Px * 1.2f;
         /// <summary>The stage's size in art pixels, and the height of a room's floor.</summary>
         public const int StageW = 320, StageH = 180, Floor = 22;
 
@@ -85,7 +90,7 @@ namespace PooketSlug
 
         /// <param name="anchor">Where on <paramref name="parent"/> it's placed from: the world's bottom left, or a panel's middle.</param>
         /// <param name="scale">HUD units per art pixel: the stage's, or bigger on a screen like the debrief's.</param>
-        public StageFigure(RectTransform parent, string name, Vector2 anchor, float scale = StageKit.Px)
+        public StageFigure(RectTransform parent, string name, Vector2 anchor, float scale = StageKit.FigureScale)
         {
             m_Scale = scale;
             Vector2 size = new Vector2(24f, 32f) * scale;
@@ -99,6 +104,13 @@ namespace PooketSlug
 
         /// <summary>Stands it with its feet at <paramref name="x"/>, <paramref name="y"/> (art pixels).</summary>
         public void At(float x, float y) => Rt.anchoredPosition = new Vector2(x, y) * m_Scale;
+
+        /// <summary>
+        /// Stands it with its feet at <paramref name="x"/>, <paramref name="y"/> in a plate's own art pixels, which is
+        /// what a room's painting is drawn in (<see cref="StageKit.Px"/> a pixel, not the figure's
+        /// <see cref="StageKit.FigureScale"/>): the figure keeps its size, and stands where the painting puts the floor.
+        /// </summary>
+        public void AtPlate(float x, float y) => Rt.anchoredPosition = new Vector2(x, y) * StageKit.Px;
 
         /// <summary>Standing still, facing the camera.</summary>
         public void Stand(PlayerSkin skin) => Pose(skin, StagePose.Stand);

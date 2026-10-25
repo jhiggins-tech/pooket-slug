@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 56" width="320" height="56" shape-rendering="crispEdges">
+<rect width="320" height="56" fill="#241e1a"/>
+<rect x="6" y="29" width="16" height="15" fill="#7a6a58" stroke="#241c18" stroke-width="1"/>
+<text x="14" y="53" font-size="4" fill="#e8e0d4" text-anchor="middle">the den's couch</text>
+<rect x="48" y="35" width="30" height="9" fill="#7a6a58" stroke="#241c18" stroke-width="1"/>
+<text x="63" y="53" font-size="4" fill="#e8e0d4" text-anchor="middle">the den's TV</text>
+<rect x="104" y="-18" width="10" height="62" fill="#7a6a58" stroke="#241c18" stroke-width="1"/>
+<text x="109" y="53" font-size="4" fill="#e8e0d4" text-anchor="middle">the den's side door</text>
+</svg>

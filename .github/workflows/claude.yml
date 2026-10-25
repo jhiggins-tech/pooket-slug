@@ -1,0 +1,172 @@
+name: Claude Code
+
+# The official Claude Code action, answering @claude on issues and pull requests, on OpenRouter (the same
+# settings as claude-code.yml, which is the manual one that leaves a pull request).
+#
+# The game is built and a browser is set up BEFORE the action runs, so Claude finds the build served at
+# http://127.0.0.1:8001/index.html with Playwright's MCP server to play it (.github/claude-code/action-system-prompt.md
+# tells it so). The build is of the code as checked out: a pull request's head, else the default branch.
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  issues:
+    types: [opened, assigned]
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  claude:
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
+      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+    runs-on: self-hosted
+    permissions:
+      contents: read
+      pull-requests: read
+      issues: read
+      id-token: write
+      actions: read # Required for Claude to read CI results on PRs
+    steps:
+      # A comment on a pull request fires issue_comment, whose checkout would be the default branch: find the
+      # pull request's head so the build is of the code being talked about.
+      - name: Find what to build
+        id: ref
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT: ${{ github.event_name }}
+          IS_PR_COMMENT: ${{ github.event.issue.pull_request != null }}
+          NUMBER: ${{ github.event.issue.number }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          # The build's version shows this commit, so the agent can tell what it is playing.
+          ref=''
+          if [ -n "$PR_HEAD" ]; then
+            ref=$PR_HEAD
+          elif [ "$EVENT" = issue_comment ] && [ "$IS_PR_COMMENT" = true ]; then
+            ref=$(gh pr view "$NUMBER" --repo "${{ github.repository }}" --json headRefOid --jq .headRefOid)
+          fi
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          ref: ${{ steps.ref.outputs.ref }}
+          fetch-depth: 1
+
+      # The agent's own files are copied aside, as claude-code.yml does, so they are the ones this
+      # workflow was written with whatever branch is checked out.
+      - name: Keep the agent's own files
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/agent"
+          install -m 644 .github/claude-code/action-system-prompt.md "$RUNNER_TEMP/agent/system-prompt.md"
+          install -m 644 .github/claude-code/playwright-mcp.json "$RUNNER_TEMP/agent/playwright-mcp.json"
+
+      # The instructions as a step output, for claude_args to carry inline. They go inside single quotes there,
+      # so an apostrophe becomes a typographic one.
+      - name: Read the agent's instructions
+        id: prompt
+        run: |
+          set -euo pipefail
+          { echo "text<<PROMPT_EOF"; sed "s/'/’/g" "$RUNNER_TEMP/agent/system-prompt.md"; echo "PROMPT_EOF"; } >> "$GITHUB_OUTPUT"
+
+      # tools/check.sh needs the Unity kit and Photon's SDK from the private vendor repository, which the
+      # action's own token cannot see (GitHub answers 404, and check.sh reports "No Unity kit"). So they are
+      # fetched here with the vendor token, into the cache check.sh reads, and the agent never holds the
+      # token. It runs the check too: a red main line is worth knowing, but does not stop the agent.
+      - name: Fetch the kit for tools/check.sh
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ secrets.VENDOR_PAT }}
+        run: tools/check.sh compile
+
+      - name: Get the project ready for Unity
+        id: project
+        uses: ./.github/actions/unity-project
+        with:
+          vendor-token: ${{ secrets.VENDOR_PAT }}
+          strict: 'false'
+
+      - name: Build WebGL
+        uses: game-ci/unity-builder@v4.8.2
+        env:
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+        with:
+          customImage: ${{ steps.project.outputs.image }}
+          targetPlatform: WebGL
+          buildMethod: PooketSlug.EditorTools.WebGLBuild.Build
+          customParameters: -buildSha ${{ steps.ref.outputs.ref || github.sha }} -photonAppId ${{ secrets.PHOTON_APP_ID }}
+          versioning: None
+
+      # The build rewrites tracked files and leaves its own; neither is Claude's work.
+      - name: Put back what the build rewrote
+        run: git restore --worktree -- ProjectSettings/ProjectVersion.txt .github/workflows/ || true
+
+      - name: Serve the build
+        run: |
+          set -euo pipefail
+          python3 -m http.server 8001 --bind 127.0.0.1 --directory build/WebGL/WebGL > "$RUNNER_TEMP/site.log" 2>&1 &
+          for i in $(seq 30); do
+            curl -fsS -o /dev/null http://127.0.0.1:8001/index.html && break
+            sleep 1
+          done
+          curl -fsS -o /dev/null http://127.0.0.1:8001/index.html
+          echo "The game is at http://127.0.0.1:8001/index.html"
+
+      - name: Set up Playwright
+        uses: ./.github/actions/playwright
+
+      # The MCP server has its own Playwright and so its own Chromium build (see claude-code.yml).
+      - name: Install the browser the MCP server wants
+        run: npx --yes @playwright/mcp@0.0.83 install-browser chromium
+
+      # The action's GitHub token is minted when it starts and dies after an hour: past that, its pushes and
+      # its final comment fail with 401 (the Door traversal run went 3h42m and lost its comment). So the
+      # step is stopped well inside the hour, and the turns are capped (a backstop; the 50 minutes is the real limit).
+      - name: Run Claude Code
+        id: claude
+        timeout-minutes: 50
+        uses: anthropics/claude-code-action@v1
+        env:
+          # OpenRouter instead of Anthropic: the same settings as claude-code.yml (see its notes).
+          ANTHROPIC_BASE_URL: https://openrouter.ai/api
+          ANTHROPIC_AUTH_TOKEN: ${{ secrets.OPENROUTER_API_KEY }}
+          ANTHROPIC_MODEL: ${{ vars.OPENROUTER_MODEL || 'deepseek/deepseek-v4.1-flash-1017' }}
+          # Claude Code's background calls ask for a Haiku; OpenRouter has none under that name.
+          ANTHROPIC_DEFAULT_HAIKU_MODEL: ${{ vars.OPENROUTER_MODEL || 'deepseek/deepseek-v4.1-flash-1017' }}
+          CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1'
+          CLAUDE_CODE_AUTO_COMPACT_WINDOW: '400000' # compact the conversation at 400k tokens
+          PLAYWRIGHT_MCP_CONFIG: ${{ runner.temp }}/agent/playwright-mcp.json
+        with:
+          # The action refuses to start without a key; this one is only sent to OpenRouter.
+          anthropic_api_key: ${{ secrets.OPENROUTER_API_KEY }}
+
+          # This is an optional setting that allows Claude to read CI results on PRs
+          additional_permissions: |
+            actions: read
+
+          # The action's SDK ignores --append-system-prompt-file and --allowedTools never adds Bash by itself, so:
+          # the instructions go inline (--append-system-prompt, read from the step above), the browser is
+          # inline JSON rather than a file, and the shell is allowed command by command.
+          claude_args: |
+            --max-turns 240
+            --mcp-config '{"mcpServers":{"playwright":{"command":"npx","args":["--yes","@playwright/mcp@0.0.83","--config","${{ runner.temp }}/agent/playwright-mcp.json","--output-dir","playtest"],"env":{"PLAYWRIGHT_BROWSERS_PATH":"/home/runner/.cache/ms-playwright"}}}}'
+            --append-system-prompt '${{ steps.prompt.outputs.text }}'
+            --allowedTools "mcp__playwright__browser_navigate,mcp__playwright__browser_click,mcp__playwright__browser_press_key,mcp__playwright__browser_evaluate,mcp__playwright__browser_take_screenshot,mcp__playwright__browser_console_messages,mcp__playwright__browser_snapshot,mcp__playwright__browser_resize,mcp__playwright__browser_wait_for,mcp__playwright__browser_find,mcp__playwright__browser_run_code_unsafe,Bash(tools/check.sh:*),Bash(tools/new_meta.py:*),Bash(python3 -I tools/*:*),Bash(git status:*),Bash(git diff:*),Bash(git log:*),Bash(ls:*),Bash(cat:*),Bash(grep:*),Bash(curl -fsS http://127.0.0.1:8001/*)"
+
+      # What Claude saw, so it can be read after the run.
+      - name: Upload the screenshots
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: playtest
+          path: playtest
+          if-no-files-found: ignore
+          retention-days: 7
