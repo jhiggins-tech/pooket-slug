@@ -25,6 +25,7 @@ The map (`.claude/hierarchy/OWNERSHIP.txt`) is the authority; this is its list.
 - `Assets/Scripts/Core/Platform/WireMeter.cs`
 - `Assets/Tests/EditMode/Platform/DropInTests.cs`
 - `Assets/Tests/EditMode/Platform/MasterWatchTests.cs`
+- `Assets/Tests/EditMode/Platform/NetConfigTests.cs` (new 25 Oct, not yet in OWNERSHIP.txt: handed to the architect)
 - `Assets/Tests/EditMode/Platform/NetIdsTests.cs`
 - `Assets/Tests/EditMode/Platform/PartnerBeaconTests.cs`
 - `Assets/Tests/EditMode/Platform/RoomBrowserTests.cs`
@@ -60,6 +61,11 @@ Close to this domain but not its files: `Core/Lobby/CoopRoom.cs` and `Core/Lobby
   `FixedRegion`. A build may name another with `-photonRegion`; the workflow does not.
 - The shared world follows its master. When the master's beat goes quiet for 2 s, `MasterWatch` asks Photon to make this
   client the master; Photon grants it after its own threshold, set in `NetworkProjectConfig.fusion` (`Handover.cs`, `MasterWatchTests`).
+- Core's network files name no Unity scene object or resource (dca-core-no-unity, 25 Oct). `NetConfig` in Core is the
+  baked file's shape (`NetConfig.Data`: `Configured`, `Region`) and the region rule (`NetConfig.Region`: trimmed, lower
+  case, blank is `au`; `NetConfigTests`); `NetSession.Config` in `Net/` loads `Resources/pooket-net.json` once.
+  `NetSessions.Factory` is a `Func<INetSession>`: `NetSession.Create` gives null without an AppId, else makes its own
+  host object ("Net Session", kept across loads), so `Game` only calls `NetSessions.Factory?.Invoke()`.
 - Fusion's own config (`NetworkProjectConfig.fusion`) is committed and wins over the one the SDK ships.
 - Public repository: never commit Photon SDK code (CI unpacks it from the private vendor repository), the Photon app id
   (a secret, baked into `Resources/pooket-net.json`, git-ignored) or any key. Say nothing about the SDK's internals beyond
@@ -102,7 +108,7 @@ Close to this domain but not its files: `Core/Lobby/CoopRoom.cs` and `Core/Lobby
 - `tools/check.sh` compiles every assembly as Unity would, runs Fusion's weaver and the EditMode tests. Locally there is no Fusion SDK
   in some sessions, so the Net assembly may only be fully checked by CI: push the branch and read the run.
 - Rules: `Assets/Tests/EditMode/Platform/` (`DropInTests`, `MasterWatchTests`, `NetIdsTests`, `PartnerBeaconTests`,
-  `RoomBrowserTests`, `WireMeterTests`), and `Assets/Tests/EditMode/Tabks/CoopTabksTests.cs` for the tabk rule it shares with gameplay.
+  `RoomBrowserTests`, `WireMeterTests`, `NetConfigTests`), and `Assets/Tests/EditMode/Tabks/CoopTabksTests.cs` for the tabk rule it shares with gameplay.
 - The world's side: `Assets/Tests/Gameplay/NetSyncTests.cs` (a real `World` against a stand-in session, CI only).
 - End to end: `tools/coop.mjs`, run by CI in modes `code`, `boss`, `scene`, `dropin` (allowed to fail the build), `handover`, `watch`
   and `debrief`. The `code` round also checks that a tabk is given way when both load the same one.
@@ -121,6 +127,9 @@ Close to this domain but not its files: `Core/Lobby/CoopRoom.cs` and `Core/Lobby
 - Players far from Australia get more lag; no second region is planned (NET-05).
 - Max two players. Three or four, or versus, is not designed (docs/research/netcode/README.md).
 - Work needs its own Roadmap card, queued by the owner (https://claude.ai/artifact/1AWnQDGtUmiKMnjPgcbru9). None is open for this domain today.
+- Stale docs after dca-core-no-unity (25 Oct, unowned, handed to the architect): docs/research/verification/edit-mode-tests.md
+  says Core reads the build's net config and that `NetConfig` isn't tested; docs/research/netcode/sdk-in-ci.md says
+  `NetConfig.cs` loads the file (`NetSession.cs` does now).
 - docs/research/netcode is claimed by no domain in OWNERSHIP.txt, so this domain can't fix it. Stale there on 25 Oct (handed to the architect):
   architecture.md says `ISessionView` carries a skin (it carries the seat; `NetSkin` was retired 21 Oct), and that `NetReplication` holds
   `PlayerNet` and `WorldNet` (and `BossNet`); README.md's list of `Net/` files leaves out `BossNet.cs`.
