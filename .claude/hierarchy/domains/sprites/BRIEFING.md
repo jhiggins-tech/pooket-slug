@@ -110,7 +110,5 @@ not have to run in game. Nothing tests the art itself (see below).
   gone through it yet that the notes record. The first one needs an owner promotion on the Roadmap.
 - Per-crewmate heads exist for tones2, kie and kcaj; the repair frames and bowed head were approved on 20 Oct. A
   co-op second-player marking was ruled out; crewmates are unique and tabks one each.
-- `ArtData.CrouchDrop` and `CrewFigure.CrouchDrop` are the same 6 px, kept twice; a code card could make one
-  read the other (not a doc fix, so left alone on stale-docs).
 - The title logo and its animation are built. Its parts file, `Core/Title/TitleLogo.cs` and `TitleMotion.cs`, and the
   views belong to the shell domain; only the pictures and their tests are here.

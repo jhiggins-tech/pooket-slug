@@ -447,7 +447,6 @@ namespace PooketSlug
         };
 
         public const int LegsCrouchTop = 26;
-        public const int CrouchDrop = 6;
         public static readonly string[] LegsCrouch =
         {
             ".......ppppppppp........",
@@ -457,7 +456,7 @@ namespace PooketSlug
             ".....wwww.....wwwww.....",
         };
 
-        /// <summary>Sitting on the couch, side on: thighs forward, shins down (with the torso dropped by <see cref="CrouchDrop"/>).</summary>
+        /// <summary>Sitting on the couch, side on: thighs forward, shins down (with the torso dropped by <see cref="CrewFigure.CrouchDrop"/>).</summary>
         public const int LegsSitTop = 27;
         public static readonly string[] LegsSit =
         {
