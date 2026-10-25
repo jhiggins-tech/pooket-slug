@@ -312,11 +312,13 @@ time.
 
 A boss tabk's arrival is the mission's big moment: a warning banner, the music changes, and the tabk makes its
 entrance. It isn't a scene file: it plays in the game itself, and **you keep control throughout**, so it never feels
-like the game took the stick away (about three seconds). Picked 2026-10-15. The same for every boss tabk; each
+like the game took the stick away (about three seconds). The one exception is a pilot's part at its end, where a
+mission has one (see [kcaj's tabk arrives](mission-two.md#kcajs-tabk-arrives)): solo, the game holds still from the hatch
+to the band's end (`BossIntroShow.Holding`). Picked 2026-10-15. The same for every boss tabk; each
 mission's version names its own (kie's below, [kcaj's](mission-two.md#kcajs-tabk-arrives) in Mission two).
 
 - **The second time** you meet a tabk (a replay, or after a lost fight at the boss-door checkpoint), it's quick: the
-  banner and siren only, with the tabk already in place, and the boss music starts at once.
+  banner, one siren and the announcer's "Warning!" only, with the tabk already in place, and the boss music starts at once.
 - **The pilot's intro:** the first time, each boss tabk's Trollogram pilot gets their
   [character intro](README.md#character-intros) in a reveal scene before the boss intro, the camera pushing in on the hatch:
   Trollogram kie in [the motor pool reveal](#the-motor-pool-reveal), Trollogram kcaj in
@@ -372,7 +374,7 @@ lines are in the vendor repository's `voice/lines.json`.
 
 The freeing scene, after Trollogram kie is beaten on foot ([the pilot round](../tabks/bosses.md#the-pilot-round)). kie frees
 tones2's own tabk, then bows out (owner, 2026-10-16): he's spent, and sits out the rest of Mission one, so tones2
-finishes it alone, with his tabk. About 28 seconds: the glitch-out's 3 seconds in the game, then about 25 of scene.
+finishes it alone, with his tabk. About 28.5 seconds: the glitch-out's 3 seconds in the game, then 25.5 of scene.
 It can be skipped once seen, on a replay. Intro: kie, as he drops. Scene file: `scenes/freeing-kie.txt` (shots 2 to
 5; shot 1 is the game's).
 

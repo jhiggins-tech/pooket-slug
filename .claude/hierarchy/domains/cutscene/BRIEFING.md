@@ -28,9 +28,10 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
 - A scene is a text file in `scenes/`, read by `SceneScript`, staged on `StageKit`. The format is `docs/scenes.md`.
   A change to a line, time or position goes live without a build (see below); a new thing or verb for the stage is a
   build (`Staging.cs` for the vocabulary, `Ui/Cutscene/` for its look).
-- Each scene's `net` number is its own and never changes: a partner's phone knows the scene by it
-  (`SceneScriptTests.TheScenesKeepTheirNumbersAndShapes`, `SceneCheck.Numbers`). Today: opening 1, motor-pool 2,
-  freeing-kie 3, m2-briefing 4, freeing-kcaj 5, kcaj-tabk 6, coop-test 63. `UseSite` refuses a site copy whose number differs.
+- Each scene's `net` number is its own and never changes: a partner's phone knows the scene by it. Today: opening 1,
+  motor-pool 2, freeing-kie 3, m2-briefing 4, freeing-kcaj 5, kcaj-tabk 6, coop-test 63. `SceneCheck.Numbers` checks
+  only that no two share one; `SceneScriptTests.TheScenesKeepTheirNumbersAndShapes` pins 1, 2, 3 and 63 but not
+  Mission two's three (see Known unfinished). `UseSite` refuses a site copy whose number differs from the built-in one.
 - Every cue a scene names has an effect in `Cues.cs`, or is a `say:` cue (`CueTests`). A new cue is its id and
   `CueEffect` there, its clip in `CueSounds`, and its sound in `Sfx` / `ChipSounds` (audio's file; ask).
 - Every spoken line is up long enough to read (3 words a second); every narrator line has its recording and time to
@@ -61,8 +62,9 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
   `freeing-kcaj`, `kcaj-tabk`. A scene's profile id is `scene-<name>`.
 - Sets (`Staging.Sets`): `street`, `den`, `bay`, `motorpool`, `coldstore`. Things are `Staging.Things`: figures
   (`tones2`, `kie`, `kcaj`, `goon`), props and effects, with their verbs (`show hide at move turn size colour fade
-  flicker blink shake on walk face pose look holds sway`). The full tables are in `docs/scenes.md`; the test
-  `EveryThingAndVerbInTheVocabularyReads` keeps them honest.
+  flicker blink shake on walk face pose look holds sway`). The full tables are in `docs/scenes.md`, kept by hand: no
+  test reads them (`EveryThingAndVerbInTheVocabularyReads` checks `Staging` only). The consistency audit (25 Oct)
+  matched them, and the cue list, by script against `Staging.cs` and `Cues.cs`.
 - Speakers: `tones2`, `kie`, `kcaj`, `trollo-kie`, `trollo-kcaj`, `goon`, `narrator`, `caption`.
 - Cue ids are in `Cues.cs`; a recording id (`opening-4a`, `m2-freeing-2`) is the vendor repository's, and `Sfx.Narrate`
   plays it. The announcer's lines (`mission-start`, `mission-two-start`) are `say:` cues.
@@ -119,6 +121,17 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
   change to a scene file is a deploy and a new version for co-op.
 - For the owner: the TROLLO-KCAJ band in later solo fights breaks "an intro never plays anywhere else". The docs now
   say what the code does; whether the code should change is a design call.
+- From the consistency audit (25 Oct), for the owner:
+  - `SceneScriptTests.TheScenesKeepTheirNumbersAndShapes` does not pin m2-briefing 4, freeing-kcaj 5 or kcaj-tabk 6
+    (and `TestScenes` has no getters for them), so a renumbered Mission two scene would pass every check. A test change.
+  - `ShotStage.Colour` (the `flicker` verb) and `ShotStage.Lit` (the `blink` verb) in `Staging.cs` count beats inline,
+    `(int)(now * hz) % n`, against the `Fx` / `Clip` invariant. Move them onto `Fx`, keeping the same beats. A code change.
+  - kie's tabk comes home (`Core/Tabks/KieHomecoming`, gameplay's file) shows its shot 2 lines for 1.3, 0.9 and 0.8 s
+    and its last for 1.5 s: all faster than 3 words a second, though `den.md` says shot 2 was lengthened so they read.
+    No check covers beats that aren't scene files.
+  - No test holds `docs/scenes.md`'s tables (things, verbs, colours, cues, speakers) to `Staging` and `Cues`.
+  - The script and scene files differ in staging the script doesn't mention: the Mission two briefing's shot 4 starts
+    at the bay's street end (camera 673), where the script has them come down through the den's roller door.
 - Handed over in stale-docs (25 Oct), not this domain's: `MissionStory.Opening` says "before a solo start" but
   `m2-briefing` plays in co-op too (story); `docs/design/tanks.md` is an index now, yet comments still point to
   sections there (`MissionStory.QuickBossIntro`, `World.cs`, `MusicFlow.cs`, `TankBoss.cs`, the crew's tabk files).

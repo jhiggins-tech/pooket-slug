@@ -49,6 +49,8 @@ One red string runs off the board to a photo of a
 factory with a giant soft-serve sign. Scrawled under it:
 THEY NEED IT COLD.
 
+SFX: the close-up's chime, as for the keycard.
+
                     KIE (O.S.)
           HE WAS RIGHT?
 
@@ -62,6 +64,8 @@ THEY NEED IT COLD.
 Down through the den's roller door and along the tabk
 bay to its bent street shutter. They duck under it, out
 into the daylight.
+
+SFX: the shutter as they duck under; the card slamming in.
 
                     NARRATOR (V.O.)
                     [m2-briefing-4]
@@ -172,7 +176,9 @@ The cold store's door creaks open, frost rolls out, and
 the real KCAJ stumbles out in his own colours, rimed with
 frost, holding an empty tub.
 
-          INTRO: KCAJ
+SFX: the cold store's door; the frost.
+
+          INTRO: KCAJ (lands at 3 s)
 
                     NARRATOR (V.O.)
                     [m2-freeing-2]
@@ -198,6 +204,8 @@ He looks at the tub, then at the crew.
 TONES2 holds out a slushie. kcaj walks past it, opens the
 chest freezer in the yard, and eats two cones at once.
 
+SFX: the freezer lid; munching, twice.
+
                     NARRATOR (V.O.)
                     [m2-freeing-4]
           He's had a difficult week.
@@ -221,6 +229,8 @@ KIE turns to tones2.
           LET'S PUT HIM BACK IN.
 
 He sticks a sticky note on tones2's back.
+
+SFX: the note.
 
                                           INTO: THE DEBRIEF
 ```
