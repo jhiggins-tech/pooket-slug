@@ -272,5 +272,36 @@ namespace PooketSlug.Tests
             float apart = Mathf.Abs(goon.r - kies.r) + Mathf.Abs(goon.g - kies.g) + Mathf.Abs(goon.b - kies.b);
             Assert.Greater(apart, 0.8f, "far apart at a glance");
         }
+
+        [Test]
+        public void TheRouletteFrameFlashesOnTheBeatItAlwaysHad()
+        {
+            // the old inline blink, before it went through Fx: nothing a player sees changes
+            for (int i = 0; i < 4000; i++)
+            {
+                float seconds = i * 0.0007f;
+                foreach (float t in new[] { 0.5f, 0.76f, 0.9f })
+                    Assert.AreEqual(t > RouletteSpin.Settles && (int)(seconds * 16f) % 2 == 0, RouletteSpin.Lit(t, seconds), "at " + seconds);
+            }
+        }
+
+        [Test]
+        public void TheCageFlickersOutOnTheBeatItAlwaysHad()
+        {
+            // the old inline flicker, before it went through Fx: nothing a player sees changes
+            foreach (float length in new[] { 1.5f, 0.8f, 2.3f })
+                for (int i = -10; i < 4000; i++)
+                {
+                    float t = i * 0.0007f;
+                    bool old;
+                    if (t < 0f || t >= length) old = false;
+                    else
+                    {
+                        float k = t / length;
+                        old = k < 0.3f || (int)(t * Mathf.Lerp(8f, 30f, k)) % (k < 0.7f ? 4 : 2) != 0;
+                    }
+                    Assert.AreEqual(old, PilotFreeingSpec.CageLitFor(t, length), "at " + t + " of " + length);
+                }
+        }
     }
 }

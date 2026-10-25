@@ -179,5 +179,17 @@ namespace PooketSlug.Tests
             for (float x = arena; x < level.Width; x += 1f)
                 Assert.AreEqual(2f, level.TopSurfaceY(x), "the yard's floor is flat at " + x);
         }
+
+        [Test]
+        public void TheBeltsTreadTurnsOnTheBeatItAlwaysHad()
+        {
+            // the old inline cycle, before it went through Fx: nothing a player sees changes
+            for (int i = 0; i < 20000; i++)
+            {
+                float elapsed = i * 0.0031f;
+                int old = (int)(elapsed * Creamery.BeltSpeed * Tuning.Pixels.PerUnit / 2f) & 3;
+                Assert.AreEqual(old, Creamery.Tread.Step(elapsed), "at " + elapsed);
+            }
+        }
     }
 }

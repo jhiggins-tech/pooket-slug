@@ -54,5 +54,18 @@ namespace PooketSlug.Tests
             Assert.AreSame(Content.BigShell, Content.BossCannon.Projectile);
             Assert.IsTrue(Content.BigShell.Explodes);
         }
+
+        [Test]
+        public void TheLandingMarkerBlinksOnTheBeatItAlwaysHad()
+        {
+            // the old inline blink, before it went through Fx: nothing a player sees changes
+            for (int c = 0; c <= 20; c++)
+                for (int i = 0; i < 3000; i++)
+                {
+                    float charge = c / 20f, anim = i * 0.0013f;
+                    bool old = (int)(anim * UnityEngine.Mathf.Lerp(6f, 20f, charge)) % 2 == 0;
+                    Assert.AreEqual(old, BossTankSpec.MarkerLit(anim, charge), "at " + anim + ", charged " + charge);
+                }
+        }
     }
 }
