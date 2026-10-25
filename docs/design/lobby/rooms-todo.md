@@ -11,7 +11,7 @@ Up: [The lobby](../lobby.md) · [The workflow](rooms.md) · [The house map](hous
 
 ### 1. The board is in two places (an annotated edit)
 
-The map says **the mission board moved up to kcaj** — the board *is* the string
+The map says **the mission board moved up to kcaj**: the board *is* the string
 board, so it hangs in his nook on the upper floor, and the ground floor keeps
 only a nail where it used to be.
 
@@ -21,10 +21,11 @@ moved-in layer (`kcaj.bytes`, 96 × 52 at x 12, top 14).
 
 But the **den's painting** (`den.bytes`) still has the old board on the ground
 floor, with its papers on it. So the game shows a board the map says is gone,
-and kcaj's nook has two.
+and kcaj's nook has two. The TV's mission name is also still written on that
+old board (`DenRoom.Board`, drawn by `DenConsole`), so it moves with the edit.
 
 **This needs an annotated edit of the den's painting**: take the ground-floor
-board down, leave the nail. It can't be done in code — the board is painted into
+board down, leave the nail. It can't be done in code: the board is painted into
 the plate. (The trapdoor, which goes in the same spot, is drawn in code by
 `Ui/Den/DenTrapdoor`, so it needs to be matched to the nail's look.)
 
