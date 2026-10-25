@@ -1,3 +1,8 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 using NUnit.Framework;
 
 namespace PooketSlug.Tests
@@ -124,6 +129,77 @@ namespace PooketSlug.Tests
             q.Repair();
             Assert.AreEqual(0, q.missions.Count);
             Assert.AreEqual(0, q.seen.Count);
+        }
+
+        // The save format. The profile is saved as JsonUtility writes it (its public fields, by name), in this browser
+        // and, through pooket-auth.js, in the cloud. A field renamed or retyped here would lose every player's
+        // progress, so these pin each name as it is today. Adding a field is fine: add it here too.
+
+        /// <summary>The fields JsonUtility saves of a type: its public instance fields, as name and type.</summary>
+        static string[] Saved(Type t) => t.GetFields(BindingFlags.Public | BindingFlags.Instance)
+            .Select(f => f.Name + ":" + f.FieldType.Name).OrderBy(n => n, StringComparer.Ordinal).ToArray();
+
+        [Test]
+        public void TheProfilesFieldNames_NeverChange()
+        {
+            CollectionAssert.AreEqual(new[]
+            {
+                "coop:Boolean", "first:Int64", "missions:List`1", "rank:Int32", "seen:List`1", "ts:Int64", "version:Int32", "xp:Int32",
+            }, Saved(typeof(Profile)));
+            Assert.AreEqual(typeof(List<MissionRecord>), typeof(Profile).GetField("missions").FieldType);
+            Assert.AreEqual(typeof(List<string>), typeof(Profile).GetField("seen").FieldType);
+            Assert.IsTrue(typeof(Profile).IsSerializable, "JsonUtility saves only a [Serializable] type");
+        }
+
+        [Test]
+        public void AMissionRecordsFieldNames_NeverChange()
+        {
+            CollectionAssert.AreEqual(new[] { "best:Int32", "clears:Int32", "mission:String", "setting:Setting" }, Saved(typeof(MissionRecord)));
+            Assert.IsTrue(typeof(MissionRecord).IsSerializable, "JsonUtility saves only a [Serializable] type");
+        }
+
+        [Test]
+        public void ASettingIsSavedAsItsNumber_SoTheNumbersNeverChange()
+        {
+            // JsonUtility writes an enum as its number, and pooket-auth.js reads it back by place in its SETTINGS list.
+            Assert.AreEqual(0, (int)Setting.Normal);
+            Assert.AreEqual(1, (int)Setting.Hard);
+            Assert.AreEqual(2, Enum.GetValues(typeof(Setting)).Length, "a new setting needs its name in pooket-auth.js's SETTINGS too");
+        }
+
+        /// <summary>A file of the repository's, as text (tests run from the project's root).</summary>
+        static string Source(string path) => File.ReadAllText(Path.Combine(Directory.GetCurrentDirectory(), path)).Replace("\r\n", "\n");
+
+        [Test]
+        public void TheBrowsersSaveKeys_NeverChange()
+        {
+            // PlayerPrefs keys (Save/, which the tests can't reach, so they're read from the source) and the page's
+            // own localStorage key. "pooket-slug." keeps them apart from Pooket Tabks, which shares the origin.
+            StringAssert.Contains("const string Key = \"pooket-slug.profile\";", Source("Assets/Scripts/Save/LocalProfileStore.cs"));
+            StringAssert.Contains("const string OldHiScoreKey = \"pooket-slug.hiscore\";", Source("Assets/Scripts/Save/LocalProfileStore.cs"),
+                "the high score from before profiles, read once into the profile");
+            StringAssert.Contains("var AUTH_KEY = \"pooket-slug.auth\";", Source("Assets/WebGLTemplates/PooketSlug/pooket-auth.js"));
+        }
+
+        [Test]
+        public void TheCloudRecordsNames_NeverChange()
+        {
+            // pooket-auth.js turns the profile into the database's record and back: where it's kept, and each name.
+            string js = Source("Assets/WebGLTemplates/PooketSlug/pooket-auth.js");
+            StringAssert.Contains("return \"pooketSlug/players/\" + session.uid;", js);
+            StringAssert.Contains("var SETTINGS = [\"normal\", \"hard\"];", js, "a mission's records, by setting");
+            foreach (string field in new[] { "version", "coop", "xp", "rank", "missions", "seen", "first", "ts" })
+            {
+                StringAssert.Contains("\n      " + field + ": ", js, field + " as the game's profile (toProfile)");
+                StringAssert.Contains("rec." + field, js, field + " read from the record (toProfile)");
+            }
+            StringAssert.Contains("missions.push({ mission: mission, setting: setting, best: r.best | 0, clears: r.clears | 0 });", js);
+            StringAssert.Contains("= { best: Math.max(0, r.best | 0), clears: Math.max(0, r.clears | 0) };", js);
+            foreach (string field in new[] { "version: Math.max(1, Math.min(1000, p.version", "coop: p.coop", "xp: Math.min(1000000000, Math.max(0, p.xp", "rank: Math.min(1000, Math.max(0, p.rank" })
+                StringAssert.Contains(field, js, "written to the record (fromProfile)");
+            foreach (string field in new[] { "missions", "seen", "rev", "ts", "tokens", "first", "name" })
+                StringAssert.Contains("fields." + field + " = ", js, field + " written to the record");
+            StringAssert.Contains("rec.rev", js, "the record's save number");
         }
     }
 }
