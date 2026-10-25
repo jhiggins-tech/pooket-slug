@@ -109,12 +109,12 @@ super, the boss reveal and the pilot freed rules). `OnceOnlyTests` (the once-onl
 4. Keep `docs/design/` links relative and run `tools/check.sh docs`. Update this briefing in the same commit.
 
 ## Known unfinished
-- Skits (skit-scripts, 25 Oct): eight in `docs/design/cutscenes/skits.md`. The owner picked Two of us now (the den's
+- Skits (skit-scripts, 25 Oct): seven in `docs/design/cutscenes/skits.md`. The owner picked Two of us now (the den's
   co-op button first appears at its end, renamed MULTI-PLAYER: a build card), Keep it down (Mission one's coda,
   replays), A Trollogram of anything (his rework of Probably a Trollogram, after kcaj moves in), They're tracking us
   (Mission two's first debrief; kcaj on the debrief is new work) and Does it do cones? (the bay; it waits on kcaj's tabk
-  homecoming, which isn't written). Three are drafts to pick from (Five-second rule, Wanna race?, Special delivery), and
-  the pitch's other two are on the card's page. Two of us now changes when the co-op
+  homecoming, which isn't written). He also picked Five-second rule and Special delivery, and dropped Wanna race?; the
+  pitch's other two are on the card's page. Two of us now changes when the co-op
   button first shows (after the skit, not from the first visit's start); the `coop` reveal keeps its meaning (the button
   first pressed). They are not plot beats, but once built each is a once-only key (proposed `skit-<name>`), so
   `OnceOnly.All` and the reveals table's rule for keys that are not plot beats will need them. The snacks are settled:

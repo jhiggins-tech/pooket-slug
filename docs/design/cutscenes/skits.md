@@ -4,8 +4,8 @@ Part of [the cutscenes](README.md), the one script for every scene: the rules, t
 
 Short comic crew moments, written for the skit-scripts card (2026-10-25). The owner's picks (25 Oct) are [Two of us now](#two-of-us-now), [Keep it down](#keep-it-down),
 [Five-second rule](#five-second-rule), [Special delivery](#special-delivery) and [They're tracking us](#theyre-tracking-us), with
-[A Trollogram of anything](#a-trollogram-of-anything) and [Does it do cones?](#does-it-do-cones) workshopped by him. [Wanna race?](#wanna-race)
-is still a draft from the pitch's short list, for him to pick or drop. Staging, art, sound and the build each get their own card once a skit is picked.
+[A Trollogram of anything](#a-trollogram-of-anything) and [Does it do cones?](#does-it-do-cones) workshopped by him.
+He dropped Wanna race? from the pitch. Staging, art, sound and the build each get their own card once a skit is picked.
 
 **How a skit plays:**
 - **Once ever,** like the den's beats ([the den](den.md)), each under its own once-only key, kept with the player's
@@ -27,7 +27,6 @@ is still a draft from the pitch's short list, for him to pick or drop. Staging, 
 | [Two of us now](#two-of-us-now) | The den | Straight after the first visit, the den's first opening | `skit-two-of-us` | 14 s |
 | [Keep it down](#keep-it-down) | Mission one's coda, in play | The coda getting under way, on a replay | `skit-keep-it-down` | 3 s |
 | [Five-second rule](#five-second-rule) | The den | The den's second opening, the visit after the first visit | `skit-five-second-rule` | 11 s |
-| [Wanna race?](#wanna-race) | The tabk bay | The first visit to the bay after kie's tabk comes home | `skit-wanna-race` | 18.5 s |
 | [Special delivery](#special-delivery) | The den, between missions | The first time the den opens after a Mission one replay | `skit-special-delivery` | 14 s |
 | [A Trollogram of anything](#a-trollogram-of-anything) | The den | Straight after kcaj's move-in beat | `skit-trollogram-of-anything` | 15 s |
 | [Does it do cones?](#does-it-do-cones) | The tabk bay | The first visit to the bay after kcaj's tabk comes home | `skit-cones` | 18 s |
@@ -200,74 +199,6 @@ kie eats the chip.
 **Staging notes:** the den, kie sitting on the couch, the `bag` in his lap, tones2 at his station. New: the bag's
 FAMILY MART label, big enough to read as kie turns it, which the stage's `bag` doesn't have today. Family Mart is a real
 shop, so whether its name goes on screen as it is, or a look-alike label, is the owner's call on the art card.
-
-## Wanna race?
-
-**Plays** in [the tabk bay](../lobby.md#the-tabk-bay), the first visit after [kie's tabk comes home](den.md#kies-tabk-comes-home),
-after Mission one. About 18.5 seconds, four shots; tap to skip. **Who's in it:** tones2, kie and the little gold
-Trollogram of THE PROJECTIONIST from the homecoming.
-
-```text
-1. INT. THE TABK BAY - NIGHT                            4 s
-
-Under the roller door and along the floor: kie's tabk,
-THE PROJECTIONIST, in its space downstairs, frost on its
-copper pipes. KIE kneels by its tracks with a rag,
-polishing.
-
-TONES2 walks up from the roller door, hands in pockets.
-
-                                                   CUT TO:
-
-2. INT. THE TABK BAY - CONTINUOUS                       5 s
-
-tones2 nods at the tabk.
-
-                    TONES2
-          WANNA RACE?
-
-kie stops polishing. He turns round, slowly.
-
-                    KIE
-          I HAVE NEVER ONCE OFFERED TO RACE.
-
-                                                   CUT TO:
-
-3. INT. THE TABK BAY - CONTINUOUS                       5 s
-
-The lens glows gold. Up on the bay wall above the tabk,
-its little Trollogram flickers up, the same one that
-waved at the homecoming, and bobs keenly.
-
-SFX: the projector's whirr; a soft crackle.
-
-                    LITTLE TROLLOGRAM (GLITCHY)
-          I WOULD.
-
-kie and tones2 look up at it.
-
-                                                   CUT TO:
-
-4. INT. THE TABK BAY - CONTINUOUS                       4.5 s
-
-Without looking, kie reaches round the back of the
-projector and pulls a cable. The little Trollogram
-fizzles out.
-
-SFX: a plug pulled; a fizzle.
-
-kie goes back to polishing.
-
-                    KIE
-          WE DON'T RACE.
-
-                                       INTO: THE TABK BAY
-```
-
-**Staging notes:** the bay and kie's tabk as they are; kie polishing is his repair pose. The little Trollogram is the
-homecoming's (`BayHomecomingView`), in the friendly gold, never the villains' cyan; a bubble for it is new, flickering
-as a Trollogram's does. The bay scrolls, so the camera runs from the roller door to kie's tabk in shot 1, as the bay's
-other beats do.
 
 ## Special delivery
 
