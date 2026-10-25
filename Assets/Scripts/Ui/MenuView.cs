@@ -17,6 +17,8 @@ namespace PooketSlug
         public float StateTime;
         /// <summary>The super's been met (it's charged once), so the controls name it.</summary>
         public bool SuperShown;
+        /// <summary>The soldier played has an ability, and co-op is open, so the controls name AB and TEAM (<see cref="ControlsLines"/>).</summary>
+        public bool AbilityShown, TeamShown;
         /// <summary>Show touch hints instead of keys.</summary>
         public bool Touch;
         /// <summary>This win opened co-op.</summary>
@@ -225,19 +227,10 @@ namespace PooketSlug
                     m_VoicesLabel.text = Options.Label("VOICES", info.Options.Voices);
                     m_LeftyLabel.text = Options.Label("LEFT-HANDED", info.Options.LeftHanded);
                     m_MusicLabel.text = Options.Label("MUSIC", info.Options.Music);
-                    if (info.Touch)
-                    {
-                        bool lefty = info.Options.LeftHanded;
-                        m_Controls1.text = (lefty ? "RIGHT" : "LEFT") + " THUMB  RUN, AIM UP, CROUCH (AIM DOWN IN THE AIR)";
-                        m_Controls2.text = (lefty ? "LEFT" : "RIGHT") + " THUMB  FIRE (HOLD IT), JUMP, SP" + (info.SuperShown ? ", SU (SUPER, FROM KILLS)" : "") + "      DROP  DOWN + JUMP";
-                        m_Controls3.text = "II  PAUSE";
-                    }
-                    else
-                    {
-                        m_Controls1.text = "MOVE  Arrows / WASD      JUMP  Z / Space      FIRE  X / J";
-                        m_Controls2.text = "SP  C / L      " + (info.SuperShown ? "SUPER  V / U      " : "") + "AIM  Up / Down (in air), + run for 45°      DROP  Down + Jump";
-                        m_Controls3.text = "PAUSE  P / Enter      RESTART  R      MUTE  M      Gamepad supported";
-                    }
+                    string[] controls = ControlsLines.For(info.Touch, info.Options.LeftHanded, info.SuperShown, info.AbilityShown, info.TeamShown);
+                    m_Controls1.text = controls[0];
+                    m_Controls2.text = controls[1];
+                    m_Controls3.text = controls[2];
                     Key(m_SoundKey, keys, "M");
                     Key(m_ShakeKey, keys, "K");
                     Key(m_EffectsKey, false, null);
