@@ -186,6 +186,8 @@ namespace PooketSlug
             s_Projectiles[Content.BigShell.Id] = Shell;
             s_Projectiles[Content.Knife.Id] = HeavyBullet;
             s_Projectiles[Content.StolenShell.Id] = Shell;
+            s_Projectiles[Content.PlayerTankShellShot.Id] = Shell;
+            s_Projectiles[Content.PlayerTankMortarShot.Id] = Shell;
             s_Projectiles[Content.GoonGrenade.Id] = Grenade;
             s_Projectiles[Content.ScoopWave.Id] = CreameryArt.Shockwave;
             s_Projectiles[Content.HurledScoop.Id] = CreameryArt.Scoop;
@@ -225,15 +227,21 @@ namespace PooketSlug
 
         static Vector2 Center => new Vector2(0.5f, 0.5f);
 
-        /// <summary>A pickup's sprite.</summary>
-        public static Sprite PickupSprite(PickupDef def) => s_Pickups[def.Id];
+        /// <summary>A pickup's sprite. One with none of its own borrows the heavy machine gun's crate, so it never draws nothing.</summary>
+        public static Sprite PickupSprite(PickupDef def) => PaintedPickup(def) ? s_Pickups[def.Id] : CrateHeavy;
+
+        /// <summary>Whether <paramref name="def"/> has a sprite of its own, not the fallback (the frame tests hold every pickup to it).</summary>
+        public static bool PaintedPickup(PickupDef def) => def.Id >= 0 && def.Id < s_Pickups.Length && s_Pickups[def.Id] != null;
 
         /// <summary>How <paramref name="soldier"/> looks, from either seat (there's no second paint: owner, 2026-10-21).</summary>
         public static PlayerSkin SkinFor(SoldierDef soldier) =>
             soldier != null && s_CrewSkins.TryGetValue(soldier, out PlayerSkin skin) ? skin : s_TrooperSkin;
 
-        /// <summary>A projectile's sprite (the content is data in Core; how it looks lives here). Ids past the table borrow the shell's.</summary>
-        public static Sprite ProjectileSprite(ProjectileDef def) => def.Id < s_Projectiles.Length ? s_Projectiles[def.Id] : Shell;
+        /// <summary>A projectile's sprite (the content is data in Core; how it looks lives here). One with none of its own borrows the shell's, so a shot never draws nothing.</summary>
+        public static Sprite ProjectileSprite(ProjectileDef def) => PaintedProjectile(def) ? s_Projectiles[def.Id] : Shell;
+
+        /// <summary>Whether <paramref name="def"/> has a sprite of its own, not the fallback (the frame tests hold every projectile to it).</summary>
+        public static bool PaintedProjectile(ProjectileDef def) => def.Id >= 0 && def.Id < s_Projectiles.Length && s_Projectiles[def.Id] != null;
 
         /// <summary>White silhouette of a sprite, used for the hit flash.</summary>
         public static Sprite Flash(Sprite s) => s != null && s_Flash.TryGetValue(s, out Sprite f) ? f : s;
