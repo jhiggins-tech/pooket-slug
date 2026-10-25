@@ -46,8 +46,7 @@ namespace PooketSlug
         public override void Render()
         {
             base.Render();
-            // the chevrons move 2 px a frame, at the belt's speed
-            int frame = (int)(World.Elapsed * Creamery.BeltSpeed * Art.PPU / 2f) & 3;
+            int frame = Creamery.Tread.Step(World.Elapsed);
             foreach (SpriteRenderer sr in m_Tiles) sr.sprite = CreameryArt.Tread[frame];
         }
     }
