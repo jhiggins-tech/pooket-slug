@@ -56,6 +56,14 @@ namespace PooketSlug
 
         public enum Kind { Figure, Prop, Effect }
 
+        /// <summary>
+        /// How much bigger a soldier is drawn on a stage than the plates' own pixels (the owner's pick, 22 Oct: the rooms'
+        /// paintings read a touch big for him). It sizes the figure only: a soldier still stands where the scene puts
+        /// them, in the plate's pixels, and what they hold or carry on them (<c>holds</c>, <c>on</c>) sits that much
+        /// further from their feet, so it stays in their hand or over their head.
+        /// </summary>
+        public const float FigureGrow = 1.2f;
+
         /// <summary>A thing on the stage: what it is, where it stands unless told, its colour unless told, and its own verbs.</summary>
         public sealed class Thing
         {
@@ -97,7 +105,7 @@ namespace PooketSlug
             new Thing("spark", Kind.Prop, 128f, 30f, Palette.Gold),
             new Thing("beacon", Kind.Prop, 94f, 108f, new Color(0.35f, 0.08f, 0.06f)),
             new Thing("clamp", Kind.Prop, 186f, 12f, Cyan, "rip"),
-            new Thing("drone", Kind.Prop, 186f, 44f, new Color(0.32f, 0.35f, 0.4f)),
+            new Thing("drone", Kind.Prop, 186f, 44f, White), // the game's own drone, painted
             new Thing("cable", Kind.Prop, 186f, 22f, new Color(0.1f, 0.1f, 0.12f)),
             new Thing("tones2-tabk", Kind.Prop, 186f, 2f, new Color(1f, 0.62f, 0.8f)),
             new Thing("kie-tabk", Kind.Prop, 136f, 0f, White),
@@ -286,7 +294,8 @@ namespace PooketSlug
 
         /// <summary>
         /// Where it stands at <paramref name="t"/>: x across the stage, and its height above the floor. Held things ride
-        /// on whoever holds them; a soldier swaying or a tabk's engine shaking moves it a little (on the scene's own
+        /// on whoever holds them, as far from their feet as the soldier's drawn size has it
+        /// (<see cref="Staging.FigureGrow"/>); a soldier swaying or a tabk's engine shaking moves it a little (on the scene's own
         /// clock, <paramref name="now"/>).
         /// </summary>
         public Vector2 Where(string thing, float t, float now) => Where(thing, t, now, 0);
@@ -310,7 +319,7 @@ namespace PooketSlug
                         break;
                     case "on":
                     case "held":
-                        if (depth < 4) at = Where(s.Word, t, now, depth + 1) + new Vector2(s.N[0], s.N[1]);
+                        if (depth < 4) at = Where(s.Word, t, now, depth + 1) + new Vector2(s.N[0], s.N[1]) * Staging.FigureGrow;
                         break;
                 }
             }

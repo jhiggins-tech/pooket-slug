@@ -7,9 +7,9 @@ namespace PooketSlug
 {
     /// <summary>
     /// The cutscenes' cast and props, staged as the shot's script has them (<see cref="ShotStage"/>): the soldiers
-    /// (tones2, kie, kcaj, the goon), the tabks (tones2's, kie's and kcaj's), and the props (<see cref="Staging.Things"/>), each placed, turned, sized and
-    /// coloured, with the few that have looks of their own: the sign's words, the clamp kie rips off, the drone's rotors
-    /// and cable, the alarm's beacon.
+    /// (tones2, kie, kcaj, the goon: drawn by <see cref="CutsceneSoldiers"/>), the tabks (tones2's, kie's and kcaj's), and the props (<see cref="Staging.Things"/>), each placed, turned, sized and
+    /// coloured, with the few that have looks of their own: the sign's words, the clamp kie rips off, the cargo drone (the
+    /// game's own, its rotors turning) and its cable, the alarm's beacon.
     /// <para>
     /// Its pieces are made by <see cref="CutsceneView"/>, in drawing order among the effects'; see there.
     /// </para>
@@ -22,7 +22,7 @@ namespace PooketSlug
         Text m_Sign;
         StageFigure m_Tones2, m_Goon, m_Kie, m_Kcaj;
         RectTransform m_KieTabk, m_KieTurret, m_KcajTabk, m_KcajTurret;
-        Image m_KieHull, m_KieGun, m_KcajHull, m_KcajGun, m_Rotor;
+        Image m_KieHull, m_KieGun, m_KcajHull, m_KcajGun;
 
         public CutsceneCast(RectTransform world)
         {
@@ -101,15 +101,15 @@ namespace PooketSlug
             m_Props["tones2-tabk"] = Picture("tones2-tabk", tabk, 0f, 0f, tabk.rect.width, tabk.rect.height, Color.white);
         }
 
-        /// <summary>kie, kie's tabk (a hull and a turret that turns), the clamp, and the cargo drone with its cable and rotors.</summary>
+        /// <summary>kie, kie's tabk (a hull and a turret that turns), the clamp, and the cargo drone (drawn as the game draws it, <see cref="Tones2Art.TabkDrone"/>) with its cable.</summary>
         public void MakeKieAndTheDrone()
         {
             m_Kie = new StageFigure(m_World, "kie");
             m_KieTabk = Tabk("kie-tabk", TabkKit.Kie, out m_KieHull, out m_KieGun, out m_KieTurret);
             Prop("clamp", 30f, 6f);
             Prop("cable", 1f, 10f);
-            Prop("drone", 40f, 10f);
-            m_Rotor = Picture("Rotors", null, 0f, 0f, 52f, 2f, new Color(0.75f, 0.8f, 0.85f, 0.7f));
+            Sprite drone = Tones2Art.TabkDrone[0];
+            PaintedProp("drone", drone, drone.rect.width, drone.rect.height);
         }
 
         /// <summary>
@@ -185,10 +185,10 @@ namespace PooketSlug
             Drone(stage, t, now, ground);
             Beacon(stage, t);
 
-            Soldier(m_Tones2, "tones2", Art.SkinFor(Content.Tones2), 10f, stage, t, now, ground);
-            Soldier(m_Kie, "kie", Art.SkinFor(Content.Kie), 8f, stage, t, now, ground);
-            Soldier(m_Kcaj, "kcaj", Art.SkinFor(Content.Kcaj), 9f, stage, t, now, ground);
-            Goon(stage, t, now, ground);
+            CutsceneSoldiers.Soldier(m_Tones2, "tones2", Art.SkinFor(Content.Tones2), 10f, stage, t, now, ground);
+            CutsceneSoldiers.Soldier(m_Kie, "kie", Art.SkinFor(Content.Kie), 8f, stage, t, now, ground);
+            CutsceneSoldiers.Soldier(m_Kcaj, "kcaj", Art.SkinFor(Content.Kcaj), 9f, stage, t, now, ground);
+            CutsceneSoldiers.Goon(m_Goon, stage, t, now, ground);
             Tabk(m_KieTabk, m_KieHull, m_KieGun, m_KieTurret, "kie-tabk", stage, t, now, ground);
             Tabk(m_KcajTabk, m_KcajHull, m_KcajGun, m_KcajTurret, "kcaj-tabk", stage, t, now, ground);
         }
@@ -247,16 +247,11 @@ namespace PooketSlug
             rt.localRotation = Quaternion.Euler(0f, 0f, rip * 220f);
         }
 
-        /// <summary>The cargo drone's rotors, and its cable down to the top of tones2's tabk.</summary>
+        /// <summary>The cargo drone's rotors turning (its two frames, as in the game), and its cable down to the top of tones2's tabk.</summary>
         void Drone(ShotStage stage, float t, float now, float ground)
         {
-            bool on = stage.Shown("drone", t);
-            Ui.Show(m_Rotor, on);
-            if (on)
-            {
-                Vector2 at = stage.Where("drone", t, now);
-                m_Rotor.rectTransform.anchoredPosition = new Vector2(at.x + Fx.Rotor.Step(now) * 2f, ground + at.y + 10f) * Px;
-            }
+            Image drone = m_Props["drone"];
+            if (drone.gameObject.activeSelf) drone.sprite = Tones2Art.TabkDrone[Fx.Rotor.Step(now)];
             Image cable = m_Props["cable"];
             if (!cable.gameObject.activeSelf) return;
             float top = stage.Where("drone", t, now).y, bottom = stage.Where("tones2-tabk", t, now).y + 20f;
@@ -272,62 +267,6 @@ namespace PooketSlug
             if (!beacon.gameObject.activeSelf || !stage.Shown("alarm", t)) return;
             float pulse = 0.5f + 0.5f * Mathf.Sin(t * Mathf.PI * 2f);
             beacon.color = Color.Lerp(Staging.Things["beacon"].Colour, Staging.Colours["red"], pulse);
-        }
-
-        /// <summary>
-        /// A soldier, drawn from their legs and torso as in the game: walking, standing, crouched, spraying, or just their
-        /// top half in a tabk's hatch; plain, or as a Trollogram crewmate (Trollogram kie or kcaj: cyan and flickering).
-        /// </summary>
-        static void Soldier(StageFigure f, string name, PlayerSkin skin, float runRate, ShotStage stage, float t, float now, float ground)
-        {
-            bool on = stage.Shown(name, t);
-            Ui.Show(f.Rt, on);
-            if (!on) return;
-            Vector2 at = stage.Where(name, t, now);
-            string pose = stage.Pose(name, t);
-            f.Pose(skin, StagePose.Cutscene(pose, t, runRate));
-            Color tint = stage.Colour(name, t, now);
-            if (stage.Look(name, t) == "trollo")
-            {
-                bool flick = Fx.TrolloFlicker.On(now);
-                tint = new Color(0.45f, 1f, 1f, flick ? 0.35f : 0.85f);
-                if (Fx.TrolloJitter.On(now)) at.x += 1f;
-            }
-            f.Tint(tint);
-            f.Rt.localScale = new Vector3(stage.Facing(name, t), 1f, 1f);
-            f.At(at.x, ground + at.y);
-        }
-
-        /// <summary>
-        /// The opening's straggler: a Trollogram that flickers up (its <c>appear</c>), and dies the goons' own death (its
-        /// <c>glitch-out</c>): a flash, tearing, then squashed to a line and gone.
-        /// </summary>
-        void Goon(ShotStage stage, float t, float now, float ground)
-        {
-            float died = stage.Since("goon", "glitch-out", t);
-            bool on = stage.Shown("goon", t) && died <= 0.6f;
-            Ui.Show(m_Goon.Rt, on);
-            if (!on) return;
-            m_Goon.Legs.sprite = Art.Holo(Art.SoldierLegsIdle);
-            m_Goon.Torso.sprite = Art.Holo(Art.SoldierTorso);
-            Ui.Show(m_Goon.Legs, true);
-            Vector2 at = stage.Where("goon", t, now);
-            float rise = stage.Progress("goon", "appear", t);
-            if (rise < 0f) rise = 1f;
-            float jitter = Fx.TrolloJitter.On(now) ? 1f : 0f;
-            Color tint = new Color(0.45f, 1f, 1f, rise < 1f ? (Fx.TrolloFizz.On(now) ? rise : 0.2f) : 0.9f);
-            float facing = stage.Facing("goon", t);
-            Vector3 scale = new Vector3(facing, 1f, 1f);
-            if (died >= 0f)
-            {
-                tint = died < 0.08f ? Color.white : Color.Lerp(Cyan, new Color(1f, 0.4f, 0.9f), Fx.TrolloFizz.Step(now));
-                jitter = Mathf.Sin(now * 90f) * died * 14f;
-                scale = new Vector3(facing * (1f + died * 0.6f), Mathf.Max(0.04f, 1f - died * 1.6f), 1f);
-                tint.a = 1f - Mathf.Clamp01((died - 0.4f) / 0.2f);
-            }
-            m_Goon.Tint(tint);
-            m_Goon.Rt.localScale = scale;
-            m_Goon.At(at.x + jitter, ground + at.y);
         }
 
         /// <summary>

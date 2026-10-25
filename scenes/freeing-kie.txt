@@ -28,7 +28,7 @@ kie face left
 1.8 stars on kie 0 22
 intro 3 kie: KIE
 0.1 cue cage
-1.5 cue kie-drop
+1.8 cue kie-drop
 3.4 narrator freeing-1: And out drops the real kie. Bit peaky.
 4.4 kie: ...HOW LONG WAS I IN THERE?
 
@@ -44,7 +44,7 @@ turret turn 14
 clamp at 186 12
 // tones2 comes over with the snacks; kie gets up off the floor, swaying, and takes them
 0-0.7 tones2 walk 40 74
-tones2 holds bag
+tones2 holds bag 8 10
 kie at 100
 kie face left
 kie pose crouch

@@ -68,7 +68,10 @@ its far end.
 
 ## Things on the stage
 
-Places are in art pixels: across from the left (the stage is 320 wide), up from the floor.
+Places are in art pixels: across from the left (the stage is 320 wide), up from the floor. Soldiers are drawn a fifth
+again bigger than the plates' pixels, but they stand where you put them; what they hold or carry on them sits a fifth
+further from their feet too, so it stays in their hand. Where something's held is across and up as the stage sees it,
+not their way round: someone facing left holds a thing in front of them at a minus across (`holds cup -9 13`).
 
 | Kind | Things |
 |---|---|
