@@ -5,7 +5,7 @@ namespace PooketSlug
 
     /// <summary>
     /// The player's settings from the title screen's SETTINGS (sound, the effects', voices' and music's volumes, screen shake and
-    /// the left-handed pad), who they play (the title's CREW, <see cref="PooketSlug.Crew"/>) and the tabk they've loaded. They're kept in this
+    /// the left-handed pad), who they play (picked in the den, <see cref="PooketSlug.Crew"/>) and the tabk they've loaded. They're kept in this
     /// browser as one number (<see cref="Bits"/>), so a setting added later reads as its default in an old save.
     /// </summary>
     public struct Options
@@ -21,7 +21,7 @@ namespace PooketSlug
         public Volume Music;
         /// <summary>The touch pad swapped round: the stick under the right thumb, the buttons under the left.</summary>
         public bool LeftHanded;
-        /// <summary>The soldier picked with CREW (a <see cref="SoldierDef"/> id; <see cref="PooketSlug.Crew.Pick"/> reads 0, never picked, as tones2).</summary>
+        /// <summary>The soldier picked in the den (a <see cref="SoldierDef"/> id; <see cref="PooketSlug.Crew.Pick"/> reads 0, never picked, as tones2).</summary>
         public int Crew;
         /// <summary>The tabk loaded on the bay's repair stands (its crewmate's soldier id, <see cref="TabkCards"/>; 0, never picked, reads as tones2's).</summary>
         public int Tabk;

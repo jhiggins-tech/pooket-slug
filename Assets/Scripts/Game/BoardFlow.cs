@@ -3,8 +3,9 @@ using System.Collections.Generic;
 namespace PooketSlug
 {
     /// <summary>
-    /// The mission screen's flow (<c>docs/design/levels.md</c>, Missions), over the title (MISSIONS) or the den (its
-    /// mission board): its cards, the one picked, and whether hard is picked. A pick sets the game's mission and setting.
+    /// The mission screen's flow (<c>docs/design/levels.md</c>, Missions), over the den (its mission board): its cards,
+    /// the one picked, and whether hard is picked. A pick sets the game's mission and setting. The title is a splash with
+    /// no MISSIONS button, so only the den opens it today; the path for opening it from elsewhere is still here.
     /// </summary>
     public sealed class BoardFlow
     {
@@ -20,8 +21,8 @@ namespace PooketSlug
         public BoardFlow(Game game) => m_Game = game;
 
         /// <summary>
-        /// Opens the mission screen on the mission picked last (else the newest reached): from MISSIONS, PLAY goes on
-        /// to the den; from the den's mission board, PICK goes back to it with that mission on the board.
+        /// Opens the mission screen on the mission picked last (else the newest reached): from the den's mission board,
+        /// PICK goes back to it with that mission on the board; opened from anywhere else, PLAY goes on to the den.
         /// </summary>
         public void Show(bool fromDen)
         {

@@ -47,7 +47,7 @@ namespace PooketSlug
     /// <summary>
     /// The menus in uGUI: the title (<see cref="TitleView"/>, the splash), settings, connecting to co-op, pause, game over, victory, the ⓘ kit screen
     /// (from the den's couch pick, and the pause menu), which plays a demo of each move, and the mission screen
-    /// (<see cref="MissionBoard"/>, from MISSIONS and the den's mission board). Buttons work by
+    /// (<see cref="MissionBoard"/>, from the den's mission board). Buttons work by
     /// click and tap; each also has a key, which <see cref="Game"/> reads, shown under it on a keyboard.
     /// </summary>
     public sealed class MenuView
