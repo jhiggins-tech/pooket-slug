@@ -18,6 +18,54 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void EveryMissionPlaysSteelNight_TillMissionTwoHasItsOwnTheme()
+        {
+            Assert.AreSame(MusicTracks.SteelNight, MusicTracks.MissionTheme(Missions.One));
+            // On purpose: the creamery has no theme of its own yet (music.md). When it's written, this line changes.
+            Assert.AreSame(MusicTracks.SteelNight, MusicTracks.MissionTheme(Missions.Two));
+            foreach (MissionDef m in Missions.All)
+                Assert.IsTrue(MusicTracks.MissionTheme(m).Loop, m.Id + "'s theme loops");
+        }
+
+        [Test]
+        public void EachMomentPlaysTheTrackItAlwaysHas()
+        {
+            Assert.AreSame(MusicTracks.MissionStart, MusicTracks.StartSting);
+            Assert.AreSame(MusicTracks.TankAlert, MusicTracks.BossTheme(null), "the boss theme from the tabk's first shot");
+            Assert.AreSame(MusicTracks.TankAlert, MusicTracks.BossTheme(MusicTracks.SteelNight));
+            Assert.IsNull(MusicTracks.BossTheme(MusicTracks.TankAlertFinal), "never back from the final section");
+            Assert.AreSame(MusicTracks.BossVictory, MusicTracks.BossBeaten);
+            Assert.AreSame(MusicTracks.TankAlertFinal, MusicTracks.FinalSection);
+            Assert.AreEqual("tank-alert-final", MusicTracks.FinalSectionRecording);
+            Assert.AreSame(MusicTracks.TankAlert, MusicTracks.CodaTheme);
+            Assert.AreSame(MusicTracks.ContinueCountdown, MusicTracks.StingFor(MusicCue.Countdown));
+            Assert.AreSame(MusicTracks.MissionComplete, MusicTracks.StingFor(MusicCue.Complete));
+            Assert.IsNull(MusicTracks.StingFor(MusicCue.Resume));
+            Assert.IsNull(MusicTracks.StingFor(MusicCue.Cut));
+            Assert.IsNull(MusicTracks.StingFor(MusicCue.None));
+            Assert.AreSame(MusicTracks.Debrief, MusicTracks.DebriefLoop);
+            Assert.AreSame(MusicTracks.GameOver, MusicTracks.GameOverSting);
+            Assert.AreSame(MusicTracks.RankUp, MusicTracks.RankUpSting);
+        }
+
+        [Test]
+        public void TheDebriefsLoopWaitsForTheMissionCompleteSting_AsItAlwaysHas()
+        {
+            for (float t = 0f; t <= 20f; t += 0.05f)
+                Assert.AreEqual(System.Math.Max(0f, MusicTracks.MissionComplete.Seconds - t), MusicTracks.DebriefDelay(t), 1e-6f, "at " + t);
+            Assert.AreEqual(MusicTracks.MissionComplete.Seconds, MusicTracks.DebriefDelay(0f), 1e-6f);
+            Assert.AreEqual(0f, MusicTracks.DebriefDelay(MusicTracks.MissionComplete.Seconds + 1f));
+        }
+
+        [Test]
+        public void LaunchRendersTheSameTracksAsBefore()
+        {
+            CollectionAssert.AreEqual(
+                new[] { MusicTracks.SteelNight, MusicTracks.TankAlert, MusicTracks.TankAlertFinal, MusicTracks.MissionStart, MusicTracks.BossVictory },
+                MusicTracks.RenderedAhead);
+        }
+
+        [Test]
         public void NotesReadAsMidi()
         {
             Assert.AreEqual(60, Notation.PitchOf("c4"));

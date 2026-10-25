@@ -7,7 +7,7 @@ domain asks this one for a sound. The design it decides is `docs/design/music.md
 
 ## The files
 The map (`.claude/hierarchy/OWNERSHIP.txt`) is the authority:
-- `Assets/Scripts/Core/Audio/` (`Chip`, `Notation`, `MusicTracks`, `MusicRender`, `MusicMidi`, `Wav`, `Soundtrack`)
+- `Assets/Scripts/Core/Audio/` (`Chip`, `Notation`, `MusicTracks` + `MusicWhen` (its other half: which track plays when), `MusicRender`, `MusicMidi`, `Wav`, `Soundtrack`)
 - `Assets/Scripts/Audio/` (`Sfx`, `ChipSounds`, `Music`)
 - `Assets/Tests/EditMode/Audio/` (`MusicTests`, `SoundtrackTests`, `WavTests`)
 - `Assets/Scripts/Game/MusicFlow.cs`
@@ -31,9 +31,17 @@ the cutscene domain (`Core/Story/Cues.cs`, `Ui/Cutscene/CueSounds.cs`); the clip
   its start (`MusicRender`). A sting plays once. (`MusicTests.EveryLoopIsWholeBarsInEveryPart`)
 - **The music sits under the action**: about half the effects' volume (`Music.Volume`), paused quieter, ducked briefly
   under a big blast (`Sfx` calls `Music.Duck`) and under any recorded line. The MUSIC setting (`Options.Music`) scales
-  it, and with music off nothing is rendered.
+  it, and with music off nothing is rendered up front (but see Known unfinished: a track played while muted still renders).
 - **Only the tracks for what's next are rendered.** Mission one's, the boss tracks and the two stings at launch
-  (`MusicFlow.Prepare`, music on only); the debrief's loop and the other stings the first time they play.
+  (`MusicTracks.RenderedAhead`, through `MusicFlow.Prepare`); with the music muted then, `Music.Prepare` keeps the list
+  and renders it the moment the music is unmuted (MUSIC or SOUND turned on, `Music.Muted`'s setter), once. The debrief's
+  loop and the other stings render the first time they play.
+- **Which track plays when is Core's** (`MusicTracks`, in `Core/Audio/MusicWhen.cs`, tested in `MusicTests`): the menu
+  recordings, `MissionTheme(mission)`, `StartSting`, `BossTheme(playing)`, `BossBeaten`, `FinalSection` and its
+  recording, `CodaTheme`, `StingFor(cue)`, `DebriefDelay`, `DebriefLoop`, `GameOverSting`, `RankUpSting`,
+  `RenderedAhead`. `MusicFlow` only plays what they say; a new moment's choice goes there with a test (card
+  dca-music-tests, 25 Oct). `MissionTheme` returns Steel Night for Mission two on purpose, pinned by
+  `EveryMissionPlaysSteelNight_TillMissionTwoHasItsOwnTheme`: writing its theme changes that line.
 - **When a mission's music changes mid-play is `Soundtrack`'s rule** (the countdown and back, the glitch-out's cut,
   the win), with tests. Keep a new mid-mission change there, not in a view. (CLAUDE.md: rules live in Core.)
 - **Menu music is one rule, `MusicTracks.MenuRecording`**: the title recording on the splash and the settings over it,
@@ -85,7 +93,7 @@ the cutscene domain (`Core/Story/Cues.cs`, `Ui/Cutscene/CueSounds.cs`); the clip
 - Music rendering must not stall a frame. Today that's kept by rendering ahead: `MusicFlow.Prepare` renders the mission's
   tracks at launch, and the rest render in one go the first time they play (`Music.ClipOf`) and are kept for the session.
   Spreading a render across frames and letting clips go is in music.md's plan, not built.
-- Core's rules (`Soundtrack`, `MenuRecording`) are tested without a scene; keep new music rules there.
+- Core's rules (`Soundtrack`, and `MusicWhen.cs`: `MenuRecording`, `MissionTheme` and the other moments) are tested without a scene; keep new music rules there.
 - Never commit a pinned WAV, an orchestra or a recording into the repository: they are fetched by hash in CI.
 - A change to the pin file for a take touches `vendor.lock` only through `tools/vendor_lock.sh`.
 
@@ -97,8 +105,10 @@ listening is by the preview build's Try it link (not a CI-rendered WAV: see Know
 side (each cue has an effect). `tools/check_scenes.sh` fetches the narration to check reading time.
 
 ## Known unfinished
-- **Later missions' music.** `MusicFlow.MissionStart` always plays `SteelNight`, so Mission two (the creamery) reuses
-  Mission one's theme. music.md calls for "each later mission's theme, written with its map". No card yet.
+- **Later missions' music.** `MusicTracks.MissionTheme` returns `SteelNight` for every mission, so Mission two (the
+  creamery) reuses Mission one's theme, on purpose and tested. music.md calls for "each later mission's theme, written
+  with its map". No card yet; when it's written, `MissionTheme` and its test change, and `RenderedAhead` should say
+  whether it renders at launch.
 - **The new crewmate sting** (`MusicTracks.NewCrewmate`) is written and tested but nothing plays it. The crew reveal it
   was for has gone; music.md says it waits for the den's. The den's crewmate-moving-in beat is the likely place.
 - **The coda's music** is `TankAlert` again (music.md says so, stale-docs 25 Oct), an open pick in music.md (Open questions), along with one boss theme or one
@@ -108,8 +118,11 @@ side (each cue has an effect). `tools/check_scenes.sh` fetches the narration to 
 - **The chip tracks' listen WAVs.** music.md says each track is rendered to a WAV in CI for listening; nothing in this
   repository does that (the vendor repository may). Check before promising a listen link. How the vendor's Orchestra
   workflow gets `MusicMidi`'s file is not recorded either: only `MusicTests` calls `MusicMidi.Write` here.
-- **Rendering after launch can stall.** With the music off at launch nothing is prepared, so turning MUSIC on later
-  renders `SteelNight` (51 s) in one go as the next mission starts (`Music.ClipOf`). Part of the rendering item above.
+- **A track played while muted still renders.** `Music.Play` and `Music.Sting` render through `Music.ClipOf` whether or
+  not the music is muted (muting is only the sources' `mute`), so with the music off a mission start still renders
+  Steel Night (51 s) in that frame, silently. Turning the music on before then now renders the launch list at the tap
+  instead (dca-music-tests), which moves that stall to the settings screen; it doesn't remove it. Skipping renders while
+  muted (and rendering on unmute what's playing) is part of the rendering item above. No card.
 - **Open findings from the consistency audit (25 Oct), each for the owner:**
   - Game over plays twice with the music on: `Player.Down` plays `Sfx.GameOver` (Tabks' sad trombone) as the soldier
     goes out, and `MusicFlow.GameOver` plays the game over sting as the run ends. The victory jingle is skipped when the
@@ -119,9 +132,6 @@ side (each cue has an effect). `tools/check_scenes.sh` fetches the narration to 
   - The style says four voices, with fast arpeggios standing in for chords, but seven tracks hold chords of two to four
     notes in the harmony part (`TankAlert`'s stabs, `Debrief`'s comps, the stings' last chords), and the kick is a
     triangle thump on top of the bass's triangle (`MusicRender.Drums`). Design call: loosen music.md, or rewrite.
-  - `MusicFlow`'s moments (which track for which moment, which mission) have no test, so a mission theme for Mission two
-    has nothing to hold it. The rule could move into Core (a `MusicTracks.MissionTheme(mission)`, tested) when that
-    theme is written.
   - The pilot round's music is described as the boss music running on in `docs/design/cutscenes/mission-one.md` (When it
     ends) and `docs/design/tabks/bosses.md` (When it's beaten); it is the final section (`TankWrecked`). Handed over.
 - New narrator lines: ask the Media generation role for takes; the lines are the story side's to write.

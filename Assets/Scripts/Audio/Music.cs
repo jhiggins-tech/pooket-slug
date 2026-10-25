@@ -29,6 +29,8 @@ namespace PooketSlug
         /// <summary>Seconds until the crossfade to the layer starts (below 0: none coming), and how far it's got (0..1).</summary>
         static float s_CrossIn = -1f, s_Mix;
         static bool s_Muted, s_Paused;
+        /// <summary>What <see cref="Prepare"/> was asked for while muted, to render once the music's turned on.</summary>
+        static MusicTrack[] s_Ahead;
         /// <summary>Seconds left of a blast's dip, and the dip as it stands (1: none).</summary>
         static float s_DuckFor, s_Duck = 1f;
         /// <summary>The recording's own level (<see cref="MusicTracks.Level"/>), and the dip under a menu: wanted and as it stands.</summary>
@@ -49,7 +51,14 @@ namespace PooketSlug
             get => s_Muted;
             set
             {
+                bool unmuting = s_Muted && !value;
                 s_Muted = value;
+                if (unmuting && s_Ahead != null)
+                {
+                    MusicTrack[] ahead = s_Ahead;
+                    s_Ahead = null;
+                    Prepare(ahead); // the music's just been turned on: render what launch would have, now rather than as a mission starts
+                }
                 if (s_Loop != null) s_Loop.mute = value;
                 if (s_Sting != null) s_Sting.mute = value;
                 if (s_Layer != null) s_Layer.mute = value;
@@ -116,9 +125,17 @@ namespace PooketSlug
             }
         }
 
-        /// <summary>Renders <paramref name="tracks"/> now, so playing them later doesn't stutter.</summary>
+        /// <summary>
+        /// Renders <paramref name="tracks"/> now, so playing them later doesn't stutter; with the music muted, as soon as
+        /// it's unmuted instead (MUSIC or SOUND turned on), and nothing before.
+        /// </summary>
         public static void Prepare(params MusicTrack[] tracks)
         {
+            if (s_Muted)
+            {
+                s_Ahead = tracks;
+                return;
+            }
             foreach (MusicTrack t in tracks) ClipOf(t);
         }
 
