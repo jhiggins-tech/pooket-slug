@@ -5,7 +5,7 @@ using UnityEngine.Networking;
 namespace PooketSlug
 {
     /// <summary>
-    /// Fetches a small text file published beside the game (a sandbox's setup, <see cref="SetupText.FileUrl"/>), fresh
+    /// Fetches a small text file published beside the game (a sandbox's setup, <see cref="SetupText.FileUrl"/>; a scene file; the narration's list), fresh
     /// each time: Pages caches files for a few minutes, so a file just published would otherwise read as the old one.
     /// </summary>
     public static class SiteFile
@@ -22,7 +22,7 @@ namespace PooketSlug
             }
         }
 
-        /// <summary>A file's bytes (a recording), as the URL has it: it carries its own version, so no cache-busting.</summary>
+        /// <summary>A file's bytes (a narrator's clip), as the URL has it: it carries its own version, so no cache-busting.</summary>
         public static IEnumerator FetchBytes(string url, Action<byte[], string> done)
         {
             using (UnityWebRequest request = UnityWebRequest.Get(url))

@@ -24,7 +24,7 @@ namespace PooketSlug
         public const string DefaultRegion = "au";
 
         public static string AppId => Load().appId;
-        /// <summary>The Photon region every game is in: hosting, joining and quick match alike.</summary>
+        /// <summary>The Photon region every game is in, whichever room it joins (MATES or a <c>?room=</c> one).</summary>
         public static string Region
         {
             get

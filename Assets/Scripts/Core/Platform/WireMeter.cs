@@ -2,11 +2,15 @@ using UnityEngine;
 
 namespace PooketSlug
 {
-    /// <summary>The kinds of message a phone sends its partner, besides its replicated state.</summary>
+    /// <summary>
+    /// The kinds of message a phone sends its partner, besides its replicated state. Nothing in the game counts a
+    /// Burst: kcaj's pills go as a kit move (<see cref="KitMove.Pills"/>), counted as Kit.
+    /// </summary>
     public enum WireKind { Shot, EnemyShot, Burst, Hit, Claim, Grant, Hurt, Kit, Count }
 
     /// <summary>
-    /// Spike coop-weapons: what goes over Photon, so liquid and particle weapons don't flood it. The replicated state
+    /// What goes over Photon, so liquid and particle weapons don't flood it (it began as spike coop-weapons, and is in the
+    /// game now: every phone logs it). The replicated state
     /// is a fixed size whatever is on screen (a soldier's pose is one int: tones2's jet, its pressure and his spew are
     /// bits in it, <see cref="AvatarPose"/>), so only events can grow with the action. This counts them as they're sent,
     /// with an estimate of their size, and <see cref="Tick"/> sums up each stretch for the log.
@@ -96,7 +100,9 @@ namespace PooketSlug
     /// <summary>
     /// One message for a whole burst of particles (kcaj's Unmedicated, 120 pills): the seed and the screen it fell
     /// across. A partner's screen starts its own <see cref="PillRain"/> from it, harmless, and gets the same pills in
-    /// the same places, instead of 120 shots in one go.
+    /// the same places, instead of 120 shots in one go. This is the spike's shape, kept for its tests: the game sends
+    /// the same thing as a <see cref="KitEvent"/> (<see cref="KitMove.Pills"/>: the screen's left and top, its right and
+    /// the seed), and <c>KcajCopy</c> starts the rain from that.
     /// </summary>
     public readonly struct BurstEvent
     {

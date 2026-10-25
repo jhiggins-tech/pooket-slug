@@ -10,7 +10,7 @@ namespace PooketSlug
     /// </summary>
     public struct RoomListing
     {
-        /// <summary>The session's name: its room code.</summary>
+        /// <summary>The session's name: the room's (<see cref="CoopRoom.Mates"/>, or a <c>?room=</c> one).</summary>
         public string Name;
         /// <summary>The mission on its TV, or being played (<see cref="MissionDef.NetId"/>).</summary>
         public int Mission;
@@ -37,6 +37,7 @@ namespace PooketSlug
         public const int MaxPeople = Tuning.Coop.MaxPlayers + MaxWatchers;
 
         /// <summary>The session property keys (short: they go to everyone arriving).</summary>
+        // "o" was the public / invite-only switch's, gone with hosting (18 Oct): nothing sets or reads it now.
         public const string MissionKey = "m", SoldiersKey = "n", WatchingKey = "w", UnderWayKey = "g", HostKey = "h", OpenKey = "o";
 
         public static RoomAction ActionFor(in RoomListing room, Func<int, bool> cleared)

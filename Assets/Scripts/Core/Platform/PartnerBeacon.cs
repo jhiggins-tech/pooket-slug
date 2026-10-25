@@ -80,7 +80,7 @@ namespace PooketSlug
 
     /// <summary>
     /// The co-op camera's rule: scroll toward the leading soldier, never pushing the trailing one off the left edge. Only
-    /// soldiers who are playing hold it: one who's down doesn't, and (spike coop-camera) nor does one who's away, or a
+    /// soldiers who are playing hold it: one who's down doesn't, and nor does one who's away, or a
     /// partner switching apps would stop the scroll for the other until they came back.
     /// </summary>
     public struct ScrollHold
