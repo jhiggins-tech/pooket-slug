@@ -276,7 +276,7 @@ namespace PooketSlug
             m_Paused = false;
             SetState(GameState.Playing);
             Log.Game.Info("Mission start: " + Mission.Name); // tools/touch.mjs waits for it
-            Sfx.Play(Sfx.Start);
+            if (Jingles.EffectPlays(Jingle.MissionStart, !Music.Muted)) Sfx.Play(Sfx.Start); // with the music on, the start sting plays instead
             if (!Scenes.TakeSaidStart()) Sfx.Say(Cues.StartLine(Mission), 0.3f); // the opening's caption card already called it
             if (m_Flags.Debrief) m_World.OnBossDestroyed();
             MissionMusic.MissionStart();
@@ -535,7 +535,7 @@ namespace PooketSlug
             m_LeaveArmed = 0f;
             m_StartNote = null;
             SetState(GameState.Playing);
-            Sfx.Play(Sfx.Start);
+            if (Jingles.EffectPlays(Jingle.MissionStart, !Music.Muted)) Sfx.Play(Sfx.Start); // with the music on, the start sting plays instead
             if (!Scenes.TakeSaidStart()) Sfx.Say(Cues.StartLine(Mission), 0.3f); // the opening's caption card already called it
         }
 
