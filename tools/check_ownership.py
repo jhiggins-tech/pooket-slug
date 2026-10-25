@@ -39,6 +39,13 @@ COVERED = [
     "docs/design/lobby.md",
     "docs/design/story.md",
     "docs/design/music.md",
+    "docs/design/player.md",
+    "docs/design/kits.md",
+    "docs/design/levels.md",
+    "docs/design/team-supers.md",
+    "docs/design/tanks.md",
+    "docs/design/tabks/",
+    "docs/design/art.md",
 ]
 
 

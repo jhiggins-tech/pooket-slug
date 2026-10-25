@@ -240,6 +240,15 @@ shell Assets/Plugins/WebGL/PooketInvite.jslib
 shell Assets/Plugins/WebGL/PooketDemo.jslib
 # The sandbox's setups, read by Core/Platform/Sandbox.cs.
 gameplay sandbox/
+# The design gameplay decides.
+gameplay docs/design/player.md
+gameplay docs/design/kits.md
+gameplay docs/design/levels.md
+gameplay docs/design/team-supers.md
+gameplay docs/design/tanks.md
+gameplay docs/design/tabks/
+# The art's design: the models, the look and the sprite workflow.
+sprites docs/design/art.md
 
 # ---------------------------------------------------------------- audio
 # The sound: the chip synth and its music, the sound effects, when each track plays, and the

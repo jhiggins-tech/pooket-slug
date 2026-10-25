@@ -83,8 +83,8 @@ together. Rules live in `Core` with tests; the entities and views that draw them
 
 **The design it decides**
 
-- `docs/design/player.md`, `kits.md`, `levels.md`, `team-supers.md`, `tabks/`, `art.md` (the sprite
-  side)
+- `docs/design/player.md`, `kits.md`, `levels.md`, `team-supers.md`, `tanks.md` and `tabks/` (`art.md` is the
+  `sprites` domain's: the map says so)
 
 ## `den` — the owner's
 
