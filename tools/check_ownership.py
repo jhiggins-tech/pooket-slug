@@ -20,7 +20,7 @@ root = os.path.abspath(sys.argv[1] if len(sys.argv) > 1 else ".")
 map_path = os.path.join(root, ".claude/hierarchy/OWNERSHIP.txt")
 
 # The domains, and the prefixes that must be covered. A prefix ending in / covers everything under it.
-DOMAINS = {"gameplay", "den", "cutscene", "sprites", "shell", "net", "story", "architect"}
+DOMAINS = {"gameplay", "den", "cutscene", "sprites", "shell", "net", "story", "audio", "architect"}
 
 # The paths whose files must each have an owner. A prefix ending in / covers everything under it.
 COVERED = [
@@ -38,6 +38,17 @@ COVERED = [
     "docs/scenes.md",
     "docs/design/lobby.md",
     "docs/design/story.md",
+    "docs/design/music.md",
+    "docs/design/player.md",
+    "docs/design/kits.md",
+    "docs/design/levels.md",
+    "docs/design/team-supers.md",
+    "docs/design/tanks.md",
+    "docs/design/tabks/",
+    "docs/design/art.md",
+    "CLAUDE.md",
+    "docs/design/README.md",
+    "docs/research/",
 ]
 
 

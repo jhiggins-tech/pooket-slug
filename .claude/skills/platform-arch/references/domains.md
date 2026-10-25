@@ -11,7 +11,7 @@ This page is the reasoning; the file is the map.
 
 Up: [the platform architecture](../SKILL.md) · [the roles](roles.md) · [the protocols](protocols.md)
 
-## The seven domains
+## The eight domains
 
 | Domain | Subject | Owner of |
 |---|---|---|
@@ -22,6 +22,7 @@ Up: [the platform architecture](../SKILL.md) · [the roles](roles.md) · [the pr
 | `story` | the plot | what happens, in what order, and each reveal |
 | `shell` | the shell | the state machine and its flows, the screens, the title, the HUD, the input |
 | `net` | the co-op | the netcode, the contracts, the room, the handover, the saves, the account |
+| `audio` | the sound | the chip music and synth, the sound effects, when each track plays, the pinned takes |
 
 The four the owner named are marked **owner's** below.
 
@@ -55,7 +56,6 @@ together. Rules live in `Core` with tests; the entities and views that draw them
 - `World/` — `TilePhysics.cs`, `Frost.cs`, `HazardBeat.cs`, `Backdrop.cs` (the parallax layers and which plates cover
   the screen)
 - `Input/` — `SoldierInput.cs`, `ArcadePad.cs`, `Latch.cs`
-- `Audio/` — `Chip.cs`, `Notation.cs`, `MusicTracks.cs`, `MusicRender.cs`, `MusicMidi.cs`, `Wav.cs`, `Soundtrack.cs`
 - `Platform/` — everything except the netcode files: `LaunchFlags.cs`, `Spike.cs`, `PageQuery.cs`, `Sandbox.cs`,
   `Knobs.cs`, `SetupText.cs`, `Rng.cs`, `Log.cs`
 - `sandbox/*.txt` — the sandbox's setups, the links that set up a map, goons, a boss and tuning without a build
@@ -72,11 +72,10 @@ together. Rules live in `Core` with tests; the entities and views that draw them
 - `Bosses/` — `TankBoss.cs`, `BossKit.cs`, `KieBoss.cs`, `KcajBoss.cs`, `HostilePills.cs`, `CraterView.cs`
 - `Tabks/` — `PlayerTank.cs`, `TankLook.cs`, `TabkKit.cs`
 - `Missions/One/`, `Missions/Two/` — the missions' own pieces and their art
-- `Audio/` — `Sfx.cs`, `ChipSounds.cs`, `Music.cs`
 
 **Tests**
 
-- `Assets/Tests/EditMode/Audio/`, `Bosses/` (but `BossIntroShowTests.cs`), `Crew/`, `Enemies/`, `Input/`,
+- `Assets/Tests/EditMode/Bosses/` (but `BossIntroShowTests.cs`), `Crew/`, `Enemies/`, `Input/`,
   `Missions/`, `Tabks/`, `World/` — and `ContentTests.cs`, which pins the ids
 - `Assets/Tests/EditMode/Platform/` — the platform's own half: `LaunchFlagsTests.cs`, `LogTests.cs`,
   `PageQueryTests.cs`, `RngTests.cs`, `SandboxTests.cs`, `SpikeTests.cs`
@@ -84,8 +83,8 @@ together. Rules live in `Core` with tests; the entities and views that draw them
 
 **The design it decides**
 
-- `docs/design/player.md`, `kits.md`, `levels.md`, `team-supers.md`, `tabks/`, `music.md`, `art.md` (the sprite
-  side)
+- `docs/design/player.md`, `kits.md`, `levels.md`, `team-supers.md`, `tanks.md` and `tabks/` (`art.md` is the
+  `sprites` domain's: the map says so)
 
 ## `den` — the owner's
 
@@ -279,8 +278,8 @@ input that drives them.
 
 **The code**
 
-- `Assets/Scripts/Game/` — every flow except the cutscene's (`SceneFlow`, `BossIntroFlow`) and the den's (`DenFlow`,
-  `BayFlow`): `Game.cs`, `BoardFlow.cs`, `KitFlow.cs`, `DebriefFlow.cs`, `MusicFlow.cs`, `DemoFlow.cs`,
+- `Assets/Scripts/Game/` — every flow except the cutscene's (`SceneFlow`, `BossIntroFlow`), the den's (`DenFlow`,
+  `BayFlow`, `RoomsFlow`, `RoomFlow`) and the audio's (`MusicFlow`): `Game.cs`, `BoardFlow.cs`, `KitFlow.cs`, `DebriefFlow.cs`, `DemoFlow.cs`,
   `SandboxFlow.cs`
 - `Assets/Scripts/Ui/` — every file except the den's and the cutscenes': `Ui.cs`, `MenuView.cs`, `HudView.cs`,
   `TitleView.cs`, `TitleLogoView.cs`, `DebriefView.cs`, `DemoClip.cs`, `Invite.cs`
@@ -315,6 +314,31 @@ when the netcode changes or a commit asks for them.
 
 **What it may never break** — the content ids. They ride the network, and two phones only match on an identical
 build. A changed id is a changed world.
+
+## `audio`
+
+**The sound: the chip music and its synth, the sound effects, when each track plays, and the takes the game pins.**
+
+Added on 25 Oct, when the project moved onto the hierarchy: the Audio and music role had a workflow of its own (the
+music's notation, the sounds every new weapon and cue needs, the vendor takes and their pins), and filing it under
+`gameplay` would have left that workflow with no owner.
+
+**The code**
+
+- `Assets/Scripts/Core/Audio/` — `Chip.cs`, `Notation.cs`, `MusicTracks.cs`, `MusicRender.cs`, `MusicMidi.cs`,
+  `Wav.cs`, `Soundtrack.cs`
+- `Assets/Scripts/Audio/` — `Sfx.cs`, `ChipSounds.cs`, `Music.cs`
+- `Assets/Scripts/Game/MusicFlow.cs`
+- `Assets/Tests/EditMode/Audio/`
+
+**Outside the map's coverage** — `vendor.lock` and `tools/vendor_lock.sh` (the pinned takes), and the vendor
+repository's `music/`, `voice/` and `pin/`. The narrator's lines are written by the `cutscene` domain and recorded
+here.
+
+**The design it decides** — `docs/design/music.md`.
+
+**Its seams** — every other domain asks it for a sound: a new weapon or cue names its sound in `Sfx` / `ChipSounds`,
+and that is a handover to `audio`, not an edit by the asking domain.
 
 ## The seams
 
