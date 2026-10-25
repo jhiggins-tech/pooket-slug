@@ -159,5 +159,17 @@ namespace PooketSlug.Tests
             Assert.AreEqual(BayPlace.None, new BayWalker(BayDeck.Floor, BayMap.StandBy(BayMap.Stands)).PlaceHere, "by the stands");
             Assert.AreEqual(BayPlace.None, new BayWalker(BayDeck.Top, BayMap.DeckLeft).PlaceHere);
         }
+
+        [Test]
+        public void KiesReelsBlinkOnTheirOldBeats_ThroughFx()
+        {
+            // BayHomecomingView's reels used (int)(clock * rate) % 2 == 0, the rate rising with Reels
+            for (float reels = 0.05f; reels <= 1f; reels += 0.05f)
+            {
+                float rate = 6f + 18f * reels;
+                for (float t = 0f; t < 20f; t += 1f / 60f)
+                    Assert.AreEqual((int)(t * rate) % 2 == 0, Fx.Blink(t, rate), "reels " + reels + " at " + t);
+            }
+        }
     }
 }
