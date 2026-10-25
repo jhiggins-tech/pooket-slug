@@ -39,12 +39,16 @@ blinks and flickers; `CrewFigure` is the shared figure's moves; `StagePose` is h
 - Plates are made from the style line and the plate's own prompt alone, then cut to game size and 16 colours, and
   checked in the game, not only on their own (`docs/design/art.md`, "Background plates"). To change one part of a
   picked painting, edit it with a red mark and paste the answer back through a mask, so the rest stays as picked.
-- A frame that is missing is a bug in this domain. Every `CrewMove`, `CrewLegs` and `CrewBody` value has art, every
-  body frame places the head, and a crewmate's head frame they have not drawn falls back to their forward one
-  (`CrewLook.Head`). `CrewFigureTests.EveryMoveHasItsClipAndEveryBodyFramePlacesTheHead` holds the first two.
+- A frame that is missing is a bug in this domain. Every `CrewMove` has its clip, every `CrewLegs` and `CrewBody`
+  value has art, every body frame places the head, and a crewmate's head frame they have not drawn falls back to their
+  forward one (`CrewLook.Head`). `CrewFigureTests.EveryMoveHasItsClipAndEveryBodyFramePlacesTheHead` holds the clips
+  and the heads only: nothing tests that `CrewArt`'s `s_Bodies`, `s_BodyTops` and `s_Legs` have a row per enum value
+  (they are in the game assembly, which EditMode tests do not reach; see Known unfinished).
 - A blink, flicker or walk cycle goes through `Fx` or a `Clip`, never an inline `(int)(t * hz) % n`
-  (`CLAUDE.md`, `ClipTests`, `CrewFigureTests.TheLastInlineBlinksKeepTheirBeat`). A new rate is a named `Pulse` in `Fx`
-  or a `Clip` in `Clips`, so the Trollogram flickers the same on the boss, in a cutscene and on the HUD.
+  (`CLAUDE.md`, `ClipTests`, `CrewFigureTests.TheLastInlineBlinksKeepTheirBeat`). A rate that more than one site
+  shares is a named `Pulse` in `Fx` or a `Clip` in `Clips`, so the Trollogram flickers the same on the boss, in a
+  cutscene and on the HUD; a site with a rate of its own calls `Fx.Blink`, `Fx.Step` or `Fx.Shiver` with its number
+  (about 30 sites do, checked 25 Oct).
 - A figure on a stage is posed with `StageFigure.Pose`, from a `StagePose` (`StagePoseTests`). The poses' names are the
   cutscene scripts' words, so renaming one breaks scene files (`StagePoseTests.CutscenePosesKeepTheirNames`).
 - A new crewmate gets every shared move by giving a `CrewLook` in `CrewArt`; their own body or legs frame is an
@@ -81,14 +85,17 @@ blinks and flickers; `CrewFigure` is the shared figure's moves; `StagePose` is h
   mission has no plates for.
 - Sprites are built in code at startup (`Art.Init`); there are no imported art assets, no scenes and no prefabs.
   Plates and the title logo are the only picture files, loaded as `.bytes` from `Resources`.
-- `Art` is a `partial class`: per-crewmate, per-mission and per-tabk art files add to it from other domains' folders
-  (`KcajArt`, `Tones2Art`, `KieTabkArt`, `KcajTabkArt`, `CreameryArt`, `CodaArt`, `ExitGateArt`). Those files belong to
-  gameplay by the map. A change that adds frames there is a handover: this domain draws, gameplay wires.
+- The per-crewmate, per-mission and per-tabk art files are their own static classes in other domains' folders
+  (`KcajArt`, `Tones2Art`, `KieTabkArt`, `KcajTabkArt`, `CreameryArt`, `CodaArt`, `ExitGateArt`), which `Art` reads
+  (`Art.Init` takes `KcajArt.Cone`, `CreameryArt.Shockwave` and `.Scoop` for projectiles). `Art` is a `partial class`,
+  but only `CrewArt.cs` adds to it (checked 25 Oct). Those files belong to gameplay by the map. A change that adds
+  frames there is a handover: this domain draws, gameplay wires.
 - The title logo's parts file and the pictures must agree: `TitleMotionTests.TheBuildsParts_AreTenLettersAndTheTabk_InsideTheLogoAndTheSheet`
   reads `Resources/Title/layout.txt` and fails if they drift. `tools/title_logo.py` writes both.
 - The den's paintings (`Assets/Resources/Den/`) are the den domain's. This domain makes the art the owner picks; the
   den decides which and where. A painting is the handover point.
-- Gameplay randomness never touches art; cosmetic effects use their own `Rng`.
+- Gameplay randomness never touches art: `Art` scatters its texture with `System.Random` on fixed seeds, so every
+  build draws the same pixels.
 - A new `.cs` needs a `.meta` (and a new folder too): `tools/new_meta.py`. A plate or logo file needs its `.meta`.
 - Ask the gameplay domain what a figure does with its frames; the cutscene domain for `Stage/` and `StageFigure`; the den
   domain for `Resources/Den/`; the shell domain for the title's code; the architect for the map.
@@ -104,13 +111,34 @@ not have to run in game. Nothing tests the art itself (see below).
   draws a missing one; `CrewFigureTests` covers the crew's figure only. This is the domain's first card.
 - Plates: Mission one has one sky, five far and ten mid plates. `far-4` is a second coda plate beside `far-3` (the same size, not the same pixels),
   added when the repeats were re-spaced (commit 9559233, 19 Oct). Mission two has one sky, one far and five mid plates,
-  stood 2 units up (`PlatesStand`). The perimeter-to-yard seam idea (options and a pick of a gatepost) was put to the
+  stood 2 units up (`PlatesStand`); its `mid-0` (836 px) and `mid-4` (800 px) are wholly transparent, gaps in the
+  strip, not missing art. Plates are 16 colours, except Mission one's sky (24, set in the vendor's
+  `art/m1-plates.json` for its gradient). The perimeter-to-yard seam idea (options and a pick of a gatepost) was put to the
   owner and its decision is not recorded anywhere in the repository.
 - Generated sprite animation: the workflow exists on paper and in the vendor repository, and no promoted sprite has
   gone through it yet that the notes record. The first one needs an owner promotion on the Roadmap.
 - Per-crewmate heads exist for tones2, kie and kcaj; the repair frames and bowed head were approved on 20 Oct. A
   co-op second-player marking was ruled out; crewmates are unique and tabks one each.
-- `ArtData.CrouchDrop` and `CrewFigure.CrouchDrop` are the same 6 px, kept twice; a code card could make one
-  read the other (not a doc fix, so left alone on stale-docs).
+- `ArtData.CrouchDrop` and `CrewFigure.CrouchDrop` are the same 6 px, kept twice, and nothing reads
+  `ArtData.CrouchDrop` (only a doc comment on `LegsSit` names it). A third copy is the den's seated drop, a literal
+  `-6f` in `Ui/Den/DenCrew.cs` (den's file, handed over 25 Oct). A code card could delete `ArtData.CrouchDrop` and
+  point the comment and the den at `CrewFigure.CrouchDrop` (domain-consistency-audit, 25 Oct).
 - The title logo and its animation are built. Its parts file, `Core/Title/TitleLogo.cs` and `TitleMotion.cs`, and the
   views belong to the shell domain; only the pictures and their tests are here.
+- Untested art tables (domain-consistency-audit, 25 Oct): `CrewArt`'s `s_Bodies`, `s_BodyTops` and `s_Legs` must
+  have a row per `CrewBody` and `CrewLegs` value, and `Art.Init`'s `s_Projectiles` and `s_Pickups` a sprite per
+  content id; nothing checks either. A Gameplay (PlayMode) test after `Art.Init` could hold both: the frame contract's
+  first piece.
+- Two tabk projectiles have no sprite (domain-consistency-audit, 25 Oct): `Content.PlayerTankShellShot` (id 9) and
+  `PlayerTankMortarShot` (id 10) get no entry in `Art.Init`, so `Art.ProjectileSprite` returns null for them and a
+  `Projectile` launched with either would draw nothing. Its comment says ids past the table borrow the shell's;
+  ids inside it with no entry do not. Nothing fires them today (their weapons, `PlayerTankCannon` and
+  `PlayerTankMortar`, ids 18 and 19, are only in `Content.Weapons` and a test). An Idea card for the owner.
+- `docs/design/art.md`, "The house's room plates", says the image endpoint is `POST /api/v1/images/generations` and
+  finds Turbo with `GET /api/v1/models/qwen/qwen-image-2.1-turbo/endpoints`; its "Editing a picked painting" and the
+  vendor's code and `docs/openrouter-media.md` say `POST /api/v1/images` and
+  `GET /api/v1/images/models/{author}/{slug}/endpoints`. OpenRouter cannot be reached from a cloud session to settle
+  it, so the line is left as the kitchen card wrote it (domain-consistency-audit, 25 Oct).
+- Two inline blinks are left outside `Fx`, in other domains' files (handed over 25 Oct): `Core/Story/Staging.cs`
+  (`Lit`, a scene's `blink`: `Fx.Step(now, n0, n1) == 0`) and `Core/Crew/KieTuning.cs` (`Lit`: `Fx.Blink(seconds,
+  Flashes)`). The same numbers, so no beat changes.
