@@ -6,12 +6,12 @@ namespace PooketSlug
 {
     /// <summary>
     /// The music player (<c>docs/design/music.md</c>): one looping source for the tracks and one for the stings, each
-    /// track rendered on the chip synth the first time it's wanted (<see cref="MusicRender"/>). It sits under the sound
-    /// effects, and goes quiet while paused. A track can have a layer, a recording of the same notes in step with it
-    /// (the boss's final section played by an orchestra, from the vendor repository's CI into <c>Resources/Music</c>),
-    /// which it crossfades to after a while; or a recording can loop on its own (the title theme and the den's, <see cref="Loop"/>),
-    /// at its own level, dipping under a menu (<see cref="Dip"/>).
-    /// First cut: only the title theme and <c>?spike=music</c> play anything.
+    /// track rendered on the chip synth (<see cref="MusicRender"/>) in one go, ahead of time (<see cref="Prepare"/>) or
+    /// the first time it's wanted, and kept. It sits under the sound effects, and goes quiet while paused. A track can
+    /// have a layer, a recording of the same notes in step with it (the boss's final section played by an orchestra,
+    /// from the vendor repository's CI into <c>Resources/Music</c>), which it crossfades to after a while; or a recording
+    /// can loop on its own (the title theme and the den's, <see cref="Loop"/>), at its own level, dipping under a menu
+    /// (<see cref="Dip"/>).
     /// </summary>
     public static class Music
     {

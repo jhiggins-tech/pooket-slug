@@ -5,8 +5,8 @@ namespace PooketSlug
 {
     /// <summary>
     /// A <see cref="MusicTrack"/> as a General MIDI file, scored for an orchestra, so the same notes can be played by
-    /// real instruments (<c>?spike=music</c>: the vendor repository's CI renders it with a General MIDI soundfont into
-    /// the orchestral rendition the boss fight crossfades to). The lead goes to strings, doubled by horns an octave
+    /// real instruments (the vendor repository's Orchestra workflow renders it with a General MIDI soundfont into
+    /// the orchestral rendition the boss fight's final section crossfades to). The lead goes to strings, doubled by horns an octave
     /// down; the harmony to pizzicato strings; the bass to contrabasses and tuba; the drums to concert bass drum,
     /// snare and cymbals (the hi-hats are left out). Same tempo and length as the chip render, so the two line up.
     /// </summary>

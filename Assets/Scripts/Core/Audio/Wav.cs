@@ -3,9 +3,10 @@ using System;
 namespace PooketSlug
 {
     /// <summary>
-    /// Reads a plain WAV file (16-bit PCM, any rate, mono or stereo) into samples. The announcer's lines arrive as
-    /// raw bytes and are made into clips in code, like the chip sounds, so no browser has to decode a compressed
-    /// format (WebGL builds use AAC, which some Chromium builds can't play).
+    /// Reads a plain WAV file (16-bit PCM, any rate, mono or stereo) into samples. The recordings (the announcer's and
+    /// the narrator's lines, the title and den themes, the boss's orchestra layer) arrive as raw bytes and are made into
+    /// clips in code, like the chip sounds, so no browser has to decode a compressed format (WebGL builds use AAC, which
+    /// some Chromium builds can't play).
     /// </summary>
     public static class Wav
     {
