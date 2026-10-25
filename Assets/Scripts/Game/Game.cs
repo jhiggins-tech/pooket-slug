@@ -24,9 +24,10 @@ namespace PooketSlug
 
     /// <summary>
     /// Owns the camera, the current <see cref="World"/>, the online session and the player's profile, and runs the
-    /// game's state machine: title, settings, online menus, play, pause, game over and victory, and Mission one's
-    /// story beats. The rest of the game's flow is in flows it owns, one per part: the cutscenes (<see cref="SceneFlow"/>),
-    /// the den (<see cref="DenFlow"/>), the kit screen (<see cref="KitFlow"/>), the mission screen (<see cref="BoardFlow"/>),
+    /// game's state machine: title, settings, joining the co-op room, play, pause, game over and victory, and each
+    /// mission's story beats (its <see cref="MissionStory"/>). The rest of the game's flow is in flows it owns, one per
+    /// part: the cutscenes (<see cref="SceneFlow"/>), the den (<see cref="DenFlow"/>), the tabk bay (<see cref="BayFlow"/>),
+    /// the house's outer rooms (<see cref="RoomsFlow"/>), the kit screen (<see cref="KitFlow"/>), the mission screen (<see cref="BoardFlow"/>),
     /// the demos (<see cref="DemoFlow"/>), the sandbox (<see cref="SandboxFlow"/>), the boss intro
     /// (<see cref="BossIntroFlow"/>), the music (<see cref="MusicFlow"/>) and the
     /// debrief (<see cref="DebriefFlow"/>). The HUD and the menus are views
@@ -162,7 +163,7 @@ namespace PooketSlug
             if (Scenes.StartDraft(PageQuery.Get(url, "scene"), url)) return; // and so is a draft scene
             if (Sandbox.Start(PageQuery.Get(url, "sandbox"), url)) return; // and so is a sandbox: solo, and never recorded
             if (NetSessions.Factory != null && NetConfig.Configured) m_Net = NetSessions.Factory(gameObject);
-            // An invite link with a room in it (?room=, see CoopRoom) waits for CO-OP like any visit; co-op still waits
+            // An invite link with a room in it (?room=, see CoopRoom) waits for the den's + MATE like any visit; co-op still waits
             // until Mission one is beaten, so before then the link starts that.
             if (m_Net != null && !string.IsNullOrEmpty(m_Flags.Room) && !CoopOpen)
             {
@@ -493,7 +494,7 @@ namespace PooketSlug
 
         // ------------------------------------------------------------------ online co-op
 
-        /// <summary>CO-OP: into the one room (<see cref="CoopRoom"/>), or the link's room.</summary>
+        /// <summary>The den's + MATE: into the one room (<see cref="CoopRoom"/>), or the link's room.</summary>
         internal void JoinCoop()
         {
             if (m_Profile.MarkSeen(Reveals.Coop)) m_Store.Save(m_Profile);
@@ -852,7 +853,7 @@ namespace PooketSlug
                 MissionTabkPaint = Art.Hex(LoadedTabk.Paint),
             });
 
-            // The sign-in button sits over the game, on the title screen and settings only.
+            // The sign-in button sits over the game on the title screen and settings, and over the debrief's sign-in offer.
             bool account = (m_State == GameState.Title || m_State == GameState.Settings) && !Kit.Open && !Board.Open || Debrief.OffersSignIn;
             if (account != m_AccountShown)
             {
