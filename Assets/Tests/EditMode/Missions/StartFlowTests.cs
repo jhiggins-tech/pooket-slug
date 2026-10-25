@@ -11,9 +11,9 @@ namespace PooketSlug.Tests
             var p = new Profile();
             Assert.AreSame(Missions.One, StartFlow.Next(p), "a new player: the opening and Mission one");
             Assert.IsFalse(StartFlow.DenOpen(p));
-            p.RecordRun(Missions.One, Setting.Normal, 100, won: false, solo: true);
+            p.RecordRun(Missions.One, 100, won: false, solo: true);
             Assert.AreSame(Missions.One, StartFlow.Next(p), "a lost run doesn't move it on");
-            p.RecordRun(Missions.One, Setting.Normal, 100, won: true, solo: true);
+            p.RecordRun(Missions.One, 100, won: true, solo: true);
             Assert.IsNull(StartFlow.Next(p));
             Assert.IsTrue(StartFlow.DenOpen(p), "Mission one's beaten: START and its debrief go to the den, where Mission two and co-op are");
             Assert.IsTrue(p.coop);

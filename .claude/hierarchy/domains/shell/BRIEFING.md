@@ -47,9 +47,13 @@ Not this domain's, though they sit beside its files: the cutscene flows (`SceneF
 - **Rank ids and the ladder order never change**: saves go by the order (`Ranks.cs` comment). A new rank is appended
   by the owner's say, with a row in `Ranks.All`.
 - **Saves must read forward.** `Options` is one number (`Options.Bits`): a new setting takes the next free bits and
-  reads as its default in an old save. Never move a shift. `Profile` is serialised as it is (`JsonUtility`): add
-  fields, never rename or reuse them. No test pins either yet: `OptionsTests` checks a round trip and the shake bit of an
-  old save, and `ProfileTests` the merge and repair, not the bit positions or the field names (see Known unfinished).
+  reads as its default in an old save. Never move a shift (no test pins the bit positions yet: see Known unfinished).
+  `Profile` is serialised as it is (`JsonUtility`): add fields, never rename or reuse them
+  (`ProfileTests.TheSavedFieldsKeepTheirNames`). `MissionRecord.setting` is left from
+  the hard setting (removed 25 Oct): an int, 0 on every record now; `Profile.Repair` drops an old save's hard records
+  (setting 1) on load, from this browser or the cloud (`ProfileTests.AnOldSaveWithHardRecords_LoadsWithOnlyTheHardPartsGone`).
+  The page's `pooket-auth.js` reads and writes a mission's cloud record under `normal` only, the key the database rules
+  ask for; a cloud `hard` is never read, and a save's `PATCH` of `missions` leaves it out. `Reveals` ids (`coop`, `tank`) are saved by name.
   `Profile.seen` holds every once-only record by name: `Reveals.Coop`, the scenes' ids (`SceneFlow`), the story's
   beats (`StoryRecord`: the super, the coda, the debrief), the den's beats (`DenBeats`) and kie's homecoming
   (`KieHomecoming.Reveal`). `Reveals.Tank` is only the `?unlock=tank` key and is never saved.
@@ -83,6 +87,9 @@ Not this domain's, though they sit beside its files: the cutscene flows (`SceneF
   room. Every other win goes straight to the debrief (`Game.EndRun`, `MenuScreenNow`).
 - The flows: `BoardFlow` (mission screen), `KitFlow` (the ⓘ screen), `DebriefFlow`, `DemoFlow` (`?demo=`),
   `SandboxFlow` (`?sandbox=`). The "mission screen" and the "kit screen" are what players and docs say.
+- The mission screen is its cards (a SOLO ONLY tag on Mission one), PLAY or PICK, and BACK. There is no setting button
+  and no HARD OPEN tag: hard is gone (owner, 25 Oct), so `Game` has no `Setting`, `BoardFlow` no `Hard`, `MenuAction`
+  no `Hard` and `MenuView.Info` no `MissionHard`; the H key is the den's host key only (`GameInput.Host`).
 - The title logo is ten letters and the tabk (`TitleLogo`), moved by `TitleMotion` as pure functions of seconds since
   the entrance began: the tabk drives in, the letters spring, it hovers over a fixed shadow, and a gold glint sweeps.
   Parts come from `Resources/Title/layout.txt`, made by `tools/title_logo.py`.
@@ -125,9 +132,6 @@ the `gh-pages` branch locally and use `?test=debrief` and Enter through to the m
 - The mission screen opens only from the den (`DenFlow` calls `Board.Show(fromDen: true)`); `BoardFlow`'s other path
   (PLAY going on to the den) is left from the title's old MISSIONS button and is unused. Remove it the next time
   `BoardFlow` changes.
-- Hard never shows on the mission screen: `BoardFlow` asks `MissionBoard.Cards(profile, coop: false)` and
-  `MissionBoard.HardOpen` needs co-op, and the co-op room has no mission screen of its own. Whether that is meant is
-  an owner question (gameplay owns `MissionBoard`); the comments now say what the code does.
 
 - **Hard is dead end to end** (consistency audit, 25 Oct): besides the mission screen never offering it, `Game.EndRun`
   records every co-op run as `Setting.Normal`, and nothing in the world reads `Game.Setting`, so a hard run would play
@@ -143,8 +147,8 @@ the `gh-pages` branch locally and use `?test=debrief` and Enter through to the m
   den, which is always (`MenuView.RefreshMissions`; audit, 25 Oct).
 - **The settings' controls lines** leave out the ability (AB; B / I) and the team super (TEAM; T / Y), which
   `docs/design/player.md` lists (`MenuView.cs`; audit, 25 Oct).
-- **No test pins the save formats**: a test fixing `Options.Bits` for one known set of options, and `Profile`'s JSON
-  field names, would hold the "never move a shift / never rename a field" rules (audit, 25 Oct).
+- **No test pins the options' bits**: a test fixing `Options.Bits` for one known set of options would hold the "never
+  move a shift" rule (audit, 25 Oct). `Profile`'s field names are pinned since dca-hard-pick.
 - **The mission screen has room for four cards** (`MenuView.MaxCards`, `MenuAction.Card1`..`Card4`); with four missions
   the coming-soon card is a fifth and is dropped. Not a problem until Mission four.
 
@@ -159,7 +163,7 @@ the sign-in button's places (`Game.RefreshScreens`), the invite as the TV's (`In
 
 ## Stale-docs pass (25 Oct)
 Comments in the shell's files were checked against the code. Fixed: the title's old MISSIONS, CREW and CO-OP buttons
-(`BoardFlow`, `MenuView`, `Options`, `GameInput.Host`), sign-in "to come" (`Profile`), hard's rule (`Setting`), the
+(`BoardFlow`, `MenuView`, `Options`, `GameInput.Host`), sign-in "to come" (`Profile`), hard's rule (`Setting`: since removed, with all of hard, 25 Oct), the
 partner beacon called a spike (`Ui`, `HudView`), a `partner` spike that is gone (`Game.cs`: `Spike.cs` has only `craters`), the bay pointer to `docs/design/lobby.md`, The tabk bay, rather than the tabks index (`MenuView`), and the hidden-rank rule in `Ranks.cs` (names are fine outside text
 players read). Left as they are: "Rooms:" at the head of a co-op comment is the project's tag for the co-op room
 feature, and "Start flow 5", "S3" and "A2, H2, G3" are the labels of the owner's picks on their option pages.

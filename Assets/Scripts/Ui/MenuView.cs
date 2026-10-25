@@ -8,7 +8,7 @@ namespace PooketSlug
     public enum MenuScreen { None, Title, Settings, Connecting, Paused, GameOver, Victory, Kit, Missions }
 
     /// <summary>What a menu button (or its key) asks the game to do.</summary>
-    public enum MenuAction { None, Play, Settings, Sound, Shake, Back, Resume, Restart, Menu, Kit, Move1, Move2, Move3, Move4, Card1, Card2, Card3, Card4, Hard, Effects, Voices, LeftHanded, Music }
+    public enum MenuAction { None, Play, Settings, Sound, Shake, Back, Resume, Restart, Menu, Kit, Move1, Move2, Move3, Move4, Card1, Card2, Card3, Card4, Effects, Voices, LeftHanded, Music }
 
     /// <summary>What the menus show, gathered by <see cref="Game"/> each frame.</summary>
     public struct MenuInfo
@@ -33,10 +33,10 @@ namespace PooketSlug
         public string KitSoldier;
         public System.Collections.Generic.IReadOnlyList<MoveGuide> Kit;
         public int KitMove;
-        /// <summary>The mission screen: its cards, the one picked, whether hard is picked, and whether it was opened from the den.</summary>
+        /// <summary>The mission screen: its cards, the one picked, and whether it was opened from the den.</summary>
         public System.Collections.Generic.IReadOnlyList<MissionCard> Missions;
         public int MissionPick;
-        public bool MissionHard, MissionFromDen;
+        public bool MissionFromDen;
         /// <summary>The tabk loaded in the bay, as the mission screen names it, and its paint; null before there's one.</summary>
         public string MissionTabk;
         public Color MissionTabkPaint;
@@ -77,8 +77,8 @@ namespace PooketSlug
         readonly Button[] m_Cards = new Button[MaxCards];
         readonly Outline[] m_CardEdges = new Outline[MaxCards];
         readonly Text[] m_CardNames = new Text[MaxCards], m_CardPlaces = new Text[MaxCards], m_CardRecords = new Text[MaxCards], m_CardTags = new Text[MaxCards];
-        readonly Button m_HardButton, m_MissionPlay;
-        readonly Text m_HardLabel, m_MissionPlayLabel, m_MissionPlayKey, m_HardKey, m_MissionsBackKey, m_MissionsHint, m_MissionTabk;
+        readonly Button m_MissionPlay;
+        readonly Text m_MissionPlayLabel, m_MissionPlayKey, m_MissionsBackKey, m_MissionsHint, m_MissionTabk;
         MenuScreen m_Shown;
         readonly Latch<MenuAction> m_Clicked = new Latch<MenuAction>();
         bool m_SecondIsLeave; // the victory screen's second button leaves a shared game instead of going to the menu
@@ -192,8 +192,6 @@ namespace PooketSlug
                 m_CardRecords[i] = Ui.Label(card, "Record", Ui.Middle, new Vector2(0f, -14f), 9, TextAnchor.MiddleCenter, Keys);
                 m_CardTags[i] = Ui.Label(card, "Tag", new Vector2(0.5f, 0f), new Vector2(0f, 12f), 9, TextAnchor.LowerCenter, Palette.CoopBlue);
             }
-            m_HardButton = Ui.Button(m_Missions, "NORMAL", new Vector2(0f, -54f), Setting, () => Click(MenuAction.Hard), out m_HardKey);
-            m_HardLabel = Label(m_HardButton);
             m_MissionPlay = Ui.Button(m_Missions, "PLAY", new Vector2(80f, -100f), Narrow, () => Click(MenuAction.Play), out m_MissionPlayKey);
             m_MissionPlayLabel = Label(m_MissionPlay);
             Ui.Button(m_Missions, "BACK", new Vector2(-80f, -100f), Narrow, () => Click(MenuAction.Back), out m_MissionsBackKey);
@@ -334,7 +332,7 @@ namespace PooketSlug
 
         /// <summary>
         /// The mission screen's cards in a row, the picked one edged in gold; a coming-soon card is dimmed and can't be
-        /// picked. The setting button shows only where hard is open, and PLAY says PICK when the den opened the screen.
+        /// picked. PLAY says PICK when the den opened the screen.
         /// </summary>
         void RefreshMissions(in MenuInfo info, bool keys)
         {
@@ -355,14 +353,10 @@ namespace PooketSlug
                 Set(m_CardNames[i], "MISSION " + card.Number);
                 m_CardNames[i].color = card.ComingSoon ? new Color(1f, 1f, 1f, 0.45f) : Palette.Gold;
                 Set(m_CardPlaces[i], card.ComingSoon ? "???" : card.Mission.Place);
-                PooketSlug.Setting setting = picked && info.MissionHard ? PooketSlug.Setting.Hard : PooketSlug.Setting.Normal;
-                Set(m_CardRecords[i], MissionBoard.RecordLine(card, setting));
-                Set(m_CardTags[i], card.SoloOnly ? "SOLO ONLY" : card.HardOpen ? "HARD OPEN" : "");
+                Set(m_CardRecords[i], MissionBoard.RecordLine(card));
+                Set(m_CardTags[i], card.SoloOnly ? "SOLO ONLY" : "");
             }
             MissionCard chosen = count > 0 ? info.Missions[pick] : null;
-            bool hard = chosen != null && chosen.HardOpen;
-            Ui.Show(m_HardButton, hard);
-            if (hard) Set(m_HardLabel, info.MissionHard ? "SETTING: HARD (FOR TWO)" : "SETTING: NORMAL");
             Ui.Show(m_MissionPlay, chosen != null && !chosen.ComingSoon);
             Set(m_MissionPlayLabel, info.MissionFromDen ? "PICK" : "PLAY");
             Set(m_MissionsHint, info.Touch ? "TAP A MISSION, THEN PLAY" : "LEFT / RIGHT PICKS A MISSION");
@@ -373,7 +367,6 @@ namespace PooketSlug
                 m_MissionTabk.color = info.MissionTabkPaint;
             }
             Key(m_MissionPlayKey, keys, "ENTER");
-            Key(m_HardKey, keys, "H");
             Key(m_MissionsBackKey, keys, "ESC");
         }
 
