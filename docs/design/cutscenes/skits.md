@@ -2,8 +2,9 @@
 
 Part of [the cutscenes](README.md), the one script for every scene: the rules, the format and every scene at a glance are there.
 
-Short comic crew moments, written for the skit-scripts card (2026-10-25). Four are the pitch's short list, drafts for
-the owner to pick from; [Two of us now](#two-of-us-now) and [Keep it down](#keep-it-down) are the owner's picks (25 Oct). Staging, art, sound and the build each get their own card once a skit is picked.
+Short comic crew moments, written for the skit-scripts card (2026-10-25). The owner's picks (25 Oct) are [Two of us now](#two-of-us-now),
+[Keep it down](#keep-it-down), [A Trollogram of anything](#a-trollogram-of-anything) (his rework) and
+[They're tracking us](#theyre-tracking-us), with [Does it do cones?](#does-it-do-cones) workshopped by him; the other three are drafts from the pitch's short list, for him to pick from. Staging, art, sound and the build each get their own card once a skit is picked.
 
 **How a skit plays:**
 - **Once ever,** like the den's beats ([the den](den.md)), each under its own once-only key, kept with the player's
@@ -13,20 +14,23 @@ the owner to pick from; [Two of us now](#two-of-us-now) and [Keep it down](#keep
   `DenBeatView`), and the bay's in the bay, as kie's homecoming does (`KieHomecoming`, `BayHomecomingView`). The player's
   walking waits while it plays, and a tap skips it. Afterwards everyone's back where they were.
 - **Speech bubbles only.** The den and the bay have no narrator, and the music is the den's theme throughout.
-- **Solo only.** A skit never plays in a co-op room: it waits for the next visit on your own.
+- **Solo only,** but for They're tracking us, at the debrief, which each phone has its own of. Otherwise a skit never
+  plays in a co-op room: it waits for the next visit on your own.
 - **Always tones2 and kie (and kcaj, once he's home), whoever's picked,** as in the freeing scenes: they're the crew in
   the story. If the soldier you're playing is one of them, that's who you see.
 - **One skit a visit,** never on the same visit as a beat (the first visit, a move-in or a homecoming), except where
-  a skit says it follows one (Two of us now, Probably a Trollogram).
+  a skit says it follows one (Two of us now, A Trollogram of anything).
 
 | Skit | Where | Trigger | Once-only key (proposed) | About |
 |---|---|---|---|---|
 | [Two of us now](#two-of-us-now) | The den | Straight after the first visit, the den's first opening | `skit-two-of-us` | 14 s |
 | [Keep it down](#keep-it-down) | Mission one's coda, in play | The coda getting under way, on a replay | `skit-keep-it-down` | 3 s |
-| [Five-second rule](#five-second-rule) | The den | The den's second opening, the visit after the first visit | `skit-five-second-rule` | 12.5 s |
+| [Five-second rule](#five-second-rule) | The den | The den's second opening, the visit after the first visit | `skit-five-second-rule` | 11 s |
 | [Wanna race?](#wanna-race) | The tabk bay | The first visit to the bay after kie's tabk comes home | `skit-wanna-race` | 18.5 s |
 | [Special delivery](#special-delivery) | The den, between missions | The first time the den opens after a Mission one replay | `skit-special-delivery` | 14 s |
-| [Probably a Trollogram](#probably-a-trollogram) | The den | Straight after kcaj's move-in beat | `skit-probably-a-trollogram` | 19 s |
+| [A Trollogram of anything](#a-trollogram-of-anything) | The den | Straight after kcaj's move-in beat | `skit-trollogram-of-anything` | 15 s |
+| [Does it do cones?](#does-it-do-cones) | The tabk bay | The first visit to the bay after kcaj's tabk comes home | `skit-cones` | 18 s |
+| [They're tracking us](#theyre-tracking-us) | The debrief | Mission two's first clear, solo or co-op | `skit-tracking-us` | 12 s |
 
 ## Two of us now
 
@@ -144,60 +148,55 @@ owner wants it on every replay rather than once, it can drop the key.
 ## Five-second rule
 
 **Plays** in the den, the second time it opens: the first visit after [the first visit](den.md#the-first-visit), after
-Mission one. About 12.5 seconds, three shots; tap to skip. **Who's in it:** tones2 and kie.
+Mission one. About 11 seconds, three shots; tap to skip. **Who's in it:** tones2 and kie.
 
-**What it settles:** where the snacks tones2 brings kie in the motor pool came from ([freeing kie](mission-one.md#freeing-kie)),
-since he dropped the bag in the den in [the opening](mission-one.md#the-opening). He picked them up off the floor on
-his way out.
+**What it rests on:** the snacks tones2 brings kie in the motor pool ([freeing kie](mission-one.md#freeing-kie)) are a
+fresh bag from Family Mart, not the bag he dropped in the den in [the opening](mission-one.md#the-opening) (the owner,
+25 Oct: [story](../story.md#lore)). tones2 says otherwise, to wind kie up, and the bag gives him away.
 
 ```text
-1. INT. THE DEN - NIGHT                                 4.5 s
+1. INT. THE DEN - NIGHT                                 4 s
 
 The den, put back together: lamp light, string lights,
 the TV on. KIE sprawls on the couch with the snack bag
 from the motor pool in his lap, eating. TONES2 is at his
 slushie machine.
 
-kie stops, a chip halfway to his mouth, and looks at it.
+kie stops, a chip halfway to his mouth.
 
                     KIE
           WHERE'D THESE COME FROM?
 
                                                    CUT TO:
 
-2. INT. THE DEN - CONTINUOUS                            5 s
+2. INT. THE DEN - CONTINUOUS                            3.5 s
 
-tones2 looks down at the floor by the side door, where
-the bag burst on raid night. A few chips are still
-there.
-
-SFX: a slurp of slushie.
+tones2 nods at the floor by the side door, where the bag
+burst on raid night. Dead straight face.
 
                     TONES2
           FIVE-SECOND RULE.
 
-kie looks at the chips on the floor. Then at the bag.
-
-                    KIE
-          IT WAS A WHOLE MISSION.
-
                                                    CUT TO:
 
-3. INT. THE DEN - CONTINUOUS                            3 s
+3. INT. THE DEN - CONTINUOUS                            3.5 s
 
-kie shrugs, and eats the chip.
+kie turns the bag round. The label: FAMILY MART, crisp
+and new. He looks at it, then at tones2, unconvinced.
 
-SFX: a crunch.
+tones2 slurps his slushie, loudly.
 
                     KIE
           ...LEGEND.
 
+kie eats the chip.
+
                                             INTO: THE DEN
 ```
 
-**Staging notes:** existing pieces only: the den, kie sitting on the couch (his seat pose), the `bag` in his lap,
-`chips spill` by the side door (where the opening spilled them), tones2 at his station. The chips stay on the floor
-after it, as part of the room, or go: a choice for the staging card.
+**Staging notes:** the den, kie sitting on the couch, the `bag` in his lap, tones2 at his station. New: the bag's
+FAMILY MART label, big enough to read as kie turns it, which the stage's `bag` doesn't have today. Family Mart is a real
+shop, so whether its name goes on screen as it is, or a look-alike label, is the owner's call on the art card.
 
 ## Wanna race?
 
@@ -326,70 +325,210 @@ pose for hanging and lying, and `zz` on kie. The roller door rolls up and down a
 (`DenRollerDoor`). If the owner prefers, its shot 2 could instead be a short prelude to the first visit; then it plays
 once, after Mission one's first debrief, and the replay trigger goes.
 
-## Probably a Trollogram
+## A Trollogram of anything
+
+**Reworked by the owner** (2026-10-25) around this exchange, in his words: "lets make it so that kcaj asks 'can you make
+a trollogram of 'anything'? / kie: yeah why do you ask / ...Silence... / kie: absolutely not."
 
 **Plays** in the den straight after kcaj's [move-in beat](den.md#a-crewmate-moves-in), the first visit after Mission
-two: the one case where a skit follows a beat on the same visit. About 19 seconds, four shots; tap to skip. **Who's in
-it:** tones2, kie and kcaj (up in his nook on the upper floor).
-
-**What it settles:** what the sticky note says that kcaj sticks on tones2's back at the end of
-[freeing kcaj](mission-two.md#freeing-kcaj). It's been on there ever since.
+two: the move-in ends with kcaj heading for his nook, and this picks up as he gets there. About 15 seconds, four shots;
+tap to skip. **Who's in it:** kcaj (up in his nook on the upper floor), kie (at his bench) and tones2 (at his slushie
+machine). The den screen holds all three, so nothing scrolls.
 
 ```text
 1. INT. THE DEN - DAY                                   4 s
 
-kcaj has just gone up to his nook; his corner glows. TONES2
-turns back to his slushie machine, and we see his back:
-the yellow sticky note from the loading yard, still stuck
-there.
+KCAJ, just moved in, stands in his nook on the upper floor
+by his string board, his corner lit. He leans out over
+the rail and looks down at KIE, who is at his bench
+below, tinkering with the projector.
 
-KIE, at his bench, sees it.
-
-                    KIE
-          THERE'S A NOTE ON YOUR BACK.
+                    KCAJ
+          CAN YOU MAKE A TROLLOGRAM OF ANYTHING?
 
                                                    CUT TO:
 
-2. INT. THE DEN - CONTINUOUS                            5 s
+2. INT. THE DEN - CONTINUOUS                            3 s
 
-tones2 turns round to look at it. And round. And round,
-like a dog after its tail. The note stays on his back.
+kie doesn't look up.
 
-                    TONES2
-          WHAT'S IT SAY?
+                    KIE
+          YEAH. WHY DO YOU ASK?
 
                                                    CUT TO:
 
 3. INT. THE DEN - CONTINUOUS                            5 s
 
-kie walks over and peels it off. He reads it out.
+Silence. Nobody speaks.
 
-                    KIE
-          "PROBABLY A TROLLOGRAM."
+kcaj looks at the projector on kie's bench. Then, slowly,
+he turns and looks at his string board: every note, every
+red string. Then he looks back down at kie.
 
-tones2 looks down at his own hands, and turns them over.
+Below them, TONES2 is halfway through a slurp of
+slushie. He stops, straw in his mouth, and looks from one
+to the other.
 
-                    TONES2
-          ...AM I?
+(No bubbles, no sound but the den's music, ducked. The
+silence is the joke: it holds the whole shot.)
 
                                                    CUT TO:
 
-4. INT. THE DEN - CONTINUOUS                            5 s
+4. INT. THE DEN - CONTINUOUS                            3 s
 
-Upstairs, KCAJ leans out of his nook over the rail, a
-pen behind his ear, squinting down at tones2.
+kie puts the screwdriver down.
 
-                    KCAJ
-          STILL CHECKING.
+                    KIE
+          ABSOLUTELY NOT.
 
-                    TONES2
-          OMFG.
+kcaj peels a sticky note off his board, folds it in two
+and tucks it in his pocket, for later.
 
-SFX: a sticky note slapped onto the string board.
+SFX: tones2 finishes the slurp.
 
                                             INTO: THE DEN
 ```
 
-**Staging notes:** existing pieces only: the den (by day, as the move-in beat is), the `note` on tones2's back
-(`note on tones2 -6 16`, where the freeing left it), and the three figures at their places. kie holding the note is
-the note riding on him. kcaj's nook is on the den screen, so nothing scrolls.
+**Staging notes:** existing pieces only: the den (by day, as the move-in beat is), the three figures at their
+stations, kie in his repair pose at the bench, the projector on his bench (painted, and its little Trollogram from his
+idle cycle stays off), the `note` from kcaj's board to his hand. Shot 3 is staged by looks alone: kcaj turning to face
+each thing in order (the bench, the board, kie), and tones2 frozen mid-slurp. The music ducks for it, as it does under
+a line.
+
+**The sticky note on tones2's back** (from [freeing kcaj](mission-two.md#freeing-kcaj)) is no longer this skit's: what it
+says is still open.
+
+## They're tracking us
+
+**Picked by the owner** (2026-10-25: "Absolutely").
+
+**Plays** at [the debrief](mission-one.md#the-first-debrief) on Mission two's first clear, as its numbers count up.
+Once ever. About 12 seconds, three shots. The debrief's first part waits for it, and a tap skips it as it fills the
+numbers. **The one skit that plays in co-op:** each phone shows its own player's debrief, so it plays on each phone
+whose first clear it is, on its own, with nothing to wait for between the two. **Who's in it:** the crew to one side of
+the debrief, tones2, kie and, for the first time, kcaj.
+
+```text
+1. INT. THE DEBRIEF SCREEN                              4 s
+
+MISSION COMPLETE! The crew stand to one side: TONES2,
+KIE, and KCAJ, still a little frosty, on the debrief for
+the first time. The numbers count up: score, time,
+goons.
+
+ACCURACY starts to count. kcaj leans in towards it,
+slowly, and stares.
+
+                    KCAJ
+          ACCURACY? THEY'RE TRACKING US.
+
+                                                   CUT TO:
+
+2. INT. THE DEBRIEF SCREEN - CONTINUOUS                 3.5 s
+
+kie doesn't turn his head.
+
+                    KIE
+          IT'S THE SCORE.
+
+                                                   CUT TO:
+
+3. INT. THE DEBRIEF SCREEN - CONTINUOUS                 4.5 s
+
+                    KCAJ
+          THAT'S WHAT THEY WANT YOU TO THINK.
+
+He peels a sticky note off his pad and slaps it over the
+accuracy number. tones2 looks at the note, and then at
+the player.
+
+SFX: the note.
+
+The note stays there for the rest of the debrief. The
+counting carries on underneath it.
+
+                            INTO: THE DEBRIEF (the XP bar)
+```
+
+**What's new work:** kcaj on the debrief. `DebriefView` draws only tones2 and kie today, so a third figure (kcaj's,
+which the stage already has) and room for him are new; which crew stand on the debrief at all is undecided, and this
+needs at least the freed crew. The `note` is an existing stage prop, but putting it over one of the debrief's numbers
+and keeping it there is new staging. The skit never touches the numbers themselves: the accuracy is still counted and
+saved as before. No narrator, as the debrief has none.
+
+## Does it do cones?
+
+**Workshopped by the owner** (2026-10-25), in his words: "at the mention of 'cones' Kie comes running in - but it's not
+that type ok cone....". What kie hoped for is a wink: nobody names it, and the joke is his face.
+
+**Plays** in [the tabk bay](../lobby.md#the-tabk-bay), the first visit after kcaj's tabk, SOFT SERVE, comes home, after
+Mission two. About 18 seconds, four shots; tap to skip. **It needs kcaj's tabk homecoming first:** that beat isn't
+written yet ([kcaj's tabk](../tabks/kcaj.md) says how the tabk gets home, and nothing plays it), so this skit waits on
+its card. **Who's in it:** tones2, kcaj and kie.
+
+```text
+1. INT. THE TABK BAY - DAY                              4 s
+
+SOFT SERVE in its space downstairs: kcaj's purple and
+gold, the soft-serve machine on top under its striped
+awning, the cone on its antenna. KCAJ leans on it,
+polishing the chrome nozzle.
+
+TONES2 walks up and eyes the swirl on top.
+
+                    TONES2
+          DOES IT DO CONES?
+
+                                                   CUT TO:
+
+2. INT. THE TABK BAY - CONTINUOUS                       4.5 s
+
+Running feet. KIE comes in under the roller door at a
+sprint and pelts the whole length of the bay floor, the
+camera running with him, grinning ear to ear. He skids
+to a stop between them.
+
+SFX: the roller door; running feet; a skid.
+
+                    KIE
+          DID SOMEONE SAY CONES?
+
+                                                   CUT TO:
+
+3. INT. THE TABK BAY - CONTINUOUS                       4 s
+
+kcaj swings the nozzle round on to tones2 with a little
+flourish. The swirl wobbles, and the nozzle pipes out
+two big soft-serve cones, one either side of his aim.
+They splat on tones2, one in each hand.
+
+SFX: the machine's whirr; two splats.
+
+                    KCAJ
+          IT DOES TWO.
+
+                                                   CUT TO:
+
+4. INT. THE TABK BAY - CONTINUOUS                       5.5 s
+
+kie looks at the cones. At tones2, dripping. At the
+cones again. His grin falls, slowly, all the way down.
+
+                    KIE
+          ...OH. THAT KIND.
+
+He turns round and walks back the way he came, slowly,
+hands in his pockets.
+
+tones2, still dripping, licks one of the cones.
+
+                    TONES2
+          ...OMFG.
+
+                                       INTO: THE TABK BAY
+```
+
+**Staging notes:** the bay and SOFT SERVE as they are (its swirl wobble and nozzle pivot are the tabk's own, from
+driving it); the `cones` prop in tones2's hands; kie's run is a walk along the bay with the camera following, as the
+Mission two briefing's is. New: the cones splatting on a soldier (a small effect), and kie's face falling, which his
+figure has no frames for today, so it's his whole pose that sells it (a slump, head down) unless a new face is drawn.

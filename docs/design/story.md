@@ -105,6 +105,14 @@ The second time you meet something, it's quick: a tabk you've already fought onl
 
 In code, every once-only beat the game remembers is one list, `OnceOnly.All` (`Assets/Scripts/Core/Missions/OnceOnly.cs`): its keys are in players' saves and never change. The story check reads that list against this table.
 
+## Lore
+
+Small facts the scenes rest on, canon when the owner says so.
+
+- **The motor pool snacks came from Family Mart** (owner, 2026-10-25: "Canoically - the snacks came from family mart").
+  The bag tones2 hands kie in [freeing kie](cutscenes/mission-one.md#freeing-kie) is a fresh one, not the bag he dropped
+  in the den in [the opening](cutscenes/mission-one.md#the-opening).
+
 ## Open questions
 
 - **Mission order after kcaj**, which sets the order of the story.

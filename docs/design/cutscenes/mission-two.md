@@ -155,7 +155,6 @@ place.
 
 After Trollogram kcaj is beaten on foot ([the pilot round](../tabks/bosses.md#the-pilot-round)), like
 [freeing kie](mission-one.md#freeing-kie). Five shots: shot 1 is the glitch-out, played in the game itself (`Pilot`), not in the scene file; shots 2 to 5 are the scene file, four shots and 23.5 seconds. The scene can be skipped once seen. Intro: kcaj, shot 2.
-**The note** on tones2's back says PROBABLY A TROLLOGRAM (draft, [Probably a Trollogram](skits.md#probably-a-trollogram)).
 **Afterwards:** the next time the den loads, kcaj [moves in](den.md#a-crewmate-moves-in) to his nook on the upper floor and his corner lights
 up.
 
