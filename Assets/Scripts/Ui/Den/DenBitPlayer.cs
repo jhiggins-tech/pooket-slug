@@ -8,8 +8,8 @@ namespace PooketSlug
     /// <summary>
     /// The den's ambient bits (<see cref="DenBits"/>): every so often, while nobody's heading into the mission, two of the
     /// crew do one, the first walking over to the other (beside them at their station, or to the couch's arm) and the two
-    /// trading lines in speech bubbles. A bit ends when it's done, when either of them is picked or leaves, or when the
-    /// camera zooms in.
+    /// trading lines in speech bubbles; two with no bit of their own wave across the room from their stations instead
+    /// (<see cref="DenWave"/>). A bit ends when it's done, when either of them is picked or leaves, or when the camera zooms in.
     /// </summary>
     sealed class DenBitPlayer
     {
@@ -35,6 +35,10 @@ namespace PooketSlug
         public float T => m_BitT;
         /// <summary>The one who walked over, in the bit playing, or null.</summary>
         public DenActor First => m_BitA;
+
+        /// <summary>Whether <paramref name="a"/> has a hand up, waving, in the wave playing (<see cref="DenWave.HandUp"/>).</summary>
+        public bool HandUp(DenActor a) =>
+            m_Bit != null && m_Bit.Wave && (a == m_BitA || a == m_BitB) && DenWave.HandUp(a == m_BitA ? 0 : 1, m_BitT);
 
         /// <summary>The den's opened: no bit, and the first one comes sooner than the rest.</summary>
         public void Begin()
@@ -83,6 +87,13 @@ namespace PooketSlug
                 m_BitT = 0f;
                 m_BitSaidHolo = false;
                 m_BitA.Doing = DenDoing.Bit;
+                if (bit.Wave)
+                {
+                    // a wave: both stop where they are, at their stations, and turn to each other
+                    m_BitB.Doing = DenDoing.Bit;
+                    m_BitB.Walk.Face(m_BitA.X < m_BitB.X);
+                    return;
+                }
                 // walk over to the other one: beside them at their station, or to the couch's arm
                 float to = bit.OnCouch ? CouchArms[m_BitB.Seat == 0 ? 0 : 1] : m_BitB.X + (m_BitB.X > m_BitA.X ? -16f : 16f);
                 m_Crew.Send(m_BitA, to);
@@ -106,21 +117,28 @@ namespace PooketSlug
                 Bubble(shown++, line.Text, line.Who == 0 ? m_BitA : m_BitB);
             }
             HideBubbles(shown);
-            bool partnerGone = m_BitB.Doing == DenDoing.Away || (!m_Bit.OnCouch && m_BitB.Doing != DenDoing.Station) || (m_Bit.OnCouch && !m_BitB.OnCouch);
+            DenDoing partnerStays = m_Bit.Wave ? DenDoing.Bit : DenDoing.Station; // in a wave they're both in it
+            bool partnerGone = m_BitB.Doing == DenDoing.Away || (!m_Bit.OnCouch && m_BitB.Doing != partnerStays) || (m_Bit.OnCouch && !m_BitB.OnCouch)
+                || m_Bit.Wave && m_BitA.Doing != DenDoing.Bit;
             if (m_BitT >= m_Bit.Seconds || partnerGone || den.Zoom >= 0f) EndBit();
         }
 
         void EndBit()
         {
-            DenActor a = m_BitA;
+            DenActor a = m_BitA, b = m_BitB;
             m_Bit = null;
             m_BitA = m_BitB = null;
             HideBubbles(0);
-            if (a != null && a.Doing == DenDoing.Bit)
-            {
-                a.Doing = DenDoing.Walking;
-                a.Walk.WalkTo(a.Home.Floor, a.Home.Spot);
-            }
+            Home(a);
+            Home(b); // the other's in it only in a wave
+        }
+
+        /// <summary>Back to their station (from right beside it, after a wave), unless the bit's not theirs any more.</summary>
+        static void Home(DenActor a)
+        {
+            if (a == null || a.Doing != DenDoing.Bit) return;
+            a.Doing = DenDoing.Walking;
+            a.Walk.WalkTo(a.Home.Floor, a.Home.Spot);
         }
 
         void Bubble(int i, string text, DenActor who)
