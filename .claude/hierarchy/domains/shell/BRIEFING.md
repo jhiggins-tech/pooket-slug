@@ -15,8 +15,9 @@ The map (`.claude/hierarchy/OWNERSHIP.txt`) is the authority. Today it lists:
 - `Assets/Scripts/Input/`
 - `Assets/Scripts/Core/Title/`
 - `Assets/Scripts/Core/Lobby/Profile.cs`, `Assets/Scripts/Core/Lobby/Options.cs`, `Assets/Scripts/Core/Lobby/Ranks.cs`,
-  `Assets/Scripts/Core/Lobby/Debrief.cs`, `Assets/Scripts/Core/Lobby/CoopRoom.cs`, `Assets/Scripts/Core/Lobby/ScreenWords.cs`
-- `Assets/Tests/EditMode/Lobby/CoopRoomTests.cs`, `Assets/Tests/EditMode/Lobby/DebriefTests.cs`,
+  `Assets/Scripts/Core/Lobby/Debrief.cs`, `Assets/Scripts/Core/Lobby/CoopRoom.cs`, `Assets/Scripts/Core/Lobby/ScreenWords.cs`,
+  `Assets/Scripts/Core/Lobby/ControlsLines.cs`
+- `Assets/Tests/EditMode/Lobby/ControlsLinesTests.cs`, `Assets/Tests/EditMode/Lobby/CoopRoomTests.cs`, `Assets/Tests/EditMode/Lobby/DebriefTests.cs`,
   `Assets/Tests/EditMode/Lobby/OptionsTests.cs`, `Assets/Tests/EditMode/Lobby/ProfileTests.cs`,
   `Assets/Tests/EditMode/Lobby/ScreenWordsTests.cs`
 - `Assets/Plugins/WebGL/PooketInvite.jslib`, `Assets/Plugins/WebGL/PooketDemo.jslib`
@@ -61,6 +62,11 @@ Not this domain's, though they sit beside its files: the cutscene flows (`SceneF
 - **HUD units**: a canvas is laid out `Tuning.Hud.Height` tall and as wide as the screen; use the `Ui` helpers
   (`Cover`, `Tap`, `Stretch`, `Rect`, `Label`, `Picture`) and `Tuning.Hud.TapGuard` after a screen appears
   (`Ui.cs`, `Debrief.cs`).
+- **The settings' CONTROLS lines are `ControlsLines.For`** (Core, `ControlsLinesTests`): a kit button is named once
+  the player can use it, as the pad shows it: SU once the super's been met, AB for a soldier with an ability
+  (`ControlsLines.HasAbility`: a cooldown, as `KitMeters.HasAbility`), TEAM once co-op is open (`Game.CoopOpen`). The
+  keys are `InputSources.cs`'s (AB: B / I, left shoulder; TEAM: T / Y, left trigger); change both together. No
+  soldier has an ability yet, so AB shows nowhere today. `docs/design/player.md` names AB but no keys and no TEAM button.
 - **Words players read**: "tabk", never tank; "Trollogram", never hologram; kie is said "k-eye". Identifiers keep
   their names (`CLAUDE.md`). The kit demo clips (`demos/<id>.mp4`) are recorded by CI from the game itself.
 - **Launch flags** (`?test=`, `?unlock=`, `?demo=`, `?room=`, `?mission=`, `?log=`) are read once at start-up into
@@ -115,7 +121,7 @@ Not this domain's, though they sit beside its files: the cutscene flows (`SceneF
 
 ## How it is checked
 `tools/check.sh` (type-check as WebGL, Fusion's weaver, EditMode tests, the scene check, the docs link check); use
-`tools/check.sh compile` for a type change. The shell's own tests are `CoopRoomTests`, `DebriefTests`, `OptionsTests`, `ScreenWordsTests`
+`tools/check.sh compile` for a type change. The shell's own tests are `ControlsLinesTests`, `CoopRoomTests`, `DebriefTests`, `OptionsTests`, `ScreenWordsTests`
 and `ProfileTests` in `Assets/Tests/EditMode/Lobby/`. Input logic is tested by gameplay's `Assets/Tests/EditMode/Input/`
 (`ArcadePadTests`, `LatchTests`, `SoldierInputTests`); the logo's motion by `Assets/Tests/EditMode/Title/TitleMotionTests.cs`
 (sprites). **No test covers `Game.cs`, the menus, the HUD, the title or the kit/mission screens**; they are checked by
@@ -143,8 +149,6 @@ the `gh-pages` branch locally and use `?test=debrief` and Enter through to the m
   and save as normal. One owner question with the item above.
 - **A `?spike=` run writes the profile** like any run (XP, rank, clears, reveals, and the cloud when signed in). The
   briefing used to say it didn't. Whether it should is an owner question (audit, 25 Oct).
-- **The settings' controls lines** leave out the ability (AB; B / I) and the team super (TEAM; T / Y), which
-  `docs/design/player.md` lists (`MenuView.cs`; audit, 25 Oct).
 - **No test pins the save formats**: a test fixing `Options.Bits` for one known set of options, and `Profile`'s JSON
   field names, would hold the "never move a shift / never rename a field" rules (audit, 25 Oct).
 - **The mission screen has room for four cards** (`MenuView.MaxCards`, `MenuAction.Card1`..`Card4`); with four missions

@@ -834,6 +834,8 @@ namespace PooketSlug
                 Screen = MenuScreenNow(),
                 StateTime = m_StateTime,
                 SuperShown = SuperShown,
+                AbilityShown = ControlsLines.HasAbility(Soldier),
+                TeamShown = CoopOpen,
                 Touch = GameInput.TouchActive,
                 CoopJustOpened = m_CoopJustOpened,
                 InCoop = m_Coop,
