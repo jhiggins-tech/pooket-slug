@@ -58,8 +58,8 @@ So the rules are known, they just aren't written down or built.
 ### 4. The trapdoor is drawn in code
 
 `Ui/Den/DenTrapdoor` draws the hatch over the den's floor, because the painting
-has no hatch in it. It's a flat grey rectangle in a painted room, and it should
-match the boards. Folded into the annotated edit above.
+has no hatch in it. It's flat colour in a painted room (a dark hole with a plain
+brown strip for the hatch), and it should match the boards. Folded into the annotated edit above.
 
 ### 5. The shower block's saloon doors
 

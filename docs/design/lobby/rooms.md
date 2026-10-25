@@ -55,6 +55,11 @@ With OpenRouter's Qwen Image 2.1 Turbo, and **two image references**:
    art rather than a photograph. A whole plate as the second reference makes the
    model copy that room instead of drawing the one asked for.
 
+That is the kitchen's recipe. The other six plates in the game were made with the
+**blocks** reference instead (`tools/room_ref.py --blocks`: a labelled layout of plain
+blocks), with the den's and the loft's finished plates beside it as the style guide
+([the plates](plates/README.md#how-theyre-made)).
+
 The style line goes in front of every prompt, and the reference's caption between
 it and the plate's own prompt. **The exact wording matters**: the provider's
 moderation blocks some combinations, and it isn't deterministic. [The notes](../art.md#the-houses-room-plates)

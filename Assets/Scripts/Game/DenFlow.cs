@@ -31,7 +31,7 @@ namespace PooketSlug
         /// <summary>You came back out of one of the outer rooms: the den takes over again.</summary>
         public void RoomClosed() => m_View.Show();
 
-        /// <summary>Opens the den: to start a solo mission, to look round the crew, or a co-op room's lobby.</summary>
+        /// <summary>Opens the den: to start a solo mission, or a co-op room's lobby (DenMode.Crew, looking round the crew, is still handled, but nothing opens it now).</summary>
         public void Show(DenMode mode)
         {
             m_Den = new Den(mode, m_Game.Freed, m_Game.Soldier);
