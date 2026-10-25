@@ -9,12 +9,11 @@ namespace PooketSlug
     /// The den's beats, drawn (<see cref="DenBeat"/>, in Core): on the first visit, the raid's wreck over the den, fading
     /// as the room warms up, with kie heaving at the couch and tones2 down at the TV's plug; moving in, the newcomer under
     /// the roller door and walking in, their corner lighting up. The crewmates in it are drawn here, and hidden in
-    /// <see cref="DenCrew"/> while it plays; the line is a speech bubble.
+    /// <see cref="DenCrew"/> while it plays; the line is a speech bubble. Its figures stand where <see cref="DenBeat"/> puts
+    /// them, in the painting's pixels (<see cref="StageFigure.AtPlate"/>, as <see cref="DenCrew"/> stands the crew).
     /// </summary>
     sealed class DenBeatView
     {
-        /// <summary>Where kie heaves the couch from (by its left arm) and where tones2 kneels at the TV's plug, on the ground floor.</summary>
-        public const float HeaveX = 76f, PlugX = 162f;
 
         readonly RectTransform m_World;
         readonly Image m_Raid;
@@ -102,7 +101,7 @@ namespace PooketSlug
             bool heaving = beat.Heave > 0f && beat.Heave < 1f;
             f.Pose(skin, new StagePose(StageLegs.Idle, heaving ? StageTorso.Lounge : StageTorso.Unarmed, 0f, heaving ? -1f : 0f));
             float strain = heaving ? Fx.Shiver(clock, 18f, 0.5f) : 0f;
-            f.At(HeaveX + strain, DenMap.FloorY(DenFloor.Ground));
+            f.AtPlate(DenBeat.HeaveX + strain, DenMap.FloorY(DenFloor.Ground));
             f.Rt.localScale = Vector3.one; // facing the couch, to his right
             f.Tint(Color.white);
         }
@@ -114,7 +113,7 @@ namespace PooketSlug
             Ui.Show(f.Rt, true);
             bool down = beat.Plug > 0f && beat.Plug < 1f;
             f.Pose(skin, new StagePose(down ? StageLegs.Jump : StageLegs.Idle, down ? StageTorso.Lounge : StageTorso.Unarmed, 0f, down ? -3f : 0f));
-            f.At(PlugX, DenMap.FloorY(DenFloor.Ground));
+            f.AtPlate(DenBeat.PlugX, DenMap.FloorY(DenFloor.Ground));
             f.Rt.localScale = new Vector3(-1f, 1f, 1f); // facing the TV, to his left
             f.Tint(Color.white);
         }
@@ -124,19 +123,15 @@ namespace PooketSlug
         {
             PlayerSkin skin = Art.SkinFor(beat.Newcomer);
             Ui.Show(f.Rt, true);
-            Vector2 sill = DenRollerDoor.Sill;
-            float through = beat.Through, x = NewcomerX(beat);
+            float through = beat.Through;
             bool walking = through < 1f && beat.Walked < 1f;
             f.Pose(skin, StagePose.Walking(walking, clock));
-            f.At(x, Mathf.Lerp(DenMap.FloorY(DenFloor.Ground), sill.y, through));
+            f.AtPlate(beat.NewcomerX, beat.NewcomerY);
             Color shade = Color.Lerp(Color.white, new Color(0.15f, 0.15f, 0.2f), through);
             f.Tint(shade);
             float size = 1f - 0.2f * through;
             bool lookBack = beat.Walked >= 1f && Fx.Blink(clock, 1.5f); // looking round their corner
             f.Rt.localScale = new Vector3((lookBack ? 1f : -1f) * size, size, 1f);
         }
-
-        /// <summary>Where the newcomer is along the ground floor now.</summary>
-        public static float NewcomerX(DenBeat beat) => DenRollerDoor.Sill.x - DenBeat.WalkIn * beat.Walked;
     }
 }

@@ -100,6 +100,15 @@ gameplay domain's: `BayFlow` and `BayView` call them.
 ## The invariants
 - The den is drawn on the cutscene domain's stage (`StageKit`, `StageScreen`, `StageFigure.Pose`). Do not change
   `Assets/Scripts/Stage/`; ask, and the handover says what the den must adapt to.
+- Every place in the den, the bay and the rooms is in the painting's own pixels, and a figure stands there by
+  `StageFigure.AtPlate` (or `anchoredPosition = place * Px`, as `DenCrew` does). Never `StageFigure.At`: it scales the
+  position by `FigureScale` too (the figures are drawn a fifth bigger since 22 Oct), so it stood the den's beats, kie's
+  homecoming and the bay's walker 20% right and up of their maps until cutscene-polish (25 Oct); kcaj moving in walked
+  in from off the screen's right edge. Only the debrief uses `At`. The beats' spots are Core's: `DenBeat.HeaveX`,
+  `PlugX`, `NewcomerX` / `NewcomerY`, from the roller door's opening (`DenMap.RollerX` to `RollerH`, `SillX`, `SillY`,
+  which `DenRollerDoor` draws), and the homecoming's kie is `BayMap.HomecomingKie` (beside his tabk on the bay's floor,
+  y 13, then up at its hatch). (`DenBeatsTests.TheBeatsPlaces_AreThePaintings_AndOnTheScreen`,
+  `BayMapTests.KiesHomecoming_StandsHimBesideHisTabk_ThenUpAtItsHatch`)
 - Everything is drawn for the 22 px soldier (`DenMap.SoldierHeight`). A new room's doors are about 37 px (1.5 to 1.9
   times him), a ladder's rungs 3 to 8 px apart, and headroom is at least the soldier's height. The loft and bunks are
   checked against this; the ground and upper floors are not (see Known unfinished).

@@ -24,6 +24,12 @@ namespace PooketSlug
         public const float UpTo = 0.6f, StepTo = 1.0f, WalkTo = 2.6f, HiFrom = 1.2f, HiTo = 2.8f, LitAt = 1.8f, LitTo = 2.2f, DownFrom = 2.4f;
         /// <summary>How far the newcomer walks in from the door.</summary>
         public const float WalkIn = 40f;
+        /// <summary>
+        /// Where kie heaves the couch from (by its left arm) and where tones2 kneels at the TV's plug, on the ground floor.
+        /// Like every place in the den, in the painting's pixels: the beat's figures stand there by
+        /// <c>StageFigure.AtPlate</c>, as the crew does, so they're where the den's crew picks up from when it ends.
+        /// </summary>
+        public const float HeaveX = 76f, PlugX = 162f;
 
         public readonly DenBeatKind Kind;
         /// <summary>Who moves in (null for the first visit), and who says the line.</summary>
@@ -79,6 +85,10 @@ namespace PooketSlug
 
         /// <summary>How far in from the door they've walked (0 at the door, 1 <see cref="WalkIn"/> in).</summary>
         public float Walked => Between(T, StepTo, WalkTo);
+
+        /// <summary>Where the newcomer's feet are now: from the roller door's sill (<see cref="DenMap.SillX"/>), stepping down onto the ground floor and walking in.</summary>
+        public float NewcomerX => DenMap.SillX - WalkIn * Walked;
+        public float NewcomerY => DenMap.FloorY(DenFloor.Ground) + (DenMap.SillY - DenMap.FloorY(DenFloor.Ground)) * Through;
 
         /// <summary>Their corner lighting up: 0 dark, 1 lit.</summary>
         public float Lit => Kind != DenBeatKind.MoveIn ? 1f : Between(T, LitAt, LitTo);

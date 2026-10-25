@@ -17,6 +17,21 @@ namespace PooketSlug.Tests
             Assert.AreEqual(StageLegs.Idle, stand.Legs);
             Assert.AreEqual(StageTorso.Forward, stand.Torso);
             Assert.AreEqual(0f, stand.TorsoX);
+            Assert.AreEqual(0f, stand.Tilt, "upright");
+        }
+
+        // freeing kie: he drops in a heap. The crew's down frame (legs kicked up, the body), toppled flat, no art of its own
+        [Test]
+        public void Down_IsTheCrewsDownFrame_ToppledFlat()
+        {
+            StagePose down = StagePose.Cutscene("down", 0.4f, 10f);
+            Assert.AreEqual(CrewLegs.Jump, CrewFigure.Down.Legs(0f), "the game's down legs, drawn by StageLegs.Jump");
+            Assert.AreEqual(StageLegs.Jump, down.Legs);
+            Assert.AreEqual(CrewBody.Forward, down.Body);
+            Assert.AreEqual(90f, down.Tilt, "flat on his back");
+            Assert.AreEqual(CrewFigure.DownTilt(10f), down.Tilt, "as far as the game's down topples");
+            foreach (string pose in new[] { "idle", "run", "crouch", "spray", "hatch", "repair" })
+                Assert.AreEqual(0f, StagePose.Cutscene(pose, 0.4f, 10f).Tilt, pose + " stands up");
         }
 
         [Test]

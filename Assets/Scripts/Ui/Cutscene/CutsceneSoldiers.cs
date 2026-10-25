@@ -26,8 +26,8 @@ namespace PooketSlug
             // keycard's and the string board's close-ups), not to wherever the shot before left them
             f.AtPlate(at.x, ground + at.y);
             if (!on) return;
-            string pose = stage.Pose(name, t);
-            f.Pose(skin, StagePose.Cutscene(pose, t, runRate));
+            StagePose pose = StagePose.Cutscene(stage.Pose(name, t), t, runRate);
+            f.Pose(skin, pose);
             Color tint = stage.Colour(name, t, now);
             if (stage.Look(name, t) == "trollo")
             {
@@ -37,6 +37,7 @@ namespace PooketSlug
             }
             f.Tint(tint);
             f.Rt.localScale = new Vector3(stage.Facing(name, t), 1f, 1f);
+            f.Rt.localRotation = Quaternion.Euler(0f, 0f, pose.Tilt * stage.Facing(name, t)); // down: on their back, as the game topples a soldier
             f.AtPlate(at.x, ground + at.y); // where the scene puts them, in the plate's pixels; only the figure is drawn bigger
         }
 

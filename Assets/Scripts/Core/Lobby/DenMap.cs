@@ -26,6 +26,10 @@ namespace PooketSlug
         public const float LoftLeft = 19f, LoftRight = 401f, LoftY = 180f, LoftH = 164f;
         /// <summary>The soldier's height, which everything is drawn to (docs/design/lobby.md, Den 2.0: Scale).</summary>
         public const float SoldierHeight = 22f;
+        /// <summary>The roller door's opening in the den's painting: its left edge, bottom, width and height (<c>DenRollerDoor</c> draws it).</summary>
+        public const float RollerX = 261f, RollerY = 26f, RollerW = 41f, RollerH = 54f;
+        /// <summary>The opening's bottom middle: where you stand to step through it, and where a crewmate moving in steps out.</summary>
+        public const float SillX = RollerX + RollerW / 2f, SillY = RollerY;
 
         /// <summary>Where a soldier's feet are on each floor.</summary>
         public static float FloorY(DenFloor floor)

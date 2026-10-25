@@ -206,5 +206,22 @@ namespace PooketSlug.Tests
                     Assert.That(boxTop, Is.LessThan(BayMap.FloorY(BayDeck.Top) - 4f), c.Name + " in spot " + s);
                 }
         }
+
+        // kie's homecoming stands him where the bay's painting puts things, as the walker and the tabks are: beside his
+        // tabk's back on the bay's floor, then up and in at its hatch, and on the bay's first screen throughout
+        [Test]
+        public void KiesHomecoming_StandsHimBesideHisTabk_ThenUpAtItsHatch()
+        {
+            var (x0, y0) = BayMap.HomecomingKie(0f);
+            Assert.AreEqual(BayMap.HomecomingKieX, x0);
+            Assert.AreEqual(BayMap.FloorY(BayDeck.Floor), y0, "on the floor the player walks on");
+            Assert.That(x0, Is.GreaterThan(BayMap.StandX + BayMap.TabkW / 2f), "clear of his tabk's back");
+            Assert.That(x0 + 12f * Staging.FigureGrow, Is.LessThan(320f), "on the bay's first screen");
+            Assert.That(BayMap.HomecomingWeaselX, Is.GreaterThan(x0), "the weasel beside him");
+            var (x1, y1) = BayMap.HomecomingKie(1f);
+            Assert.That(x1, Is.InRange(BayMap.StandX - BayMap.TabkW / 2f, BayMap.StandX + BayMap.TabkW / 2f), "over his tabk");
+            Assert.That(y1, Is.GreaterThan(BayMap.StandY + BayMap.TabkHOf(TabkCards.Kie.Id) / 2f), "up at its hatch");
+            Assert.AreEqual(BayMap.HomecomingKie(1f), BayMap.HomecomingKie(3f), "and no further");
+        }
     }
 }

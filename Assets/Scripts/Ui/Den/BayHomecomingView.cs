@@ -15,8 +15,8 @@ namespace PooketSlug
     {
         /// <summary>Tabks in the bay are 1.5 times the game's sprite (<see cref="BayView"/>).</summary>
         const float Scale = BayMap.Scale;
-        /// <summary>kie beside his tabk (behind it: it faces left, toward the door), and where the weasel sits.</summary>
-        const float KieX = BayMap.StandX + 52f, WeaselX = BayMap.StandX + 64f;
+        /// <summary>Where the weasel sits (<see cref="BayMap.HomecomingWeaselX"/>).</summary>
+        const float WeaselX = BayMap.HomecomingWeaselX;
         /// <summary>How high the crane holds the projector before it lowers it.</summary>
         const float CraneLift = 70f;
         static readonly Color Legs = new Color(0.35f, 0.3f, 0.25f), Boots = new Color(0.15f, 0.12f, 0.12f), Fur = new Color(0.72f, 0.5f, 0.3f);
@@ -133,14 +133,14 @@ namespace PooketSlug
             }
             bool standing = !under && k1 < 2f;
             Ui.Show(m_Kie.Rt, standing);
-            Vector2 kieAt = new Vector2(KieX, ground);
+            float climb = Mathf.Clamp01(k1 - 1f);
+            var (kieX, kieY) = BayMap.HomecomingKie(climb); // beside it, climbing, or in at its hatch (where his lines come from once he's in)
+            Vector2 kieAt = new Vector2(kieX, kieY);
             if (standing)
             {
                 PlayerSkin skin = Art.SkinFor(Content.Kie);
-                float climb = Mathf.Clamp01(k1 - 1f);
-                kieAt = Vector2.Lerp(new Vector2(KieX, ground), new Vector2(feet.x + 8f, ground + 30f), climb);
                 m_Kie.Pose(skin, climb > 0f ? new StagePose(StageLegs.Jump, StageTorso.Lounge) : new StagePose(StageLegs.Idle, StageTorso.Unarmed));
-                m_Kie.At(kieAt.x, kieAt.y);
+                m_Kie.AtPlate(kieAt.x, kieAt.y); // in the bay's pixels, as the tabks and the weasel are
                 m_Kie.Rt.localScale = new Vector3(-1f, 1f, 1f) * (1f - 0.3f * climb); // facing his tabk and the door
             }
 

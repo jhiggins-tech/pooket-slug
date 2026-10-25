@@ -1,5 +1,5 @@
 // How a soldier on a stage stands (a cutscene, the den, its rooms, the bay, a den beat, the debrief): which legs and which top
-// (a frame of the crew's figure, CrewFigure), where in their walk, and the top's nudge. Every screen poses its figures through this, and StageFigure draws it.
+// (a frame of the crew's figure, CrewFigure), where in their walk, the top's nudge, and how far they've toppled (down). Every screen poses its figures through this, and StageFigure draws it.
 namespace PooketSlug
 {
     /// <summary>A stage soldier's legs.</summary>
@@ -18,6 +18,12 @@ namespace PooketSlug
         /// <summary>The walk's frames a second.</summary>
         public float WalkFps;
         public float TorsoX, TorsoY;
+        /// <summary>
+        /// Degrees the whole figure has toppled onto its back (the crew's down, <see cref="CrewFigure.DownTilt"/>): 0 upright,
+        /// 90 flat. The screen turns it about the feet the way the soldier faces, as the game turns a downed soldier
+        /// (<see cref="CrewFrame.Tilt"/>: this times their facing, +1 right).
+        /// </summary>
+        public float Tilt;
 
         public StagePose(StageLegs legs, StageTorso torso, float torsoX = 0f, float torsoY = 0f)
         {
@@ -27,6 +33,7 @@ namespace PooketSlug
             WalkFps = Clips.StageWalk.Fps;
             TorsoX = torsoX;
             TorsoY = torsoY;
+            Tilt = 0f;
         }
 
         /// <summary>Standing still, facing the camera.</summary>
@@ -50,6 +57,12 @@ namespace PooketSlug
         /// </summary>
         public static StagePose Climbing(float t) => new StagePose(StageLegs.Jump, StageTorso.Lounge) { WalkT = t };
 
+        /// <summary>
+        /// Down in a heap: the crew's down frame (<see cref="CrewFigure.Down"/>: legs kicked up, the body as it was), toppled
+        /// flat onto their back. No art of its own.
+        /// </summary>
+        public static StagePose Down => new StagePose(StageLegs.Jump, StageTorso.Forward) { Tilt = CrewFigure.DownTilt(float.PositiveInfinity) };
+
         /// <summary>The crew figure's body frame the top shows (repairing steps through its clip, <see cref="WalkT"/> seconds in).</summary>
         public CrewBody Body
         {
@@ -71,8 +84,8 @@ namespace PooketSlug
 
         /// <summary>
         /// A cutscene's pose by its name in the scene files: <c>run</c>, <c>crouch</c>, <c>spray</c> (the top leans into
-        /// the spray), <c>hatch</c> (just their top half, in a tabk's hatch), <c>repair</c> (crouched, working a wrench);
-        /// anything else stands.
+        /// the spray), <c>hatch</c> (just their top half, in a tabk's hatch), <c>repair</c> (crouched, working a wrench),
+        /// <c>down</c> (in a heap on their back, <see cref="Down"/>); anything else stands.
         /// </summary>
         public static StagePose Cutscene(string pose, float t, float runFps)
         {
@@ -84,6 +97,7 @@ namespace PooketSlug
                 case "spray": p.TorsoX = -1f; break;
                 case "hatch": p.Legs = StageLegs.Hidden; break;
                 case "repair": return Repairing(t);
+                case "down": return Down;
             }
             return p;
         }

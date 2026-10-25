@@ -150,7 +150,7 @@ namespace PooketSlug
         public static readonly string[] Common = { "show", "hide", "at", "move", "turn", "size", "colour", "fade", "flicker", "blink", "shake", "on" };
         /// <summary>The verbs the soldiers have besides.</summary>
         public static readonly string[] FigureVerbs = { "walk", "face", "pose", "look", "holds", "sway" };
-        public static readonly string[] Poses = { "idle", "run", "crouch", "spray", "hatch", "repair" };
+        public static readonly string[] Poses = { "idle", "run", "crouch", "spray", "hatch", "repair", "down" };
         public static readonly string[] Looks = { "plain", "holo", "trollo" };
 
         /// <summary>Colours by name; anything else is written #rrggbb or #rrggbbaa.</summary>
