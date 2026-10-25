@@ -1,5 +1,6 @@
 # The house map (house-layout-in-repo; run: python3 docs/design/lobby/house.py docs/design/lobby/house-layout.svg): the den, its upper floor, the loft and the bunks, the tabk
-# bay, and the outer rooms behind the doors (the kitchen and the back yard, the basement, the rooftop), drawn to scale in the game's art pixels from what the
+# bay, and the outer rooms behind the doors (the kitchen and the back yard, the basement and the bunker, the rooftop, the shower block and the
+# wintergarden), drawn to scale in the game's art pixels from what the
 # game builds (Core/Lobby/DenMap.cs, BayMap.cs, Ui/Den/DenRoom.cs's stations). Writes an SVG for docs/design/lobby/.
 import sys
 
