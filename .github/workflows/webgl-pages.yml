@@ -630,8 +630,8 @@ jobs:
           if-no-files-found: ignore
           retention-days: 7 # GitHub's default is 90; a run's files are only read for a few days
 
-  # The main line goes live only once every co-op test has passed (the drop-in spike's may fail), from the build
-  # the tests played.
+  # The main line goes live only once every co-op test has passed (only the drop-in co-op round is optional), from
+  # the build the tests played.
   deploy-live:
     name: Deploy the live game
     needs: [plan, build-and-deploy, coop-test]

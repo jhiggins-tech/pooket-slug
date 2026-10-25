@@ -10,13 +10,14 @@ Up: [Netcode](README.md)
 
 | Screen | Keys | What happens |
 |---|---|---|
-| Title | **Enter / X** play solo · **H** or **CO-OP**: join the co-op room | The online line only appears when the build has the SDK *and* an AppId. Otherwise it reads *Online co-op is off in this build* |
+| Title | **Enter / X** START · SETTINGS | The title has START and SETTINGS only. Co-op is reached from the den |
+| Den | **H**: join the co-op room, where everyone meets in the one room, MATES | Only when the build has the SDK *and* an AppId, and co-op is open. Otherwise it reads *Online co-op is off in this build* |
 | Den, in the room | **H** or tap the TV: share or copy the invite link | The TV shows the room's name (MATES) and how many are watching |
 | Connecting | **Esc** cancel | Shows the session's status text. On failure, back to the title with a red notice for 8 s |
 | Playing (co-op) | **Esc** twice within 2 s to leave | The bottom line shows the room's name, players (n/2) and ping. While alone it shows *Waiting for a partner* and an invite link |
 | Mission complete | **Enter** play again · **Esc** leave | Either player's Enter restarts both |
 
-There's no pause in co-op, and no game over: fallen soldiers come back.
+There's no pause in co-op. Each player has their own lives and continues (`Tuning.Lives`, `LifeBank`): a fallen soldier with a life left comes back after about 2.5 s.
 
 ## Starting a session
 
@@ -40,7 +41,7 @@ runner.StartGame(new StartGameArgs {
 
 ## One room
 
-- **There's one co-op room, `MATES`, always there** (Jack, 18 Oct: few enough players, all mates). CO-OP on the title, or the den's spare controller, joins it; the first phone in opens it. [`CoopRoom`](../../../Assets/Scripts/Core/Lobby/CoopRoom.cs) names it, with [tests](../verification/edit-mode-tests.md). Hosting, room codes, the join box, quick match, the room browser and the public / invite-only switch are gone (they were built 14–17 Oct).
+- **There's one co-op room, `MATES`, always there** (Jack, 18 Oct: few enough players, all mates). H in the den, or the den's spare controller, joins it; the first phone in opens it. [`CoopRoom`](../../../Assets/Scripts/Core/Lobby/CoopRoom.cs) names it, with [tests](../verification/edit-mode-tests.md). Hosting, room codes, the join box, quick match, the room browser and the public / invite-only switch are gone (they were built 14–17 Oct).
 - **Each build has its own room.** `AppVersion` is `Application.version`, so a preview's players meet each other, not the main line's.
 - **`?room=NAME` names another room** (upper-cased; an old `-EU` region suffix is ignored). The CI co-op rounds use it so rounds running at once, and real players, never meet. The den's invite is just the page link, or the page plus `?room=NAME` from another room.
 - **Every game is in one Photon region: Australia (`au`),** the owner's choice (NET-05), set with `FixedRegion` from `NetConfig.Region`. A build can name another region with `-photonRegion` (`pooket-net.json`); the workflow doesn't pass one. Players far from Australia get more lag.
@@ -60,14 +61,14 @@ runner.StartGame(new StartGameArgs {
 ## Testing by hand
 
 1. Open https://jhiggins-tech.github.io/pooket-slug/?unlock=coop in two windows side by side, or on two devices. Co-op stays hidden until Mission one is beaten solo ([design](../../design/levels.md#what-the-player-sees-and-when)); `?unlock=coop` opens it for that visit without saving.
-2. Window A: press **H**, or tap **CO-OP**. It opens the MATES room and the den.
+2. Window A: start the game to reach the den and press **H** there. It opens the MATES room.
 3. Window B: the same. Without `unlock`, a player who hasn't beaten Mission one is told co-op opens after it. To keep out of anyone else's way, add `&room=TEST` to both windows' links.
 4. Check:
-   - red P1 and blue P2 soldiers
+   - two soldiers, each in their own colours, with red and blue tags and hearts for the seats
    - the same enemies on both screens
    - a crate goes to whoever touches it first
    - the screen scrolls for both, and won't leave the trailing soldier behind
-   - a death respawns after about 2.5 s
+   - a fall with a life left respawns after about 2.5 s
 5. In A, press **Esc** twice. B should continue alone with *Waiting for a partner*, and log `This client now runs the shared world`.
 6. A third window, with both seats taken, watches.
 

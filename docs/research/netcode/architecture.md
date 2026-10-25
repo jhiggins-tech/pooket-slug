@@ -37,7 +37,7 @@ Known trade-off: clients trust each other. A modified client could claim hits or
   - `IAvatarLink` is a remote soldier. `NetEnemyState` and `NetPickupState` are snapshot entries, and `NetLimits` holds the tables' sizes.
 - **The netcode never sees `World` either:** it talks to `INetEvents`. That keeps the boundary in one place, and it is why the Fusion code is its own assembly.
 - **The Fusion implementation lives in [`Assets/Scripts/Net/`](../../../Assets/Scripts/Net/),** in its own assembly, `PooketSlug.Net`. It references Core and the SDK, and only compiles when `FUSION2` is defined (a define constraint). Nothing references it, so the compiler keeps game code from touching Fusion. It registers itself through `NetSessions.Factory`; without the SDK, the factory stays `null` and the title screen offers solo only.
-- **Inside it, `NetSession` connects and `NetReplication` shares.** `NetSession` joins the one co-op room (to play or to watch), reports failures and owns the runner. `NetReplication` holds the `PlayerNet`, `WorldNet` and `BossNet` objects, is the game's `INetLink`, and passes the RPCs' events to `INetEvents`. Reconnects will grow in `NetSession`.
+- **Inside it, `NetSession` connects and `NetReplication` shares.** `NetSession` joins the one co-op room (to play or to watch), reports failures and owns the runner. `NetReplication` ([`NetReplication.cs`](../../../Assets/Scripts/Net/NetReplication.cs)) is the replicated side of a session: the game's `INetLink` onto the `PlayerNet`, `WorldNet` and `BossNet` objects (each its own file), which passes the RPCs' events on to `INetEvents`. Reconnects will grow in `NetSession`.
 - **`World` takes an optional `INetLink`.** `null` means solo, and solo behaviour is unchanged.
 
 ## Replicated state
@@ -54,6 +54,13 @@ Sizes are in words of 4 bytes, as the weaver recorded them when this was written
 | `NetSoldier` (`byte`) | Which soldier they play, as a `SoldierDef` id. Their partner's game uses it for the soldier's size and health |
 | `NetTabk` (`byte`) | The tabk they have loaded (`TabkCard.Id`, 0 before they've said), so the partner's bay shows it taken (`CoopTabks`, 21 Oct) |
 | `NetRound` (`int`) | `World.Round + 1` once playing; 0 = still in the lobby. Lets clients ignore a soldier that hasn't reached the current round |
+| `NetTank` (`int`) | `TankPose.Pack()`: their tabk's flags, 0 for none |
+| `NetTankPos` (`Vector2`) | Where their tabk is |
+| `NetDen` (`byte`) | `Den.Flags` while they're in the den (the lobby), 0 once playing |
+| `NetScene` (`int`) | `CutsceneSync.Pack()`: their taps while in a co-op cutscene, else 0 |
+| `NetScenes` (`int`) | `SceneLibrary.Versions`: which copies of the scenes they play, so both phones play the same |
+| `NetScore` (`int`) | Their own points, from their kills (the shared score is everyone's, in `WorldNet`) |
+| `NetBeat` (`byte`) | `PartnerBeacon.BeatAt`: changes four times a second while their game runs, so `MasterWatch` can tell when it goes quiet |
 
 There's no colour on the wire: everyone wears their own (21 Oct, `NetSkin` retired). A player's seat, P1 or P2, is worked out on each phone: player one is whoever runs the shared world (`NetReplication.SeatOf`).
 
@@ -67,13 +74,13 @@ There's no colour on the wire: everyone wears their own (21 Oct, `NetSkin` retir
 | `Score` (`int`), `Victory` (`NetworkBool`) | Team score, mission won |
 | `NextSpawn` (`int`) | Spawn cursor into `Level.Spawns`, so followers place props and a new master continues from it |
 | `NextNetId` (`int`) | The next id for something spawned mid-game, so a new master doesn't reuse one |
-| `Enemies` (`NetworkArray<NetEnemy>`, capacity 24) | `NetEnemy`: `Ref` (the enemy's id + 1, 0 = empty), `Kind` (the `EnemyDef` id), `Flags` (dying, facing, moving, engaged, grounded), `Hp`, `Pos`. 6 words each |
+| `Enemies` (`NetworkArray<NetEnemy>`, capacity 24) | `NetEnemy`: `Ref` (the enemy's id + 1, 0 = empty), `Kind` (the `EnemyDef` id), `Flags` (dying, facing, moving, engaged, grounded, frozen by Mission two's nitrogen, and disguised: kie's tabk wearing its Trollogram look among its copies), `Hp`, `Pos`. 6 words each |
 | `Pickups` (`NetworkArray<NetPickup>`, capacity 16) | `NetPickup`: `Ref` (the pickup's id + 1, 0 = empty), `Kind` (the `PickupDef` id), `Pos`. 4 words each. A pickup leaves the table when the master gives it to someone |
 
 - **An enemy's or pickup's identity comes from [`NetIds`](../../../Assets/Scripts/Core/Platform/NetIds.cs).** A level spawn's id is its index in `Level.Spawns`, which every client knows without a message. Anything spawned mid-game gets the ids after those (`Spawner.SpawnEnemy`, `Spawner.SpawnPickup`), from `NextNetId`, which a new master continues from. The snapshot carries the id, so followers make the enemy or pickup on first sight.
 - **The tables hold what's live, not the whole level.** A slot frees when its enemy is gone or its pickup is given out, so a mission can have any number of each. The sizes are in `NetLimits` (Core). If more are live than fit, the newest wait until older ones are gone. Pickups never despawn, so a [test](../verification/edit-mode-tests.md) checks that all of Mission one's fit at once.
 - **Followers remember what they collected,** so a snapshot that arrives late doesn't bring a pickup back. A pickup that leaves the table before its grant arrives is collected then (the state beat the message).
-- **The boss is a network object of its own,** `BossNet` (`Assets/Scripts/Net/BossNet.cs`). It carries the boss tabk's state (phase, aim, charge, power, landing) for the followers.
+- **The boss is a network object of its own,** `BossNet` (`Assets/Scripts/Net/BossNet.cs`). It carries the boss tabk's state (`NetBossState`: phase, turret aim, charge, power, landing, the count of shots fired, and kie's roulette: spinning or holding what it stole, whether the charging shot lands anywhere, how close it is to dropping the loot and how many times it has) for the followers. Like `WorldNet`, it's a master-client object.
 - **Writes happen from Unity's `Update`, not `FixedUpdateNetwork`.** Shared Mode lets the state authority set networked properties at any time. Fusion's own Shared-Mode sample does the same (`PlayerInteract.Update()` → `[Networked]` writes).
 
 ## RPCs
@@ -104,7 +111,7 @@ Fusion rules worth knowing (2.1.3):
 The project has no prefab assets, so `NetPrefabs.Register()` in [`NetPrefabs.cs`](../../../Assets/Scripts/Net/NetPrefabs.cs) builds each network "prefab" in code the first time a session starts:
 
 1. Create a `GameObject` under an **inactive** root (`[Network Templates]`, `DontDestroyOnLoad`), so the template itself never runs.
-2. Add a `NetworkObject` and the behaviour (`PlayerNet` or `WorldNet`), and set the object flags: `DestroyWhenStateAuthorityLeaves` for players, `MasterClientObject` for the world.
+2. Add a `NetworkObject` and the behaviour (`PlayerNet`, `WorldNet` or `BossNet`), and set the object flags: `DestroyWhenStateAuthorityLeaves` for players, `MasterClientObject` for the world and the boss.
 3. Bake it with a `NetworkObjectBaker` subclass that reports an execution order. Otherwise the baker warns about inactive objects.
 4. Register it in `NetworkProjectConfig.Global.PrefabTable` with a `NetworkPrefabSourceStatic { Object = template, AssetGuid = <fixed GUID>, AssetPath = name }`, which documents itself as able to "point to an asset or to a runtime-created object".
 5. Spawn by the returned `NetworkPrefabId`. Every client registers the same templates in the same order, so the IDs line up. Fusion's default object provider instantiates the template (at the scene root, so active) when the object spawns on each peer.
@@ -116,7 +123,7 @@ Scene-object registration isn't affected. Fusion's scene manager only collects `
 `World.Tick` runs from `Game.Update` at the game's own frame rate. It doesn't use Fusion's tick. The world's systems are in [`Assets/Scripts/World/`](../../../Assets/Scripts/World/), and `NetSync` is the co-op side:
 
 ```text
-Sync.Pull()       remote soldiers ← RemoteAvatars (add/remove RemotePlayer puppets), local skin
+Sync.Pull()       remote soldiers ← RemoteAvatars (add/remove RemotePlayer puppets), partners' own scores
                   followers only: Score, Victory, pickup and enemy snapshots → create/update/remove them
 Player.Tick, RemotePlayer.Tick, Spawner.SpawnAhead, Enemies/Projectiles/Pickups/Effects.Tick
 Combat.Collide()  our shots vs enemies (authority applies, followers report), enemy shots vs *our* soldier only,
@@ -144,7 +151,7 @@ The session delivers its events (shots, hits, pickups, damage) to `NetSync` too.
 
 - **Hostile projectiles and explosions only hurt the local soldier.** On a remote soldier they just detonate visually.
 - **The master's runner slashes and tank contact go through `Combat.DamageAvatar`:** local soldier → `Hurt`; remote soldier → `RPC_Hurt`, throttled to once per 0.5 s per soldier.
-- **No game over in co-op.** A dead soldier respawns after `Tuning.Coop.RespawnDelay` (2.5 s) at the left edge of the shared screen, with full health, at least 5 charges of the special (grenades, for today's soldier) and 2.5 s of invulnerability.
+- **Lives are each player's own** (`LifeBank`, `Tuning.Lives`). A fallen soldier with a life left respawns after `Tuning.Lives.RespawnDelay` (2.5 s) at the left edge of the shared screen, with full health, at least `Tuning.Lives.RespawnMinSpecials` (5) charges of the special (grenades, for today's soldier) and 2.5 s of invulnerability.
 
 ## Restart and rounds
 
