@@ -15,9 +15,10 @@ The map (`.claude/hierarchy/OWNERSHIP.txt`) is the authority. Today it lists:
 - `Assets/Scripts/Input/`
 - `Assets/Scripts/Core/Title/`
 - `Assets/Scripts/Core/Lobby/Profile.cs`, `Assets/Scripts/Core/Lobby/Options.cs`, `Assets/Scripts/Core/Lobby/Ranks.cs`,
-  `Assets/Scripts/Core/Lobby/Debrief.cs`, `Assets/Scripts/Core/Lobby/CoopRoom.cs`
+  `Assets/Scripts/Core/Lobby/Debrief.cs`, `Assets/Scripts/Core/Lobby/CoopRoom.cs`, `Assets/Scripts/Core/Lobby/ScreenWords.cs`
 - `Assets/Tests/EditMode/Lobby/CoopRoomTests.cs`, `Assets/Tests/EditMode/Lobby/DebriefTests.cs`,
-  `Assets/Tests/EditMode/Lobby/OptionsTests.cs`, `Assets/Tests/EditMode/Lobby/ProfileTests.cs`
+  `Assets/Tests/EditMode/Lobby/OptionsTests.cs`, `Assets/Tests/EditMode/Lobby/ProfileTests.cs`,
+  `Assets/Tests/EditMode/Lobby/ScreenWordsTests.cs`
 - `Assets/Plugins/WebGL/PooketInvite.jslib`, `Assets/Plugins/WebGL/PooketDemo.jslib`
 
 Not this domain's, though they sit beside its files: the cutscene flows (`SceneFlow`, `BossIntroFlow`), the den's
@@ -79,6 +80,12 @@ Not this domain's, though they sit beside its files: the cutscene flows (`SceneF
   button asks for. `MenuInfo` is what `Game` gathers each frame for the menus; `HudView` takes a `HudInfo`.
 - The den's way into co-op is its **+ MATE** button on the couch (`DenConsole`, key H), and its invite is the TV's
   **TAP TO INVITE**. There is no CO-OP button anywhere now; text that says "press CO-OP" is stale.
+- **`ScreenWords`** (`Core/Lobby/ScreenWords.cs`, `ScreenWordsTests`): the shell's words that name a button
+  elsewhere (the co-op HUD's waiting line, the victory screen's co-op line, the mission screen's PICK / PLAY and its
+  hint) and the kit's keyboard key, `KitKey` B. The kit opens on `AbilityPressed`, which is B or I
+  (`InputSources.cs`); B is the one shown, on the den's ⓘ (`DenConsole`), the pause menu's YOUR KIT and the kit
+  screen's ability move. A screen line that points at a button goes here, with a test (dca-old-coop-words, 25 Oct).
+  `DenConsole` still spells "+ MATE" itself: using `ScreenWords.MateButton` there is the den's to do.
 - The **victory screen** (`MenuScreen.Victory`) shows only when a win has no debrief: a sandbox run, or watching a
   room. Every other win goes straight to the debrief (`Game.EndRun`, `MenuScreenNow`).
 - The flows: `BoardFlow` (mission screen), `KitFlow` (the ⓘ screen), `DebriefFlow`, `DemoFlow` (`?demo=`),
@@ -100,13 +107,15 @@ Not this domain's, though they sit beside its files: the cutscene flows (`SceneF
   A spike run is *not* kept off it: nothing checks `Spike.Any` (see Known unfinished).
 - A demo or a scripted sandbox take hides the build line, frame rate and start banner so the clip is clean
   (`HudView` info flag).
+- `m_CoopJustOpened` (`Game`) is set by the win that opened co-op and cleared by `NewTitleWorld` and `BeginCoop`, so
+  only that run's victory screen could say it (in practice that win goes to the debrief).
 - Core folders know nothing of Unity's scene or the network: `Core/Title`, `Core/Lobby/*` here stay plain C#.
 - The title's backdrop stays behind Settings. The logo's entrance plays once a visit and a tap skips it.
 - The build is the CI's: there is no Unity licence in a cloud session, so a screen is judged from the preview link.
 
 ## How it is checked
 `tools/check.sh` (type-check as WebGL, Fusion's weaver, EditMode tests, the scene check, the docs link check); use
-`tools/check.sh compile` for a type change. The shell's own tests are `CoopRoomTests`, `DebriefTests`, `OptionsTests`
+`tools/check.sh compile` for a type change. The shell's own tests are `CoopRoomTests`, `DebriefTests`, `OptionsTests`, `ScreenWordsTests`
 and `ProfileTests` in `Assets/Tests/EditMode/Lobby/`. Input logic is tested by gameplay's `Assets/Tests/EditMode/Input/`
 (`ArcadePadTests`, `LatchTests`, `SoldierInputTests`); the logo's motion by `Assets/Tests/EditMode/Title/TitleMotionTests.cs`
 (sprites). **No test covers `Game.cs`, the menus, the HUD, the title or the kit/mission screens**; they are checked by
@@ -134,13 +143,6 @@ the `gh-pages` branch locally and use `?test=debrief` and Enter through to the m
   and save as normal. One owner question with the item above.
 - **A `?spike=` run writes the profile** like any run (XP, rank, clears, reveals, and the cloud when signed in). The
   briefing used to say it didn't. Whether it should is an owner question (audit, 25 Oct).
-- **The co-op HUD's waiting line** says "THE NEXT MATE TO PRESS CO-OP JOINS YOU" (`HudView.cs`), but the den's button
-  is + MATE. Player text, so it waits for the owner (audit, 25 Oct).
-- **The victory screen's co-op line** ("CO-OP IS OPEN: PLAY ONLINE WITH A FRIEND FROM THE MENU", `MenuView.cs`) names
-  the menu, not the den, and `m_CoopJustOpened` is never cleared, so after the win that opened co-op, a room watched
-  later in the same visit shows it on its victory screen (audit, 25 Oct).
-- **The mission screen's hint** says "TAP A MISSION, THEN PLAY" while its button says PICK whenever it's opened from the
-  den, which is always (`MenuView.RefreshMissions`; audit, 25 Oct).
 - **The settings' controls lines** leave out the ability (AB; B / I) and the team super (TEAM; T / Y), which
   `docs/design/player.md` lists (`MenuView.cs`; audit, 25 Oct).
 - **No test pins the save formats**: a test fixing `Options.Bits` for one known set of options, and `Profile`'s JSON

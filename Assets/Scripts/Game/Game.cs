@@ -216,6 +216,7 @@ namespace PooketSlug
         /// <summary>The solo world again, for the mission picked: the title's, the den's, a new solo game's.</summary>
         internal void NewTitleWorld()
         {
+            m_CoopJustOpened = false; // that win's line is said; a later victory screen isn't the one that opened co-op
             m_World.Dispose();
             m_World = NewWorld(Mission);
         }
@@ -518,6 +519,7 @@ namespace PooketSlug
         /// <summary>Connected: swap the title/solo world for the shared one (also after a co-op restart).</summary>
         internal void BeginCoop()
         {
+            m_CoopJustOpened = false; // a room's win (watched or played) didn't open co-op
             m_World.Dispose();
             m_World = NewWorld(Missions.ForCoop(Missions.ByNetId(m_Net.Link.Mission) ?? Mission), m_Net.Link); // Mission one is solo only
             if (m_Net.Watching) m_World.Spectate();

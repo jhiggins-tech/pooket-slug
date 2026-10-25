@@ -190,10 +190,12 @@ shell Assets/Scripts/Core/Lobby/Options.cs
 shell Assets/Scripts/Core/Lobby/Ranks.cs
 shell Assets/Scripts/Core/Lobby/Debrief.cs
 shell Assets/Scripts/Core/Lobby/CoopRoom.cs
+shell Assets/Scripts/Core/Lobby/ScreenWords.cs
 shell Assets/Tests/EditMode/Lobby/CoopRoomTests.cs
 shell Assets/Tests/EditMode/Lobby/DebriefTests.cs
 shell Assets/Tests/EditMode/Lobby/OptionsTests.cs
 shell Assets/Tests/EditMode/Lobby/ProfileTests.cs
+shell Assets/Tests/EditMode/Lobby/ScreenWordsTests.cs
 
 # ---------------------------------------------------------------- story
 # The plot: what happens, in what order, and what each reveal is. A change to the

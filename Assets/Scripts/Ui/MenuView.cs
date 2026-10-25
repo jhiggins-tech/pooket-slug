@@ -142,7 +142,7 @@ namespace PooketSlug
             Line(m_Victory, 60f, 32, Palette.Gold).text = "MISSION COMPLETE!";
             m_Result = Line(m_Victory, 20f, 14, Color.white);
             m_Opened = Line(m_Victory, -2f, 12, Palette.CoopBlue);
-            m_Opened.text = "CO-OP IS OPEN: PLAY ONLINE WITH A FRIEND FROM THE MENU";
+            m_Opened.text = ScreenWords.CoopOpened;
             m_Again = Ui.Button(m_Victory, "PLAY AGAIN", new Vector2(-70f, -40f), Wide, () => Click(MenuAction.Restart), out m_AgainKey);
             m_SecondVictory = Ui.Button(m_Victory, "MENU", new Vector2(70f, -40f), Wide, () => Click(m_SecondIsLeave ? MenuAction.Back : MenuAction.Menu), out m_SecondKey);
             m_SecondLabel = Label(m_SecondVictory);
@@ -257,7 +257,7 @@ namespace PooketSlug
                     Key(m_ResumeKey, keys, "P");
                     Key(m_RestartKey, keys, "R");
                     Key(m_MenuKey, keys, "ESC");
-                    Key(m_PauseKitKey, keys, "I");
+                    Key(m_PauseKitKey, keys, ScreenWords.KitKey);
                     break;
                 case MenuScreen.Kit:
                     Dim(new Color(0f, 0f, 0f, 0.8f));
@@ -364,8 +364,8 @@ namespace PooketSlug
             Ui.Show(m_HardButton, hard);
             if (hard) Set(m_HardLabel, info.MissionHard ? "SETTING: HARD (FOR TWO)" : "SETTING: NORMAL");
             Ui.Show(m_MissionPlay, chosen != null && !chosen.ComingSoon);
-            Set(m_MissionPlayLabel, info.MissionFromDen ? "PICK" : "PLAY");
-            Set(m_MissionsHint, info.Touch ? "TAP A MISSION, THEN PLAY" : "LEFT / RIGHT PICKS A MISSION");
+            Set(m_MissionPlayLabel, ScreenWords.MissionGo(info.MissionFromDen));
+            Set(m_MissionsHint, ScreenWords.MissionHint(info.Touch, info.MissionFromDen));
             Ui.Show(m_MissionTabk, info.MissionTabk != null);
             if (info.MissionTabk != null)
             {
@@ -390,7 +390,7 @@ namespace PooketSlug
                 case KitSlot.Fire: return "X";
                 case KitSlot.Special: return "C";
                 case KitSlot.Super: return "V";
-                default: return "B";
+                default: return ScreenWords.KitKey; // the ability's key, which also opens the kit
             }
         }
 
