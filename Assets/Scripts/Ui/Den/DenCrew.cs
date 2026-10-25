@@ -6,11 +6,13 @@ using static PooketSlug.StageKit;
 
 namespace PooketSlug
 {
-    /// <summary>A crewmate's figure (<see cref="StageFigure"/>), with tones2's slushie; sitting, the torso drops and the legs fold (the off-duty poses: <see cref="CrewBody.Pad"/>).</summary>
+    /// <summary>A crewmate's figure (<see cref="StageFigure"/>), with tones2's slushie and kcaj's two cones; sitting, the torso drops and the legs fold (the off-duty poses: <see cref="CrewBody.Pad"/>).</summary>
     sealed class DenFigure
     {
         public readonly StageFigure Body;
         public readonly Image Cup;
+        /// <summary>kcaj's two cones (<see cref="KcajArt.Cone"/>), upright, the back one first.</summary>
+        public readonly Image[] Cones = new Image[2];
         public RectTransform Rt => Body.Rt;
         public Image Legs => Body.Legs;
         public Image Torso => Body.Torso;
@@ -19,6 +21,13 @@ namespace PooketSlug
         {
             Body = new StageFigure(world, name);
             Cup = Ui.Picture(Rt, "Slushie", CutsceneSnacks.Tiny, Ui.Middle, Ui.Middle, new Vector2(6f, 0f) * Px, new Vector2(3f, 5f) * Px, Color.white);
+            for (int i = 0; i < Cones.Length; i++)
+            {
+                // the cone flies nose first, to the right: turned a quarter clockwise it stands scoops up, tip down
+                Cones[i] = Ui.Picture(Rt, "Cone", KcajArt.Cone, Ui.Middle, Ui.Middle, Vector2.zero, new Vector2(6f, 3.6f) * Px, Color.white);
+                Cones[i].rectTransform.localRotation = Quaternion.Euler(0f, 0f, -90f);
+                Ui.Show(Cones[i], false);
+            }
         }
     }
 
@@ -47,7 +56,8 @@ namespace PooketSlug
     /// den and loft by you (<see cref="Mine"/>), and each other freed crewmate at their station running little idle loops,
     /// walking home when swapped out (by the ladder, as everyone goes between floors), away while a co-op partner plays
     /// them in the mission, or on the couch as the partner's pick; a partner whose soldier isn't freed here walking in as a
-    /// visitor; and the station props that move with them (tones2's spray, kie's tiny Trollogram, the weasel, the bits' slushie).
+    /// visitor; and the station props that move with them (tones2's spray, kie's tiny Trollogram, the weasel, kcaj's sticky
+    /// note, the bits' slushie).
     /// </summary>
     sealed class DenCrew
     {
@@ -55,7 +65,7 @@ namespace PooketSlug
         readonly System.Random m_Rng;
         readonly List<DenActor> m_Actors = new List<DenActor>();
         readonly Image[] m_Drops = new Image[6];
-        Image m_Holo, m_Weasel, m_Splash;
+        Image m_Holo, m_Weasel, m_Splash, m_Note;
         DenFigure m_Visitor;
         DenActor m_VisitorActor;
         float m_Clock;
@@ -68,6 +78,9 @@ namespace PooketSlug
 
         /// <summary>The bits the crew do (set once both are made): swapping someone in ends theirs, and the slushie bit has props.</summary>
         public DenBitPlayer Bits;
+
+        /// <summary>How dim the screen's edges are, 0 to 1: kcaj hyperfixating on his string board (<see cref="KcajIdle.Dim"/>).</summary>
+        public float Hyperfixate { get; private set; }
 
         public DenCrew(RectTransform world, System.Random rng)
         {
@@ -84,9 +97,10 @@ namespace PooketSlug
 
         // ------------------------------------------------------------------ made in drawing order (DenView)
 
-        /// <summary>The station props that move: tones2's spray, kie's tiny Trollogram and the weasel, and the bits' slushie.</summary>
+        /// <summary>The station props that move: tones2's spray, kie's tiny Trollogram and the weasel, kcaj's note, and the bits' slushie.</summary>
         public void MakeProps()
         {
+            m_Note = Picture("Sticky note", 0f, 0f, 3f, 3f, new Color(1f, 0.92f, 0.35f));
             for (int i = 0; i < m_Drops.Length; i++) m_Drops[i] = Picture("Water", 0f, 0f, 3f, 2f, new Color(0.45f, 0.75f, 1f));
             m_Holo = Picture("Tiny Trollogram", Holo.x, Holo.y, 6f, 9f, new Color(0.45f, 1f, 1f, 0.7f));
             m_Weasel = Picture("Weasel", WeaselHole.x, WeaselHole.y, 5f, 4f, new Color(0.72f, 0.5f, 0.3f));
@@ -269,6 +283,7 @@ namespace PooketSlug
             else if (climbing) shiver = Fx.Shiver(m_Clock, 6f, 0.5f); // hand over hand
             StageLegs legs = seated ? StageLegs.Sit : climbing ? StageLegs.Jump : walking ? StageLegs.Walk : StageLegs.Idle;
             StageTorso top = seated ? StageTorso.Pad : lounging ? StageTorso.Lounge : StageTorso.Unarmed;
+            if (Bits.HandUp(a)) top = StageTorso.Lounge; // a wave: the hand up, and down again
             float x = seated ? SeatX[a.Seat] : a.X, y = seated ? SitY : a.Y;
             Vector2 sill = DenRollerDoor.Sill; // the step through the roller door walks the soldier through the door
             float through = a == Mine ? Through : 0f;
@@ -293,12 +308,20 @@ namespace PooketSlug
             bool cup = a.Soldier == Content.Tones2 && (a.Doing == DenDoing.Station && a.Cycle == 0 || a.Doing == DenDoing.Bit && Bits.Slushie && Bits.T < 3.4f);
             Ui.Show(f.Cup, cup);
             if (cup) f.Cup.rectTransform.anchoredPosition = new Vector2(5f, a.Doing == DenDoing.Station && a.CycleT > 0.6f && a.CycleT < 2.2f ? 8f : 1f) * Px;
+            bool cones = a.Soldier == Content.Kcaj && a.Doing == DenDoing.Station && a.Cycle == KcajIdle.Cones;
+            bool biting = cones && KcajIdle.Biting(a.CycleT); // both at once
+            for (int i = 0; i < f.Cones.Length; i++)
+            {
+                Ui.Show(f.Cones[i], cones);
+                if (cones) f.Cones[i].rectTransform.anchoredPosition = new Vector2(i == 0 ? 3f : 6f, (biting ? 8f : 1f) + (i == 0 ? 1f : 0f)) * Px;
+            }
         }
 
         /// <summary>
         /// A crewmate at their station runs short idle loops, then breathes for a bit (docs/design/lobby.md, Who lives where):
         /// tones2 slurps the slushie and gets brain freeze, or sprays the machine clean; kie tinkers with the projector, which
-        /// flickers a tiny Trollogram of him, or a weasel pops out of the birdhouse.
+        /// flickers a tiny Trollogram of him, or a weasel pops out of the birdhouse; kcaj eats two cones at once, or sticks a
+        /// note on his string board as the screen's edges dim (<see cref="KcajIdle"/>).
         /// </summary>
         void Idle(DenActor a, out float bob, out float shiver)
         {
@@ -318,6 +341,8 @@ namespace PooketSlug
                 if (a.Cycle == 0 && a.CycleT > 2.2f && a.CycleT < 3.4f) shiver = Fx.Shiver(m_Clock, 30f, 0.6f); // brain freeze
             }
             else if (a.Soldier == Content.Kie) a.Walk.Face(a.Cycle == 0); // the projector's on the bench behind him
+            else if (a.Soldier == Content.Kcaj && a.Cycle == KcajIdle.Note && a.CycleT >= KcajIdle.DimFrom && a.CycleT < KcajIdle.DimTo)
+                shiver = Fx.Shiver(m_Clock, 12f, 0.3f); // locked on: a faint tremble while the edges dim
         }
 
         /// <summary>The station props that move: tones2's spray, kie's tiny Trollogram and the weasel, and the bits' slushie.</summary>
@@ -343,6 +368,18 @@ namespace PooketSlug
             bool weasel = kie != null && kie.Doing == DenDoing.Station && kie.Cycle == 1;
             Ui.Show(m_Weasel, weasel);
             if (weasel) m_Weasel.rectTransform.anchoredPosition = new Vector2(WeaselHole.x, WeaselHole.y + Mathf.Max(0f, Mathf.Sin(kie.CycleT * 2.4f)) * 4f) * Px;
+            DenActor kcaj = Find(Content.Kcaj);
+            bool noting = kcaj != null && kcaj.Doing == DenDoing.Station && kcaj.Cycle == KcajIdle.Note && !InBeat(kcaj);
+            int note = noting ? KcajIdle.NoteAt(kcaj.CycleT) : 0;
+            Ui.Show(m_Note, note > 0);
+            if (note > 0)
+            {
+                // in his front hand, then up on the string board above his head
+                float side = kcaj.Walk.FaceLeft ? -1f : 1f;
+                Vector2 at = note == 1 ? new Vector2(kcaj.X + side * 5f, kcaj.Y + 19f) : new Vector2(kcaj.X + side * 7f, kcaj.Y + 30f);
+                m_Note.rectTransform.anchoredPosition = at * Px;
+            }
+            Hyperfixate = noting ? KcajIdle.Dim(kcaj.CycleT) : 0f;
             bool splash = Bits.Slushie && Bits.T > 3.5f;
             Ui.Show(m_Splash, splash);
             if (splash && first != null) m_Splash.rectTransform.anchoredPosition = new Vector2(first.X + 9f, first.Y) * Px;

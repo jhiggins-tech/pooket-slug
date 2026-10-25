@@ -189,5 +189,114 @@ namespace PooketSlug.Tests
             // lobby.md: loops of 3 to 6 seconds
             Assert.That(DenIdle.LoopSeconds, Is.InRange(3f, 6f));
         }
+    
+        // docs/design/lobby.md, Crew interactions: a pair with no bit just waves
+        [Test]
+        public void APairWithNoBit_JustWaves_AndAPairWithOneNever()
+        {
+            var none = new List<SoldierDef>();
+            Assert.IsTrue(DenBits.HaveABit(Content.Tones2, Content.Kie));
+            Assert.IsTrue(DenBits.HaveABit(Content.Kie, Content.Tones2), "either way round");
+            Assert.IsFalse(DenBits.HaveABit(Content.Kcaj, Content.Tones2));
+            Assert.IsFalse(DenBits.HaveABit(Content.Kcaj, Content.Kie));
+
+            var rng = new System.Random(5);
+            for (int i = 0; i < 200; i++)
+            {
+                Assert.IsFalse(DenBits.Choose(Both, none, null, rng).Wave, "tones2 and kie have a bit, so they never just wave");
+                DenBit w = DenBits.Choose(new[] { Content.Kcaj, Content.Tones2 }, none, null, rng);
+                Assert.IsTrue(w.Wave, "kcaj and tones2 have no bit: a wave");
+                Assert.IsFalse(w.OnCouch);
+                Assert.AreEqual(0, w.Lines.Length, "a wave says nothing");
+                Assert.That(new[] { w.First, w.Second }, Is.EquivalentTo(new[] { Content.Kcaj, Content.Tones2 }));
+            }
+            Assert.IsNull(DenBits.Choose(new[] { Content.Kcaj }, new[] { Content.Tones2 }, null, rng), "no wave to the couch");
+        }
+
+        [Test]
+        public void EitherOfAPair_CanWaveFirst_AndAWaveDoesntPlayTwiceInARow()
+        {
+            var none = new List<SoldierDef>();
+            var rng = new System.Random(9);
+            var all = new[] { Content.Tones2, Content.Kie, Content.Kcaj };
+            bool kcajFirst = false, kcajSecond = false, slushie = false, waveKie = false, waveTones2 = false;
+            DenBit last = null;
+            for (int i = 0; i < 400; i++)
+            {
+                DenBit b = DenBits.Choose(all, none, last, rng);
+                Assert.IsFalse(b.Same(last), "never the same twice in a row while another fits");
+                if (b.Wave)
+                {
+                    if (b.First == Content.Kcaj) kcajFirst = true;
+                    if (b.Second == Content.Kcaj) kcajSecond = true;
+                    SoldierDef other = b.First == Content.Kcaj ? b.Second : b.First;
+                    Assert.AreNotEqual(Content.Kcaj, other);
+                    if (other == Content.Kie) waveKie = true;
+                    if (other == Content.Tones2) waveTones2 = true;
+                }
+                else if (b.Id == "slushie") slushie = true;
+                last = b;
+            }
+            Assert.IsTrue(kcajFirst && kcajSecond, "either one starts the wave");
+            Assert.IsTrue(slushie && waveKie && waveTones2, "all three idle: the slushie, and kcaj waving with each of them");
+            Assert.IsTrue(DenWave.Of(Content.Kcaj, Content.Kie).Same(DenWave.Of(Content.Kie, Content.Kcaj)), "a wave's the same either way round");
+        }
+
+        [Test]
+        public void AWave_TheFirstWaves_ThenTheSecondWavesBack()
+        {
+            Assert.That(DenWave.Seconds, Is.LessThanOrEqualTo(DenBits.MinGap), "a wave's over well before the next bit");
+            Assert.IsFalse(DenWave.Waving(0, 0f) || DenWave.Waving(1, 0f), "they turn to each other first");
+            Assert.IsTrue(DenWave.Waving(0, 0.5f) && !DenWave.Waving(1, 0.5f), "the first waves");
+            Assert.IsTrue(DenWave.Waving(0, 1.5f) && DenWave.Waving(1, 1.5f), "the second waves back as the first finishes");
+            Assert.IsTrue(!DenWave.Waving(0, 2.2f) && DenWave.Waving(1, 2.2f));
+            Assert.IsFalse(DenWave.Waving(0, DenWave.Seconds) || DenWave.Waving(1, DenWave.Seconds), "both done when it ends");
+            for (int who = 0; who < 2; who++)
+            {
+                bool up = false, down = false;
+                for (float t = 0f; t < DenWave.Seconds; t += 1f / 60f)
+                {
+                    if (!DenWave.Waving(who, t)) Assert.IsFalse(DenWave.HandUp(who, t), "the hand's down when not waving");
+                    else if (DenWave.HandUp(who, t)) up = true;
+                    else down = true;
+                }
+                Assert.IsTrue(up && down, "the hand goes up and down: a wave, not a raised hand");
+            }
+        }
+
+        // docs/design/lobby.md, Who lives where: kcaj eats two cones at once, or adds a note to the string board and the edges dim
+        [Test]
+        public void KcajsLoops_FitInALoop_AndTheDimComesAndGoes()
+        {
+            Assert.AreEqual(DenIdle.Loops, 2, "two loops, like the others");
+            int bites = 0;
+            bool was = false;
+            for (float t = 0f; t < DenIdle.LoopSeconds; t += 1f / 60f)
+            {
+                bool now = KcajIdle.Biting(t);
+                if (now && !was) bites++;
+                was = now;
+            }
+            Assert.AreEqual(3, bites, "three bites");
+            Assert.IsFalse(KcajIdle.Biting(DenIdle.LoopSeconds - 0.01f), "the cones are down by the loop's end");
+
+            Assert.AreEqual(0, KcajIdle.NoteAt(0f));
+            Assert.AreEqual(1, KcajIdle.NoteAt((KcajIdle.NoteInHand + KcajIdle.NoteUp) / 2f), "in his hand");
+            Assert.AreEqual(2, KcajIdle.NoteAt(DenIdle.LoopSeconds - 0.01f), "stuck up by the end");
+            Assert.That(KcajIdle.NoteUp, Is.LessThan(KcajIdle.DimFrom), "the note's up before the edges dim");
+
+            Assert.AreEqual(0f, KcajIdle.Dim(0f));
+            Assert.AreEqual(0f, KcajIdle.Dim(DenIdle.LoopSeconds), "gone by the loop's end, so the breath isn't dimmed");
+            Assert.That(KcajIdle.DimTo, Is.LessThanOrEqualTo(DenIdle.LoopSeconds));
+            Assert.AreEqual(1f, KcajIdle.Dim((KcajIdle.DimFull + KcajIdle.DimHold) / 2f), 0.0001f, "for a moment, fully");
+            float prev = 0f;
+            for (float t = 0f; t <= DenIdle.LoopSeconds; t += 1f / 60f)
+            {
+                float d = KcajIdle.Dim(t);
+                Assert.That(d, Is.InRange(0f, 1f));
+                Assert.That(System.Math.Abs(d - prev), Is.LessThan(0.1f), "it fades, never snaps");
+                prev = d;
+            }
+        }
     }
 }

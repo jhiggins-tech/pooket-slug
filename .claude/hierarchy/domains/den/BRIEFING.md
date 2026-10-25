@@ -60,6 +60,15 @@ gameplay domain's: `BayFlow` and `BayView` call them.
   there. `BayMap.TabkH` stays as tones2's and the empty spot's. (`BayMapTests`)
 - A crewmate's station idle alternates: a loop at random, then a breath, never two loops back to back (`DenIdle` in
   `Den.cs`, `DenTests.IdleLoops_AlwaysHaveABreathBetweenThem`; `docs/design/lobby.md`, Who lives where).
+- kcaj's two loops are `KcajIdle` (Core, `Den.cs`): two cones at once (three bites, both up together), and a sticky note
+  stuck on the string board while the screen's edges dim (`DenView.Edges`, only on the den screen, under the buttons).
+  His idles never move him off his spot at x 60, so his tap box (`DenCrew.At`, 18 px wide) stays inside the board's
+  area; `DenView.Tapped` checks the crew before places, so a tap on him swaps to him and the board is the rest of its
+  area. (`DenTests.KcajsLoops_FitInALoop_AndTheDimComesAndGoes`)
+- Two idle crewmates with no bit of their own just wave (`DenWave`, `DenBits.Choose`, `DenBits.HaveABit`): both stay at
+  their stations, the first waves and the second waves back, no lines; either can go first, and a wave is one of the
+  choices like a bit, never the same pair twice in a row while another fits. No waves to the couch. The wave's hand is
+  the lounge torso's raised arm, up and down (`DenBitPlayer.HandUp`). (`DenTests`, the three wave tests)
 - A rule found in a view or flow (`DenView`, `DenFlow`, `BayView`) moves into Core with tests in the same commit as
   the change that touches it. A big view file is split by part when next changed. (`CLAUDE.md`, Audit 2)
 
@@ -127,4 +136,6 @@ branch's preview, with `?unlock=crew` to fill the den. A new `.cs` needs a `.met
 - The painting of each unfreed crewmate's corner and the second room for the coming-soon crew are not built.
 - The cargo drone's hook (`Garage`'s `DroneShow`, gameplay's file) still uses `BayMap.TabkH` for every tabk, so it
   dips 9 px into kie's and kcaj's tops; it should use `BayMap.TabkHOf`. Handed to gameplay (dca-den-fixes).
-- The bits and lines are placeholders awaiting the owner's rewrite in the crew's voice (`DenBits`, `lobby.md`).
+- The bits and lines are placeholders awaiting the owner's rewrite in the crew's voice (`DenBits`, `lobby.md`). kcaj's two bits (with
+  torikloud, who isn't in the game, and the cone for tones2) wait on that rewrite (dca-kcaj-den, owner: "Idles now"), so
+  every pair with kcaj in it only waves for now; when a bit is added for a pair, `HaveABit` stops their wave.

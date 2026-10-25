@@ -211,6 +211,14 @@ namespace PooketSlug
             Seconds = seconds;
             Lines = lines;
         }
+
+        /// <summary>A wave across the room (<see cref="DenWave"/>): nobody walks over, and nobody speaks.</summary>
+        public bool Wave => Id == DenWave.Id;
+
+        /// <summary>The same bit by the same two (either way round, for a wave): the den doesn't play one twice in a row.</summary>
+        public bool Same(DenBit other) =>
+            other != null && other.Id == Id &&
+            (other.First == First && other.Second == Second || Wave && other.First == Second && other.Second == First);
     }
 
     /// <summary>The bits, and how the den picks the next one. The lines are placeholders for the owner to rewrite.</summary>
@@ -231,15 +239,27 @@ namespace PooketSlug
 
         /// <summary>
         /// The next bit for the crew as they are: <paramref name="idle"/> at their stations, <paramref name="seated"/> on
-        /// the couch. Never the one just played (<paramref name="last"/>) if another fits. Null when none fits.
+        /// the couch. Two idle crewmates with no bit of their own just wave (<see cref="DenWave"/>), and a wave is one of
+        /// the choices like any bit. Never the one just played (<paramref name="last"/>) if another fits. Null when none fits.
         /// </summary>
         public static DenBit Choose(IReadOnlyList<SoldierDef> idle, IReadOnlyList<SoldierDef> seated, DenBit last, System.Random rng)
         {
             var fits = new List<DenBit>();
             foreach (DenBit b in All)
                 if (Contains(idle, b.First) && Contains(b.OnCouch ? seated : idle, b.Second)) fits.Add(b);
-            if (fits.Count > 1) fits.Remove(last);
+            for (int i = 0; i < idle.Count; i++)
+                for (int j = i + 1; j < idle.Count; j++)
+                    if (!HaveABit(idle[i], idle[j])) fits.Add(rng.Next(2) == 0 ? DenWave.Of(idle[i], idle[j]) : DenWave.Of(idle[j], idle[i]));
+            if (fits.Count > 1 && fits.Exists(b => !b.Same(last))) fits.RemoveAll(b => b.Same(last));
             return fits.Count == 0 ? null : fits[rng.Next(fits.Count)];
+        }
+
+        /// <summary>Whether <paramref name="a"/> and <paramref name="b"/> have a bit of their own, either way round, anywhere in the den.</summary>
+        public static bool HaveABit(SoldierDef a, SoldierDef b)
+        {
+            foreach (DenBit bit in All)
+                if (bit.First == a && bit.Second == b || bit.First == b && bit.Second == a) return true;
+            return false;
         }
 
         static bool Contains(IReadOnlyList<SoldierDef> list, SoldierDef s)
@@ -257,7 +277,7 @@ namespace PooketSlug
     /// </summary>
     public static class DenIdle
     {
-        /// <summary>A crewmate's loops are 0 and 1 (tones2: the slushie, the spray; kie: the projector, the weasel).</summary>
+        /// <summary>A crewmate's loops are 0 and 1 (tones2: the slushie, the spray; kie: the projector, the weasel; kcaj: <see cref="KcajIdle"/>).</summary>
         public const int Loops = 2;
         /// <summary>The plain breathing idle between loops.</summary>
         public const int Breath = Loops;
@@ -270,5 +290,66 @@ namespace PooketSlug
         /// <summary>How long <paramref name="cycle"/> runs: a loop its set length, a breath a few seconds at random.</summary>
         public static float SecondsOf(int cycle, System.Random rng) =>
             cycle == Breath ? BreathMin + (float)rng.NextDouble() * (BreathMax - BreathMin) : LoopSeconds;
+    }
+
+    /// <summary>
+    /// A wave across the room (<c>docs/design/lobby.md</c>, Crew interactions: a pair with no bit just waves). Both stay
+    /// at their stations and turn to each other; the first waves, and the second waves back as the first finishes.
+    /// No lines. Its times are seconds into the wave.
+    /// </summary>
+    public static class DenWave
+    {
+        public const string Id = "wave";
+        /// <summary>The whole wave, the first's hand up and down, and the second's.</summary>
+        public const float Seconds = 3f;
+        public const float FirstFrom = 0.2f, FirstTo = 1.8f, SecondFrom = 1.2f, SecondTo = 2.8f;
+        /// <summary>The hand goes up and down this fast while waving (up on the first step).</summary>
+        public static readonly Pulse Hand = new Pulse(4f);
+
+        /// <summary>A wave from <paramref name="first"/> to <paramref name="second"/>, who waves back.</summary>
+        public static DenBit Of(SoldierDef first, SoldierDef second) => new DenBit(Id, first, second, false, Seconds);
+
+        /// <summary>Whether <paramref name="who"/> (0 the first, 1 the second) is waving <paramref name="t"/> seconds in.</summary>
+        public static bool Waving(int who, float t) => who == 0 ? t >= FirstFrom && t < FirstTo : t >= SecondFrom && t < SecondTo;
+
+        /// <summary>Whether <paramref name="who"/>'s hand is up <paramref name="t"/> seconds in: up and down while they wave, down otherwise.</summary>
+        public static bool HandUp(int who, float t) => Waving(who, t) && Hand.On(t - (who == 0 ? FirstFrom : SecondFrom));
+    }
+
+    /// <summary>
+    /// kcaj's two loops at his station (<c>docs/design/lobby.md</c>, Who lives where), each <see cref="DenIdle.LoopSeconds"/>
+    /// long: he eats two cones at once, both up to his mouth together for three bites; or he stares at the string board,
+    /// takes a sticky note out, sticks it up, and the screen's edges dim for a moment (Hyperfixate). Times are seconds into the loop.
+    /// </summary>
+    public static class KcajIdle
+    {
+        public const int Cones = 0, Note = 1;
+
+        /// <summary>The bites: both cones at his mouth from each start to each end.</summary>
+        public static readonly float[] BiteFrom = { 0.6f, 1.8f, 3.0f }, BiteTo = { 1.2f, 2.4f, 3.6f };
+        /// <summary>The note's in his hand from <see cref="NoteInHand"/>, and up on the board from <see cref="NoteUp"/> to the loop's end.</summary>
+        public const float NoteInHand = 0.8f, NoteUp = 1.6f;
+        /// <summary>The dim fades in from <see cref="DimFrom"/>, is full from <see cref="DimFull"/> to <see cref="DimHold"/>, and gone by <see cref="DimTo"/>.</summary>
+        public const float DimFrom = 1.8f, DimFull = 2.3f, DimHold = 3.3f, DimTo = 4.1f;
+
+        /// <summary>Both cones are at his mouth <paramref name="t"/> seconds into the cones loop.</summary>
+        public static bool Biting(float t)
+        {
+            for (int i = 0; i < BiteFrom.Length; i++)
+                if (t >= BiteFrom[i] && t < BiteTo[i]) return true;
+            return false;
+        }
+
+        /// <summary>Where the note is <paramref name="t"/> seconds into the note loop: 0 not out yet, 1 in his hand, 2 on the board.</summary>
+        public static int NoteAt(float t) => t < NoteInHand ? 0 : t < NoteUp ? 1 : 2;
+
+        /// <summary>How dim the screen's edges are <paramref name="t"/> seconds into the note loop, from 0 (not at all) to 1.</summary>
+        public static float Dim(float t)
+        {
+            if (t <= DimFrom || t >= DimTo) return 0f;
+            if (t < DimFull) return (t - DimFrom) / (DimFull - DimFrom);
+            if (t <= DimHold) return 1f;
+            return (DimTo - t) / (DimTo - DimHold);
+        }
     }
 }

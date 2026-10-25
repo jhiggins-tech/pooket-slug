@@ -127,6 +127,7 @@ Every so often two crewmates who are both in the den do a bit together. It only 
 - **How often:** one every 12 to 20 seconds, never two at once. The two walk to each other (or shout across the room), play it out in 4 to 8 seconds, and go back to their stations.
 - **Bubbles** are a few words in capitals, about two seconds each, like the cutscenes' ([cutscenes](cutscenes/README.md)).
 - **Each pair has one or two bits;** a pair with none just waves. They pick at random, but the same bit doesn't play twice in a row.
+- **Built** (dca-kcaj-den): the wave, for any two at their stations with no bit of their own (`DenWave`): both turn to each other, the first waves and the second waves back, in about three seconds and without a word. kcaj's two loops are built too (`KcajIdle`); his bits wait for the owner's rewrite of the lines, so for now he only waves.
 
 Sample bits (placeholders):
 

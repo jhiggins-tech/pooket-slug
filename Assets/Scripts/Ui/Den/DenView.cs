@@ -25,6 +25,8 @@ namespace PooketSlug
     {
         readonly RectTransform m_Paintings, m_InviteTap, m_RoomTap;
         readonly Image m_Fade;
+        readonly Image[] m_Edges = new Image[8];
+        float m_Dim;
         readonly DenCrew m_Crew;
         readonly DenBitPlayer m_Bits;
         readonly DenConsole m_Console;
@@ -72,11 +74,50 @@ namespace PooketSlug
             OnPointer(m_InviteTap, EventTriggerType.PointerDown, _ => m_InviteDown.Set());
 
             m_Crew.MakeVisitor();
+            MakeEdges();
             m_Fade = Ui.Cover(m_Stage, "Fade", new Color(0f, 0f, 0f, 0f));
 
             m_Console.MakeButtons(m_Back.Set, m_Ready.Set, m_Kit.Set, m_Host.Set);
 
             Ui.Show(m_Root, false);
+        }
+
+        /// <summary>
+        /// The screen's edges, dimmed while kcaj hyperfixates on his string board (<see cref="DenCrew.Hyperfixate"/>): a
+        /// band down each side, and a thinner, darker one inside the outer edge of each, so the dark deepens to the edge.
+        /// Under the buttons, so READY and BACK stay bright.
+        /// </summary>
+        void MakeEdges()
+        {
+            for (int i = 0; i < m_Edges.Length; i++)
+            {
+                float d = i < 4 ? 0.14f : 0.06f; // the wide band, then the thin one at the very edge
+                Image e = Ui.Cover(m_Stage, "Edge", Color.clear);
+                RectTransform rt = e.rectTransform;
+                switch (i % 4)
+                {
+                    case 0: rt.anchorMin = new Vector2(0f, 0f); rt.anchorMax = new Vector2(d, 1f); break;
+                    case 1: rt.anchorMin = new Vector2(1f - d, 0f); rt.anchorMax = new Vector2(1f, 1f); break;
+                    case 2: rt.anchorMin = new Vector2(0f, 0f); rt.anchorMax = new Vector2(1f, d * 1.6f); break;
+                    default: rt.anchorMin = new Vector2(0f, 1f - d * 1.6f); rt.anchorMax = new Vector2(1f, 1f); break;
+                }
+                m_Edges[i] = e;
+                Ui.Show(e, false);
+            }
+        }
+
+        /// <summary>Eases the edges toward how dim kcaj has them, only on the den screen (not up in the loft) and not in the zoom.</summary>
+        void Edges(float dt, Den den)
+        {
+            DenWalker w = Walker;
+            bool here = den.Zoom < 0f && (w == null || w.Y < DenMap.FloorY(DenFloor.Loft));
+            float to = here ? m_Crew.Hyperfixate : 0f;
+            m_Dim = Mathf.MoveTowards(m_Dim, to, dt * 3f);
+            for (int i = 0; i < m_Edges.Length; i++)
+            {
+                Ui.Show(m_Edges[i], m_Dim > 0.01f);
+                m_Edges[i].color = new Color(0.08f, 0f, 0.1f, m_Dim * (i < 4 ? 0.35f : 0.3f));
+            }
         }
 
         /// <summary>A tap on the room, in the den's art pixels: someone to swap to, a place to use, or the floor to walk on.</summary>
@@ -114,6 +155,7 @@ namespace PooketSlug
             m_Crew.Begin(den, info, m_Paintings);
             m_Bits.Begin();
             m_Clock = 0f;
+            m_Dim = 0f;
             m_CamX = 0f;
             m_Picked.Clear();
             m_Place.Clear();
@@ -215,6 +257,7 @@ namespace PooketSlug
             Ui.Show(m_RoomTap, !zooming);
             m_Console.Refresh(den, info, m_Clock);
             Camera(dt, den);
+            Edges(dt, den);
         }
 
         /// <summary>Where the line's said from, when the one saying it is a crewmate in the room (moving in, tones2 or kie says hi).</summary>
