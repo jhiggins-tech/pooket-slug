@@ -57,8 +57,10 @@ the cutscene domain (`Core/Story/Cues.cs`, `Ui/Cutscene/CueSounds.cs`); the clip
 ## The vocabulary
 - `MusicTrack` (name, bpm, `Loop`, four parts `Lead`, `Harmony`, `Bass`, `Drums`), `MusicTracks.All`, `MusicTracks.Bar`
   (16 steps; a step is a sixteenth note).
-- Loops: `SteelNight` (Mission one, 150 bpm, 32 bars), `TankAlert` (boss, 172 bpm, 16 bars), `TankAlertFinal` (pilot
-  round, 200 bpm), `Debrief` (100 bpm, 8 bars). Stings: `MissionStart`, `BossVictory`, `MissionComplete`, `RankUp`,
+- Loops: `SteelNight` (Mission one, 150 bpm, 32 bars, 51.2 s), `TankAlert` (boss, 172 bpm, 16 bars, 22.3 s),
+  `TankAlertFinal` (pilot round, 200 bpm, 16 bars, 19.2 s), `Debrief` (100 bpm, 8 bars, 19.2 s). The stings run 1.3 s
+  (`BossVictory`) to 9 s (`ContinueCountdown`, exactly `Tuning.Lives.ContinueSeconds`). Measured from the compiled
+  tracks, 25 Oct. Stings: `MissionStart`, `BossVictory`, `MissionComplete`, `RankUp`,
   `GameOver`, `ContinueCountdown`, `NewCrewmate`. Recordings: `TitleRecording` (`title`), `DenRecording` (`den`).
 - Notation (`Notation.cs`): `c5:2` a note of 2 steps (lengths stick), `c4+e4+g4` a chord, `r` a rest, drums `k s h c`,
   slides; read by `Notation.Steps` and friends.
@@ -68,12 +70,16 @@ the cutscene domain (`Core/Story/Cues.cs`, `Ui/Cutscene/CueSounds.cs`); the clip
 - `Sfx.Say(id)` plays an announcer line from `Resources/Voice`, `Sfx.Narrate(id)` a narrator line from
   `Resources/Narration`. The vendor releases in `vendor.lock`: `announcer`, `narration`, `orchestra`, `start-music`
   (`title.wav`), `den-music` (`den.wav`).
-- Kie is said "k-eye" in the narration's script; kcaj is spoken "Kadge" (Jack, through story) while subtitles keep
-  "kcaj".
+- The vendor scripts (`voice/narration.json`, `voice/lines.json`) spell words the way the voice should say them: "Kye"
+  for kie, "Kadge" for kcaj (Jack, through story), "tank" for tabk. The subtitles in `scenes/` keep "kie", "kcaj"
+  and "tabk". Checked line by line on 25 Oct: every narrator line in `scenes/` has its script and its recording in the
+  pinned zip, and the words agree once those spellings are allowed for. The pinned `announcer` zip holds
+  `mission-two-start` and `team-super` too, so Mission two's voice is in. The announcer's `boss-tank` says "Here comes
+  the tank!" (spoken only).
 
 ## The invariants
-- Track ids and names are unique (`MusicTests.EveryTrackHasADifferentName`), and a loop renders to exactly its length
-  (`ALoopRendersToExactlyItsLength`).
+- Track names are unique (tracks have no ids: `MusicTests.EveryTrackHasADifferentName`), and a loop renders to exactly
+  its length (`ALoopRendersToExactlyItsLength`).
 - Gameplay randomness never touches sound. A cosmetic effect uses its own random source (CLAUDE.md invariants).
 - A blink, flicker or cycle goes through `Fx` / `Clip`; a sound that follows one plays from the event, not a timer.
 - Music rendering must not stall a frame. Today that's kept by rendering ahead: `MusicFlow.Prepare` renders the mission's
@@ -97,12 +103,25 @@ side (each cue has an effect). `tools/check_scenes.sh` fetches the narration to 
   was for has gone; music.md says it waits for the den's. The den's crewmate-moving-in beat is the likely place.
 - **The coda's music** is `TankAlert` again (music.md says so, stale-docs 25 Oct), an open pick in music.md (Open questions), along with one boss theme or one
   per boss, Mission one's feel, and who writes the melodies. The owner has not answered.
-- **Mission two's voice** (narration m2 briefing and freeing lines, the announcer's `mission-two-start`) was recorded on
-  a vendor branch, not the vendor main, as of 17 Oct. Whether `vendor.lock`'s pinned `narration` and `announcer` zips
-  include them is not recorded here: check the pin before relying on it.
 - **Rendering across frames.** music.md (How the tracks get made, 4) plans renders a few seconds at a time and clips let
   go when no longer needed; neither is built (see the invariants). No card.
 - **The chip tracks' listen WAVs.** music.md says each track is rendered to a WAV in CI for listening; nothing in this
   repository does that (the vendor repository may). Check before promising a listen link. How the vendor's Orchestra
   workflow gets `MusicMidi`'s file is not recorded either: only `MusicTests` calls `MusicMidi.Write` here.
+- **Rendering after launch can stall.** With the music off at launch nothing is prepared, so turning MUSIC on later
+  renders `SteelNight` (51 s) in one go as the next mission starts (`Music.ClipOf`). Part of the rendering item above.
+- **Open findings from the consistency audit (25 Oct), each for the owner:**
+  - Game over plays twice with the music on: `Player.Down` plays `Sfx.GameOver` (Tabks' sad trombone) as the soldier
+    goes out, and `MusicFlow.GameOver` plays the game over sting as the run ends. The victory jingle is skipped when the
+    music is on (`World.cs`, `DebriefView.cs`); game over isn't. Behaviour, gameplay's file.
+  - The mission start does the same: `Game.cs` plays `Sfx.Start` and then `MusicFlow.MissionStart` plays the start
+    sting. Design call (keep both, or gate `Sfx.Start` on `Music.Muted` like the victory jingle).
+  - The style says four voices, with fast arpeggios standing in for chords, but seven tracks hold chords of two to four
+    notes in the harmony part (`TankAlert`'s stabs, `Debrief`'s comps, the stings' last chords), and the kick is a
+    triangle thump on top of the bass's triangle (`MusicRender.Drums`). Design call: loosen music.md, or rewrite.
+  - `MusicFlow`'s moments (which track for which moment, which mission) have no test, so a mission theme for Mission two
+    has nothing to hold it. The rule could move into Core (a `MusicTracks.MissionTheme(mission)`, tested) when that
+    theme is written.
+  - The pilot round's music is described as the boss music running on in `docs/design/cutscenes/mission-one.md` (When it
+    ends) and `docs/design/tabks/bosses.md` (When it's beaten); it is the final section (`TankWrecked`). Handed over.
 - New narrator lines: ask the Media generation role for takes; the lines are the story side's to write.

@@ -18,7 +18,7 @@ There are two kinds of music: **loops**, which play under a whole stretch of the
 |---|---|---|---|---|
 | **Title theme** | The splash screen (the new start: key art, Start and Settings) | A Final Fantasy-style title: harp arpeggios, then strings and a solo flute on a gentle, majestic melody. A recording, not chip: Lyria 3 take D, picked by the owner 2026-10-18 ([start-music](#the-title-theme)) | About 84 bpm | About 28 s (a crossfaded loop) |
 | **Mission one theme** ("Steel Night") | The run through the military base, from the caption card to the boss door | A snare-led military march, minor key and driving, with searchlight-sweep arpeggios. Metal Slug's base levels, on a Game Boy | 150 bpm | About 50 s: an A part and a B part, 32 bars |
-| **Boss theme** ("Tabk Alert") | Every tabk boss fight and its pilot round | Faster and in a minor key, as picked for the boss intro: a pounding triangle bass, alarm-like pulse stabs, double-time hi-hats | 172 bpm | About 25 s (16 bars) |
+| **Boss theme** ("Tabk Alert") | Every tabk boss fight, from the tabk's first shot until it's wrecked (its final section takes the pilot round) | Faster and in a minor key, as picked for the boss intro: a pounding triangle bass, alarm-like pulse stabs, double-time hi-hats | 172 bpm | About 22 s (16 bars) |
 | **Boss theme, final section** ("Tabk Alert (final)") | The boss fight's second stage: the pilot round, once the tabk is wrecked (asked for 2026-10-15) | The boss theme even faster: its climbing half first, a hi-hat on every sixteenth, sweeps on top | 200 bpm | About 19 s (16 bars) |
 | **Debrief** ("Debrief") | The debrief screen, under the count-ups | Laid back and pleased with itself: a swung, quiet groove that leaves room for the tally's blips and the rank-up fanfare | 100 bpm | About 20 s (8 bars) |
 | **Each later mission's theme** | That mission's run | Its own melody and feel, written with its map (Mission two is kcaj's) | Its own | About 50 s |
@@ -28,7 +28,7 @@ There are two kinds of music: **loops**, which play under a whole stretch of the
 | Sting | Plays | Length |
 |---|---|---|
 | **Mission start** | Under the caption card, as the announcer calls the start, leading straight into the mission theme | About 2 s |
-| **Boss victory** | When the tabk is wrecked, leading into the boss theme's final section for the pilot round | About 2 s |
+| **Boss victory** | When the tabk is wrecked, leading into the boss theme's final section for the pilot round | About 1.3 s |
 | **Mission complete** | As MISSION COMPLETE! lands (the gate at the end of the coda), after the boss theme stops | About 3 s |
 | **Rank up** | The RANK UP! stamp in the debrief: the chip fanfare the [first debrief](cutscenes/mission-one.md#the-first-debrief) calls for | About 2 s |
 | **Game over** | When the last continue runs out: a sad descending run that ends on a buzz | About 3 s |
@@ -37,7 +37,7 @@ There are two kinds of music: **loops**, which play under a whole stretch of the
 
 ### What has no music of its own
 
-- **Cutscenes** use what's playing around them: the opening is street ambience until the caption card, where the mission start sting and the mission theme kick in ([the opening](cutscenes/mission-one.md#the-opening)). The motor pool reveal cuts the mission theme and leads into the boss theme ([the motor pool reveal](cutscenes/mission-one.md#the-motor-pool-reveal)). The boss theme cuts out when the pilot glitches out ([freeing kie](cutscenes/mission-one.md#freeing-kie)).
+- **Cutscenes** use what's playing around them: the opening is street ambience until the caption card, where the mission start sting and the mission theme kick in ([the opening](cutscenes/mission-one.md#the-opening)). The motor pool reveal cuts the mission theme and leads into the boss theme ([the motor pool reveal](cutscenes/mission-one.md#the-motor-pool-reveal)). The boss music (its final section by then) cuts out when the pilot glitches out ([freeing kie](cutscenes/mission-one.md#freeing-kie)).
 - **The boss intro's siren** is a sound effect, not music: the screen locks, the music cuts, the siren and WARNING! banner play in silence, and the boss theme kicks in on the tabk's first shot.
 - **The coda** plays the boss theme again for now; its own music is an open pick (below).
 - **Pause** keeps the track playing, quieter. **Co-op** plays the same music on both phones, each following its own screen, like the sound effects.
@@ -46,9 +46,9 @@ There are two kinds of music: **loops**, which play under a whole stretch of the
 
 - **Four voices, like a Game Boy:** two pulse channels (lead and harmony or arpeggio), a triangle bass and a noise channel for drums. The same voices as the sound effects, so music and effects sound like one machine. A track can use fewer, never more.
 - **Lead on 25% or 12.5% pulse, harmony on 50%,** so the two pulse lines stay apart. Fast arpeggios stand in for chords, as on the real hardware.
-- **Noise drums:** a low, crunchy noise for the kick, a mid burst for the snare and a short high tick for the hi-hat, as in the Tabks tunes.
+- **Noise drums:** a falling triangle thump over crunchy noise for the kick, a mid burst for the snare and a short high tick for the hi-hat, as in the Tabks tunes.
 - **Short loops that don't tire you out:** each loop has a B part, so it doesn't repeat every few bars, and ends on a turnaround that leads back to its start.
-- **The music sits under the action.** It plays at about half the volume of the sound effects, and a big blast or an announcer line ducks it briefly, so the game's own noise always cuts through.
+- **The music sits under the action.** It plays at about half the volume of the sound effects, and a big blast or a recorded line (the announcer's or the narrator's) ducks it briefly, so the game's own noise always cuts through.
 - **The jokes are the crew's.** Music stays straight-faced; a boss track can quote its crewmate's in-joke (a pick, below), but missions don't parody anything.
 - **Original melodies.** Any tune quoted from outside the game is in the public domain (Pop Goes the Weasel is fine), so nothing has to be licensed.
 
@@ -60,11 +60,11 @@ The chip music is code: no audio files, and a track is a few lines of text. The 
 2. **Every track in `Core/Audio/MusicTracks.cs`:** a `MusicTrack` with its tempo, its four parts as score lines, and whether it loops. A loop is the whole track, repeating with no seam. Stings are the same, played once.
 3. **A renderer** in `Core/Audio/MusicRender.cs` plays each part into a `Chip` buffer: the lead and harmony as pulse tones, the bass on the triangle, the drums as noise, each note with a short envelope. A note that runs past the end of a loop wraps round to its start, so the loop has no seam. Then `Music.cs` makes it an `AudioClip`.
 4. **Rendered when needed, not all at startup.** A minute of music is about 10 MB of samples, so only the tracks for what's next are rendered: at launch, Mission one's theme, the boss theme and its final section and the two stings around them (the title theme is a recording, so it needs none); the rest the first time they play. Not built yet: today each track renders in one go and is kept for the session, rather than a few seconds at a time across frames with clips let go.
-5. **A music player** (`Music.Play(track)`, `Music.Stop()`, `Music.Sting(sting)`): one looping source for the loops and one for the stings, with a quick fade when a track changes and the ducking above. It's driven by the game's existing moments: the caption card, the boss intro's hooks (`World.BossIntro`, `World.BossFightStarted`), the boss's death, the pilot's glitch-out, the debrief and game over.
+5. **A music player** (`Music.Play(track)`, `Music.Stop()`, `Music.Sting(sting)`): one looping source for the loops, one for the stings and one for a recorded layer playing in step, with a quick fade when a track changes and the ducking above. It's driven by the game's existing moments: the caption card, the boss intro's hooks (`World.BossIntro`, `World.BossFightStarted`), the boss's death, the pilot's glitch-out, the debrief and game over.
 6. **The MUSIC setting** beside EFFECTS and VOICES in settings (picked 2026-10-15; HIGH, MID, LOW, OFF), so a player can keep the sound effects and lose the tune, saved with the other options. With music off, nothing is rendered at all.
-7. **Tests:** the score notation reads every track; each loop's length is a whole number of bars; and every game moment that should start a track does.
+7. **Tests:** the score notation reads every track; each loop's length is a whole number of bars; and each of `Soundtrack`'s moments (the countdown and back, the cut, the win) changes the music once. The moments `MusicFlow` wires up (the mission start, the boss intro, the wreck, the coda, the debrief, game over) have no test yet.
 
-**Writing the notes:** Claude composes each track in the notation, then renders it to a WAV in CI so it can be heard in a browser before it goes in the game. Each track goes on the Roadmap with a listen link, like a spike.
+**Writing the notes:** Claude composes each track in the notation, then renders it to a WAV in CI so it can be heard in a browser before it goes in the game (planned: nothing in this repository renders one yet). Each track goes on the Roadmap with a listen link, like a spike.
 
 **First cut** (spike, 2026-10-15, `?spike=music`, solo only; the flag is gone since the music was built, below): the notation (`Core/Audio/Notation.cs`), the renderer (`Core/Audio/MusicRender.cs`), the player (`Music.cs`), Mission one's theme, the boss theme and its final section, and the mission start and boss victory stings (`Core/Audio/MusicTracks.cs`), hooked into the boss intro. Every track is rendered at launch for now.
 
@@ -79,7 +79,7 @@ The chip music is code: no audio files, and a track is a few lines of text. The 
 Picked by the owner on 2026-10-18 (Roadmap item start-music): **Lyria 3 take D**, a 30-second clip Google's Lyria 3 made from a written brief (harp arpeggios, then strings and a solo flute; gentle, nostalgic, majestic; about 84 bpm, C major; no vocals or drums). It beat two versions of an original chip theme (chip, and the same notes for orchestra) and another Lyria clip. Unlike the rest of the music it is a recording, so it has no chip version and isn't in the score notation.
 
 - **The loop:** the clip's trailing silence is trimmed and its last 2.5 s are crossfaded (equal power) into its first, giving a 27.7 s seamless loop, `title.wav` (44.1 kHz stereo).
-- **Where it lives:** the vendor repository's `start-music` release (made by the Media generation role). The game's CI fetches its `title.wav` as `vendor.lock` pins it, and `Music.Loop` plays it while the splash screen or the settings over it is up, fading as they're left (built: start-screen, 2026-10-18).
+- **Where it lives:** the vendor repository's `start-music` release (made by the Media generation role). The game's CI fetches its `title.wav` as `vendor.lock` pins it, and `Music.Loop` plays it while the splash screen or the settings over it is up (on the splash, just after the shot in the logo's entrance: `TitleMotion.MusicAt`), fading as they're left (built: start-screen, 2026-10-18).
 
 ## The den's theme
 
