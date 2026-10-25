@@ -8,7 +8,7 @@ namespace PooketSlug
     /// <summary>
     /// The den's TV and buttons: in the room, the console's start screen on the TV (the mission, the room code and its
     /// invite, both controllers' lights, the countdown), the mission board's card, the loose controllers, the seats'
-    /// P1 / P2 tags and the empty seat's + MATE; over it, BACK, READY, the name card with its ⓘ, the hint along the top
+    /// P1 / P2 tags and the empty seat's MULTI-PLAYER; over it, BACK, READY, the name card with its ⓘ, the hint along the top
     /// and its notes.
     /// </summary>
     sealed class DenConsole
@@ -75,8 +75,11 @@ namespace PooketSlug
             m_KitButton.GetComponentInChildren<Text>().fontStyle = FontStyle.BoldAndItalic;
             kitKey.text = ScreenWords.KitKey; // the same key the pause menu shows
             Vector2 p2 = new Vector2(SeatX[1] - StageW / 2f, SeatY + 9f - StageH / 2f) * Px;
-            m_HostPad = Ui.Button(m_World, "+ MATE", p2, new Vector2(52f, 16f), host, out Text hostKey); // on the couch, so it moves with the camera
-            m_HostPad.GetComponentInChildren<Text>().fontSize = 9;
+            // on the couch, so it moves with the camera; MULTI over PLAYER, so it's 24 high to hold both lines
+            m_HostPad = Ui.Button(m_World, ScreenWords.CoopButtonFace, p2, new Vector2(52f, 24f), host, out Text hostKey);
+            Text face = m_HostPad.GetComponentInChildren<Text>();
+            face.fontSize = 9;
+            face.lineSpacing = 0.9f;
             hostKey.text = "H";
             m_Hint = Ui.Label(m_Stage, "Hint", Ui.TopCenter, new Vector2(0f, -8f), 10, TextAnchor.UpperCenter, new Color(1f, 1f, 1f, 0.75f));
             m_Note = Ui.Label(m_Stage, "Note", Ui.TopCenter, new Vector2(0f, -24f), 11, TextAnchor.UpperCenter, new Color(1f, 0.55f, 0.45f));
