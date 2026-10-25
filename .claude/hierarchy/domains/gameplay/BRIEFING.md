@@ -109,11 +109,17 @@ Paths ending in `/` mean everything under them.
 - `Assets/Tests/Gameplay/SpawnerTests.cs`
 - `Assets/Tests/Gameplay/WorldTests.cs`
 - `sandbox/`
+- `docs/design/player.md`
+- `docs/design/kits.md`
+- `docs/design/levels.md`
+- `docs/design/team-supers.md`
+- `docs/design/tanks.md`
+- `docs/design/tabks/`
 
 Not this domain's, though they sit beside its files: `Core/Missions/MissionStory.cs` (story), `Core/Audio/` (audio),
 `Core/Anim/` (`Clip`, `Fx`, `StagePose`: sprites), `World/NetSync.cs` and `Tests/Gameplay/NetSyncTests.cs` (net),
 `Core/Bosses/BossIntroShow.cs` (cutscene), `Core/Lobby/` and `Ui/Den/` (den), the rest of `Core/Platform/` (net and shell).
-`docs/design/` pages are claimed by other domains in the map; the ones this domain decides are in the next section.
+Of `docs/design/`, this domain decides the six above; the other pages are claimed by other domains in the map.
 
 ## The rules this domain keeps
 - Rules start as tests against Core. A rule living in a view, a flow or an entity moves into Core, with tests, the next
@@ -158,8 +164,11 @@ Not this domain's, though they sit beside its files: `Core/Missions/MissionStory
   `Knobs` for tuning from a link and the files in `sandbox/`.
 
 ## The invariants
-- **Content ids ride the network and are never changed or reused.** `ContentTests` pins weapons (0-9, 11-14, 17, 21-27
-  as built), projectiles, enemies (0-6, 11-17), pickups and soldiers; `MissionsTests` pins the missions' ids. A retired
+- **Content ids ride the network and are never changed or reused.** `ContentTests` pins by number weapons 0-9, 11-13,
+  17 and 21-27, projectiles 14 and 15, enemies 0-6 and 11-17, and the soldiers; `PlayerTankTests` pins the retired
+  weapons 18 and 19 and projectiles 9 and 10; `MissionsTests` pins the missions' ids. The rest (weapons 10, 14-16, 20;
+  projectiles 0-8, 11-13; enemies 7-10; every pickup) are held only by `EachTableHoldsItsDefinitionsAtTheirIds`
+  (audit, 25 Oct: see Known unfinished). A retired
   definition stays in the table (the old tabk shell and mortar are projectile ids 9 and 10). Add the next unused id.
 - Each table holds its definitions at their own index (`ContentTests.EachTableHoldsItsDefinitionsAtTheirIds`).
 - A level spawn's network id is its index in the map; things spawned mid-game get ids after the levels
@@ -210,5 +219,20 @@ change to the netcode also needs the co-op tests (`CI: co-op` in a commit messag
   whether it was queued; check the Roadmap (https://claude.ai/artifact/1AWnQDGtUmiKMnjPgcbru9) before building it.
 - The craters spike (`Core/Bosses/CraterGround.cs`, `Bosses/CraterView.cs`) is still behind `?spike=craters`. The design says craters can be dropped
   and arenas made solid if they prove very hard (`levels.md`); no decision is recorded.
-- `Missions/Two/CreameryArt.cs` says its pieces are code-drawn stand-ins until Design's art lands. Not checked
-  whether any of that art has landed; if it has, the comment is stale.
+- `Missions/Two/CreameryArt.cs` says its pieces are code-drawn stand-ins until Design's art lands. Checked 25 Oct: the
+  plates have landed (`Resources/Plates/mission-1/`, `mission-2/`, with the cold store's doors painted over the code
+  ones), the pieces have not, so the comment holds.
+
+### From the consistency audit (25 Oct), waiting on the owner or a card
+- Ids held only by the table-order test (the list under The invariants): pin each by number in `ContentTests`, above all
+  Trollogram kie (enemy 7) and the pickups, which ride the network.
+- Blinks still done with an inline modulo of time, against the `Fx` rule: `RouletteSpin.Lit` and `CageLitFor` in
+  `Core/Crew/KieTuning.cs`, and the landing marker in `Bosses/TankBoss.cs` (`m_Marker.enabled`). Move them to `Fx`
+  the next time they change.
+- The kit screen's words (`KitGuide`) say numbers in prose (three weasels, up to three Trollograms, 120 pills, a
+  second and a half of spew, about 15 seconds of sludge) that nothing ties to the tuning. They agree today.
+- The hard setting can't be reached: `BoardFlow.Show` builds the cards with `coop: false`, and `levels.md` says it
+  waits on "the host's pick in a co-op room", but the one co-op room (MATES) has no host. Who picks hard is a design
+  call.
+- The pilot round's design in `tabks/bosses.md` and the whole of `team-supers.md` still say draft, waiting for the
+  owner's read-through, though both are built.

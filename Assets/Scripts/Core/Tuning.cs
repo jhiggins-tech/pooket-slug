@@ -5,7 +5,8 @@ namespace PooketSlug
     /// Numbers that belong to one soldier, weapon, enemy or pickup are in its definition (<see cref="Content"/>).
     /// The play numbers (physics, soldiers, crates, lives, the kit and hits) are fields, not constants, so the sandbox
     /// can tune them from a link (<see cref="Knobs"/>); nothing else changes them. The camera, co-op and HUD ones are
-    /// built in.
+    /// built in, and so are the soldier's defaults (run, jump, body, hearts) and a bomb crate's default charges: each
+    /// soldier's own are in its <see cref="SoldierDef"/>, which the sandbox tunes through <see cref="Content"/>.
     /// </summary>
     public static class Tuning
     {
