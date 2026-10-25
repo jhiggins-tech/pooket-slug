@@ -31,6 +31,8 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
 - Each scene's `net` number is its own and never changes: a partner's phone knows the scene by it
   (`SceneScriptTests.TheScenesKeepTheirNumbersAndShapes`, `SceneCheck.Numbers`). Today: opening 1, motor-pool 2,
   freeing-kie 3, m2-briefing 4, freeing-kcaj 5, kcaj-tabk 6, coop-test 63. `UseSite` refuses a site copy whose number differs.
+  Every one is pinned by number in that test, which also pins `SceneLibrary.Names`, so a new scene fails it until its
+  number is pinned there too (and a getter added to `TestScenes`). `SceneCheck.Numbers` skips a scene with no `net` line (0).
 - Every cue a scene names has an effect in `Cues.cs`, or is a `say:` cue (`CueTests`). A new cue is its id and
   `CueEffect` there, its clip in `CueSounds`, and its sound in `Sfx` / `ChipSounds` (audio's file; ask).
 - Every spoken line is up long enough to read (3 words a second); every narrator line has its recording and time to
