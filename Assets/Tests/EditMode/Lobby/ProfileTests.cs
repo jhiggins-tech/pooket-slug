@@ -125,5 +125,48 @@ namespace PooketSlug.Tests
             Assert.AreEqual(0, q.missions.Count);
             Assert.AreEqual(0, q.seen.Count);
         }
+    
+
+        const string Page = "https://jhiggins-tech.github.io/pooket-slug/index.html";
+
+        static bool Saves(string query, bool sandbox = false, bool spike = false) =>
+            ProfileKeeping.Saves(LaunchFlags.Read(Page + query), sandbox, spike);
+
+        [Test]
+        public void APlainVisitAndTestFlagsSaveButASandboxOrASpikeDoesNot()
+        {
+            Assert.IsTrue(Saves(""), "a plain visit");
+            Assert.IsTrue(Saves("?mission=2"), "?mission=");
+            Assert.IsTrue(Saves("?test=boss"), "?test= starts save, as they always have");
+            Assert.IsTrue(Saves("?test=debrief"), "?test=debrief");
+            Assert.IsTrue(Saves("?unlock=crew,coop,tank"), "?unlock= opens things for the visit and saves runs");
+            Assert.IsTrue(Saves("?demo=all"), "a demo plays no run, and its store is a plain one");
+            Assert.IsFalse(Saves("?sandbox=boss", sandbox: true), "a sandbox keeps nothing");
+            Assert.IsFalse(Saves("?spike=craters", spike: true), "a spike keeps nothing");
+            Assert.IsFalse(Saves("?spike=craters&test=boss&unlock=crew", spike: true), "a spike keeps nothing, whatever else is on");
+        }
+
+        sealed class CountingStore : IProfileStore
+        {
+            public int Saves;
+            public readonly Profile Kept = new Profile();
+            public Profile Load() => Kept;
+            public void Save(Profile profile) => Saves++;
+        }
+
+        [Test]
+        public void AVisitThatKeepsNothingLoadsTheSaveAndNeverWrites()
+        {
+            var store = new CountingStore();
+            store.Kept.RecordRun(Missions.One, Setting.Normal, 900, won: true, solo: true);
+            IProfileStore unsaved = ProfileKeeping.For(store, saves: false);
+            Profile p = unsaved.Load();
+            Assert.AreEqual(1, p.Clears(Missions.One), "it plays from the saved profile");
+            p.RecordRun(Missions.One, Setting.Normal, 1500, won: true, solo: true);
+            p.MarkSeen(Reveals.Coop);
+            unsaved.Save(p);
+            Assert.AreEqual(0, store.Saves);
+            Assert.AreSame(store, ProfileKeeping.For(store, saves: true), "a visit that saves uses the store itself");
+        }
     }
 }
