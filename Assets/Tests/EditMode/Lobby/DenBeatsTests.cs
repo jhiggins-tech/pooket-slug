@@ -98,6 +98,33 @@ namespace PooketSlug.Tests
             Assert.IsTrue(b.Done);
         }
 
+        // the beats' figures stand where the den's painting puts things (in its pixels, as the crew does), from 22 Oct a
+        // fifth bigger: the newcomer steps out of the roller door's opening and walks in on the ground floor, his whole
+        // figure on the screen, and kie heaves the couch from just past its left arm
+        [Test]
+        public void TheBeatsPlaces_AreThePaintings_AndOnTheScreen()
+        {
+            float half = 12f * Staging.FigureGrow; // half the figure's 24 px canvas, as drawn
+            DenBeat b = DenBeat.MoveIn(Content.Kcaj);
+            Assert.AreEqual(DenMap.SillX, b.NewcomerX, 1e-3f, "under the door");
+            Assert.AreEqual(DenMap.SillY, b.NewcomerY, 1e-3f, "on its sill");
+            Assert.That(DenMap.SillX, Is.InRange(DenMap.RollerX, DenMap.RollerX + DenMap.RollerW));
+            var door = DenMap.AreaOf(DenPlace.RollerDoor);
+            Assert.That(DenMap.SillX, Is.InRange(door.x0, door.x1), "the door's tap area is round its opening");
+            for (float t = 0f; t <= DenBeat.MoveInSeconds; t += 0.1f)
+            {
+                Assert.That(b.NewcomerX + half, Is.LessThanOrEqualTo(320f), "on the screen at " + t);
+                b.Tick(0.1f);
+            }
+            Assert.AreEqual(DenMap.SillX - DenBeat.WalkIn, b.NewcomerX, 1e-3f, "walked in");
+            Assert.AreEqual(DenMap.FloorY(DenFloor.Ground), b.NewcomerY, 1e-3f, "down on the ground floor");
+
+            var couch = DenMap.AreaOf(DenPlace.Couch);
+            Assert.That(DenBeat.HeaveX, Is.InRange(couch.x0 - 8f, couch.x0), "by the couch's left arm");
+            Assert.That(DenBeat.PlugX, Is.InRange(couch.x0, couch.x1), "behind the couch, at the TV's plug");
+            Assert.That(DenBeat.HeaveX - half, Is.GreaterThanOrEqualTo(0f));
+        }
+
         static void Step(DenBeat b, float seconds)
         {
             for (float t = 0f; t < seconds - 1e-4f; t += 1f / 60f) b.Tick(System.Math.Min(1f / 60f, seconds - t));

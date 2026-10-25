@@ -340,7 +340,7 @@ namespace PooketSlug
             PlayerSkin skin = Art.SkinFor(m_SoldierDef);
             bool walking = !w.Standing && !w.Riding;
             m_Soldier.Pose(skin, StagePose.Walking(walking, m_Clock));
-            m_Soldier.At(w.X, w.Y);
+            m_Soldier.AtPlate(w.X, w.Y); // the walker's in the bay's pixels, as the lift and the tabks are
             m_Soldier.Rt.localScale = new Vector3(w.FaceLeft ? -1f : 1f, 1f, 1f);
         }
 

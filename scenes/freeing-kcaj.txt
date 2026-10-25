@@ -20,7 +20,7 @@ kie at 92
 kcaj at 261
 kcaj face left
 kcaj colour #c8e8ff
-kcaj holds tub
+kcaj holds tub -8 11
 1.4 icicles on kcaj 1 21
 1.4-2.6 kcaj walk 261 200
 2.6 kcaj sway
@@ -59,7 +59,7 @@ kcaj face left
 0.4-1.6 kcaj walk 200 62
 1.8-2.1 freezer shake 1
 2.1 cones show
-kcaj holds cones
+kcaj holds cones -8 14
 3.4 cones hide
 1.8 cue freezer
 2.4 cue munch
@@ -70,17 +70,17 @@ shot: Told you
 length 7
 set coldstore
 show freezer store-opening
-// he points at the factory around them, then at the crew; nobody answers but tones2. kie turns to him and has an
-// idea. Then kcaj sticks a note on tones2's back.
-kie at 156
-kie face right
+// he points at the factory around them, then at the crew; nobody answers but tones2. kie, where he stood, turns
+// from kcaj to tones2 and has an idea. Then kcaj sticks a note on tones2's back.
+kie at 92
+kie face left
 tones2 at 120
 kcaj at 62
 0.2 kcaj face left
 1 kcaj face right
 0.4 kcaj: I TOLD YOU. | I TOLD ALL OF YOU.
 2.4 tones2: OMFG.
-3.2 kie face left
+3.2 kie face right
 3.4 kie: LET'S PUT HIM BACK IN.
 4.8-5.5 kcaj walk 62 104
 5.7 note on tones2 -6 16

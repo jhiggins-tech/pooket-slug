@@ -66,7 +66,7 @@ namespace PooketSlug
             float build = p.BuildingUp;
             Ui.Show(m_IntroBand, on);
             Vector2 half = new Vector2(StageW, StageH) * Px / 2f;
-            Vector2 focus = who.Rt.anchoredPosition + new Vector2(0f, 16f * Px) - half; // their middle, from the world's centre
+            Vector2 focus = who.Rt.anchoredPosition + new Vector2(0f, 16f * FigureScale) - half; // their middle (they're drawn at FigureScale), from the world's centre
             if (!on)
             {
                 // the build-up: a slow creep in on them (they stay put on screen), a darkening, and a shake at the peak

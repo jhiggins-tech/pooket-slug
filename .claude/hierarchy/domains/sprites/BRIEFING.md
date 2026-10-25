@@ -77,7 +77,12 @@ blinks and flickers; `CrewFigure` is the shared figure's moves; `StagePose` is h
   (Front, Down). `HeadPlace` says where a body frame wants the head. Do not rename or reorder them: `PlayerSkin` indexes
   its arrays by the enum value.
 - The stage's: `StageLegs` (Idle, Walk, Crouch, Sit, Jump, Hidden) and `StageTorso` (Forward, Unarmed, Lounge, Pad,
-  Repair).
+  Repair), and `StagePose.Tilt`, degrees toppled onto the back. The scene poses are `idle run crouch spray hatch repair
+  down` (`StagePose.Cutscene`; the list the reader checks is `Staging.Poses`, the cutscene domain's). `down`
+  (`StagePose.Down`, cutscene-polish, 25 Oct) is the crew's down frame (`CrewFigure.Down`: Jump legs, the forward body)
+  toppled flat, `Tilt` 90; no art of its own. `CutsceneSoldiers` turns the figure by `Tilt` times its facing about its
+  feet, as the game turns a downed soldier, so a scene stands it 7 up to lie on the floor (freeing kie's drop).
+  (`StagePoseTests.Down_IsTheCrewsDownFrame_ToppledFlat`)
 - Plates: a layer is `sky`, `far` or `mid`, back to front, and a plate is `<layer>-<n>.bytes`, a PNG renamed
   `.bytes`, numbered along the map (`Backdrop.PlatePath`). The strip repeats end to end; the sky is 180 px tall. The
   mission's `PlatesStand` lifts the far and mid plates. A layer with no plates is drawn in code.

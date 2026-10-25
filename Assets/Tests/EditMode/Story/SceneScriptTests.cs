@@ -119,7 +119,8 @@ namespace PooketSlug.Tests
             Assert.IsEmpty(s.Problems, string.Join("; ", s.Problems));
             var stage = new ShotStage(s.Def.Shots[0]);
             Near(new Vector2(56f, 0f), stage.Where("tones2", 1f, 0f));
-            Near(new Vector2(50f, 9f), stage.Where("bag", 1f, 0f), "in his hand");
+            float g = Staging.FigureGrow;
+            Near(new Vector2(56f - 6f * g, 9f * g), stage.Where("bag", 1f, 0f), "in his hand, as far out as he's drawn big");
             Near(new Vector2(66f, 6f), stage.Where("bag", 2.3f, 0f), "dropping");
             Near(new Vector2(66f, 0f), stage.Where("bag", 7f, 0f), "and it stays where it fell");
             Assert.AreEqual(110f, stage.Where("tones2", 5.8f, 0f).x, 0.01f, "halfway over");
@@ -128,8 +129,8 @@ namespace PooketSlug.Tests
             Assert.AreEqual("idle", stage.Pose("tones2", 6.3f));
             Assert.AreEqual(164f, stage.Where("tones2", 7f, 0f).x);
             Assert.AreEqual(14f - 14f * 0.25f, stage.Where("card", 4.2f + 0.35f / 2f, 0f).y, 0.01f, "easing in: a quarter of the way at halfway");
-            Near(new Vector2(65f, 13f), stage.Where("cup", 1f, 0f), "tones2's");
-            Near(new Vector2(93f, 9f), stage.Where("cup", 3f, 0f), "then kie's");
+            Near(new Vector2(56f + 9f * g, 13f * g), stage.Where("cup", 1f, 0f), "tones2's");
+            Near(new Vector2(100f - 7f * g, 9f * g), stage.Where("cup", 3f, 0f), "then kie's");
         }
 
         [Test]

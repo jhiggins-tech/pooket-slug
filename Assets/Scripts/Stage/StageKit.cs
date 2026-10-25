@@ -17,10 +17,11 @@ namespace PooketSlug
         /// <summary>HUD units per art pixel.</summary>
         public const float Px = 2f;
         /// <summary>
-        /// HUD units per art pixel for a soldier on a stage: the stage's, a fifth again — the rooms' paintings are drawn
-        /// a touch small for him, and this brings the two back together until the plates are redrawn.
+        /// HUD units per art pixel for a soldier on a stage: the stage's, a fifth again (<see cref="Staging.FigureGrow"/>):
+        /// the rooms' paintings are drawn a touch small for him, and this brings the two back together until the plates
+        /// are redrawn. It sizes the figure; where a figure stands is still in the plate's pixels (<see cref="StageFigure.AtPlate"/>).
         /// </summary>
-        public const float FigureScale = Px * 1.2f;
+        public const float FigureScale = Px * Staging.FigureGrow;
         /// <summary>The stage's size in art pixels, and the height of a room's floor.</summary>
         public const int StageW = 320, StageH = 180, Floor = 22;
 

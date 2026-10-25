@@ -23,12 +23,13 @@ cage at 100
 0-1.5 cage flicker-out
 kie at 100 10
 kie face left
-1.5-1.8 kie move 100 10 100 0 in
+1.5-1.8 kie move 100 10 100 7 in
 1.5 kie pose crouch
-1.8 stars on kie 0 22
+1.8 kie pose down
+1.8 stars on kie 20 8
 intro 3 kie: KIE
 0.1 cue cage
-1.5 cue kie-drop
+1.8 cue kie-drop
 3.4 narrator freeing-1: And out drops the real kie. Bit peaky.
 4.4 kie: ...HOW LONG WAS I IN THERE?
 
@@ -42,12 +43,14 @@ kie-tabk at 136
 kie-tabk colour wreck
 turret turn 14
 clamp at 186 12
-// tones2 comes over with the snacks; kie gets up off the floor, swaying, and takes them
+// tones2 comes over with the snacks; kie gets up off the floor (from his back, to a crouch, to his feet), swaying, and takes them
 0-0.7 tones2 walk 40 74
-tones2 holds bag
-kie at 100
+tones2 holds bag 8 10
+kie at 100 7
 kie face left
-kie pose crouch
+kie pose down
+0.6-0.8 kie move 100 7 100 0
+0.6 kie pose crouch
 1.4 kie pose idle
 1.4 kie sway
 1.4 stars on kie 0 30

@@ -42,10 +42,11 @@ set den
 show kcaj-corner
 kcaj-corner colour #8c8098
 // the board, close up: one red string runs off it to a photo of a factory with a giant soft-serve sign, and under it,
-// THEY NEED IT COLD. They're off screen, but their bubbles point down to where they stand.
+// THEY NEED IT COLD. They're off screen, but their bubbles point down to where they stand: apart, so both sit
+// above the board rather than one stacked down behind it.
 board show
-tones2 at 104 103
-kie at 128 103
+tones2 at 200 103
+kie at 104 103
 tones2 hide
 kie hide
 0.1 cue card-up

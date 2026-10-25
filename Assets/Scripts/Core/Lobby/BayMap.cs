@@ -47,6 +47,21 @@ namespace PooketSlug
         /// </summary>
         public static float TabkHOf(int tabkId) => tabkId == Content.Kie.Id || tabkId == Content.Kcaj.Id ? TallTabkH : TabkH;
 
+        /// <summary>
+        /// kie's tabk coming home (<see cref="KieHomecoming"/> times it): where kie stands beside his tabk on the stands
+        /// (behind it: it faces left, toward the door), on the bay's floor, and where the weasel sits by him. In the bay's
+        /// pixels, as every place in it: the view stands kie there by <c>StageFigure.AtPlate</c>.
+        /// </summary>
+        public const float HomecomingKieX = StandX + 52f, HomecomingWeaselX = StandX + 64f;
+
+        /// <summary>Where kie's feet are, <paramref name="climb"/> (0 to 1) of the way from beside his tabk up and in at its hatch.</summary>
+        public static (float x, float y) HomecomingKie(float climb)
+        {
+            float k = Math.Max(0f, Math.Min(1f, climb));
+            float x0 = HomecomingKieX, y0 = FloorY(BayDeck.Floor), x1 = StandX + 8f, y1 = StandY + 30f;
+            return (x0 + (x1 - x0) * k, y0 + (y1 - y0) * k);
+        }
+
         /// <summary>Where a soldier's feet are on each deck.</summary>
         public static float FloorY(BayDeck deck) => deck == BayDeck.Top ? 76f : 13f;
 

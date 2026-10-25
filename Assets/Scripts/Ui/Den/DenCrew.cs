@@ -397,10 +397,10 @@ namespace PooketSlug
             Beat = null;
             if (beat.Kind == DenBeatKind.FirstVisit)
             {
-                From(Find(Content.Kie), DenBeatView.HeaveX);
-                From(Find(Content.Tones2), DenBeatView.PlugX);
+                From(Find(Content.Kie), DenBeat.HeaveX);
+                From(Find(Content.Tones2), DenBeat.PlugX);
             }
-            else From(Find(beat.Newcomer), DenBeatView.NewcomerX(beat));
+            else From(Find(beat.Newcomer), beat.NewcomerX);
         }
 
         void From(DenActor a, float x)

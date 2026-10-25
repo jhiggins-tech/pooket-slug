@@ -11,8 +11,8 @@ does).
 Exactly what `.claude/hierarchy/OWNERSHIP.txt` lists:
 - `Assets/Scripts/Core/Story/` (`SceneScript`, `SceneLibrary`, `Staging`, `Cutscene.cs`, `Cues.cs`)
 - `Assets/Scripts/Core/Bosses/BossIntroShow.cs`
-- `Assets/Scripts/Ui/Cutscene/` (`CutsceneView` and its parts: backdrops, cast, effects, bubbles, captions, camera,
-  `CueSounds`, `CutsceneSnacks`)
+- `Assets/Scripts/Ui/Cutscene/` (`CutsceneView` and its parts: backdrops, cast, soldiers (`CutsceneSoldiers`), effects,
+  bubbles, captions, camera, `CueSounds`, `CutsceneSnacks`)
 - `Assets/Scripts/Stage/` (`StageKit` with `StageFigure`, `StageScreen`)
 - `Assets/Scripts/Game/SceneFlow.cs`, `Assets/Scripts/Game/BossIntroFlow.cs`
 - `Assets/Tests/EditMode/Story/`, `Assets/Tests/EditMode/Bosses/BossIntroShowTests.cs`
@@ -69,6 +69,15 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
 - Cue ids are in `Cues.cs`; a recording id (`opening-4a`, `m2-freeing-2`) is the vendor repository's, and `Sfx.Narrate`
   plays it. The announcer's lines (`mission-start`, `mission-two-start`) are `say:` cues.
 - The stage is 320 by 180 art pixels, things placed by their feet from the bottom left. The bay is 993 wide.
+- Soldiers are drawn a fifth again bigger than the plates' pixels (`Staging.FigureGrow`, 1.2; `StageKit.FigureScale`
+  is `Px` times it), but a scene's places are plate pixels: `CutsceneSoldiers` stands a figure with
+  `StageFigure.AtPlate`, never `At` (which scales the position too, and drew every cutscene figure 20% further right
+  and up from 22 Oct until cutscene-polish, 25 Oct). What a soldier holds or carries (`holds`, `on`) sits
+  `FigureGrow` times its offset from their feet (`ShotStage.Where`, `SceneScriptTests.MovesWalksAndHoldsPlaceThings`).
+  A `holds` offset is in stage terms, not mirrored by `face`: facing left, in front is a minus across.
+- A hidden soldier is still stood where the shot puts them, so an off-screen speaker's bubble points there (the
+  keycard's and the string board's close-ups, which sit over the world, bubbles included: stage the speaker so the
+  bubble clears the card).
 - Boss intro: the full one (siren twice, WARNING!, name card, then a pilot's hatch and band) and the quick one (a
   replay of a cleared mission, or a retry after losing at the boss door: `StoryRecord.QuickBossIntro`),
   `BossIntroShow.Cue`. The pilot's part plays only when the mission's reveal hasn't just played: a test start, or a
@@ -128,7 +137,13 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
 - The retired scene "two of the crew" stays in `docs/design/cutscenes/retired.md` for its words; no file plays it.
 - Other scenes named in the story are undecided: Mission three's briefing and freeing wait on the story domain.
 - `CutsceneBackdrops`, `CutsceneEffects`, `CutsceneCast` and `SceneFlow` do several jobs each; split them by part the
-  next time they change.
+  next time they change. `CutsceneCast` lost its soldiers to `CutsceneSoldiers` in cutscene-polish; its props, tabks and
+  drone are still one file.
+- From the cutscene-polish pass, for the owner to pick from (the card's page): the reveals draw kie's tabk as The
+  Projectionist and kcaj's as SOFT SERVE while the boss in play is the generic artillery hull (`TankBoss`, `Art.TankHull`);
+  the Mission two briefing's morning and day shots use night plates, the trashed den and an empty bay. kie's heap in
+  freeing kie is the `down` pose (sprites' `StagePose.Down`, toppled by `Tilt` in `CutsceneSoldiers`), and the den's
+  beats and the bay's walker stand on `AtPlate` too (both done on the card by the den manager).
 - Script and scene file differ in small ways the script's Built notes record (the opening's shot 8 has no
   searchlights and leaves by the side door). The scene files' own `//` comments were left alone in stale-docs: a
   change to a scene file is a deploy and a new version for co-op.

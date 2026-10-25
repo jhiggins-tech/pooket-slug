@@ -12,10 +12,10 @@ namespace PooketSlug
     sealed class DenRollerDoor
     {
         /// <summary>The door's opening in the den's painting (its left edge, bottom, width and height, in art pixels).</summary>
-        public const float X = 261f, Y = 26f, W = 41f, H = 54f;
+        public const float X = DenMap.RollerX, Y = DenMap.RollerY, W = DenMap.RollerW, H = DenMap.RollerH;
 
-        /// <summary>Where the opening's bottom middle is: where you stand to step through it.</summary>
-        public static Vector2 Sill => new Vector2(X + W / 2f, Y);
+        /// <summary>Where the opening's bottom middle is: where you stand to step through it (<see cref="DenMap.SillX"/>).</summary>
+        public static Vector2 Sill => new Vector2(DenMap.SillX, DenMap.SillY);
 
         /// <summary>Where the step in starts, and where it ends: a soldier's width before the door, and one past its far edge (a shoulder's either side of the threshold, like stepping onto a train).</summary>
         public const float From = W / 2f - 4f, To = -W / 2f - 4f;
