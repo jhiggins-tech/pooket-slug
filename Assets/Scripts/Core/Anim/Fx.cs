@@ -47,7 +47,7 @@ namespace PooketSlug
         public static readonly Pulse HurtBlink = new Pulse(20f);
         /// <summary>A soldier fading after dying.</summary>
         public static readonly Pulse DeathFlicker = new Pulse(12f);
-        /// <summary>A pilot or a goon tensing up before a move.</summary>
+        /// <summary>A pilot tensing up before a move.</summary>
         public static readonly Pulse TellFlash = new Pulse(14f);
         /// <summary>A goon flickering out as it dies.</summary>
         public static readonly Pulse DyingFlicker = new Pulse(16f);
@@ -65,7 +65,7 @@ namespace PooketSlug
         // the HUD
         /// <summary>A meter that's full and ready: the super, tones2's gauge.</summary>
         public static readonly Pulse SuperReady = new Pulse(6f);
-        /// <summary>A warning: no fuel left, the call-in gauge full.</summary>
+        /// <summary>A warning: no fuel left, a partner's beacon, the bay's fuel gauge full.</summary>
         public static readonly Pulse Warning = new Pulse(4f);
         /// <summary>The team super's title.</summary>
         public static readonly Pulse TeamTitle = new Pulse(12f);

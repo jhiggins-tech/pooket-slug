@@ -1,5 +1,5 @@
 // How the playable crew look: each crewmate's own layers (their head, and any body or legs part of their own) over the
-// shared figure in ArtData, and the sprite set built from them for each crewmate in each of their paints. The frames
+// shared figure in ArtData, and the sprite set built from them for each crewmate in their paint (one each: there's no second paint). The frames
 // and clips are CrewFigure's (Core); a new crewmate gets every one of them by giving a look here.
 using System.Collections.Generic;
 using UnityEngine;
