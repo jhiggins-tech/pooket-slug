@@ -211,6 +211,12 @@ change to the netcode also needs the co-op tests (`CI: co-op` in a commit messag
 pills in the rain) through `KitGuide.Words` and `Spoken`; the words players read are unchanged. `KitGuideTests` pins the
 exact sentences, so a tuning change fails until the words are chosen on purpose.
 
+## Card colours (kcaj-colour card, 25 Oct)
+- `CrewMember.Card` is a crewmate's team card colour. It shows in two places only: the tabk bay's card name (`BayView.Card`)
+  and the two halves of the team super's split card (`HudView.CardColour`). The den and the kit screen do not use it.
+  kcaj's is his purple, `Crew.KcajPurple` (0xc77dff), shared with his skin's main paint letter, pinned by
+  `CrewTests.KcajsCardIsTheSamePurpleAsHisSkin`. Before, it was a magenta stand-in.
+
 ## Known unfinished
 - Mission order after kcaj, and each later mission's setting, is an open question (`docs/design/levels.md`). Only two
   missions exist.

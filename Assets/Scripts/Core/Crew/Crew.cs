@@ -57,9 +57,16 @@ namespace PooketSlug
         public static readonly CrewMember Kie = new CrewMember(Content.Kie, Missions.One, new Color(0.25f, 0.85f, 0.8f, 0.95f), KitGuide.Kie,
             new Dictionary<char, uint> { { 'r', 0x4ea8ff }, { 'R', 0x2a70c0 }, { 'g', 0x46d27a }, { 'G', 0x2a9050 }, { 'c', 0x2dd4bf }, { 'C', 0x1a9488 } });
 
+        /// <summary>kcaj's purple: his skin's main colour and his team card's (owner, 25 Oct).</summary>
+        public const uint KcajPurple = 0xc77dff;
+
+        /// <summary>A 0xRRGGBB colour as a <see cref="Color"/>, at <paramref name="alpha"/>.</summary>
+        public static Color FromHex(uint rgb, float alpha) =>
+            new Color(((rgb >> 16) & 0xff) / 255f, ((rgb >> 8) & 0xff) / 255f, (rgb & 0xff) / 255f, alpha);
+
         /// <summary>kcaj, freed by clearing Mission two, in his Pooket Tabks colours (purple, gold and silver).</summary>
-        public static readonly CrewMember Kcaj = new CrewMember(Content.Kcaj, Missions.Two, new Color(1f, 0.24f, 0.95f, 0.95f), KitGuide.Kcaj,
-            new Dictionary<char, uint> { { 'r', 0xc77dff }, { 'R', 0x8a4cc0 }, { 'g', 0xffc53d }, { 'G', 0xc08a1c }, { 'c', 0xe2e8f0 }, { 'C', 0x98a2b4 } });
+        public static readonly CrewMember Kcaj = new CrewMember(Content.Kcaj, Missions.Two, FromHex(KcajPurple, 0.95f), KitGuide.Kcaj,
+            new Dictionary<char, uint> { { 'r', KcajPurple }, { 'R', 0x8a4cc0 }, { 'g', 0xffc53d }, { 'G', 0xc08a1c }, { 'c', 0xe2e8f0 }, { 'C', 0x98a2b4 } });
 
         /// <summary>The whole crew, in the order they're freed (and stand in the den).</summary>
         public static readonly IReadOnlyList<CrewMember> All = new[] { Tones2, Kie, Kcaj };
