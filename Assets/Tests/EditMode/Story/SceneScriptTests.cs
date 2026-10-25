@@ -133,6 +133,28 @@ namespace PooketSlug.Tests
             Near(new Vector2(100f - 7f * g, 9f * g), stage.Where("cup", 3f, 0f), "then kie's");
         }
 
+        // stage-no-gun: tones2's arms full of snacks, then the gun out for the Trollogram; a window's arms end with it
+        [Test]
+        public void ArmsSayWhatTheHandsAreDoing_TheGunUnlessTold()
+        {
+            SceneScript s = Read("net 9\nshot: A\nlength 8\nset den\n" +
+                                 "tones2 at 56\ntones2 arms out\n0-1 tones2 walk 56 100\n2 tones2 arms gun\n3-4 tones2 pose spray\n" +
+                                 "kie at 140\n1-2 kie arms down\n");
+            Assert.IsEmpty(s.Problems, string.Join("; ", s.Problems));
+            var stage = new ShotStage(s.Def.Shots[0]);
+            Assert.AreEqual("out", stage.Arms("tones2", 0.5f), "walking with his hands full");
+            Assert.AreEqual("run", stage.Pose("tones2", 0.5f), "the arms ride over the pose");
+            Assert.AreEqual("gun", stage.Arms("tones2", 2.5f));
+            Assert.AreEqual("gun", stage.Arms("kie", 0.5f), "the gun until told");
+            Assert.AreEqual("down", stage.Arms("kie", 1.5f));
+            Assert.AreEqual("gun", stage.Arms("kie", 2.5f), "a window's arms end with it");
+            Assert.AreEqual(StageTorso.Carry, StagePose.Cutscene(stage.Pose("tones2", 0.5f), 0.5f, 10f, stage.Arms("tones2", 0.5f)).Torso);
+
+            List<string> problems = Read(Tiny + "tones2 arms full\n").Problems;
+            Assert.IsTrue(problems.Exists(p => p.Contains("'arms' takes one of gun, down, out")), string.Join("; ", problems));
+            Assert.IsTrue(Read(Tiny + "card arms out\n").Problems.Exists(p => p.Contains("card can't 'arms'")), "only soldiers have arms");
+        }
+
         [Test]
         public void ColoursTurnsSizesAndTheCamera()
         {

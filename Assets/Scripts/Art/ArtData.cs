@@ -191,6 +191,28 @@ namespace PooketSlug
             "........bbbybb..........",
         };
 
+        /// <summary>
+        /// Carrying: the front hand out holding something (a slushie, the snacks, a remote to hand over), the back one by
+        /// their side. The forward body with the gun taken out of the hand, for a cutscene's <c>arms out</c>.
+        /// </summary>
+        public static readonly string[] TorsoCarry =
+        {
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........cgggggc.........",
+            ".......ccgggggccc.......",
+            ".......cCgGgggCCcss.....",
+            ".......cgGgggg..........",
+            ".......sgGgggg..........",
+            "........bbbybb..........",
+        };
+
         // ---- Shared moves (the same canvas and rows as TorsoForward) ----
 
         /// <summary>Repairing a tabk, crouched (<see cref="CrewFigure.Repair"/>): the wrench raised high, the back hand braced on the hull.</summary>

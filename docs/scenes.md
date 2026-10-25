@@ -98,10 +98,18 @@ A thing is on stage once a line stages it (or `show` names it), until `hide`.
 | `on` | `stars on kie 0 22`: rides on a soldier |
 
 **Soldiers also**: `walk` (`0-1 kie walk 100 166`: they run), `face left` / `right`, `pose idle run crouch spray
-hatch repair down`, `look plain holo trollo` (`holo` a Trollogram goon, `trollo` a Trollogram crewmate), `holds bag cup` (or `holds bag -7 9` for where), `sway`.
+hatch repair down`, `arms gun down out` (what their hands are doing, whatever the pose: below), `look plain holo trollo` (`holo` a Trollogram goon, `trollo` a Trollogram crewmate), `holds bag cup` (or `holds bag -7 9` for where), `sway`.
 `down` is in a heap on their back: the crew's down frame, toppled flat about their feet the way they face, so its back
 sits about 7 under them; stand them 7 up to lie on the floor (`1.8 kie pose down` with `kie at 100 7`). The goon also `appear`s
 (over a window) and `glitch-out`s.
+
+A soldier holds their gun, as in play, unless the shot says otherwise, and every shot starts with it. `arms down` puts
+their hands by their sides, no gun (just out of a cage, dazed, nodding off), and `arms out` has the front hand out
+holding something and the back one by their side, no gun (a slushie, the snacks, a remote handed over, a tub, a cone).
+Put a held thing at the hand: about 8 in front and 10 up for `arms out` (`tones2 holds cup 8 10`, or `-8 10` facing
+left), and about 6 behind and 9 up for the back hand. A `spray` always has the gun, and a `repair` its wrench. Arms over
+a window last only for it, so `1.2-3 tones2 arms out` is back to the gun at 3. Write `arms` wherever the script has
+someone unarmed: the gun is for when they're fighting or heading out to fight.
 
 **Props' and effects' own verbs**: `chips burst 66` / `spill 66`; `jet spray 66 168` (over a window); `shutter open` (over a
 window) / `up`; `lamps stutter`; `clamp rip` (over a window); `cage flicker-out` (over a window).

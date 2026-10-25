@@ -34,6 +34,27 @@ namespace PooketSlug.Tests
                 Assert.AreEqual(0f, StagePose.Cutscene(pose, 0.4f, 10f).Tilt, pose + " stands up");
         }
 
+        // stage-no-gun: a cutscene soldier with their hands full, or by their sides, has no gun; the shared body, so anyone
+        [Test]
+        public void Arms_TakeTheGunOutOfTheirHands_WhateverThePose()
+        {
+            Assert.AreEqual(StageTorso.Forward, StagePose.Arms("gun"));
+            Assert.AreEqual(StageTorso.Unarmed, StagePose.Arms("down"), "by their sides: the den's off-duty top");
+            Assert.AreEqual(StageTorso.Carry, StagePose.Arms("out"));
+            Assert.AreEqual(CrewBody.Carry, new StagePose(StageLegs.Idle, StageTorso.Carry).Body);
+            Assert.AreEqual(CrewBody.Forward, StagePose.Cutscene("idle", 0f, 10f).Body, "the gun unless the scene says");
+            foreach (string pose in new[] { "idle", "run", "crouch", "hatch", "down" })
+            {
+                Assert.AreEqual(CrewBody.Carry, StagePose.Cutscene(pose, 0.4f, 10f, "out").Body, pose);
+                Assert.AreEqual(CrewBody.Unarmed, StagePose.Cutscene(pose, 0.4f, 10f, "down").Body, pose);
+                Assert.AreEqual(StagePose.Cutscene(pose, 0.4f, 10f).Legs, StagePose.Cutscene(pose, 0.4f, 10f, "out").Legs, pose + "'s legs");
+            }
+            Assert.AreEqual(90f, StagePose.Cutscene("down", 0.4f, 10f, "down").Tilt, "still in a heap");
+            Assert.AreEqual(CrewBody.Forward, StagePose.Cutscene("spray", 0f, 10f, "out").Body, "the spray is the gun's");
+            Assert.AreEqual(StageTorso.Repair, StagePose.Cutscene("repair", 0f, 10f, "down").Torso, "a repair keeps its wrench");
+            Assert.AreEqual(CrewHead.Front, CrewFigure.HeadOn(CrewBody.Carry).Head);
+        }
+
         [Test]
         public void AWalkStepsAsTheScreensDid()
         {
