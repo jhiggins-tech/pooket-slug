@@ -92,5 +92,26 @@ namespace PooketSlug.Tests
             Assert.AreEqual("FIRE", KitGuide.Kie[0].Button);
             Assert.AreEqual("SU", KitGuide.Kie[2].Button);
         }
-    }
+    
+        [Test]
+        public void NumbersInTheKitTextComeFromTheTuning()
+        {
+            string Text(SoldierDef who, KitSlot slot)
+            {
+                foreach (MoveGuide m in KitGuide.For(who)) if (m.Slot == slot) return m.Text;
+                Assert.Fail(who.Name + " " + slot);
+                return null;
+            }
+            Assert.AreEqual(1.5f, Tones2Tuning.Spew.Duration, "the text says a second and a half");
+            Assert.AreEqual(15f, Tones2Tuning.Spew.SludgeLife, "the text says about 15 seconds");
+            Assert.AreEqual(3, KieTuning.Weasels.Count, "the text says three weasels");
+            Assert.AreEqual(3, KieTuning.Trollogram.MaxUp, "the text says up to three");
+            Assert.AreEqual(120, KcajTuning.Pills.Count, "the text says 120 pills");
+            StringAssert.StartsWith("A second and a half of spew", Text(Content.Tones2, KitSlot.Super));
+            StringAssert.Contains("for about 15 seconds.", Text(Content.Tones2, KitSlot.Super));
+            StringAssert.StartsWith("Each press tumbles out three weasels that", Text(Content.Kie, KitSlot.Fire));
+            StringAssert.Contains("Trollogram of yourself, up to three. Goons", Text(Content.Kie, KitSlot.Special));
+            StringAssert.StartsWith("120 pills rain across", Text(Content.Kcaj, KitSlot.Super));
+        }
+}
 }
