@@ -5,7 +5,8 @@ namespace PooketSlug
     /// screen): the title theme on the splash, the den's own theme in the den, the start sting into the mission's theme, cut at the boss's
     /// screen lock, the boss theme from its first shot, a victory sting into the pilot round's final section, the tabk
     /// alert for the coda, the continue countdown, mission complete into the debrief's loop, and the game over sting.
-    /// When it changes mid-mission is <see cref="Soundtrack"/>'s rule.
+    /// Which track for which moment is Core's (<see cref="MusicTracks"/>, <c>MusicWhen.cs</c>), and when it changes
+    /// mid-mission is <see cref="Soundtrack"/>'s rule: this plays what they say.
     /// </summary>
     public sealed class MusicFlow
     {
@@ -17,13 +18,11 @@ namespace PooketSlug
         public MusicFlow(Game game) => m_Game = game;
 
         /// <summary>
-        /// At launch, with the music on: the mission's music is rendered then, so the mission starts without a stutter.
-        /// The rest (the debrief's loop and the other stings) renders as it's first played.
+        /// At launch: the mission's music is rendered then, so the mission starts without a stutter
+        /// (<see cref="MusicTracks.RenderedAhead"/>). With the music off it waits till the music's turned on
+        /// (<see cref="Music.Prepare"/>). The rest (the debrief's loop and the other stings) renders as it's first played.
         /// </summary>
-        public static void Prepare()
-        {
-            if (!Music.Muted) Music.Prepare(MusicTracks.SteelNight, MusicTracks.TankAlert, MusicTracks.TankAlertFinal, MusicTracks.MissionStart, MusicTracks.BossVictory);
-        }
+        public static void Prepare() => Music.Prepare(MusicTracks.RenderedAhead);
 
         /// <summary>
         /// Each frame: the title theme loops while the splash or the settings over it is up, and the den's theme while the
@@ -47,16 +46,16 @@ namespace PooketSlug
         }
 
         /// <summary>
-        /// A mission starting (or restarting, or joined in co-op): the start sting, then the mission's theme. Only Mission
-        /// one has a theme yet, so every mission plays it.
+        /// A mission starting (or restarting, or joined in co-op): the start sting, then the mission's theme
+        /// (<see cref="MusicTracks.MissionTheme"/>).
         /// </summary>
         public void MissionStart()
         {
             m_Soundtrack = new Soundtrack();
             m_Before = null;
             Music.Silence();
-            Music.Sting(MusicTracks.MissionStart);
-            Music.Play(MusicTracks.SteelNight, MusicTracks.MissionStart.Seconds);
+            Music.Sting(MusicTracks.StartSting);
+            Music.Play(MusicTracks.MissionTheme(m_Game.Mission), MusicTracks.StartSting.Seconds);
         }
 
         /// <summary>The screen locks for the boss and the mission's music cuts out (<c>docs/design/tabks/bosses.md</c>).</summary>
@@ -65,7 +64,8 @@ namespace PooketSlug
         /// <summary>The tank's first shot: the boss music kicks in.</summary>
         public void BossFightStarted()
         {
-            if (Music.Playing != MusicTracks.TankAlertFinal) Music.Play(MusicTracks.TankAlert);
+            MusicTrack boss = MusicTracks.BossTheme(Music.Playing);
+            if (boss != null) Music.Play(boss);
         }
 
         /// <summary>
@@ -74,24 +74,25 @@ namespace PooketSlug
         /// </summary>
         public void TankWrecked()
         {
-            Music.Sting(MusicTracks.BossVictory);
+            Music.Sting(MusicTracks.BossBeaten);
             // after one pass in chip, the orchestra takes over (in builds that have it: the vendor repository's CI makes it)
-            Music.Play(MusicTracks.TankAlertFinal, MusicTracks.BossVictory.Seconds, Music.Layer("tank-alert-final"), MusicTracks.TankAlertFinal.Seconds);
+            Music.Play(MusicTracks.FinalSection, MusicTracks.BossBeaten.Seconds, Music.Layer(MusicTracks.FinalSectionRecording), MusicTracks.FinalSection.Seconds);
         }
 
         /// <summary>On into the coda: the run out of the base with tones2's tabk.</summary>
-        public void Coda() => Music.Play(MusicTracks.TankAlert);
+        public void Coda() => Music.Play(MusicTracks.CodaTheme);
 
         /// <summary>Each frame of a mission: the continue countdown and back, the pilot's glitch-out, the win.</summary>
         public void Tick(World world)
         {
             LifeBank lives = world.Player.Lives;
-            switch (m_Soundtrack.Frame(lives.Offering, lives.IsOut, world.BossMusicOff, world.Victory))
+            MusicCue cue = m_Soundtrack.Frame(lives.Offering, lives.IsOut, world.BossMusicOff, world.Victory);
+            switch (cue)
             {
                 case MusicCue.Countdown:
                     m_Before = Music.Playing;
                     Music.Silence();
-                    Music.Sting(MusicTracks.ContinueCountdown);
+                    Music.Sting(MusicTracks.StingFor(cue));
                     break;
                 case MusicCue.Resume:
                     Music.Silence();
@@ -103,23 +104,23 @@ namespace PooketSlug
                     break;
                 case MusicCue.Complete:
                     Music.Stop(fade: true);
-                    Music.Sting(MusicTracks.MissionComplete);
+                    Music.Sting(MusicTracks.StingFor(cue));
                     break;
             }
         }
 
         /// <summary>The debrief opens: its loop, once the mission complete sting has finished.</summary>
         public void Debrief(float sinceWon) =>
-            Music.Play(MusicTracks.Debrief, System.Math.Max(0f, MusicTracks.MissionComplete.Seconds - sinceWon));
+            Music.Play(MusicTracks.DebriefLoop, MusicTracks.DebriefDelay(sinceWon));
 
         /// <summary>Out of lives and continues: the music stops for the game over sting.</summary>
         public void GameOver()
         {
             Music.Silence();
-            Music.Sting(MusicTracks.GameOver);
+            Music.Sting(MusicTracks.GameOverSting);
         }
 
         /// <summary>The debrief's rank stamp lands: the rank up fanfare, over the debrief's loop.</summary>
-        public static void RankUp() => Music.Sting(MusicTracks.RankUp);
+        public static void RankUp() => Music.Sting(MusicTracks.RankUpSting);
     }
 }
