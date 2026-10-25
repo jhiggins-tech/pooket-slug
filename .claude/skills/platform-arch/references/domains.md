@@ -331,9 +331,9 @@ music's notation, the sounds every new weapon and cue needs, the vendor takes an
 - `Assets/Scripts/Game/MusicFlow.cs`
 - `Assets/Tests/EditMode/Audio/`
 
-**Outside the map's coverage** — `vendor.lock` and `tools/vendor_lock.sh` (the pinned takes), and the vendor
-repository's `music/`, `voice/` and `pin/`. The narrator's lines are written by the `cutscene` domain and recorded
-here.
+**Outside the map's coverage** — `vendor.lock`, `tools/vendor_lock.sh` and `tools/vendor_fetch.sh` (the pinned takes and fetching them), and the vendor
+repository's `music/`, `voice/` and `pin/`. The narrator's lines are written in the scene files (`cutscene`, from the story `story` decides) and
+recorded here.
 
 **The design it decides** — `docs/design/music.md`.
 

@@ -50,7 +50,7 @@ Wreck the tabk and its Trollogram pilot jumps out to fight you on foot with the 
 
 **In co-op** (owner, 2026-10-15): one pilot with exactly the same health and moves as in solo, since missions don't change with two players ([difficulty](../levels.md#difficulty)); the fight is simply easier with two. It switches targets between you: whoever is nearest, or whoever hurt it last.
 
-**When it's beaten,** the pilot glitches out like the Trollogram goons, and the freeing scene plays ([freeing kie](../cutscenes/mission-one.md#freeing-kie)). The boss music keeps playing through the pilot round ([the boss intro](../cutscenes/mission-one.md#the-boss-intro)).
+**When it's beaten,** the pilot glitches out like the Trollogram goons, and the freeing scene plays ([freeing kie](../cutscenes/mission-one.md#freeing-kie)). The boss music's faster final section plays through the pilot round ([the boss intro](../cutscenes/mission-one.md#the-boss-intro)).
 
 **The plan to build it:**
 1. **Sides:** a soldier gets a side, players or Trollograms. Shots, blasts and kit effects already know whether they're hostile; the pilot's are hostile to players.

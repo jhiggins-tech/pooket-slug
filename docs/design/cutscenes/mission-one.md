@@ -324,8 +324,9 @@ mission's version names its own (kie's below, [kcaj's](mission-two.md#kcajs-tabk
   Trollogram kie in [the motor pool reveal](#the-motor-pool-reveal), Trollogram kcaj in
   [kcaj's tabk arrives](mission-two.md#kcajs-tabk-arrives) (owner, 2026-10-19). The boss intro after a reveal skips the roll-out.
 - **In co-op,** the world's authority starts it and both players see it together. Nobody taps, so neither waits.
-- **When it ends:** wrecking the tabk plays a short victory sting over the boss music, which runs on through
-  [the pilot round](../tabks/bosses.md#the-pilot-round) and stops when the pilot glitches out.
+- **When it ends:** wrecking the tabk plays a short victory sting, then the boss music's faster final section (and the
+  orchestra after it, in builds that have it) through [the pilot round](../tabks/bosses.md#the-pilot-round); it stops
+  when the pilot glitches out (`MusicFlow.TankWrecked`).
 - **The music** (picked 2026-10-15): the mission's looping track through the run, and a faster, minor-key boss track
   for the fight, both made in code with the chip synth ([music](../music.md); when it changes is `Core/Audio/Soundtrack`).
 
