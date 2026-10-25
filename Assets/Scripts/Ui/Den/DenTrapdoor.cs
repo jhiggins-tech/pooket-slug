@@ -11,8 +11,12 @@ namespace PooketSlug
     /// </summary>
     sealed class DenTrapdoor
     {
-        /// <summary>The hatch's opening in the den (its left edge, bottom, width and height, in art pixels).</summary>
-        public const float X = 224f, Y = 0f, W = 22f, H = 15f;
+        /// <summary>The hatch's opening in the den (inset a little in the trapdoor's tap area in <see cref="DenMap"/>).</summary>
+        static readonly (float x0, float y0, float x1, float y1) Area = DenMap.AreaOf(DenPlace.Trapdoor);
+        static float X => Area.x0 + DenMap.HatchInset;
+        static float Y => Area.y0;
+        static float W => Area.x1 - Area.x0 - 2f * DenMap.HatchInset;
+        static float H => Area.y1 - Area.y0;
 
         /// <summary>Where the hatch's middle is: where you stand to go down it.</summary>
         public static Vector2 Middle => new Vector2(X + W / 2f, Y + H / 2f);

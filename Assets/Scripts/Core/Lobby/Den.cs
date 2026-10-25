@@ -249,4 +249,26 @@ namespace PooketSlug
             return false;
         }
     }
+
+    /// <summary>
+    /// A crewmate's idle at their station (<c>docs/design/lobby.md</c>, Who lives where): one of their two short loops at
+    /// random, then a plain breath for a few seconds, then another loop. A breath always comes between two loops, so a
+    /// loop never runs straight into the next. Cosmetic: the den gives it its own randomness, never the game's.
+    /// </summary>
+    public static class DenIdle
+    {
+        /// <summary>A crewmate's loops are 0 and 1 (tones2: the slushie, the spray; kie: the projector, the weasel).</summary>
+        public const int Loops = 2;
+        /// <summary>The plain breathing idle between loops.</summary>
+        public const int Breath = Loops;
+        /// <summary>A loop's length, and the range a breath's is chosen in.</summary>
+        public const float LoopSeconds = 4.5f, BreathMin = 2.5f, BreathMax = 4.5f;
+
+        /// <summary>What follows <paramref name="last"/>: a breath after a loop, and a loop at random after a breath.</summary>
+        public static int Next(int last, System.Random rng) => last == Breath ? rng.Next(Loops) : Breath;
+
+        /// <summary>How long <paramref name="cycle"/> runs: a loop its set length, a breath a few seconds at random.</summary>
+        public static float SecondsOf(int cycle, System.Random rng) =>
+            cycle == Breath ? BreathMin + (float)rng.NextDouble() * (BreathMax - BreathMin) : LoopSeconds;
+    }
 }

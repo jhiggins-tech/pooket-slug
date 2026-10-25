@@ -251,5 +251,16 @@ namespace PooketSlug.Tests
             Assert.AreEqual(DenFloor.Upper, w.Floor);
             Assert.IsTrue(w.Standing);
         }
+
+        [Test]
+        public void TheTrapdoorsHatch_IsWhereItWasDrawn()
+        {
+            var a = DenMap.AreaOf(DenPlace.Trapdoor);
+            Assert.AreEqual(224f, a.x0 + DenMap.HatchInset, "left edge");
+            Assert.AreEqual(22f, a.x1 - a.x0 - 2f * DenMap.HatchInset, "width");
+            Assert.AreEqual(0f, a.y0, "bottom");
+            Assert.AreEqual(15f, a.y1 - a.y0, "height");
+            Assert.AreEqual(DenMap.XOf(DenPlace.Trapdoor), 224f + 22f / 2f, "its middle is where you stand to go down");
+        }
     }
 }

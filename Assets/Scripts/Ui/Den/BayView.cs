@@ -23,7 +23,7 @@ namespace PooketSlug
     public sealed class BayView : StageScreen
     {
         /// <summary>Tabks here are drawn 1.5 times the game's sprite (Design's scale rule for the bay).</summary>
-        const float Scale = 1.5f;
+        const float Scale = BayMap.Scale;
         /// <summary>The partner's tabk, taken: dimmed in its space.</summary>
         static readonly Color TakenDim = new Color(0.42f, 0.42f, 0.48f, 0.8f);
         /// <summary>The fuel hose: where it comes from (the gas bottles by the bench), where it hangs when it's out, and its filler on the tabk on the stands.</summary>
@@ -113,10 +113,17 @@ namespace PooketSlug
             Ui.Show(m_Root, false);
         }
 
+        /// <summary>How tall the tabk in a spot stands, for its tap box (tones2's height where there's none).</summary>
+        float SpotHeight(int spot)
+        {
+            TabkCard c = m_Garage?.At(spot);
+            return c != null ? BayMap.TabkHOf(c.Id) : BayMap.TabkH;
+        }
+
         void Tapped(PointerEventData e)
         {
             if (!ToArt(e, out Vector2 p)) return;
-            int? spot = BayMap.SpotAt(p.x, p.y);
+            int? spot = BayMap.SpotAt(p.x, p.y, SpotHeight);
             if (spot != null && m_Garage != null && m_Garage.At(spot.Value) != null)
             {
                 m_TapSpot.Set(spot.Value);
@@ -260,7 +267,7 @@ namespace PooketSlug
                 float tick = onStands && hose >= 1f && Fx.Blink(m_Clock, 8f) ? 0.5f : 0f; // ticking over
                 kv.Value.rectTransform.anchoredPosition = new Vector2(feet.x, feet.y + tick) * Px;
                 if (Homecoming == null) kv.Value.color = c == m_Taken ? TakenDim : Color.white; // the homecoming paints kie's itself
-                if (c == m_Taken) m_TakenTag.rectTransform.anchoredPosition = new Vector2(feet.x, feet.y + BayMap.TabkH + 3f) * Px;
+                if (c == m_Taken) m_TakenTag.rectTransform.anchoredPosition = new Vector2(feet.x, feet.y + BayMap.TabkHOf(c.Id) + 3f) * Px;
             }
             bool tagged = m_Taken != null && m_Bodies.ContainsKey(m_Taken);
             Ui.Show(m_TakenTag, tagged);

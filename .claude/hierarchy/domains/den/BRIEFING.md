@@ -52,6 +52,18 @@ gameplay domain's: `BayFlow` and `BayView` call them.
   through `Fx` or a `Clip`. (`CLAUDE.md`, Invariants)
 - Words players read: "tabk", never tank; "Trollogram", never hologram. Never name or describe the 25 hidden ranks in
   anything players read; the trophy shelf shows only the rank the player holds.
+- BACK in an outer room uses that room's own `RoomWay.Back`, the way you came in: the yard goes to the kitchen (at
+  its back door), the bunker climbs its rope to B1, the rest go to the house. (`docs/design/lobby/rooms.md`;
+  `RoomFlow.Tick`, `RoomMapTests.TheWayBack_GoesWhereYouCameFrom`)
+- Each tabk has its own height in the bay (`BayMap.TabkHOf`: tones2's 33, kie's and kcaj's 42, their art's 22 and 28
+  rows at 1.5 times). A spot's tap box (`BayMap.SpotAt`'s `heightAt`) and the TAKEN tag go by the tabk standing
+  there. `BayMap.TabkH` stays as tones2's and the empty spot's. (`BayMapTests`)
+- A crewmate's station idle alternates: a loop at random, then a breath, never two loops back to back (`DenIdle` in
+  `Den.cs`, `DenTests.IdleLoops_AlwaysHaveABreathBetweenThem`; `docs/design/lobby.md`, Who lives where).
+- One source for the den's shared numbers (dca-one-source): the trapdoor's hatch is drawn from its `DenMap` tap area
+  (`AreaOf`, inset `HatchInset`); the bay's 1.5 scale is `BayMap.Scale`, which `TabkW`, `TabkH`, `TallTabkH` and both
+  bay views read; the soldier's height is `DenMap.SoldierHeight` only (`RoomMap` has none); the seated torso drop is
+  `CrewFigure.CrouchDrop`. (`BayMapTests`, `DenMapTests`)
 - A rule found in a view or flow (`DenView`, `DenFlow`, `BayView`) moves into Core with tests in the same commit as
   the change that touches it. A big view file is split by part when next changed. (`CLAUDE.md`, Audit 2)
 
@@ -93,9 +105,8 @@ branch's preview, with `?unlock=crew` to fill the den. A new `.cs` needs a `.met
 
 ## Known unfinished
 - The ground floor and upper floor's painting predates the scale rule: its doors are about 2.8 times the soldier, and
-  `DenMapTests.TheDen_IsDrawnToTheSoldiersScale` is `[Test, Ignore]` for that. The owner kept the painting at its size
-  (den2-den-rescale); `lobby.md` says so. Update the Ignore reason ("Design's call") when next in that file: the
-  stale-docs card left it, as it allowed no test changes.
+  `DenMapTests.TheDen_IsDrawnToTheSoldiersScale` is `[Test, Ignore]` for that, its reason "Design's call whether it's
+  repainted". The owner kept the painting at its size (den2-den-rescale); `lobby.md` says so.
 - The den's painting (`den.bytes`) still shows the old board on the ground floor, so kcaj's nook has two. It needs an
   annotated edit that takes the ground board down and leaves the nail; `DenTrapdoor` (drawn in code) should then match
   the nail, and the TV's mission name, written on that old board (`DenRoom.Board`, `DenConsole`), has to move.
@@ -118,4 +129,6 @@ branch's preview, with `?unlock=crew` to fill the den. A new `.cs` needs a `.met
   were cut; only the hole and the rope are placed from `RoomMap`. The rooms' contents are the layout the plates were
   painted from, not measured off the plates.
 - The painting of each unfreed crewmate's corner and the second room for the coming-soon crew are not built.
+- The cargo drone's hook (`Garage`'s `DroneShow`, gameplay's file) still uses `BayMap.TabkH` for every tabk, so it
+  dips 9 px into kie's and kcaj's tops; it should use `BayMap.TabkHOf`. Handed to gameplay (dca-den-fixes).
 - The bits and lines are placeholders awaiting the owner's rewrite in the crew's voice (`DenBits`, `lobby.md`).
