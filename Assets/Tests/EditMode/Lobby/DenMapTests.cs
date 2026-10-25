@@ -154,7 +154,7 @@ namespace PooketSlug.Tests
                 Assert.That(DenMap.Headroom(f), Is.GreaterThanOrEqualTo(DenMap.SoldierHeight), f + ": room to stand");
         }
 
-        [Test, Ignore("The den's painting predates the scale rule (its doors are about 2.8 times the soldier): Design's call whether it's repainted")]
+        [Test, Ignore("The den's painting predates the scale rule (its doors are about 2.8 times the soldier), and the owner kept it at its size (den2-den-rescale)")]
         public void TheDen_IsDrawnToTheSoldiersScale()
         {
             foreach (DenMap.Fixture d in DenMap.Doors)
@@ -250,6 +250,57 @@ namespace PooketSlug.Tests
             Run(w, 10f);
             Assert.AreEqual(DenFloor.Upper, w.Floor);
             Assert.IsTrue(w.Standing);
+        }
+
+        [Test]
+        public void UpOrDownAtADoor_GoesThroughIt_TheWayItLeads()
+        {
+            foreach (DenPlace p in System.Enum.GetValues(typeof(DenPlace)))
+            {
+                int way = DenMap.DoorWay(p);
+                bool door = DenMap.RoomOf(p) != RoomWay.None || p == DenPlace.RollerDoor;
+                Assert.AreEqual(door, way != 0, p + " is a door exactly when it opens a room or the tabk bay");
+                if (way == 0) continue;
+                var w = new DenWalker(DenMap.FloorOf(p), DenMap.XOf(p));
+                Assert.AreEqual(p, w.DoorHere(way), p + ": the way it leads goes through it");
+                Assert.AreEqual(DenPlace.None, w.DoorHere(-way), p + ": the other way doesn't");
+                Assert.AreEqual(DenPlace.None, w.DoorHere(0));
+                Assert.AreEqual(p, w.PlaceHere, p + ": and jump still uses it");
+            }
+            Assert.AreEqual(-1, DenMap.DoorWay(DenPlace.Trapdoor), "the trapdoor is in the floor: down");
+            Assert.AreEqual(1, DenMap.DoorWay(DenPlace.RollerDoor), "the rest you walk in through: up");
+            Assert.AreEqual(DenPlace.None, new DenWalker(DenFloor.Ground, 124f).DoorHere(1), "the couch is no door");
+            Assert.AreEqual(DenPlace.None, new DenWalker(DenFloor.Upper, DenMap.XOf(DenPlace.Board)).DoorHere(1), "nor is the board");
+        }
+
+        [Test]
+        public void AtALadderAndADoorAtOnce_TheLadderComesFirst()
+        {
+            // the bunks' ladder stands just short of the shower block's door
+            float x = DenMap.BunkLadderX + DenMap.LadderReach;
+            Assert.AreEqual(DenPlace.Showers, DenMap.DoorAt(DenFloor.Loft, x, 1), "the shower door is there");
+            var w = new DenWalker(DenFloor.Loft, x);
+            Assert.IsTrue(w.CanClimb(1));
+            Assert.AreEqual(DenPlace.None, w.DoorHere(1), "up climbs to the bunks");
+            Assert.AreEqual(DenPlace.None, new DenWalker(DenFloor.Loft, DenMap.LadderX).DoorHere(-1), "down the hatch is the ladder's");
+            w.WalkTo(DenFloor.Bunks, 100f);
+            Run(w, 0.3f);
+            Assert.IsTrue(w.Climbing);
+            Assert.AreEqual(DenPlace.None, w.DoorHere(1), "no door from the ladder");
+        }
+
+        [Test]
+        public void ATapOnTheBoard_OpensIt_EvenWithKcajInFrontOfIt()
+        {
+            float x = DenMap.XOf(DenPlace.Board), y = DenMap.FloorY(DenFloor.Upper) + 10f;
+            DenPlace board = DenMap.PlaceAt(x, y);
+            Assert.AreEqual(DenPlace.Board, board, "kcaj's station is the board's middle");
+            Assert.AreEqual(DenTap.Place, DenMap.TapOn(true, board), "the board wins over kcaj");
+            Assert.AreEqual(DenTap.Place, DenMap.TapOn(false, board));
+            Assert.AreEqual(DenTap.Crewmate, DenMap.TapOn(true, DenPlace.None), "kcaj anywhere off the board swaps to him");
+            Assert.AreEqual(DenTap.Crewmate, DenMap.TapOn(true, DenPlace.RollerDoor), "a crewmate in front of any other place is who you tap");
+            Assert.AreEqual(DenTap.Place, DenMap.TapOn(false, DenPlace.RollerDoor));
+            Assert.AreEqual(DenTap.Floor, DenMap.TapOn(false, DenPlace.None));
         }
     }
 }

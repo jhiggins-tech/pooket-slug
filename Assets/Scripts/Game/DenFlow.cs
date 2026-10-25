@@ -177,7 +177,7 @@ namespace PooketSlug
             }
         }
 
-        int m_HeldDir;
+        int m_HeldDir, m_HeldClimb;
         bool m_ToCouch;
 
         /// <summary>Where your soldier's told to go: taps, the keys, READY. Setting off from the couch gets you up.</summary>
@@ -211,7 +211,7 @@ namespace PooketSlug
             {
                 // Jump uses the place you stand at, there and then (a wide one like the bunks has no spot to walk to);
                 // the couch still walks you to your seat on it
-                DenPlace here = DenMap.PlaceAt(w.X, w.Y + 10f);
+                DenPlace here = w.PlaceHere;
                 if (here != DenPlace.None && here != DenPlace.Couch)
                 {
                     if (m_Den.Ready) Sit(false);
@@ -224,6 +224,18 @@ namespace PooketSlug
             }
             int dir = soldier.Left == soldier.Right ? 0 : soldier.Left ? -1 : 1;
             int climb = soldier.Up == soldier.Down ? 0 : soldier.Up ? 1 : -1;
+            bool pressed = climb != 0 && climb != m_HeldClimb;
+            m_HeldClimb = climb;
+            DenPlace door = pressed ? w.DoorHere(climb) : DenPlace.None;
+            if (door != DenPlace.None && place == DenPlace.None && !walk)
+            {
+                // up (or down, at the trapdoor) at a door with no ladder that way goes through it, as jump does
+                if (m_Den.Ready) Sit(false);
+                w.Walk(0);
+                m_HeldDir = 0;
+                Use(door);
+                return;
+            }
             bool moving = place != DenPlace.None || walk || dir != 0 || w.CanClimb(climb);
             if (moving && m_Den.Ready && place != DenPlace.Couch) Sit(false);
             if (place != DenPlace.None) w.Go(place);

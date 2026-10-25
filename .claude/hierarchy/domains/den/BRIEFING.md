@@ -27,6 +27,13 @@ gameplay domain's: `BayFlow` and `BayView` call them.
 ## The rules this domain keeps
 - Walking to a station is the menu: tap the floor to walk, tap a station or a door to walk there and use it.
   (`docs/design/lobby.md`, Den 2.0; `DenFlow.Use`)
+- By hand: left and right walk, jump uses the place you stand at (the trapdoor under your feet too:
+  `DenWalker.PlaceHere`), and up and down take ladders and doors. Up goes through the doors you walk in through, down
+  through the trapdoor (`DenMap.DoorWay`); a ladder that way comes first (the bunks' ladder stands at the shower
+  door's edge), and a door needs the key pressed, not held (`DenWalker.DoorHere`, `DenFlow.Walking`, den-taps).
+- What wins a tap is `DenMap.TapOn`: a crewmate beats a place behind them, except the mission board, which always opens
+  (kcaj's station is its middle, so at his station you reach him by SPECIAL's cycle, not a tap); a place beats the floor.
+  (`DenMapTests.ATapOnTheBoard_OpensIt_EvenWithKcajInFrontOfIt`, den-taps)
 - The soldier you play is the one you move, and the couch is the soldier pick: two seats, left for player one, right
   for player two. Picking, readying and starting a mission never needs a scroll. (`Den.cs`, `DenTests`)
 - READY sits bottom right and BACK top left; no station's tap area reaches into the bottom corners. (`lobby.md`)
@@ -93,9 +100,8 @@ branch's preview, with `?unlock=crew` to fill the den. A new `.cs` needs a `.met
 
 ## Known unfinished
 - The ground floor and upper floor's painting predates the scale rule: its doors are about 2.8 times the soldier, and
-  `DenMapTests.TheDen_IsDrawnToTheSoldiersScale` is `[Test, Ignore]` for that. The owner kept the painting at its size
-  (den2-den-rescale); `lobby.md` says so. Update the Ignore reason ("Design's call") when next in that file: the
-  stale-docs card left it, as it allowed no test changes.
+  `DenMapTests.TheDen_IsDrawnToTheSoldiersScale` is `[Test, Ignore]` for that (its reason now says the owner kept the
+  painting at its size, den2-den-rescale; `lobby.md` says so).
 - The den's painting (`den.bytes`) still shows the old board on the ground floor, so kcaj's nook has two. It needs an
   annotated edit that takes the ground board down and leaves the nail; `DenTrapdoor` (drawn in code) should then match
   the nail, and the TV's mission name, written on that old board (`DenRoom.Board`, `DenConsole`), has to move.
