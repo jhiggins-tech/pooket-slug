@@ -4,15 +4,15 @@ using static PooketSlug.StageKit;
 namespace PooketSlug
 {
     /// <summary>
-    /// The cutscenes' sets (<see cref="Staging.Sets"/>): the motor pool from outside with its blast shutter, painted pixel
-    /// by pixel once, the first time a scene plays, and kept; the creamery's loading yard, put together from Mission two's
-    /// plates; and Design's paintings (<c>Resources/Den</c>, through
+    /// The cutscenes' sets (<see cref="Staging.Sets"/>), each painted pixel by pixel once, the first time a scene plays,
+    /// and kept: the motor pool from outside with its blast shutter, on Mission one's plates with the hangar drawn over
+    /// them; the creamery's loading yard before the cold store, put together from Mission two's plates (each drawn in
+    /// code instead for a build without its plates); and Design's paintings (<c>Resources/Den</c>, through
     /// <see cref="DenRoom.Painting"/>): the street outside the hangout on a snowy night (plate B-2, with the hangout's door
     /// and lit window cut from it as props, <see cref="CutsceneCast.MakeHangout"/>; the code-drawn street stands in if
     /// it's missing), and the den and the tabk bay on raid night. The
     /// bay is wider than the stage, so a shot there pans along it with its camera. The motor pool's layout (the
-    /// shutter's opening, where the row's tabks park) is here too. The creamery's cold store is code-drawn too, until
-    /// Design paints one, since the shutter, the work lights and the row are
+    /// shutter's opening, where the row's tabks park) is here too, since the shutter, the work lights and the row are
     /// drawn to fit it.
     /// </summary>
     public static class CutsceneBackdrops

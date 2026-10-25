@@ -60,7 +60,7 @@ recording: `narrator <recording>:`), `caption` (the big card).
 **Cues**: `door`, `static`, `drop`, `goon`, `jet`, `glitch`, `card-drop`, `card-up`, `crush`, `card`, `shutter`,
 `hum`, `engine`, `hatch`, `slam`, `turret`, `cage`, `kie-drop`, `snacks`, `rip`, `drone`, `lift`, `remote`, `alarm`,
 `cold-door`, `frost`, `freezer`, `munch`, `note`,
-`intro-build`, `intro`, `mission-start`; `say <line>` has the announcer read one of theirs.
+`intro-build`, `intro`. `say <line>` has the announcer read one of theirs: `4.1 say mission-start`, `say mission-two-start`.
 
 **The camera**: `0-2.2 camera 1.15 20 -12 smooth`: how far in, and where it looks (from the stage's middle). The bay
 (`set bay`) is 993 wide, three stages long, with the stage showing its left end: `0-3 camera 1 673 0 smooth` pans to
@@ -95,10 +95,10 @@ A thing is on stage once a line stages it (or `show` names it), until `hide`.
 | `on` | `stars on kie 0 22`: rides on a soldier |
 
 **Soldiers also**: `walk` (`0-1 kie walk 100 166`: they run), `face left` / `right`, `pose idle run crouch spray
-hatch repair`, `look plain holo trollo`, `holds bag cup` (or `holds bag -7 9` for where), `sway`. The goon also `appear`s
+hatch repair`, `look plain holo trollo` (`holo` a Trollogram goon, `trollo` a Trollogram crewmate), `holds bag cup` (or `holds bag -7 9` for where), `sway`. The goon also `appear`s
 (over a window) and `glitch-out`s.
 
-**Effects' own verbs**: `chips burst 66` / `spill 66`; `jet spray 66 168` (over a window); `shutter open` (over a
+**Props' and effects' own verbs**: `chips burst 66` / `spill 66`; `jet spray 66 168` (over a window); `shutter open` (over a
 window) / `up`; `lamps stutter`; `goon appear`; `clamp rip` (over a window); `cage flicker-out` (over a window).
 
 ## A new scene

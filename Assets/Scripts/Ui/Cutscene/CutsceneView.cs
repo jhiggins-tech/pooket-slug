@@ -20,7 +20,7 @@ namespace PooketSlug
     /// waiting line.
     /// </para>
     /// <para>
-    /// The stage is <see cref="StageKit"/>'s, shared with the den and the debrief: 320 x 180 art pixels drawn at 2x, so
+    /// The stage is <see cref="StageKit"/>'s, shared with the den, the tabk bay, the outer rooms and the debrief: 320 x 180 art pixels drawn at 2x, so
     /// the soldiers are the size they are in the game, and letterboxed on screens of other shapes.
     /// </para>
     /// </summary>

@@ -1,12 +1,14 @@
 namespace PooketSlug
 {
     /// <summary>
-    /// The boss intro's timeline (<c>docs/design/tanks.md</c>, The boss intro), as a pure function of the seconds since
+    /// The boss intro's timeline (<c>docs/design/cutscenes/mission-one.md</c>, The boss intro), as a pure function of the seconds since
     /// it began: the siren and the announcer's cues, and what the HUD shows. The full intro: a siren twice, a flashing
     /// red WARNING! between hazard stripes, the screen edges flashing, then the tank's name card as the announcer calls
-    /// it. The quick intro (a tank you've met this run): the banner and one siren only.
+    /// it. The quick intro (a replay of a mission that's been cleared, or a retry after losing at the boss door): the
+    /// banner and one siren only.
     /// <para>
-    /// A full intro can end with its pilot's (<c>docs/design/cutscenes/mission-two.md</c>, kcaj's tabk arrives): as the name card
+    /// A full intro can end with its pilot's, when the mission's reveal hasn't just played (<c>docs/design/cutscenes/mission-two.md</c>,
+    /// kcaj's tabk arrives: a test start, or a solo fight once the reveal's been seen): as the name card
     /// goes, the hatch pops and the Trollogram looks out (a riser under it), then their name slams in on the intro band
     /// with the musical hit, and they say their line. It's the one time an intro holds the action: solo, the game
     /// stands still from the hatch to the end (<see cref="Holding"/>).

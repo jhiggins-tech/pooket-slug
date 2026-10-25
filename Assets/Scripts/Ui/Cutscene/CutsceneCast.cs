@@ -7,7 +7,7 @@ namespace PooketSlug
 {
     /// <summary>
     /// The cutscenes' cast and props, staged as the shot's script has them (<see cref="ShotStage"/>): the soldiers
-    /// (tones2, kie, kcaj, the goon), kie's tabk, and the props (<see cref="Staging.Things"/>), each placed, turned, sized and
+    /// (tones2, kie, kcaj, the goon), the tabks (tones2's, kie's and kcaj's), and the props (<see cref="Staging.Things"/>), each placed, turned, sized and
     /// coloured, with the few that have looks of their own: the sign's words, the clamp kie rips off, the drone's rotors
     /// and cable, the alarm's beacon.
     /// <para>
@@ -276,7 +276,7 @@ namespace PooketSlug
 
         /// <summary>
         /// A soldier, drawn from their legs and torso as in the game: walking, standing, crouched, spraying, or just their
-        /// top half in a tabk's hatch; plain, or as Trollogram kie (cyan, flickering, grinning).
+        /// top half in a tabk's hatch; plain, or as a Trollogram crewmate (Trollogram kie or kcaj: cyan and flickering).
         /// </summary>
         static void Soldier(StageFigure f, string name, PlayerSkin skin, float runRate, ShotStage stage, float t, float now, float ground)
         {
