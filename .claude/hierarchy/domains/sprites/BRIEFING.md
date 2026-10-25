@@ -131,10 +131,6 @@ not have to run in game. Tests check that frames exist, not how they look (see b
   gone through it yet that the notes record. The first one needs an owner promotion on the Roadmap.
 - Per-crewmate heads exist for tones2, kie and kcaj; the repair frames and bowed head were approved on 20 Oct. A
   co-op second-player marking was ruled out; crewmates are unique and tabks one each.
-- `ArtData.CrouchDrop` and `CrewFigure.CrouchDrop` are the same 6 px, kept twice, and nothing reads
-  `ArtData.CrouchDrop` (only a doc comment on `LegsSit` names it). A third copy is the den's seated drop, a literal
-  `-6f` in `Ui/Den/DenCrew.cs` (den's file, handed over 25 Oct). A code card could delete `ArtData.CrouchDrop` and
-  point the comment and the den at `CrewFigure.CrouchDrop` (domain-consistency-audit, 25 Oct).
 - The title logo and its animation are built. Its parts file, `Core/Title/TitleLogo.cs` and `TitleMotion.cs`, and the
   views belong to the shell domain; only the pictures and their tests are here.
 - Untested art tables (domain-consistency-audit, 25 Oct): `CrewArt`'s `s_Bodies`, `s_BodyTops` and `s_Legs` must
