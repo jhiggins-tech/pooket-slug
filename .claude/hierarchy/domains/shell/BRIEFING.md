@@ -36,17 +36,23 @@ Not this domain's, though they sit beside its files: the cutscene flows (`SceneF
   (`TitleView.cs` summary, `docs/design/art.md` "The title logo", `docs/design/player.md`.)
 - **START goes where `StartFlow` says**: the opening and Mission one until Mission one is beaten, then the den; every
   debrief goes to the den. The shell calls `StartFlow`, it does not decide it (gameplay's, `StartFlow.cs`).
-- **Mission one is solo.** Beating it sets the `coop` reveal (`Game.cs`, `Profile.MarkSeen`), which opens co-op and the
-  den's crew. (`docs/design/player.md`, `docs/design/levels.md`.)
+- **Mission one is solo.** Beating it solo sets `Profile.coop` (`Profile.RecordRun`, called from `Game.EndRun`; the
+  story's `OpensCoop`), which opens co-op and the den's crew. The `coop` reveal (`Reveals.Coop`) is a separate record,
+  marked when the player first joins the room (`Game.JoinCoop`). (`docs/design/player.md`, `docs/design/levels.md`,
+  `ProfileTests.BeatingMissionOneSoloOpensCoop`.)
 - **Never let a rank name leak.** Players are told of Bronze, Silver, Gold, Platinum, Diamond, Master, Grandmaster and
-  Champion only. The other 25 appear only on a player who holds one, in `DebriefView`, never in a menu, a tooltip or
-  the site. `Ranks.cs` is the one file that holds the full ladder; do not copy its names into any other text a player
+  Champion only. The other 25 appear only on a player who holds one: `DebriefView` (the rank held, before or after the
+  rank-up, never the next) and the den's trophy shelf (`DenFlow`, the den's), never in a menu, a tooltip or the site. `Ranks.cs` is the one file that holds the full ladder; do not copy its names into any other text a player
   reads. Code, tests, docs and commit messages may name them. (`CLAUDE.md`, Hidden ranks.)
 - **Rank ids and the ladder order never change**: saves go by the order (`Ranks.cs` comment). A new rank is appended
   by the owner's say, with a row in `Ranks.All`.
 - **Saves must read forward.** `Options` is one number (`Options.Bits`): a new setting takes the next free bits and
-  reads as its default in an old save. Never move a shift (`OptionsTests.cs`). `Profile` is serialised as it is: add
-  fields, never rename or reuse them (`ProfileTests.cs`). `Reveals` ids (`coop`, `tank`) are saved by name.
+  reads as its default in an old save. Never move a shift. `Profile` is serialised as it is (`JsonUtility`): add
+  fields, never rename or reuse them. No test pins either yet: `OptionsTests` checks a round trip and the shake bit of an
+  old save, and `ProfileTests` the merge and repair, not the bit positions or the field names (see Known unfinished).
+  `Profile.seen` holds every once-only record by name: `Reveals.Coop`, the scenes' ids (`SceneFlow`), the story's
+  beats (`StoryRecord`: the super, the coda, the debrief), the den's beats (`DenBeats`) and kie's homecoming
+  (`KieHomecoming.Reveal`). `Reveals.Tank` is only the `?unlock=tank` key and is never saved.
 - **Reveals play once.** A thing shown on first meeting is recorded with `Profile.MarkSeen` and saved at once.
 - **Touch first.** Every screen works by tap in landscape on a phone; keyboard and gamepad also work
   (`InputSources.cs`: one `SoldierInput` a frame from whichever sources are present, so they can be mixed). A screen
@@ -56,8 +62,10 @@ Not this domain's, though they sit beside its files: the cutscene flows (`SceneF
   (`Ui.cs`, `Debrief.cs`).
 - **Words players read**: "tabk", never tank; "Trollogram", never hologram; kie is said "k-eye". Identifiers keep
   their names (`CLAUDE.md`). The kit demo clips (`demos/<id>.mp4`) are recorded by CI from the game itself.
-- **Launch flags** (`?test=`, `?unlock=`, `?demo=`, `?sandbox=`, `?room=`, `?mission=`) are read once at start-up
-  into `LaunchFlags` (gameplay's, tested). A flag that changes a screen is read by `Game`, not by the view.
+- **Launch flags** (`?test=`, `?unlock=`, `?demo=`, `?room=`, `?mission=`, `?log=`) are read once at start-up into
+  `LaunchFlags` (gameplay's, tested). `?sandbox=` and `?scene=` are read by `Game.Awake` with `PageQuery.Get` and handed
+  to `SandboxFlow` and `SceneFlow`; `?spike=` by `Spike.Configure`. A flag that changes a screen is read by `Game`, not by
+  the view.
 - **Co-op room**: one always-there Photon session, `CoopRoom.Mates`; only identical builds meet, so each preview has
   its own. `?room=NAME` names another (the co-op tests use it). (`CoopRoomTests.cs`.)
 - **The debrief shows what that phone's player did** (their kills, lives, XP); the score is the shared one. In co-op,
@@ -68,7 +76,11 @@ Not this domain's, though they sit beside its files: the cutscene flows (`SceneF
 ## The vocabulary
 - `GameState`: Title, Settings, Lobby, Den, Cutscene, Playing, GameOver, Victory, Demo. Do not rename them.
 - `MenuScreen`: None, Title, Settings, Connecting, Paused, GameOver, Victory, Kit, Missions. `MenuAction` is what a
-  button asks for. `MenuView.Info` is what `Game` gathers each frame for the menus; `HudView` takes the same kind.
+  button asks for. `MenuInfo` is what `Game` gathers each frame for the menus; `HudView` takes a `HudInfo`.
+- The den's way into co-op is its **+ MATE** button on the couch (`DenConsole`, key H), and its invite is the TV's
+  **TAP TO INVITE**. There is no CO-OP button anywhere now; text that says "press CO-OP" is stale.
+- The **victory screen** (`MenuScreen.Victory`) shows only when a win has no debrief: a sandbox run, or watching a
+  room. Every other win goes straight to the debrief (`Game.EndRun`, `MenuScreenNow`).
 - The flows: `BoardFlow` (mission screen), `KitFlow` (the ⓘ screen), `DebriefFlow`, `DemoFlow` (`?demo=`),
   `SandboxFlow` (`?sandbox=`). The "mission screen" and the "kit screen" are what players and docs say.
 - The title logo is ten letters and the tabk (`TitleLogo`), moved by `TitleMotion` as pure functions of seconds since
@@ -76,14 +88,16 @@ Not this domain's, though they sit beside its files: the cutscene flows (`SceneF
   Parts come from `Resources/Title/layout.txt`, made by `tools/title_logo.py`.
 - `Volume` (High, Mid, Low, Off) for effects, voices and music; `Options.Crew` and `Options.Tabk` are who and which
   tabk the player last loaded.
-- Debrief constants live in `Progression` (`Debrief.cs`): `ClearXp`, `FreedXp`, `KillXp`, `Rung`, `FirstClearClimb`.
-  They are placeholders to tune after playtesting. A first clear of Mission one is always worth a whole rung.
+- Debrief constants live in `Progression` (`Debrief.cs`): `ClearXp` 200, `FreedXp` 300, `KillXp` 1, `Rung` 4,
+  `FirstClearClimb` a rung, `ReplayClimb` 1 and `LooksTokenXp` 600, the same as `docs/design/player.md` and
+  `docs/design/cutscenes/mission-one.md` say (checked 25 Oct). They are placeholders to tune after playtesting. A first clear of Mission one is always worth a whole rung.
 
 ## The invariants
 - The shell reaches co-op only through `INetSession` (the HUD reads it) and the room through `CoopRoom`; the netcode
   is net's. Co-op starts together play the mission opening on both phones (`LaunchFlags.Testing` skips it).
 - `Game` owns the profile and its store; flows save through it. A view never saves.
-- A sandbox or a spike run never writes the profile (`SandboxFlow.cs`, `Spike.cs`).
+- A sandbox run never writes the profile: `Game.EndRun` and `NoteSuper` return early, and a sandbox plays no opening.
+  A spike run is *not* kept off it: nothing checks `Spike.Any` (see Known unfinished).
 - A demo or a scripted sandbox take hides the build line, frame rate and start banner so the clip is clean
   (`HudView` info flag).
 - Core folders know nothing of Unity's scene or the network: `Core/Title`, `Core/Lobby/*` here stay plain C#.
@@ -114,6 +128,34 @@ the `gh-pages` branch locally and use `?test=debrief` and Enter through to the m
 - Hard never shows on the mission screen: `BoardFlow` asks `MissionBoard.Cards(profile, coop: false)` and
   `MissionBoard.HardOpen` needs co-op, and the co-op room has no mission screen of its own. Whether that is meant is
   an owner question (gameplay owns `MissionBoard`); the comments now say what the code does.
+
+- **Hard is dead end to end** (consistency audit, 25 Oct): besides the mission screen never offering it, `Game.EndRun`
+  records every co-op run as `Setting.Normal`, and nothing in the world reads `Game.Setting`, so a hard run would play
+  and save as normal. One owner question with the item above.
+- **A `?spike=` run writes the profile** like any run (XP, rank, clears, reveals, and the cloud when signed in). The
+  briefing used to say it didn't. Whether it should is an owner question (audit, 25 Oct).
+- **The co-op HUD's waiting line** says "THE NEXT MATE TO PRESS CO-OP JOINS YOU" (`HudView.cs`), but the den's button
+  is + MATE. Player text, so it waits for the owner (audit, 25 Oct).
+- **The victory screen's co-op line** ("CO-OP IS OPEN: PLAY ONLINE WITH A FRIEND FROM THE MENU", `MenuView.cs`) names
+  the menu, not the den, and `m_CoopJustOpened` is never cleared, so after the win that opened co-op, a room watched
+  later in the same visit shows it on its victory screen (audit, 25 Oct).
+- **The mission screen's hint** says "TAP A MISSION, THEN PLAY" while its button says PICK whenever it's opened from the
+  den, which is always (`MenuView.RefreshMissions`; audit, 25 Oct).
+- **The settings' controls lines** leave out the ability (AB; B / I) and the team super (TEAM; T / Y), which
+  `docs/design/player.md` lists (`MenuView.cs`; audit, 25 Oct).
+- **No test pins the save formats**: a test fixing `Options.Bits` for one known set of options, and `Profile`'s JSON
+  field names, would hold the "never move a shift / never rename a field" rules (audit, 25 Oct).
+- **The mission screen has room for four cards** (`MenuView.MaxCards`, `MenuAction.Card1`..`Card4`); with four missions
+  the coming-soon card is a fifth and is dropped. Not a problem until Mission four.
+
+## Consistency audit (25 Oct)
+Checked with scripts: player text in the shell's files for "tank", "hologram" and the 25 hidden rank names (none: the
+"Tank" hits are object names); every `docs/...md, Heading` a shell comment cites (all resolve); the briefing's rules
+against the code (fixed above: the coop reveal, the launch flags, `MenuInfo`/`HudInfo`, the spike rule, what pins the
+saves); `Ranks.All` is 33 with the eight known ones where Tabks has them; the debrief numbers against `player.md` and
+`mission-one.md`; the title logo's ten parts and tabk against `layout.txt` and `art.md`. Fixed comments: `Game`'s
+summary (each mission's story beats, the bay and rooms flows), CO-OP named where the den's + MATE is meant (`Game`),
+the sign-in button's places (`Game.RefreshScreens`), the invite as the TV's (`Invite.cs`, `PooketInvite.jslib`).
 
 ## Stale-docs pass (25 Oct)
 Comments in the shell's files were checked against the code. Fixed: the title's old MISSIONS, CREW and CO-OP buttons

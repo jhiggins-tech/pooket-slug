@@ -1,4 +1,4 @@
-// The den's invite button (rooms): shares the room's link on a phone (the share sheet) or copies it elsewhere.
+// The den's TV, TAP TO INVITE (rooms): shares the room's link on a phone (the share sheet) or copies it elsewhere.
 // Browsers only share or copy inside a tap's own event, and the game hears about a tap a frame later, so the game
 // arms the invite as the finger goes down (PS_InviteArm) and the page shares it as the finger comes up. The game
 // reads how it went with PS_InviteResult: 0 nothing yet, 1 shared, 2 copied, 3 couldn't (the game then shows the link).
