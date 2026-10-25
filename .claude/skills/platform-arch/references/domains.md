@@ -252,8 +252,9 @@ the plot out of the code and checks it against `story.md`. What it checks:
   mentions is reachable;
 - every crewmate the plot says is freed is freed by the mission the plot says frees them (`CrewMember.FreedBy`), and
   no crewmate is freed twice;
-- every reveal the plot lists is a reveal the game actually has (`Profile.Reveals`), and every reveal the game has is
-  in the plot;
+- every reveal the plot lists is a reveal the game actually has, and every reveal the game has is in the plot: the
+  game's side is `OnceOnly.All` (`Core/Missions/OnceOnly.cs`), every once-only key the game saves in one list, which
+  `OnceOnlyTests` holds to every place that marks one;
 - the "once only" beats are marked once-only in both, and the scenes the plot retires are not played.
 
 **Some of this is already tested, and some is not.** `MissionStoryTests` already holds a mission's scenes, its coda,

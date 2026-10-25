@@ -9,6 +9,7 @@ plays.
 ## The files
 - `Assets/Scripts/Core/Missions/MissionStory.cs`
 - `Assets/Tests/EditMode/Missions/MissionStoryTests.cs`
+- `Assets/Scripts/Core/Missions/OnceOnly.cs` and `Assets/Tests/EditMode/Missions/OnceOnlyTests.cs` (dca-once-only-keys)
 - `docs/design/story.md`
 
 `MissionStory.cs` holds three types: `MissionStory` (a mission's scenes and flags), `StoryRun` (how a mission is being
@@ -65,6 +66,13 @@ the stale-docs pass had called them drafts).
   (`Game`), a scene's `scene-<name>` (`SceneScript.IdOf`, marked by `SceneFlow`), `StoryRecord`'s three, `DenBeats`
   (`den-first-visit`, `moved-in-<name>`) and `KieHomecoming.Reveal` (`kie-tabk-home`, marked by `BayFlow`). The plot's
   reveals table in `story.md` names each of these beats (the den rows added by domain-consistency-audit).
+- **`OnceOnly.All`** (`Core/Missions/OnceOnly.cs`, dca-once-only-keys) is those five gathered in one list: a key and
+  what it is per beat, built from the sources' own constants (scene keys from `SceneLibrary.Names`, move-ins from
+  `Crew.All` less `DenBeats.Starter`), so no source changed. This is the list the story check reads. `OnceOnlyTests`
+  pins the 14 keys as saved today, holds them unique, and scans `Assets/Scripts` for every `MarkSeen(...)` and
+  `Mark(...)` call: each call site is in its `CallSites` table with the keys it can save, so a new place that marks a
+  key fails until it is listed. `Reveals.Tank` is not in the list (nothing saves it). A new scene or crewmate adds a
+  key, and the pin test asks for it to be pinned.
 - The once-only beats are `StoryRecord`'s keys: `coda`, `debrief`, `super`. They are in players' saves and never change.
   A scene's own once-only mark is `SceneScript.IdOf(scene)`, tested by `StoryRecord.Due`.
 - A mission's story fields: `Opening` (played as the mission starts, solo or, from the den, co-op), `BossReveal` (the boss's entrance, once ever, solo) with
@@ -91,7 +99,7 @@ the stale-docs pass had called them drafts).
 ## How it is checked
 `tools/check.sh` (type-check, EditMode tests, scene check, docs link check; `tools/check.sh docs` for the links alone). Tests:
 `MissionStoryTests` (Mission one's scenes and coda, every mission's scenes against `SceneLibrary.Names` (`PilotIntro` is a title card, not a scene), all three save keys, a mission with no story, the once-only beats, the quick boss intro, the
-super, the boss reveal and the pilot freed rules). Nearby: `StartFlowTests` and the other Missions tests; `CodaTests` covers the coda
+super, the boss reveal and the pilot freed rules). `OnceOnlyTests` (the once-only keys: listed, saved, unique, pinned). Nearby: `StartFlowTests` and the other Missions tests; `CodaTests` covers the coda
 (its summary cites `story.md`, but nothing reads the document). Ownership of these files is held by `tools/check_ownership.py`.
 
 **Doing a story change:**
@@ -107,11 +115,11 @@ super, the boss reveal and the pilot freed rules). Nearby: `StartFlowTests` and 
     them (gameplay) or cut them from the plot (owner).
   - `MissionStoryTests` checks Mission one's scenes are in `SceneLibrary.Names` but no other mission's, and pins the
     `coda` and `debrief` keys but not `super`. Both belong in the consistency check card, or a small test card.
-  - The consistency check's "every reveal the game has is in the plot" needs the five sources above gathered in one
-    list it can read; today there is none.
 - The consistency check does not exist. It should read the plot out of the code and check it against `story.md`: the
   mission order and the id and net id rule; every scene a story names is in `SceneLibrary.Names` and reachable; each crewmate
-  freed once, by the mission the plot says; every reveal in the plot exists and the reverse; once-only beats marked in both.
+  freed once, by the mission the plot says; every reveal in the plot exists and the reverse (the game's side is
+  `OnceOnly.All`; the reveals table does not yet name `super`, the coda's prompts or `coop-test`, a test scene, so the
+  check needs a rule for keys that are not plot beats); once-only beats marked in both.
   Nothing checks the mission order, roster or reveals against the document. This is the domain's first card.
 - Mission order after kcaj is open (`story.md`, Open questions; with Design).
 - Each mission's story after Mission two (its briefing, how its crewmate's freeing plays out) is undecided.

@@ -206,7 +206,9 @@ shell Assets/Tests/EditMode/Lobby/ProfileTests.cs
 # Crew.cs, the scene names in SceneLibrary.cs — stay with their owners, and this
 # domain's job is to keep them agreeing, which its consistency check does.
 story Assets/Scripts/Core/Missions/MissionStory.cs
+story Assets/Scripts/Core/Missions/OnceOnly.cs
 story Assets/Tests/EditMode/Missions/MissionStoryTests.cs
+story Assets/Tests/EditMode/Missions/OnceOnlyTests.cs
 story docs/design/story.md
 
 # ---------------------------------------------------------------- net

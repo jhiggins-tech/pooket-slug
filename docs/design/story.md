@@ -103,6 +103,8 @@ The game hides what's coming ([progressive disclosure](README.md#progressive-dis
 
 The second time you meet something, it's quick: a tabk you've already fought only gets its boss intro.
 
+In code, every once-only beat the game remembers is one list, `OnceOnly.All` (`Assets/Scripts/Core/Missions/OnceOnly.cs`): its keys are in players' saves and never change. The story check reads that list against this table.
+
 ## Open questions
 
 - **Mission order after kcaj**, which sets the order of the story.
