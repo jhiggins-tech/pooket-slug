@@ -83,7 +83,10 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
 - Gameplay never depends on a scene. `Core/Story` knows nothing of Unity's scene or the network; the view and the flow
   draw and play sounds.
 - Blinks, flickers and walk cycles on the stage go through `Fx` or a `Clip`, and a figure is posed with
-  `StageFigure.Pose`; no inline `(int)(t * hz) % n`.
+  `StageFigure.Pose`; no inline `(int)(t * hz) % n`. The `flicker` and `blink` verbs (`ShotStage.Colour`,
+  `ShotStage.Lit`) call `Fx.Step` (dca-fx-blinks, 25 Oct); `SceneScriptTests.FlickersAndBlinksKeepTheirBeatsOnFx`
+  holds them to the old beats. A search of the domain found no other inline blink: the `% 2` left in
+  `CutsceneBackdrops` are stripes across x, and `CutsceneEffects`' `% 1f` are drifts, not beats. `Fx.cs` is sprites'.
 - The site's copy of a scene takes over only if it reads cleanly, has the built-in copy's `net` number and differs
   from it. Otherwise the built-in copy plays and the reason is logged. The built-in copies are `Resources/Scenes/<name>.txt`, copied from `scenes/` by the
   build (the editor reads `scenes/` itself); the tests read `scenes/` (`TestScenes`).
