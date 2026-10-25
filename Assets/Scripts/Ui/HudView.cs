@@ -514,7 +514,7 @@ namespace PooketSlug
             Ui.Show(m_Link, alone && room != null && info.PageUrl.Length > 0);
             if (alone)
             {
-                m_Room.text = "THE NEXT MATE TO PRESS CO-OP JOINS YOU";
+                m_Room.text = ScreenWords.CoopWaiting;
                 m_Room.fontSize = 12;
                 if (room != null) m_Link.text = "OR SEND THIS LINK:  " + CoopRoom.Link(info.PageUrl, room);
             }

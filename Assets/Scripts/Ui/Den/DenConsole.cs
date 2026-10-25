@@ -73,7 +73,7 @@ namespace PooketSlug
             m_KitButton = Ui.Button(m_Card, "i", new Vector2(46f, 0f), new Vector2(22f, 22f), kit, out Text kitKey);
             m_KitButton.GetComponent<Image>().sprite = Ui.Disc;
             m_KitButton.GetComponentInChildren<Text>().fontStyle = FontStyle.BoldAndItalic;
-            kitKey.text = "B";
+            kitKey.text = ScreenWords.KitKey; // the same key the pause menu shows
             Vector2 p2 = new Vector2(SeatX[1] - StageW / 2f, SeatY + 9f - StageH / 2f) * Px;
             m_HostPad = Ui.Button(m_World, "+ MATE", p2, new Vector2(52f, 16f), host, out Text hostKey); // on the couch, so it moves with the camera
             m_HostPad.GetComponentInChildren<Text>().fontSize = 9;
