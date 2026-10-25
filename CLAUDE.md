@@ -104,7 +104,7 @@ Each file starts with a summary comment saying what it's for.
 - **Launch flags**, read once as the game starts: `?spike=` (spikes, `Spike.cs`) and the rest into `LaunchFlags` (Core, tested): `?test=` (crate, tank, kietabk, softserve, 1up, pilot,
   weak, team, kcajtank, boss, reveal, coda, debrief, scene: jump straight to a part), `?unlock=` (coop, tank,
   crew), `?demo=` (a kit move's scripted demo; `all` records them for CI), `?room=` (an invite), `?log=` (log levels),
-  `?mission=2` (START plays that mission).
+  `?mission=2` (START plays that mission), `?skit=<name>` (a den skit, the first time the den opens, seen or not).
 - **Sound and music**: Tabks' 8-bit recipes on the `Chip` synth, rendered at startup; the announcer, narration and
   orchestral music are WAVs CI fetches from vendor releases into `Resources` (`.bytes`, made into clips in code).
   `vendor.lock` pins each by hash, so a new take reaches the game only when a branch pins it (`tools/vendor_lock.sh`),
