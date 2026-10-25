@@ -206,6 +206,11 @@ change to the netcode also needs the co-op tests (`CI: co-op` in a commit messag
   spike; `Spike.cs` holds only `craters`, so any other `?spike=` in a comment is stale.
 - `Missions.ForCoop` means a co-op room never plays Mission one; `MissionBoard.StartBanner` still handles the case.
 
+## Kit screen numbers (dca-docs-tests, 25 Oct)
+`KitGuide`'s move text builds its numbers from the tuning (the spew's length and sludge life, weasels a press, Trollograms up,
+pills in the rain) through `KitGuide.Words` and `Spoken`; the words players read are unchanged. `KitGuideTests` pins the
+exact sentences, so a tuning change fails until the words are chosen on purpose.
+
 ## Known unfinished
 - Mission order after kcaj, and each later mission's setting, is an open question (`docs/design/levels.md`). Only two
   missions exist.
