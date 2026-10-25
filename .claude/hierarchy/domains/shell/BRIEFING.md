@@ -108,3 +108,17 @@ the `gh-pages` branch locally and use `?test=debrief` and Enter through to the m
 - The den painting is not at the soldier's scale, so `DenMapTests` has an `[Ignore]` with its reason; that is the den
   domain's, and the reason text was to be updated the next time that file is touched.
 - The title-logo animation and its sounds are built (`TitleMotion`, `TitleView.MusicDue`); nothing open there.
+- The mission screen opens only from the den (`DenFlow` calls `Board.Show(fromDen: true)`); `BoardFlow`'s other path
+  (PLAY going on to the den) is left from the title's old MISSIONS button and is unused. Remove it the next time
+  `BoardFlow` changes.
+- Hard never shows on the mission screen: `BoardFlow` asks `MissionBoard.Cards(profile, coop: false)` and
+  `MissionBoard.HardOpen` needs co-op, and the co-op room has no mission screen of its own. Whether that is meant is
+  an owner question (gameplay owns `MissionBoard`); the comments now say what the code does.
+
+## Stale-docs pass (25 Oct)
+Comments in the shell's files were checked against the code. Fixed: the title's old MISSIONS, CREW and CO-OP buttons
+(`BoardFlow`, `MenuView`, `Options`, `GameInput.Host`), sign-in "to come" (`Profile`), hard's rule (`Setting`), the
+partner beacon called a spike (`Ui`, `HudView`), a `partner` spike that is gone (`Game.cs`: `Spike.cs` has only `craters`), the bay pointer to `docs/design/lobby.md`, The tabk bay, rather than the tabks index (`MenuView`), and the hidden-rank rule in `Ranks.cs` (names are fine outside text
+players read). Left as they are: "Rooms:" at the head of a co-op comment is the project's tag for the co-op room
+feature, and "Start flow 5", "S3" and "A2, H2, G3" are the labels of the owner's picks on their option pages.
+When a comment names a spike, check `Spike.cs`: spikes graduate or go, and the comments that named them stay behind.

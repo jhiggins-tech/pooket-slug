@@ -38,6 +38,9 @@ played: co-op, sandbox, test start) and `StoryRecord` (the once-only beats the p
   two players changing a mission.
 - Slug may deviate from Pooket Tabks; consistency is checked within Slug only.
 
+**Sign-off:** the owner signed `story.md` off on 2026-10-14. The coda and Mission two were written after (2026-10-16) and keep
+their "Draft" marks until the owner signs them off; the page's status line says so.
+
 **The premise** (do not change without the owner):
 - The crew are missing and only tones2 is left. kie's Trollograms have gone rogue and stolen the crew's tabks, each driven
   by a Trollogram copy of its owner. The game keeps that to itself until the first tabk appears.
@@ -58,8 +61,8 @@ played: co-op, sandbox, test start) and `StoryRecord` (the once-only beats the p
   and play grants the call-in in the coda. Keep the id strings as they are, they are in saves.
 - The once-only beats are `StoryRecord`'s keys: `coda`, `debrief`, `super`. They are in players' saves and never change.
   A scene's own once-only mark is `SceneScript.IdOf(scene)`, tested by `StoryRecord.Due`.
-- A mission's story fields: `Opening` (played before a solo start), `BossReveal` (the boss's entrance, once ever, solo) with
-  `BossRevealCoop` (every co-op run), `PilotIntro` and `PilotIntroLine`, `PilotFreed` with `PilotFreedCoop`, `Coda`,
+- A mission's story fields: `Opening` (played as the mission starts, solo or, from the den, co-op), `BossReveal` (the boss's entrance, once ever, solo) with
+  `BossRevealCoop` (every co-op run), `PilotIntro` and `PilotIntroLine` (in a full boss intro the reveal didn't play before: solo once the reveal's been seen until cleared, or a test start), `PilotFreed` with `PilotFreedCoop`, `Coda`,
   `SoloOnly`, `OpensCoop`, `BeforeDen`. `CallIns` is derived: none where there is a coda, else one.
 - "Coda", "the motor pool reveal", "the opening" and "freeing kie/kcaj" are the plot's names for beats; they are headings in
   `docs/design/cutscenes/`.
@@ -98,7 +101,6 @@ super, the boss reveal and the pilot freed rules). Nearby: `StartFlowTests` and 
 - Mission order after kcaj is open (`story.md`, Open questions; with Design).
 - Each mission's story after Mission two (its briefing, how its crewmate's freeing plays out) is undecided.
 - kcaj's tabk coming home needs its own den beat and card; kie's is built (`cutscenes/den.md`, `Core/Lobby/DenBeats`).
-- `story.md` still marks the coda and Mission two as "Draft" although the page is signed off; reconcile when next edited.
 - `wintergarden-chats` is a Roadmap idea (owned by Design); this domain would write its conversations if it is queued.
 - Narrator audio is spelled phonetically in the vendor repository (kie, kcaj and tabks are respelled so the voice says them
   right); that is the audio domain's, but a story change that adds a name must tell it.

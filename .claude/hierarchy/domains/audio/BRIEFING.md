@@ -76,7 +76,9 @@ the cutscene domain (`Core/Story/Cues.cs`, `Ui/Cutscene/CueSounds.cs`); the clip
   (`ALoopRendersToExactlyItsLength`).
 - Gameplay randomness never touches sound. A cosmetic effect uses its own random source (CLAUDE.md invariants).
 - A blink, flicker or cycle goes through `Fx` / `Clip`; a sound that follows one plays from the event, not a timer.
-- Music rendering must not stall a frame: work is spread across frames and clips no longer needed are let go.
+- Music rendering must not stall a frame. Today that's kept by rendering ahead: `MusicFlow.Prepare` renders the mission's
+  tracks at launch, and the rest render in one go the first time they play (`Music.ClipOf`) and are kept for the session.
+  Spreading a render across frames and letting clips go is in music.md's plan, not built.
 - Core's rules (`Soundtrack`, `MenuRecording`) are tested without a scene; keep new music rules there.
 - Never commit a pinned WAV, an orchestra or a recording into the repository: they are fetched by hash in CI.
 - A change to the pin file for a take touches `vendor.lock` only through `tools/vendor_lock.sh`.
@@ -85,7 +87,7 @@ the cutscene domain (`Core/Story/Cues.cs`, `Ui/Cutscene/CueSounds.cs`); the clip
 `tools/check.sh` (compile, the EditMode tests, the scene check, the docs link check); `tools/check.sh compile` for a
 type change. The tests are in `Assets/Tests/EditMode/Audio/`: the notation, the tracks as designed, the loop lengths,
 the countdown, the MIDI file, `Soundtrack`'s moments, and `Wav`. Nothing checks what a sound or track sounds like:
-listening is by the preview build's Try it link (or the CI-rendered WAV). The scene check and `CueTests` hold the cue
+listening is by the preview build's Try it link (not a CI-rendered WAV: see Known unfinished). The scene check and `CueTests` hold the cue
 side (each cue has an effect). `tools/check_scenes.sh` fetches the narration to check reading time.
 
 ## Known unfinished
@@ -93,14 +95,14 @@ side (each cue has an effect). `tools/check_scenes.sh` fetches the narration to 
   Mission one's theme. music.md calls for "each later mission's theme, written with its map". No card yet.
 - **The new crewmate sting** (`MusicTracks.NewCrewmate`) is written and tested but nothing plays it. The crew reveal it
   was for has gone; music.md says it waits for the den's. The den's crewmate-moving-in beat is the likely place.
-- **The coda's music** is `TankAlert` again, an open pick in music.md (Open questions), along with one boss theme or one
+- **The coda's music** is `TankAlert` again (music.md says so, stale-docs 25 Oct), an open pick in music.md (Open questions), along with one boss theme or one
   per boss, Mission one's feel, and who writes the melodies. The owner has not answered.
 - **Mission two's voice** (narration m2 briefing and freeing lines, the announcer's `mission-two-start`) was recorded on
   a vendor branch, not the vendor main, as of 17 Oct. Whether `vendor.lock`'s pinned `narration` and `announcer` zips
   include them is not recorded here: check the pin before relying on it.
-- **Stale spike wording.** `Music.cs`, `MusicMidi.cs` and music.md still say `?spike=music` and "first cut, only the
-  title theme plays", but `Spike.cs` has no music key and the music is on for everyone since 18 Oct. Fix the comments
-  the next time those files change.
-- **`docs/design/music.md` says "one file per track in `Core/Music/`"**; the tracks are all in `Core/Audio/MusicTracks.cs`
-  and there is no `Core/Music/`. Update the doc the next time it changes.
+- **Rendering across frames.** music.md (How the tracks get made, 4) plans renders a few seconds at a time and clips let
+  go when no longer needed; neither is built (see the invariants). No card.
+- **The chip tracks' listen WAVs.** music.md says each track is rendered to a WAV in CI for listening; nothing in this
+  repository does that (the vendor repository may). Check before promising a listen link. How the vendor's Orchestra
+  workflow gets `MusicMidi`'s file is not recorded either: only `MusicTests` calls `MusicMidi.Write` here.
 - New narrator lines: ask the Media generation role for takes; the lines are the story side's to write.

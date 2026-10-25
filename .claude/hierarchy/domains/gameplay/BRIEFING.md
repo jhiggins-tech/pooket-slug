@@ -186,6 +186,17 @@ the spawner and set pieces) and the WebGL build with touch play. The EditMode te
 (`Crew/`, `Bosses/`, `Tabks/`, `Missions/`, `Enemies/`, `World/`, `Input/`, `Platform/`, and `ContentTests.cs`). A
 change to the netcode also needs the co-op tests (`CI: co-op` in a commit message forces them).
 
+## Where the docs moved (stale-docs card, 25 Oct)
+- `docs/design/tanks.md` is an index now; the detail is in `docs/design/tabks/` (`bosses.md`: the boss tabks and
+  the pilot round; `driving.md`: driving and calling in; `tones2.md`, `kie.md`, `kcaj.md`: each crewmate's tabk). The
+  boss intro's design is the cutscene script, `docs/design/cutscenes/mission-one.md`. Point comments there, not at
+  tanks.md's old sections. A few comments still name tanks.md for what is still on it (`Garage`, `TabkKit`,
+  `BossTankSpec`'s "Two kinds of tabk").
+- The title has only START and SETTINGS: the crew pick, the mission board and co-op are all in the den. A comment
+  naming a title button (MISSIONS, CREW, CO-OP) is stale. Drop-in and its own scores are built (`DropIn`), no longer a
+  spike; `Spike.cs` holds only `craters`, so any other `?spike=` in a comment is stale.
+- `Missions.ForCoop` means a co-op room never plays Mission one; `MissionBoard.StartBanner` still handles the case.
+
 ## Known unfinished
 - Mission order after kcaj, and each later mission's setting, is an open question (`docs/design/levels.md`). Only two
   missions exist.
@@ -199,3 +210,5 @@ change to the netcode also needs the co-op tests (`CI: co-op` in a commit messag
   whether it was queued; check the Roadmap (https://claude.ai/artifact/1AWnQDGtUmiKMnjPgcbru9) before building it.
 - The craters spike (`Core/Bosses/CraterGround.cs`, `Bosses/CraterView.cs`) is still behind `?spike=craters`. The design says craters can be dropped
   and arenas made solid if they prove very hard (`levels.md`); no decision is recorded.
+- `Missions/Two/CreameryArt.cs` says its pieces are code-drawn stand-ins until Design's art lands. Not checked
+  whether any of that art has landed; if it has, the comment is stale.

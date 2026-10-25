@@ -268,3 +268,8 @@ architect Assets/Scripts/PooketSlug.Game.asmdef
 architect Assets/Tests/EditMode/PooketSlug.Core.Tests.asmdef
 architect Assets/Tests/Gameplay/PooketSlug.Game.Tests.asmdef
 architect Assets/Editor/WebGLBuild.cs
+# The project's rules, the design's index and the research: no domain's workflow, so nobody
+# else would fix them (the stale-docs card found stale lines in all three).
+architect CLAUDE.md
+architect docs/design/README.md
+architect docs/research/

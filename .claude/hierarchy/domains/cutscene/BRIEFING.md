@@ -67,8 +67,15 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
 - Cue ids are in `Cues.cs`; a recording id (`opening-4a`, `m2-freeing-2`) is the vendor repository's, and `Sfx.Narrate`
   plays it. The announcer's lines (`mission-start`, `mission-two-start`) are `say:` cues.
 - The stage is 320 by 180 art pixels, things placed by their feet from the bottom left. The bay is 993 wide.
-- Boss intro: the full one (siren twice, WARNING!, name card, then a pilot's hatch and band) and the quick one (a tabk
-  already met this run), `BossIntroShow.Cue`.
+- Boss intro: the full one (siren twice, WARNING!, name card, then a pilot's hatch and band) and the quick one (a
+  replay of a cleared mission, or a retry after losing at the boss door: `StoryRecord.QuickBossIntro`),
+  `BossIntroShow.Cue`. The pilot's part plays only when the mission's reveal hasn't just played: a test start, or a
+  solo fight once the reveal has been seen, until the mission is cleared (`BossIntroFlow.Start`). Today that is
+  Trollogram kcaj's TROLLO-KCAJ band, so he gets his intro outside his scene too; the README's Character intros says so.
+- Sets: `motorpool` is Mission one's plates with the hangar drawn over them, `coldstore` is Mission two's
+  loading-yard plate (doors on the right, x 261); each falls back to a code-drawn set in a build without its plates.
+  `den` and `bay` are Design's raid-night paintings, `street` Design's plate B-2.
+- Announcer lines in a scene are `say <line>` (`say mission-start`), not `cue`.
 
 ## The invariants
 - Gameplay never depends on a scene. `Core/Story` knows nothing of Unity's scene or the network; the view and the flow
@@ -99,7 +106,6 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
   from a start (`?test=scene`, `?test=reveal`, `?test=coda`). CI plays `coop-test` with two browsers.
 
 ## Known unfinished
-- The cold store in `freeing-kcaj` and `kcaj-tabk` is drawn in code until it is painted (the cutscenes README says so).
 - The narrator's lines are placeholders for the owner to rewrite in the crew's voice (README, narrator note).
 - kcaj's tabk has its own return beat in the den that is not designed or built (the den's script page has no scene for it).
 - A narrator's recording made earlier can run longer after a re-record; the shot then waits up to 3 s, and the scene
@@ -108,3 +114,11 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
 - Other scenes named in the story are undecided: Mission three's briefing and freeing wait on the story domain.
 - `CutsceneBackdrops`, `CutsceneEffects`, `CutsceneCast` and `SceneFlow` do several jobs each; split them by part the
   next time they change.
+- Script and scene file differ in small ways the script's Built notes record (the opening's shot 8 has no
+  searchlights and leaves by the side door). The scene files' own `//` comments were left alone in stale-docs: a
+  change to a scene file is a deploy and a new version for co-op.
+- For the owner: the TROLLO-KCAJ band in later solo fights breaks "an intro never plays anywhere else". The docs now
+  say what the code does; whether the code should change is a design call.
+- Handed over in stale-docs (25 Oct), not this domain's: `MissionStory.Opening` says "before a solo start" but
+  `m2-briefing` plays in co-op too (story); `docs/design/tanks.md` is an index now, yet comments still point to
+  sections there (`MissionStory.QuickBossIntro`, `World.cs`, `MusicFlow.cs`, `TankBoss.cs`, the crew's tabk files).

@@ -212,13 +212,35 @@ the disputes that a handover cannot.
 
 Two limits are real and shape the design:
 
-- **Nesting depth is three layers** below the main conversation, and the `Agent` tool is withheld from a subagent at
-  the limit. The hierarchy uses exactly that: main → architect → domain manager → coder. The coder is the last layer
-  and never spawns anything. If a fourth layer is ever needed, `CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` is raised first.
+- **A subagent may not get the `Agent` tool.** The spec assumed three layers below the main conversation (main →
+  architect → domain manager → coder). The first card run through the hierarchy (stale-docs, 25 Oct) showed that in
+  a project thread's session no subagent gets `Agent`, whatever its definition lists: all eight domain managers ran,
+  and none could spawn a coder. So, until that changes, **the main session is the only one that spawns.** A domain
+  manager without `Agent` does the coder work itself, and says so in its report. When a card is big enough that the
+  cheaper coders matter, the domain manager returns a plan of coder tasks instead, and the architect (the main
+  session) spawns the coders from it, with the domain's briefing in each prompt, and hands their results back to the
+  domain manager to review. Nothing else in the hierarchy changes.
 - **Twenty subagents may run at once.** A domain manager with three coders live is four running agents. So **at most
-  four domains work at a time**; the architect sequences the rest. Twenty is the default and can be raised, but a wide
+  four domains work at a time** (the pilot ran four at a time, each in its own git work tree); the architect sequences the rest. Twenty is the default and can be raised, but a wide
   fan-out costs more than it saves: five domains in flight means five sets of eyes on five sets of rules, and nobody
   is checking any of them.
+
+## What the first card taught
+
+The stale-docs card (25 Oct) ran every domain manager once. What it changed in this spec:
+
+- **Spawning**: see the first operating constraint above.
+- **One card across several domains** works as one branch for the card and a local branch and work tree per domain,
+  merged by the architect, who runs `tools/check.sh` on the merge before it is pushed.
+- **The briefings were the weak point.** Several stated as fact something copied from a design doc that the code had
+  moved past, or an open item the code or git history had already settled. A briefing's claim says where it comes
+  from (a file, a test, a commit), and a briefing is checked against the code, not the docs, when it is written.
+- **Moving or splitting a doc** leaves pointers to it all over the code's comments: `tanks.md`'s split left 23 in one
+  domain alone, and a handover found only 9 of them. The domain that moves a section searches the whole repository
+  for references to it and hands each one over. `tools/check.sh docs` checks only links in Markdown, not the
+  `docs/...` paths in code comments, which is where most of the rot was.
+- **Unowned files had nobody to fix them**: `CLAUDE.md`, `docs/design/README.md` and `docs/research/` are now the
+  architect's in the map.
 
 ## Today's role threads
 

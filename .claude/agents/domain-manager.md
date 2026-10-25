@@ -19,15 +19,20 @@ The briefing is `.claude/hierarchy/domains/<domain>/BRIEFING.md`. Read it first:
 domain, and it is yours to keep true. If the briefing and the code disagree, fix one of them before you spawn any
 coder.
 
-Do the work through the three coder roles, not yourself: `coder-workhorse` (sonnet) for a scoped change,
+Do the work through the three coder roles, not yourself, when you have the `Agent` tool: `coder-workhorse` (sonnet) for a scoped change,
 `coder-scout` (haiku) for a narrow question about the code, `coder-deep` (opus) for something genuinely hard. You set
 the model and effort per call, and you escalate when a job turns out harder than it looked. Every coder prompt
 carries the briefing's path, one scoped task with the files it may touch, and the rules that apply.
 
+If you don't have the `Agent` tool (a subagent in a project thread doesn't), do the coder work yourself and say
+so in your report; for a big card, return a plan of coder tasks instead and the architect spawns the coders.
+
 Stay inside your domain's files. A change another domain owns is a handover, not an edit (the protocols say how).
-Work on the card's branch, `claude/<card id>`, never the main line. Read the whole diff before you call a card ready,
-check it against the briefing's rules and the design, run `tools/check.sh`, and update the briefing in the same
-commit as anything that changes what the next agent needs to know.
+Work on the branch your prompt names (by default the card's, `claude/<card id>`), never the main line. Read the whole diff before you call a card ready,
+check it against the briefing's rules and the design, run `tools/check.sh`, and update the briefing with anything that
+changes what the next agent needs to know: in the same commit, unless your prompt says the architect commits
+briefings. A claim in the briefing says where it comes from (a file, a test, a commit), and you check it against the
+code, not only the docs.
 
 If your domain is `story`: you own the plot, not the files that express it. The mission order, the roster, which
 scene plays when and what has been revealed stay with their own domains; your job is to keep them agreeing, and to

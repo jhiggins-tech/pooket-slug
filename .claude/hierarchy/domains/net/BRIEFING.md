@@ -77,8 +77,11 @@ Close to this domain but not its files: `Core/Lobby/CoopRoom.cs` and `Core/Lobby
 - Seats: P1 is the phone running the shared world, P2 is the other (`NetReplication.SeatOf`). Red and blue are the players' colours (`Palette`).
 - Replicated objects: `PlayerNet` (one per soldier, owned by its player), `WorldNet` (owned by the master), `BossNet`.
   Snapshots are capped by `NetLimits` (24 enemies, 16 pickups).
-- Session properties, short keys in `RoomBrowser`: `m` mission, `n` soldiers, `w` watching, `g` under way, `h` host.
-- Wire kinds for the meter: `WireKind` (Shot, EnemyShot, Burst, Hit, Claim, Grant, Hurt, Kit); a crewmate's move that is not a
+- Session properties, short keys in `RoomBrowser`: `m` mission, `n` soldiers, `w` watching, `g` under way, `h` host (the master's soldier).
+  `OpenKey` (`o`) is left over from the public / invite-only switch: nothing sets or reads it. Removing it is a code change, so it needs a card.
+- Wire kinds for the meter: `WireKind` (Shot, EnemyShot, Burst, Hit, Claim, Grant, Hurt, Kit). The meter is in the game (every phone logs it each
+  30 s), no longer a spike. Burst is never counted outside `WireMeterTests`: kcaj's pills go as `KitMove.Pills`, and `BurstEvent` is the spike's
+  shape, kept for its tests. A crewmate's move that is not a
   shot is a `KitMove`/`KitEvent`, and a soldier's pose is one int (`AvatarPose`), so state stays a fixed size whatever is on screen.
 - The partner beacon (arrow, low-health and away warnings) and drop-in (own scores beside the shared one) are in the game; their spikes are gone.
 - Words players read: "tabk", never tank; the status lines in `NetSession.cs` are player text, so keep to that.
@@ -92,6 +95,8 @@ Close to this domain but not its files: `Core/Lobby/CoopRoom.cs` and `Core/Lobby
 - Nothing in `Core/Platform` may name Unity scene objects or Fusion. It is plain C# with tests; a rule found in `Net/` or `NetSync` that does not need Fusion moves into Core with tests the next time it changes.
 - Photon's free plan has 20 connections in all; the room's limits (`RoomBrowser.MaxWatchers`, `Tuning.Coop.MaxPlayers`) keep within it.
 - Changing the netcode runs the two-browser co-op rounds in CI; they do not run on a push that does not touch it unless a commit says "CI: co-op".
+  "The netcode" is the plan job's paths: `Assets/Scripts/Net/`, `World/NetSync.cs`, `Core/Platform/NetContracts.cs` and `tools/coop.mjs`,
+  so a comment-only change there runs them too. The rest of `Core/Platform` and `Save/` don't.
 
 ## How it is checked
 - `tools/check.sh` compiles every assembly as Unity would, runs Fusion's weaver and the EditMode tests. Locally there is no Fusion SDK
@@ -107,11 +112,15 @@ Close to this domain but not its files: `Core/Lobby/CoopRoom.cs` and `Core/Lobby
 ## Known unfinished
 - Two phones arriving within a second of each other can both take the last seat: the listing is a second behind (docs/research/netcode/sessions.md). Open.
 - A watcher does not take a seat that frees up without leaving and joining again. Open.
-- A watcher sees the touch pad, which does nothing for them. Open (noted 18 Oct, not checked since).
+- A watcher sees the touch pad, which does nothing for them. Open (checked 25 Oct: `HudView.Pad` shows it whatever `info.Watching` says; `HudView` is the shell's file, so the fix is a handover to it).
 - The `dropin` round is allowed to fail in CI (`optional: true` in the workflow). Drop-in itself is in the game; the round's flakiness is not understood.
-- Cloud progression beyond the profile: career XP, rank and the tally are held by the database rules already
-  (docs/research/accounts/database-rules.md), but the notes say "xp-cloud" was parked by the owner on 16 Oct until he queues it. Check `pooket-auth.js` maps those fields before building anything.
+- Cloud progression beyond the profile: XP and rank already go to the cloud (`Profile.xp`, `Profile.rank`, mapped both ways by
+  `pooket-auth.js`'s `toProfile` / `fromProfile`, checked 25 Oct). `tokens` and the `tally` are in the database rules
+  (docs/research/accounts/database-rules.md) but the page doesn't map them; "xp-cloud" was parked by the owner on 16 Oct until he queues it.
 - Photon outages have happened (16 Oct, every CI connect refused, cleared by itself). If it recurs it is Photon's side, not ours.
 - Players far from Australia get more lag; no second region is planned (NET-05).
 - Max two players. Three or four, or versus, is not designed (docs/research/netcode/README.md).
 - Work needs its own Roadmap card, queued by the owner (https://claude.ai/artifact/1AWnQDGtUmiKMnjPgcbru9). None is open for this domain today.
+- docs/research/netcode is claimed by no domain in OWNERSHIP.txt, so this domain can't fix it. Stale there on 25 Oct (handed to the architect):
+  architecture.md says `ISessionView` carries a skin (it carries the seat; `NetSkin` was retired 21 Oct), and that `NetReplication` holds
+  `PlayerNet` and `WorldNet` (and `BossNet`); README.md's list of `Net/` files leaves out `BossNet.cs`.

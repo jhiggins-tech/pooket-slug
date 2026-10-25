@@ -18,6 +18,7 @@ The map (`.claude/hierarchy/OWNERSHIP.txt`) is the authority. The domain owns ex
 - `Assets/Resources/Title/` (`logo.bytes`, `parts*.bytes`, `layout.txt`)
 - `Assets/Tests/EditMode/Anim/ClipTests.cs`, `CrewFigureTests.cs`, `StagePoseTests.cs`
 - `Assets/Tests/EditMode/Title/` (`TitleMotionTests.cs`)
+- `docs/design/art.md` (the models, the look and the sprite workflow)
 
 What each is: `ArtData` is every frame as rows of characters (the main file); `Art` turns rows into sprites at startup,
 holds the palette and the white-flash and Trollogram swaps (`Art.Flash`, `Art.Holo`); `CrewArt` joins each crewmate's
@@ -73,6 +74,11 @@ blinks and flickers; `CrewFigure` is the shared figure's moves; `StagePose` is h
   (`Art.PickupSprite`, `Art.ProjectileSprite`). Those ids ride the network and never change.
 
 ## The invariants
+- The cutscenes' motor pool set is painted from Mission one's `sky-0`, `far-2` and `mid-6`
+  (`CutsceneBackdrops.PaintedMotorPool`, the cutscene domain's): renumbering or recutting those plates changes the
+  set, so it is a handover to the cutscene domain. Without them the set falls back to a drawn one.
+- `Art.BuildBackground` (the steel night base) is no longer Mission one's look: it is the fallback for any layer a
+  mission has no plates for.
 - Sprites are built in code at startup (`Art.Init`); there are no imported art assets, no scenes and no prefabs.
   Plates and the title logo are the only picture files, loaded as `.bytes` from `Resources`.
 - `Art` is a `partial class`: per-crewmate, per-mission and per-tabk art files add to it from other domains' folders
@@ -96,14 +102,15 @@ not have to run in game. Nothing tests the art itself (see below).
 ## Known unfinished
 - The frame contract has no test. Nothing in the repository checks which entities have which frames, or that nothing
   draws a missing one; `CrewFigureTests` covers the crew's figure only. This is the domain's first card.
-- Plates: Mission one has one sky, five far (`far-0` to `far-4`) and ten mid plates; the 19 Oct pick note lists far-0
-  to far-3, so the fifth far plate is unexplained. Mission two has one sky, one far and five mid plates. A mission with no plates draws its layers in code. The perimeter-to-yard seam
-  idea (options and a pick of a gatepost) was put to the owner and its decision is not recorded in the notes.
-- The stage cutscene set in the motor pool is still code-drawn; the plates are used in play only (a note from
-  20 Oct; check before relying on it).
+- Plates: Mission one has one sky, five far and ten mid plates. `far-4` is a second coda plate beside `far-3` (the same size, not the same pixels),
+  added when the repeats were re-spaced (commit 9559233, 19 Oct). Mission two has one sky, one far and five mid plates,
+  stood 2 units up (`PlatesStand`). The perimeter-to-yard seam idea (options and a pick of a gatepost) was put to the
+  owner and its decision is not recorded anywhere in the repository.
 - Generated sprite animation: the workflow exists on paper and in the vendor repository, and no promoted sprite has
   gone through it yet that the notes record. The first one needs an owner promotion on the Roadmap.
 - Per-crewmate heads exist for tones2, kie and kcaj; the repair frames and bowed head were approved on 20 Oct. A
   co-op second-player marking was ruled out; crewmates are unique and tabks one each.
+- `ArtData.CrouchDrop` and `CrewFigure.CrouchDrop` are the same 6 px, kept twice; a code card could make one
+  read the other (not a doc fix, so left alone on stale-docs).
 - The title logo and its animation are built. Its parts file, `Core/Title/TitleLogo.cs` and `TitleMotion.cs`, and the
   views belong to the shell domain; only the pictures and their tests are here.

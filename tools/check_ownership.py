@@ -46,6 +46,9 @@ COVERED = [
     "docs/design/tanks.md",
     "docs/design/tabks/",
     "docs/design/art.md",
+    "CLAUDE.md",
+    "docs/design/README.md",
+    "docs/research/",
 ]
 
 

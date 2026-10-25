@@ -41,8 +41,8 @@ gameplay domain's: `BayFlow` and `BayView` call them.
 - Co-op: each phone shows its own den built from its own progress. A soldier your partner is sitting as, or playing, is
   taken. In the bay, a tabk your partner has loaded is taken, and ours swaps out if we clash. One of each tabk
   (owner, 21 Oct). (`Den.Taken`, `BayFlow.Taken`, `DenFlow.Tabks`)
-- The tabk bay opens with the den, after Mission one, with tones2's tabk on the repair stands; kie's and kcaj's are
-  won by beating Mission two (kie's comes home with its own beat on the first visit it is won). Your loaded tabk is
+- The tabk bay opens with the den, after Mission one, with tones2's tabk on the repair stands; kie's is won with Mission one (and comes home with its own beat on the
+  first visit after) and kcaj's by beating Mission two (`Garage.Won`). Your loaded tabk is
   the one on the stands. The drive-through wash is off. (`lobby.md`, The tabk bay; `BayMap.BayPlace.Wash`)
 - A roller door, swing door or rope takes no walking while it runs, and goes one way at a time. (`RollerDoorTests`,
   `SwingDoorTests`, `RopeClimbTests`)
@@ -64,6 +64,8 @@ gameplay domain's: `BayFlow` and `BayView` call them.
 - A painting is `Resources/Den/<name>.bytes`, loaded by `DenRoom.Painting(name)`, in art pixels (the den screen is
   320 x 180; the loft is 382 x 164 over it from x 19; the bay is 993 x 180). A crewmate's moved-in layer is
   `DenRoom.Layers`; `raid-den` and `raid-bay` are the opening's plates, also used by the cutscenes.
+- `DenMode.Crew` (the old CREW button's: no mission) is still in `Den`, `DenConsole` and `DenTests`, but nothing
+  opens the den in it now; START and co-op open it as Solo and Coop.
 - Flags a soldier carries in the den: `Den.InDen`, `Seated`, `ReadyFlag`. They ride the network, so do not renumber.
 - The beat ids `den-first-visit` and `moved-in-<name>` are saved in the profile: do not rename them.
 
@@ -92,10 +94,12 @@ branch's preview, with `?unlock=crew` to fill the den. A new `.cs` needs a `.met
 ## Known unfinished
 - The ground floor and upper floor's painting predates the scale rule: its doors are about 2.8 times the soldier, and
   `DenMapTests.TheDen_IsDrawnToTheSoldiersScale` is `[Test, Ignore]` for that. The owner kept the painting at its size
-  (den2-den-rescale). Update the Ignore reason when next in that file.
+  (den2-den-rescale); `lobby.md` says so. Update the Ignore reason ("Design's call") when next in that file: the
+  stale-docs card left it, as it allowed no test changes.
 - The den's painting (`den.bytes`) still shows the old board on the ground floor, so kcaj's nook has two. It needs an
   annotated edit that takes the ground board down and leaves the nail; `DenTrapdoor` (drawn in code) should then match
-  the nail. (`docs/design/lobby/rooms-todo.md`, item 1)
+  the nail, and the TV's mission name, written on that old board (`DenRoom.Board`, `DenConsole`), has to move.
+  (`docs/design/lobby/rooms-todo.md`, item 1)
 - The outer rooms are spaces to walk in with no content: the table to eat at, the drone's pile, the PCs and arcade, the
   crates and the shut door, the rooftop telescope (it should replay missions through `BoardFlow`), the sinks and
   cubicles, and the rose. (`rooms-todo.md`, item 2)
@@ -105,8 +109,13 @@ branch's preview, with `?unlock=crew` to fill the den. A new `.cs` needs a `.met
 - The bunks, laundry and vending machine only say a line (`DenMap.Note`): "the crew roster, not yet", "not yet",
   "out of order".
 - Design says the host picks the mission from the den in co-op, a MAP button shows the house as a cut-away, and a
-  laptop on kie's bench is a group chat for swapping crew. None is in the code. The couch fist bump is not built.
+  laptop on kie's bench is a group chat for swapping crew. None is in the code. The couch fist bump is not built, nor
+  the board glowing until Mission two's played, nor a co-op partner walking round your den (they only take their
+  seat), nor BACK walking you out of the roller door (it goes straight to the title).
+- `lobby.md`'s "The room" and "The backdrop" are the first, one-screen design and its first painting (gen-lobby-bg),
+  kept and marked as such; Den 2.0 wins where they differ.
+- The house map's outer rooms are drawn on a 320 grid stretched to 420 (`house.py`'s `XS`), as their paintings
+  were cut; only the hole and the rope are placed from `RoomMap`. The rooms' contents are the layout the plates were
+  painted from, not measured off the plates.
 - The painting of each unfreed crewmate's corner and the second room for the coming-soon crew are not built.
-- `unique-crew-pick-build` (co-op one of each tabk) is in the code (`CoopTabks`, `DenFlow.Tabks`); check
-  `docs/design/lobby.md` says so before adding to it.
 - The bits and lines are placeholders awaiting the owner's rewrite in the crew's voice (`DenBits`, `lobby.md`).
