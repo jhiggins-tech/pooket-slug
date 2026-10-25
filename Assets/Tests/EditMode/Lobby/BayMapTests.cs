@@ -179,5 +179,31 @@ namespace PooketSlug.Tests
             Assert.AreEqual(78f, BayMap.TabkW);
             Assert.AreEqual(33f, BayMap.TabkH);
         }
+
+        // kie's and kcaj's tabks are 28 rows to tones2's 22, so a tap box of tones2's height missed their top 9 px
+        [Test]
+        public void EachTabk_HasItsOwnHeightInTheBay()
+        {
+            Assert.AreEqual(22f * 1.5f, BayMap.TabkHOf(TabkCards.Tones2.Id), 0.01f, "tones2's: 22 rows, 1.5 times");
+            Assert.AreEqual(28f * 1.5f, BayMap.TabkHOf(TabkCards.Kie.Id), 0.01f, "kie's projector: 28 rows");
+            Assert.AreEqual(28f * 1.5f, BayMap.TabkHOf(TabkCards.Kcaj.Id), 0.01f, "kcaj's soft-serve machine: 28 rows");
+        }
+
+        [Test]
+        public void ATapOnATallTabksTop_FindsIt()
+        {
+            int spot = TabkCards.Kie.Home;
+            float top = BayMap.SpotY(spot) + BayMap.TabkHOf(TabkCards.Kie.Id) - 2f;
+            Assert.AreEqual(spot, BayMap.SpotAt(BayMap.SpotX(spot), top, s => s == spot ? BayMap.TabkHOf(TabkCards.Kie.Id) : BayMap.TabkH),
+                "kie's projector, near its top");
+            Assert.IsNull(BayMap.SpotAt(BayMap.SpotX(spot), top), "tones2's height there: above his roof");
+            foreach (TabkCard c in TabkCards.All)
+                for (int s = BayMap.Stands; s < BayMap.PerDeck; s++)
+                {
+                    // the tallest tabk's box on the floor stays under the top deck's
+                    float boxTop = BayMap.SpotY(s) + BayMap.TabkHOf(c.Id) + 4f;
+                    Assert.That(boxTop, Is.LessThan(BayMap.FloorY(BayDeck.Top) - 4f), c.Name + " in spot " + s);
+                }
+        }
     }
 }

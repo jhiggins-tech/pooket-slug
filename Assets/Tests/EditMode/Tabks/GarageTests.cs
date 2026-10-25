@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 
@@ -152,6 +153,29 @@ namespace PooketSlug.Tests
                     Assert.That(d.X, Is.LessThanOrEqualTo(DroneShow.EdgeX + 0.01f), "up past the deck's end, never through it");
                 lastY = d.Y;
                 lastX = d.X;
+            }
+        }
+
+        [Test]
+        public void TheDrone_ClearsATallTabksRoof()
+        {
+            foreach (TabkCard tall in new[] { TabkCards.Kie, TabkCards.Kcaj })
+            {
+                var g = new Garage(TabkCards.All, TabkCards.Tones2);
+                int from = g.SpotOf(tall);
+                DroneShow show = g.Swap(tall, Home);
+                float roof = BayMap.TabkHOf(tall.Id);
+                Assert.Greater(roof, BayMap.TabkH, "a tall tabk");
+                bool took = false;
+                for (float t = 0f; t < show.Total && !took; t += 0.005f)
+                {
+                    show.Tick(0.005f);
+                    if (show.Carried != tall) continue;
+                    took = true; // the dip's bottom: the cable is on, the drone is at its lowest over the tabk
+                    Assert.That(show.Drone.Y - DroneShow.Hang, Is.GreaterThanOrEqualTo(BayMap.SpotY(from) + roof - 0.01f), tall.Id + ": the cable hangs from above the roof");
+                    Assert.AreEqual(BayMap.SpotX(from), show.Drone.X, 0.01f);
+                }
+                Assert.IsTrue(took);
             }
         }
 
