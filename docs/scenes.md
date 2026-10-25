@@ -47,7 +47,7 @@ set street                 the backdrop: street, den, bay, motorpool or coldstor
 show sign window door snow what's on stage from the start
 intro 4 tones2: TONES2     a character intro at 4 s, with the name it slams up
 
-0-5.6 tones2 walk -16 196  staging: [time] thing verb numbers
+0-5.6 tones2 walk -16 244  staging: [time] thing verb numbers
 tones2 holds bag cup
 4.3 narrator opening-1: Friday night...    spoken: time, who (and the recording), then the words
 6.4 tones2: SNACKS | AND GAMES             | breaks the line
@@ -60,7 +60,7 @@ recording: `narrator <recording>:`), `caption` (the big card).
 **Cues**: `door`, `static`, `drop`, `goon`, `jet`, `glitch`, `card-drop`, `card-up`, `crush`, `card`, `shutter`,
 `hum`, `engine`, `hatch`, `slam`, `turret`, `cage`, `kie-drop`, `snacks`, `rip`, `drone`, `lift`, `remote`, `alarm`,
 `cold-door`, `frost`, `freezer`, `munch`, `note`,
-`intro-build`, `intro`. `say <line>` has the announcer read one of theirs: `4.1 say mission-start`, `say mission-two-start`.
+`intro-build`, `intro` (an intro's riser and hit: an `intro` line plays them itself). `say <line>` has the announcer read one of theirs: `4.1 say mission-start`, `say mission-two-start`.
 
 **The camera**: `0-2.2 camera 1.15 20 -12 smooth`: how far in, and where it looks (from the stage's middle). The bay
 (`set bay`) is 993 wide, three stages long, with the stage showing its left end: `0-3 camera 1 673 0 smooth` pans to
@@ -84,10 +84,10 @@ A thing is on stage once a line stages it (or `show` names it), until `hide`.
 |---|---|
 | `show`, `hide` | `3.9 tones2-tabk hide`; over a window, `1.6-3.9 drone show` shows it just then |
 | `at` | `kie at 100 10` |
-| `move` | `1.5-1.8 kie move 100 10 100 0 in` (from, to, and an ease: `in`, `out`, `smooth`) |
+| `move` | `1.5-1.8 kie move 100 10 100 0 in` (from, to, and an ease: `in`, `out`, `smooth`, or `linear`, the default) |
 | `turn` | `turret turn 14`, or `1-1.7 turret turn -150 6 smooth` |
 | `size` | `size 1 0.5`, or from and to over a window |
-| `colour` | `kie-tabk colour wreck`, or `1.2-1.8 colour warm cyan`: a name (`white black warm cyan gold paper ink water smoke wreck red`) or `#rrggbb` |
+| `colour` | `kie-tabk colour wreck`, or `1.2-1.8 colour warm cyan`: a name (`white black warm cyan gold paper ink water smoke wreck red`) or `#rrggbb` (`#rrggbbaa` with its see-through) |
 | `fade` | `fade 0.5`, or from and to over a window |
 | `flicker` | `flicker warm cyan 14`: blinks the first colour now and then, how fast |
 | `blink` | `blink 9 3`: on one beat in three, nine beats a second |
@@ -99,7 +99,7 @@ hatch repair`, `look plain holo trollo` (`holo` a Trollogram goon, `trollo` a Tr
 (over a window) and `glitch-out`s.
 
 **Props' and effects' own verbs**: `chips burst 66` / `spill 66`; `jet spray 66 168` (over a window); `shutter open` (over a
-window) / `up`; `lamps stutter`; `goon appear`; `clamp rip` (over a window); `cage flicker-out` (over a window).
+window) / `up`; `lamps stutter`; `clamp rip` (over a window); `cage flicker-out` (over a window).
 
 ## A new scene
 
