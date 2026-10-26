@@ -111,7 +111,6 @@ namespace PooketSlug
                 // the back door: it creaks open, you step into its dark, it swings shut behind you, and the next room
                 // takes over on the frame it lands
                 m_Door.Tick(dt);
-                m_View.DoorThrough = m_Door.Through;
                 if (m_Door.TakeSwung()) Sfx.Play(Sfx.CableClunk, 0.5f); // its creak
                 if (m_Door.TakeLanded()) Sfx.Play(Sfx.Thump, 0.5f); // it lands shut
                 if (!m_Door.Busy)
@@ -120,7 +119,7 @@ namespace PooketSlug
                     m_Game.Rooms.Go(m_Room, m_DoorTo, m_DoorBy);
                     return;
                 }
-                m_Walker.Place(m_Room, RoomBackDoor.Sill.x); // the view draws the step through, from where you stood
+                m_Walker.Place(m_Room, m_View.DoorSill); // the view draws the step through, from where you stood
                 m_View.DoorBeat(dt, m_Door.Swing, m_Door.Through, m_Walker);
                 return;
             }
@@ -129,11 +128,13 @@ namespace PooketSlug
         }
 
         /// <summary>
-        /// Uses a way: the way back to the house, the way on to the next room through the back door, or the bunker's
-        /// rope, up on the way out and down on the way in.
+        /// Uses a way: the way back to the house, the way on to the next room, or the bunker's rope, up on the way out
+        /// and down on the way in. A door swings, whichever way it leads: the one to another room, or the one back to
+        /// the house, which is the house's own door seen from the room.
         /// </summary>
         void Use(RoomWay way)
         {
+            // a door swings: it creaks open, you step into its dark, and the next place takes over
             if (way == RoomWay.None) return;
             RoomMap.Leads(m_Room, way, out RoomId to, out RoomWay by);
             if (to == RoomId.None && by == RoomWay.None) return; // it doesn't lead anywhere yet
@@ -145,16 +146,18 @@ namespace PooketSlug
                 m_Rope.GoUp();
                 return;
             }
-            if (to != RoomId.None)
+            if (to != RoomId.None && RoomMap.ByRope(to, by))
             {
                 // the next room entered down its rope (the bunker): the climb is the way in, so no door here
-                if (RoomMap.ByRope(to, by)) { m_Game.Rooms.Go(m_Room, to, by); return; }
-                // the way on: the kitchen's back door creaks open, and you step into its dark. The code-drawn leaf is
-                // the kitchen's; no other room paints one, so a way on that isn't the kitchen's goes straight through
-                if (m_Room != RoomId.Kitchen) { m_Game.Rooms.Go(m_Room, to, by); return; }
+                m_Game.Rooms.Go(m_Room, to, by);
+                return;
+            }
+            if (RoomMap.IsDoor(m_Room, way) && m_View.HasDoor(way))
+            {
+                // the way on through a door: it creaks open, and you step into its dark
                 m_DoorTo = to;
                 m_DoorBy = by;
-                if (m_Door.GoIn()) m_View.PlayDoor();
+                if (m_Door.GoIn()) m_View.PlayDoor(way);
                 return;
             }
             m_Game.Rooms.Go(m_Room, to, by);
