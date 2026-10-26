@@ -330,8 +330,10 @@ Below them, TONES2 is halfway through a slurp of
 slushie. He stops, straw in his mouth, and looks from one
 to the other.
 
-(No bubbles, no sound but the den's music, ducked. The
-silence is the joke: it holds the whole shot.)
+(kcaj's bubble shows only "...", and there's no sound but
+the den's music, ducked. The silence is the joke: it holds
+the whole shot. The owner, 26 Oct: three dots, not an
+empty silence.)
 
                                                    CUT TO:
 

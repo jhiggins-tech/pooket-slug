@@ -232,7 +232,7 @@ namespace PooketSlug
 
     /// <summary>
     /// A Trollogram of anything (15 s, the den): straight after kcaj's move-in. kcaj, up in his nook, asks kie at his bench
-    /// below; kie answers without looking up; a silence held by looks alone (kcaj to the projector, to his string board, back
+    /// below; kie answers without looking up; a silence held by looks and kcaj's "..." (kcaj to the projector, to his string board, back
     /// to kie, and tones2 frozen mid-slurp, the music ducked); then kie puts the screwdriver down, and kcaj pockets a sticky
     /// note for later.
     /// </summary>
@@ -249,6 +249,7 @@ namespace PooketSlug
         {
             new SkitLine(Content.Kcaj, "CAN YOU MAKE A TROLLOGRAM OF ANYTHING?", 0.3f, Shot2),
             new SkitLine(Content.Kie, "YEAH. WHY DO YOU ASK?", 4.2f, Shot3),
+            new SkitLine(Content.Kcaj, "...", Shot3 + 0.3f, Shot4),
             new SkitLine(Content.Kie, "ABSOLUTELY NOT.", 12.3f, Seconds),
         };
         static readonly SoldierDef[] s_Cast = { Content.Tones2, Content.Kie, Content.Kcaj };
@@ -260,7 +261,7 @@ namespace PooketSlug
         public override IReadOnlyList<SkitLine> Lines => s_Lines;
         public override IReadOnlyList<SoldierDef> Cast => s_Cast;
 
-        /// <summary>The silence: no bubbles, and the music ducked.</summary>
+        /// <summary>The silence: only kcaj's "..." bubble, and the music ducked.</summary>
         public bool Silence => T >= Shot3 && T < Shot4;
 
         /// <summary>What kcaj is looking at: kie below, the projector on kie's bench, or his string board (in the silence, and to peel the note off it).</summary>

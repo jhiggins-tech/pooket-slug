@@ -240,7 +240,7 @@ namespace PooketSlug.Tests
             {
                 s.Tick(Dt);
                 if (!s.Silence) continue;
-                Assert.IsNull(s.Line, "no bubbles in the silence");
+                if (s.Line is SkitLine l) Assert.AreEqual("...", l.Text, "only kcaj's dots in the silence");
                 Assert.IsTrue(s.Slurping, "tones2 frozen mid-slurp");
                 sawProjector |= s.Kcaj == TrollogramSkit.Look.Projector;
                 sawBoard |= s.Kcaj == TrollogramSkit.Look.Board && sawProjector;
