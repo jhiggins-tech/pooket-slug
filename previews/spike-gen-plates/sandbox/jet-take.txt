@@ -1,0 +1,6 @@
+// A scripted take, the way the kit screen's demos are made: tones2 builds the jet's pressure, then walks it in.
+// It runs 6 seconds, then starts again. Play it: ?sandbox=jet-take
+ground ...P..........s....s..r.................
+keys 0.4 3.4 fire
+keys 3.4 4.8 fire+right
+seconds 6

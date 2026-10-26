@@ -1,0 +1,75 @@
+// The Mission two briefing (docs/design/cutscenes/mission-two.md, The Mission two briefing): the morning after Mission one, the
+// motor pool's empty, and kcaj's string board, still up in his dark corner of the den's upper floor, points to the
+// creamery. It plays as Mission two starts from the den: solo, or on both phones in co-op. Always tones2 and kie, whoever's picked: they're the only crew free
+// at this point in the story.
+// How to write a scene: docs/scenes.md. Times are seconds from the start of each shot.
+net 4
+
+shot: The motor pool, empty
+length 5
+set motorpool
+show junk shutter
+shutter up
+// the morning after: the shutter's up and the bay's empty, tyre tracks out of the back gate; the two of them in the
+// middle of it
+tones2 at 112
+kie at 136
+kie face left
+0.3 narrator m2-briefing-1: By morning, the motor pool was empty.
+2.9 kie: THEY TOOK THE LOT.
+
+shot: kcaj's corner
+length 6
+set den
+show kcaj-corner
+kcaj-corner colour #8c8098
+chips spill 66
+// up the ladder to kcaj's corner, dark and wrecked, his red string board still on the wall; the camera follows them up
+tones2 at 209 40
+kie at 209 4
+0-1.4 tones2 move 209 40 209 103
+0.5-2.1 kie move 209 4 209 103
+1.5-3.1 tones2 walk 209 104
+2.2-3.6 kie walk 209 128
+tones2 face left
+kie face left
+0-2.6 camera 1.6 -60 30 smooth
+0.4 narrator m2-briefing-2: kcaj's string board. | Everyone thought it was about the moon landing.
+
+shot: The string board
+length 6
+set den
+show kcaj-corner
+kcaj-corner colour #8c8098
+// the board, close up: one red string runs off it to a photo of a factory with a giant soft-serve sign, and under it,
+// THEY NEED IT COLD. They're off screen, but their bubbles point down to where they stand.
+board show
+tones2 at 104 103
+kie at 128 103
+tones2 hide
+kie hide
+0.1 cue card-up
+1.6 kie: HE WAS RIGHT?
+3.6 tones2: HE'S NEVER BEEN RIGHT.
+
+shot: Out of the roller door
+length 9
+set bay
+// in under the den's roller door at the bay's far left, then along the floor past the empty decks to its bent street
+// shutter and out into the day; the camera runs with them to the street end
+0 camera 1 0 0
+0.6-4.8 camera 1 673 0 smooth
+tones2 at -12
+kie at -36
+0.2-5.2 tones2 walk -12 960
+0.5-5.6 kie walk -36 948
+5.2 tones2 pose crouch
+5.6 kie pose crouch
+5.5 tones2 hide
+5.9 kie hide
+0.1 cue shutter
+5.3 cue shutter
+0.3 narrator m2-briefing-4: The Trollograms like it cold. | So, as it turns out, does kcaj.
+6.6 cue card
+6.8 say mission-two-start
+6.6 caption: MISSION 2 · THE CREAMERY | FIND KCAJ

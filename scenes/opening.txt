@@ -1,0 +1,169 @@
+// The opening (docs/design/cutscenes/mission-one.md, The opening): the snack run, the raided den and its empty tabk bay, which
+// doubles as Mission one's briefing. The narrator tells it, and the keycard gets a close-up so it's clear where it sends you.
+// How to write a scene: docs/scenes.md. Times are seconds from the start of each shot.
+net 1
+
+shot: Outside the hangout
+length 8.5
+set street
+show sign window door snow
+// he walks on for a few seconds; his intro builds up from 1.5 s and lands at 4 s, then he walks on to the door
+intro 4 tones2: TONES2
+0-5.6 tones2 walk -16 244
+tones2 arms out
+tones2 holds bag
+tones2 holds cup 8 10
+4.3 narrator opening-1: Friday night. tones2's back from the snack run.
+6.4 tones2: SNACKS ARE HERE LADS
+
+shot: The door
+length 4.5
+set street
+show sign window door doorway snow
+tones2 at 252
+tones2 arms out
+tones2 holds bag
+tones2 holds cup 8 10
+// the door swings in on its hinge and sags, hanging off it, and the warm light turns cold
+0.5-0.8 door size 1 1 0.35 1
+0.5-0.8 door turn 0 -9
+1.2-1.8 window flicker warm cyan 14
+1.2-1.8 doorway flicker warm cyan 14
+1.8 window colour cyan
+1.8 doorway colour cyan
+0.5 cue door
+1.2 cue static
+0.9 narrator opening-2: But the door's been kicked in.
+2.4 tones2: ...LADS?
+
+shot: The den, trashed
+length 5
+set den
+spark at 131 52
+spark size 0.5 0.5
+spark blink 9 3
+// in by the side door: a long look round the wrecked den, then the bag drops from his hand and the chips go everywhere
+tones2 at 56
+tones2 arms out
+tones2 holds bag
+tones2 holds cup 8 10
+2.2-2.4 bag move 49 11 49 0
+2.4 chips burst 49
+2.2 cue drop
+3.4 cue static
+0.5 narrator opening-3: The hangout's trashed, and the crew are gone.
+
+shot: The roller door
+length 4.5
+set den
+spark at 131 52
+spark size 0.5 0.5
+spark blink 9 3
+chips spill 49
+// he looks to the roller door, wrenched half up, and runs for it, ducking under into the bay
+tones2 at 56
+tones2 arms out
+tones2 holds cup 8 10
+0.3 narrator opening-3b: Then he remembers the garage.
+1.2 tones2: OH NO. | MY POOKET-TABKS!
+2.1-3.7 tones2 walk 56 286
+3.7 tones2 pose crouch
+4.1 tones2 hide
+4.1 cup hide
+3.8 cue shutter
+
+shot: The tabk bay
+length 6.5
+set bay
+// in under the bay's roller door at its far left; the camera runs along the empty decks to the street shutter,
+// bent half open, and back to him
+tones2 at -12
+tones2 arms out
+tones2 holds cup 8 10
+0-0.9 tones2 walk -12 64
+1.2-4.2 camera 1 673 0 smooth
+4.4-5.4 camera 1 0 0 smooth
+0.1 cue shutter
+3.6 cue shutter
+1.0 narrator opening-3c: Empty. Whatever was parked in here, they took that too.
+5.4 tones2: ...ALL OF THEM?
+
+shot: A straggler
+length 8.5
+set den
+spark at 131 52
+spark size 0.5 0.5
+spark blink 9 3
+chips spill 49
+// back under the roller door, slowly; a Trollogram flickers up behind the couch and shouts; tones2 sprays it, it
+// glitches out and drops its keycard, and he goes over and picks it up
+tones2 at 286
+tones2 arms out
+tones2 holds cup -8 10
+1.8 tones2 arms gun
+1.8 tones2 holds cup 6 9
+tones2 face left
+0-1.6 tones2 walk 286 196
+goon at 125 6
+goon face right
+1.4 goon show
+1.4-1.7 goon appear
+4.2 goon glitch-out
+3.6-4.2 tones2 pose spray
+3.6-4.2 jet spray 186 132
+6.0-7.0 tones2 walk 196 132
+4.6-7.2 card show
+4.6-4.95 card move 123 14 123 0 in
+4.6-4.95 card turn 200 0
+1.5 cue goon
+3.6 cue jet
+4.2 cue glitch
+4.6 cue card-drop
+1.8 goon: INTRUDER. INTRUD-
+2.0 narrator opening-4a: One of the raiders is still here: a Trollogram.
+5.4 narrator opening-4b: It glitches out, and drops its keycard.
+
+shot: The keycard
+length 6.2
+set den
+spark at 131 52
+spark size 0.5 0.5
+spark blink 9 3
+chips spill 49
+// the keycard, close up, on its own: it slides up into view and flickers like the Trollograms do, while the narrator
+// reads it. Then it cuts back to the den, tones2 standing where he picked it up, and he says his line there.
+closeup show
+3.4 closeup hide
+tones2 at 132
+tones2 holds cup -9 13
+tones2 face left
+tones2 hide
+cup hide
+3.4 tones2 show
+3.4 cup show
+0.1 cue card-up
+0.5 narrator opening-5: A pass for the military base, up on the hill.
+3.7 tones2: THAT'S WHERE THEY TOOK THEM.
+
+shot: Heading out
+length 6
+set den
+spark at 131 52
+spark size 0.5 0.5
+spark blink 9 3
+chips spill 49
+// the slushie crushed, and off he goes, out by the side door he came in by
+tones2 at 132
+tones2 arms out
+tones2 holds cup -8 10
+1.6 tones2 arms gun
+tones2 face left
+1.4 cup size 1 0.5
+1.6 cup hide
+1.8-4.8 tones2 walk 132 -20
+1.4 cue crush
+3.9 cue card
+4.1 say mission-start
+0.4 narrator opening-6: So tones2 goes in alone.
+1.2 tones2: RIGHT.
+3.9 caption: MISSION 1 · THE MILITARY BASE | FIND THE CREW

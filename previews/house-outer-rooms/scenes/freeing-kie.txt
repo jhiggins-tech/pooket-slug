@@ -1,0 +1,116 @@
+// Freeing kie (docs/design/cutscenes/mission-one.md, Freeing kie), after Trollogram kie is beaten on foot. His glitch-out (the
+// design's shot 1) plays in the game itself (Pilot); the scene picks up as the cage of light flickers out and the real
+// kie drops, with his intro. Then the snacks, the release of tones2's tabk (the cargo drone, and its remote handed
+// over), and kie nodding off as the alarms start. It can be skipped once seen. How to write a scene: docs/scenes.md.
+//
+// The motor pool after the fight: the shutter up, kie's tabk a smoking wreck in its space, the row behind.
+net 3
+
+shot: The real kie
+length 7.5
+set motorpool
+show tones2-tabk row lamps beacon steam shutter
+shutter up
+steam colour smoke
+kie-tabk at 136
+kie-tabk colour wreck
+turret turn 14
+clamp at 186 12
+tones2 at 40
+tones2 holds bag
+// held in the cage of light, which flickers out, and he drops in a heap
+cage at 100
+0-1.5 cage flicker-out
+kie at 100 10
+kie face left
+1.5-1.8 kie move 100 10 100 0 in
+1.5 kie pose crouch
+1.8 stars on kie 0 22
+intro 3 kie: KIE
+0.1 cue cage
+1.5 cue kie-drop
+3.4 narrator freeing-1: And out drops the real kie. Bit peaky.
+4.4 kie: ...HOW LONG WAS I IN THERE?
+
+shot: The bit
+length 4.5
+set motorpool
+show tones2-tabk row lamps beacon steam shutter
+shutter up
+steam colour smoke
+kie-tabk at 136
+kie-tabk colour wreck
+turret turn 14
+clamp at 186 12
+// tones2 comes over with the snacks; kie gets up off the floor, swaying, and takes them
+0-0.7 tones2 walk 40 74
+tones2 holds bag
+kie at 100
+kie face left
+kie pose crouch
+1.4 kie pose idle
+1.4 kie sway
+1.4 stars on kie 0 30
+2.2 kie holds bag -7 9
+2.2 cue snacks
+0.8 tones2: BROUGHT SNACKS.
+2.4 kie: LEGEND.
+
+shot: The release
+length 6
+set motorpool
+show row lamps beacon steam shutter
+shutter up
+steam colour smoke
+kie-tabk at 136
+kie-tabk colour wreck
+turret turn 14
+tones2 at 74
+// kie goes over to tones2's tabk and rips off the Trollograms' clamp; the cargo drone drops through the roof
+// hatch, hooks it and hauls it up and out; then he comes back with its remote and hands it over
+kie at 100
+kie face right
+kie sway
+0-1 kie walk 100 166
+2.6 kie face left
+2.6-3.4 kie walk 166 96
+tones2-tabk at 186 2
+2.7-3.9 tones2-tabk move 186 2 186 152 in
+3.9 tones2-tabk hide
+clamp at 186 12
+1.2-1.7 clamp rip
+1.6-3.9 drone show
+1.6-2.4 drone move 186 172 186 44 out
+2.7-3.9 drone move 186 44 186 194 in
+2.4-3.9 cable show
+3.4-4.6 remote show
+remote at 88 12
+4-4.3 remote move 88 12 84 12
+1.2 cue rip
+1.6 cue drone
+2.7 cue lift
+4.2 cue remote
+0.3 narrator freeing-2: Then he sets tones2's tabk free.
+3.6 kie: YOURS. CALL IT WHEN YOU NEED IT.
+
+shot: Lights out
+length 7.5
+set motorpool
+show row lamps beacon steam alarm shutter
+shutter up
+steam colour smoke
+kie-tabk at 136
+kie-tabk colour wreck
+turret turn 14
+tones2 at 74
+// he sits down hard against his wreck, the snacks in his lap, and nods off as the alarm goes: a beacon turning
+// over the shutter, and a slow red wash (once a second: never a strobe)
+kie face right
+0-0.6 kie walk 96 106
+0.6 kie pose crouch
+0.6 kie holds bag 6 5
+2.4 zz on kie 6 26
+0.1 cue alarm
+2.6 cue alarm
+0.9 kie: I'M GONNA... SIT THIS ONE OUT.
+3 narrator freeing-3: kie's done for the night. tones2 isn't.

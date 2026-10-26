@@ -1,0 +1,8 @@
+// The tuning knobs at work: low gravity, a quick super and tougher goons. Every knob: ?sandbox=knobs (logged).
+// Play it: ?sandbox=moon
+soldier kie
+tune physics.gravity 18
+tune physics.maxfall 8
+tune kit.superkills 4
+tune rifleman.hp 6
+ground ..P.......s.....==....s.....s....r.....s.......

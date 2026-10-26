@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Pooket Slug · GameCI tech demo</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><rect width='16' height='16' rx='3' fill='%23d04030'/><rect x='3' y='7' width='10' height='3' fill='%23ffe860'/></svg>">
+    <style>
+      :root {
+        --bg: #17121a;
+        --panel: #221a26;
+        --ink: #f3e8d6;
+        --muted: #b9a993;
+        --accent: #f0a030;
+        --bar: #d04030;
+        /* the game's width: it narrows in a short window rather than being squashed (160px is the header, toolbar and footer) */
+        --stage-w: min(960px, max(320px, calc((100vh - 160px) * 16 / 9)));
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); }
+      body {
+        font: 15px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        display: flex; flex-direction: column; align-items: center;
+        padding: 16px;
+      }
+      header { width: 100%; max-width: var(--stage-w); display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+      h1 { margin: 0; font-size: 22px; letter-spacing: 0.04em; color: var(--accent); }
+      .sub { color: var(--muted); font-size: 13px; }
+      /* sign-in (pooket-auth.js): Google's button, or who's signed in, over the top left of the game; the game
+         shows it on its title screen and settings only */
+      #account {
+        position: absolute; top: 8px; left: 8px; z-index: 2; display: flex; align-items: center; gap: 6px;
+        max-width: calc(100% - 16px); padding: 3px; border-radius: 999px; background: rgba(23, 18, 26, 0.72);
+        font-size: 12px; color: var(--muted);
+      }
+      #account[hidden] { display: none; }
+      #account .account-name { color: var(--ink); padding-left: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      #account .account-status { padding-right: 8px; }
+      #account .account-status:empty { display: none; }
+      #account button { font-size: 12px; padding: 3px 10px; border-radius: 999px; }
+      #stage {
+        position: relative; width: min(100%, var(--stage-w)); aspect-ratio: 16 / 9; flex-shrink: 0;
+        margin-top: 10px; background: #6ca8e0; border-radius: 6px; overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+      }
+      #unity-canvas {
+        width: 100%; height: 100%; display: block; outline: none; image-rendering: pixelated;
+        /* the game's touch pad owns every touch: no scrolling, zooming, text selection or long-press menus */
+        touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+      }
+      #loader {
+        position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 12px; background: var(--panel);
+      }
+      #loader .bar { width: min(60%, 360px); height: 10px; border-radius: 5px; background: #3a2e3e; overflow: hidden; }
+      #loader .fill { width: 0; height: 100%; background: var(--bar); transition: width 0.15s; }
+      #loader p { margin: 0; color: var(--muted); font-size: 13px; }
+      #error { display: none; color: #ffb0a0; padding: 0 24px; text-align: center; }
+      .toolbar { width: 100%; max-width: var(--stage-w); display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-top: 10px; flex-wrap: wrap; }
+      .keys { color: var(--muted); font-size: 13px; }
+      kbd { background: var(--panel); border: 1px solid #3a2e3e; border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; font-size: 12px; color: var(--ink); }
+      button {
+        font: inherit; font-size: 13px; color: var(--ink); background: var(--panel); border: 1px solid #3a2e3e;
+        border-radius: 6px; padding: 6px 12px; cursor: pointer;
+      }
+      button:hover { border-color: var(--accent); }
+      footer { margin-top: auto; padding-top: 16px; color: var(--muted); font-size: 12px; text-align: center; }
+      footer a { color: var(--muted); }
+      @media (max-width: 640px) { body { padding: 8px; } h1 { font-size: 18px; } }
+      #rotate { display: none; margin: 10px 0 0; color: var(--muted); text-align: center; }
+      /* phones: the game fills a sideways screen, with just the fullscreen button below it */
+      @media (pointer: coarse) and (orientation: landscape) {
+        body { padding: 4px 8px; }
+        header, footer, .keys { display: none; }
+        #stage { margin-top: 0; width: min(100%, calc((100vh - 52px) * 16 / 9)); width: min(100%, calc((100dvh - 52px) * 16 / 9)); }
+        .toolbar { justify-content: center; margin-top: 6px; }
+      }
+      @media (pointer: coarse) and (orientation: portrait) { #rotate { display: block; } }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Pooket Slug</h1>
+      <span class="sub">Unity WebGL build by GameCI on GitHub Actions · 0.2.0+e289f11</span>
+    </header>
+
+    <div id="stage">
+      <div id="account" hidden></div>
+      <canvas id="unity-canvas" width="960" height="540" tabindex="-1"></canvas>
+      <div id="loader">
+        <div class="bar"><div class="fill" id="fill"></div></div>
+        <p id="status">Loading…</p>
+        <p id="error"></p>
+      </div>
+    </div>
+
+    <p id="rotate">Turn your phone sideways to play.</p>
+
+    <div class="toolbar">
+      <span class="keys">
+        <kbd>←</kbd><kbd>→</kbd> move · <kbd>Z</kbd> jump · <kbd>X</kbd> fire · <kbd>C</kbd> SP · <kbd>↑</kbd> aim up · <kbd>P</kbd> pause · <kbd>M</kbd> mute
+      </span>
+      <button id="fullscreen" type="button">Fullscreen</button>
+    </div>
+
+    <footer>
+      Keyboard, gamepad or touch · procedural pixel art &amp; sound · <a href="https://game.ci">game.ci</a>
+    </footer>
+
+    <!-- pooket-config.js is written by the build (WebGLBuild.cs) from the repository variables -->
+    <script src="pooket-config.js"></script>
+    <script src="pooket-auth.js"></script>
+    <script>
+      // Make sure phones play the sound. Unity's audio context starts suspended until a
+      // touch; iPhones also mute web audio with the ringer switch off, and suspend it ("interrupted") after a call
+      // or a trip to another app. So: on every touch or key, resume any audio context that isn't running, and ask
+      // Safari to treat the page's sound as media playback, which ignores the ringer switch.
+      (function () {
+        var contexts = [];
+        ["AudioContext", "webkitAudioContext"].forEach(function (name) {
+          var Base = window[name];
+          if (!Base) return;
+          var Tracked = function (options) {
+            var ctx = new Base(options);
+            contexts.push(ctx);
+            return ctx;
+          };
+          Tracked.prototype = Base.prototype;
+          window[name] = Tracked;
+        });
+        function wake() {
+          try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {}
+          contexts.forEach(function (ctx) { if (ctx.state !== "running" && ctx.state !== "closed") ctx.resume().catch(function () {}); });
+        }
+        ["touchend", "pointerup", "keydown"].forEach(function (type) { window.addEventListener(type, wake, true); });
+        document.addEventListener("visibilitychange", function () { if (!document.hidden) wake(); });
+      })();
+    </script>
+    <script src="Build/WebGL.loader.js"></script>
+    <script>
+      var canvas = document.querySelector("#unity-canvas");
+      var loader = document.querySelector("#loader");
+      var fill = document.querySelector("#fill");
+      var status = document.querySelector("#status");
+      var error = document.querySelector("#error");
+
+      createUnityInstance(canvas, {
+        arguments: [],
+        dataUrl: "Build/WebGL.data",
+        frameworkUrl: "Build/WebGL.framework.js",
+        codeUrl: "Build/WebGL.wasm",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "jhiggins-tech",
+        productName: "Pooket Slug",
+        productVersion: "0.2.0+e289f11",
+        devicePixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+      }, function (progress) {
+        fill.style.width = Math.round(progress * 100) + "%";
+        status.textContent = "Loading… " + Math.round(progress * 100) + "%";
+      }).then(function (unityInstance) {
+        loader.style.display = "none";
+        if (window.PooketAuth) window.PooketAuth.attach(unityInstance);
+        canvas.focus();
+        document.querySelector("#fullscreen").onclick = function () { unityInstance.SetFullscreen(1); };
+        canvas.addEventListener("pointerdown", function () { canvas.focus(); });
+      }).catch(function (message) {
+        status.textContent = "Couldn't start the game.";
+        error.style.display = "block";
+        error.textContent = message;
+      });
+    </script>
+  </body>
+</html>

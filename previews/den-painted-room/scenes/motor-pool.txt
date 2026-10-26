@@ -1,0 +1,77 @@
+// The motor pool reveal (docs/design/story.md, The motor pool reveal): the first-ever reveal, that tabks exist. It
+// plays once, ever, the first time tones2 reaches the motor pool, and it's kie's tabk's entrance: the boss intro after
+// it skips the roll-out and goes straight to the banner and the name card. Trollogram kie gets his intro as he pops
+// up in the hatch. How to write a scene: docs/scenes.md.
+net 2
+
+shot: The shutter
+length 4.5
+set motorpool
+show tones2-tabk row junk lamps steam shutter
+lamps stutter
+// the shutter grinds up, and tones2 walks in from the left; kie's space at the front is empty, its paint steaming
+0.4-3 shutter open
+0-1.8 tones2 walk -14 58
+0.2 cue shutter
+2.6 cue hum
+0.8 narrator motor-pool-1: Behind the shutter: the base's motor pool.
+
+shot: The tabks
+length 5.5
+set motorpool
+show tones2-tabk row junk lamps steam shutter
+lamps stutter
+shutter up
+tones2 at 58
+// the camera eases right and in, on the row
+0-2.2 camera 1.15 20 -12 smooth
+0.4 narrator motor-pool-2: And parked inside, all in a row: the crew's tabks.
+3.2 tones2: ...ARE THOSE OURS?
+
+shot: kie's tabk
+length 9.5
+set motorpool
+show tones2-tabk row junk lamps shutter
+lamps stutter
+shutter up
+0-1.8 steam show
+tones2 at 58
+// kie's tabk rolls in from the right into its space, its gun pointing up and away, and Trollogram kie pops up in
+// the hatch
+kie-tabk at 352
+0.2-2 kie-tabk move 352 0 136 0 out
+0.2-2 kie-tabk shake 0.5
+turret turn -150
+kie look trollo
+kie pose hatch
+kie face left
+2.1 kie show
+2.1-2.4 kie move 140 -2 140 12
+intro 4.5 kie: TROLLO-KIE
+0.2 cue engine
+2.1 cue hatch
+2.4 cue static
+4.8 narrator motor-pool-3: That's kie. Or something wearing his face.
+5.9 trollo-kie: HEY TONES. WANNA RACE?
+
+shot: Hatch shut
+length 4.5
+set motorpool
+show tones2-tabk row junk lamps shutter
+lamps stutter
+shutter up
+tones2 at 58
+// he drops back down, the hatch slams, and the gun swings round on to tones2
+kie-tabk at 136
+turret turn -150
+1-1.7 turret turn -150 6 smooth
+kie look trollo
+kie pose hatch
+kie face left
+kie at 140 12
+0.2-0.45 kie move 140 12 140 -2
+0.45 kie hide
+0.5 cue slam
+1 cue turret
+0.3 narrator motor-pool-4: kie has never once offered to race.
+2.6 tones2: THAT'S NOT KIE.
