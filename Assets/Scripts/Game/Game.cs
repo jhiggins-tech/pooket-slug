@@ -58,6 +58,7 @@ namespace PooketSlug
         Options m_Options;
         Profile m_Profile;
         bool m_CoopJustOpened; // this run's win opened co-op
+        MissionDef m_Replayed; // this run was a replay, won solo: the mission, for the den that opens after its debrief (Skits)
         string m_PageUrl;      // the page's address without its query, for invite links
         string m_DemoFolder;   // where the demo clips are served: demos/ beside the page (null in the editor)
 
@@ -163,7 +164,7 @@ namespace PooketSlug
             if (Scenes.StartDraft(PageQuery.Get(url, "scene"), url)) return; // and so is a draft scene
             if (Sandbox.Start(PageQuery.Get(url, "sandbox"), url)) return; // and so is a sandbox: solo, and never recorded
             m_Net = NetSessions.Factory?.Invoke();
-            // An invite link with a room in it (?room=, see CoopRoom) waits for the den's + MATE like any visit; co-op still waits
+            // An invite link with a room in it (?room=, see CoopRoom) waits for the den's MULTI-PLAYER like any visit; co-op still waits
             // until Mission one is beaten, so before then the link starts that.
             if (m_Net != null && !string.IsNullOrEmpty(m_Flags.Room) && !CoopOpen)
             {
@@ -209,7 +210,11 @@ namespace PooketSlug
             world.BossFightStarted += _ => MissionMusic.BossFightStarted();
             world.PilotFreed += OnPilotFreed;
             world.TankWrecked += MissionMusic.TankWrecked;
-            if (coda) world.CodaCleared += OnCodaCleared;
+            if (coda)
+            {
+                world.CodaCleared += OnCodaCleared;
+                world.CodaGotUnderway += OnCodaUnderway;
+            }
             Intro.Clear();
         }
 
@@ -333,9 +338,11 @@ namespace PooketSlug
                 return;
             }
             MissionDef next = StartFlow.Next(m_Profile);
+            MissionDef replayed = m_Replayed;
+            m_Replayed = null;
             ToTitle();
             if (Sandbox.Active) return;
-            if (CrewOpen) Den.Show(DenMode.Solo);
+            if (CrewOpen) Den.Show(DenMode.Solo, replayed); // after a replay's debrief, a skit may be waiting (Special delivery)
             else if (next != null)
             {
                 PlayNext(next);
@@ -467,6 +474,20 @@ namespace PooketSlug
             });
         }
 
+        /// <summary>
+        /// The coda's under way (tones2's in his tabk, or walked on): on a replay, kie says Keep it down in his sleep, if he's
+        /// on screen to say it (walked on past him, it waits for another replay).
+        /// </summary>
+        void OnCodaUnderway()
+        {
+            World w = m_World;
+            if (w.SleepingKie == null || !KeepItDown.Due(m_Profile, w.Mission, Run, m_Flags.Coda)) return;
+            if (!KeepItDown.InView(w.SleepingKie.Pos.x, w.View.Left, w.View.Right)) return;
+            w.SleepingKie.Stir(engine: w.Tank != null && w.Tank.Occupied && w.Player.Riding == w.Tank);
+            Log.Game.Info("Skit: Keep it down");
+            if (KeepItDown.Spends(Run) && m_Profile.MarkSeen(KeepItDown.Key)) m_Store.Save(m_Profile);
+        }
+
         /// <summary>The coda's last gate is down: its prompts have been seen.</summary>
         void OnCodaCleared()
         {
@@ -494,7 +515,7 @@ namespace PooketSlug
 
         // ------------------------------------------------------------------ online co-op
 
-        /// <summary>The den's + MATE: into the one room (<see cref="CoopRoom"/>), or the link's room.</summary>
+        /// <summary>The den's MULTI-PLAYER button: into the one room (<see cref="CoopRoom"/>), or the link's room.</summary>
         internal void JoinCoop()
         {
             if (m_Profile.MarkSeen(Reveals.Coop)) m_Store.Save(m_Profile);
@@ -902,6 +923,7 @@ namespace PooketSlug
             int best = m_Profile.Best(m_World.Mission), clears = m_Profile.Clears(m_World.Mission);
             m_Profile.RecordRun(m_World.Mission, m_World.Scoring.Points, won, solo: !m_Coop);
             m_CoopJustOpened = !wasOpen && m_Profile.coop;
+            m_Replayed = won && !m_Coop && clears > 0 ? m_World.Mission : null; // won again, solo: the den's told, as it opens after the debrief
             if (won) // solo or co-op: each phone's debrief, its own player's XP and rank
             {
                 Debrief.Show(best, firstClear: clears == 0 || m_Flags.Debrief);

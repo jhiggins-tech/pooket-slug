@@ -42,6 +42,9 @@ namespace PooketSlug
                 First = g.Story.FirstDebrief || g.Flags.Debrief,
                 OfferSignIn = g.Account.Available && !g.Account.SignedIn,
             };
+            result.TrackingUs = TrackingUs.Due(profile, w.Mission, firstClear, g.Flags.Debrief);
+            result.Kcaj = result.TrackingUs || Crew.IsFree(Crew.Kcaj, profile);
+            if (result.TrackingUs && TrackingUs.Spends(g.Flags.Debrief)) profile.MarkSeen(TrackingUs.Key); // the game saves the profile once the debrief's up
             int climb = Progression.ClimbFor(true, firstClear);
             result.ClimbAfter = result.ClimbBefore + climb;
             profile.Award(result.XpGained, climb);

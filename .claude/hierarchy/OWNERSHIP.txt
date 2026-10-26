@@ -115,6 +115,7 @@ gameplay Assets/Tests/Gameplay/WorldTests.cs
 den Assets/Scripts/Core/Lobby/Den.cs
 den Assets/Scripts/Core/Lobby/DenMap.cs
 den Assets/Scripts/Core/Lobby/DenBeats.cs
+den Assets/Scripts/Core/Lobby/Skits.cs
 den Assets/Scripts/Core/Lobby/BayMap.cs
 den Assets/Scripts/Core/Lobby/RollerDoor.cs
 den Assets/Scripts/Core/Lobby/RoomMap.cs
@@ -122,12 +123,14 @@ den Assets/Scripts/Core/Lobby/RopeClimb.cs
 den Assets/Scripts/Core/Lobby/SwingDoor.cs
 den Assets/Scripts/Ui/Den/
 den Assets/Scripts/Game/DenFlow.cs
+den Assets/Scripts/Game/SkitRun.cs
 den Assets/Scripts/Game/BayFlow.cs
 den Assets/Scripts/Game/RoomFlow.cs
 den Assets/Scripts/Game/RoomsFlow.cs
 den Assets/Resources/Den/
 den Assets/Tests/EditMode/Lobby/BayMapTests.cs
 den Assets/Tests/EditMode/Lobby/DenBeatsTests.cs
+den Assets/Tests/EditMode/Lobby/SkitsTests.cs
 den Assets/Tests/EditMode/Lobby/DenMapTests.cs
 den Assets/Tests/EditMode/Lobby/DenTests.cs
 den Assets/Tests/EditMode/Lobby/RollerDoorTests.cs
@@ -181,6 +184,7 @@ shell Assets/Scripts/Ui/HudView.cs
 shell Assets/Scripts/Ui/TitleView.cs
 shell Assets/Scripts/Ui/TitleLogoView.cs
 shell Assets/Scripts/Ui/DebriefView.cs
+shell Assets/Scripts/Ui/DebriefCrew.cs
 shell Assets/Scripts/Ui/DemoClip.cs
 shell Assets/Scripts/Ui/Invite.cs
 shell Assets/Scripts/Input/
@@ -212,8 +216,10 @@ shell Assets/Tests/EditMode/Lobby/ScreenWordsTests.cs
 # domain's job is to keep them agreeing, which its consistency check does.
 story Assets/Scripts/Core/Missions/MissionStory.cs
 story Assets/Scripts/Core/Missions/OnceOnly.cs
+story Assets/Scripts/Core/Missions/MissionSkits.cs
 story Assets/Tests/EditMode/Missions/MissionStoryTests.cs
 story Assets/Tests/EditMode/Missions/OnceOnlyTests.cs
+story Assets/Tests/EditMode/Missions/MissionSkitsTests.cs
 story docs/design/story.md
 
 # ---------------------------------------------------------------- net

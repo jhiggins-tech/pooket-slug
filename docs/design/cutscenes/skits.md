@@ -9,11 +9,15 @@ He dropped Wanna race? from the pitch. Staging, art, sound and the build each ge
 
 **How a skit plays:**
 - **Once ever,** like the den's beats ([the den](den.md)), each under its own once-only key, kept with the player's
-  progress so it follows a sign-in. The keys below are proposals: a key goes in `OnceOnly.All` when its skit is built,
-  and never changes after.
+  progress so it follows a sign-in. The keys below are proposals until their skit is built: a key goes in `OnceOnly.All`
+  then, and never changes after. Built (skits-stage, 25 Oct): Two of us now, Special delivery and A Trollogram of
+  anything, and (skits-art) Five-second rule, under the keys below, as `Skit`s in `Core/Lobby/Skits.cs` (`Skits.Due` says which plays), played by the
+  den's `DenSkitView` on the shared `SkitStage`; `?skit=<key without skit->` plays one as the den first opens, seen or not.
 - **In the room itself,** not as a scene file (Keep it down plays in a mission, in play: see its note): the den's skits play in the den, as its beats do (`DenBeats`,
   `DenBeatView`), and the bay's in the bay, as kie's homecoming does (`KieHomecoming`, `BayHomecomingView`). The player's
-  walking waits while it plays, and a tap skips it. Afterwards everyone's back where they were.
+  walking waits while it plays, and a tap skips it. The den's buttons and panels (BACK, READY, the name card and its ⓘ, the
+  hint) are put away while it plays, so nothing covers the cast; Two of us now still pops MULTI-PLAYER up as staged.
+  Afterwards everyone's back where they were, and the buttons with them.
 - **Speech bubbles only.** The den and the bay have no narrator, and the music is the den's theme throughout.
 - **Solo only,** but for They're tracking us, at the debrief, which each phone has its own of. Otherwise a skit never
   plays in a co-op room: it waits for the next visit on your own.
@@ -22,7 +26,7 @@ He dropped Wanna race? from the pitch. Staging, art, sound and the build each ge
 - **One skit a visit,** never on the same visit as a beat (the first visit, a move-in or a homecoming), except where
   a skit says it follows one (Two of us now, A Trollogram of anything).
 
-| Skit | Where | Trigger | Once-only key (proposed) | About |
+| Skit | Where | Trigger | Once-only key | About |
 |---|---|---|---|---|
 | [Two of us now](#two-of-us-now) | The den | Straight after the first visit, the den's first opening | `skit-two-of-us` | 14 s |
 | [Keep it down](#keep-it-down) | Mission one's coda, in play | The coda getting under way, on a replay | `skit-keep-it-down` | 3 s |
@@ -43,10 +47,10 @@ opening, after Mission one's first debrief. It's the moment the den's co-op butt
 three shots; tap to skip, and a skip still puts the button up. **Who's in it:** tones2 and kie.
 
 **How it fits the co-op reveal** (as built today, and what changes):
-- **Today** the den's co-op button (`+ MATE` on the couch's empty seat, `DenConsole`) shows whenever co-op is open:
+- **Today** the den's co-op button (MULTI-PLAYER on the couch's empty seat, `DenConsole`) shows whenever co-op is open:
   the profile's `coop`, set when Mission one is won solo (`Profile`, `Story.OpensCoop`). So it's there from the very
   first visit, with no moment of its own. The win that opened co-op says so on its victory screen
-  (`ScreenWords.CoopOpened`: CO-OP IS OPEN: PRESS + MATE IN THE DEN TO PLAY WITH A FRIEND). The `coop` reveal
+  (`ScreenWords.CoopOpened`: CO-OP IS OPEN: PRESS MULTI-PLAYER IN THE DEN TO PLAY WITH A FRIEND). The `coop` reveal
   (`Reveals.Coop`) is marked seen the first time the button is pressed (`Game.JoinCoop`), not when it shows.
 - **With this skit** the button stays hidden on the first visit until the skit puts it up at its end; from then on
   it shows whenever co-op is open, as now. The skit's own key (`skit-two-of-us`) remembers it, and `coop` keeps its
@@ -55,9 +59,10 @@ three shots; tap to skip, and a skip still puts the button up. **Who's in it:** 
   from the cloud), it plays on the next solo visit to the den, unless `coop` is already seen: a player who has pressed
   the button has found co-op, so the button just shows. `?unlock=coop` and the `?test=` starts show the button at once,
   with no skit.
-- **The rename** is the owner's (25 Oct) and its own build card: the button reads MULTI-PLAYER, on two lines (MULTI,
-  then PLAYER) to fit the button. The words that name it change with it: the victory screen's line and the den's hint
-  (`ScreenWords.MateButton`, `CoopOpened`, `CoopWaiting`). This script names it MULTI-PLAYER.
+- **The rename** is the owner's (25 Oct), built on its own card (multiplayer-button): the button reads MULTI-PLAYER,
+  on two lines (MULTI, then PLAYER) to fit the button; it read + MATE before. The words that name it changed with it:
+  the victory screen's line and the co-op HUD's waiting line (`ScreenWords.CoopButton`, `CoopButtonFace`,
+  `CoopOpened`, `CoopWaiting`). This script names it MULTI-PLAYER.
 
 ```text
 1. INT. THE DEN - NIGHT                                 4 s
@@ -141,6 +146,13 @@ kie stirs, without opening his eyes.
 He settles back. Zs. The coda carries on.
 ```
 
+**Built** (2026-10-25): under the key `skit-keep-it-down` (`KeepItDown`, `Core/Missions/MissionSkits.cs`); kie stirs and
+says it 0.6 s after the coda gets under way, and his Zs stop until the popup's gone. The engine's sound plays when tones2
+has climbed into his tabk (walking on without it, kie still says it). It plays only if kie's on screen then, far enough in
+from the left edge that his whole line is seen even if you run on (`KeepItDown.InView`); walked on past him, it doesn't
+play and isn't spent, and waits for a replay where he's in view. He sleeps with his hands down, no gun.
+`?test=coda` shows it every time without spending it.
+
 **Staging notes:** today kie's line shows as a score popup over him (`Scoring.Popup`, the way the pilots' last words
 show), in kie's colours; a proper speech bubble in play would be new. `SleepingKie` is built and stays as he is. If the
 owner wants it on every replay rather than once, it can drop the key.
@@ -183,7 +195,7 @@ burst on raid night. Dead straight face.
 
 3. INT. THE DEN - CONTINUOUS                            3.5 s
 
-kie turns the bag round. The label: FAMILY MART, crisp
+kie turns the bag round. The label: FAMBLY MART, crisp
 and new. He looks at it, then at tones2, unconvinced.
 
 tones2 slurps his slushie, loudly.
@@ -196,9 +208,22 @@ kie eats the chip.
                                             INTO: THE DEN
 ```
 
-**Staging notes:** the den, kie sitting on the couch, the `bag` in his lap, tones2 at his station. New: the bag's
-FAMILY MART label, big enough to read as kie turns it, which the stage's `bag` doesn't have today. Family Mart is a real
-shop, so whether its name goes on screen as it is, or a look-alike label, is the owner's call on the art card.
+**Staging notes:** the den, kie sitting on the couch, the `bag` in his lap, tones2 at his station. The label is a
+look-alike (the owner's pick on the art card): the shop's green, white and blue stripes, with FAMBLY MART on it, and a
+NEW! sticker. kie turns it round with `bag turn-round` (the packet's back is the stripes), and the `label` close-up
+puts it up big enough to read ([docs/scenes.md](../../scenes.md)).
+
+**As staged** (skits-art, `FiveSecondRuleSkit`, `?skit=five-second-rule`): every line as written, at the script's
+timings (shots at 4 and 7.5 s, 11 s in all). It plays on the den's first solo opening with the first visit behind it
+and no beat on the visit; where Two of us now is still due, that goes first, and Five-second rule goes before Special
+delivery (whose trigger comes round again on the next replay). Where the den can't do it as written:
+- kie "sprawls": he sits on the couch's right seat, facing tones2, the bag held out in his lap. A crisp goes from the
+  bag to his mouth and back while he eats, then stops halfway for his line and stays there till he eats it at the end.
+- tones2's nod "at the floor by the side door" is one dip of his head, facing left. The side door is past the couch
+  from his machine, so the nod points past kie at it; there's no mess on the floor to point at.
+- "He looks at it" is the label's close-up (the den dimmed, the label coming up from below, 1.2 s); "then at tones2,
+  unconvinced" is kie's blank face (the grin gone, from Does it do cones?'s faces), the bag dropped to his side.
+- The slurp is the cup at tones2's mouth with a loud hiss, and kie's "...LEGEND." comes in over the end of it.
 
 ## Special delivery
 
@@ -305,8 +330,10 @@ Below them, TONES2 is halfway through a slurp of
 slushie. He stops, straw in his mouth, and looks from one
 to the other.
 
-(No bubbles, no sound but the den's music, ducked. The
-silence is the joke: it holds the whole shot.)
+(kcaj's bubble shows only "...", and there's no sound but
+the den's music, ducked. The silence is the joke: it holds
+the whole shot. The owner, 26 Oct: three dots, not an
+empty silence.)
 
                                                    CUT TO:
 
@@ -385,6 +412,11 @@ counting carries on underneath it.
 
                             INTO: THE DEBRIEF (the XP bar)
 ```
+
+**Built** (2026-10-25): under the key `skit-tracking-us` (`TrackingUs`, `Core/Missions/MissionSkits.cs`, played by
+`DebriefCrew`). kcaj now stands on every debrief once he's freed, frosty on this one. The accuracy counts slowly while he
+stares and is still counting under the note. A tap skips to the skit's end, with the note on. `?test=debrief&mission=2`
+shows it every time without spending it.
 
 **What's new work:** kcaj on the debrief. `DebriefView` draws only tones2 and kie today, so a third figure (kcaj's,
 which the stage already has) and room for him are new; which crew stand on the debrief at all is undecided, and this
@@ -465,6 +497,7 @@ tones2, still dripping, licks one of the cones.
 ```
 
 **Staging notes:** the bay and SOFT SERVE as they are (its swirl wobble and nozzle pivot are the tabk's own, from
-driving it); the `cones` prop in tones2's hands; kie's run is a walk along the bay with the camera following, as the
-Mission two briefing's is. New: the cones splatting on a soldier (a small effect), and kie's face falling, which his
-figure has no frames for today, so it's his whole pose that sells it (a slump, head down) unless a new face is drawn.
+driving it); the two soft-serve cones are `softserve` and `softserve2`, flying from the nozzle and then in tones2's
+hands, `squash`ed once they've hit, with the `splat` on him (its burst, then dripping); kie's run is a walk along the bay
+with the camera following, as the Mission two briefing's is, grinning (`grin`). His face falling is his own frames
+(`fall`: the grin, gone, glum, then slumped with his hands in his pockets), and he walks off `glum`.

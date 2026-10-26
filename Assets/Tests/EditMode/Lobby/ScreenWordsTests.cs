@@ -6,12 +6,26 @@ namespace PooketSlug.Tests
     public class ScreenWordsTests
     {
         [Test]
-        public void CoopLinesNameTheDensMateButton()
+        public void CoopLinesNameTheDensMultiPlayerButton()
         {
-            Assert.AreEqual("+ MATE", ScreenWords.MateButton);
-            StringAssert.Contains(ScreenWords.MateButton, ScreenWords.CoopWaiting);
-            StringAssert.Contains(ScreenWords.MateButton, ScreenWords.CoopOpened);
+            Assert.AreEqual("MULTI-PLAYER", ScreenWords.CoopButton);
+            StringAssert.Contains(ScreenWords.CoopButton, ScreenWords.CoopWaiting);
+            StringAssert.Contains(ScreenWords.CoopButton, ScreenWords.CoopOpened);
             StringAssert.Contains("DEN", ScreenWords.CoopOpened);
+        }
+
+        [Test]
+        public void TheButtonsFace_IsMultiOverPlayer_TheWordsItsNamedBy()
+        {
+            Assert.AreEqual(new[] { "MULTI", "PLAYER" }, ScreenWords.CoopButtonFace.Split('\n'));
+            Assert.AreEqual(ScreenWords.CoopButton, ScreenWords.CoopButtonFace.Replace('\n', '-'));
+        }
+
+        [Test]
+        public void NoLineSaysTheOldMateButton()
+        {
+            StringAssert.DoesNotContain("MATE", ScreenWords.CoopWaiting);
+            StringAssert.DoesNotContain("MATE", ScreenWords.CoopOpened);
         }
 
         [Test]

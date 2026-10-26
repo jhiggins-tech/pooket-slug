@@ -8,20 +8,21 @@ namespace PooketSlug
     /// The debrief screen (<c>docs/design/cutscenes/mission-one.md</c>, The first debrief): the crew stand to one side and the numbers
     /// count up on the other. The tally, then the XP bar, then the rank badge with its RANK UP! stamp, then the
     /// sign-in offer for players who aren't signed in, then CONTINUE. <see cref="DebriefPlayer"/> keeps the time. The
-    /// crew, their bubble and the colours are the stage's (<see cref="StageKit"/>), bigger.
+    /// crew and their bubble are <see cref="DebriefCrew"/>'s (the stage's figures, bigger), and the colours the stage's.
     /// </summary>
     public sealed class DebriefView
     {
         const float Scale = 2.5f, RowGap = 15f;
         static readonly Color Dim = new Color(1f, 1f, 1f, 0.6f), Green = new Color(0.45f, 1f, 0.6f);
+        /// <summary>The tally's rows, in <see cref="DebriefPlayer"/>'s order (its <see cref="DebriefPlayer.AccuracyRow"/>).</summary>
         static readonly string[] RowNames = { "SCORE", "BEST", "TIME", "GOONS", "ACCURACY", "LIVES LEFT", "CONTINUES LEFT" };
+        const float ValueX = 150f, TopRowY = 110f;
 
         readonly RectTransform m_Root, m_Panel, m_XpBlock, m_RankBlock, m_Stamp;
-        readonly SpeechBubble m_Bubble;
         readonly Text[] m_Rows = new Text[RowNames.Length], m_Values = new Text[RowNames.Length];
         readonly Text m_NewBest, m_XpTotal, m_XpParts, m_RankName, m_RankLine, m_SignIn, m_Hint, m_StampText;
         readonly Image m_XpFill, m_RankFill, m_BadgeOuter, m_BadgeInner;
-        readonly StageFigure m_Tones2, m_Kie;
+        readonly DebriefCrew m_Crew;
         readonly Button m_Continue;
         DebriefPlayer m_Player;
         readonly Latch m_Tapped = new Latch();
@@ -38,24 +39,19 @@ namespace PooketSlug
             m_Panel = Ui.Fill(m_Root, "Panel");
             Ui.Label(m_Panel, "Title", Ui.Middle, new Vector2(40f, 145f), 26, TextAnchor.MiddleCenter, Gold).text = "MISSION COMPLETE!";
 
-            // the crew, to one side
-            m_Tones2 = new StageFigure(m_Panel, "tones2", Ui.Middle, Scale);
-            m_Tones2.Rt.anchoredPosition = new Vector2(-235f, -40f);
-            m_Kie = new StageFigure(m_Panel, "kie", Ui.Middle, Scale);
-            m_Kie.Rt.anchoredPosition = new Vector2(-170f, -40f);
-            m_Kie.Rt.localScale = new Vector3(-1f, 1f, 1f); // facing tones2
-            m_Bubble = new SpeechBubble(m_Panel, Ui.Middle, new Vector2(150f, 34f));
-            m_Bubble.Place(new Vector2(-170f, 50f), -170f);
+            // the crew, to one side, and where kcaj's note goes: over the accuracy number
+            Debug.Assert(RowNames.Length == DebriefPlayer.TallyRows && RowNames[DebriefPlayer.AccuracyRow] == "ACCURACY");
+            m_Crew = new DebriefCrew(m_Panel, Scale, new Vector2(ValueX - 17f, TopRowY - DebriefPlayer.AccuracyRow * RowGap));
 
             // the tally
             for (int i = 0; i < RowNames.Length; i++)
             {
-                float y = 110f - i * RowGap;
+                float y = TopRowY - i * RowGap;
                 m_Rows[i] = Ui.Label(m_Panel, RowNames[i], Ui.Middle, new Vector2(-30f, y), 11, TextAnchor.MiddleLeft, Color.white);
                 m_Rows[i].text = RowNames[i];
-                m_Values[i] = Ui.Label(m_Panel, RowNames[i] + " value", Ui.Middle, new Vector2(150f, y), 11, TextAnchor.MiddleRight, Gold);
+                m_Values[i] = Ui.Label(m_Panel, RowNames[i] + " value", Ui.Middle, new Vector2(ValueX, y), 11, TextAnchor.MiddleRight, Gold);
             }
-            m_NewBest = Ui.Label(m_Panel, "New best", Ui.Middle, new Vector2(210f, 110f - RowGap), 11, TextAnchor.MiddleCenter, Green);
+            m_NewBest = Ui.Label(m_Panel, "New best", Ui.Middle, new Vector2(210f, TopRowY - RowGap), 11, TextAnchor.MiddleCenter, Green);
             m_NewBest.text = "NEW BEST!";
 
             // the XP bar
@@ -107,9 +103,7 @@ namespace PooketSlug
             m_RankSounded = false;
             m_Blips = 0;
             Ui.Show(m_Root, true);
-            PlayerSkin tones2 = Art.SkinFor(Content.Tones2), kie = Art.SkinFor(Content.Kie);
-            m_Tones2.Stand(tones2);
-            m_Kie.Stand(kie);
+            m_Crew.Show(player.Result);
             Refresh();
         }
 
@@ -198,8 +192,8 @@ namespace PooketSlug
                 }
             }
 
-            // kie's lines, the first time, and the sign-in offer
-            m_Bubble.Say(p.KieSays);
+            // the crew: kie's lines the first time, and They're tracking us; then the sign-in offer
+            m_Crew.Refresh(p);
             Ui.Show(m_SignIn, p.ShowsSignIn);
             bool end = p.Now == DebriefPlayer.Part.Continue;
             Ui.Show(m_Continue, end);

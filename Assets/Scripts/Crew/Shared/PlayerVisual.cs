@@ -31,10 +31,14 @@ namespace PooketSlug
             return new Vector2(11.5f, crouching ? 8.5f : 14.5f) / Art.PPU;
         }
 
-        /// <summary>Applies the pose, as the crew's figure plays it (<see cref="CrewFigure.Frame"/>). The owner flips <c>Visual</c> by facing (see <see cref="Actor.Render"/>).</summary>
-        public void Apply(in AvatarPose p)
+        /// <summary>
+        /// Applies the pose, as the crew's figure plays it (<see cref="CrewFigure.Frame"/>). The owner flips <c>Visual</c> by
+        /// facing (see <see cref="Actor.Render"/>). <paramref name="unarmed"/>: hands down, no gun (kie asleep in the coda).
+        /// </summary>
+        public void Apply(in AvatarPose p, bool unarmed = false)
         {
             CrewFrame f = CrewFigure.Frame(p, Time.unscaledTime);
+            if (unarmed) f.Body = CrewBody.Unarmed;
             Sprite legs = Skin.Legs(f.Legs), torso = Skin.Body(f.Body);
             m_Legs.sprite = f.Flash ? Art.Flash(legs) : legs;
             m_Torso.sprite = f.Flash ? Art.Flash(torso) : torso;
