@@ -14,7 +14,7 @@ namespace PooketSlug
     {
         /// <summary>
         /// A soldier, drawn from their legs and torso as in the game: walking, standing, crouched, spraying, or just their
-        /// top half in a tabk's hatch; holding their gun, or not (<c>arms</c>); plain, or as a Trollogram crewmate (Trollogram kie or kcaj: cyan and flickering).
+        /// top half in a tabk's hatch; holding their gun, or not (<c>arms</c>); plain, or as a Trollogram crewmate (Trollogram kie or kcaj: cyan and flickering); white with frost, or not (<c>frosted</c>).
         /// A hidden one is still stood in place, for their bubble.
         /// </summary>
         public static void Soldier(StageFigure f, string name, PlayerSkin skin, float runRate, ShotStage stage, float t, float now, float ground)
@@ -36,6 +36,7 @@ namespace PooketSlug
                 if (Fx.TrolloJitter.On(now)) at.x += 1f;
             }
             f.Tint(tint);
+            f.Frost(stage.Frosted(name, t), now); // white with frost, thawing as the shot says
             f.Rt.localScale = new Vector3(stage.Facing(name, t), 1f, 1f);
             f.Rt.localRotation = Quaternion.Euler(0f, 0f, pose.Tilt * stage.Facing(name, t)); // down: on their back, as the game topples a soldier
             f.AtPlate(at.x, ground + at.y); // where the scene puts them, in the plate's pixels; only the figure is drawn bigger

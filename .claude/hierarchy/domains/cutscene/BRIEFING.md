@@ -63,7 +63,7 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
   `freeing-kcaj`, `kcaj-tabk`. A scene's profile id is `scene-<name>`.
 - Sets (`Staging.Sets`): `street`, `den`, `bay`, `motorpool`, `coldstore`. Things are `Staging.Things`: figures
   (`tones2`, `kie`, `kcaj`, `goon`), props and effects, with their verbs (`show hide at move turn size colour fade
-  flicker blink shake on walk face pose arms look holds sway`). The full tables are in `docs/scenes.md`; the test
+  flicker blink shake on walk face pose arms look holds sway frosted`). The full tables are in `docs/scenes.md`; the test
   `EveryThingAndVerbInTheVocabularyReads` keeps them honest.
 - The cold store's stack of tubs is `tubs` (beside the doors, x 180, made in `CutsceneCast.MakeColdStore` before
   kcaj's tabk, so the tabk parks in front of it), drawn from sprites' `Art.TubStack`; its verb `rattle` swaps to the
@@ -95,6 +95,14 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
   loading-yard plate (doors on the right, x 261); each falls back to a code-drawn set in a build without its plates.
   `den` and `bay` are Design's raid-night paintings, `street` Design's plate B-2.
 - Announcer lines in a scene are `say <line>` (`say mission-start`), not `cue`.
+- Pointing and frost (kcaj-frost-point, 1 Nov): `arms point` (the front arm straight out, at someone) and `arms point-up`
+  (up and out at 45°, at something big) are shared body frames, so anyone points; freeing kcaj's Told you has him point
+  up at the factory facing left, then at the crew facing right, then the hands down, and the hand out for the note.
+  `frosted 0..1` (`ShotStage.Frosted`, a value or from and to over a window, held after; every shot starts unfrosted)
+  lays the soldier's frosted look over them (`StageFigure.Frost`, `Art.Frosted`: white rime on top, half iced,
+  glinting on `Fx.FrostTwinkle`). Freeing kcaj: `frosted 1` all through Out of the cold, thawed `1 0` over The
+  evidence, the icicles fading with it. (`SceneScriptTests.Frosted_HoldsOrThawsOverItsWindow_NotFrostedUnlessTold`,
+  `FreeingKcaj_HePointsAtTheFactoryThenAtTheCrew`.)
 - A soldier holds their gun unless the shot says `arms down` (hands by their sides) or `arms out` (the front hand out
   holding something), and every shot starts with the gun (`ShotStage.Arms`, `Staging.Arms`; stage-no-gun, 25 Oct,
   `SceneScriptTests.ArmsSayWhatTheHandsAreDoing_TheGunUnlessTold`). The scenes write it wherever the script has someone

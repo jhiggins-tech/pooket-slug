@@ -101,6 +101,7 @@ namespace PooketSlug
             ArtData.Repair1, ArtData.Repair2, ArtData.Repair3, ArtData.Repair4,
             ArtData.TorsoUnarmed, ArtData.TorsoUnarmed, ArtData.TorsoUnarmed, ArtData.TorsoSlump,
             ArtData.TorsoCarry,
+            ArtData.TorsoPoint, ArtData.TorsoPointUp,
         };
 
         static readonly int[] s_BodyTops =
@@ -110,6 +111,7 @@ namespace PooketSlug
             ArtData.TorsoForwardTop, ArtData.TorsoForwardTop, ArtData.TorsoForwardTop, ArtData.TorsoForwardTop,
             ArtData.TorsoForwardTop, ArtData.TorsoForwardTop, ArtData.TorsoForwardTop, ArtData.TorsoForwardTop,
             ArtData.TorsoForwardTop,
+            ArtData.TorsoForwardTop, ArtData.TorsoForwardTop,
         };
 
         static readonly string[][] s_Legs =
@@ -131,8 +133,69 @@ namespace PooketSlug
             var c = new PixelCanvas(24, 32);
             c.Ascii(look.Head(at.Head), pal, at.X, ArtData.HeadTop + at.Y);
             c.Ascii(look.Body(body), pal, 0, CrewArt.BodyTop(body));
+            return Rimed(c);
+        }
+
+        /// <summary>A figure's legs, as <see cref="Part"/> makes them, with their frosted look.</summary>
+        static Sprite RimedPart(string[] rows, int top, Dictionary<char, Color32> pal)
+        {
+            var c = new PixelCanvas(24, 32);
+            c.Ascii(rows, pal, 0, top);
+            return Rimed(c);
+        }
+
+        /// <summary>Outlines <paramref name="c"/> into a figure's sprite (flash and Trollogram copies too), with its frosted look beside it.</summary>
+        static Sprite Rimed(PixelCanvas c)
+        {
             c.Outline(OutlineColor);
-            return ToSprite(c, new Vector2(0.5f, 0f), withFlash: true);
+            var pivot = new Vector2(0.5f, 0f);
+            Sprite sprite = ToSprite(c, pivot, withFlash: true);
+            var looks = new Sprite[Fx.FrostTwinkle.Of];
+            for (int i = 0; i < looks.Length; i++)
+                looks[i] = Sprite.Create(ToTexture(Rime(c, i)), new Rect(0, 0, c.W, c.H), pivot, PPU, 0, SpriteMeshType.FullRect);
+            s_Rime[sprite] = looks;
+            return sprite;
+        }
+
+        static readonly Dictionary<Sprite, Sprite[]> s_Rime = new Dictionary<Sprite, Sprite[]>();
+
+        /// <summary>
+        /// A crewmate's figure sprite white with frost (a cutscene's <c>frosted</c>), its sparkles where they are at
+        /// <paramref name="now"/> (<see cref="Fx.FrostTwinkle"/>); null for a sprite with no frosted look. Laid over the
+        /// figure, it covers it: see-through, it's a frosting.
+        /// </summary>
+        public static Sprite Frosted(Sprite s, float now) =>
+            s != null && s_Rime.TryGetValue(s, out Sprite[] looks) ? looks[Fx.FrostTwinkle.Step(now)] : null;
+
+        static readonly Color32 IceWhite = Hex(0xf4fbff), IceDeep = Hex(0x3f86e8), IceEdge = Hex(0x2c4c70), Sparkle = Hex(0xffffff);
+
+        /// <summary>
+        /// A figure's frosted look: in their own colours, every one washed half the way to ice, the outline gone a deep ice blue, a crust of
+        /// white rime on whatever faces up (the cap, the shoulders, the arms, the boots) and dusting the sides, and a few
+        /// sparkles on the rime that move on with <paramref name="twinkle"/>. Fixed pixels, so every phone frosts the same.
+        /// </summary>
+        static PixelCanvas Rime(PixelCanvas c, int twinkle)
+        {
+            var rime = new PixelCanvas(c.W, c.H);
+            for (int y = 0; y < c.H; y++)
+                for (int x = 0; x < c.W; x++)
+                {
+                    Color32 p = c.Get(x, y);
+                    if (p.a == 0) continue;
+                    bool top = c.Get(x, y + 1).a == 0, under = !top && c.Get(x, y + 2).a == 0;
+                    bool side = c.Get(x - 1, y).a == 0 || c.Get(x + 1, y).a == 0;
+                    int hash = ((x * 73856093) ^ (y * 19349663)) & 0x7fffffff;
+                    float lum = (0.3f * p.r + 0.59f * p.g + 0.11f * p.b) / 255f;
+                    bool edge = lum < 0.15f;
+                    Color32 o = edge ? IceEdge : Color32.Lerp(p, Color32.Lerp(IceDeep, IceWhite, lum), 0.55f); // half ice, shaded as it was
+                    if (top) o = IceWhite;
+                    else if (under && hash % 3 != 0) o = Color32.Lerp(o, IceWhite, 0.8f);
+                    else if (side && hash % 3 == 0) o = Color32.Lerp(o, IceWhite, 0.6f);
+                    if (!edge && !top && hash % 29 == twinkle * 9) o = Sparkle;
+                    o.a = 255;
+                    rime.Px[y * c.W + x] = o;
+                }
+            return rime;
         }
 
         /// <summary>Every frame of <paramref name="look"/> in <paramref name="pal"/>.</summary>
@@ -141,7 +204,7 @@ namespace PooketSlug
             var body = new Sprite[s_BodyFrames];
             for (int i = 0; i < body.Length; i++) body[i] = Figure(look, (CrewBody)i, pal);
             var legs = new Sprite[s_LegsFrames];
-            for (int i = 0; i < legs.Length; i++) legs[i] = Part(look.Legs((CrewLegs)i), CrewArt.LegsTop((CrewLegs)i), pal);
+            for (int i = 0; i < legs.Length; i++) legs[i] = RimedPart(look.Legs((CrewLegs)i), CrewArt.LegsTop((CrewLegs)i), pal);
             return new PlayerSkin(body, legs);
         }
 

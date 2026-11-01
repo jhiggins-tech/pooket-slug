@@ -52,6 +52,8 @@ namespace PooketSlug
         /// <summary>A goon flickering out as it dies.</summary>
         public static readonly Pulse DyingFlicker = new Pulse(16f);
 
+        /// <summary>The frost on a cutscene soldier glinting (<c>frosted</c>): its sparkles move on, one set of three after another.</summary>
+        public static readonly Pulse FrostTwinkle = new Pulse(5f, 3);
         /// <summary>A thing shaking in a cutscene (<c>shake</c>): nudged across and back.</summary>
         public static readonly Pulse SceneShake = new Pulse(20f);
         // tabks and drones

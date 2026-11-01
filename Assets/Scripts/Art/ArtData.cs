@@ -271,6 +271,50 @@ namespace PooketSlug
             "........bbbybb..........",
         };
 
+        /// <summary>
+        /// Pointing, no gun: the front arm straight out at the shoulder, a fist with its finger out the way they face (at
+        /// someone, a cutscene's <c>arms point</c>), the back hand by their side.
+        /// </summary>
+        public static readonly string[] TorsoPoint =
+        {
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........cgggggc.........",
+            ".......ccgggggccccsss...",
+            ".......cCgGgggCCCCss....",
+            ".......cgGgggg..........",
+            ".......sgGgggg..........",
+            "........bbbybb..........",
+        };
+
+        /// <summary>
+        /// Pointing up and out at 45° (at something big, up there: the factory round them, <c>arms point-up</c>), the arm
+        /// where the up-diagonal aim holds the gun, the back hand by their side.
+        /// </summary>
+        public static readonly string[] TorsoPointUp =
+        {
+            "........................",
+            "........................",
+            "....................s...",
+            "..................sss...",
+            "..................ss....",
+            ".................cC.....",
+            "................cC......",
+            "...............cC.......",
+            "........cgggggcC........",
+            ".......ccgggggC.........",
+            ".......cCgGgggC.........",
+            ".......cgGgggg..........",
+            ".......sgGgggg..........",
+            "........bbbybb..........",
+        };
+
         // ---- Shared moves (the same canvas and rows as TorsoForward) ----
 
         /// <summary>Repairing a tabk, crouched (<see cref="CrewFigure.Repair"/>): the wrench raised high, the back hand braced on the hull.</summary>
