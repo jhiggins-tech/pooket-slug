@@ -10,7 +10,8 @@ namespace PooketSlug
     /// code instead for a build without its plates); and Design's paintings (<c>Resources/Den</c>, through
     /// <see cref="DenRoom.Painting"/>): the street outside the hangout on a snowy night (plate B-2, with the hangout's door
     /// and lit window cut from it as props, <see cref="CutsceneCast.MakeHangout"/>; the code-drawn street stands in if
-    /// it's missing), and the den and the tabk bay on raid night. The
+    /// it's missing), and the den and the tabk bay as their screens show them (<c>den</c>, <c>bay</c>), or trashed on raid
+    /// night for the opening (<c>raid-den</c>, <c>raid-bay</c>): the painting of the same name. The
     /// bay is wider than the stage, so a shot there pans along it with its camera. The motor pool's layout (the
     /// shutter's opening, where the row's tabks park) is here too, since the shutter, the work lights and the row are
     /// drawn to fit it.
@@ -28,7 +29,7 @@ namespace PooketSlug
         public static Sprite For(string set)
         {
             Make();
-            Sprite painted = set == "den" ? DenRoom.Painting("raid-den") : set == "bay" ? DenRoom.Painting("raid-bay")
+            Sprite painted = set == "den" || set == "bay" || set == "raid-den" || set == "raid-bay" ? DenRoom.Painting(set)
                 : set == "motorpool" || set == "coldstore" ? null : DenRoom.Painting("street");
             return painted != null ? painted : set == "motorpool" ? s_MotorPool : set == "coldstore" ? s_ColdStore : s_Street;
         }

@@ -30,7 +30,7 @@ the back gate. TONES2 and KIE stand in the middle of it.
 
                                                    CUT TO:
 
-2. INT. THE DEN, THE UPPER FLOOR - DAY                  6 s
+2. INT. THE DEN, THE UPPER FLOOR - NIGHT                6 s
 
 kcaj's corner is dark and wrecked, but his red string
 board is still on the wall, sticky notes everywhere.
@@ -65,14 +65,15 @@ tones2 turns to him.
 
                                                    CUT TO:
 
-4. INT. THE TABK BAY - DAY                              9 s
+4. INT. THE TABK BAY - NIGHT                            9 s
 
 Down through the den's roller door, in at the bay's far
-end, and along the whole tabk bay past the empty decks to
-its bent street shutter. They duck under it, out into
-the daylight.
+end, and along the whole tabk bay, past the two tabks
+home (tones2's on the repair stands, kie's in its
+space), to its street door. It rattles up a crack and
+they duck under it, out into the street.
 
-SFX: the shutter as they duck under; the card slamming in.
+SFX: the shutter as it rattles up; the card slamming in.
 
                     NARRATOR (V.O.)
                     [m2-briefing-4]
@@ -93,6 +94,15 @@ THE CREAMERY / FIND KCAJ
 Shot 3's board holds alone for 3.2 s, then it cuts back to kcaj's corner, the camera where shot 2 left it, and kie
 (3.5 s) and tones2 (5.0 s) say their lines there, one bubble at a time: kie's is down at 4.9 s, before tones2's goes
 up. The shot runs 7.2 s, up from 6.
+
+**Built** (2026-11-01, m2-briefing-daylight): the owner chose one time of day for every den scene rather than day
+plates ("happy for all den to be same time so we need less plates", Jack). Shots 2 to 4 play on the den and the bay as
+their screens show them (sets `den` and `bay`), at night, the time the den's own painting shows, tidied since the
+first visit: no raid-night mess and no spilt crisps, kcaj's corner still dark (his moved-in layer, dimmed) with the
+board on the wall. In the bay the tabks home by then are parked where the bay puts them, at its 1.5 times: tones2's on
+the repair stands (the bay's default pick) and kie's in its space. The bay's street door is shut on its painting, so it
+rattles up a crack (a dark gap at its foot) and they duck under it. Shot 1 stays the morning at the motor pool, on
+Mission one's night plates, as its recorded line says ("By morning").
 
 ## kcaj's tabk arrives
 

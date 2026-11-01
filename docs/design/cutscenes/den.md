@@ -36,7 +36,7 @@ The first visit to the den after a crewmate is freed. About 3 seconds; tap to sk
 approved 2026-10-16. Their corner was wrecked and dark until now.
 
 ```text
-1. INT. THE DEN - DAY                                   3 s
+1. INT. THE DEN - NIGHT                                 3 s
 
 The roller door rattles up. The NEW CREWMATE walks in,
 looks round their wrecked corner, and the station lights
