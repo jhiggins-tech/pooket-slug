@@ -76,6 +76,12 @@ namespace PooketSlug
         /// <summary>The den's beat playing (<see cref="DenBeatView"/> draws whoever's in it, so they're hidden here), or null.</summary>
         public DenBeat Beat;
 
+        /// <summary>The skit playing (<see cref="DenSkitView"/> draws its cast, so they stand aside here, where they were), or null.</summary>
+        public Skit Skit;
+
+        /// <summary>A beat or a skit is playing: no bits, and nobody's idle props over it.</summary>
+        public bool Busy => Beat != null || Skit != null;
+
         /// <summary>The bits the crew do (set once both are made): swapping someone in ends theirs, and the slushie bit has props.</summary>
         public DenBitPlayer Bits;
 
@@ -350,7 +356,7 @@ namespace PooketSlug
         {
             DenActor tones2 = Find(Content.Tones2), kie = Find(Content.Kie);
             float ground = DenMap.FloorY(DenFloor.Ground);
-            bool spraying = tones2 != null && tones2.Doing == DenDoing.Station && tones2.Cycle == 1 && tones2.CycleT > 0.5f && tones2.CycleT < 3.5f;
+            bool spraying = Idling(tones2) && tones2.Cycle == 1 && tones2.CycleT > 0.5f && tones2.CycleT < 3.5f;
             for (int i = 0; i < m_Drops.Length; i++)
             {
                 Ui.Show(m_Drops[i], spraying);
@@ -358,18 +364,18 @@ namespace PooketSlug
                 float k = (m_Clock * 2.2f + i / (float)m_Drops.Length) % 1f;
                 m_Drops[i].rectTransform.anchoredPosition = new Vector2(tones2.X - 4f - k * 14f, ground + 15f + Mathf.Sin(k * Mathf.PI) * 4f) * Px;
             }
-            bool tinkering = kie != null && kie.Doing == DenDoing.Station && kie.Cycle == 0 && kie.CycleT > 0.8f && kie.CycleT < 3.6f;
+            bool tinkering = Idling(kie) && kie.Cycle == 0 && kie.CycleT > 0.8f && kie.CycleT < 3.6f;
             DenActor first = Bits.First;
             bool holoBit = Bits.Slushie && Bits.T > 2.6f && Bits.T < 3.6f;
             Ui.Show(m_Holo, tinkering || holoBit);
             if (tinkering) m_Holo.rectTransform.anchoredPosition = new Vector2(Holo.x + (Fx.Step(m_Clock, 14f, 5) == 0 ? 1f : 0f), Holo.y) * Px;
             if (holoBit && first != null) m_Holo.rectTransform.anchoredPosition = new Vector2(first.X + 10f, first.Y + 14f) * Px;
             m_Holo.color = new Color(0.45f, 1f, 1f, Fx.Step(m_Clock, 20f, 3) == 0 ? 0.35f : 0.75f);
-            bool weasel = kie != null && kie.Doing == DenDoing.Station && kie.Cycle == 1;
+            bool weasel = Idling(kie) && kie.Cycle == 1;
             Ui.Show(m_Weasel, weasel);
             if (weasel) m_Weasel.rectTransform.anchoredPosition = new Vector2(WeaselHole.x, WeaselHole.y + Mathf.Max(0f, Mathf.Sin(kie.CycleT * 2.4f)) * 4f) * Px;
             DenActor kcaj = Find(Content.Kcaj);
-            bool noting = kcaj != null && kcaj.Doing == DenDoing.Station && kcaj.Cycle == KcajIdle.Note && !InBeat(kcaj);
+            bool noting = Idling(kcaj) && kcaj.Cycle == KcajIdle.Note;
             int note = noting ? KcajIdle.NoteAt(kcaj.CycleT) : 0;
             Ui.Show(m_Note, note > 0);
             if (note > 0)
@@ -385,8 +391,21 @@ namespace PooketSlug
             if (splash && first != null) m_Splash.rectTransform.anchoredPosition = new Vector2(first.X + 9f, first.Y) * Px;
         }
 
-        /// <summary>In the beat playing: everyone on the first visit (the room's still dark), the newcomer moving in.</summary>
-        bool InBeat(DenActor a) => Beat != null && (Beat.Kind == DenBeatKind.FirstVisit || a.Soldier == Beat.Newcomer);
+        /// <summary>
+        /// In the beat or the skit playing, drawn by it: everyone on the first visit (the room's still dark), the newcomer
+        /// moving in, a skit's cast.
+        /// </summary>
+        bool InBeat(DenActor a)
+        {
+            if (Beat != null && (Beat.Kind == DenBeatKind.FirstVisit || a.Soldier == Beat.Newcomer)) return true;
+            if (Skit == null) return false;
+            foreach (SoldierDef s in Skit.Cast)
+                if (s == a.Soldier) return true;
+            return false;
+        }
+
+        /// <summary><paramref name="a"/>'s at their station running their idle loops, in the room (not standing aside for a beat or a skit).</summary>
+        bool Idling(DenActor a) => a != null && a.Doing == DenDoing.Station && !InBeat(a);
 
         /// <summary>
         /// <paramref name="beat"/>'s over: whoever was in it is where it left them (kie by the couch, tones2 by the TV, the

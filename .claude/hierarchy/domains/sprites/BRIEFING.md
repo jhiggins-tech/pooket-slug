@@ -73,16 +73,23 @@ blinks and flickers; `CrewFigure` is the shared figure's moves; `StagePose` is h
   pixels a unit (`Tuning.Pixels.PerUnit`, `Art.PPU`). A 1 px dark outline (`Art.OutlineColor`) is added automatically
   around opaque pixels, and `.` is transparent in a row.
 - The crew's figure: `CrewMove` (Idle, Run, Jump, Crouch, Down, Repair), `CrewLegs` (Idle, Run1 to Run4, Jump, Crouch,
-  Sit), `CrewBody` (Forward, Up, Down, UpDiag, DownDiag, Unarmed, Pad, Lounge, Repair1 to Repair4) and `CrewHead`
+  Sit), `CrewBody` (Forward, Up, Down, UpDiag, DownDiag, Unarmed, Pad, Lounge, Repair1 to Repair4, Carry) and `CrewHead`
   (Front, Down). `HeadPlace` says where a body frame wants the head. Do not rename or reorder them: `PlayerSkin` indexes
   its arrays by the enum value.
 - The stage's: `StageLegs` (Idle, Walk, Crouch, Sit, Jump, Hidden) and `StageTorso` (Forward, Unarmed, Lounge, Pad,
-  Repair), and `StagePose.Tilt`, degrees toppled onto the back. The scene poses are `idle run crouch spray hatch repair
+  Repair, Carry), and `StagePose.Tilt`, degrees toppled onto the back. The scene poses are `idle run crouch spray hatch repair
   down` (`StagePose.Cutscene`; the list the reader checks is `Staging.Poses`, the cutscene domain's). `down`
   (`StagePose.Down`, cutscene-polish, 25 Oct) is the crew's down frame (`CrewFigure.Down`: Jump legs, the forward body)
   toppled flat, `Tilt` 90; no art of its own. `CutsceneSoldiers` turns the figure by `Tilt` times its facing about its
   feet, as the game turns a downed soldier, so a scene stands it 7 up to lie on the floor (freeing kie's drop).
   (`StagePoseTests.Down_IsTheCrewsDownFrame_ToppledFlat`)
+- No gun in a cutscene (stage-no-gun, 25 Oct): a scene's `arms gun down out` picks the top whatever the pose
+  (`StagePose.Arms`, and `StagePose.Cutscene`'s `arms`): `gun` is the forward body (the default, each shot starts with
+  it), `down` the den's `Unarmed` body, `out` the new `CrewBody.Carry` (`ArtData.TorsoCarry`: the forward body with the
+  gun taken out, the front hand held out as on the pad frame and the back hand by their side, head `Front`). Shared, so
+  it serves every crewmate. A `spray` keeps the gun and a `repair` its wrench. A held prop sits in the `out` hand at
+  about `8 10` (`-8 10` facing left). (`StagePoseTests.Arms_TakeTheGunOutOfTheirHands_WhateverThePose`; the render is
+  the card's `frame.png`.) The soldier in play never uses `Carry`.
 - Plates: a layer is `sky`, `far` or `mid`, back to front, and a plate is `<layer>-<n>.bytes`, a PNG renamed
   `.bytes`, numbered along the map (`Backdrop.PlatePath`). The strip repeats end to end; the sky is 180 px tall. The
   mission's `PlatesStand` lifts the far and mid plates. A layer with no plates is drawn in code.
@@ -99,6 +106,10 @@ blinks and flickers; `CrewFigure` is the shared figure's moves; `StagePose` is h
   mission has no plates for.
 - Sprites are built in code at startup (`Art.Init`); there are no imported art assets, no scenes and no prefabs.
   Plates and the title logo are the only picture files, loaded as `.bytes` from `Resources`.
+- The cutscenes' own props drawn here sit under "The cutscenes' props" in `ArtData` and `Art`: today the tub stack,
+  `Art.TubStack` (two frames, 23 by 25 with the outline: at rest, and its top tub hopped with the lid jumped off; painted
+  by `Art.TubPaint`, the creamery's pastel lids). The cutscene domain places it and picks the frame (`ShotStage.Rattle`;
+  card tub-stack, 25 Oct). A sprite there that a scene draws is a handover to that domain for its thing and verb.
 - The per-crewmate, per-mission and per-tabk art files are their own static classes in other domains' folders
   (`KcajArt`, `Tones2Art`, `KieTabkArt`, `KcajTabkArt`, `CreameryArt`, `CodaArt`, `ExitGateArt`), which `Art` reads
   (`Art.Init` takes `KcajArt.Cone`, `CreameryArt.Shockwave` and `.Scoop` for projectiles). `Art` is a `partial class`,

@@ -6,7 +6,7 @@ namespace PooketSlug.Tests
 {
     /// <summary>
     /// The beats drawn outside scene files (kie's tabk coming home in the bay, the den's first visit and a crewmate moving
-    /// in) hold their lines to the cutscenes' reading rule (<c>docs/design/cutscenes/README.md</c>, How every cutscene
+    /// in, the skits) hold their lines to the cutscenes' reading rule (<c>docs/design/cutscenes/README.md</c>, How every cutscene
     /// plays): about three words a second, <see cref="SceneCheck.WordsPerSecond"/>, as <see cref="SceneCheck.Timing"/>
     /// holds a scene file's. Each line's time is measured by playing the beat, from when it shows to when it goes.
     /// </summary>
@@ -53,6 +53,25 @@ namespace PooketSlug.Tests
                 }
                 Assert.Greater(up, 0f, beat.Kind + ": the line shows");
                 AssertReadable(beat.Line, up, "the den's " + beat.Kind);
+            }
+        }
+
+        [Test]
+        public void TheSkits_GiveEveryLineItsReadingTime()
+        {
+            foreach (Skit skit in new Skit[] { new TwoOfUsSkit(), new SpecialDeliverySkit(), new TrollogramSkit() })
+            {
+                var shown = new Dictionary<string, float>();
+                while (!skit.Done)
+                {
+                    skit.Tick(Dt);
+                    SkitLine? line = skit.Line;
+                    if (line == null) continue;
+                    string text = line.Value.Text;
+                    shown[text] = (shown.TryGetValue(text, out float s) ? s : 0f) + Dt;
+                }
+                Assert.AreEqual(skit.Lines.Count, shown.Count, skit.Key + ": every line shows");
+                foreach (SkitLine l in skit.Lines) AssertReadable(l.Text, shown[l.Text], skit.Key);
             }
         }
     }

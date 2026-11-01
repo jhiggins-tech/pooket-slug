@@ -122,7 +122,7 @@ namespace PooketSlug
                 {
                     CutsceneLine line = shot.Lines[i];
                     if (line.Who == Speaker.Caption) continue;
-                    float until = shot.Seconds;
+                    float until = System.Math.Min(shot.Seconds, line.Until);
                     if (line.Who == Speaker.Narrator)
                         for (int j = 0; j < shot.Lines.Length; j++)
                             if (shot.Lines[j].Who == Speaker.Narrator && shot.Lines[j].At > line.At && shot.Lines[j].At < until) until = shot.Lines[j].At;

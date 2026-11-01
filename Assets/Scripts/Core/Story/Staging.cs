@@ -84,6 +84,11 @@ namespace PooketSlug
         }
 
         static readonly Color White = Color.white;
+
+        /// <summary>
+        /// The tub stack's rattle, to the cold store's idling engine: eight beats a second, the top tub hopped on one in three.
+        /// </summary>
+        public static readonly Pulse Rattle = new Pulse(8f, 3);
         public static readonly Color Warm = new Color(1f, 0.78f, 0.38f), Cyan = Palette.Cyan;
 
         /// <summary>Every thing a scene can put on the stage. The cutscene view draws each of them.</summary>
@@ -94,7 +99,7 @@ namespace PooketSlug
             new Thing("kcaj", Kind.Figure, 0f, 0f, White),
             new Thing("goon", Kind.Figure, 0f, 0f, White, "appear", "glitch-out"),
             // props
-            new Thing("bag", Kind.Prop, 0f, 0f, White), // the crisp packet, painted (its own colours)
+            new Thing("bag", Kind.Prop, 0f, 0f, White, "turn-round"), // the crisp packet, painted (its own colours); turned round, its label
             new Thing("cup", Kind.Prop, 0f, 0f, White), // tones2's slushie, painted (its own colours)
             new Thing("card", Kind.Prop, 0f, 0f, Cyan),
             new Thing("remote", Kind.Prop, 0f, 0f, new Color(0.9f, 0.3f, 0.3f)),
@@ -117,9 +122,13 @@ namespace PooketSlug
             new Thing("store-opening", Kind.Prop, 261f, 11f, new Color(0.08f, 0.12f, 0.2f)),
             new Thing("freezer", Kind.Prop, 40f, 0f, new Color(0.82f, 0.9f, 0.97f)),
             new Thing("tub", Kind.Prop, 0f, 0f, new Color(0.96f, 0.93f, 0.86f)),
+            new Thing("tubs", Kind.Prop, 180f, 0f, White, "rattle"), // a stack of tubs by the doors, painted (Art.TubStack)
             new Thing("slushie", Kind.Prop, 0f, 0f, White), // the same slushie, painted
             new Thing("cones", Kind.Prop, 0f, 0f, new Color(0.88f, 0.66f, 0.36f)),
             new Thing("note", Kind.Prop, 0f, 0f, new Color(1f, 0.92f, 0.3f)),
+            // SOFT SERVE's two soft-serve cones (Does it do cones?), painted; squashed once they've splatted
+            new Thing("softserve", Kind.Prop, 0f, 0f, White, "squash"),
+            new Thing("softserve2", Kind.Prop, 0f, 0f, White, "squash"),
             // named effects: bits of staging drawn by the view, timed and placed by the scene
             new Thing("snow", Kind.Effect, 0f, 0f, White),
             new Thing("searchlights", Kind.Effect, 0f, 0f, White),
@@ -137,7 +146,9 @@ namespace PooketSlug
             new Thing("cage", Kind.Effect, 100f, 0f, Cyan, "flicker-out"),
             new Thing("stars", Kind.Effect, 0f, 0f, Palette.Gold),
             new Thing("zz", Kind.Effect, 0f, 0f, new Color(1f, 0.98f, 0.92f)),
-            new Thing("alarm", Kind.Effect, 0f, 0f, new Color(1f, 0.1f, 0.05f)));
+            new Thing("alarm", Kind.Effect, 0f, 0f, new Color(1f, 0.1f, 0.05f)),
+            new Thing("splat", Kind.Effect, 0f, 0f, White), // soft serve splatting on a soldier, then dripping (put it on them: splat on tones2 0 0)
+            new Thing("label", Kind.Effect, 0f, 0f, White)); // the crisp packet's label, close up
 
         static Dictionary<string, Thing> Index(params Thing[] things)
         {
@@ -149,8 +160,10 @@ namespace PooketSlug
         /// <summary>The verbs every thing has.</summary>
         public static readonly string[] Common = { "show", "hide", "at", "move", "turn", "size", "colour", "fade", "flicker", "blink", "shake", "on" };
         /// <summary>The verbs the soldiers have besides.</summary>
-        public static readonly string[] FigureVerbs = { "walk", "face", "pose", "look", "holds", "sway" };
-        public static readonly string[] Poses = { "idle", "run", "crouch", "spray", "hatch", "repair", "down" };
+        public static readonly string[] FigureVerbs = { "walk", "face", "pose", "arms", "look", "holds", "sway" };
+        public static readonly string[] Poses = { "idle", "run", "crouch", "spray", "hatch", "repair", "down", "grin", "fall", "glum" };
+        /// <summary>What a soldier's hands are doing, whatever their pose (<see cref="StagePose.Arms"/>): the gun, by their sides, or out holding something.</summary>
+        public static readonly string[] Arms = { "gun", "down", "out" };
         public static readonly string[] Looks = { "plain", "holo", "trollo" };
 
         /// <summary>Colours by name; anything else is written #rrggbb or #rrggbbaa.</summary>
@@ -224,6 +237,8 @@ namespace PooketSlug
                 case "tub": return new Vector2(8f, 11f);
                 case "slushie": return new Vector2(9f, 12f);
                 case "cones": return new Vector2(8f, 14f);
+                case "softserve": return new Vector2(10f, 6f);
+                case "softserve2": return new Vector2(-9f, 6f);
                 default: return new Vector2(0f, 12f);
             }
         }
@@ -381,12 +396,29 @@ namespace PooketSlug
             return Fx.Step(now, s.N[0], (int)s.N[1]) == 0;
         }
 
+        /// <summary>
+        /// A rattling thing's frame (the tub stack's <c>rattle</c>): 1, its top tub hopped, one beat in <see cref="Staging.Rattle"/>'s
+        /// three while it rattles (on the scene's clock, through <see cref="Pulse"/>), else 0, at rest.
+        /// </summary>
+        public int Rattle(string thing, float t, float now) => Doing(thing, "rattle", t) && Staging.Rattle.On(now) ? 1 : 0;
+
         /// <summary>A soldier's pose: running while it walks, else what the shot says (standing, unless told).</summary>
         public string Pose(string figure, float t)
         {
             if (Walking(figure, t)) return "run";
             StageStep s = Latest(figure, t, "pose");
             if (s == null || s.Window && t >= s.To) return "idle";
+            return s.Word;
+        }
+
+        /// <summary>
+        /// What a soldier's hands are doing (<see cref="Staging.Arms"/>): what the shot last said, over a window only for
+        /// that window, else the gun. Each shot starts with it, as in play.
+        /// </summary>
+        public string Arms(string figure, float t)
+        {
+            StageStep s = Latest(figure, t, "arms");
+            if (s == null || s.Window && t >= s.To) return "gun";
             return s.Word;
         }
 

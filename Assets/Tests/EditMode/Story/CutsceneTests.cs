@@ -163,7 +163,9 @@ namespace PooketSlug.Tests
             Assert.AreEqual("SNACKS ARE HERE LADS", lines[0].Text);
             while (p.Shot < 6) Run(p, 0.1f);
             Run(p, 3f);
-            Assert.AreEqual(1, p.Showing(lines), "tones2 says where the card sends him");
+            Assert.AreEqual(0, p.Showing(lines), "the keycard's close-up plays on its own");
+            Run(p, 1f);
+            Assert.AreEqual(1, p.Showing(lines), "then, back in the den, tones2 says where the card sends him");
             Assert.AreEqual(Speaker.Tones2, lines[0].Who);
         }
     

@@ -87,6 +87,45 @@ namespace PooketSlug
             ".........SSss...........",
         };
 
+        // kie's face falling (Does it do cones?, docs/design/cutscenes/skits.md): grinning ear to ear, the grin gone,
+        // then glum, the fedora tipped down (CrewFigure.FaceFall plays them in order)
+
+        /// <summary>kie grinning ear to ear: all teeth.</summary>
+        public static readonly string[] KieHeadGrin =
+        {
+            "..........uuu...........",
+            ".........uDuuu..........",
+            ".........RRRRR..........",
+            "......uuuuuuuuuu........",
+            "........hsssses.........",
+            "........hsWWWWe.........",
+            ".........SeeeS..........",
+        };
+
+        /// <summary>kie's grin gone: a flat little mouth.</summary>
+        public static readonly string[] KieHeadBlank =
+        {
+            "..........uuu...........",
+            ".........uDuuu..........",
+            ".........RRRRR..........",
+            "......uuuuuuuuuu........",
+            "........hsssses.........",
+            "........hsseess.........",
+            ".........SsssS..........",
+        };
+
+        /// <summary>kie glum: the fedora tipped down, the eye lowered, the mouth small and low.</summary>
+        public static readonly string[] KieHeadGlum =
+        {
+            "...........uuu..........",
+            "..........uDuuu.........",
+            "..........RRRRR.........",
+            ".......uuuuuuuuuu.......",
+            "........hssssSss........",
+            "........hsssses.........",
+            ".........SseeS..........",
+        };
+
         /// <summary>kcaj's head: short brown hair and a beard, facing forward.</summary>
         public static readonly string[] KcajHead =
         {
@@ -153,6 +192,25 @@ namespace PooketSlug
             "........bbbybb..........",
         };
 
+        /// <summary>Slumped (the end of a face falling): the shoulders a row lower, the hands in the pockets.</summary>
+        public static readonly string[] TorsoSlump =
+        {
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........cgggggc.........",
+            ".......ccgggggcc........",
+            ".......cCgGgggCc........",
+            ".......CgGggggCC........",
+            "........bbbybb..........",
+        };
+
         /// <summary>Gaming: both hands on a controller (v, V).</summary>
         public static readonly string[] TorsoPad =
         {
@@ -188,6 +246,28 @@ namespace PooketSlug
             "........gGgggg..........",
             "........gGgggg..........",
             "........gGgggg..........",
+            "........bbbybb..........",
+        };
+
+        /// <summary>
+        /// Carrying: the front hand out holding something (a slushie, the snacks, a remote to hand over), the back one by
+        /// their side. The forward body with the gun taken out of the hand, for a cutscene's <c>arms out</c>.
+        /// </summary>
+        public static readonly string[] TorsoCarry =
+        {
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........................",
+            "........cgggggc.........",
+            ".......ccgggggccc.......",
+            ".......cCgGgggCCcss.....",
+            ".......cgGgggg..........",
+            ".......sgGgggg..........",
             "........bbbybb..........",
         };
 
@@ -634,6 +714,68 @@ namespace PooketSlug
             "m.......",
             "M.......",
             "M.......",
+        };
+
+        // ---- The cutscenes' props ----
+
+        /// <summary>
+        /// A stack of ice cream tubs by the cold store's doors (the <c>tubs</c> in kcaj's tabk scene): five tubs in three
+        /// rows, their lids in the creamery's pink, mint and chocolate (<see cref="Art.TubStack"/> paints them). Two
+        /// frames: at rest, and rattling, the top tub hopped a pixel right and up with its lid jumped off.
+        /// </summary>
+        public static readonly string[] TubStack =
+        {
+            ".....................",
+            ".....................",
+            ".....gggggggggg......",
+            ".....GGGGGGGGGG......",
+            "......cWcccccC.......",
+            "......cggggggC.......",
+            "......cGGGGGGC.......",
+            "......cccccccC.......",
+            ".......cccccC........",
+            "hhhhhhhhhh.rrrrrrrrrr",
+            "wwwwwwwwww.RRRRRRRRRR",
+            ".cWcccccC...cWcccccC.",
+            ".chhhhhhC...crrrrrrC.",
+            ".cwwwwwwC...cRRRRRRC.",
+            ".cccccccC...cccccccC.",
+            "..cccccC.....cccccC..",
+            "rrrrrrrrrr.gggggggggg",
+            "RRRRRRRRRR.GGGGGGGGGG",
+            ".cWcccccC...cWcccccC.",
+            ".crrrrrrC...cggggggC.",
+            ".cRRRRRRC...cGGGGGGC.",
+            ".cccccccC...cccccccC.",
+            "..cccccC.....cccccC..",
+        };
+
+        /// <summary>The tub stack rattling: the top tub knocked a pixel right and up, its lid lifted off it.</summary>
+        public static readonly string[] TubStackRattle =
+        {
+            "......gggggggggg.....",
+            "......GGGGGGGGGG.....",
+            ".....................",
+            ".......cWcccccC......",
+            ".......cggggggC......",
+            ".......cGGGGGGC......",
+            ".......cccccccC......",
+            "........cccccC.......",
+            ".....................",
+            "hhhhhhhhhh.rrrrrrrrrr",
+            "wwwwwwwwww.RRRRRRRRRR",
+            ".cWcccccC...cWcccccC.",
+            ".chhhhhhC...crrrrrrC.",
+            ".cwwwwwwC...cRRRRRRC.",
+            ".cccccccC...cccccccC.",
+            "..cccccC.....cccccC..",
+            "rrrrrrrrrr.gggggggggg",
+            "RRRRRRRRRR.GGGGGGGGGG",
+            ".cWcccccC...cWcccccC.",
+            ".crrrrrrC...cggggggC.",
+            ".cRRRRRRC...cGGGGGGC.",
+            ".cccccccC...cccccccC.",
+            "..cccccC.....cccccC..",
         };
     }
 }

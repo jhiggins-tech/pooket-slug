@@ -133,6 +133,28 @@ namespace PooketSlug.Tests
             Near(new Vector2(100f - 7f * g, 9f * g), stage.Where("cup", 3f, 0f), "then kie's");
         }
 
+        // stage-no-gun: tones2's arms full of snacks, then the gun out for the Trollogram; a window's arms end with it
+        [Test]
+        public void ArmsSayWhatTheHandsAreDoing_TheGunUnlessTold()
+        {
+            SceneScript s = Read("net 9\nshot: A\nlength 8\nset den\n" +
+                                 "tones2 at 56\ntones2 arms out\n0-1 tones2 walk 56 100\n2 tones2 arms gun\n3-4 tones2 pose spray\n" +
+                                 "kie at 140\n1-2 kie arms down\n");
+            Assert.IsEmpty(s.Problems, string.Join("; ", s.Problems));
+            var stage = new ShotStage(s.Def.Shots[0]);
+            Assert.AreEqual("out", stage.Arms("tones2", 0.5f), "walking with his hands full");
+            Assert.AreEqual("run", stage.Pose("tones2", 0.5f), "the arms ride over the pose");
+            Assert.AreEqual("gun", stage.Arms("tones2", 2.5f));
+            Assert.AreEqual("gun", stage.Arms("kie", 0.5f), "the gun until told");
+            Assert.AreEqual("down", stage.Arms("kie", 1.5f));
+            Assert.AreEqual("gun", stage.Arms("kie", 2.5f), "a window's arms end with it");
+            Assert.AreEqual(StageTorso.Carry, StagePose.Cutscene(stage.Pose("tones2", 0.5f), 0.5f, 10f, stage.Arms("tones2", 0.5f)).Torso);
+
+            List<string> problems = Read(Tiny + "tones2 arms full\n").Problems;
+            Assert.IsTrue(problems.Exists(p => p.Contains("'arms' takes one of gun, down, out")), string.Join("; ", problems));
+            Assert.IsTrue(Read(Tiny + "card arms out\n").Problems.Exists(p => p.Contains("card can't 'arms'")), "only soldiers have arms");
+        }
+
         [Test]
         public void ColoursTurnsSizesAndTheCamera()
         {
@@ -157,6 +179,91 @@ namespace PooketSlug.Tests
         }
 
         [Test]
+        public void NoBubbleSitsOverACloseUp()
+        {
+            // docs/design/cutscenes/README.md (owner, 25 Oct, closeup-bubbles): a close-up plays on its own, held long enough
+            // to take in; the lines come after it, back in the wider shot, with whoever says them in it
+            string[] closeUps = { "closeup", "board" };
+            int found = 0;
+            foreach (SceneScript script in TestScenes.All.Values)
+                foreach (CutsceneShot shot in script.Def.Shots)
+                {
+                    var stage = new ShotStage(shot);
+                    foreach (string thing in closeUps)
+                    {
+                        if (!stage.Shown(thing, 0f)) continue;
+                        found++;
+                        float gone = 0f;
+                        while (gone < shot.Seconds && stage.Shown(thing, gone)) gone += 0.05f;
+                        Assert.GreaterOrEqual(gone, 3f, script.Name + ", '" + shot.Name + "': the " + thing + " holds long enough to take in");
+                    }
+                    foreach (CutsceneLine line in shot.Lines)
+                    {
+                        if (line.Who == Speaker.Narrator || line.Who == Speaker.Caption) continue;
+                        string where = script.Name + ", '" + shot.Name + "', the line at " + line.At + " s";
+                        for (float t = line.At; t < shot.Seconds; t += 0.05f)
+                            foreach (string thing in closeUps)
+                                Assert.IsFalse(stage.Shown(thing, t), where + ": its bubble is up while the " + thing + " is");
+                        if (Array.Exists(closeUps, c => stage.Shown(c, 0f)))
+                            Assert.IsTrue(stage.Shown(SceneScript.FigureOf(line.Who), line.At), where + ": the speaker is in shot after the close-up");
+                    }
+                }
+            Assert.AreEqual(2, found, "the keycard's close-up in the opening and the string board's in the Mission two briefing");
+        }
+
+        [Test]
+        public void ABubbleCanGoDownBeforeTheShotEnds()
+        {
+            SceneScript s = Read("net 9\nshot: Hello\nlength 4\nset den\ntones2 at 56\nkie at 90\n0.5-1.8 tones2: HI THERE\n2 kie: HI\n");
+            Assert.IsEmpty(s.Problems, string.Join("; ", s.Problems));
+            CutsceneLine[] lines = s.Def.Shots[0].Lines;
+            Assert.AreEqual(1.8f, lines[0].Until, 1e-4f, "a window's end is when its bubble goes down");
+            Assert.AreEqual(CutsceneLine.ShotEnd, lines[1].Until, "without one, it's up till the shot ends");
+            Assert.IsTrue(lines[0].Up(1f) && !lines[0].Up(1.8f) && !lines[0].Up(0.4f));
+            Assert.IsTrue(lines[1].Up(3.9f));
+
+            var player = new CutscenePlayer(s.Def, seenBefore: false);
+            var showing = new List<CutsceneLine>();
+            player.Tick(1f);
+            Assert.AreEqual(1, player.Showing(showing));
+            player.Tick(1.2f);
+            Assert.AreEqual(1, player.Showing(showing), "tones2's is down; kie's is up");
+            Assert.AreEqual(Speaker.Kie, showing[0].Who);
+
+            Assert.IsNotEmpty(Read("net 9\nshot: A\nlength 4\nset den\n1-4.5 tones2: HI\n").Problems, "a window that runs past the shot");
+            Assert.IsNotEmpty(Read("net 9\nshot: A\nlength 4\nset den\n1-2 narrator opening-1: Hi.\n").Problems, "the narrator runs to their next line");
+            Assert.IsNotEmpty(Read("net 9\nshot: A\nlength 4\nset den\n1-2 cue door\n").Problems, "a cue is a moment");
+            SceneScript quick = Read("net 9\nshot: A\nlength 4\nset den\ntones2 at 56\n1-1.5 tones2: ONE TWO THREE FOUR\n");
+            Assert.IsEmpty(quick.Problems);
+            Assert.IsNotEmpty(SceneCheck.Timing(quick.Def), "a bubble taken down too soon to read");
+        }
+
+        [Test]
+        public void BubblesNeverPileUp()
+        {
+            // the skits-rollup review: never more than two bubbles up at once, and where they were piling up and
+            // overlapping, one at a time
+            string[] oneAtATime = { "m2-briefing/The string board", "freeing-kie/The bit", "freeing-kcaj/Told you" };
+            int checkedShots = 0;
+            foreach (SceneScript script in TestScenes.All.Values)
+                foreach (CutsceneShot shot in script.Def.Shots)
+                {
+                    bool alone = Array.IndexOf(oneAtATime, script.Name + "/" + shot.Name) >= 0;
+                    if (alone) checkedShots++;
+                    foreach (CutsceneLine line in shot.Lines)
+                    {
+                        if (line.Who == Speaker.Narrator || line.Who == Speaker.Caption) continue;
+                        int up = 0;
+                        foreach (CutsceneLine other in shot.Lines)
+                            if (other.Who != Speaker.Narrator && other.Who != Speaker.Caption && other.Up(line.At)) up++;
+                        string where = script.Name + ", '" + shot.Name + "', the line at " + line.At + " s";
+                        Assert.LessOrEqual(up, alone ? 1 : 2, where + ": " + up + " bubbles up at once");
+                    }
+                }
+            Assert.AreEqual(oneAtATime.Length, checkedShots, "the shots it names are still there");
+        }
+
+        [Test]
         public void FlickersAndBlinksKeepTheirBeatsOnFx()
         {
             // The beats as they were written inline before they moved onto Fx: a flicker shows its first colour one beat in
@@ -173,6 +280,30 @@ namespace PooketSlug.Tests
                 Assert.AreEqual((int)(now * 9f) % 3 == 0, stage.Lit("spark", 1f, now), "blink 9 3, " + now);
                 Assert.AreEqual((int)(now * 2.5f) % Math.Max(1, 0) == 0, stage.Lit("beacon", 1f, now), "blink round no beats is always lit, " + now);
             }
+        }
+
+        [Test]
+        public void TheTubsRattleOnTheirBeat_OnlyWhileTheShotSays()
+        {
+            // the stack's top tub hops one beat in three, eight beats a second, on the scene's clock; at rest otherwise
+            SceneScript s = Read("net 9\nshot: A\nlength 4\nset coldstore\nshow tubs\n0-1.4 tubs rattle\n");
+            Assert.IsEmpty(s.Problems, string.Join("; ", s.Problems));
+            var stage = new ShotStage(s.Def.Shots[0]);
+            Near(new Vector2(180f, 0f), stage.Where("tubs", 0.5f, 0.5f), "beside the cold store's doors unless the shot says");
+            int hops = 0;
+            for (int i = 0; i < 140; i++)
+            {
+                float now = i * 0.01f;
+                int frame = stage.Rattle("tubs", now, now);
+                Assert.AreEqual((int)(now * 8f) % 3 == 0 ? 1 : 0, frame, "rattling, " + now);
+                hops += frame;
+            }
+            Assert.That(hops, Is.InRange(40, 60), "about a third of the time");
+            for (float t = 1.4f; t < 4f; t += 0.01f) Assert.AreEqual(0, stage.Rattle("tubs", t, t), "at rest after its window, " + t);
+            Assert.AreEqual(0, new ShotStage(Read("net 9\nshot: A\nlength 4\nset coldstore\nshow tubs\n").Def.Shots[0]).Rattle("tubs", 0f, 0f), "at rest unless told");
+            Assert.IsTrue(Staging.Has("tubs", "rattle"));
+            Assert.IsFalse(Staging.Has("tub", "rattle"), "the held tub doesn't");
+            StringAssert.Contains("takes nothing", Read("net 9\nshot: A\nlength 4\nset coldstore\ntubs rattle 2\n").Problems[0]);
         }
 
         [Test]

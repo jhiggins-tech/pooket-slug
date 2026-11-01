@@ -7,23 +7,32 @@ namespace PooketSlug
 
     /// <summary>
     /// One speech bubble, the caption card, or the narrator's subtitle, shown from <see cref="At"/> seconds into its
-    /// shot until the shot ends (the narrator's until their next line).
+    /// shot until <see cref="Until"/> or the shot's end, whichever is first (the narrator's until their next line).
     /// </summary>
     public readonly struct CutsceneLine
     {
+        /// <summary>A line written without an end (<c>2.4 kie: ...</c>): it's up until the shot ends.</summary>
+        public const float ShotEnd = float.MaxValue;
+
         public readonly float At;
+        /// <summary>When its bubble goes down (<c>2.4-3.6 kie: ...</c>), or <see cref="ShotEnd"/>.</summary>
+        public readonly float Until;
         public readonly Speaker Who;
         public readonly string Text;
         /// <summary>The recorded line's id, for a voice to read it (the narrator's), or null.</summary>
         public readonly string Voice;
 
-        public CutsceneLine(float at, Speaker who, string text, string voice = null)
+        public CutsceneLine(float at, Speaker who, string text, string voice = null, float until = ShotEnd)
         {
             At = at;
+            Until = until;
             Who = who;
             Text = text;
             Voice = voice;
         }
+
+        /// <summary>Whether it's up <paramref name="t"/> seconds into its shot.</summary>
+        public bool Up(float t) => t >= At && t < Until;
     }
 
     /// <summary>A sound due <see cref="At"/> seconds into a shot. The ids are <see cref="Cues"/>'.</summary>
@@ -290,7 +299,7 @@ namespace PooketSlug
             into.Clear();
             if (Done) return 0;
             foreach (CutsceneLine line in Current.Lines)
-                if (T >= line.At && line.Who != Speaker.Narrator) into.Add(line);
+                if (line.Up(T) && line.Who != Speaker.Narrator) into.Add(line);
             return into.Count;
         }
 

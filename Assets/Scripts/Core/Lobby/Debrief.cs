@@ -69,6 +69,10 @@ namespace PooketSlug
         public bool First;
         /// <summary>The player isn't signed in, so the debrief offers it (the first time, and on every later one).</summary>
         public bool OfferSignIn;
+        /// <summary>kcaj stands with the crew: he's been freed.</summary>
+        public bool Kcaj;
+        /// <summary>The skit They're tracking us plays over the tally (<see cref="TrackingUs"/>).</summary>
+        public bool TrackingUs;
 
         public int XpGained
         {
@@ -92,8 +96,10 @@ namespace PooketSlug
     {
         public enum Part { Tally, Xp, Rank, SignIn, Continue }
 
-        /// <summary>How long each part takes to count up, in seconds.</summary>
+        /// <summary>How long each part takes to count up, in seconds (the tally waits for They're tracking us, when it plays).</summary>
         public const float TallySeconds = 2.4f, XpSeconds = 2f, RankSeconds = 1.6f;
+        /// <summary>The tally's rows, counted in turn, and which of them is the accuracy (the view's row names follow this order).</summary>
+        public const int TallyRows = 7, AccuracyRow = 4;
         /// <summary>A tap this soon after a part starts is ignored, so a mashed button doesn't skip a part unseen.</summary>
         public const float TapGuard = Tuning.Hud.TapGuard;
 
@@ -118,8 +124,19 @@ namespace PooketSlug
         public float T { get; private set; }
         /// <summary>Has the current part (and so every one before it) finished counting up?</summary>
         public bool Counted => T >= Length(Now);
-        /// <summary>How far the current part has counted up, 0 to 1.</summary>
-        public float Progress => Length(Now) <= 0f ? 1f : System.Math.Min(1f, T / Length(Now));
+        /// <summary>How far the current part has counted up, 0 to 1 (the tally to They're tracking us's timing, while it plays).</summary>
+        public float Progress =>
+            Now == Part.Tally && Result.TrackingUs ? TrackingUs.Tally(T, TallyRows, AccuracyRow)
+            : Length(Now) <= 0f ? 1f : System.Math.Min(1f, T / Length(Now));
+
+        /// <summary>
+        /// Seconds into They're tracking us (when it plays): the tally's clock, and its end once the tally's done, so it
+        /// ends where it would have (the note on) after a tap skips it.
+        /// </summary>
+        public float SkitT => Now == Part.Tally ? System.Math.Min(T, TrackingUs.Length) : TrackingUs.Length;
+
+        /// <summary>They're tracking us is playing now: its lines, not kie's, are said.</summary>
+        public bool SkitPlaying => Result.TrackingUs && Now == Part.Tally && T < TrackingUs.Length;
 
         /// <summary>Has <paramref name="part"/> been reached (it shows from then on)?</summary>
         public bool Reached(Part part)
@@ -138,7 +155,7 @@ namespace PooketSlug
         /// <summary>The sign-in button shows: in its own part, and at CONTINUE for a player who isn't signed in.</summary>
         public bool ShowsSignIn => Now == Part.SignIn || Now == Part.Continue && Result.OfferSignIn;
 
-        static float Length(Part p) => p == Part.Tally ? TallySeconds : p == Part.Xp ? XpSeconds : p == Part.Rank ? RankSeconds : 0f;
+        float Length(Part p) => p == Part.Tally ? (Result.TrackingUs ? TrackingUs.Length : TallySeconds) : p == Part.Xp ? XpSeconds : p == Part.Rank ? RankSeconds : 0f;
 
         /// <summary>Moves time on. True on the frame the current part finishes counting.</summary>
         public bool Tick(float dt)

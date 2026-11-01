@@ -58,9 +58,9 @@ namespace PooketSlug
 
         public void Tick(float dt, Den den)
         {
-            if (m_Crew.Beat != null)
+            if (m_Crew.Busy)
             {
-                // one of the den's beats is playing: no bits over it
+                // one of the den's beats or skits is playing: no bits over it
                 if (m_Bit != null) EndBit();
                 HideBubbles(0);
                 return;

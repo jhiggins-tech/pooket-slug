@@ -132,6 +132,7 @@ namespace PooketSlug.Tests
             // the words after pose and look are the whole lists
             SameSet(Spans(soldiers).First(s => s.StartsWith("pose ")).Split(' ').Skip(1), Staging.Poses, "poses");
             SameSet(Spans(soldiers).First(s => s.StartsWith("look ")).Split(' ').Skip(1), Staging.Looks, "looks");
+            SameSet(Spans(soldiers).First(s => s.StartsWith("arms ")).Split(' ').Skip(1), Staging.Arms, "arms");
         }
 
         [Test]

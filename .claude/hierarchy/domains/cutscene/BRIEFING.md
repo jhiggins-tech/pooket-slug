@@ -63,8 +63,12 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
   `freeing-kcaj`, `kcaj-tabk`. A scene's profile id is `scene-<name>`.
 - Sets (`Staging.Sets`): `street`, `den`, `bay`, `motorpool`, `coldstore`. Things are `Staging.Things`: figures
   (`tones2`, `kie`, `kcaj`, `goon`), props and effects, with their verbs (`show hide at move turn size colour fade
-  flicker blink shake on walk face pose look holds sway`). The full tables are in `docs/scenes.md`; the test
+  flicker blink shake on walk face pose arms look holds sway`). The full tables are in `docs/scenes.md`; the test
   `EveryThingAndVerbInTheVocabularyReads` keeps them honest.
+- The cold store's stack of tubs is `tubs` (beside the doors, x 180, made in `CutsceneCast.MakeColdStore` before
+  kcaj's tabk, so the tabk parks in front of it), drawn from sprites' `Art.TubStack`; its verb `rattle` swaps to the
+  hopped frame on `Staging.Rattle` (a `Pulse`, 8 a second, one beat in three) through `ShotStage.Rattle`
+  (`SceneScriptTests.TheTubsRattleOnTheirBeat_OnlyWhileTheShotSays`; card tub-stack, 25 Oct). `tub` is the one kcaj holds.
 - Speakers: `tones2`, `kie`, `kcaj`, `trollo-kie`, `trollo-kcaj`, `goon`, `narrator`, `caption`.
 - Cue ids are in `Cues.cs`; a recording id (`opening-4a`, `m2-freeing-2`) is the vendor repository's, and `Sfx.Narrate`
   plays it. The announcer's lines (`mission-start`, `mission-two-start`) are `say:` cues.
@@ -75,9 +79,13 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
   and up from 22 Oct until cutscene-polish, 25 Oct). What a soldier holds or carries (`holds`, `on`) sits
   `FigureGrow` times its offset from their feet (`ShotStage.Where`, `SceneScriptTests.MovesWalksAndHoldsPlaceThings`).
   A `holds` offset is in stage terms, not mirrored by `face`: facing left, in front is a minus across.
-- A hidden soldier is still stood where the shot puts them, so an off-screen speaker's bubble points there (the
-  keycard's and the string board's close-ups, which sit over the world, bubbles included: stage the speaker so the
-  bubble clears the card).
+- A hidden soldier is still stood where the shot puts them, so an off-screen speaker's bubble points there.
+- A close-up (`closeup`, the keycard; `board`, kcaj's string board) sits on the stage over the world, dimming it,
+  bubbles included. So no bubble plays over one: the close-up holds alone (3 s at least), hides, and the lines come
+  after in the wider shot with the speaker shown (owner, 25 Oct, closeup-bubbles; the README's rule,
+  `SceneScriptTests.NoBubbleSitsOverACloseUp`). The keycard is 0 to 3.4 s of a 6.2 s shot, the board 0 to 3.2 s of
+  7.2 s; the board's shot sets kcaj's corner's camera from its start, which the close-up doesn't move (it is on the
+  stage, not the world).
 - Boss intro: the full one (siren twice, WARNING!, name card, then a pilot's hatch and band) and the quick one (a
   replay of a cleared mission, or a retry after losing at the boss door: `StoryRecord.QuickBossIntro`),
   `BossIntroShow.Cue`. The pilot's part plays only when the mission's reveal hasn't just played: a test start, or a
@@ -87,6 +95,14 @@ Next door, not here: `Core/Anim/StagePose.cs` (sprites), `MissionStory.cs` and i
   loading-yard plate (doors on the right, x 261); each falls back to a code-drawn set in a build without its plates.
   `den` and `bay` are Design's raid-night paintings, `street` Design's plate B-2.
 - Announcer lines in a scene are `say <line>` (`say mission-start`), not `cue`.
+- A soldier holds their gun unless the shot says `arms down` (hands by their sides) or `arms out` (the front hand out
+  holding something), and every shot starts with the gun (`ShotStage.Arms`, `Staging.Arms`; stage-no-gun, 25 Oct,
+  `SceneScriptTests.ArmsSayWhatTheHandsAreDoing_TheGunUnlessTold`). The scenes write it wherever the script has someone
+  unarmed: tones2 with the snacks and the slushie in the opening (to the goon's shout, and from the crush to 1.6 s
+  heading out), and offering the snacks, taking the remote and holding out the slushie in the freeings; kie through
+  freeing kie (dazed, then the snacks and the remote); kcaj through freeing kcaj (the tub, the cones, pointing) and
+  Trollogram kcaj's cones in the hatch. The gun stays wherever they fight or head out (the motor pool reveal, the
+  Mission two briefing, the spray).
 
 ## The invariants
 - Gameplay never depends on a scene. `Core/Story` knows nothing of Unity's scene or the network; the view and the flow

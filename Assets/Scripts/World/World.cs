@@ -152,6 +152,10 @@ namespace PooketSlug
         /// <summary>The coda's goons hold back until tones2 is in the tabk, or walks on without it.</summary>
         public bool CodaUnderway;
         public const float CodaWalkOn = 8f;
+        /// <summary>Raised the moment the coda gets under way (<see cref="CodaUnderway"/>): the game plays Keep it down then, if it's due.</summary>
+        public event System.Action CodaGotUnderway;
+        /// <summary>kie asleep by the wall, once the coda's open; null before.</summary>
+        public SleepingKie SleepingKie;
         /// <summary>The back gate, once it's been placed.</summary>
         public BackGate BackGate;
         /// <summary>Raised when the base's last gate goes down, just before the mission's won.</summary>
@@ -352,7 +356,10 @@ namespace PooketSlug
                     driving && t.Rounds.Main < Content.PlayerTank.MainShots, driving && t.Rounds.Specials < Content.PlayerTank.Specials);
             }
             if (CodaOpen && !CodaUnderway && ((Tank != null && Tank.Occupied && Player.Riding == Tank) || Player.Pos.x > Level.CodaX + CodaWalkOn))
+            {
                 CodaUnderway = true;
+                CodaGotUnderway?.Invoke();
+            }
             Spawner.SpawnAhead();
 
             for (int i = 0; i < Enemies.Count; i++)
@@ -561,7 +568,8 @@ namespace PooketSlug
                 Scoring.Popup("THE ALARMS ARE GOING!", Player.Pos + Vector2.up * 2.6f, new Color(1f, 0.45f, 0.4f));
             }
             // kie's left asleep by the wall, on a retry from the coda's checkpoint too
-            Props.Add(new SleepingKie(this, new Vector2(Level.CodaX - 3.5f, Level.TopSurfaceY(Level.CodaX - 3.5f))));
+            SleepingKie = new SleepingKie(this, new Vector2(Level.CodaX - 3.5f, Level.TopSurfaceY(Level.CodaX - 3.5f)));
+            Props.Add(SleepingKie);
             Log.Game.Info("The coda's open");
         }
 

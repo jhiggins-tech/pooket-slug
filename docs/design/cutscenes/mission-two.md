@@ -9,7 +9,7 @@ approved by the owner on 17 Oct, and the narrator lines are voiced (`voice/narra
 ## The Mission two briefing
 
 Played when Mission two starts from the den, solo or in co-op, so a partner sees it too (owner, 2026-10-19). Until
-then kcaj's string board glows in his dark corner to point the way ([the lobby](../lobby.md)). About 26 seconds, four shots; it can be skipped once seen. kcaj's string
+then kcaj's string board glows in his dark corner to point the way ([the lobby](../lobby.md)). About 27 seconds, four shots; it can be skipped once seen. kcaj's string
 board briefs it (owner, 2026-10-16): it stays up in his dark corner of the den before he's freed. **Who's in it:**
 always tones2 and kie, whoever the players picked, since they're the only crew free at this point in the story; a
 replay is the same. No intro.
@@ -43,18 +43,24 @@ tones2 and kie climb the ladder to it.
 
                                                    CUT TO:
 
-3. INSERT - THE STRING BOARD                            6 s
+3. INSERT - THE STRING BOARD                          7.2 s
 
 One red string runs off the board to a photo of a
 factory with a giant soft-serve sign. Scrawled under it:
-THEY NEED IT COLD.
+THEY NEED IT COLD. It holds on its own, no bubble over
+it (3.2 s).
 
 SFX: the close-up's chime, as for the keycard.
 
-                    KIE (O.S.)
+BACK TO KCAJ'S CORNER: the two of them where they climbed
+to, kie looking at the board.
+
+                    KIE
           HE WAS RIGHT?
 
-                    TONES2 (O.S.)
+tones2 turns to him.
+
+                    TONES2
           HE'S NEVER BEEN RIGHT.
 
                                                    CUT TO:
@@ -82,6 +88,11 @@ THE CREAMERY / FIND KCAJ
 
                                            INTO: MISSION TWO
 ```
+
+**Built** (2026-10-25, closeup-bubbles): the owner asked for the lines to be read after a close-up, not during it.
+Shot 3's board holds alone for 3.2 s, then it cuts back to kcaj's corner, the camera where shot 2 left it, and kie
+(3.5 s) and tones2 (5.0 s) say their lines there, one bubble at a time: kie's is down at 4.9 s, before tones2's goes
+up. The shot runs 7.2 s, up from 6.
 
 ## kcaj's tabk arrives
 
@@ -114,7 +125,8 @@ SFX: a deep engine idle; ice cracking.
 2. EXT. THE LOADING YARD - CONTINUOUS                   5 s  
 
 The doors fog open. KCAJ'S TABK rolls out of the mist, a
-cone on its antenna, and stops. The camera pushes in on
+cone on its antenna, and stops in front of the tubs, which
+rattle till then. The camera pushes in on
 the hatch. It pops, and up comes TROLLOGRAM KCAJ: kcaj,
 but cyan and flickering, a cone in each hand.
 
@@ -235,3 +247,7 @@ SFX: the note.
 
                                           INTO: THE DEBRIEF
 ```
+
+**Timing** (skits-rollup review): shot 5's three lines play one bubble at a time, so none sits on another: kcaj's from
+0.4 s to 3.1 s, tones2's from 3.2 s to 3.9 s, then kie turns to tones2 (3.8 s) and says his from 4.0 s to the shot's
+end.

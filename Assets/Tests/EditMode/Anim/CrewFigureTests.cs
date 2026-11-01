@@ -97,6 +97,48 @@ namespace PooketSlug.Tests
             CollectionAssert.Contains(Staging.Poses, "repair");
         }
 
+        // Does it do cones?: kie's grin falls, slowly, all the way down, and stays down
+        [Test]
+        public void AFaceFallsFromTheGrinToASlumpAndStaysThere()
+        {
+            CrewClip fall = CrewFigure.FaceFall;
+            Assert.IsFalse(fall.Aims);
+            Assert.IsFalse(fall.Clip.Loop);
+            var seen = new System.Collections.Generic.List<CrewBody>();
+            for (float t = 0f; t < 6f; t += 0.02f)
+            {
+                Assert.AreEqual(CrewLegs.Idle, fall.Legs(t));
+                CrewBody body = fall.Body(t, CrewBody.Forward);
+                if (seen.Count == 0 || seen[seen.Count - 1] != body) seen.Add(body);
+            }
+            CollectionAssert.AreEqual(new[] { CrewBody.Grin, CrewBody.Blank, CrewBody.Glum, CrewBody.Slump }, seen, "in order, once, held on the slump");
+            Assert.Greater(fall.Clip.Length, 2f, "slowly");
+            Assert.AreEqual(CrewHead.Grin, CrewFigure.HeadOn(CrewBody.Grin).Head);
+            Assert.AreEqual(CrewHead.Blank, CrewFigure.HeadOn(CrewBody.Blank).Head);
+            Assert.AreEqual(CrewHead.Glum, CrewFigure.HeadOn(CrewBody.Glum).Head);
+            HeadPlace slump = CrewFigure.HeadOn(CrewBody.Slump);
+            Assert.AreEqual(CrewHead.Glum, slump.Head);
+            Assert.AreEqual(1, slump.Y, "a row lower, on the lower shoulders");
+        }
+
+        [Test]
+        public void AStageFigureGrinsFallsAndSlumps()
+        {
+            Assert.AreEqual(CrewBody.Grin, StagePose.Cutscene("grin", 3f, 10f).Body);
+            Assert.AreEqual(CrewBody.Grin, StagePose.Cutscene("fall", 3f, 10f, since: 0f).Body, "the fall starts from the grin, whenever in the shot it's struck");
+            Assert.AreEqual(CrewBody.Slump, StagePose.Cutscene("fall", 0.1f, 10f, since: 9f).Body, "and ends slumped");
+            Assert.AreEqual(CrewBody.Slump, StagePose.Cutscene("glum", 0f, 10f).Body);
+            StagePose away = StagePose.Glum(true, 0.3f, 6f);
+            Assert.AreEqual(StageLegs.Walk, away.Legs, "walking off glum");
+            Assert.AreEqual(CrewBody.Slump, away.Body);
+            Assert.AreEqual(StageLegs.Walk, StagePose.Grinning(true, 0.3f).Legs, "running in grinning");
+            foreach (string pose in new[] { "grin", "fall", "glum" })
+            {
+                CollectionAssert.Contains(Staging.Poses, pose);
+                Assert.AreEqual(StageLegs.Idle, StagePose.Cutscene(pose, 1f, 10f).Legs, pose + " stands");
+            }
+        }
+
         [Test]
         public void TheLastInlineBlinksKeepTheirBeat()
         {

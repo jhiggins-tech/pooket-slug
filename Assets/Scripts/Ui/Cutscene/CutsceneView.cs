@@ -14,7 +14,8 @@ namespace PooketSlug
     /// worked out moment by moment by <see cref="ShotStage"/>; the parts here draw each thing in the vocabulary
     /// (<see cref="Staging.Things"/>) the way the script has it: <see cref="CutsceneBackdrops"/> the sets,
     /// <see cref="CutsceneCast"/> the soldiers and props, <see cref="CutsceneEffects"/> the named effects (snow, spilt
-    /// chips, the shutter, the cage of light...), <see cref="CutsceneBubbles"/> and <see cref="CutsceneCaptions"/> the
+    /// chips, the shutter, the cage of light...), <see cref="CutsceneSnackShow"/> the skits' snack effects (the soft-serve
+    /// splat, the label close up), <see cref="CutsceneBubbles"/> and <see cref="CutsceneCaptions"/> the
     /// words, <see cref="CutsceneCamera"/> the camera and the character intros, <see cref="CueSounds"/> the cues' sounds.
     /// This view is the screen around them: taps, SKIP, the cut between shots, the Trollograms' static, and co-op's
     /// waiting line.
@@ -32,6 +33,7 @@ namespace PooketSlug
         readonly Image m_Fade, m_Flicker, m_Back;
         readonly CutsceneCast m_Cast;
         readonly CutsceneEffects m_Effects;
+        readonly CutsceneSnackShow m_Snacks;
         readonly CutsceneBubbles m_Bubbles;
         readonly CutsceneCaptions m_Captions;
         readonly CutsceneCamera m_Camera;
@@ -56,6 +58,7 @@ namespace PooketSlug
 
             m_Cast = new CutsceneCast(m_World);
             m_Effects = new CutsceneEffects(m_World, m_Stage);
+            m_Snacks = new CutsceneSnackShow(m_World, m_Stage);
             m_Bubbles = new CutsceneBubbles(m_World, m_Cast);
             m_Captions = new CutsceneCaptions(m_Stage);
             m_Camera = new CutsceneCamera(m_World, m_Stage);
@@ -80,12 +83,14 @@ namespace PooketSlug
             m_Effects.MakeChips();
             m_Cast.MakeFrontCast();
             m_Cast.MakeKcajTabk();
+            m_Snacks.MakeSplat();
             m_Effects.MakeFrost();
             m_Effects.MakeWaterAndSnow();
 
             m_Camera.MakeIntro();
             m_Effects.MakeCloseup();
             m_Effects.MakeBoard();
+            m_Snacks.MakeLabel();
             m_Captions.MakeCard();
             m_Effects.MakeAlarm();
             m_Flicker = Ui.Cover(m_Stage, "Flicker", new Color(0.4f, 1f, 1f, 0f));
@@ -179,6 +184,7 @@ namespace PooketSlug
             m_Camera.Aim(stage, t);
             m_Cast.Draw(stage, t, now, ground);
             m_Effects.Draw(stage, t, now, ground);
+            m_Snacks.Draw(stage, t, now, ground);
             CutsceneIntro intro = shot.Intro;
             m_Camera.Draw(p, m_Cast.Figure(intro != null ? intro.Figure : "tones2"), m_Clock);
 

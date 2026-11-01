@@ -17,7 +17,7 @@ namespace PooketSlug
     /// <para>
     /// Its parts: <see cref="DenRoom"/> the paintings and where things sit on them, <see cref="DenMap"/> (Core) the floors,
     /// ladder and places, <see cref="DenCrew"/> the crew frame by frame, <see cref="DenBitPlayer"/> the bits,
-    /// <see cref="DenConsole"/> the TV and buttons, <see cref="DenRollerDoor"/> the roller door to the tabk bay, <see cref="DenBeatView"/> the first visit and a crewmate moving in. This view is the screen around them: the camera, the taps and what's
+    /// <see cref="DenConsole"/> the TV and buttons, <see cref="DenRollerDoor"/> the roller door to the tabk bay, <see cref="DenBeatView"/> the first visit and a crewmate moving in, <see cref="DenSkitView"/> the skits. This view is the screen around them: the camera, the taps and what's
     /// been pressed, and the zoom into the TV.
     /// </para>
     /// </summary>
@@ -33,6 +33,7 @@ namespace PooketSlug
         readonly DenRollerDoor m_Door;
         readonly DenTrapdoor m_Trap;
         readonly DenBeatView m_Beat;
+        readonly DenSkitView m_Skit;
         List<GameObject> m_Painted = new List<GameObject>();
         string m_PaintedKey;
         float m_Clock, m_CamX;
@@ -61,6 +62,7 @@ namespace PooketSlug
             m_Console.MakeTv();
             m_Crew.MakeProps();
             m_Beat = new DenBeatView(m_World);
+            m_Skit = new DenSkitView(m_World);
 
             // the whole den and loft: a tap on someone swaps to them, on a place walks there to use it, anywhere else walks there
             m_RoomTap = Ui.Rect(m_World, "Tap room", Vector2.zero, Vector2.zero, Vector2.zero,
@@ -198,9 +200,20 @@ namespace PooketSlug
             m_Beat.Hide();
         }
 
+        /// <summary>Plays <paramref name="skit"/> over the den (<see cref="DenSkitView"/>) till <see cref="EndSkit"/>: its cast stand aside.</summary>
+        public void PlaySkit(Skit skit) => m_Crew.Skit = skit;
+
+        /// <summary>The skit's over: its cast are back where they were.</summary>
+        public void EndSkit()
+        {
+            m_Crew.Skit = null;
+            m_Skit.Hide();
+        }
+
         public void Hide()
         {
             if (m_Crew.Beat != null) EndBeat(m_Crew.Beat);
+            if (m_Crew.Skit != null) EndSkit();
             m_Bits.Stop();
             Ui.Show(m_Root, false);
         }
@@ -252,6 +265,7 @@ namespace PooketSlug
             m_Crew.Through = info.DoorThrough;
             m_Crew.Draw(dt, m_Clock, den);
             if (m_Crew.Beat != null) m_Beat.Draw(m_Crew.Beat, m_Clock, Speaker(m_Crew.Beat));
+            else if (m_Crew.Skit != null) m_Skit.Draw(m_Crew.Skit, m_Clock);
             bool zooming = den.Zoom >= 0f;
             Ui.Show(m_InviteTap, info.InviteLink != null && !zooming);
             Ui.Show(m_RoomTap, !zooming);

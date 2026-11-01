@@ -94,14 +94,15 @@ Not this domain's, though they sit beside its files: the cutscene flows (`SceneF
 - `GameState`: Title, Settings, Lobby, Den, Cutscene, Playing, GameOver, Victory, Demo. Do not rename them.
 - `MenuScreen`: None, Title, Settings, Connecting, Paused, GameOver, Victory, Kit, Missions. `MenuAction` is what a
   button asks for. `MenuInfo` is what `Game` gathers each frame for the menus; `HudView` takes a `HudInfo`.
-- The den's way into co-op is its **+ MATE** button on the couch (`DenConsole`, key H), and its invite is the TV's
+- The den's way into co-op is its **MULTI-PLAYER** button on the couch (`DenConsole`, key H; it reads MULTI over PLAYER), and its invite is the TV's
   **TAP TO INVITE**. There is no CO-OP button anywhere now; text that says "press CO-OP" is stale.
 - **`ScreenWords`** (`Core/Lobby/ScreenWords.cs`, `ScreenWordsTests`): the shell's words that name a button
   elsewhere (the co-op HUD's waiting line, the victory screen's co-op line, the mission screen's PICK / PLAY and its
   hint) and the kit's keyboard key, `KitKey` B. The kit opens on `AbilityPressed`, which is B or I
   (`InputSources.cs`); B is the one shown, on the den's ⓘ (`DenConsole`), the pause menu's YOUR KIT and the kit
   screen's ability move. A screen line that points at a button goes here, with a test (dca-old-coop-words, 25 Oct).
-  `DenConsole` still spells "+ MATE" itself: using `ScreenWords.MateButton` there is the den's to do.
+  The button's name in sentences is `CoopButton` (MULTI-PLAYER) and its face `CoopButtonFace` (MULTI over PLAYER),
+  which `DenConsole` puts on the button (multiplayer-button, 25 Oct; it read + MATE before).
 - The **victory screen** (`MenuScreen.Victory`) shows only when a win has no debrief: a sandbox run, or watching a
   room. Every other win goes straight to the debrief (`Game.EndRun`, `MenuScreenNow`).
 - The flows: `BoardFlow` (mission screen), `KitFlow` (the ⓘ screen), `DebriefFlow`, `DemoFlow` (`?demo=`),

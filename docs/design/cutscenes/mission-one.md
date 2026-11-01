@@ -7,7 +7,7 @@ All of Mission one is single player, so every scene here plays for one player on
 ## The opening
 
 The first cutscene, and Mission one's briefing. It plays as Mission one starts, in full the first time; after that a
-SKIP button shows from the start. About 49 seconds, eight shots of 4.5 to 8.5 seconds. Approved by the owner,
+SKIP button shows from the start. About 50 seconds, eight shots of 4.5 to 8.5 seconds. Approved by the owner,
 2026-10-15, then slowed down and given a narrator (the first cut ran 15 seconds and felt rushed). Reworked
 2026-10-19 (opening-script): after the door, the empty den, then a run into the empty tabk bay, then back for the
 Trollogram. Intro: tones2, shot 1. Scene file: `scenes/opening.txt`.
@@ -166,10 +166,11 @@ tones2 walks over and picks it up.
 
                                                    CUT TO:
 
-7. INSERT - THE KEYCARD                                 5 s
+7. INSERT - THE KEYCARD                               6.2 s
 
 The room dims and the card slides up, big enough to read,
-flickering like the Trollograms do.
+flickering like the Trollograms do. It holds on its own,
+no bubble over it, while the narrator reads it (3.4 s).
 
 SUPER (ON THE CARD): MILITARY BASE · NORTH GATE ·
 ACCESS: ALL AREAS
@@ -179,7 +180,10 @@ ACCESS: ALL AREAS
           A pass for the military base, up on the
           hill.
 
-                    TONES2 (O.S.)
+BACK TO THE DEN: tones2 where he picked the card up, by
+the couch, slushie in hand.
+
+                    TONES2
           THAT'S WHERE THEY TOOK THEM.
 
                                                    CUT TO:
@@ -217,6 +221,10 @@ MUSIC: the mission start sting, into Mission one's theme.
 and `bay`). He comes in by the den's side door on the left and leaves by it in shot 8. In the bay the camera runs
 along the empty decks to the street shutter and back to him. The den's painting has no window, so shot 8 has no
 searchlights: the keycard's close-up is what points to the base.
+
+**Built** (2026-10-25, closeup-bubbles): the owner asked for the lines to be read after a close-up, not during it. Shot 7's
+card holds alone for 3.4 s (the narrator's line, 2.6 s long, fits inside it), then it cuts back to the den and tones2
+says his line there, up for 2.5 s. The shot runs 6.2 s, up from 5.
 
 **Built** (2026-10-19, opening-street-plate): shots 1 and 2 play on Design's street plate (B-2, a snowy night,
 `concepts/opening-exterior/`). The plate paints the POOKET sign; its side door (right of the roller shutter) is cut out
@@ -487,6 +495,9 @@ He nods off. Zs.
 `Core/Crew/KieTuning.cs`, the look `HoloLook.Big`), then the scene plays shots 2 to 5 on the motor pool's stage.
 `?test=pilot,weak` gets there fastest: it starts at the tabk, and the pilot goes down on his own a few seconds after
 he jumps out.
+
+**Timing** (skits-rollup review): shot 3's two lines play one bubble at a time, so they never overlap: tones2's from
+0.8 s to 2.2 s, down as kie takes the bag, then kie's from 2.4 s to the shot's end.
 
 ## The first debrief
 
