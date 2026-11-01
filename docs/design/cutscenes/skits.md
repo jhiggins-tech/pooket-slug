@@ -13,6 +13,8 @@ He dropped Wanna race? from the pitch. Staging, art, sound and the build each ge
   then, and never changes after. Built (skits-stage, 25 Oct): Two of us now, Special delivery and A Trollogram of
   anything, and (skits-art) Five-second rule, under the keys below, as `Skit`s in `Core/Lobby/Skits.cs` (`Skits.Due` says which plays), played by the
   den's `DenSkitView` on the shared `SkitStage`; `?skit=<key without skit->` plays one as the den first opens, seen or not.
+  Does it do cones? is built too (kcaj-tabk-homecoming, 1 Nov), played in the bay by `BaySkitView`; `?skit=cones` plays
+  it (and the homecoming before it) as the bay first opens.
 - **In the room itself,** not as a scene file (Keep it down plays in a mission, in play: see its note): the den's skits play in the den, as its beats do (`DenBeats`,
   `DenBeatView`), and the bay's in the bay, as kie's homecoming does (`KieHomecoming`, `BayHomecomingView`). The player's
   walking waits while it plays, and a tap skips it. The den's buttons and panels (BACK, READY, the name card and its ⓘ, the
@@ -503,3 +505,20 @@ with the camera following, as the Mission two briefing's is, grinning (`grin`). 
 just inside the den's roller door, his run in is short: a burst in under the door and a skid rather than a length of the
 bay, unless the build card has him come the long way, from the far end. His face falling is his own frames (`fall`: the
 grin, gone, glum, then slumped with his hands in his pockets), and he walks off `glum`.
+
+**As staged** (kcaj-tabk-homecoming, 2026-11-01, `ConesSkit`, `?skit=cones`): every line as written, shots at 4, 8.5
+and 12.5 s, 18 s in all, drawn by `Ui/Den/BaySkitView` on the bay's skit stage. It plays straight on from
+[kcaj's tabk comes home](den.md#kcajs-tabk-comes-home) on the same visit, and if it's cut short (or a phone's past the
+homecoming without it) on the next solo visit to the bay with SOFT SERVE on the stands. `?skit=cones` plays the homecoming
+first, then it (with `?unlock=crew` on a phone without kcaj's tabk). Where the bay can't do it as written:
+- kcaj leans back on the tabk under its nozzle, polishing it with his rag, as the homecoming leaves him; tones2 walks up
+  from where the homecoming had him to just behind the stands and looks up at the swirl.
+- kie's run is the short one: in under the den's door at the left of the screen, along the front of the stands and a
+  skid to a stop between kcaj and tones2, grinning, his walk at a sprint's pace. The camera doesn't run with him.
+- The nozzle swings round over the top of the machine onto tones2 (a turn of a bit more than half a circle about its
+  pivot, kept the right way up), and stays on him. kcaj turns to it as it swings.
+- The two cones arc out of the nozzle into tones2's two hands, the second a moment after the first, and land squashed,
+  with the splat on him from the first (its burst, then dripping). He holds them out and at his side.
+- kie's looks at the cones, at tones2 and at the cones again are his head dipping and coming up while his face falls;
+  then he walks back out of the door, glum and slow, and is gone by the end.
+- tones2's lick is the cone in his front hand up at his mouth for a moment; ...OMFG. follows it.

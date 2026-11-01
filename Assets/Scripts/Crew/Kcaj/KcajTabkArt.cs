@@ -38,6 +38,70 @@ namespace PooketSlug
 
         static readonly Vector2 Feet = new Vector2(0.5f, 0f);
 
+        static Sprite s_Machine, s_MachineWobble, s_Base, s_Wreck, s_Sticker;
+
+        /// <summary>
+        /// Its homecoming in the bay (<see cref="KcajHomecoming"/>): the soft-serve machine alone (nozzle and all), at rest
+        /// and with its swirl wobbling, the crane lowering it on; the hull and tracks without it (the antenna and its cone
+        /// stay with the hull), in his paint; and that hull as the wreck the drone brings home, in the plain tabk's olive,
+        /// scorched, frosted and scuffed cyan. All are the whole sprite's size, so the parts land where they belong.
+        /// </summary>
+        public static Sprite Machine => s_Machine ??= Art.FromRows(Part(Rest, true), Feet, Paint);
+        public static Sprite MachineWobble => s_MachineWobble ??= Art.FromRows(Part(Charging, true), Feet, Paint);
+        public static Sprite Base => s_Base ??= Art.FromRows(Part(Rest, false), Feet, Paint);
+        public static Sprite Wreck => s_Wreck ??= Art.FromRows(Wrecked(Part(Rest, false)), Feet, WreckPaint);
+
+        /// <summary>The BRAIN FREEZE sticker on the machine's side: a patch of the creamery's pale blue, pink and white, 6 × 3.</summary>
+        public static Sprite Sticker => s_Sticker ??= Art.FromRows(new[] { "bWbpbW", "pbWbbp", "bWbpbW" }, new Vector2(0.5f, 0f), Paint);
+
+        /// <summary>The machine's rows (0 to 12) and columns (to the menu sign's edge); the antenna's to their right.</summary>
+        public const int MachineRows = 13, MachineCols = 42;
+
+        /// <summary>The machine (rows 0 to 12, short of the antenna), or (<paramref name="machine"/> false) everything else.</summary>
+        static string[] Part(string[] rows, bool machine)
+        {
+            var kept = new string[rows.Length];
+            for (int r = 0; r < rows.Length; r++)
+            {
+                char[] row = rows[r].ToCharArray();
+                for (int c = 0; c < row.Length; c++)
+                    if ((r < MachineRows && c < MachineCols) != machine) row[c] = '.';
+                kept[r] = new string(row);
+            }
+            return kept;
+        }
+
+        // the plain tabk's olive (its t and T) for his purple and gold; s is scorch, y the Trollograms' cyan, B frost
+        static readonly Dictionary<char, uint> WreckPaint = new Dictionary<char, uint>(Paint)
+        {
+            ['V'] = 0x8a9a4a, ['v'] = 0x5a6a30, ['F'] = 0x8a9a4a, ['f'] = 0x5a6a30, ['s'] = 0x2c2622, ['y'] = 0x73ffff,
+        };
+
+        /// <summary>The hull's own cone on its side painted out (it's his), then the fight's marks on it: (row, column, letter).</summary>
+        static string[] Wrecked(string[] rows)
+        {
+            var w = (string[])rows.Clone();
+            for (int r = MachineRows; r < w.Length; r++)
+                w[r] = w[r].Replace('p', 'V').Replace('P', 'V').Replace('c', 'v').Replace('C', 'v');
+            var marks = new (int r, int c, char k)[]
+            {
+                // frost along the top, the cold store's
+                (13, 17, 'B'), (13, 21, 'B'), (13, 26, 'B'), (13, 33, 'B'), (13, 38, 'B'), (14, 15, 'B'), (14, 35, 'B'),
+                // scorch, where the crew's shots landed
+                (14, 22, 's'), (14, 23, 's'), (15, 22, 's'), (15, 23, 's'), (15, 24, 's'), (16, 23, 's'),
+                (15, 38, 's'), (15, 39, 's'), (16, 39, 's'), (17, 40, 's'), (17, 14, 's'), (18, 13, 's'),
+                // cyan scuffs down its side, the Trollograms'
+                (14, 28, 'y'), (15, 29, 'y'), (16, 30, 'y'), (17, 31, 'y'), (15, 43, 'y'), (16, 44, 'y'), (17, 17, 'y'), (18, 18, 'y'),
+            };
+            foreach ((int r, int c, char k) in marks)
+            {
+                char[] row = w[r].ToCharArray();
+                if (row[c] != '.') row[c] = k; // only on the hull
+                w[r] = new string(row);
+            }
+            return w;
+        }
+
         // the nozzle: rows 8 to 12 of columns 6 to 20 (its spout, its fluted tip and the cream at its mouth; the second
         // frame's drip hangs below it, so the hull drops that too)
         const int Top = 8, Bottom = 12, Left = 6, Right = 20;

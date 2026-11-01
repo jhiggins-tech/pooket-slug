@@ -116,6 +116,7 @@ den Assets/Scripts/Core/Lobby/Den.cs
 den Assets/Scripts/Core/Lobby/DenMap.cs
 den Assets/Scripts/Core/Lobby/DenBeats.cs
 den Assets/Scripts/Core/Lobby/Skits.cs
+den Assets/Scripts/Core/Lobby/ConesSkit.cs
 den Assets/Scripts/Core/Lobby/BayMap.cs
 den Assets/Scripts/Core/Lobby/RollerDoor.cs
 den Assets/Scripts/Core/Lobby/RoomMap.cs
@@ -125,6 +126,7 @@ den Assets/Scripts/Ui/Den/
 den Assets/Scripts/Game/DenFlow.cs
 den Assets/Scripts/Game/SkitRun.cs
 den Assets/Scripts/Game/BayFlow.cs
+den Assets/Scripts/Game/BayStory.cs
 den Assets/Scripts/Game/RoomFlow.cs
 den Assets/Scripts/Game/RoomsFlow.cs
 den Assets/Resources/Den/

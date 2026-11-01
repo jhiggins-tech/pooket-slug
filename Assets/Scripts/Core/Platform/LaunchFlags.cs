@@ -6,7 +6,7 @@ namespace PooketSlug
     /// What the page address asks of this visit, read once as the game starts. <c>?unlock=</c> opens what's normally
     /// earned and <c>?test=</c> jumps straight to a part of the game, both for testing by hand and in CI (several at
     /// once, comma separated: <c>?test=boss,reveal</c>). <c>?mission=</c> picks the mission, <c>?skit=</c> a skit to see
-    /// as the den opens; <c>?demo=</c>,
+    /// as the den (or the bay) opens; <c>?demo=</c>,
     /// <c>?room=</c> and <c>?log=</c> are passed on.
     /// Spikes (<c>?spike=</c>) are <see cref="Spike"/>'s, read before the art and sounds are made.
     /// </summary>
@@ -58,8 +58,10 @@ namespace PooketSlug
         public readonly MissionDef Mission;
 
         /// <summary>
-        /// ?skit=: a skit to play as the den first opens on this visit, seen or not (<see cref="Skits.Named"/>:
-        /// <c>two-of-us</c>, <c>special-delivery</c>, <c>trollogram-of-anything</c>, <c>five-second-rule</c>), lower case, or null.
+        /// ?skit=: a skit to play as its room first opens on this visit, seen or not (<see cref="Skits.Named"/>): the den's
+        /// <c>two-of-us</c>, <c>special-delivery</c>, <c>trollogram-of-anything</c>, <c>five-second-rule</c>, or the tabk
+        /// bay's <c>cones</c>, which plays kcaj's tabk coming home first (kcaj's tabk won: with <c>?unlock=crew</c>). Lower
+        /// case, or null.
         /// </summary>
         public readonly string Skit;
 

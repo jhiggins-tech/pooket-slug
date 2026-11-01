@@ -22,12 +22,11 @@ namespace PooketSlug
         static readonly Color Legs = new Color(0.35f, 0.3f, 0.25f), Boots = new Color(0.15f, 0.12f, 0.12f), Fur = new Color(0.72f, 0.5f, 0.3f);
         static readonly Color Frost = new Color(0.82f, 0.94f, 1f), Steam = new Color(1f, 1f, 1f, 0.6f);
 
-        readonly RectTransform m_Card;
+        readonly BayNameCard m_Card;
         readonly Image m_Turret, m_Cable, m_LegL, m_LegR, m_Weasel, m_Spanner, m_Cone, m_Spark, m_Glow, m_Holo;
         readonly Image[] m_Steam = new Image[3];
         readonly StageFigure m_Kie;
         readonly SpeechBubble m_Bubble;
-        readonly Text m_CardName, m_CardTitle;
 
         /// <param name="world">The bay's world, made after its tabks and before you, so the cast stands with you.</param>
         /// <param name="stage">The stage over it, for the name card.</param>
@@ -51,14 +50,7 @@ namespace PooketSlug
             m_Holo = Ui.Picture(world, "Little Trollogram", tabk, Vector2.zero, new Vector2(0.5f, 0f), Vector2.zero, tabk.rect.size * 0.6f * Px, Cyan);
             m_Bubble = new SpeechBubble(world, Vector2.zero);
 
-            m_Card = Ui.Rect(stage, "Name card", Ui.TopCenter, new Vector2(0.5f, 1f), Vector2.zero, new Vector2(300f, 40f));
-            var band = m_Card.gameObject.AddComponent<Image>();
-            band.color = Band;
-            band.raycastTarget = false;
-            m_CardName = Ui.Label(m_Card, "Name", Ui.Middle, new Vector2(0f, 7f), 16, TextAnchor.MiddleCenter, Gold);
-            m_CardName.text = KieHomecoming.CardName;
-            m_CardTitle = Ui.Label(m_Card, "Title", Ui.Middle, new Vector2(0f, -10f), 10, TextAnchor.MiddleCenter, Color.white);
-            m_CardTitle.text = KieHomecoming.CardTitle;
+            m_Card = new BayNameCard(stage, KieHomecoming.CardName, KieHomecoming.CardTitle);
             Hide();
         }
 
@@ -69,7 +61,7 @@ namespace PooketSlug
             foreach (Image s in m_Steam) Ui.Show(s, false);
             Ui.Show(m_Kie.Rt, false);
             m_Bubble.Hide();
-            Ui.Show(m_Card, false);
+            m_Card.Show(0f);
         }
 
         /// <summary>
@@ -185,9 +177,7 @@ namespace PooketSlug
             }
 
             // the name card, dropping in from the top
-            Ui.Show(m_Card, beat.Card > 0f);
-            float drop = beat.Card * beat.Card * (3f - 2f * beat.Card);
-            m_Card.anchoredPosition = new Vector2(0f, Mathf.Lerp(44f, -40f, drop));
+            m_Card.Show(beat.Card);
         }
     }
 }

@@ -11,8 +11,9 @@ Exactly the `den` lines of `.claude/hierarchy/OWNERSHIP.txt`:
 - `Assets/Scripts/Core/Lobby/Den.cs`, `DenMap.cs`, `DenBeats.cs`, `BayMap.cs`, `RollerDoor.cs`, `RoomMap.cs`,
   `RopeClimb.cs`, `SwingDoor.cs` (the rules, plain C#)
 - `Assets/Scripts/Ui/Den/` (every file: `DenView`, `DenRoom`, `DenCrew`, `DenConsole`, `DenInfo`, `DenBeatView`,
-  `DenBitPlayer`, `DenRollerDoor`, `DenTrapdoor`, `BayView`, `BayHomecomingView`, `RoomView`, `RoomBackDoor`)
-- `Assets/Scripts/Game/DenFlow.cs`, `BayFlow.cs`, `RoomFlow.cs`, `RoomsFlow.cs`
+  `DenBitPlayer`, `DenRollerDoor`, `DenTrapdoor`, `BayView`, `BayHomecomingView`, `BayKcajHomeView`, `BaySkitView`,
+  `BayNameCard`, `RoomView`, `RoomBackDoor`)
+- `Assets/Scripts/Game/DenFlow.cs`, `BayFlow.cs`, `BayStory.cs` (what plays as the bay opens), `RoomFlow.cs`, `RoomsFlow.cs`
 - `Assets/Resources/Den/` (the paintings, as `.bytes`)
 - `Assets/Tests/EditMode/Lobby/`: `BayMapTests.cs`, `DenBeatsTests.cs`, `DenMapTests.cs`, `DenTests.cs`,
   `RollerDoorTests.cs`, `RoomMapTests.cs`, `RopeClimbTests.cs`, `SwingDoorTests.cs`
@@ -21,7 +22,7 @@ Exactly the `den` lines of `.claude/hierarchy/OWNERSHIP.txt`:
 
 Not this domain's, though they sit in the same folder: `Profile`, `Options`, `Ranks`, `Debrief` (shell), `CoopRoom`
 (net). `CoopRoomTests`, `DebriefTests`, `OptionsTests` and `ProfileTests` share `Tests/EditMode/Lobby/` and are theirs.
-The tabk bay's rules about which tabk is whose (`Garage`, `CoopTabks`, `KieHomecoming`) are in `Core/Tabks/`, the
+The tabk bay's rules about which tabk is whose (`Garage`, `CoopTabks`, `KieHomecoming`, `KcajHomecoming`) are in `Core/Tabks/`, the
 gameplay domain's: `BayFlow` and `BayView` call them.
 
 ## The rules this domain keeps

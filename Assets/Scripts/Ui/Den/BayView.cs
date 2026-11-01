@@ -14,7 +14,9 @@ namespace PooketSlug
     /// (<see cref="DroneShow"/>); the lift's platform carries you to the top deck. A tabk you walk up to shows its card:
     /// its name in its crewmate's colour, its guns and their rounds, and TAKE IT (or LOADED). In co-op the tabk your
     /// partner has loaded is taken: dimmed in its space under their P1 or P2 tag, its card saying TAKEN (<see cref="CoopTabks"/>).
-    /// The first visit with kie's tabk won, it comes home (<see cref="BayHomecomingView"/>).
+    /// The first visit with kie's tabk won, it comes home (<see cref="BayHomecomingView"/>); the first solo visit with
+    /// kcaj's, it comes home (<see cref="BayKcajHomeView"/>) and Does it do cones? follows (<see cref="BaySkitView"/>), on the
+    /// bay's <see cref="SkitStage"/>: the soldier you walked in as steps out of shot for them, and is back after.
     /// <para>
     /// The rules are Core's (<see cref="BayMap"/>, <see cref="BayWalker"/>, <see cref="Garage"/>); <see cref="BayFlow"/>
     /// runs them, and this draws them and takes the taps.
@@ -40,6 +42,9 @@ namespace PooketSlug
         readonly Dictionary<TabkCard, Image> m_Bodies = new Dictionary<TabkCard, Image>();
         readonly System.Random m_Rng = new System.Random();
         readonly BayHomecomingView m_Home;
+        readonly BayKcajHomeView m_KcajHome;
+        readonly BaySkitView m_Skit;
+        readonly SkitStage m_Cast;
 
         float m_Clock, m_CamX, m_NoteUntil, m_SparkAt, m_SparkUntil, m_Fill;
         SoldierDef m_SoldierDef;
@@ -73,6 +78,14 @@ namespace PooketSlug
             m_Spark = Picture(m_World, "Spark", Art.Spark[0], 0f, 0f, 10f, 10f, Color.white);
             m_TakenTag = Label(m_World, "Taken tag", 0f, 0f, 9, TextAnchor.LowerCenter, Palette.Players[1]);
             m_Home = new BayHomecomingView(m_World, m_Stage);
+            // kcaj's homecoming and the bay's skit: their tabk pieces, then the cast in front of them, then the props in hand
+            m_KcajHome = new BayKcajHomeView(m_World, m_Stage);
+            m_Skit = new BaySkitView(m_World);
+            m_Cast = new SkitStage(m_World);
+            foreach (SoldierDef s in new[] { Content.Tones2, Content.Kcaj, Content.Kie }) m_Cast.Figure(s);
+            m_KcajHome.Props(m_Cast);
+            m_Skit.Props(m_Cast);
+            m_Cast.Hide();
             m_Soldier = new StageFigure(m_World, "You");
             m_Cable = Picture(m_World, "Cable", null, 0f, 0f, 1f, 1f, new Color(0.1f, 0.1f, 0.12f));
             m_Hook = Picture(m_World, "Hook", null, 0f, 0f, 4f, 2f, new Color(0.55f, 0.58f, 0.62f));
@@ -171,6 +184,7 @@ namespace PooketSlug
         public void Hide()
         {
             EndHomecoming();
+            EndSkit();
             Ui.Show(m_Root, false);
         }
 
@@ -188,6 +202,32 @@ namespace PooketSlug
             if (m_Bodies.TryGetValue(TabkCards.Kie, out Image body))
             {
                 body.sprite = TabkKit.Of(TabkCards.Kie).Parked;
+                body.color = Color.white;
+            }
+        }
+
+        /// <summary>kcaj's tabk coming home or the bay's skit, playing over the bay (<see cref="BayFlow"/> sets it), or null.</summary>
+        public Skit Skit { get; private set; }
+
+        /// <summary>Plays <paramref name="skit"/>: straight on from the homecoming, its pieces start afresh (no name card in the skit).</summary>
+        public void PlaySkit(Skit skit)
+        {
+            m_KcajHome.Hide();
+            m_Skit.Hide();
+            Skit = skit;
+        }
+
+        /// <summary>It's over (or skipped): SOFT SERVE whole, the cast gone, you back in shot.</summary>
+        public void EndSkit()
+        {
+            if (Skit == null) return;
+            Skit = null;
+            m_Cast.Hide();
+            m_KcajHome.Hide();
+            m_Skit.Hide();
+            if (m_Bodies.TryGetValue(TabkCards.Kcaj, out Image body))
+            {
+                body.sprite = TabkKit.Of(TabkCards.Kcaj).Parked;
                 body.color = Color.white;
             }
         }
@@ -226,17 +266,24 @@ namespace PooketSlug
             m_Clock += dt;
             m_Taken = taken;
             m_TakenSeat = takenSeat;
-            float hose = show?.Hose ?? 1f;
+            var kcajHome = Skit as KcajHomecoming;
+            float hose = kcajHome != null ? kcajHome.Hose : show?.Hose ?? 1f;
             Tabks(show, hose);
             Hose(hose, dt);
-            Drone(show);
+            if (kcajHome != null && kcajHome.Flying) Drone(kcajHome.Drone, kcajHome.Carrying, false);
+            else Drone(show);
             You(walker);
             m_Lift.rectTransform.anchoredPosition = new Vector2(BayMap.LiftX, walker.LiftY - 3f) * Px;
             m_LiftEdge.rectTransform.anchoredPosition = new Vector2(BayMap.LiftX, walker.LiftY - 1f) * Px;
-            Card(Homecoming != null ? null : card, loading);
+            Card(Homecoming != null || Skit != null ? null : card, loading);
             if (Homecoming != null && m_Bodies.TryGetValue(TabkCards.Kie, out Image kie))
                 m_Home.Draw(Homecoming, kie, m_Soldier.Head, m_Clock);
-            Ui.Show(m_Hint, Homecoming == null);
+            if (Skit != null && m_Bodies.TryGetValue(TabkCards.Kcaj, out Image kcaj))
+            {
+                if (kcajHome != null) m_KcajHome.Draw(kcajHome, kcaj, m_Cast, m_Clock);
+                else if (Skit is ConesSkit cones) m_Skit.Draw(cones, kcaj, m_Cast, m_KcajHome, m_Clock);
+            }
+            Ui.Show(m_Hint, Homecoming == null && Skit == null);
             m_Hint.text = touch ? "TAP A TABK TO LOOK IT OVER · THE LIFT GOES UP · THE DOOR'S BACK TO THE DEN"
                 : "LEFT / RIGHT WALK · JUMP LOOKS A TABK OVER · UP / DOWN AT THE LIFT";
             Ui.Show(m_Note, m_Clock < m_NoteUntil);
@@ -262,11 +309,12 @@ namespace PooketSlug
                     int spot = m_Garage.SpotOf(c);
                     feet = new Vector2(BayMap.SpotX(spot), BayMap.SpotY(spot));
                 }
-                bool onStands = Mathf.Abs(feet.x - BayMap.StandX) < 0.5f && Mathf.Abs(feet.y - BayMap.StandY) < 0.5f;
+                // (kcaj's homecoming and the skit have SOFT SERVE on the stands, but it isn't ticking over: it's being built)
+                bool onStands = Skit == null && Mathf.Abs(feet.x - BayMap.StandX) < 0.5f && Mathf.Abs(feet.y - BayMap.StandY) < 0.5f;
                 if (onStands && hose >= 1f) idling = c;
                 float tick = onStands && hose >= 1f && Fx.Blink(m_Clock, 8f) ? 0.5f : 0f; // ticking over
                 kv.Value.rectTransform.anchoredPosition = new Vector2(feet.x, feet.y + tick) * Px;
-                if (Homecoming == null) kv.Value.color = c == m_Taken ? TakenDim : Color.white; // the homecoming paints kie's itself
+                if (Homecoming == null && Skit == null) kv.Value.color = c == m_Taken ? TakenDim : Color.white; // the homecomings paint theirs themselves
                 if (c == m_Taken) m_TakenTag.rectTransform.anchoredPosition = new Vector2(feet.x, feet.y + BayMap.TabkHOf(c.Id) + 3f) * Px;
             }
             bool tagged = m_Taken != null && m_Bodies.ContainsKey(m_Taken);
@@ -323,11 +371,16 @@ namespace PooketSlug
         void Drone(DroneShow show)
         {
             DroneShow.Point d = show != null ? show.Drone : DroneShow.Home;
-            float bob = show == null || show.Done ? Mathf.Round(Mathf.Sin(m_Clock * 2.4f)) : 0f;
-            Vector2 at = new Vector2(d.X, d.Y + bob);
+            Drone((d.X, d.Y), show?.Carried != null, show == null || show.Done);
+        }
+
+        /// <summary>The drone at <paramref name="d"/> (its middle), a tabk on its cable or not, bobbing if it's waiting.</summary>
+        void Drone((float x, float y) d, bool loaded, bool waiting)
+        {
+            float bob = waiting ? Mathf.Round(Mathf.Sin(m_Clock * 2.4f)) : 0f;
+            Vector2 at = new Vector2(d.x, d.y + bob);
             m_Drone.sprite = Tones2Art.TabkDrone[Fx.Rotor.Step(m_Clock)];
             m_Drone.rectTransform.anchoredPosition = at * Px;
-            bool loaded = show?.Carried != null;
             float cable = loaded ? DroneShow.Hang - 8f : 3f; // from under its body to the tabk's roof, or a short hook
             float top = at.y - 8f;
             m_Cable.rectTransform.anchoredPosition = new Vector2(at.x, top - cable) * Px;
@@ -337,6 +390,8 @@ namespace PooketSlug
 
         void You(BayWalker w)
         {
+            Ui.Show(m_Soldier.Rt, Skit == null); // out of shot while the crew's on
+            if (Skit != null) return;
             PlayerSkin skin = Art.SkinFor(m_SoldierDef);
             bool walking = !w.Standing && !w.Riding;
             m_Soldier.Pose(skin, StagePose.Walking(walking, m_Clock));

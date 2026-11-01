@@ -138,13 +138,13 @@ kcaj's tabk was wrecked in Mission two's boss fight, and it comes back rebuilt a
 ([kcaj's tabk](../tabks/kcaj.md)): the cargo drone hauls the wreck home from the creamery, and kcaj rebuilds it round
 the soft-serve machine he brought out with him, as kie did with his projector. The joke is the creamery's own look
 turned on the Trollograms: it's his now, in his colours, not Brain Freeze's. Drafted 2026-10-25
-(kcaj-tabk-homecoming), for the owner to read before it's staged.
+(kcaj-tabk-homecoming); the owner approved it, and it's staged (see As staged).
 
 **Plays** in [the tabk bay](../lobby.md#the-tabk-bay) the first time the player walks in on their own once kcaj's
 tabk is won (Mission two cleared, `TabkCards.Won`) and kcaj has moved in (`moved-in-kcaj`). The bay is through the
 den, so the move-in always comes first; the check only makes sure of it. Never in a co-op room: like the skits, it waits for the next visit on your own,
 since [Does it do cones?](skits.md#does-it-do-cones) plays straight on from it. About 13 seconds, three shots; tap to
-skip. Once ever, under the key `kcaj-tabk-home` (proposed, as `kie-tabk-home` is kie's), kept with the player's
+skip. Once ever, under the key `kcaj-tabk-home` (as `kie-tabk-home` is kie's), kept with the player's
 progress so it follows a sign-in. A `?test=` jump never plays it.
 
 **Who's in it:** kcaj and tones2, whoever's picked, as in the skits, because Does it do cones? carries on with the same
@@ -241,3 +241,30 @@ ends the beat at its last frame and the skit still plays: it has its own key and
   player's own soldier speak, and this one can't, because the skit needs tones2, kcaj and kie whoever's picked.
 - **Nothing pipes a cone.** The beat never shows the nozzle working, so the skit's question is still a question: the
   first cones out of it are the two it splats on tones2.
+
+**As staged** (kcaj-tabk-homecoming, 2026-11-01): `Core/Tabks/KcajHomecoming` (when it's due, its timing and places,
+tested), drawn by `Ui/Den/BayKcajHomeView` on the bay's skit stage and played by `Game/BayStory` on the skit player, so
+a tap skips it and it's kept under `kcaj-tabk-home`. Shots at 3 and 9 s, 13 s in all. To see it in a preview:
+`?unlock=crew&skit=cones` plays it and Does it do cones? the first time the bay opens on your own, seen or not (a fresh
+phone with `?unlock=crew` also gets it on its own, the bay visit after kie's homecoming). The owner's open questions took
+their defaults: the KCAJ note stays only till the skit ends (SOFT SERVE in the bay and in missions is as it was), and
+SOFT SERVE parks on the top deck, where `Garage` already has it. Every line as written. Where the bay can't do it as
+written:
+- The wreck is SOFT SERVE's hull and tracks in the plain tabk's olive (a paint swap), with frost along its top, scorch
+  marks and cyan scuffs as single pixels; its own painted cone on the hull's side is painted out, and the cone on the
+  antenna stays.
+- The drone comes in along the top of the bay from past the screen's right edge and down onto the stands; it doesn't fly
+  the whole bay's length from its far end (the camera stays at the door, so the rest is off screen anyway).
+- kcaj is the bay's height for a soldier and the machine sits above his head, so he hops up onto the hull beside the
+  machine to slap the note on and pull the lever, and hops down after. There's no lever to see: his hand on the
+  machine's side dips once.
+- The BRAIN FREEZE sticker is a small patch of the creamery's pale blue, pink and white, too small for its words; the
+  note over it is a yellow sticky note with KCAJ on it in his purple, a little bigger than the sticker and slapped on
+  crooked.
+- The paint runs down as six drips side by side, each filling the hull from the machine to the tracks, a little ahead
+  of or behind its neighbours so the edge is ragged; the machine hums (the swirl's wobble, the tabk's own second frame)
+  while it does.
+- He "starts polishing the chrome nozzle" leaning back on the tabk under it, facing out, his hand up behind him with
+  the rag on the nozzle; that's where the skit starts him.
+- tones2 stands on the floor to the right of the stands through the beat, looking up while the drone flies over.
+- The soldier you walked in as is out of shot for the beat and the skit, and back by the door after.

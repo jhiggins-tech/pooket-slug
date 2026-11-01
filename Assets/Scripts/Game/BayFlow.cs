@@ -8,8 +8,8 @@ namespace PooketSlug
     /// stands (a tap again skips to the end; you can walk off meanwhile), the drone's idle shuffles, and the door back to
     /// the den. The pick is kept with the settings (<see cref="Options.Tabk"/>). In co-op each player picks in their own
     /// bay, but the tabk the partner has loaded is taken (<see cref="CoopTabks"/>): the den's flow says which
-    /// (<see cref="Taken"/>), and swaps ours out when it clashes (<see cref="GaveWay"/>). The first visit with kie's tabk won, it comes home first
-    /// (<see cref="KieHomecoming"/>): it's on the stands for that, and the drone swaps the loaded one back after.
+    /// (<see cref="Taken"/>), and swaps ours out when it clashes (<see cref="GaveWay"/>). The first visit with kie's tabk won, it comes home first,
+    /// and kcaj's with Does it do cones? after it (<see cref="BayStory"/>): it's on the stands for that, and the drone swaps the loaded one back after.
     /// </summary>
     public sealed class BayFlow
     {
@@ -24,12 +24,13 @@ namespace PooketSlug
         float m_Idle, m_Whirr, m_Tick, m_LastHose = 1f;
         TabkCard m_LastCarried;
         int m_HeldDir;
-        KieHomecoming m_Home;
+        readonly BayStory m_Story;
 
         public BayFlow(Game game, Transform parent)
         {
             m_Game = game;
             m_View = new BayView(parent);
+            m_Story = new BayStory(game, m_View);
         }
 
         public bool Open { get; private set; }
@@ -38,14 +39,14 @@ namespace PooketSlug
         public TabkCard Taken;
         public int TakenSeat;
 
-        /// <summary>Opens the bay, <paramref name="soldier"/> walking in from the den's roller door.</summary>
-        public void Show(SoldierDef soldier)
+        /// <summary>Opens the bay, <paramref name="soldier"/> walking in from the den's roller door, on a visit in <paramref name="mode"/>.</summary>
+        public void Show(SoldierDef soldier, DenMode mode)
         {
             var won = m_Game.TabksWon;
             TabkCard loaded = m_Game.LoadedTabk;
             // the tabks stay where the drone left them while the game's open, unless one's been won or loaded since
-            m_Home = KieHomecoming.Due(m_Game.Profile, won, m_Game.Flags.Testing) ? new KieHomecoming() : null;
-            if (m_Home != null) m_Garage = new Garage(won, TabkCards.Kie); // the stands are kie's while his tabk comes home
+            TabkCard home = m_Story.Due(mode, won);
+            if (home != null) m_Garage = new Garage(won, home); // the stands are its while it comes home
             else if (m_Garage == null || !m_Garage.Holds(won) || m_Garage.Loaded != loaded) m_Garage = new Garage(won, loaded);
             m_Show = null;
             m_Swapping = false;
@@ -59,36 +60,13 @@ namespace PooketSlug
             Open = true;
             Sfx.Play(Sfx.Thump, 0.4f);
             Log.Game.Info("Tabk bay open: " + m_Garage.Won.Count + " tabks, loaded: " + loaded.Name);
-            if (m_Home != null)
-            {
-                m_View.PlayHomecoming(m_Home);
-                Log.Game.Info("Tabk bay: kie's tabk comes home");
-            }
+            m_Story.Start();
         }
 
-        /// <summary>The homecoming moves on, with its sounds; done (or skipped), it's kept as played and the drone puts the loaded tabk back on the stands.</summary>
-        void Homecoming(float dt)
+        /// <summary>What played as the bay opened is over (or skipped): the drone puts your loaded tabk back on the stands.</summary>
+        void StoryDone()
         {
-            KieHomecoming b = m_Home;
-            b.Tick(dt);
-            if (b.Sparking && (m_Whirr -= dt) <= 0f)
-            {
-                m_Whirr = 0.25f;
-                Sfx.Play(Sfx.Sizzle, 0.35f); // a chip welding crackle, on and off
-            }
-            if (b.Passed(KieHomecoming.SpannerTaken, dt)) Sfx.Play(Sfx.CableClunk, 0.3f);
-            if (b.Passed(KieHomecoming.Shot2, dt)) Sfx.Play(Sfx.Servo, 0.6f); // the crane
-            if (b.Passed(KieHomecoming.LowerTo, dt)) Sfx.Play(Sfx.Thump, 0.6f);
-            if (b.Passed(KieHomecoming.ReelsFrom, dt)) Sfx.Play(Sfx.DroneWhirr, 0.7f); // the reels whirr up
-            if (b.Passed(KieHomecoming.ReelsTo, dt)) Sfx.Play(Sfx.CableClunk, 0.8f); // then a chip clunk
-            if (b.Passed(KieHomecoming.HoloFrom, dt)) Sfx.Play(Sfx.Glitch, 0.35f);
-            if (!b.Done) return;
-            m_Home = null;
-            m_View.EndHomecoming();
-            Game g = m_Game;
-            if (g.Profile.MarkSeen(KieHomecoming.Reveal)) g.Store.Save(g.Profile);
-            Log.Game.Info("Tabk bay: kie's tabk is home");
-            m_Show = m_Garage.Swap(g.LoadedTabk, DroneShow.Home); // the drone puts yours back on the stands
+            m_Show = m_Garage.Swap(m_Game.LoadedTabk, DroneShow.Home);
             m_Swapping = m_Show != null;
             m_LastHose = 1f;
             m_LastCarried = null;
@@ -99,6 +77,7 @@ namespace PooketSlug
         {
             m_Show?.Skip();
             m_Show = null;
+            m_Story.Stop(); // (nothing leaves while it plays, but a skit cut short isn't kept)
             Open = false;
             m_View.Hide();
             Log.Game.Info("Tabk bay left");
@@ -107,13 +86,13 @@ namespace PooketSlug
         /// <summary>The bay's buttons and keys: taps walk, a tabk's card (or jump by one), the den's door (walk into it, or jump by it), TAKE IT (Enter, fire), BACK (Esc), the lift (up, down).</summary>
         public void Tick(MenuInput keys, SoldierInput soldier)
         {
-            if (m_Home != null)
+            if (m_Story.Playing)
             {
-                // a tap, a key or a button skips the homecoming, and does nothing else
+                // a tap, a key or a button skips the homecoming or the skit, and does nothing else
                 bool any = m_View.TakeBack() | m_View.TakeClose() | m_View.TakeTakeIt() | m_View.TakeSpot() != null
                     | m_View.TakePlace() != BayPlace.None | m_View.TakeWalk(out _, out _);
                 any |= keys.Back || keys.Start || soldier.FirePressed || soldier.JumpPressed;
-                if (any && m_Home.T > 0.3f) m_Home.Skip(); // not the step through the door
+                if (any) m_Story.Press();
                 return;
             }
             if (m_View.TakeBack() || keys.Back)
@@ -193,7 +172,7 @@ namespace PooketSlug
         {
             if (!Open) return;
             m_View.Note(note, 5f);
-            if (m_Home != null) return;
+            if (m_Story.Playing) return;
             m_Show?.Skip();
             m_Show = m_Garage.Swap(m_Game.LoadedTabk, DroneShow.Home);
             m_Swapping = m_Show != null;
@@ -205,7 +184,7 @@ namespace PooketSlug
         public void Move(float dt)
         {
             if (!Open) return;
-            if (m_Home != null) Homecoming(dt);
+            if (m_Story.Playing && m_Story.Move(dt)) StoryDone();
             BayErrand done = m_Walker.Step(dt);
             if (done.Spot != null)
             {
@@ -234,7 +213,7 @@ namespace PooketSlug
                     m_Swapping = false;
                 }
             }
-            else if (m_Home == null && (m_Idle -= dt) <= 0f)
+            else if (!m_Story.Playing && (m_Idle -= dt) <= 0f)
             {
                 // the drone's idle: a parked tabk moved to another free space on its deck
                 m_Show = m_Garage.Shuffle(m_Rng.Next, DroneShow.Home);

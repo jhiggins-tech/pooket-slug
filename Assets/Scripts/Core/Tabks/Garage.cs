@@ -80,6 +80,15 @@ namespace PooketSlug
             return won;
         }
 
+        /// <summary>Whether <paramref name="card"/> is in <paramref name="won"/> (none is in null).</summary>
+        public static bool Has(IReadOnlyList<TabkCard> won, TabkCard card)
+        {
+            if (won == null) return false;
+            foreach (TabkCard c in won)
+                if (c == card) return true;
+            return false;
+        }
+
         /// <summary>The tabk that's loaded: the one picked, if it's been won, else tones2's (0, never picked, reads as his).</summary>
         public static TabkCard Loaded(int id, IReadOnlyList<TabkCard> won)
         {
