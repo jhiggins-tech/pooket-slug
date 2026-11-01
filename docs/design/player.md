@@ -2,7 +2,7 @@
 
 How a soldier plays: the crew, the controls, the kit, health and lives, crates, status effects and co-op, plus what the player keeps between missions.
 
-**Status:** signed off by the owner, 2026-10-14, after one revision: the secret feats and status mods are gone, and the kit's tiers are spelled out. Revised 2026-10-15: tones2's kit as spiked, and the team super is a combo for each pair.
+**Status:** signed off by the owner, 2026-10-14, after one revision: the secret feats and status mods are gone, and the kit's tiers are spelled out. Revised 2026-10-15: tones2's kit as spiked (splashback slows him, the rocket jump goes straight up, he walks while spewing and the sludge lasts), and the team super is a combo for each pair.
 
 **Read this when** you're working on anything the player controls or earns.
 

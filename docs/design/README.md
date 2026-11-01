@@ -1,11 +1,11 @@
 # Pooket Slug design: the sign-off documents
 
-The game's design: four documents written to be read through and signed off, plus the crew's kits. This folder is the one source for the design. It drew on three sources:
+The game's design: the documents in the table below, written to be read through and signed off, the first four of them on 2026-10-14. This folder is the one source for the design. It drew on three sources:
 - the owner's brainstorm of 14 Oct, whose Roguelite and ideas not picked are kept in [history](history.md)
 - the owner's MoSCoW pass over an early feature list
 - the owner's answers to the documents' questions, on 2026-10-14
 
-Each document ends with what's still open.
+Each top-level document starts with a **Status:** line and ends with what's still open. The pages under `cutscenes/` and `tabks/` are parts of their index (cutscenes, tabks) and share its status and open questions; history and generated art have neither.
 
 **Read this when** you're signing off the design, or need the big picture before building part of the game.
 
@@ -14,7 +14,7 @@ Up: [Repository README](../../README.md)
 | Document | What it covers | Status |
 |---|---|---|
 | [Story and plot](story.md) | The premise, the plot mission by mission, and how reveals play | Signed off, 2026-10-14 |
-| [Cutscenes](cutscenes/README.md) | Every cutscene as one TV-style script: its shots, lines, narrator and timings, and the rules they all follow | One script since 2026-10-19 |
+| [Cutscenes](cutscenes/README.md) | Every cutscene as one TV-style script: its shots, lines, narrator and timings, and the rules they all follow | One script, 2026-10-19 |
 | [Tabks](tanks.md) | Tabk bosses, winning a tabk, driving one and calling it in | Signed off, 2026-10-14 |
 | [Player mechanics](player.md) | The crew, controls, kits, health and lives, crates, co-op, and what the player keeps | Signed off, 2026-10-14 |
 | [Maps, missions and progression](levels.md) | What a mission is, difficulty, how maps are built, and the order things open up in, menus included | Signed off, 2026-10-14 |
@@ -23,7 +23,7 @@ Up: [Repository README](../../README.md)
 | [The lobby](lobby.md) | The gaming den: a station per freed crewmate, their idle bits, and picking and readying up, solo and co-op | Approved, 2026-10-16 |
 | [Generated art](art.md) | The look of generated art and the sprite workflow: the model, prompts and pixels for background and room plates, editing a picked painting, animating sprites, and the title logo | Picked, 2026-10-17; model changed 2026-10-21 |
 | [Music](music.md) | Every track and sting, the style, and how the chip synth makes them | Approved, 2026-10-15 |
-| [History](history.md) | The Roguelite (on ice), and ideas considered and not picked | Kept from the first brainstorm |
+| [History](history.md) | The Roguelite (on ice), and ideas considered and not picked | Kept, 2026-10-16 |
 
 ## Canonical terms
 
@@ -42,7 +42,7 @@ From the design audit of 2026-10-21:
 - **Tuned numbers aren't design rules.** Where a number exists to make something last or feel a certain way (a pilot's health, a special's charges, a weapon's timings), say the intent and a range, and point at the code for the current value. Never write a multiplier of another number, like "three times a soldier's health": it reads as a rule and breaks when the base changes.
 - **Counts of things that grow aren't totals.** The roster has no fixed size, so write "eight so far" and "grows with the roster", never a final number of soldiers, pairs or missions.
 
-## Progressive disclosure, the thread through all four
+## Progressive disclosure, the thread through the design
 
 The game shows only what the player has already met. Nothing on screen, in the menus or on the web page hints at what's still to come, and each new thing gets a moment of its own:
 - **Tabks** aren't mentioned until the first one rolls out at the end of Mission one ([tabks](tanks.md#discovering-tabks)).
@@ -52,4 +52,4 @@ The game shows only what the player has already met. Nothing on screen, in the m
 
 ## After sign-off
 
-All four were signed off on 2026-10-14, on a [sign-off page](https://claude.ai/artifact/SuFxdReB83W6eM4T3VvYwv) (private to the owner). They're now the reference for building the game. On 2026-10-15 the kits moved here from the brainstorm, and on 2026-10-16 its last parts became [history](history.md). Pooket Tabks is only a thematic link: Slug's design doesn't depend on Tabks' code or docs.
+Story, tabks, player mechanics and maps were signed off on 2026-10-14, on a [sign-off page](https://claude.ai/artifact/SuFxdReB83W6eM4T3VvYwv) (private to the owner). They're now the reference for building the game. On 2026-10-15 the kits moved here from the brainstorm, and on 2026-10-16 its last parts became [history](history.md). Pooket Tabks is only a thematic link: Slug's design doesn't depend on Tabks' code or docs.
