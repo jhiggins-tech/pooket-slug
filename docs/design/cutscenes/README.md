@@ -27,7 +27,7 @@ production script:
 
 | In the script | What it is |
 |---|---|
-| `1. INT. THE HANGOUT - NIGHT` | A shot: its number, inside or outside, the place, the time of day. Its length is on the right. |
+| `1. INT. THE HANGOUT - NIGHT` | A shot: its number, inside or outside, the place, the time of day. Its length is on the right. The den and the tabk bay are always night: every scene there uses the rooms' one painting each (the owner, 1 Nov). |
 | Plain paragraphs | The action: what we see and hear. A character's name is in capitals the first time they're on screen in a scene. |
 | `TONES2`, then the line | A speech bubble. Bubbles are in the game's capitals, a few words each. |
 | `NARRATOR (V.O.)` | The narrator: subtitles along the bottom and read out loud. The recording's id is in square brackets. |

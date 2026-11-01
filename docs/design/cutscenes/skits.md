@@ -297,7 +297,7 @@ tap to skip. **Who's in it:** kcaj (up in his nook on the upper floor), kie (at 
 machine). The den screen holds all three, so nothing scrolls.
 
 ```text
-1. INT. THE DEN - DAY                                   4 s
+1. INT. THE DEN - NIGHT                                 4 s
 
 KCAJ, just moved in, stands in his nook on the upper floor
 by his string board, his corner lit. He leans out over
@@ -352,7 +352,7 @@ SFX: tones2 finishes the slurp.
                                             INTO: THE DEN
 ```
 
-**Staging notes:** existing pieces only: the den (by day, as the move-in beat is), the three figures at their
+**Staging notes:** existing pieces only: the den (at night, as every den scene is), the three figures at their
 stations, kie in his repair pose at the bench, the projector on his bench (painted, and its little Trollogram from his
 idle cycle stays off), the `note` from kcaj's board to his hand. Shot 3 is staged by looks alone: kcaj turning to face
 each thing in order (the bench, the board, kie), and tones2 frozen mid-slurp. The music ducks for it, as it does under
@@ -435,7 +435,7 @@ written yet ([kcaj's tabk](../tabks/kcaj.md) says how the tabk gets home, and no
 its card. **Who's in it:** tones2, kcaj and kie.
 
 ```text
-1. INT. THE TABK BAY - DAY                              4 s
+1. INT. THE TABK BAY - NIGHT                            4 s
 
 SOFT SERVE in its space downstairs: kcaj's purple and
 gold, the soft-serve machine on top under its striped

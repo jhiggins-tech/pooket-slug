@@ -48,10 +48,14 @@ namespace PooketSlug
     /// </summary>
     public static class Staging
     {
-        /// <summary>A set: its painted backdrop (drawn by the cutscene view) and the height of its floor.</summary>
+        /// <summary>
+        /// A set: its painted backdrop (drawn by the cutscene view) and the height of its floor. The den and the bay are the
+        /// paintings their screens show, at the one time of day every den scene keeps (night: the owner, 1 Nov); the
+        /// <c>raid-</c> ones are the same rooms trashed on raid night, for the opening, before the first visit tidies up.
+        /// </summary>
         public static readonly Dictionary<string, int> Sets = new Dictionary<string, int>
         {
-            { "street", 34 }, { "den", 15 }, { "bay", 12 }, { "motorpool", 18 }, { "coldstore", 16 },
+            { "street", 34 }, { "den", 15 }, { "bay", 12 }, { "raid-den", 15 }, { "raid-bay", 12 }, { "motorpool", 18 }, { "coldstore", 16 },
         };
 
         public enum Kind { Figure, Prop, Effect }

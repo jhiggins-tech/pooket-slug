@@ -37,13 +37,17 @@ A scene goes live only if:
 One thing per line; `//` starts a note. Times are seconds from the start of the shot: `2.2` is a moment, `2.7-3.9` a
 window (things that take time, like a walk, run over a window). A line with no time is how the shot starts.
 
+**The sets**: `street` (outside the hangout on a snowy night), `den` and `bay` (the den and the tabk bay as their screens
+show them, tidy, at night: every den scene after the first visit), `raid-den` and `raid-bay` (the same rooms trashed on
+raid night, for the opening), `motorpool` (the base's motor pool) and `coldstore` (the creamery's loading yard).
+
 ```
 // The opening.
 net 1                      the scene's number for a partner's phone (1-255, each scene its own; never change it)
 
 shot: Outside              each shot starts with its name
 length 8.5                 seconds
-set street                 the backdrop: street, den, bay, motorpool or coldstore (the creamery's loading yard)
+set street                 the backdrop: street, den, bay, raid-den, raid-bay, motorpool or coldstore (below)
 show sign window door snow what's on stage from the start
 intro 4 tones2: TONES2     a character intro at 4 s, with the name it slams up
 
@@ -64,7 +68,7 @@ recording: `narrator <recording>:`), `caption` (the big card).
 `intro-build`, `intro` (an intro's riser and hit: an `intro` line plays them itself). `say <line>` has the announcer read one of theirs: `4.1 say mission-start`, `say mission-two-start`.
 
 **The camera**: `0-2.2 camera 1.15 20 -12 smooth`: how far in, and where it looks (from the stage's middle). The bay
-(`set bay`) is 993 wide, three stages long, with the stage showing its left end: `0-3 camera 1 673 0 smooth` pans to
+(`set bay`, and `raid-bay`) is 993 wide, three stages long, with the stage showing its left end: `0-3 camera 1 673 0 smooth` pans to
 its far end.
 
 ## Things on the stage

@@ -309,8 +309,9 @@ namespace PooketSlug
         }
 
         /// <summary>
-        /// A tabk (kie's or kcaj's): its hull and gun in its colour (white, or a wreck's), its gun turned as the script has
-        /// the turret, and kept the right way up when it swings round to point right (the art points left).
+        /// A tabk (kie's or kcaj's): its hull and gun in its colour (white, or a wreck's), sized (the bay parks them at its
+        /// 1.5 times), its gun turned as the script has the turret, and kept the right way up when it swings round to point
+        /// right (the art points left).
         /// </summary>
         static void Tabk(RectTransform tabk, Image hull, Image gun, RectTransform turret, string name, ShotStage stage, float t, float now, float ground)
         {
@@ -319,6 +320,8 @@ namespace PooketSlug
             if (!on) return;
             Vector2 at = stage.Where(name, t, now);
             tabk.anchoredPosition = new Vector2(at.x, ground + at.y) * Px;
+            Vector2 size = stage.Size(name, t);
+            tabk.localScale = new Vector3(size.x, size.y, 1f);
             hull.color = gun.color = stage.Colour(name, t, now);
             float turn = stage.Turn("turret", t);
             turret.localRotation = Quaternion.Euler(0f, 0f, turn);
