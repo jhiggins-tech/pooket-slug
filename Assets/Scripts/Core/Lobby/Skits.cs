@@ -42,6 +42,12 @@ namespace PooketSlug
         /// <summary>Who's in it, drawn by the skit (the room's own figures of them stand aside till it's done).</summary>
         public abstract IReadOnlyList<SoldierDef> Cast { get; }
 
+        /// <summary>
+        /// A part of the room its bubbles keep off, in the room's pixels (its left and right, and its top: a bubble lower
+        /// than that over it is moved aside), or null for none. Does it do cones? keeps them off the swirl and the note.
+        /// </summary>
+        public virtual (float left, float right, float top)? Clear => null;
+
         public float T { get; private set; }
         public bool Done => T >= Length - 1e-4f;
 

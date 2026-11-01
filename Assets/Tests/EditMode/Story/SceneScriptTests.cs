@@ -191,7 +191,7 @@ namespace PooketSlug.Tests
             CutsceneShot told = Array.Find(scene.Def.Shots, sh => sh.Name == "Told you");
             var stage = new ShotStage(told);
             Assert.AreEqual("point-up", stage.Arms("kcaj", 0.5f), "up at the factory");
-            Assert.AreEqual(-1, stage.Facing("kcaj", 0.5f));
+            Assert.AreEqual(1, stage.Facing("kcaj", 0.5f), "toward the cold store, on his right");
             Assert.AreEqual("point", stage.Arms("kcaj", 2f), "at the crew");
             Assert.AreEqual(1, stage.Facing("kcaj", 2f), "who are on his right");
             Assert.Greater(stage.Where("tones2", 2f, 0f).x, stage.Where("kcaj", 2f, 0f).x);

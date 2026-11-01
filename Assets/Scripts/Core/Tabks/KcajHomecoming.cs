@@ -12,8 +12,8 @@ namespace PooketSlug
     /// den's door (the screen's 320 wide from there):
     /// <list type="number">
     /// <item>The cargo drone comes down the bay from past the screen's right edge, the wreck on its cable (SOFT SERVE's hull
-    /// in the plain tabk's olive, scorched and frosted, the cone on its antenna), and sets it down on the stands; kcaj
-    /// wanders in after it, two cones in his hands.</item>
+    /// in the plain tabk's olive, scorched and frosted, the cone on its antenna), sets it down on the stands and flies
+    /// up out of shot; kcaj wanders in after it, two cones in his hands.</item>
     /// <item>The crane lowers the soft-serve machine (the BRAIN FREEZE sticker on its side) onto the turret ring; kcaj steps
     /// back, looks at it, then at tones2, and they trade three lines.</item>
     /// <item>kcaj slaps a sticky note (KCAJ) over the sticker, pulls the machine's lever: it hums, the swirl wobbles, and his
@@ -28,8 +28,15 @@ namespace PooketSlug
 
         public const float Shot2 = 3f, Shot3 = 9f, Seconds = 13f;
 
-        /// <summary>Shot 1: the drone across the top of the bay, down onto the stands, letting go and back up to its home.</summary>
-        public const float FlyTo = 1.6f, LandAt = 2.3f, HomeFrom = 2.4f, HomeTo = 2.9f;
+        /// <summary>Shot 1: the drone across the top of the bay, down onto the stands, letting go and up out of shot.</summary>
+        public const float FlyTo = 1.6f, LandAt = 2.3f, HomeFrom = 2.4f, HomeTo = 3.4f;
+        /// <summary>
+        /// Where the drone waits out of shot (its middle's height, the bay's pixels): above the top of the screen, cable
+        /// and all, over its place. Does it do cones? brings it back down at its end (or, with no skit after, this does).
+        /// </summary>
+        public const float OutY = 205f;
+        /// <summary>With no skit after it (<see cref="SkitAfter"/>), the drone dropping back to its place at the end.</summary>
+        public const float DroneBackFrom = Seconds - 1.4f, DroneBackTo = Seconds - 0.1f;
         /// <summary>Where the drone flies in from: past the screen's right edge with the camera at the door.</summary>
         public const float InX = StageWidth + 30f;
         /// <summary>The screen's width in the bay's pixels (the stage's).</summary>
@@ -88,6 +95,9 @@ namespace PooketSlug
         public override IReadOnlyList<SkitLine> Lines => s_Lines;
         public override IReadOnlyList<SoldierDef> Cast => s_Cast;
 
+        /// <summary>Does it do cones? follows straight on (it brings the drone back), so the drone stays out of shot to the end.</summary>
+        public bool SkitAfter { get; set; }
+
         /// <summary>
         /// Whether it plays as the bay opens on a visit in <paramref name="mode"/>: kcaj's tabk is in <paramref name="won"/>,
         /// he's moved into the den (the bay is through the den, so his move-in always comes first; this makes sure of it),
@@ -109,7 +119,8 @@ namespace PooketSlug
 
         /// <summary>
         /// Where the drone's middle is (the bay's pixels): along the top of the bay from past the right edge, down onto the
-        /// stands, then up and over to its home; after that, home.
+        /// stands, then up over its place and out of shot, where it waits; with no skit after, it drops back to its place
+        /// at the end.
         /// </summary>
         public (float x, float y) Drone
         {
@@ -118,13 +129,17 @@ namespace PooketSlug
                 DroneShow.Point home = DroneShow.Home;
                 if (T < FlyTo) return (Lerp(InX, BayMap.StandX, Eased(0f, FlyTo)), home.Y);
                 if (T < HomeFrom) return (BayMap.StandX, Lerp(home.Y, OverY, Eased(FlyTo, LandAt)));
-                float k = Eased(HomeFrom, HomeTo);
-                return (Lerp(BayMap.StandX, home.X, k), Lerp(OverY, home.Y, k));
+                if (T < DroneBackFrom || SkitAfter)
+                {
+                    float k = Eased(HomeFrom, HomeTo);
+                    return (Lerp(BayMap.StandX, home.X, k), Lerp(OverY, OutY, k));
+                }
+                return (home.X, Lerp(OutY, home.Y, Eased(DroneBackFrom, DroneBackTo)));
             }
         }
 
-        /// <summary>The drone's on screen on its own errand (shot 1); after it, it's home and the bay draws it as ever.</summary>
-        public bool Flying => T < HomeTo;
+        /// <summary>The drone's on the move in shot (its whine plays, and tones2 looks up at it).</summary>
+        public bool Flying => T < HomeTo || !SkitAfter && T >= DroneBackFrom && T < DroneBackTo;
 
         /// <summary>Where the wreck's feet are: under the drone while it's carried, then on the stands.</summary>
         public (float x, float y) Wreck

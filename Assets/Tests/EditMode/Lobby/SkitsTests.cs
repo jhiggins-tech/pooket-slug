@@ -256,7 +256,7 @@ namespace PooketSlug.Tests
         {
             var s = new ConesSkit();
             CollectionAssert.AreEquivalent(new[] { Content.Tones2, Content.Kcaj, Content.Kie }, s.Cast);
-            Assert.AreEqual(18f, s.Length, 0.5f);
+            Assert.AreEqual(20f, s.Length, 0.5f);
             Assert.AreEqual(3, s.Shots.Length, "four shots");
             float last = 0f;
             foreach (SkitLine l in s.Lines)
@@ -319,11 +319,39 @@ namespace PooketSlug.Tests
             Step(s, ConesSkit.LickFrom + 0.1f);
             Assert.IsTrue(s.KieLeaving);
             Assert.IsTrue(s.Licking);
-            Step(s, s.Length - 0.2f);
-            Assert.Less(s.KieX, 0f, "out of the door");
+            Step(s, ConesSkit.LickTo + 0.3f);
             Assert.AreEqual("...OMFG.", s.Line.Value.Text);
+            Assert.IsFalse(s.Leaving, "they stay for his line");
+            Step(s, ConesSkit.LeaveTo);
+            Assert.Less(s.KieX, 0f, "out of the door");
+            Assert.IsFalse(s.KieIn);
+
+            // the end: kcaj back to the den's door, tones2 off down the bay, out of shot before it's over
+            Step(s, (ConesSkit.ExitFrom + ConesSkit.ExitTo) / 2f);
+            Assert.IsTrue(s.Leaving && s.Tones2Walking);
+            Assert.Less(s.KcajFeet, ConesSkit.KcajX);
+            Assert.Greater(s.Tones2X, ConesSkit.Tones2Up);
+            Assert.IsFalse(s.Gone);
+            Step(s, ConesSkit.ExitTo);
+            Assert.IsTrue(s.Gone);
+            Assert.Less(s.KcajFeet, 0f, "out of the door");
+            Assert.Greater(s.Tones2X, KcajHomecoming.StageWidth, "past the screen's right edge");
+            Assert.IsNull(s.Line);
             Step(s, s.Length);
             Assert.IsTrue(s.Done);
+        }
+
+        [Test]
+        public void DoesItDoCones_ItsBubblesKeepOffTheSwirlAndTheNote()
+        {
+            var s = new ConesSkit();
+            Assert.IsTrue(s.Clear.HasValue);
+            (float left, float right, float top) = s.Clear.Value;
+            Assert.Less(left, BayMap.StandX, "the swirl's left");
+            Assert.Greater(right, BayMap.StandX + 16f, "the swirl's right and the note");
+            Assert.Greater(top, BayMap.StandY + 40f, "up to the swirl's tip");
+            Assert.Less(right, ConesSkit.KieStop + 1f, "kie stands at its right edge, so his bubble goes up there");
+            Assert.IsNull(new TwoOfUsSkit().Clear, "the den's skits keep off nothing");
         }
 
         [Test]

@@ -70,12 +70,45 @@ namespace PooketSlug
         /// <summary>A prop that's a picture: placed and tinted by the script like a plain one.</summary>
         void PaintedProp(string name, Sprite sprite, float w, float h) => m_Props[name] = Picture(name, sprite, 0f, 0f, w, h, Staging.Things[name].Colour);
 
-        /// <summary>kcaj's corner of the den, his string board on the wall: the den's own layer for it (<see cref="DenRoom"/>).</summary>
+        /// <summary>
+        /// kcaj's corner of the den, his string board on the wall: the den's own layer for it (<see cref="DenRoom"/>), its
+        /// edges feathered into the den around it (<see cref="Feathered"/>), so dimmed (the briefing has it dark) it reads
+        /// as a shadowed corner of the room, not a block laid on it.
+        /// </summary>
         public void MakeKcajCorner()
         {
-            Sprite corner = DenRoom.Painting("kcaj");
+            Sprite corner = Feathered(DenRoom.Painting("kcaj"));
             m_Props["kcaj-corner"] = Picture("kcaj-corner", corner, 0f, 0f, corner != null ? corner.rect.width : 96f, corner != null ? corner.rect.height : 52f, Color.white);
         }
+
+        /// <summary>How many pixels in from each side the corner fades from nothing to whole: the right's widest, where it opens onto the floor by the ladder.</summary>
+        const float FeatherLeft = 6f, FeatherRight = 20f, FeatherTop = 4f, FeatherBottom = 6f;
+        static Sprite s_Corner;
+
+        /// <summary><paramref name="layer"/> with its alpha eased off over its edges (made once; null for null).</summary>
+        static Sprite Feathered(Sprite layer)
+        {
+            if (layer == null) return null;
+            if (s_Corner != null) return s_Corner;
+            Texture2D src = layer.texture;
+            int w = src.width, h = src.height;
+            Color32[] px = src.GetPixels32();
+            for (int y = 0; y < h; y++)
+                for (int x = 0; x < w; x++)
+                {
+                    float k = Mathf.Min(Mathf.Min(Ease(x + 0.5f, FeatherLeft), Ease(w - x - 0.5f, FeatherRight)),
+                        Mathf.Min(Ease(y + 0.5f, FeatherBottom), Ease(h - y - 0.5f, FeatherTop)));
+                    int i = y * w + x;
+                    px[i].a = (byte)Mathf.RoundToInt(px[i].a * k);
+                }
+            var tex = new Texture2D(w, h, TextureFormat.RGBA32, false) { filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp };
+            tex.SetPixels32(px);
+            tex.Apply();
+            return s_Corner = Sprite.Create(tex, new Rect(0, 0, w, h), Vector2.zero, 1f);
+        }
+
+        /// <summary>0 at an edge to 1 <paramref name="width"/> in, eased.</summary>
+        static float Ease(float from, float width) => Mathf.SmoothStep(0f, 1f, from / width);
 
         /// <summary>
         /// The creamery's cold store: the dark of its doorway (sized open over the painted shut doors, so they seem to
@@ -157,7 +190,8 @@ namespace PooketSlug
             Sprite slushie = CutsceneSnacks.Slushie; // his blue raspberry slushie, hand-drawn
             PaintedProp("cup", slushie, slushie.rect.width, slushie.rect.height);
             Prop("card", 8f, 5f);
-            Prop("tub", 8f, 6f);
+            Sprite tub = Art.Tub; // the one kcaj comes out of the cold store holding, a tub off the stack
+            PaintedProp("tub", tub, tub.rect.width, tub.rect.height);
             PaintedProp("slushie", slushie, slushie.rect.width, slushie.rect.height);
             Sprite cone = KcajArt.Cone;
             PaintedProp("cones", cone, cone.rect.width, cone.rect.height);

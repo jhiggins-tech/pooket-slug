@@ -9,7 +9,7 @@ namespace PooketSlug
     /// homecoming leaves it (its KCAJ note still over the sticker, kcaj leaning back on it polishing the nozzle), its nozzle
     /// on its own so it swings round over the top onto tones2 and its swirl wobbling as it pipes, the two soft-serve cones
     /// flying from it into tones2's hands (squashed) with the splat on him, kie's sprint in from the den's door grinning and
-    /// his face falling, and the walk back out. On the bay's <see cref="SkitStage"/>, as the homecoming is; its nozzle is
+    /// his face falling, and the walk back out; then kcaj and tones2 walking off, out of shot. On the bay's <see cref="SkitStage"/>, as the homecoming is; its nozzle is
     /// made with the view, behind the cast, and its props once the cast is there (<see cref="Props"/>).
     /// </summary>
     sealed class BaySkitView
@@ -60,18 +60,21 @@ namespace PooketSlug
             n.localScale = new Vector3(1f, turn < -90f ? -1f : 1f, 1f); // past straight up it's turned over: kept the right way up
             home.ShowSticker(stands, true);
 
-            // kcaj: leaning back on it with his rag, then round to the nozzle, swinging it onto tones2
+            // kcaj: leaning back on it with his rag, then round to the nozzle, swinging it onto tones2; at the end, off to the den's door
             StageFigure k = cast.Figure(Content.Kcaj);
             bool working = s.T >= ConesSkit.SwingFrom;
-            SkitStage.Stand(k, Content.Kcaj, new StagePose(StageLegs.Idle, working ? StageTorso.Carry : StageTorso.Lounge), ConesSkit.KcajX, floor, !working);
+            StagePose kp = s.Leaving ? StagePose.Walking(true, clock) : new StagePose(StageLegs.Idle, working ? StageTorso.Carry : StageTorso.Lounge);
+            SkitStage.Stand(k, Content.Kcaj, kp, s.KcajFeet, floor, !working || s.Leaving);
             home.Rag(k, !working, clock);
+            Ui.Show(k.Rt, !s.Gone);
 
-            // tones2: up behind the stands eyeing the swirl, then a cone in each hand, the splat on him, and a lick
+            // tones2: up behind the stands eyeing the swirl, then a cone in each hand, the splat on him, and a lick; at the
+            // end, off down the bay
             StageFigure t2 = cast.Figure(Content.Tones2);
-            bool holding = s.Hit(0);
-            StagePose pose = s.Tones2Walking ? StagePose.Walking(true, clock)
+            bool holding = s.Hit(0), left = !s.Leaving;
+            StagePose pose = s.Tones2Walking ? StagePose.Walking(true, clock, holding ? StageTorso.Carry : StageTorso.Unarmed)
                 : new StagePose(StageLegs.Idle, holding ? StageTorso.Carry : StageTorso.Unarmed, 0f, s.Tones2LooksUp ? 1f : 0f);
-            SkitStage.Stand(t2, Content.Tones2, pose, s.Tones2X, floor, true);
+            SkitStage.Stand(t2, Content.Tones2, pose, s.Tones2X, floor, left);
             Cone(m_ConeA, s, 0, t2, cast);
             Cone(m_ConeB, s, 1, t2, cast);
             float since = s.SplatSince;
@@ -80,7 +83,14 @@ namespace PooketSlug
             {
                 m_Splat.sprite = CutsceneSnacks.Splat[SnackShow.SplatFrame(since)];
                 cast.Place(m_Splat, s.Tones2X, floor);
-                m_Splat.rectTransform.localScale = new Vector3(-1f, 1f, 1f); // the way he faces
+                m_Splat.rectTransform.localScale = new Vector3(left ? -1f : 1f, 1f, 1f); // the way he faces
+            }
+            if (s.Gone)
+            {
+                Ui.Show(t2.Rt, false);
+                Ui.Show(m_ConeA, false);
+                Ui.Show(m_ConeB, false);
+                Ui.Show(m_Splat, false);
             }
 
             // kie: the sprint in grinning, the skid, his face falling as he looks from the cones to tones2, then the walk out

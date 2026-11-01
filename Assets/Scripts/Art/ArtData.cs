@@ -794,6 +794,21 @@ namespace PooketSlug
             "..cccccC.....cccccC..",
         };
 
+        /// <summary>
+        /// One ice cream tub, the stack's (the scenes' <c>tub</c>: the one kcaj comes out of the cold store holding), its lid
+        /// in the creamery's pink, 10 by 7. It's empty: he ate the evidence.
+        /// </summary>
+        public static readonly string[] Tub =
+        {
+            "rrrrrrrrrr",
+            "RRRRRRRRRR",
+            ".cWcccccC.",
+            ".crrrrrrC.",
+            ".cRRRRRRC.",
+            ".cccccccC.",
+            "..cccccC..",
+        };
+
         /// <summary>The tub stack rattling: the top tub knocked a pixel right and up, its lid lifted off it.</summary>
         public static readonly string[] TubStackRattle =
         {

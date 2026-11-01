@@ -9,12 +9,14 @@ namespace PooketSlug
     /// tones2 walks up and eyes the swirl on top and asks; kie sprints in from the den's door, grinning, and skids to a
     /// stop between them; kcaj swings the nozzle round onto tones2 and it pipes two soft-serve cones that splat on him, one
     /// in each hand; kie's face falls, and he walks back out the way he came, glum, while tones2, dripping, licks a cone.
+    /// Then kcaj heads back to the den after kie and tones2 wanders off down the bay, a cone in each hand, and the cargo drone,
+    /// out of shot since it set the wreck down, drops back to its place over the stands for the bay's own moves.
     /// Places are in the bay's pixels, the camera at the den's door, as the homecoming's are.
     /// </summary>
     public sealed class ConesSkit : Skit
     {
         public const string Id = "skit-cones";
-        public const float Shot2 = 4f, Shot3 = 8.5f, Shot4 = 12.5f, Seconds = 18f;
+        public const float Shot2 = 4f, Shot3 = 8.5f, Shot4 = 12.5f, Seconds = 20f;
 
         /// <summary>Where kcaj leans (the homecoming leaves him there), and where tones2 walks up from (where it had him) to, behind the stands.</summary>
         public const float KcajX = KcajHomecoming.KcajNozzle, Tones2From = KcajHomecoming.Tones2X, Tones2Up = 150f;
@@ -37,8 +39,19 @@ namespace PooketSlug
 
         /// <summary>Shot 4: kie looking from the cones to tones2 and back as his face falls, then away out the door; tones2's lick.</summary>
         public const float FallFrom = Shot4 + 0.1f, LookTones2 = Shot4 + 0.5f, LookBack = Shot4 + 1f, LookedAt = Shot4 + 1.5f,
-            LeaveFrom = Shot4 + 2.7f, LeaveTo = Seconds - 0.1f, LickFrom = Shot4 + 3.5f, LickTo = Shot4 + 4.1f;
+            LeaveFrom = Shot4 + 2.7f, LeaveTo = Shot4 + 5.4f, LickFrom = Shot4 + 3.5f, LickTo = Shot4 + 4.1f;
 
+        /// <summary>
+        /// The end: kcaj off the tabk and back to the den's door after kie, and tones2 off the other way, past the screen's
+        /// right edge (the bay's pixels), so the bay's empty of them before it's yours to walk.
+        /// </summary>
+        public const float ExitFrom = Shot4 + 5.1f, ExitTo = Seconds - 0.1f, KcajOut = KieFrom, Tones2Out = KcajHomecoming.StageWidth + 16f;
+
+        /// <summary>
+        /// The cargo drone: up out of shot over the stands at the start (unless it's already out, straight on from the
+        /// homecoming: <see cref="AfterHomecoming"/>), and back down to its place at the end.
+        /// </summary>
+        public const float DroneOutTo = 1.2f, DroneBackFrom = Seconds - 1.4f, DroneBackTo = Seconds - 0.1f;
         /// <summary>
         /// The nozzle's pivot and length on the tabk on the stands, in the bay's pixels (<c>KcajTabkArt.NozzlePivot</c> and
         /// <c>NozzleLength</c> at the bay's 1.5 times).
@@ -55,7 +68,7 @@ namespace PooketSlug
             new SkitLine(Content.Kie, "DID SOMEONE SAY CONES?", 5.9f, Shot3),
             new SkitLine(Content.Kcaj, "IT DOES TWO.", 10.5f, Shot4),
             new SkitLine(Content.Kie, "...OH. THAT KIND.", 13.9f, 15.4f),
-            new SkitLine(Content.Tones2, "...OMFG.", LickTo, Seconds),
+            new SkitLine(Content.Tones2, "...OMFG.", LickTo, ExitFrom),
         };
         static readonly SoldierDef[] s_Cast = { Content.Tones2, Content.Kcaj, Content.Kie };
 
@@ -66,11 +79,21 @@ namespace PooketSlug
         public override IReadOnlyList<SkitLine> Lines => s_Lines;
         public override IReadOnlyList<SoldierDef> Cast => s_Cast;
 
+        /// <summary>The machine on the stands, its swirl and kcaj's note on its side: the bubbles keep off them (kie's, between them, goes to his right).</summary>
+        public override (float left, float right, float top)? Clear => (BayMap.StandX - 4f, BayMap.StandX + 18f, BayMap.StandY + 43f);
+
+        /// <summary>It follows kcaj's tabk coming home on the same visit: the drone's already out of shot.</summary>
+        public bool AfterHomecoming { get; set; }
+
         // ------------------------------------------------------------------ tones2
 
-        /// <summary>tones2's feet: walking up to behind the stands, and there for good.</summary>
-        public float Tones2X => Lerp(Tones2From, Tones2Up, Between(WalkFrom, WalkTo));
-        public bool Tones2Walking => T >= WalkFrom && T < WalkTo;
+        /// <summary>tones2's feet: walking up to behind the stands, there through the skit, then off down the bay at the end.</summary>
+        public float Tones2X => T < ExitFrom ? Lerp(Tones2From, Tones2Up, Between(WalkFrom, WalkTo)) : Lerp(Tones2Up, Tones2Out, Between(ExitFrom, ExitTo));
+        public bool Tones2Walking => T >= WalkFrom && T < WalkTo || Leaving;
+        /// <summary>The end: kcaj and tones2 walking off (tones2 facing right, away down the bay).</summary>
+        public bool Leaving => T >= ExitFrom;
+        /// <summary>Both are out of shot: nothing of them shows.</summary>
+        public bool Gone => T >= ExitTo;
         /// <summary>tones2 eyeing the swirl on top (his head up), once he's there and till the nozzle turns on him.</summary>
         public bool Tones2LooksUp => T >= WalkTo && T < Shot3;
 
@@ -154,6 +177,27 @@ namespace PooketSlug
             (float x1, float y1) = i == 0 ? HandFront : HandBack;
             return (Lerp(x0, x1, k), Lerp(y0, y1, k) + Arc * 4f * k * (1f - k));
         }
+
+        // ------------------------------------------------------------------ kcaj
+
+        /// <summary>kcaj's feet: leaning on the nozzle, then off to the den's door at the end.</summary>
+        public float KcajFeet => Lerp(KcajX, KcajOut, Between(ExitFrom, ExitTo));
+
+        // ------------------------------------------------------------------ the drone
+
+        /// <summary>Where the drone's middle is (the bay's pixels): out of shot above its place, leaving it at the start or coming back at the end.</summary>
+        public (float x, float y) Drone
+        {
+            get
+            {
+                DroneShow.Point home = DroneShow.Home;
+                float k = T >= DroneBackFrom ? 1f - Eased(DroneBackFrom, DroneBackTo) : AfterHomecoming ? 1f : Eased(0.2f, DroneOutTo);
+                return (home.X, Lerp(home.Y, KcajHomecoming.OutY, k));
+            }
+        }
+
+        /// <summary>The drone's on the move (its whine plays).</summary>
+        public bool DroneFlying => !AfterHomecoming && T < DroneOutTo || T >= DroneBackFrom && T < DroneBackTo;
 
         /// <summary>tones2 licking the cone in his front hand (it's at his mouth).</summary>
         public bool Licking => T >= LickFrom && T < LickTo;

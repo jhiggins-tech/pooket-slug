@@ -125,7 +125,7 @@ namespace PooketSlug
             // doors), a chest freezer in the yard, and what kcaj comes out with and gets up to
             new Thing("store-opening", Kind.Prop, 261f, 11f, new Color(0.08f, 0.12f, 0.2f)),
             new Thing("freezer", Kind.Prop, 40f, 0f, new Color(0.82f, 0.9f, 0.97f)),
-            new Thing("tub", Kind.Prop, 0f, 0f, new Color(0.96f, 0.93f, 0.86f)),
+            new Thing("tub", Kind.Prop, 0f, 0f, White), // one tub off the stack, painted (Art.Tub)
             new Thing("tubs", Kind.Prop, 180f, 0f, White, "rattle"), // a stack of tubs by the doors, painted (Art.TubStack)
             new Thing("slushie", Kind.Prop, 0f, 0f, White), // the same slushie, painted
             new Thing("cones", Kind.Prop, 0f, 0f, new Color(0.88f, 0.66f, 0.36f)),

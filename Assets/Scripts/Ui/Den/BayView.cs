@@ -270,7 +270,9 @@ namespace PooketSlug
             float hose = kcajHome != null ? kcajHome.Hose : show?.Hose ?? 1f;
             Tabks(show, hose);
             Hose(hose, dt);
-            if (kcajHome != null && kcajHome.Flying) Drone(kcajHome.Drone, kcajHome.Carrying, false);
+            // kcaj's beat and the skit after it fly the drone themselves: out of shot once the wreck's down, back at the end
+            if (kcajHome != null) Drone(kcajHome.Drone, kcajHome.Carrying, false);
+            else if (Skit is ConesSkit cones) Drone(cones.Drone, false, false);
             else Drone(show);
             You(walker);
             m_Lift.rectTransform.anchoredPosition = new Vector2(BayMap.LiftX, walker.LiftY - 3f) * Px;

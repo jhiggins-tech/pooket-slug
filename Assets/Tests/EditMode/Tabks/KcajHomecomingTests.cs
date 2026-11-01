@@ -64,10 +64,36 @@ namespace PooketSlug.Tests
             Assert.IsTrue(b.KcajIn);
             Assert.IsTrue(b.Cones, "two cones at once");
             Step(b, KcajHomecoming.Shot2 - 0.05f - b.T);
-            Assert.AreEqual(DroneShow.Home.X, b.Drone.x, 1e-2f, "and the drone's home");
-            Assert.IsFalse(b.Flying);
             Assert.Greater(b.Hose, 0f, "the hose going in");
             Assert.IsFalse(b.Machine, "half a tabk till the crane");
+            Step(b, KcajHomecoming.HomeTo + 0.01f - b.T);
+            Assert.AreEqual(DroneShow.Home.X, b.Drone.x, 1e-2f, "over its place");
+            Assert.Greater(b.Drone.y - DroneShow.Hang, 180f, "and up out of shot, cable and all: it doesn't hang over the stands");
+            Assert.IsFalse(b.Flying);
+        }
+
+        [Test]
+        public void TheDroneWaitsOutOfShot_AndComesBackToItsPlace_ByTheSkitOrTheBeat()
+        {
+            var b = new KcajHomecoming { SkitAfter = true };
+            Step(b, b.Length);
+            Assert.AreEqual(KcajHomecoming.OutY, b.Drone.y, 1e-3f, "out of shot to the end: the skit brings it back");
+            var c = new ConesSkit { AfterHomecoming = true };
+            Assert.AreEqual(KcajHomecoming.OutY, c.Drone.y, 1e-3f, "still out as the skit starts");
+            Assert.IsFalse(c.DroneFlying);
+            Step(c, ConesSkit.DroneBackFrom + 0.5f);
+            Assert.IsTrue(c.DroneFlying);
+            Step(c, c.Length - c.T);
+            Assert.AreEqual((DroneShow.Home.X, DroneShow.Home.Y), c.Drone, "home for the bay's own moves");
+
+            var alone = new ConesSkit();
+            Assert.AreEqual(DroneShow.Home.Y, alone.Drone.y, 1e-3f, "on its own, the skit starts with the drone at home");
+            Step(alone, ConesSkit.DroneOutTo);
+            Assert.AreEqual(KcajHomecoming.OutY, alone.Drone.y, 1e-3f, "and flies it out");
+
+            var last = new KcajHomecoming();
+            Step(last, last.Length);
+            Assert.AreEqual(DroneShow.Home.Y, last.Drone.y, 1e-2f, "with no skit after, the beat brings it back");
         }
 
         [Test]

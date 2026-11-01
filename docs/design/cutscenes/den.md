@@ -254,7 +254,9 @@ written:
   marks and cyan scuffs as single pixels; its own painted cone on the hull's side is painted out, and the cone on the
   antenna stays.
 - The drone comes in along the top of the bay from past the screen's right edge and down onto the stands; it doesn't fly
-  the whole bay's length from its far end (the camera stays at the door, so the rest is off screen anyway).
+  the whole bay's length from its far end (the camera stays at the door, so the rest is off screen anyway). Once it's
+  let go it flies straight up out of shot (review, 2026-11-01: it hung over the stands all through the beat and the
+  skit), and the skit brings it back down to its place at its end (with no skit after, the beat does).
 - kcaj is the bay's height for a soldier and the machine sits above his head, so he hops up onto the hull beside the
   machine to slap the note on and pull the lever, and hops down after. There's no lever to see: his hand on the
   machine's side dips once.

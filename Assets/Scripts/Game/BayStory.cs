@@ -21,7 +21,7 @@ namespace PooketSlug
         KcajHomecoming m_Kcaj;
         Skit m_Next;
         bool m_Asked, m_Pressed;
-        float m_Whirr;
+        float m_Whirr, m_Rotors;
 
         public BayStory(Game game, BayView view)
         {
@@ -67,6 +67,12 @@ namespace PooketSlug
                 Tabks = won,
                 Homecoming = m_Kcaj != null,
             });
+            if (m_Kcaj != null)
+            {
+                // the skit straight on brings the drone back; on its own, the skit flies it out first
+                m_Kcaj.SkitAfter = m_Next != null;
+                if (m_Next is ConesSkit cones) cones.AfterHomecoming = true;
+            }
             return m_Kcaj != null || m_Next != null ? TabkCards.Kcaj : null;
         }
 
@@ -96,6 +102,7 @@ namespace PooketSlug
             m_View.PlaySkit(skit);
             m_Pressed = false;
             m_Whirr = 0f;
+            m_Rotors = 0f;
         }
 
         /// <summary>A tap, a key or a button: it skips what's playing (not in its first moment: the step through the door).</summary>
@@ -190,6 +197,11 @@ namespace PooketSlug
 
         void ConesSounds(ConesSkit s, float dt)
         {
+            if (s.DroneFlying && (m_Rotors -= dt) <= 0f)
+            {
+                m_Rotors = 0.2f;
+                Sfx.Play(Sfx.DroneWhirr, 0.4f); // the drone, off and back
+            }
             if (s.Passed(ConesSkit.DoorAt, dt)) Sfx.Play(Sfx.Servo, 0.5f); // the roller door
             if (s.KieRunning && (m_Whirr -= dt) <= 0f)
             {

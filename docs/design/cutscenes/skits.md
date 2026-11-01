@@ -35,7 +35,7 @@ He dropped Wanna race? from the pitch. Staging, art, sound and the build each ge
 | [Five-second rule](#five-second-rule) | The den | The den's second opening, the visit after the first visit | `skit-five-second-rule` | 11 s |
 | [Special delivery](#special-delivery) | The den, between missions | The first time the den opens after a Mission one replay | `skit-special-delivery` | 14 s |
 | [A Trollogram of anything](#a-trollogram-of-anything) | The den | Straight after kcaj's move-in beat | `skit-trollogram-of-anything` | 15 s |
-| [Does it do cones?](#does-it-do-cones) | The tabk bay | Straight after kcaj's tabk comes home, on the same visit | `skit-cones` | 18 s |
+| [Does it do cones?](#does-it-do-cones) | The tabk bay | Straight after kcaj's tabk comes home, on the same visit | `skit-cones` | 20 s |
 | [They're tracking us](#theyre-tracking-us) | The debrief | Mission two's first clear, solo or co-op | `skit-tracking-us` | 12 s |
 
 ## Two of us now
@@ -433,7 +433,7 @@ that type ok cone....". What kie hoped for is a wink: nobody names it, and the j
 
 **Plays** in [the tabk bay](../lobby.md#the-tabk-bay) straight after [kcaj's tabk comes home](den.md#kcajs-tabk-comes-home),
 on the same visit: the beat ends with SOFT SERVE on the repair stands and kcaj polishing its nozzle, and this picks up
-there, the first solo visit to the bay after Mission two. About 18 seconds, four shots; tap to skip. A skip of the beat
+there, the first solo visit to the bay after Mission two. About 20 seconds, four shots; tap to skip. A skip of the beat
 still plays the skit. **Who's in it:** tones2, kcaj and kie.
 
 ```text
@@ -495,6 +495,9 @@ tones2, still dripping, licks one of the cones.
                     TONES2
           ...OMFG.
 
+kcaj heads back to the den after kie. tones2 wanders off
+down the bay, a cone in each hand.
+
                                        INTO: THE TABK BAY
 ```
 
@@ -507,7 +510,7 @@ bay, unless the build card has him come the long way, from the far end. His face
 grin, gone, glum, then slumped with his hands in his pockets), and he walks off `glum`.
 
 **As staged** (kcaj-tabk-homecoming, 2026-11-01, `ConesSkit`, `?skit=cones`): every line as written, shots at 4, 8.5
-and 12.5 s, 18 s in all, drawn by `Ui/Den/BaySkitView` on the bay's skit stage. It plays straight on from
+and 12.5 s, 20 s in all, drawn by `Ui/Den/BaySkitView` on the bay's skit stage. It plays straight on from
 [kcaj's tabk comes home](den.md#kcajs-tabk-comes-home) on the same visit, and if it's cut short (or a phone's past the
 homecoming without it) on the next solo visit to the bay with SOFT SERVE on the stands. `?skit=cones` plays the homecoming
 first, then it (with `?unlock=crew` on a phone without kcaj's tabk). Where the bay can't do it as written:
@@ -522,3 +525,10 @@ first, then it (with `?unlock=crew` on a phone without kcaj's tabk). Where the b
 - kie's looks at the cones, at tones2 and at the cones again are his head dipping and coming up while his face falls;
   then he walks back out of the door, glum and slow, and is gone by the end.
 - tones2's lick is the cone in his front hand up at his mouth for a moment; ...OMFG. follows it.
+- Its bubbles keep off the machine's swirl and the KCAJ note on its side (`Skit.Clear`): kie's, standing between them,
+  goes up to his right, its tail at its left end.
+- The end (review, 2026-11-01): rather than the two of them vanishing, kcaj walks off to the den's door after kie and
+  tones2 walks off down the bay past the right of the screen, both gone by the end. The note goes with the skit.
+- The cargo drone isn't in it: it flew up out of shot once it set the wreck down in the homecoming (played on its own,
+  the skit flies it up at the start), and it drops back to its place over the stands in the last second and a half, so
+  the bay's own moves start from there.

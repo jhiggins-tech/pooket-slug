@@ -537,6 +537,11 @@ namespace PooketSlug
             FromRows(ArtData.TubStackRattle, new Vector2(0.5f, 0f), TubPaint),
         });
 
+        static Sprite s_Tub;
+
+        /// <summary>One tub from the stack (<see cref="ArtData.Tub"/>), held: the scenes' <c>tub</c>, by its bottom middle.</summary>
+        public static Sprite Tub => s_Tub ?? (s_Tub = FromRows(ArtData.Tub, new Vector2(0.5f, 0f), TubPaint));
+
         // ---- Scenery: big props that stand behind the action ----
 
         static readonly Color32 Haze = Hex(0xd0a040), Panel = Hex(0x7a808e), PanelLight = Hex(0x9aa0ac);
