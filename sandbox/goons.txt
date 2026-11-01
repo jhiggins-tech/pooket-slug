@@ -1,0 +1,6 @@
+// tones2 on flat ground against a crowd of goons, and nothing hurts him: try the kit as long as you like.
+// Play it: ?sandbox=goons
+soldier tones2
+ground ..P.........s.....s...r.....s...r...d....s....r....s.....s...
+air    .................................d..................d.......
+cheat invincible specials

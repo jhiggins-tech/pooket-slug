@@ -1,0 +1,46 @@
+// A stand-in for later missions' co-op scenes (docs/design/cutscenes/coop-check.md, The co-op check), for the two-phone check (?test=scene, CI's co-op test): Mission one is
+// single player only, so its own scenes never play in a co-op room. Six plain shots outside the hangout, each held
+// long enough that a phone tapping alone is plainly waiting. CI counts the moves between them, so keep it at six.
+net 63
+
+shot: Test shot 1
+length 6
+set street
+show sign window door snow
+tones2 at 160
+0.3 tones2: TEST SHOT 1 OF 6: TAP TOGETHER
+
+shot: Test shot 2
+length 6
+set street
+show sign window door snow
+tones2 at 160
+0.3 tones2: TEST SHOT 2 OF 6: TAP TOGETHER
+
+shot: Test shot 3
+length 6
+set street
+show sign window door snow
+tones2 at 160
+0.3 tones2: TEST SHOT 3 OF 6: TAP TOGETHER
+
+shot: Test shot 4
+length 6
+set street
+show sign window door snow
+tones2 at 160
+0.3 tones2: TEST SHOT 4 OF 6: TAP TOGETHER
+
+shot: Test shot 5
+length 6
+set street
+show sign window door snow
+tones2 at 160
+0.3 tones2: TEST SHOT 5 OF 6: TAP TOGETHER
+
+shot: Test shot 6
+length 6
+set street
+show sign window door snow
+tones2 at 160
+0.3 tones2: TEST SHOT 6 OF 6: TAP TOGETHER
