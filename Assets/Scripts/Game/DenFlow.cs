@@ -402,7 +402,7 @@ namespace PooketSlug
         void Door(float dt)
         {
             Game g = m_Game;
-            if (m_Door.Tick(dt)) g.Bay.Show(m_Den.Pick ?? g.Soldier);
+            if (m_Door.Tick(dt)) g.Bay.Show(m_Den.Pick ?? g.Soldier, m_Den.Mode);
             else if (m_Door.Inside && !g.Bay.Open) m_Door.ComeOut();
             if (m_Door.TakeRolled())
             {

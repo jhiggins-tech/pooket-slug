@@ -42,6 +42,12 @@ namespace PooketSlug
         /// <summary>Who's in it, drawn by the skit (the room's own figures of them stand aside till it's done).</summary>
         public abstract IReadOnlyList<SoldierDef> Cast { get; }
 
+        /// <summary>
+        /// A part of the room its bubbles keep off, in the room's pixels (its left and right, and its top: a bubble lower
+        /// than that over it is moved aside), or null for none. Does it do cones? keeps them off the swirl and the note.
+        /// </summary>
+        public virtual (float left, float right, float top)? Clear => null;
+
         public float T { get; private set; }
         public bool Done => T >= Length - 1e-4f;
 
@@ -372,8 +378,15 @@ namespace PooketSlug
         public bool Testing;
         /// <summary>The den opened from the debrief of a replay of this mission (won again, solo), or null.</summary>
         public MissionDef Replayed;
-        /// <summary><c>?skit=</c>, the first time the den opens on this visit: that skit plays (solo), seen or not, or null.</summary>
+        /// <summary>
+        /// <c>?skit=</c>, the first time the room opens on this visit: that skit plays (solo), seen or not, if it's this
+        /// room's (a skit of the other room's is left for that one), or null.
+        /// </summary>
         public string Asked;
+        /// <summary>The bay: the tabks won (Does it do cones? needs SOFT SERVE on the stands).</summary>
+        public IReadOnlyList<TabkCard> Tabks;
+        /// <summary>The bay: kcaj's tabk comes home first on this visit (<see cref="KcajHomecoming"/>).</summary>
+        public bool Homecoming;
     }
 
     /// <summary>
@@ -381,8 +394,8 @@ namespace PooketSlug
     /// own key kept with the player's progress; solo only (never in a co-op room: it waits for the next visit on your
     /// own); one a visit, in the order Two of us now, A Trollogram of anything, Five-second rule, Special delivery; never on
     /// the same visit as a beat, except Two of us now (straight after the first visit) and A
-    /// Trollogram of anything (straight after kcaj's move-in). And whether the den's co-op button shows: from the moment Two
-    /// of us now puts it up.
+    /// Trollogram of anything (straight after kcaj's move-in). In the bay, Does it do cones?, straight after kcaj's tabk
+    /// comes home. And whether the den's co-op button shows: from the moment Two of us now puts it up.
     /// </summary>
     public static class Skits
     {
@@ -393,14 +406,17 @@ namespace PooketSlug
             (SpecialDeliverySkit.Id, "the skit Special delivery has played"),
             (TrollogramSkit.Id, "the skit A Trollogram of anything has played"),
             (FiveSecondRuleSkit.Id, "the skit Five-second rule has played"),
+            (ConesSkit.Id, "the skit Does it do cones? has played in the tabk bay"),
         };
 
         /// <summary>The skit due as a room opens on <paramref name="visit"/>, or null. At most one.</summary>
         public static Skit Due(Profile profile, SkitVisit visit)
         {
-            if (visit.Place != SkitPlace.Den || visit.Mode != DenMode.Solo) return null;
-            if (visit.Asked != null) return Named(visit.Asked);
+            if (visit.Mode != DenMode.Solo) return null;
+            Skit asked = visit.Asked != null ? Named(visit.Asked) : null;
+            if (asked != null && asked.Place == visit.Place) return asked;
             if (visit.Testing) return null;
+            if (visit.Place == SkitPlace.Bay) return BayDue(profile, visit);
             IReadOnlyList<DenBeat> beats = visit.Beats ?? new DenBeat[0];
             // a phone that's past it (co-op opened before the skit was built) gets it on its next solo visit, unless it's
             // already pressed the button: then it's found co-op, and the button just shows
@@ -415,7 +431,7 @@ namespace PooketSlug
 
         /// <summary>
         /// The skit called <paramref name="name"/> (its key without <c>skit-</c>: <c>two-of-us</c>, <c>special-delivery</c>,
-        /// <c>trollogram-of-anything</c>, <c>five-second-rule</c>), new, or null. For <c>?skit=</c>, to see one whenever.
+        /// <c>trollogram-of-anything</c>, <c>five-second-rule</c>; the bay's <c>cones</c>), new, or null. For <c>?skit=</c>, to see one whenever.
         /// </summary>
         public static Skit Named(string name)
         {
@@ -425,8 +441,19 @@ namespace PooketSlug
                 case SpecialDeliverySkit.Id: return new SpecialDeliverySkit();
                 case TrollogramSkit.Id: return new TrollogramSkit();
                 case FiveSecondRuleSkit.Id: return new FiveSecondRuleSkit();
+                case ConesSkit.Id: return new ConesSkit();
                 default: return null;
             }
+        }
+
+        /// <summary>
+        /// The bay's skit: Does it do cones?, straight on from kcaj's tabk coming home on the same visit, or (cut short
+        /// before, or a phone that's past it) on the next solo visit once it has, with SOFT SERVE won for the stands.
+        /// </summary>
+        static Skit BayDue(Profile profile, SkitVisit visit)
+        {
+            if (profile.HasSeen(ConesSkit.Id) || !TabkCards.Has(visit.Tabks, TabkCards.Kcaj)) return null;
+            return visit.Homecoming || profile.HasSeen(KcajHomecoming.Reveal) ? new ConesSkit() : null;
         }
 
         /// <summary>A Trollogram of anything: kcaj's home (moving in now, or before), and no beat but his move-in on this visit.</summary>

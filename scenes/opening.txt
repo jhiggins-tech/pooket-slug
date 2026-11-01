@@ -38,7 +38,7 @@ tones2 holds cup 8 10
 
 shot: The den, trashed
 length 5
-set den
+set raid-den
 spark at 131 52
 spark size 0.5 0.5
 spark blink 9 3
@@ -55,7 +55,7 @@ tones2 holds cup 8 10
 
 shot: The roller door
 length 4.5
-set den
+set raid-den
 spark at 131 52
 spark size 0.5 0.5
 spark blink 9 3
@@ -74,7 +74,7 @@ tones2 holds cup 8 10
 
 shot: The tabk bay
 length 6.5
-set bay
+set raid-bay
 // in under the bay's roller door at its far left; the camera runs along the empty decks to the street shutter,
 // bent half open, and back to him
 tones2 at -12
@@ -90,7 +90,7 @@ tones2 holds cup 8 10
 
 shot: A straggler
 length 8.5
-set den
+set raid-den
 spark at 131 52
 spark size 0.5 0.5
 spark blink 9 3
@@ -125,7 +125,7 @@ goon face right
 
 shot: The keycard
 length 6.2
-set den
+set raid-den
 spark at 131 52
 spark size 0.5 0.5
 spark blink 9 3
@@ -147,7 +147,7 @@ cup hide
 
 shot: Heading out
 length 6
-set den
+set raid-den
 spark at 131 52
 spark size 0.5 0.5
 spark blink 9 3

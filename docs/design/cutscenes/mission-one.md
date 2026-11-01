@@ -218,7 +218,8 @@ MUSIC: the mission start sting, into Mission one's theme.
 ```
 
 **Built** (2026-10-19, opening-stage): `scenes/opening.txt` plays all eight shots on the raid-night plates (sets `den`
-and `bay`). He comes in by the den's side door on the left and leaves by it in shot 8. In the bay the camera runs
+and `bay`, renamed `raid-den` and `raid-bay` on 1 Nov, m2-briefing-daylight, when `den` and `bay` became the rooms as
+their screens show them). He comes in by the den's side door on the left and leaves by it in shot 8. In the bay the camera runs
 along the empty decks to the street shutter and back to him. The den's painting has no window, so shot 8 has no
 searchlights: the keycard's close-up is what points to the base.
 

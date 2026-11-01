@@ -25,7 +25,7 @@ namespace PooketSlug
     /// each from its source rather than spelling it again: <see cref="Reveals.Coop"/>, a scene's
     /// <see cref="SceneScript.IdOf"/> for each of <see cref="SceneLibrary.Names"/>, <see cref="StoryRecord"/>'s three,
     /// <see cref="DenBeats"/> (the first visit, and a move-in for each crewmate in <see cref="Crew.All"/> who wasn't home for
-    /// it), <see cref="KieHomecoming.Reveal"/>, the den's skits (<see cref="Skits.All"/>) and the skits that play in a mission or its debrief
+    /// it), <see cref="KieHomecoming.Reveal"/> and <see cref="KcajHomecoming.Reveal"/>, the house's skits (<see cref="Skits.All"/>) and the skits that play in a mission or its debrief
     /// (<see cref="KeepItDown"/>, <see cref="TrackingUs"/>). <c>OnceOnlyTests</c> holds every place the game marks a key to this list,
     /// and pins the keys as they are in saves.
     /// </summary>
@@ -33,7 +33,7 @@ namespace PooketSlug
     {
         static List<OnceOnlyBeat> s_All;
 
-        /// <summary>The beats, by source: the co-op reveal, the story's three, the scenes, the den's, the bay's, the den's skits, the missions' skits.</summary>
+        /// <summary>The beats, by source: the co-op reveal, the story's three, the scenes, the den's, the bay's, the house's skits, the missions' skits.</summary>
         public static IReadOnlyList<OnceOnlyBeat> All => s_All ?? (s_All = Build());
 
         /// <summary><paramref name="key"/> is one the game saves.</summary>
@@ -60,6 +60,7 @@ namespace PooketSlug
                 if (!DenBeats.Starter(m.Soldier))
                     all.Add(new OnceOnlyBeat(DenBeats.MovedIn(m.Soldier), m.Name + " has moved into the den"));
             all.Add(new OnceOnlyBeat(KieHomecoming.Reveal, "kie's tabk has come home to the bay"));
+            all.Add(new OnceOnlyBeat(KcajHomecoming.Reveal, "kcaj's tabk has come home to the bay"));
             foreach ((string key, string what) in Skits.All) all.Add(new OnceOnlyBeat(key, what));
             all.Add(new OnceOnlyBeat(KeepItDown.Key, "the skit Keep it down has played in Mission one's coda"));
             all.Add(new OnceOnlyBeat(TrackingUs.Key, "the skit They're tracking us has played at Mission two's debrief"));

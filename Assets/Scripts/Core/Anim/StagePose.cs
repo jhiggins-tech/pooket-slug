@@ -9,9 +9,10 @@ namespace PooketSlug
     /// A stage soldier's top half: facing the camera (with their gun), off duty (arms by their sides, no gun), lounging,
     /// holding a pad, or repairing; or off duty and grinning, their face falling (<see cref="CrewFigure.FaceFall"/>), or
     /// glum, slumped at its end; or carrying something out in front of them (no gun); or off duty with the grin gone,
-    /// unconvinced (Five-second rule). New ones go on the end.
+    /// unconvinced (Five-second rule); or pointing, no gun, the front arm straight out or up and out (freeing kcaj's
+    /// I TOLD YOU). New ones go on the end.
     /// </summary>
-    public enum StageTorso { Forward, Unarmed, Lounge, Pad, Repair, Grin, FaceFall, Glum, Carry, Blank }
+    public enum StageTorso { Forward, Unarmed, Lounge, Pad, Repair, Grin, FaceFall, Glum, Carry, Blank, Point, PointUp }
 
     /// <summary>A stage soldier's pose: legs, top, where in the walk, and how far the top's nudged (art pixels).</summary>
     public struct StagePose
@@ -96,6 +97,8 @@ namespace PooketSlug
                     case StageTorso.FaceFall: return CrewFigure.FaceFall.Body(WalkT, CrewBody.Grin);
                     case StageTorso.Glum: return CrewBody.Slump;
                     case StageTorso.Blank: return CrewBody.Blank;
+                    case StageTorso.Point: return CrewBody.Point;
+                    case StageTorso.PointUp: return CrewBody.PointUp;
                     default: return CrewBody.Forward;
                 }
             }
@@ -134,9 +137,10 @@ namespace PooketSlug
         /// <summary>
         /// A cutscene soldier's top for what their hands are doing, by its word in the scene files (<c>arms</c>): <c>gun</c>
         /// (the forward body, holding it: as in play, and the default), <c>down</c> (by their sides, no gun: the den's
-        /// off-duty top) or <c>out</c> (the front hand out holding something, the back one by their side, no gun: a
-        /// slushie, the snacks, a remote handed over). The shared body, so it serves every crewmate. A repair or a spray
-        /// keeps its own top.
+        /// off-duty top), <c>out</c> (the front hand out holding something, the back one by their side, no gun: a
+        /// slushie, the snacks, a remote handed over), <c>point</c> (the front arm straight out, a finger pointing the
+        /// way they face: at someone) or <c>point-up</c> (the arm up and out at 45°: at something big, up there). The
+        /// shared body, so it serves every crewmate. A repair or a spray keeps its own top.
         /// </summary>
         public static StageTorso Arms(string arms)
         {
@@ -144,6 +148,8 @@ namespace PooketSlug
             {
                 case "down": return StageTorso.Unarmed;
                 case "out": return StageTorso.Carry;
+                case "point": return StageTorso.Point;
+                case "point-up": return StageTorso.PointUp;
                 default: return StageTorso.Forward;
             }
         }

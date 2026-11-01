@@ -73,7 +73,7 @@ blinks and flickers; `CrewFigure` is the shared figure's moves; `StagePose` is h
   pixels a unit (`Tuning.Pixels.PerUnit`, `Art.PPU`). A 1 px dark outline (`Art.OutlineColor`) is added automatically
   around opaque pixels, and `.` is transparent in a row.
 - The crew's figure: `CrewMove` (Idle, Run, Jump, Crouch, Down, Repair), `CrewLegs` (Idle, Run1 to Run4, Jump, Crouch,
-  Sit), `CrewBody` (Forward, Up, Down, UpDiag, DownDiag, Unarmed, Pad, Lounge, Repair1 to Repair4, Carry) and `CrewHead`
+  Sit), `CrewBody` (Forward, Up, Down, UpDiag, DownDiag, Unarmed, Pad, Lounge, Repair1 to Repair4, Grin, Blank, Glum, Slump, Carry, Point, PointUp) and `CrewHead`
   (Front, Down). `HeadPlace` says where a body frame wants the head. Do not rename or reorder them: `PlayerSkin` indexes
   its arrays by the enum value.
 - The stage's: `StageLegs` (Idle, Walk, Crouch, Sit, Jump, Hidden) and `StageTorso` (Forward, Unarmed, Lounge, Pad,
@@ -90,6 +90,13 @@ blinks and flickers; `CrewFigure` is the shared figure's moves; `StagePose` is h
   it serves every crewmate. A `spray` keeps the gun and a `repair` its wrench. A held prop sits in the `out` hand at
   about `8 10` (`-8 10` facing left). (`StagePoseTests.Arms_TakeTheGunOutOfTheirHands_WhateverThePose`; the render is
   the card's `frame.png`.) The soldier in play never uses `Carry`.
+- Pointing and frost (kcaj-frost-point, 1 Nov): `CrewBody.Point` / `PointUp` (`ArtData.TorsoPoint`, `TorsoPointUp`;
+  `StageTorso.Point` / `PointUp`, a scene's `arms point` / `point-up`), head `Front`, no gun: straight out at the
+  shoulder, or up and out where the up-diagonal aim holds the gun. Every crewmate figure sprite (`CrewArt`'s `Figure`
+  and its legs) gets a frosted look beside it, three sprites for `Fx.FrostTwinkle`'s sparkles (`Art.Frosted`): their own
+  colours half washed to an ice ramp, the outline a deep ice blue, a white rime crust on every upward edge and dusting
+  the row under it and the sides. `StageFigure.Frost` lays it over a figure at a see-through amount. The renders are
+  the card's `point-*.png` and `frost-*.png`. The soldier in play never uses them (`FrostLook` is the game's ice block).
 - Plates: a layer is `sky`, `far` or `mid`, back to front, and a plate is `<layer>-<n>.bytes`, a PNG renamed
   `.bytes`, numbered along the map (`Backdrop.PlatePath`). The strip repeats end to end; the sky is 180 px tall. The
   mission's `PlatesStand` lifts the far and mid plates. A layer with no plates is drawn in code.

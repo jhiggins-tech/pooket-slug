@@ -151,8 +151,52 @@ namespace PooketSlug.Tests
             Assert.AreEqual(StageTorso.Carry, StagePose.Cutscene(stage.Pose("tones2", 0.5f), 0.5f, 10f, stage.Arms("tones2", 0.5f)).Torso);
 
             List<string> problems = Read(Tiny + "tones2 arms full\n").Problems;
-            Assert.IsTrue(problems.Exists(p => p.Contains("'arms' takes one of gun, down, out")), string.Join("; ", problems));
+            Assert.IsTrue(problems.Exists(p => p.Contains("'arms' takes one of gun, down, out, point, point-up")), string.Join("; ", problems));
             Assert.IsTrue(Read(Tiny + "card arms out\n").Problems.Exists(p => p.Contains("card can't 'arms'")), "only soldiers have arms");
+        }
+
+        // kcaj-frost-point: kcaj out of the cold store white with frost, thawing out as he warms up; anyone can be frosted
+        [Test]
+        public void Frosted_HoldsOrThawsOverItsWindow_NotFrostedUnlessTold()
+        {
+            SceneScript s = Read("net 9\nshot: A\nlength 4\nset coldstore\nkcaj at 200\nkcaj frosted 1\n1-3 kcaj frosted 1 0\ntones2 at 120\n");
+            Assert.IsEmpty(s.Problems, string.Join("; ", s.Problems));
+            var stage = new ShotStage(s.Def.Shots[0]);
+            Assert.AreEqual(1f, stage.Frosted("kcaj", 0.5f), "white with frost from the start");
+            Assert.AreEqual(1f, stage.Frosted("kcaj", 1f));
+            Assert.AreEqual(0.5f, stage.Frosted("kcaj", 2f), 1e-4f, "halfway thawed halfway through");
+            Assert.AreEqual(0f, stage.Frosted("kcaj", 3.5f), "and it holds, thawed");
+            Assert.AreEqual(0f, stage.Frosted("tones2", 1f), "not frosted unless the shot says");
+
+            foreach (string bad in new[] { "kcaj frosted\n", "kcaj frosted 2\n", "kcaj frosted 1 0\n", "kcaj frosted lots\n", "cup frosted 1\n" })
+                Assert.IsNotEmpty(Read(Tiny + bad).Problems, bad.Trim());
+
+            // freeing kcaj: frosted all through his first shot, thawed by the end of the evidence, and not after
+            SceneScript scene = TestScenes.All["freeing-kcaj"];
+            var outOfTheCold = new ShotStage(scene.Def.Shots[0]);
+            var evidence = new ShotStage(scene.Def.Shots[1]);
+            Assert.AreEqual(1f, outOfTheCold.Frosted("kcaj", 0.6f), "as he stumbles out");
+            Assert.AreEqual(1f, outOfTheCold.Frosted("kcaj", scene.Def.Shots[0].Seconds));
+            Assert.Greater(evidence.Frosted("kcaj", 0f), 0.9f, "the cut keeps him frosted");
+            Assert.AreEqual(0f, evidence.Frosted("kcaj", scene.Def.Shots[1].Seconds), 1e-4f, "thawed by the cut");
+            for (int i = 2; i < scene.Def.Shots.Length; i++)
+                Assert.AreEqual(0f, new ShotStage(scene.Def.Shots[i]).Frosted("kcaj", 1f), scene.Def.Shots[i].Name);
+        }
+
+        // kcaj-frost-point: I TOLD YOU. He points at the factory round them, then at the crew
+        [Test]
+        public void FreeingKcaj_HePointsAtTheFactoryThenAtTheCrew()
+        {
+            SceneScript scene = TestScenes.All["freeing-kcaj"];
+            CutsceneShot told = Array.Find(scene.Def.Shots, sh => sh.Name == "Told you");
+            var stage = new ShotStage(told);
+            Assert.AreEqual("point-up", stage.Arms("kcaj", 0.5f), "up at the factory");
+            Assert.AreEqual(1, stage.Facing("kcaj", 0.5f), "toward the cold store, on his right");
+            Assert.AreEqual("point", stage.Arms("kcaj", 2f), "at the crew");
+            Assert.AreEqual(1, stage.Facing("kcaj", 2f), "who are on his right");
+            Assert.Greater(stage.Where("tones2", 2f, 0f).x, stage.Where("kcaj", 2f, 0f).x);
+            Assert.AreEqual(StageTorso.Point, StagePose.Cutscene(stage.Pose("kcaj", 2f), 2f, 9f, stage.Arms("kcaj", 2f)).Torso);
+            Assert.AreEqual("down", stage.Arms("kcaj", 3.5f), "done pointing once he's said it");
         }
 
         [Test]

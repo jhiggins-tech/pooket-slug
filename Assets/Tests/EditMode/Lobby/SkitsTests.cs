@@ -182,6 +182,178 @@ namespace PooketSlug.Tests
             }
         }
 
+        // ------------------------------------------------------------------ the bay: Does it do cones?
+
+        static SkitVisit Bay(Profile p, bool homecoming, DenMode mode = DenMode.Solo, bool testing = false) =>
+            new SkitVisit
+            {
+                Place = SkitPlace.Bay,
+                Mode = mode,
+                Crew = WithKcaj,
+                Tabks = TabkCards.Won(p),
+                Homecoming = homecoming,
+                Testing = testing,
+            };
+
+        static Profile AfterMissionTwo()
+        {
+            var p = new Profile { coop = true };
+            p.RecordRun(Missions.One, 100, won: true, solo: true);
+            p.RecordRun(Missions.Two, 100, won: true, solo: true);
+            foreach (var skit in Skits.All)
+                if (skit.key != ConesSkit.Id) p.MarkSeen(skit.key);
+            p.MarkSeen(DenBeats.FirstVisit);
+            p.MarkSeen(DenBeats.MovedIn(Content.Kcaj));
+            return p;
+        }
+
+        [Test]
+        public void DoesItDoCones_FollowsKcajsTabkComingHome_OnTheSameVisit_Once()
+        {
+            Profile p = AfterMissionTwo();
+            Assert.IsNull(Skits.Due(p, Bay(p, homecoming: false)), "not before his tabk's come home");
+            Skit skit = Skits.Due(p, Bay(p, homecoming: true));
+            Assert.IsInstanceOf<ConesSkit>(skit, "straight on from the homecoming");
+            Assert.AreEqual("skit-cones", skit.Key);
+            Assert.AreEqual(SkitPlace.Bay, skit.Place);
+            Assert.IsNull(Skits.Due(p, Bay(p, homecoming: true, mode: DenMode.Coop)), "never in a co-op room");
+            Assert.IsNull(Skits.Due(p, Bay(p, homecoming: true, testing: true)), "nor in a ?test= start");
+            Assert.IsTrue(Skits.Played(p, skit));
+            Assert.IsNull(Skits.Due(p, Bay(p, homecoming: true)), "once ever");
+        }
+
+        [Test]
+        public void DoesItDoCones_CutShort_PlaysOnTheNextSoloVisit_WithSoftServeWon()
+        {
+            Profile p = AfterMissionTwo();
+            p.MarkSeen(KcajHomecoming.Reveal);
+            Assert.IsInstanceOf<ConesSkit>(Skits.Due(p, Bay(p, homecoming: false)), "the homecoming's played, the skit hasn't");
+            SkitVisit noTabk = Bay(p, homecoming: false);
+            noTabk.Tabks = new[] { TabkCards.Tones2 };
+            Assert.IsNull(Skits.Due(p, noTabk), "it needs SOFT SERVE on the stands");
+        }
+
+        [Test]
+        public void TheBaysSkit_NeverPlaysInTheDen_AndTheDensNeverInTheBay()
+        {
+            Profile p = AfterMissionTwo();
+            p.MarkSeen(KcajHomecoming.Reveal);
+            SkitVisit den = Visit(WithKcaj, p);
+            Assert.IsNull(Skits.Due(p, den), "nothing's due in the den");
+            den.Asked = "cones";
+            Assert.IsNull(Skits.Due(p, den), "?skit=cones is the bay's: the den goes on as it would");
+            Assert.IsInstanceOf<ConesSkit>(Skits.Named("cones"));
+            SkitVisit bay = Bay(p, homecoming: false);
+            bay.Asked = "two-of-us";
+            Assert.IsInstanceOf<ConesSkit>(Skits.Due(p, bay), "a den skit asked for leaves the bay's own rules");
+            p.MarkSeen(ConesSkit.Id);
+            bay.Asked = "cones";
+            Assert.IsInstanceOf<ConesSkit>(Skits.Due(p, bay), "asked for, it plays seen or not");
+        }
+
+        [Test]
+        public void DoesItDoCones_IsSpokenByItsCast_TheConesSplatOnTones2_AndKiesFaceFalls()
+        {
+            var s = new ConesSkit();
+            CollectionAssert.AreEquivalent(new[] { Content.Tones2, Content.Kcaj, Content.Kie }, s.Cast);
+            Assert.AreEqual(20f, s.Length, 0.5f);
+            Assert.AreEqual(3, s.Shots.Length, "four shots");
+            float last = 0f;
+            foreach (SkitLine l in s.Lines)
+            {
+                CollectionAssert.Contains(s.Cast, l.Who, l.Text);
+                Assert.GreaterOrEqual(l.From, last, l.Text);
+                Assert.LessOrEqual(l.To, s.Length);
+                StringAssert.DoesNotContain("—", l.Text);
+                last = l.To;
+            }
+
+            // shot 1: kcaj where the homecoming left him, tones2 walking up and eyeing the swirl
+            Assert.AreEqual(KcajHomecoming.KcajNozzle, ConesSkit.KcajX);
+            Assert.AreEqual(KcajHomecoming.Tones2X, s.Tones2X, "tones2 starts where the homecoming had him");
+            Assert.IsFalse(s.KieIn);
+            Step(s, 2f);
+            Assert.AreEqual(ConesSkit.Tones2Up, s.Tones2X);
+            Assert.IsTrue(s.Tones2LooksUp);
+            Assert.AreEqual("DOES IT DO CONES?", s.Line.Value.Text);
+
+            // shot 2: kie's sprint in from the door, a skid to a stop between them
+            Step(s, ConesSkit.RunFrom + 0.3f);
+            Assert.IsTrue(s.KieIn && s.KieRunning);
+            Assert.Less(s.KieX, ConesSkit.KieSkid);
+            Step(s, ConesSkit.SkidTo + 0.1f);
+            Assert.AreEqual(ConesSkit.KieStop, s.KieX, 1e-3f);
+            Assert.Greater(s.KieX, ConesSkit.KcajX, "between them");
+            Assert.Less(s.KieX, ConesSkit.Tones2Up);
+            Assert.IsFalse(s.Falling, "grinning ear to ear");
+
+            // shot 3: the nozzle swung round onto tones2, the swirl wobbling, two cones into his hands
+            Step(s, ConesSkit.Shot3);
+            Assert.AreEqual(0f, s.NozzleTurn, 1e-3f, "at rest, pointing left");
+            Assert.AreEqual(-1f, s.Cone(0));
+            Step(s, ConesSkit.SwingTo + 0.01f);
+            Assert.AreEqual(ConesSkit.AimTurn, s.NozzleTurn, 1e-3f);
+            Assert.Less(ConesSkit.AimTurn, -180f, "round over the top, past straight up, onto him");
+            (float tx, _) = ConesSkit.Tip;
+            Assert.Greater(tx, ConesSkit.Pivot.x, "its mouth points his way");
+            Step(s, ConesSkit.FirstFrom + 0.3f);
+            Assert.IsTrue(s.Wobbling);
+            Assert.Greater(s.Cone(0), 0f);
+            Assert.Less(s.Cone(0), 1f);
+            Assert.Greater(s.ConeAt(0).y, ConesSkit.Tip.y - 1f, "arcing up out of the nozzle");
+            Assert.AreEqual(-1f, s.SplatSince);
+            Step(s, ConesSkit.SecondAt + 0.01f);
+            Assert.IsTrue(s.Hit(0) && s.Hit(1), "one in each hand");
+            Assert.AreEqual(ConesSkit.HandFront, s.ConeAt(0));
+            Assert.AreEqual(ConesSkit.HandBack, s.ConeAt(1));
+            Assert.Greater(s.SplatSince, 0f);
+            Step(s, 11f);
+            Assert.AreEqual("IT DOES TWO.", s.Line.Value.Text);
+
+            // shot 4: kie's face falls, he walks back out the way he came; tones2 licks a cone
+            Step(s, ConesSkit.Shot4 + 0.5f);
+            Assert.IsTrue(s.Falling);
+            Assert.IsFalse(s.KieLeaving);
+            Step(s, 14.5f);
+            Assert.AreEqual("...OH. THAT KIND.", s.Line.Value.Text);
+            Step(s, ConesSkit.LickFrom + 0.1f);
+            Assert.IsTrue(s.KieLeaving);
+            Assert.IsTrue(s.Licking);
+            Step(s, ConesSkit.LickTo + 0.3f);
+            Assert.AreEqual("...OMFG.", s.Line.Value.Text);
+            Assert.IsFalse(s.Leaving, "they stay for his line");
+            Step(s, ConesSkit.LeaveTo);
+            Assert.Less(s.KieX, 0f, "out of the door");
+            Assert.IsFalse(s.KieIn);
+
+            // the end: kcaj back to the den's door, tones2 off down the bay, out of shot before it's over
+            Step(s, (ConesSkit.ExitFrom + ConesSkit.ExitTo) / 2f);
+            Assert.IsTrue(s.Leaving && s.Tones2Walking);
+            Assert.Less(s.KcajFeet, ConesSkit.KcajX);
+            Assert.Greater(s.Tones2X, ConesSkit.Tones2Up);
+            Assert.IsFalse(s.Gone);
+            Step(s, ConesSkit.ExitTo);
+            Assert.IsTrue(s.Gone);
+            Assert.Less(s.KcajFeet, 0f, "out of the door");
+            Assert.Greater(s.Tones2X, KcajHomecoming.StageWidth, "past the screen's right edge");
+            Assert.IsNull(s.Line);
+            Step(s, s.Length);
+            Assert.IsTrue(s.Done);
+        }
+
+        [Test]
+        public void DoesItDoCones_ItsBubblesKeepOffTheSwirlAndTheNote()
+        {
+            var s = new ConesSkit();
+            Assert.IsTrue(s.Clear.HasValue);
+            (float left, float right, float top) = s.Clear.Value;
+            Assert.Less(left, BayMap.StandX, "the swirl's left");
+            Assert.Greater(right, BayMap.StandX + 16f, "the swirl's right and the note");
+            Assert.Greater(top, BayMap.StandY + 40f, "up to the swirl's tip");
+            Assert.Less(right, ConesSkit.KieStop + 1f, "kie stands at its right edge, so his bubble goes up there");
+            Assert.IsNull(new TwoOfUsSkit().Clear, "the den's skits keep off nothing");
+        }
+
         [Test]
         public void TwoOfUsNow_TheControllerLeavesHisHand_AndTheButtonPopsUpWhereItLay()
         {

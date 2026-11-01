@@ -1,6 +1,7 @@
 // The Mission two briefing (docs/design/cutscenes/mission-two.md, The Mission two briefing): the morning after Mission one, the
 // motor pool's empty, and kcaj's string board, still up in his dark corner of the den's upper floor, points to the
-// creamery. It plays as Mission two starts from the den: solo, or on both phones in co-op. Always tones2 and kie, whoever's picked: they're the only crew free
+// creamery. The den and the bay are as their screens show them, tidied since the first visit, at night like every
+// den scene; kcaj's corner is his moved-in layer, dimmed, its edges fading into the room. It plays as Mission two starts from the den: solo, or on both phones in co-op. Always tones2 and kie, whoever's picked: they're the only crew free
 // at this point in the story.
 // How to write a scene: docs/scenes.md. Times are seconds from the start of each shot.
 net 4
@@ -23,7 +24,6 @@ length 6
 set den
 show kcaj-corner
 kcaj-corner colour #8c8098
-chips spill 66
 // up the ladder to kcaj's corner, dark and wrecked, his red string board still on the wall; the camera follows them up
 tones2 at 209 40
 kie at 209 4
@@ -41,7 +41,6 @@ length 7.2
 set den
 show kcaj-corner
 kcaj-corner colour #8c8098
-chips spill 66
 // the board, close up, on its own: one red string runs off it to a photo of a factory with a giant soft-serve sign,
 // and under it, THEY NEED IT COLD. Then it cuts back to the two of them in kcaj's corner, where they climbed to, and
 // they say their lines there, one at a time: kie's bubble is down before tones2 answers.
@@ -64,8 +63,19 @@ kie hide
 shot: Out of the roller door
 length 9
 set bay
-// in under the den's roller door at the bay's far left, then along the floor past the empty decks to its bent street
-// shutter and out into the day; the camera runs with them to the street end
+// in under the den's roller door at the bay's far left, then along the floor past the two tabks home (tones2's on the
+// repair stands, kie's in the first space, so both are whole in the opening frame; at the bay's 1.5 times) to its
+// street door, which rattles up about as high as they are, and they duck out under it; the camera runs with them to
+// the street end
+tones2-tabk at 92 5
+tones2-tabk colour white
+tones2-tabk size 1.5 1.5
+kie-tabk at 232 1
+kie-tabk size 1.5 1.5
+doorway at 969 0
+doorway colour #0b1220
+doorway size 3.4 0
+4.8-5.2 doorway size 3.4 0 3.4 0.6
 0 camera 1 0 0
 0.6-4.8 camera 1 673 0 smooth
 tones2 at -12
@@ -77,7 +87,7 @@ kie at -36
 5.5 tones2 hide
 5.9 kie hide
 0.1 cue shutter
-5.3 cue shutter
+4.8 cue shutter
 0.3 narrator m2-briefing-4: The Trollograms like it cold. | So, as it turns out, does kcaj.
 6.6 cue card
 6.8 say mission-two-start

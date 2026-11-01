@@ -37,13 +37,17 @@ A scene goes live only if:
 One thing per line; `//` starts a note. Times are seconds from the start of the shot: `2.2` is a moment, `2.7-3.9` a
 window (things that take time, like a walk, run over a window). A line with no time is how the shot starts.
 
+**The sets**: `street` (outside the hangout on a snowy night), `den` and `bay` (the den and the tabk bay as their screens
+show them, tidy, at night: every den scene after the first visit), `raid-den` and `raid-bay` (the same rooms trashed on
+raid night, for the opening), `motorpool` (the base's motor pool) and `coldstore` (the creamery's loading yard).
+
 ```
 // The opening.
 net 1                      the scene's number for a partner's phone (1-255, each scene its own; never change it)
 
 shot: Outside              each shot starts with its name
 length 8.5                 seconds
-set street                 the backdrop: street, den, bay, motorpool or coldstore (the creamery's loading yard)
+set street                 the backdrop: street, den, bay, raid-den, raid-bay, motorpool or coldstore (below)
 show sign window door snow what's on stage from the start
 intro 4 tones2: TONES2     a character intro at 4 s, with the name it slams up
 
@@ -64,7 +68,7 @@ recording: `narrator <recording>:`), `caption` (the big card).
 `intro-build`, `intro` (an intro's riser and hit: an `intro` line plays them itself). `say <line>` has the announcer read one of theirs: `4.1 say mission-start`, `say mission-two-start`.
 
 **The camera**: `0-2.2 camera 1.15 20 -12 smooth`: how far in, and where it looks (from the stage's middle). The bay
-(`set bay`) is 993 wide, three stages long, with the stage showing its left end: `0-3 camera 1 673 0 smooth` pans to
+(`set bay`, and `raid-bay`) is 993 wide, three stages long, with the stage showing its left end: `0-3 camera 1 673 0 smooth` pans to
 its far end.
 
 ## Things on the stage
@@ -77,7 +81,7 @@ not their way round: someone facing left holds a thing in front of them at a min
 | Kind | Things |
 |---|---|
 | Soldiers | `tones2`, `kie`, `kcaj`, `goon` |
-| Props | `bag`, `cup`, `card`, `remote`, `sign`, `window`, `door`, `doorway`, `spark`, `beacon`, `clamp`, `drone`, `cable`, `tones2-tabk`, `kie-tabk`, `kcaj-tabk` (with a cone on top), `turret` (whichever tabk's in the shot), `kcaj-corner` (his corner of the den, with the string board), the cold store's `store-opening` (the dark of its doorway: size it open) and `freezer`, `tub` (one, held), `tubs` (a stack of them beside the doors, at 180), `slushie`, `cones`, `note` (a sticky note), `softserve` and `softserve2` (SOFT SERVE's two soft-serve cones, upright: held, they sit in the right hand and the left) |
+| Props | `bag`, `cup`, `card`, `remote`, `sign`, `window`, `door`, `doorway`, `spark`, `beacon`, `clamp`, `drone`, `cable`, `tones2-tabk`, `kie-tabk`, `kcaj-tabk` (with a cone on top), `turret` (whichever tabk's in the shot), `kcaj-corner` (his corner of the den, with the string board), the cold store's `store-opening` (the dark of its doorway: size it open) and `freezer`, `tub` (one off the stack, held), `tubs` (a stack of them beside the doors, at 180), `slushie`, `cones`, `note` (a sticky note), `softserve` and `softserve2` (SOFT SERVE's two soft-serve cones, upright: held, they sit in the right hand and the left) |
 | Effects | `snow`, `searchlights`, `chips`, `jet`, `closeup` (the keycard), `board` (kcaj's string board, close up), `shutter`, `lamps`, `row`, `junk`, `steam`, `cage`, `stars`, `zz`, `alarm`, `frost` (rolling out along the floor both ways from where it's put), `icicles` (on a cap: `icicles on kcaj 1 21`), `splat` (soft serve splatting on a soldier, then dripping: put it on them at their feet, `splat on tones2 0 0`), `label` (the crisp packet's label close up, the room dimmed: FAMBLY MART) |
 
 A thing is on stage once a line stages it (or `show` names it), until `hide`.
@@ -99,7 +103,9 @@ A thing is on stage once a line stages it (or `show` names it), until `hide`.
 | `on` | `stars on kie 0 22`: rides on a soldier |
 
 **Soldiers also**: `walk` (`0-1 kie walk 100 166`: they run), `face left` / `right`, `pose idle run crouch spray
-hatch repair down grin fall glum`, `arms gun down out` (what their hands are doing, whatever the pose: below), `look plain holo trollo` (`holo` a Trollogram goon, `trollo` a Trollogram crewmate), `holds bag cup` (or `holds bag -7 9` for where), `sway`.
+hatch repair down grin fall glum`, `arms gun down out point point-up` (what their hands are doing, whatever the pose: below), `look plain holo trollo` (`holo` a Trollogram goon, `trollo` a Trollogram crewmate), `holds bag cup` (or `holds bag -7 9` for where), `sway`,
+`frosted 1` (white with frost: rimed on top, iced all over and glinting, from 0, not at all, to 1; over a window it runs from
+one to the other and holds there, so `0-3.5 kcaj frosted 1 0` thaws him out; every shot starts unfrosted).
 `down` is in a heap on their back: the crew's down frame, toppled flat about their feet the way they face, so its back
 sits about 7 under them; stand them 7 up to lie on the floor (`1.8 kie pose down` with `kie at 100 7`). The goon also `appear`s
 (over a window) and `glitch-out`s.
@@ -111,7 +117,9 @@ A soldier holds their gun, as in play, unless the shot says otherwise, and every
 their hands by their sides, no gun (just out of a cage, dazed, nodding off), and `arms out` has the front hand out
 holding something and the back one by their side, no gun (a slushie, the snacks, a remote handed over, a tub, a cone).
 Put a held thing at the hand: about 8 in front and 10 up for `arms out` (`tones2 holds cup 8 10`, or `-8 10` facing
-left), and about 6 behind and 9 up for the back hand. A `spray` always has the gun, a `repair` its wrench, and a face's poses (`grin`, `fall`, `glum`) their off-duty hands. Arms over
+left), and about 6 behind and 9 up for the back hand. `arms point` has the front arm straight out, a finger pointing the
+way they face (at someone: face them first), and `arms point-up` has it up and out at 45° (at something big, up there,
+like the factory round them); the back hand is by their side, no gun. A `spray` always has the gun, a `repair` its wrench, and a face's poses (`grin`, `fall`, `glum`) their off-duty hands. Arms over
 a window last only for it, so `1.2-3 tones2 arms out` is back to the gun at 3. Write `arms` wherever the script has
 someone unarmed: the gun is for when they're fighting or heading out to fight.
 

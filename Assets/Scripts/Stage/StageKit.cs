@@ -136,6 +136,34 @@ namespace PooketSlug
         /// <summary>Tints the whole figure.</summary>
         public void Tint(Color c) => Legs.color = Torso.color = c;
 
+        Image m_LegsFrost, m_TorsoFrost;
+
+        /// <summary>
+        /// Lays the figure's frosted look (<see cref="Art.Frosted"/>) over it, <paramref name="amount"/> of the way (0 to
+        /// 1: a cutscene's <c>frosted</c>), its sparkles glinting on <paramref name="now"/>. Call it after the pose and the
+        /// tint each frame; 0 takes it off. Made the first time a figure's frosted.
+        /// </summary>
+        public void Frost(float amount, float now)
+        {
+            if (amount <= 0f && m_TorsoFrost == null) return;
+            if (m_TorsoFrost == null)
+            {
+                m_LegsFrost = Ui.Picture(Legs.rectTransform, "Frost", null, Ui.Middle, Ui.Middle, Vector2.zero, Legs.rectTransform.sizeDelta, Color.white);
+                m_TorsoFrost = Ui.Picture(Torso.rectTransform, "Frost", null, Ui.Middle, Ui.Middle, Vector2.zero, Torso.rectTransform.sizeDelta, Color.white);
+            }
+            FrostOver(m_LegsFrost, Legs, amount, now);
+            FrostOver(m_TorsoFrost, Torso, amount, now);
+        }
+
+        static void FrostOver(Image frost, Image under, float amount, float now)
+        {
+            Sprite s = amount > 0f ? Art.Frosted(under.sprite, now) : null;
+            Ui.Show(frost, s != null);
+            if (s == null) return;
+            frost.sprite = s;
+            frost.color = new Color(1f, 1f, 1f, Mathf.Clamp01(amount) * under.color.a);
+        }
+
         /// <summary>Just above its head, where its bubble points.</summary>
         public Vector2 Head => Rt.anchoredPosition + new Vector2(0f, 30f * m_Scale);
     }

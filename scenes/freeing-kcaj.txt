@@ -19,7 +19,7 @@ kie at 92
 0.6 frost show
 kcaj at 261
 kcaj face left
-kcaj colour #c8e8ff
+kcaj frosted 1
 kcaj holds tub -8 11
 kcaj arms out
 1.4 icicles on kcaj 1 21
@@ -37,10 +37,11 @@ set coldstore
 show freezer frost store-opening
 tones2 at 120
 kie at 92
-// he looks at the tub (tipped up: empty), then at the crew
+// he looks at the tub (tipped up: empty), then at the crew, and the frost thaws off him as he warms up
 kcaj at 200
-0-3.5 kcaj colour #c8e8ff white
+0-3.5 kcaj frosted 1 0
 icicles on kcaj 1 21
+2.4-3.5 icicles fade 1 0
 kcaj holds tub
 kcaj arms out
 0.2 kcaj face right
@@ -76,16 +77,19 @@ shot: Told you
 length 7
 set coldstore
 show freezer store-opening
-// he points at the factory around them, then at the crew; nobody answers but tones2. kie, where he stood, turns
-// from kcaj to tones2 and has an idea. Then kcaj sticks a note on tones2's back. One bubble at a time: each is down
-// before the next goes up.
+// he points at the factory around them (up and out, toward the cold store), then at the crew; nobody answers but tones2. kie, where he
+// stood, turns from kcaj to tones2 and has an idea. Then kcaj sticks a note on tones2's back. One bubble at a time:
+// each is down before the next goes up.
 kie at 92
 kie face left
 tones2 at 120
 kcaj at 62
-kcaj arms out
-0.2 kcaj face left
-1 kcaj face right
+kcaj arms down
+0.2 kcaj face right
+0.2 kcaj arms point-up
+1 kcaj arms point
+3.1 kcaj arms down
+5.5-6.2 kcaj arms out
 0.4-3.1 kcaj: I TOLD YOU. | I TOLD ALL OF YOU.
 3.2-3.9 tones2: OMFG.
 3.8 kie face right

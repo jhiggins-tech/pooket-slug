@@ -113,7 +113,7 @@ namespace PooketSlug
             m_LyingHead = new Vector2(x, y) * Px;
         }
 
-        /// <summary>The line that's up in <paramref name="skit"/>, in a bubble over whoever says it (or none).</summary>
+        /// <summary>The line that's up in <paramref name="skit"/>, in a bubble over whoever says it (or none), off what it keeps clear (<see cref="Skit.Clear"/>).</summary>
         public void Speak(Skit skit)
         {
             SkitLine? line = skit.Line;
@@ -130,6 +130,13 @@ namespace PooketSlug
             float half = w / 2f + 4f;
             at.x = Mathf.Clamp(at.x, half, StageW * Px - half);
             at.y = Mathf.Min(at.y, (StageH - 4f) * Px - SpeechBubble.Height);
+            // off what the skit keeps clear (its swirl, say): to whichever side of it is nearer the speaker
+            if (skit.Clear is (float left, float right, float top) && at.y < top * Px && at.x + half > left * Px && at.x - half < right * Px)
+            {
+                float toRight = right * Px + half, toLeft = left * Px - half;
+                at.x = Mathf.Abs(toRight - head.x) <= Mathf.Abs(toLeft - head.x) ? toRight : toLeft;
+                at.x = Mathf.Clamp(at.x, half, StageW * Px - half);
+            }
             m_Bubble.Rt.SetAsLastSibling();
             m_Bubble.Place(at, head.x);
         }

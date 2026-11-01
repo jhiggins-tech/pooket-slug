@@ -48,10 +48,14 @@ namespace PooketSlug
     /// </summary>
     public static class Staging
     {
-        /// <summary>A set: its painted backdrop (drawn by the cutscene view) and the height of its floor.</summary>
+        /// <summary>
+        /// A set: its painted backdrop (drawn by the cutscene view) and the height of its floor. The den and the bay are the
+        /// paintings their screens show, at the one time of day every den scene keeps (night: the owner, 1 Nov); the
+        /// <c>raid-</c> ones are the same rooms trashed on raid night, for the opening, before the first visit tidies up.
+        /// </summary>
         public static readonly Dictionary<string, int> Sets = new Dictionary<string, int>
         {
-            { "street", 34 }, { "den", 15 }, { "bay", 12 }, { "motorpool", 18 }, { "coldstore", 16 },
+            { "street", 34 }, { "den", 15 }, { "bay", 12 }, { "raid-den", 15 }, { "raid-bay", 12 }, { "motorpool", 18 }, { "coldstore", 16 },
         };
 
         public enum Kind { Figure, Prop, Effect }
@@ -121,7 +125,7 @@ namespace PooketSlug
             // doors), a chest freezer in the yard, and what kcaj comes out with and gets up to
             new Thing("store-opening", Kind.Prop, 261f, 11f, new Color(0.08f, 0.12f, 0.2f)),
             new Thing("freezer", Kind.Prop, 40f, 0f, new Color(0.82f, 0.9f, 0.97f)),
-            new Thing("tub", Kind.Prop, 0f, 0f, new Color(0.96f, 0.93f, 0.86f)),
+            new Thing("tub", Kind.Prop, 0f, 0f, White), // one tub off the stack, painted (Art.Tub)
             new Thing("tubs", Kind.Prop, 180f, 0f, White, "rattle"), // a stack of tubs by the doors, painted (Art.TubStack)
             new Thing("slushie", Kind.Prop, 0f, 0f, White), // the same slushie, painted
             new Thing("cones", Kind.Prop, 0f, 0f, new Color(0.88f, 0.66f, 0.36f)),
@@ -160,10 +164,13 @@ namespace PooketSlug
         /// <summary>The verbs every thing has.</summary>
         public static readonly string[] Common = { "show", "hide", "at", "move", "turn", "size", "colour", "fade", "flicker", "blink", "shake", "on" };
         /// <summary>The verbs the soldiers have besides.</summary>
-        public static readonly string[] FigureVerbs = { "walk", "face", "pose", "arms", "look", "holds", "sway" };
+        public static readonly string[] FigureVerbs = { "walk", "face", "pose", "arms", "look", "holds", "sway", "frosted" };
         public static readonly string[] Poses = { "idle", "run", "crouch", "spray", "hatch", "repair", "down", "grin", "fall", "glum" };
-        /// <summary>What a soldier's hands are doing, whatever their pose (<see cref="StagePose.Arms"/>): the gun, by their sides, or out holding something.</summary>
-        public static readonly string[] Arms = { "gun", "down", "out" };
+        /// <summary>
+        /// What a soldier's hands are doing, whatever their pose (<see cref="StagePose.Arms"/>): the gun, by their sides,
+        /// out holding something, or pointing (straight out, or up and out).
+        /// </summary>
+        public static readonly string[] Arms = { "gun", "down", "out", "point", "point-up" };
         public static readonly string[] Looks = { "plain", "holo", "trollo" };
 
         /// <summary>Colours by name; anything else is written #rrggbb or #rrggbbaa.</summary>
@@ -420,6 +427,19 @@ namespace PooketSlug
             StageStep s = Latest(figure, t, "arms");
             if (s == null || s.Window && t >= s.To) return "gun";
             return s.Word;
+        }
+
+        /// <summary>
+        /// How frosted a soldier is (<c>frosted</c>), from 0 (not at all, unless the shot says) to 1 (white with frost all
+        /// over): what the shot last said, or from one to the other over its window (thawing out, as he warms up), and it
+        /// holds after. The view lays the soldier's frosted look over them this much.
+        /// </summary>
+        public float Frosted(string figure, float t)
+        {
+            StageStep s = Latest(figure, t, "frosted");
+            if (s == null) return 0f;
+            float v = s.N.Length > 1 ? Mathf.LerpUnclamped(s.N[0], s.N[1], s.Progress(t)) : s.N[0];
+            return Mathf.Clamp01(v);
         }
 
         /// <summary>The soldier is mid-walk.</summary>

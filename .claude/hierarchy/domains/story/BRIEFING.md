@@ -112,8 +112,8 @@ super, the boss reveal and the pilot freed rules). `OnceOnlyTests` (the once-onl
 - Skits (skit-scripts, 25 Oct): seven in `docs/design/cutscenes/skits.md`. The owner picked Two of us now (the den's
   co-op button first appears at its end, renamed MULTI-PLAYER: a build card), Keep it down (Mission one's coda,
   replays), A Trollogram of anything (his rework of Probably a Trollogram, after kcaj moves in), They're tracking us
-  (Mission two's first debrief; kcaj on the debrief is new work) and Does it do cones? (the bay; it waits on kcaj's tabk
-  homecoming, which isn't written). He also picked Five-second rule and Special delivery, and dropped Wanna race?; the
+  (Mission two's first debrief; kcaj on the debrief is new work) and Does it do cones? (the bay, after kcaj's tabk
+  homecoming: both built 1 Nov). He also picked Five-second rule and Special delivery, and dropped Wanna race?; the
   pitch's other two are on the card's page. Two of us now changes when the co-op
   button first shows (after the skit, not from the first visit's start); the `coop` reveal keeps its meaning (the button
   first pressed). They are not plot beats, but once built each is a once-only key (proposed `skit-<name>`), so
@@ -137,7 +137,15 @@ super, the boss reveal and the pilot freed rules). `OnceOnlyTests` (the once-onl
   Nothing checks the mission order, roster or reveals against the document. This is the domain's first card.
 - Mission order after kcaj is open (`story.md`, Open questions; with Design).
 - Each mission's story after Mission two (its briefing, how its crewmate's freeing plays out) is undecided.
-- kcaj's tabk coming home needs its own den beat and card; kie's is built (`cutscenes/den.md`, `Core/Lobby/DenBeats`).
+- kcaj's tabk coming home is built (kcaj-tabk-homecoming, 1 Nov; the owner approved the script): `cutscenes/den.md`,
+  kcaj's tabk comes home, three shots, 13 s, in the bay (`KcajHomecoming` in Core, `BayKcajHomeView`, played by
+  `BayStory` on the skit player), under `kcaj-tabk-home`, then Does it do cones? straight on (`ConesSkit`, `BaySkitView`,
+  `skit-cones`). `?unlock=crew&skit=cones` plays both. Both scripts' As staged notes list what the bay does differently.
+  The owner's open questions took their defaults: the KCAJ note stays only till the skit ends, and SOFT SERVE parks on
+  the top deck.
+  - Left for its owners: `tabks/kcaj.md` and the old skit text said SOFT SERVE parks downstairs, but `lobby.md` and
+    `Garage` put it on the top deck; the script follows the code. kie's beat doesn't say what happens when the player
+    walks in as kie (the stage's kie and your kie both show).
 - `wintergarden-chats` is a Roadmap idea (owned by Design); this domain would write its conversations if it is queued.
 - Narrator audio is spelled phonetically in the vendor repository (kie, kcaj and tabks are respelled so the voice says them
   right); that is the audio domain's, but a story change that adds a name must tell it.
