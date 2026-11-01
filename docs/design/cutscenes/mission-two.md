@@ -205,7 +205,8 @@ SFX: the cold store's door; the frost.
 
 3. EXT. THE LOADING YARD - CONTINUOUS                   3.5 s
 
-He looks at the tub, then at the crew.
+He looks at the tub, then at the crew. The frost thaws
+off him as he warms up.
 
                     KCAJ
           I ATE THE EVIDENCE.

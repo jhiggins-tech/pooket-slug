@@ -99,7 +99,9 @@ A thing is on stage once a line stages it (or `show` names it), until `hide`.
 | `on` | `stars on kie 0 22`: rides on a soldier |
 
 **Soldiers also**: `walk` (`0-1 kie walk 100 166`: they run), `face left` / `right`, `pose idle run crouch spray
-hatch repair down grin fall glum`, `arms gun down out` (what their hands are doing, whatever the pose: below), `look plain holo trollo` (`holo` a Trollogram goon, `trollo` a Trollogram crewmate), `holds bag cup` (or `holds bag -7 9` for where), `sway`.
+hatch repair down grin fall glum`, `arms gun down out point point-up` (what their hands are doing, whatever the pose: below), `look plain holo trollo` (`holo` a Trollogram goon, `trollo` a Trollogram crewmate), `holds bag cup` (or `holds bag -7 9` for where), `sway`,
+`frosted 1` (white with frost: rimed on top, iced all over and glinting, from 0, not at all, to 1; over a window it runs from
+one to the other and holds there, so `0-3.5 kcaj frosted 1 0` thaws him out; every shot starts unfrosted).
 `down` is in a heap on their back: the crew's down frame, toppled flat about their feet the way they face, so its back
 sits about 7 under them; stand them 7 up to lie on the floor (`1.8 kie pose down` with `kie at 100 7`). The goon also `appear`s
 (over a window) and `glitch-out`s.
@@ -111,7 +113,9 @@ A soldier holds their gun, as in play, unless the shot says otherwise, and every
 their hands by their sides, no gun (just out of a cage, dazed, nodding off), and `arms out` has the front hand out
 holding something and the back one by their side, no gun (a slushie, the snacks, a remote handed over, a tub, a cone).
 Put a held thing at the hand: about 8 in front and 10 up for `arms out` (`tones2 holds cup 8 10`, or `-8 10` facing
-left), and about 6 behind and 9 up for the back hand. A `spray` always has the gun, a `repair` its wrench, and a face's poses (`grin`, `fall`, `glum`) their off-duty hands. Arms over
+left), and about 6 behind and 9 up for the back hand. `arms point` has the front arm straight out, a finger pointing the
+way they face (at someone: face them first), and `arms point-up` has it up and out at 45° (at something big, up there,
+like the factory round them); the back hand is by their side, no gun. A `spray` always has the gun, a `repair` its wrench, and a face's poses (`grin`, `fall`, `glum`) their off-duty hands. Arms over
 a window last only for it, so `1.2-3 tones2 arms out` is back to the gun at 3. Write `arms` wherever the script has
 someone unarmed: the gun is for when they're fighting or heading out to fight.
 

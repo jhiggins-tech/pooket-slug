@@ -160,10 +160,13 @@ namespace PooketSlug
         /// <summary>The verbs every thing has.</summary>
         public static readonly string[] Common = { "show", "hide", "at", "move", "turn", "size", "colour", "fade", "flicker", "blink", "shake", "on" };
         /// <summary>The verbs the soldiers have besides.</summary>
-        public static readonly string[] FigureVerbs = { "walk", "face", "pose", "arms", "look", "holds", "sway" };
+        public static readonly string[] FigureVerbs = { "walk", "face", "pose", "arms", "look", "holds", "sway", "frosted" };
         public static readonly string[] Poses = { "idle", "run", "crouch", "spray", "hatch", "repair", "down", "grin", "fall", "glum" };
-        /// <summary>What a soldier's hands are doing, whatever their pose (<see cref="StagePose.Arms"/>): the gun, by their sides, or out holding something.</summary>
-        public static readonly string[] Arms = { "gun", "down", "out" };
+        /// <summary>
+        /// What a soldier's hands are doing, whatever their pose (<see cref="StagePose.Arms"/>): the gun, by their sides,
+        /// out holding something, or pointing (straight out, or up and out).
+        /// </summary>
+        public static readonly string[] Arms = { "gun", "down", "out", "point", "point-up" };
         public static readonly string[] Looks = { "plain", "holo", "trollo" };
 
         /// <summary>Colours by name; anything else is written #rrggbb or #rrggbbaa.</summary>
@@ -420,6 +423,19 @@ namespace PooketSlug
             StageStep s = Latest(figure, t, "arms");
             if (s == null || s.Window && t >= s.To) return "gun";
             return s.Word;
+        }
+
+        /// <summary>
+        /// How frosted a soldier is (<c>frosted</c>), from 0 (not at all, unless the shot says) to 1 (white with frost all
+        /// over): what the shot last said, or from one to the other over its window (thawing out, as he warms up), and it
+        /// holds after. The view lays the soldier's frosted look over them this much.
+        /// </summary>
+        public float Frosted(string figure, float t)
+        {
+            StageStep s = Latest(figure, t, "frosted");
+            if (s == null) return 0f;
+            float v = s.N.Length > 1 ? Mathf.LerpUnclamped(s.N[0], s.N[1], s.Progress(t)) : s.N[0];
+            return Mathf.Clamp01(v);
         }
 
         /// <summary>The soldier is mid-walk.</summary>

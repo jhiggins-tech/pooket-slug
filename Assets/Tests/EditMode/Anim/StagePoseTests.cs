@@ -56,6 +56,26 @@ namespace PooketSlug.Tests
             Assert.AreEqual(CrewBody.Blank, new StagePose(StageLegs.Sit, StageTorso.Blank).Body, "the grin gone, unconvinced (Five-second rule)");
         }
 
+        // kcaj-frost-point: pointing, no gun, straight out or up and out; the shared body, so anyone, in any pose's legs
+        [Test]
+        public void Arms_Point_StraightOutOrUpAndOut()
+        {
+            Assert.AreEqual(StageTorso.Point, StagePose.Arms("point"));
+            Assert.AreEqual(StageTorso.PointUp, StagePose.Arms("point-up"));
+            Assert.AreEqual(CrewBody.Point, new StagePose(StageLegs.Idle, StageTorso.Point).Body);
+            Assert.AreEqual(CrewBody.PointUp, new StagePose(StageLegs.Idle, StageTorso.PointUp).Body);
+            foreach (string pose in new[] { "idle", "run", "crouch" })
+            {
+                Assert.AreEqual(CrewBody.Point, StagePose.Cutscene(pose, 0.4f, 10f, "point").Body, pose);
+                Assert.AreEqual(CrewBody.PointUp, StagePose.Cutscene(pose, 0.4f, 10f, "point-up").Body, pose);
+                Assert.AreEqual(StagePose.Cutscene(pose, 0.4f, 10f).Legs, StagePose.Cutscene(pose, 0.4f, 10f, "point").Legs, pose + "'s legs");
+            }
+            Assert.AreEqual(CrewHead.Front, CrewFigure.HeadOn(CrewBody.Point).Head);
+            Assert.AreEqual(CrewHead.Front, CrewFigure.HeadOn(CrewBody.PointUp).Head);
+            foreach (string arms in Staging.Arms)
+                Assert.AreNotEqual(arms != "gun", StagePose.Arms(arms) == StageTorso.Forward, arms + " has its own top");
+        }
+
         [Test]
         public void AWalkStepsAsTheScreensDid()
         {

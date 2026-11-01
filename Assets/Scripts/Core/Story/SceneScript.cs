@@ -280,6 +280,13 @@ namespace PooketSlug
                         if (!Numbers(w, 2, 1, 2, s, out problem, eases: true)) return problem ?? "'" + verb + "' takes a value, or from and to";
                         if (s.N.Length == 2 && !window) return "'" + verb + "' from one value to another runs over a window";
                         break;
+                    case "frosted":
+                        // frosted 1, or 0.4-3.5 frosted 1 0 [ease]: white with frost, thawing out over a window
+                        if (!Numbers(w, 2, 1, 2, s, out problem, eases: true)) return problem ?? "'frosted' takes how frosted (0 to 1), or from and to";
+                        foreach (float v in s.N)
+                            if (v < 0f || v > 1f) return "'frosted' goes from 0 (not at all) to 1 (white with frost)";
+                        if (s.N.Length == 2 && !window) return "'frosted' from one value to another runs over a window";
+                        break;
                     case "size":
                         if (!Numbers(w, 2, 2, 4, s, out problem, eases: true) || s.N.Length == 3) return problem ?? "'size' takes across and up ('size 1 0.5'), or from and to";
                         if (s.N.Length == 4 && !window) return "'size' from one size to another runs over a window";
